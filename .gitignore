@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+coverage/
+.cache/
+.DS_Store
+Thumbs.db
+release/
+*.zip
+*_provider_feed.*
+cities.json
+airports.json
+

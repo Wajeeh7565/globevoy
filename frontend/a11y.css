@@ -1,0 +1,229 @@
+/* ─────────────────────────────────────────────────────────────────
+   GLOBEVOY — Accessibility overlay (GLOBEVOY-64)
+   Loaded AFTER polish.css. Presentation-only; no logic touched.
+   Focus rings, contrast, touch targets, reduced-motion.
+   ───────────────────────────────────────────────────────────────── */
+
+/* ===== 1. SKIP LINK ===================================================== */
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+  background: #0c1a2e;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+.skip-link:focus,
+.skip-link:focus-visible {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: auto;
+  height: auto;
+  padding: 12px 18px;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  z-index: 9999;
+  border-radius: 10px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.32);
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ===== 2. UNIVERSAL FOCUS RING (high-contrast, double ring) ============= */
+*:focus-visible {
+  outline: 2px solid #0d9488;            /* mint-dk on light */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.95);
+}
+html[data-theme="night"] *:focus-visible {
+  outline: 2px solid #5eead4;            /* mint on night */
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(6,16,29,0.95);
+}
+
+/* Dark UI surfaces (over photos / overlays) want a light inner ring */
+.hero *:focus-visible,
+.theme-toggle:focus-visible,
+.hero-brand:focus-visible,
+.hero-chat input:focus-visible,
+.hero-chat button:focus-visible,
+.slide-dot:focus-visible,
+.fpin:focus-visible,
+.map-action-cluster *:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(13,148,136,0.85);
+}
+
+/* Search bar fields — focus highlights the field cleanly */
+.sb-field input:focus-visible,
+.sb-field select:focus-visible,
+.sc-field input:focus-visible,
+.sc-field select:focus-visible,
+.field input:focus-visible,
+.field select:focus-visible,
+.composer input:focus-visible {
+  outline: 2px solid #0d9488;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(45,212,191,0.28);
+}
+
+/* Route-card focus — bold, obvious */
+.route-card:focus-visible {
+  outline: 2.5px solid #0d9488;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(45,212,191,0.22), 0 12px 30px rgba(13,148,136,0.18);
+}
+
+/* Suggestion chips, see-all, filter-clear, footer links */
+.suggestion:focus-visible,
+.see-all:focus-visible,
+.filter-clear:focus-visible,
+.f-links a:focus-visible {
+  outline: 2.5px solid #0d9488;
+  outline-offset: 3px;
+}
+
+/* ===== 3. COLOR CONTRAST FIXES ========================================== */
+/* --ink3 (#78716C ≈ 4.4:1) was used for tiny text. Bump to a darker tone
+   that stays AA at small sizes. */
+:root { --ink3-aa: #5C544E; }                    /* 7.4:1 on #FAFAF9 */
+html[data-theme="night"] { --ink3-aa: #B7C2CE; } /* 8.0:1 on #06101D */
+
+.s-tag,
+.dp-cta-note,
+.rc-total-label,
+.dp-cost-item span,
+.dp-stat-label,
+.footer-bottom,
+.f-col-title,
+.sc-status,
+.rc-cost span,
+.sb-field label,
+.sc-field label,
+.field label {
+  color: var(--ink3-aa) !important;
+}
+
+/* Hero trust strip on dark overlay: lift to 0.92 */
+.hero-trust { color: rgba(255,255,255,0.94); }
+
+/* Placeholder contrast */
+input::placeholder, textarea::placeholder {
+  color: #6B635C; opacity: 1;
+}
+html[data-theme="night"] input::placeholder,
+html[data-theme="night"] textarea::placeholder {
+  color: #94A3B8; opacity: 1;
+}
+
+/* ===== 4. TOUCH TARGETS (≥44×44 hit area) ============================== */
+/* Slide dots — keep small visual but expand hit area via padding */
+.slide-dot {
+  width: 12px; height: 12px;
+  padding: 0;
+  position: relative;
+}
+.slide-dot::before {
+  content: "";
+  position: absolute;
+  inset: -16px;            /* expands hit area to 44×44 */
+}
+.slide-dot[aria-current="true"] { background: #fff; border-color: #fff; }
+
+/* Map fallback pins — expand hit area, real button look */
+.fpin {
+  min-width: 44px; min-height: 44px;
+  cursor: pointer;
+}
+.fpin:focus-visible {
+  z-index: 20;
+}
+
+/* Suggestion chips */
+.suggestion { min-height: 38px; padding: 8px 14px; }
+@media (max-width: 760px) {
+  .suggestion { min-height: 44px; padding: 10px 16px; }
+}
+
+/* Filter clear, sc-surprise, surprise actions */
+.filter-clear, .sc-surprise { min-height: 44px; }
+
+/* Theme toggle / nav pills on mobile */
+@media (max-width: 760px) {
+  .theme-toggle, .pill-link, .map-home-link, .map-ask-link, .map-theme-toggle {
+    min-height: 44px; padding-inline: 14px;
+  }
+  .sb-btn { min-height: 48px; }
+  .dc-cta-btn { min-height: 44px; }
+  .composer button { min-height: 48px; min-width: 44px; }
+  .composer input  { min-height: 48px; }
+}
+
+/* ===== 5. REDUCED MOTION =============================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Stop infinite/looping decorative animations entirely */
+  .hero-motion-map .motion-line,
+  .route-line,
+  .status-dot.scanning,
+  .skeleton-card::before,
+  .hero-trust span:nth-child(1)::before,
+  .sb-btn.loading svg {
+    animation: none !important;
+  }
+  /* Make hero slides + decorative bg show static, not transitioned */
+  .slide { transition: none !important; }
+  .fu { opacity: 1 !important; transform: none !important; }
+}
+
+/* ===== 6. SCREEN READER UTILITIES ====================================== */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important; height: 1px !important;
+  padding: 0 !important; margin: -1px !important;
+  overflow: hidden !important; clip: rect(0,0,0,0) !important;
+  white-space: nowrap !important; border: 0 !important;
+}
+
+/* Hint text beside form fields */
+.field-hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  color: var(--ink3-aa);
+}
+.field input[aria-invalid="true"],
+.sc-field input[aria-invalid="true"],
+.sb-field input[aria-invalid="true"] {
+  border-color: #BE123C !important;
+  box-shadow: 0 0 0 3px rgba(190,18,60,0.18) !important;
+}
+
+/* ===== 7. CARDS / NON-NATIVE BUTTONS =================================== */
+/* Route cards become real buttons via role+tabindex; ensure pointer feedback */
+.route-card { cursor: pointer; }
+.route-card[aria-selected="true"] { /* mirrors .active visually */ }
+
+/* Map pins should look interactive */
+.fpin:focus-visible { outline: 3px solid #fff; outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(13,148,136,0.85); }
+
+/* Make sure decorative SVGs inside buttons don't grab focus */
+button svg, a svg { pointer-events: none; }

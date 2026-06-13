@@ -1,0 +1,332 @@
+/* ─────────────────────────────────────────────────────────────────
+   GLOBEVOY — Trust layer (GLOBEVOY-83)
+   Loaded after polish.css + a11y.css. Presentation only.
+   ───────────────────────────────────────────────────────────────── */
+
+/* ───── 1. SECTION: "How Globevoy calculates this" ─────────────── */
+.trust-calc {
+  background: linear-gradient(180deg, #FFFDF7 0%, #FFFFFF 100%);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: clamp(48px, 6vw, 72px) clamp(20px, 4vw, 56px);
+}
+html[data-theme="night"] .trust-calc {
+  background: linear-gradient(180deg, rgba(20,32,48,0.6) 0%, rgba(13,23,38,0.6) 100%);
+  border-color: rgba(148,168,183,0.18);
+}
+.trust-calc-inner {
+  max-width: 1160px; margin: 0 auto;
+  display: grid; gap: 28px;
+  grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.4fr);
+  align-items: start;
+}
+.trust-calc-head .s-tag {
+  font-family: var(--fs-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--ink3-aa);
+  text-transform: uppercase;
+}
+.trust-calc-head h2 {
+  font-family: var(--fs-display);
+  font-size: clamp(1.8rem, 2.4vw, 2.4rem);
+  letter-spacing: 0.005em;
+  margin: 8px 0 14px;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.trust-calc-head p {
+  color: var(--ink2);
+  font-size: 0.96rem; line-height: 1.55;
+  max-width: 360px;
+}
+
+.trust-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.trust-card {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  transition: transform 0.2s var(--pol-ease), border-color 0.2s var(--pol-ease), box-shadow 0.2s var(--pol-ease);
+}
+html[data-theme="night"] .trust-card {
+  background: rgba(13,23,38,0.7);
+  border-color: rgba(148,168,183,0.22);
+}
+.trust-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(45,212,191,0.5);
+  box-shadow: var(--pol-shadow-1);
+}
+.trust-card .tc-tag {
+  display: inline-block;
+  font-family: var(--fs-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: #0c1a2e;
+  background: transparent;
+  border-left: 3px solid #0d9488;
+  border-radius: 0;
+  padding: 2px 0 2px 9px;
+  margin-bottom: 10px;
+  font-weight: 900;
+}
+html[data-theme="night"] .trust-card .tc-tag {
+  background: transparent;
+  color: var(--mint);
+}
+.trust-card .tc-tag.dataset {
+  color: #92400e;
+  background: transparent;
+  border-left-color: #f59e0b;
+}
+html[data-theme="night"] .trust-card .tc-tag.dataset {
+  color: #FBBF24;
+  background: transparent;
+}
+.trust-card h3 {
+  font-family: var(--fs-display);
+  font-size: 1.08rem;
+  letter-spacing: 0.005em;
+  line-height: 1.2;
+  margin: 0 0 6px;
+  color: var(--ink);
+}
+.trust-card p {
+  color: var(--ink2);
+  font-size: 0.86rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 800px) {
+  .trust-calc-inner { grid-template-columns: 1fr; gap: 18px; }
+  .trust-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .trust-grid { grid-template-columns: 1fr; }
+}
+
+/* ───── 2. SOURCE BADGES (live vs fallback) ────────────────────── */
+.src-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--fs-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.src-badge::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+}
+.src-badge.live {
+  color: #0d9488; background: #CCFBF1;
+}
+.src-badge.live::before {
+  box-shadow: 0 0 0 3px rgba(45,212,191,0.28);
+  animation: srcLive 2.4s ease-in-out infinite;
+}
+@keyframes srcLive {
+  0%,100% { box-shadow: 0 0 0 3px rgba(45,212,191,0.28); }
+  50%     { box-shadow: 0 0 0 6px rgba(45,212,191,0.10); }
+}
+.src-badge.fallback {
+  color: #9A6B0F; background: #FEF3C7;
+}
+html[data-theme="night"] .src-badge.live {
+  background: rgba(94,234,212,0.16); color: var(--mint);
+}
+html[data-theme="night"] .src-badge.fallback {
+  background: rgba(245,158,11,0.18); color: #FBBF24;
+}
+@media (prefers-reduced-motion: reduce) {
+  .src-badge.live::before { animation: none !important; }
+}
+
+/* ───── 3. INLINE TRUST NOTES (small print rows) ─────────────── */
+.trust-notes {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 6px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(245,245,244,0.8);
+  border: 1px solid var(--line);
+  font-size: 0.78rem;
+  color: var(--ink2);
+  line-height: 1.45;
+}
+html[data-theme="night"] .trust-notes {
+  background: rgba(20,32,48,0.6);
+  border-color: rgba(148,168,183,0.22);
+}
+.trust-notes li {
+  display: flex; align-items: flex-start; gap: 9px;
+  list-style: none;
+}
+.trust-notes li::before {
+  content: ""; flex-shrink: 0;
+  width: 14px; height: 14px; margin-top: 2px;
+  background-color: #0d9488;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='5 12 10 17 19 7'/></svg>") center/contain no-repeat;
+          mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='5 12 10 17 19 7'/></svg>") center/contain no-repeat;
+}
+html[data-theme="night"] .trust-notes li::before { background-color: var(--mint); }
+.trust-notes ul, .trust-notes ol { margin: 0; padding: 0; display: contents; }
+
+/* ───── 4. AFFILIATE DISCLOSURE BAR ─────────────────────────── */
+.affiliate-disclosure {
+  font-family: var(--fs-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.55;
+  padding-top: 18px;
+  border-top: 1px dashed rgba(255,255,255,0.16);
+  margin-top: 22px;
+  max-width: 760px;
+}
+.affiliate-disclosure b {
+  color: rgba(255,255,255,0.86);
+  font-weight: 600;
+}
+.affiliate-disclosure.on-light {
+  color: var(--ink3-aa);
+  border-color: var(--line);
+}
+.affiliate-disclosure.on-light b { color: var(--ink2); }
+
+/* ───── 5. CALC PANEL inside detail (explore) ────────────────── */
+.dp-calc-panel {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  overflow: hidden;
+}
+html[data-theme="night"] .dp-calc-panel {
+  background: rgba(20,32,48,0.5);
+  border-color: rgba(148,168,183,0.22);
+}
+.dp-calc-panel summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--fs-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  color: var(--ink2);
+  font-weight: 900;
+}
+.dp-calc-panel summary::-webkit-details-marker { display: none; }
+.dp-calc-panel summary::after {
+  content: "+";
+  font-family: var(--fs-display);
+  font-size: 1.1rem;
+  color: var(--ink3-aa);
+  transition: transform 0.2s ease;
+}
+.dp-calc-panel[open] summary::after { content: "−"; }
+.dp-calc-rows {
+  padding: 0 16px 16px;
+  display: grid; gap: 10px;
+}
+.dp-calc-row {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--ink2);
+}
+.dp-calc-row b {
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.dp-calc-row.note {
+  grid-template-columns: 1fr;
+  font-style: italic;
+  color: var(--ink3-aa);
+}
+
+/* ───── 6. ASK PAGE: trust strip under chat ─────────────────── */
+.ask-trust-strip {
+  margin: 22px auto 0;
+  max-width: 1180px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 4px;
+}
+.ats-card {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.5);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+html[data-theme="night"] .ats-card {
+  background: rgba(13,23,38,0.6);
+  border-color: rgba(148,168,183,0.22);
+}
+.ats-card .ats-tag {
+  font-family: var(--fs-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #0d9488;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+html[data-theme="night"] .ats-card .ats-tag { color: var(--mint); }
+.ats-card .ats-text {
+  font-size: 0.78rem;
+  color: var(--ink2);
+  line-height: 1.4;
+}
+@media (max-width: 760px) {
+  .ask-trust-strip { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 460px) {
+  .ask-trust-strip { grid-template-columns: 1fr; }
+}
+
+/* ───── 7. INDEX HOMEPAGE: trust caption under search bar ───── */
+.hero-trust-caption {
+  margin-top: 12px;
+  font-family: var(--fs-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.84);
+  text-align: center;
+  max-width: 640px;
+  margin-inline: auto;
+  line-height: 1.55;
+}
+.hero-trust-caption b { color: #fff; font-weight: 600; }
+
+/* ───── 8. EXPLORE STATUS SUB-CAPTION ────────────────────────── */
+.sc-substatus {
+  padding: 6px 16px 12px;
+  font-family: var(--fs-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--ink3-aa);
+  line-height: 1.5;
+  border-top: 0;
+}

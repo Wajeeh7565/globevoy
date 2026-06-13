@@ -1,0 +1,283 @@
+/* ─────────────────────────────────────────────────────────────────
+   GLOBEVOY v11.3 — Smooth-transition motion layer (GLOBEVOY-42)
+   Loads AFTER polish.css + a11y.css + trust.css.
+   Pure presentation, no data-layer impact, additive only.
+   Honors prefers-reduced-motion.
+   ───────────────────────────────────────────────────────────────── */
+
+/* Motion tokens — single source of truth so every transition reads as one system */
+:root {
+  --gv-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --gv-ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --gv-dur-fast: 160ms;
+  --gv-dur-base: 220ms;
+  --gv-dur-slow: 320ms;
+}
+
+/* ============================================================
+   1. EXPLORER ↔ LIST view cross-fade
+   The two views live in the same .results-section, gated by
+   .view-explorer / .view-list classes. We add an .is-swapping
+   class for the brief moment the toggle is happening so the
+   leaving view fades down and the entering view fades up.
+   ============================================================ */
+.results-section .globe-explorer,
+.results-section .list-view {
+  transition:
+    opacity var(--gv-dur-base) var(--gv-ease),
+    transform var(--gv-dur-base) var(--gv-ease);
+  will-change: opacity, transform;
+}
+
+/* Default state — the visible view starts at full opacity */
+.results-section.view-explorer .globe-explorer,
+.results-section.view-list .list-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Swap state — both views are momentarily faded so we cross-fade */
+.results-section.is-swapping .globe-explorer,
+.results-section.is-swapping .list-view {
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+}
+
+/* ============================================================
+   2. EXPLORER CARD content swap
+   When the user presses ‹ or › on the globe carousel,
+   #explorer-card.innerHTML gets replaced. Without help that's
+   a hard cut. We wrap the swap in .ec-fading -> reflow -> remove
+   so the new content fades in over ~180ms.
+   ============================================================ */
+.explorer-card {
+  transition: opacity var(--gv-dur-fast) var(--gv-ease);
+}
+.explorer-card.ec-fading {
+  opacity: 0;
+}
+
+/* Stage the inner pieces of the card so they enter slightly
+   staggered — feels intentional, not animated. */
+.explorer-card .ec-img,
+.explorer-card .ec-body > * {
+  animation: gv-rise 320ms var(--gv-ease-soft) both;
+}
+.explorer-card .ec-img { animation-delay: 0ms; }
+.explorer-card .ec-body > *:nth-child(1) { animation-delay: 30ms; }
+.explorer-card .ec-body > *:nth-child(2) { animation-delay: 60ms; }
+.explorer-card .ec-body > *:nth-child(3) { animation-delay: 90ms; }
+.explorer-card .ec-body > *:nth-child(4) { animation-delay: 110ms; }
+.explorer-card .ec-body > *:nth-child(n+5) { animation-delay: 140ms; }
+
+@keyframes gv-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   3. DETAIL PANEL (list view, sticky right column)
+   The panel currently does a manual reflow trick to refire its
+   .visible class. We refine that into a clean opacity ramp.
+   ============================================================ */
+.list-view .detail-panel {
+  transition:
+    opacity var(--gv-dur-base) var(--gv-ease),
+    transform var(--gv-dur-base) var(--gv-ease);
+}
+.list-view .detail-panel:not(.visible) {
+  opacity: 0.55;
+  transform: translateY(4px);
+}
+.list-view .detail-panel.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* When tile selection changes we briefly hide the inner content,
+   not the whole panel, so the chrome doesn't blink. */
+.list-view .detail-panel .dp-inner {
+  transition: opacity var(--gv-dur-fast) var(--gv-ease);
+}
+.list-view .detail-panel.dp-fading .dp-inner {
+  opacity: 0;
+}
+
+/* ============================================================
+   4. RAIL TILE selection state
+   Active/preview state changes are abrupt today. Soften them.
+   ============================================================ */
+.dest-rail > * {
+  transition:
+    transform var(--gv-dur-fast) var(--gv-ease),
+    box-shadow var(--gv-dur-fast) var(--gv-ease),
+    border-color var(--gv-dur-fast) var(--gv-ease);
+}
+.dest-rail > .is-active {
+  transform: translateY(-2px);
+}
+.dest-rail > .is-preview:not(.is-active) {
+  transform: translateY(-1px);
+}
+
+/* ============================================================
+   5. MAP READOUT — the small "selected · X" label updates
+   ============================================================ */
+.lm-readout strong,
+.lm-readout small,
+.route-readout {
+  transition: opacity var(--gv-dur-fast) var(--gv-ease);
+}
+.lm-readout.lm-fading strong,
+.lm-readout.lm-fading small,
+.route-readout.rr-fading {
+  opacity: 0.35;
+}
+
+/* ============================================================
+   6. TOP-BAR view-toggle — the active tab pill should slide,
+   not pop, when switching. Cheap visual cue that says "this
+   is one toggle, not two buttons."
+   ============================================================ */
+.top-bar .view-toggle .view-tab {
+  transition:
+    background var(--gv-dur-fast) var(--gv-ease),
+    color var(--gv-dur-fast) var(--gv-ease),
+    box-shadow var(--gv-dur-fast) var(--gv-ease);
+}
+.top-bar .view-toggle .view-tab.active {
+  box-shadow: 0 1px 0 rgba(12,26,46,0.08), 0 4px 12px rgba(252,211,77,0.35);
+}
+
+/* ============================================================
+   7. PARTNER COMPARISON CTA group
+   New v11.4 layout for affiliate partner CTAs.
+   ============================================================ */
+.gv-booking-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.gv-booking-group .gv-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-family: var(--fs-sans, system-ui), system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--gv-dur-fast) var(--gv-ease),
+    border-color var(--gv-dur-fast) var(--gv-ease),
+    transform var(--gv-dur-fast) var(--gv-ease),
+    box-shadow var(--gv-dur-fast) var(--gv-ease);
+}
+.gv-booking-group .gv-cta:hover {
+  transform: translateY(-1px);
+}
+.gv-booking-group .gv-cta-flight {
+  background: #0c1a2e;
+  color: #fcd34d;
+  border-color: #0c1a2e;
+}
+.gv-booking-group .gv-cta-flight:hover {
+  background: #11253f;
+  box-shadow: 0 8px 18px rgba(12,26,46,0.20);
+}
+.gv-booking-group .gv-cta-hotel {
+  background: #fcd34d;
+  color: #0c1a2e;
+  border-color: #f5b916;
+}
+.gv-booking-group .gv-cta-hotel:hover {
+  background: #facc15;
+  box-shadow: 0 8px 18px rgba(245,158,11,0.28);
+}
+
+/* Compare CTA on its own row — keeps the existing affordance */
+.gv-compare-row {
+  margin-top: 10px;
+}
+.gv-compare-row .gv-compare-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(12,26,46,0.18);
+  background: transparent;
+  color: #0c1a2e;
+  font-family: var(--fs-sans, system-ui), system-ui, sans-serif;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background var(--gv-dur-fast) var(--gv-ease),
+    border-color var(--gv-dur-fast) var(--gv-ease);
+}
+.gv-compare-row .gv-compare-cta:hover {
+  background: rgba(12,26,46,0.04);
+  border-color: rgba(12,26,46,0.32);
+}
+html[data-theme="night"] .gv-compare-row .gv-compare-cta {
+  color: #f8fafc;
+  border-color: rgba(255,255,255,0.22);
+}
+html[data-theme="night"] .gv-compare-row .gv-compare-cta:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+/* Affiliate partner attribution — small line under the buttons */
+.gv-partner-line {
+  margin-top: 8px;
+  font-family: var(--fs-mono, ui-monospace), ui-monospace, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+  line-height: 1.45;
+}
+.gv-partner-line .gv-dot {
+  display: inline-block;
+  margin: 0 4px;
+  opacity: 0.6;
+}
+html[data-theme="night"] .gv-partner-line {
+  color: #94a3b8;
+}
+
+/* ============================================================
+   8. PREFERS-REDUCED-MOTION — respect the user's OS setting
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .results-section .globe-explorer,
+  .results-section .list-view,
+  .explorer-card,
+  .list-view .detail-panel,
+  .list-view .detail-panel .dp-inner,
+  .dest-rail > *,
+  .lm-readout strong,
+  .lm-readout small,
+  .route-readout,
+  .top-bar .view-toggle .view-tab,
+  .gv-booking-group .gv-cta {
+    transition: none !important;
+    animation: none !important;
+  }
+  .explorer-card .ec-img,
+  .explorer-card .ec-body > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

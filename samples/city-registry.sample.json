@@ -1,0 +1,28 @@
+{
+  "sampleOnly": true,
+  "status": "non-production-example",
+  "cities": [
+    {
+      "globevoyCityId": "example-city-aa",
+      "displayCity": "Example City",
+      "country": "Example Country",
+      "region": "Example Region",
+      "latitude": 43.65,
+      "longitude": -79.38,
+      "currency": "CAD",
+      "aliases": ["Example City"],
+      "normalizedSearchNames": ["example city"],
+      "travelpayoutsCityCode": "AAA",
+      "travelpayoutsAirportCodes": ["AAA"],
+      "primaryAirportCode": "AAA",
+      "agodaCityId": null,
+      "agodaHotelCount": null,
+      "agodaCoverageStatus": "needs-review",
+      "providerCoverage": {
+        "travelpayouts": { "status": "needs-review" },
+        "agoda": { "status": "needs-review" }
+      },
+      "productionStatus": "hold-back"
+    }
+  ]
+}
