@@ -68,6 +68,9 @@ jobs:
       - name: Validate staging-only reviewed recovery QA
         run: node backend/validate-gv-rec-702d.js
 
+      - name: Validate curated 1000-city staging route surface
+        run: node backend/validate-gv-rec-702d-r1.js
+
       - name: Syntax checks
         run: |
           node --check backend/lambda.js
@@ -88,6 +91,7 @@ jobs:
           node --check backend/validate-gv-rec-702c.js
           node --check backend/validate-gv-rec-702c-r2.js
           node --check backend/validate-gv-rec-702d.js
+          node --check backend/validate-gv-rec-702d-r1.js
 
       - name: Build Lambda ZIP
         shell: bash
@@ -123,11 +127,14 @@ jobs:
           Standard staging handler: staging-lambda.handler
           702D QA handler: staging-lambda-702d.handler
           Required staging origin: CORS_ORIGIN=https://staging.dy4fw8gx1ccie.amplifyapp.com/
-          702D QA requires all of:
+          702D route-surface QA requires all of:
             ENABLE_VERIFIED_CITY_ACTIVATION_668T=true
             ENABLE_MVP_VALIDATION_REPAIRS_669B=true
             ENABLE_STAGING_REVIEWED_RECOVERY_702D=true
-          Rollback: restore handler staging-lambda.handler and remove ENABLE_STAGING_REVIEWED_RECOVERY_702D.
+            ENABLE_UNIFIED_CITY_REGISTRY_668A=true
+            ENABLE_PROVIDER_MAPPING_COMPLETION_668B=true
+          The curated route surface is 1,000 cities, but verified activation still limits staging QA to 439 + 2 reviewed recoveries = 441.
+          Rollback: restore handler staging-lambda.handler and remove ENABLE_STAGING_REVIEWED_RECOVERY_702D. Remove the two registry QA flags as well if returning to the earlier candidate surface.
           Do not deploy the 702D QA handler to the production Lambda.
           EOF
           echo "Built ${artifact} (${bytes} bytes)"
