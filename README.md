@@ -1,4 +1,4 @@
-﻿# Globevoy
+# Globevoy
 
 This private repository now tracks the current validated Globevoy source baseline.
 
