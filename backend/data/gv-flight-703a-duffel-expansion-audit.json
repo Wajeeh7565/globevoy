@@ -1,0 +1,94 @@
+{
+  "version": "GV-FLIGHT-703A",
+  "status": "research-only-expansion-audit",
+  "baseStagingCommit": "04f38c4312faa34ec5ffd8f0433ecd0de924d2a2",
+  "checkedAt": "2026-08-20",
+  "runtimeChanged": false,
+  "providerCallsPerformed": false,
+  "productionDeploymentPerformed": false,
+  "currentArchitecture": {
+    "adapter": "GV-PROVIDER-683D",
+    "providerEngine": "GV-PROVIDER-683M-R4",
+    "publicFinalSchedulePilot": "GV-FLIGHT-684A",
+    "affordableDiscoveryPilot": "GV-REC-684B-R3",
+    "liveFareSelection": "GV-FLIGHT-685C",
+    "providerEndpoint": "/air/offer_requests",
+    "supplierTimeoutMs": 10000,
+    "maxProviderConcurrencyPerState": 2,
+    "hardRequestCapPer683HState": 12,
+    "rateLimitRetryPerRequest": 1,
+    "rateLimitMaxWaitMs": 15000,
+    "orderCapability": false,
+    "paymentCapability": false,
+    "bookingCapability": false,
+    "ticketingCapability": false
+  },
+  "publicLiveFare684A": {
+    "defaultOrigins": ["YYZ", "JFK", "LAX", "DUB", "DXB"],
+    "maxFlightLegs": 3,
+    "singleAdultOnly": true,
+    "exactDateRequired": true,
+    "exactAirportFirst": true,
+    "sameCityMetroFallback": true,
+    "allFlightLegsAtomic": true,
+    "maximumSearchesForThreeLegTour": 6,
+    "reason": "Three exact leg searches plus at most one same-city metro fallback search per leg."
+  },
+  "affordableDiscovery684B": {
+    "hardOriginAllowlist": ["YYZ"],
+    "candidateCap": 2,
+    "maxFlightLegsPerCandidate": 3,
+    "singleAdultOnly": true,
+    "planningOverageRatio": 1.15,
+    "complete684ALiveEvidenceRequired": true,
+    "maximumSearchesAcrossTwoCandidates": 12,
+    "reason": "Each of two candidates may invoke one complete 684A verification with up to six Duffel searches."
+  },
+  "aggregateRequestRisk": {
+    "perStateQuotaProtectionExists": true,
+    "crossInvocationSharedQuotaCoordinatorExists": false,
+    "cross684ACallSharedRequestBudgetExists": false,
+    "theoreticalGeneratedTourSearchesInOverBudgetRescuePath": 18,
+    "calculation": "Up to 6 searches for the initially selected flight route plus up to 12 searches across two rescue candidates.",
+    "risk": "Expanding origin eligibility increases the share of user requests that can consume Duffel quota. Per-invocation bounded concurrency does not coordinate simultaneous Lambda invocations."
+  },
+  "providerFacts": {
+    "source": "Duffel official documentation",
+    "publishedRateLimitRequestsPerInterval": 60,
+    "publishedRateLimitIntervalSeconds": 60,
+    "publishedRateLimitSubjectToChange": true,
+    "rateLimitHeaders": ["ratelimit-limit", "ratelimit-remaining", "ratelimit-reset"],
+    "offerRequestSupplierTimeoutDefaultMs": 20000,
+    "offerRequestSupplierTimeoutAllowedMinMs": 2000,
+    "offerRequestSupplierTimeoutAllowedMaxMs": 60000,
+    "searchOffersCanExpire": true,
+    "bookingTimeRefreshRecommended": true,
+    "publicPricingShowsConfirmedOrderFeeNotPerSearchFee": true
+  },
+  "recommended703B": {
+    "name": "Five-Origin Final-Schedule Live Verification",
+    "scope": "684A-only-first",
+    "origins": ["YYZ", "JFK", "LAX", "DUB", "DXB"],
+    "keep684BOrigins": ["YYZ"],
+    "keepSingleAdultOnly": true,
+    "keepMaxFlightLegs": 3,
+    "keepAllFlightLegsAtomic": true,
+    "keepExactDateVerification": true,
+    "noNewProductionEnvironmentVariable": true,
+    "reason": "These five origins already exist in 684A's code-level default. Expanding only final-selected-schedule verification isolates origin coverage from 684B's higher provider-call amplification."
+  },
+  "recommended703CPrerequisite": {
+    "name": "Request-Scoped Aggregate Duffel Budget",
+    "requiredBeforeBroad684BExpansion": true,
+    "goal": "Share one provider-search budget across 684B candidate discovery, final 684A verification and over-budget rescue within a generated-tour request.",
+    "suggestedInitialHardCeiling": 12,
+    "note": "The final ceiling should be validated with live latency/quota telemetry before production promotion."
+  },
+  "notRecommendedYet": [
+    "Unlock 684B discovery to 10-25 origins without an aggregate request budget",
+    "Expand to children or multiple adults in the same release as origin expansion",
+    "Treat Duffel search offers as booking-guaranteed prices",
+    "Remove exact-date or all-flight-legs-live requirements",
+    "Add order/payment/ticketing capability as part of 703A or 703B"
+  ]
+}
