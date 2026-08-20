@@ -1,0 +1,130 @@
+name: GV-REC-702F-B OurAirports Gateway Audit
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/ourairports-gateway-enrichment-702f-b.js'
+      - 'backend/validate-gv-rec-702f-b.js'
+      - 'backend/data/ourairports-source-702f-b.json'
+      - 'backend/data/unified-city-registry-1000-668b.json'
+      - 'docs/GV-REC-702F-B.md'
+      - '.github/workflows/validate-702f-b.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gateway-audit:
+    name: Validate pinned OurAirports gateway enrichment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Syntax and deterministic fixture validation
+        run: |
+          node --check backend/services/ourairports-gateway-enrichment-702f-b.js
+          node --check backend/validate-gv-rec-702f-b.js
+          node backend/validate-gv-rec-702f-b.js
+
+      - name: Download exact pinned OurAirports snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/gv702fb
+          url="https://raw.githubusercontent.com/davidmegginson/ourairports-data/55fd4071c99668a29f9d3625d72405c44074ef2f/airports.csv"
+          curl -fsSL --retry 3 --retry-delay 2 "$url" -o /tmp/gv702fb/airports.csv
+          bytes=$(stat -c%s /tmp/gv702fb/airports.csv)
+          test "$bytes" -eq 12703718
+          actual_blob=$(git hash-object /tmp/gv702fb/airports.csv)
+          expected_blob="b95a254e2d970ecb37320d645abced90c6d1a95f"
+          echo "OurAirports bytes: $bytes"
+          echo "OurAirports Git blob: $actual_blob"
+          test "$actual_blob" = "$expected_blob"
+
+      - name: Build 1000-city gateway review report
+        run: |
+          mkdir -p dist/gv-rec-702f-b
+          node backend/services/ourairports-gateway-enrichment-702f-b.js \
+            --csv /tmp/gv702fb/airports.csv \
+            --out dist/gv-rec-702f-b/GV-REC-702F-B-OurAirports-Gateway-Review.json
+
+      - name: Validate report safety and coverage
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'dist/gv-rec-702f-b/GV-REC-702F-B-OurAirports-Gateway-Review.json';
+          const report = JSON.parse(fs.readFileSync(p, 'utf8'));
+          function assert(v, m) { if (!v) throw new Error(m); }
+          assert(report.version === 'GV-REC-702F-B', 'wrong report version');
+          assert(report.source.commit === '55fd4071c99668a29f9d3625d72405c44074ef2f', 'wrong source commit');
+          assert(report.source.gitBlobSha === 'b95a254e2d970ecb37320d645abced90c6d1a95f', 'wrong source blob');
+          assert(report.summary.curatedCityCount === 1000, 'expected exactly 1000 curated cities');
+          assert(report.records.length === 1000, 'expected exactly 1000 report records');
+          assert(report.summary.eligibleScheduledServiceAirportCount > 1000, 'unexpectedly small scheduled-service airport foundation');
+          assert(report.summary.citiesWithNearbyCandidates > 500, 'unexpectedly low candidate coverage');
+          assert(report.policy.routingChanged === false, 'routing must remain unchanged');
+          assert(report.policy.automaticOverrideAllowed === false, 'automatic overrides must remain forbidden');
+          assert(report.policy.providerCallsPerformed === false, 'provider calls must remain false');
+          console.log('GV-REC-702F-B real-snapshot safety PASS');
+          console.log(JSON.stringify(report.summary, null, 2));
+          NODE
+
+      - name: Write compact summary artifact
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const src = 'dist/gv-rec-702f-b/GV-REC-702F-B-OurAirports-Gateway-Review.json';
+          const report = JSON.parse(fs.readFileSync(src, 'utf8'));
+          const summary = {
+            version: report.version,
+            generatedAt: report.generatedAt,
+            source: {
+              commit: report.source.commit,
+              gitBlobSha: report.source.gitBlobSha,
+              byteSize: report.source.byteSize
+            },
+            summary: report.summary,
+            firstHighPriority: report.reviewQueue.filter(r => r.review.priority === 'high').slice(0, 25).map(r => ({
+              cityId: r.cityId,
+              displayName: r.displayName,
+              countryCode: r.countryCode,
+              classification: r.review.classification,
+              preferredAirportCode: r.currentMapping.preferredAirportCode,
+              preferredStatus: r.currentMapping.preferredEvidence?.status,
+              existingGatewayCode: r.currentMapping.existingGatewayCode,
+              topCandidate: r.review.topCandidate
+            }))
+          };
+          fs.writeFileSync('dist/gv-rec-702f-b/SUMMARY.json', JSON.stringify(summary, null, 2));
+          NODE
+          cat dist/gv-rec-702f-b/SUMMARY.json
+
+      - name: Upload review artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gv-rec-702f-b-ourairports-gateway-review
+          path: dist/gv-rec-702f-b/*
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Confirm workflow is deployment-free
+        shell: bash
+        run: |
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-702f-b.yml; then
+            echo "Deployment command found in 702F-B workflow."
+            exit 1
+          fi
+          echo "PASS - 702F-B workflow is deployment-free."
