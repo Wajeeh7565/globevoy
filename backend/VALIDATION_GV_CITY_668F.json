@@ -1,0 +1,838 @@
+{
+  "taskId": "GV-CITY-668F",
+  "generatedAt": "2026-07-18T01:08:00.140Z",
+  "passed": 63,
+  "failed": 0,
+  "total": 63,
+  "checks": [
+    {
+      "name": "service version is 668F",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668F feature flag is enabled",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot task and status are correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "source audit is the completed 668E Pilot100",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "source audit SHA is pinned",
+      "pass": true,
+      "details": {
+        "taskId": "GV-CITY-668E",
+        "mode": "Pilot100",
+        "completedAt": "2026-07-18T00:49:02.3048654Z",
+        "sourceFile": "provider-live-pilot-100-668e-source.json",
+        "sourceFileSha256": "7f5a836e1b003ae12df60198902f92d49ad3e4c9613d4fc38a3915f5022deab6",
+        "requestedCount": 100,
+        "completedCount": 100,
+        "providerCoverageEligibleCount": 58,
+        "productionActiveCount": 56,
+        "reviewCount": 44,
+        "requiredEvidenceMode": "production-provider-response"
+      }
+    },
+    {
+      "name": "snapshot contains 100 unique audited cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot contains exactly 56 production-active cities",
+      "pass": true,
+      "details": 56
+    },
+    {
+      "name": "snapshot contains exactly 44 reviewed inactive cities",
+      "pass": true,
+      "details": 44
+    },
+    {
+      "name": "active modes are 51 direct/metro and 5 gateway",
+      "pass": true,
+      "details": {
+        "direct-or-metro": 51,
+        "gateway-supported": 5
+      }
+    },
+    {
+      "name": "current-500 split is 43 active of 55 audited",
+      "pass": true,
+      "details": {
+        "audited": 55,
+        "productionActive": 43,
+        "reviewedInactive": 12
+      }
+    },
+    {
+      "name": "expansion-500 split is 13 active of 45 audited",
+      "pass": true,
+      "details": {
+        "audited": 45,
+        "productionActive": 13,
+        "reviewedInactive": 32
+      }
+    },
+    {
+      "name": "registry count is 1000 and unaudited count is 900",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "estimate-only total is 944",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-covered count is 58",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities use production provider evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities passed recommendation readiness",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities have no retry queues",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all inactive audited cities remain discoverable estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no inactive city is accidentally activated",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway-active cities retain gateway evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "missing-flight queue count is 35",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "unresolved-Agoda queue count is 25",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no-live-hotel-rate queue count is 4",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "hotel-quality queue count is 2",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight-comfort queue count is 3",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "retry snapshot allows overlapping membership",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Toronto resolves as verified active",
+      "pass": true,
+      "details": {
+        "cityId": "toronto-ca",
+        "displayName": "Toronto",
+        "country": "Canada",
+        "countryCode": "CA",
+        "selectionTier": "current-500",
+        "worldRegion": "Americas",
+        "providerLocationCode": "YTO",
+        "auditStatus": "verified-active",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": true,
+        "recommendationMode": "verified-live-provider-capability",
+        "classification": "live-both",
+        "activation": {
+          "eligible": true,
+          "mode": "direct-or-metro",
+          "reason": "providers-live-stay-quality-qualified-flight-comfort-qualified",
+          "policyVersion": "GV-CITY-668F",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "lastVerifiedAt": "2026-07-18T00:46:48.556Z"
+        },
+        "evidenceAgeDays": 0,
+        "reviewRecommended": false,
+        "retryQueues": [],
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": true,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": true,
+          "reasons": []
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Tulum retains CUN gateway activation",
+      "pass": true,
+      "details": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "evidenceMode": "production-provider-response",
+        "providerMappingVerified": true,
+        "inventoryObserved": true,
+        "productionEligible": true,
+        "comfortQualified": true,
+        "destinationCode": "CUN",
+        "destinationKind": "gateway",
+        "mappingType": "gateway-airport",
+        "gatewayFallbackUsed": true,
+        "gatewayRequiredForDestination": true,
+        "gateway": {
+          "airportCode": "CUN",
+          "gatewayCity": "Cancun",
+          "mode": "ground-transfer",
+          "distanceKm": 118,
+          "minutes": 105,
+          "estimatedOneWayUsd": 35,
+          "preferGateway": true,
+          "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+        },
+        "verifiedOrigin": "MIA",
+        "verificationMonth": "2026-09",
+        "scannedMonths": [
+          "2026-09",
+          "2026-10",
+          "2026-11"
+        ],
+        "observationCount": 5,
+        "sample": {
+          "departureDate": "2026-09-06",
+          "amount": 150,
+          "currency": "CAD",
+          "transfers": 1,
+          "durationMinutes": 466,
+          "bookingLinkPresent": true
+        },
+        "comfort": {
+          "qualified": true,
+          "durationKnown": true,
+          "transfersKnown": true,
+          "durationMinutes": 466,
+          "transfers": 1,
+          "maxDurationMinutes": 1080,
+          "maxTransfers": 1,
+          "gatewayTransferMinutes": 105,
+          "gatewayTransferQualified": true,
+          "reasons": []
+        },
+        "checkedAt": "2026-07-18T00:47:04.575Z"
+      }
+    },
+    {
+      "name": "Tehran remains estimate-only for unresolved Agoda mapping",
+      "pass": true,
+      "details": {
+        "cityId": "tehran-ir",
+        "displayName": "Tehran",
+        "country": "Iran",
+        "countryCode": "IR",
+        "selectionTier": "expansion-500",
+        "worldRegion": "Asia",
+        "providerLocationCode": "THR",
+        "auditStatus": "reviewed-inactive",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "live-flights-only",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "stay-provider:unresolved-static-mapping",
+          "policyVersion": "GV-CITY-668F",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "lastVerifiedAt": "2026-07-18T00:47:07.121Z"
+        },
+        "evidenceAgeDays": 0,
+        "reviewRecommended": false,
+        "retryQueues": [
+          "unresolved-agoda-mapping"
+        ],
+        "providerCoverage": {
+          "eligible": false,
+          "classification": "live-flights-only",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": false,
+          "flightMappingVerified": true,
+          "stayMappingVerified": false,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": false,
+          "comfortQualifiedFlightObserved": true,
+          "reasons": [
+            "stay-provider:unresolved-static-mapping"
+          ]
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Caye Caulker remains estimate-only for missing flight observations",
+      "pass": true,
+      "details": {
+        "cityId": "caye-caulker-bz",
+        "displayName": "Caye Caulker",
+        "country": "Belize",
+        "countryCode": "BZ",
+        "selectionTier": "current-500",
+        "worldRegion": "Americas",
+        "providerLocationCode": "CUK",
+        "auditStatus": "reviewed-inactive",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "live-stays-only",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "flight-provider:no-live-observations",
+          "policyVersion": "GV-CITY-668F",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "lastVerifiedAt": "2026-07-18T00:47:04.838Z"
+        },
+        "evidenceAgeDays": 0,
+        "reviewRecommended": false,
+        "retryQueues": [
+          "missing-flight-observations"
+        ],
+        "providerCoverage": {
+          "eligible": false,
+          "classification": "live-stays-only",
+          "flightInventoryObserved": false,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": false,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "flight-provider:no-live-observations"
+          ]
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Abuja remains estimate-only for flight comfort",
+      "pass": true,
+      "details": {
+        "cityId": "abuja-ng",
+        "displayName": "Abuja",
+        "country": "Nigeria",
+        "countryCode": "NG",
+        "selectionTier": "expansion-500",
+        "worldRegion": "Africa",
+        "providerLocationCode": "ABV",
+        "auditStatus": "reviewed-inactive",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "live-both",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "flight-comfort:duration-too-long",
+          "policyVersion": "GV-CITY-668F",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "lastVerifiedAt": "2026-07-18T00:48:18.555Z"
+        },
+        "evidenceAgeDays": 0,
+        "reviewRecommended": false,
+        "retryQueues": [
+          "flight-comfort-failure"
+        ],
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "flight-comfort:duration-too-long"
+          ]
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Aitutaki keeps both quality and comfort work items",
+      "pass": true,
+      "details": {
+        "cityId": "aitutaki-ck",
+        "displayName": "Aitutaki",
+        "country": "Cook Islands",
+        "countryCode": "CK",
+        "selectionTier": "expansion-500",
+        "worldRegion": "Oceania",
+        "providerLocationCode": "AIT",
+        "auditStatus": "reviewed-inactive",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "live-both",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "stay-quality:no-qualified-live-rate;flight-comfort:duration-too-long",
+          "policyVersion": "GV-CITY-668F",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "lastVerifiedAt": "2026-07-18T00:48:29.312Z"
+        },
+        "evidenceAgeDays": 0,
+        "reviewRecommended": false,
+        "retryQueues": [
+          "hotel-quality-failure",
+          "flight-comfort-failure"
+        ],
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": false,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "stay-quality:no-qualified-live-rate",
+            "flight-comfort:duration-too-long"
+          ]
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Ankara is unaudited and estimate-only",
+      "pass": true,
+      "details": {
+        "cityId": "ankara-tr",
+        "displayName": "Ankara",
+        "country": "Turkey",
+        "countryCode": "TR",
+        "selectionTier": "current-500",
+        "worldRegion": "Europe",
+        "providerLocationCode": "ANK",
+        "auditStatus": "unaudited",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "unaudited",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "not-in-verified-668e-pilot-snapshot",
+          "policyVersion": "GV-CITY-668F",
+          "sourcePolicyVersion": null,
+          "lastVerifiedAt": null
+        },
+        "evidenceAgeDays": null,
+        "reviewRecommended": true,
+        "retryQueues": [],
+        "providerCoverage": null,
+        "recommendationReadiness": null,
+        "evidence": null,
+        "disclaimer": "This city remains discoverable as an estimate-only candidate until a production-provider audit is imported."
+      }
+    },
+    {
+      "name": "live eligibility helper allows active city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "live eligibility helper blocks reviewed inactive city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "live eligibility helper blocks unaudited city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search returns 56 active cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search returns 44 reviewed inactive cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search counts 900 unaudited cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search exposes 35 missing-flight work items",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search can include evidence on demand",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "public summary reports 56 active and 944 estimate-only",
+      "pass": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCount": 100,
+        "productionActiveCount": 56,
+        "directOrMetroCount": 51,
+        "gatewaySupportedCount": 5,
+        "auditedInactiveCount": 44,
+        "unauditedCount": 900,
+        "estimateOnlyCount": 944,
+        "providerCoveredCount": 58,
+        "current500": {
+          "audited": 55,
+          "productionActive": 43,
+          "reviewedInactive": 12
+        },
+        "expansion500": {
+          "audited": 45,
+          "productionActive": 13,
+          "reviewedInactive": 32
+        },
+        "classificationCounts": {
+          "estimate-only": 4,
+          "gateway-supported": 5,
+          "live-both": 53,
+          "live-flights-only": 7,
+          "live-stays-only": 13,
+          "unresolved": 18
+        },
+        "activeModeCounts": {
+          "direct-or-metro": 51,
+          "gateway-supported": 5
+        },
+        "retryQueueCounts": {
+          "missing-flight-observations": 35,
+          "unresolved-agoda-mapping": 25,
+          "no-live-hotel-rate": 4,
+          "hotel-quality-failure": 2,
+          "flight-comfort-failure": 3
+        }
+      }
+    },
+    {
+      "name": "public summary preserves exact itinerary verification requirement",
+      "pass": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCityCount": 100,
+        "allRegistryCitiesRemainDiscoverable": true,
+        "verifiedLiveRecommendationRequiresImportedActivation": true,
+        "reviewedInactiveCitiesAreEstimateOnly": true,
+        "unauditedCitiesAreEstimateOnly": true,
+        "exactItineraryProviderVerificationStillRequired": true,
+        "exactItineraryVerificationLayers": [
+          "GV-LIVE-667A",
+          "GV-LIVE-667B"
+        ],
+        "activationDoesNotGuaranteeCurrentPriceOrBookability": true,
+        "gatewayLabelsMustRemainVisible": true,
+        "automaticDeactivationOnAge": false,
+        "reviewAfterDays": 30,
+        "staleCapabilityEvidenceStillRequiresExactItineraryRecheck": true
+      }
+    },
+    {
+      "name": "retry endpoint data exposes all five queues",
+      "pass": true,
+      "details": [
+        "missing-flight-observations",
+        "unresolved-agoda-mapping",
+        "no-live-hotel-rate",
+        "hotel-quality-failure",
+        "flight-comfort-failure"
+      ]
+    },
+    {
+      "name": "city registry summary embeds 668F activation summary",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry live filter returns exactly 56 cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry keeps Tehran discoverable but estimate-only",
+      "pass": true,
+      "details": {
+        "cityId": "tehran-ir",
+        "displayName": "Tehran",
+        "country": "Iran",
+        "countryCode": "IR",
+        "currency": "IRR",
+        "latitude": 35.696111,
+        "longitude": 51.423056,
+        "timeZone": "Asia/Tehran",
+        "worldRegion": "Asia",
+        "aliases": [
+          "Tehran",
+          "Tehran, Iran",
+          "Tehran IR",
+          "THR",
+          "IKA"
+        ],
+        "selectionTier": "expansion-500",
+        "group": "GROUP_2",
+        "groupSubtype": "automatic-expansion-discovery",
+        "origin": {
+          "eligible": true,
+          "providerLocationCode": "THR",
+          "preferredAirportCode": "IKA",
+          "airportCodes": [
+            "IKA",
+            "THR"
+          ],
+          "airportNames": [
+            "Imam Khomeini International Airport",
+            "Mehrabad International Airport"
+          ],
+          "internationalAirportSignal": true,
+          "gateway": null,
+          "requiresGatewayTransfer": false
+        },
+        "destination": {
+          "eligible": true,
+          "minimumRecommendedNights": 2,
+          "maximumRecommendedNights": 6,
+          "activationStatus": "provider-gated-expansion",
+          "deterministicFallbackEligible": false,
+          "providerDiscoveredEligible": true,
+          "routeNodeType": "discovery",
+          "regionCluster": "asia",
+          "readinessScore": 88
+        },
+        "providers": {
+          "travelpayouts": {
+            "status": "mapped-static",
+            "mappingType": "metro-code",
+            "locationCode": "THR",
+            "preferredAirportCode": "IKA",
+            "airportCodes": [
+              "IKA",
+              "THR"
+            ],
+            "staticFlightable": true,
+            "gateway": null,
+            "requiresLiveFareCheck": true
+          },
+          "agoda": {
+            "status": "unresolved-country-absent-from-feed",
+            "mappingType": "unresolved",
+            "cityId": null,
+            "hotelCount": null,
+            "feedNames": [],
+            "distanceKm": null,
+            "confidence": 0,
+            "representativePartnerUrls": [],
+            "requiresLiveRateCheck": false
+          }
+        },
+        "validation": {
+          "status": "travelpayouts-mapped-agoda-unresolved",
+          "bothProvidersMapped": false,
+          "staticAirportValidated": true,
+          "coordinatesValidated": true,
+          "requiresLiveProviderCheck": true,
+          "requiresProductReview": true,
+          "sourceConfidence": "high",
+          "providerStrategyDocumented": true,
+          "travelpayoutsStaticMapped": true,
+          "agodaStaticMapped": false,
+          "liveProviderVerified": false
+        },
+        "verifiedActivation": {
+          "cityId": "tehran-ir",
+          "displayName": "Tehran",
+          "country": "Iran",
+          "countryCode": "IR",
+          "selectionTier": "expansion-500",
+          "worldRegion": "Asia",
+          "providerLocationCode": "THR",
+          "auditStatus": "reviewed-inactive",
+          "discoveryEligible": true,
+          "liveRecommendationEligible": false,
+          "recommendationMode": "estimate-only",
+          "classification": "live-flights-only",
+          "activation": {
+            "eligible": false,
+            "mode": "inactive",
+            "reason": "stay-provider:unresolved-static-mapping",
+            "policyVersion": "GV-CITY-668F",
+            "sourcePolicyVersion": "GV-CITY-668E",
+            "lastVerifiedAt": "2026-07-18T00:47:07.121Z"
+          },
+          "evidenceAgeDays": 0,
+          "reviewRecommended": false,
+          "retryQueues": [
+            "unresolved-agoda-mapping"
+          ],
+          "providerCoverage": {
+            "eligible": false,
+            "classification": "live-flights-only",
+            "flightInventoryObserved": true,
+            "stayInventoryObserved": false,
+            "flightMappingVerified": true,
+            "stayMappingVerified": false,
+            "gatewaySupported": false
+          },
+          "recommendationReadiness": {
+            "eligible": false,
+            "qualityQualifiedStayObserved": false,
+            "comfortQualifiedFlightObserved": true,
+            "reasons": [
+              "stay-provider:unresolved-static-mapping"
+            ]
+          },
+          "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+        }
+      }
+    },
+    {
+      "name": "route graph selection still contains all 1000 discovery cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "route graph selection annotates 56 live-eligible rows",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Toronto row is marked verified live capability",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Tehran row is marked audited estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Ankara row is marked unaudited estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-driven discovery accepts active Toronto observation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-driven discovery blocks reviewed Tehran observation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "destination records expose exact verification requirement",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "destination records expose activation status",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda activation summary endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda activation search endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda retry-queue endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda city-registry live filter uses activation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation endpoint is read-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flag-off rollback disables enforcement",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flag-off rollback restores provider observation behavior",
+      "pass": true,
+      "details": {}
+    }
+  ]
+}

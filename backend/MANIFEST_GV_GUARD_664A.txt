@@ -1,0 +1,11 @@
+GV-GUARD-664A backend-only release
+Base: GV-LINK-663A
+Modified:
+- generated-tour.js
+- generated-tour-controls.js
+- global-generated-tour-fallback.js
+Added:
+- services/route-feasibility.js
+- GV-GUARD-664A_REPORT.md
+- VALIDATION_GV_GUARD_664A.json
+- MANIFEST_GV_GUARD_664A.txt

@@ -1,0 +1,1413 @@
+{
+  "version": "GV-GLOBAL-665B",
+  "generatedAt": "2026-07-16T06:56:23.730Z",
+  "passed": 29,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "reject Algiers-Kigali-Maun five-night route",
+      "passed": true,
+      "details": {
+        "reasons": [
+          "insufficient-nights-for-travel-burden:Maun:4",
+          "insufficient-usable-destination-time:Maun",
+          "five-night-trip-should-not-chain-long-haul-destinations",
+          "five-night-multi-city-stops-are-not-nearby-enough",
+          "five-night-trip-loses-too-much-time-to-travel",
+          "short-trip-ultra-long-haul-must-use-fewer-destinations",
+          "short-trip-long-haul-cities-are-too-far-apart",
+          "too-much-of-trip-is-spent-in-transit"
+        ],
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 13901,
+          "shortestCycleDistanceKm": 13901,
+          "backtrackingRatio": 1,
+          "longestLegKm": 6650,
+          "medianLegKm": 5121,
+          "estimatedTravelHours": 30.5,
+          "travelBurdenRatio": 0.255,
+          "stopTravelProfiles": [
+            {
+              "city": "Kigali",
+              "nights": 3,
+              "inboundDistanceKm": 5121,
+              "outboundDistanceKm": 2131,
+              "inboundHours": 10.33,
+              "outboundHours": 6.55,
+              "maxTravelHours": 10.33,
+              "longHaul": true,
+              "ultraLongHaul": false,
+              "minimumNights": 3,
+              "usableHours": 63.3,
+              "minimumUsefulHours": 44
+            },
+            {
+              "city": "Maun",
+              "nights": 2,
+              "inboundDistanceKm": 2131,
+              "outboundDistanceKm": 6650,
+              "inboundHours": 6.55,
+              "outboundHours": 13.67,
+              "maxTravelHours": 13.67,
+              "longHaul": true,
+              "ultraLongHaul": true,
+              "minimumNights": 4,
+              "usableHours": 38.5,
+              "minimumUsefulHours": 56
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "reject Lima-Chicago-Quebec five-night route",
+      "passed": true,
+      "details": {
+        "reasons": [
+          "insufficient-nights-for-travel-burden:Quebec:4",
+          "insufficient-usable-destination-time:Quebec",
+          "five-night-trip-should-not-chain-long-haul-destinations",
+          "five-night-multi-city-stops-are-not-nearby-enough",
+          "five-night-trip-loses-too-much-time-to-travel",
+          "short-trip-ultra-long-haul-must-use-fewer-destinations",
+          "too-much-of-trip-is-spent-in-transit"
+        ],
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 14066,
+          "shortestCycleDistanceKm": 14066,
+          "backtrackingRatio": 1,
+          "longestLegKm": 6567,
+          "medianLegKm": 6089,
+          "estimatedTravelHours": 30.8,
+          "travelBurdenRatio": 0.256,
+          "stopTravelProfiles": [
+            {
+              "city": "Chicago",
+              "nights": 3,
+              "inboundDistanceKm": 6089,
+              "outboundDistanceKm": 1410,
+              "inboundHours": 11.56,
+              "outboundHours": 5.64,
+              "maxTravelHours": 11.56,
+              "longHaul": true,
+              "ultraLongHaul": false,
+              "minimumNights": 3,
+              "usableHours": 62.9,
+              "minimumUsefulHours": 44
+            },
+            {
+              "city": "Quebec",
+              "nights": 2,
+              "inboundDistanceKm": 1410,
+              "outboundDistanceKm": 6567,
+              "inboundHours": 5.64,
+              "outboundHours": 13.56,
+              "maxTravelHours": 13.56,
+              "longHaul": true,
+              "ultraLongHaul": true,
+              "minimumNights": 4,
+              "usableHours": 39,
+              "minimumUsefulHours": 56
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "allow comfortable single-destination fallback",
+      "passed": true,
+      "details": {
+        "reasons": [],
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 1,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 11454,
+          "shortestCycleDistanceKm": 11454,
+          "backtrackingRatio": 1,
+          "longestLegKm": 5727,
+          "medianLegKm": 5727,
+          "estimatedTravelHours": 22.2,
+          "travelBurdenRatio": 0.185,
+          "stopTravelProfiles": [
+            {
+              "city": "Lisbon",
+              "nights": 5,
+              "inboundDistanceKm": 5727,
+              "outboundDistanceKm": 5727,
+              "inboundHours": 11.1,
+              "outboundHours": 11.1,
+              "maxTravelHours": 11.1,
+              "longHaul": true,
+              "ultraLongHaul": false,
+              "minimumNights": 3,
+              "usableHours": 108.9,
+              "minimumUsefulHours": 44
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Faisalabad produces supported route",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Doha:3",
+          "Dubai:2"
+        ]
+      }
+    },
+    {
+      "name": "Faisalabad route obeys stop and night limits",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Doha:3",
+          "Dubai:2"
+        ],
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 4433,
+          "shortestCycleDistanceKm": 4433,
+          "backtrackingRatio": 1,
+          "longestLegKm": 2200,
+          "medianLegKm": 1856,
+          "estimatedTravelHours": 17.2,
+          "travelBurdenRatio": 0.143,
+          "stopTravelProfiles": [
+            {
+              "city": "Doha",
+              "nights": 3,
+              "inboundDistanceKm": 2200,
+              "outboundDistanceKm": 377,
+              "inboundHours": 6.63,
+              "outboundHours": 4.33,
+              "maxTravelHours": 6.63,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 66.3,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Dubai",
+              "nights": 2,
+              "inboundDistanceKm": 377,
+              "outboundDistanceKm": 1856,
+              "inboundHours": 4.33,
+              "outboundHours": 6.2,
+              "maxTravelHours": 6.2,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 42.9,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Faisalabad route travel burden accepted",
+      "passed": true,
+      "details": {
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 4433,
+          "shortestCycleDistanceKm": 4433,
+          "backtrackingRatio": 1,
+          "longestLegKm": 2200,
+          "medianLegKm": 1856,
+          "estimatedTravelHours": 17.2,
+          "travelBurdenRatio": 0.143,
+          "stopTravelProfiles": [
+            {
+              "city": "Doha",
+              "nights": 3,
+              "inboundDistanceKm": 2200,
+              "outboundDistanceKm": 377,
+              "inboundHours": 6.63,
+              "outboundHours": 4.33,
+              "maxTravelHours": 6.63,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 66.3,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Dubai",
+              "nights": 2,
+              "inboundDistanceKm": 377,
+              "outboundDistanceKm": 1856,
+              "inboundHours": 4.33,
+              "outboundHours": 6.2,
+              "maxTravelHours": 6.2,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 42.9,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Faisalabad planning route uses honest affordability claim",
+      "passed": true,
+      "details": {
+        "claim": "estimated-to-fit-budget",
+        "confidence": {
+          "level": "planning-estimate",
+          "providerDiscoveredLegCount": 0,
+          "totalLegCount": 3,
+          "travelTimeGuardApplied": true,
+          "exactBookablePriceClaimed": false
+        }
+      }
+    },
+    {
+      "name": "Rabat produces supported route",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Prague:3",
+          "Warsaw:2"
+        ]
+      }
+    },
+    {
+      "name": "Rabat route obeys stop and night limits",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Prague:3",
+          "Warsaw:2"
+        ],
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 5982,
+          "shortestCycleDistanceKm": 5982,
+          "backtrackingRatio": 1,
+          "longestLegKm": 2988,
+          "medianLegKm": 2481,
+          "estimatedTravelHours": 19.1,
+          "travelBurdenRatio": 0.159,
+          "stopTravelProfiles": [
+            {
+              "city": "Prague",
+              "nights": 3,
+              "inboundDistanceKm": 2481,
+              "outboundDistanceKm": 512,
+              "inboundHours": 6.99,
+              "outboundHours": 4.5,
+              "maxTravelHours": 6.99,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 66.1,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Warsaw",
+              "nights": 2,
+              "inboundDistanceKm": 512,
+              "outboundDistanceKm": 2988,
+              "inboundHours": 4.5,
+              "outboundHours": 7.63,
+              "maxTravelHours": 7.63,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 42.2,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rabat route travel burden accepted",
+      "passed": true,
+      "details": {
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 5982,
+          "shortestCycleDistanceKm": 5982,
+          "backtrackingRatio": 1,
+          "longestLegKm": 2988,
+          "medianLegKm": 2481,
+          "estimatedTravelHours": 19.1,
+          "travelBurdenRatio": 0.159,
+          "stopTravelProfiles": [
+            {
+              "city": "Prague",
+              "nights": 3,
+              "inboundDistanceKm": 2481,
+              "outboundDistanceKm": 512,
+              "inboundHours": 6.99,
+              "outboundHours": 4.5,
+              "maxTravelHours": 6.99,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 66.1,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Warsaw",
+              "nights": 2,
+              "inboundDistanceKm": 512,
+              "outboundDistanceKm": 2988,
+              "inboundHours": 4.5,
+              "outboundHours": 7.63,
+              "maxTravelHours": 7.63,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 42.2,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Rabat planning route uses honest affordability claim",
+      "passed": true,
+      "details": {
+        "claim": "estimated-to-fit-budget",
+        "confidence": {
+          "level": "planning-estimate",
+          "providerDiscoveredLegCount": 0,
+          "totalLegCount": 3,
+          "travelTimeGuardApplied": true,
+          "exactBookablePriceClaimed": false
+        }
+      }
+    },
+    {
+      "name": "Algiers produces supported route",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Sarajevo:3",
+          "Bratislava:2"
+        ]
+      }
+    },
+    {
+      "name": "Algiers route obeys stop and night limits",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Sarajevo:3",
+          "Bratislava:2"
+        ],
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 3706,
+          "shortestCycleDistanceKm": 3706,
+          "backtrackingRatio": 1,
+          "longestLegKm": 1711,
+          "medianLegKm": 1505,
+          "estimatedTravelHours": 16.3,
+          "travelBurdenRatio": 0.135,
+          "stopTravelProfiles": [
+            {
+              "city": "Sarajevo",
+              "nights": 3,
+              "inboundDistanceKm": 1505,
+              "outboundDistanceKm": 491,
+              "inboundHours": 5.76,
+              "outboundHours": 4.47,
+              "maxTravelHours": 5.76,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 66.8,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Bratislava",
+              "nights": 2,
+              "inboundDistanceKm": 491,
+              "outboundDistanceKm": 1711,
+              "inboundHours": 4.47,
+              "outboundHours": 6.02,
+              "maxTravelHours": 6.02,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 42.9,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Algiers route travel burden accepted",
+      "passed": true,
+      "details": {
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 3706,
+          "shortestCycleDistanceKm": 3706,
+          "backtrackingRatio": 1,
+          "longestLegKm": 1711,
+          "medianLegKm": 1505,
+          "estimatedTravelHours": 16.3,
+          "travelBurdenRatio": 0.135,
+          "stopTravelProfiles": [
+            {
+              "city": "Sarajevo",
+              "nights": 3,
+              "inboundDistanceKm": 1505,
+              "outboundDistanceKm": 491,
+              "inboundHours": 5.76,
+              "outboundHours": 4.47,
+              "maxTravelHours": 5.76,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 66.8,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Bratislava",
+              "nights": 2,
+              "inboundDistanceKm": 491,
+              "outboundDistanceKm": 1711,
+              "inboundHours": 4.47,
+              "outboundHours": 6.02,
+              "maxTravelHours": 6.02,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 42.9,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Algiers planning route uses honest affordability claim",
+      "passed": true,
+      "details": {
+        "claim": "estimated-to-fit-budget",
+        "confidence": {
+          "level": "planning-estimate",
+          "providerDiscoveredLegCount": 0,
+          "totalLegCount": 3,
+          "travelTimeGuardApplied": true,
+          "exactBookablePriceClaimed": false
+        }
+      }
+    },
+    {
+      "name": "Lima produces supported route",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Cordoba:3",
+          "Santiago:2"
+        ]
+      }
+    },
+    {
+      "name": "Lima route obeys stop and night limits",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Cordoba:3",
+          "Santiago:2"
+        ],
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 5631,
+          "shortestCycleDistanceKm": 5631,
+          "backtrackingRatio": 1,
+          "longestLegKm": 2521,
+          "medianLegKm": 2471,
+          "estimatedTravelHours": 18.7,
+          "travelBurdenRatio": 0.156,
+          "stopTravelProfiles": [
+            {
+              "city": "Cordoba",
+              "nights": 3,
+              "inboundDistanceKm": 2521,
+              "outboundDistanceKm": 639,
+              "inboundHours": 7.04,
+              "outboundHours": 4.66,
+              "maxTravelHours": 7.04,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 66,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Santiago",
+              "nights": 2,
+              "inboundDistanceKm": 639,
+              "outboundDistanceKm": 2471,
+              "inboundHours": 4.66,
+              "outboundHours": 6.98,
+              "maxTravelHours": 6.98,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 42.4,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Lima route travel burden accepted",
+      "passed": true,
+      "details": {
+        "metrics": {
+          "nights": 5,
+          "allocatedNights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 5631,
+          "shortestCycleDistanceKm": 5631,
+          "backtrackingRatio": 1,
+          "longestLegKm": 2521,
+          "medianLegKm": 2471,
+          "estimatedTravelHours": 18.7,
+          "travelBurdenRatio": 0.156,
+          "stopTravelProfiles": [
+            {
+              "city": "Cordoba",
+              "nights": 3,
+              "inboundDistanceKm": 2521,
+              "outboundDistanceKm": 639,
+              "inboundHours": 7.04,
+              "outboundHours": 4.66,
+              "maxTravelHours": 7.04,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 66,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Santiago",
+              "nights": 2,
+              "inboundDistanceKm": 639,
+              "outboundDistanceKm": 2471,
+              "inboundHours": 4.66,
+              "outboundHours": 6.98,
+              "maxTravelHours": 6.98,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 42.4,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Lima planning route uses honest affordability claim",
+      "passed": true,
+      "details": {
+        "claim": "estimated-to-fit-budget",
+        "confidence": {
+          "level": "planning-estimate",
+          "providerDiscoveredLegCount": 0,
+          "totalLegCount": 3,
+          "travelTimeGuardApplied": true,
+          "exactBookablePriceClaimed": false
+        }
+      }
+    },
+    {
+      "name": "Toronto produces supported route",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Lima:3",
+          "Medellin:3",
+          "Montego Bay:2"
+        ]
+      }
+    },
+    {
+      "name": "Toronto route obeys stop and night limits",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Lima:3",
+          "Medellin:3",
+          "Montego Bay:2"
+        ],
+        "metrics": {
+          "nights": 8,
+          "allocatedNights": 8,
+          "stopCount": 3,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 12419,
+          "shortestCycleDistanceKm": 12409,
+          "backtrackingRatio": 1.001,
+          "longestLegKm": 6195,
+          "medianLegKm": 2800,
+          "estimatedTravelHours": 31.1,
+          "travelBurdenRatio": 0.162,
+          "stopTravelProfiles": [
+            {
+              "city": "Lima",
+              "nights": 3,
+              "inboundDistanceKm": 6195,
+              "outboundDistanceKm": 2037,
+              "inboundHours": 11.69,
+              "outboundHours": 6.43,
+              "maxTravelHours": 11.69,
+              "longHaul": true,
+              "ultraLongHaul": false,
+              "minimumNights": 3,
+              "usableHours": 62.5,
+              "minimumUsefulHours": 44
+            },
+            {
+              "city": "Medellin",
+              "nights": 3,
+              "inboundDistanceKm": 2037,
+              "outboundDistanceKm": 1387,
+              "inboundHours": 6.43,
+              "outboundHours": 5.61,
+              "maxTravelHours": 6.43,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 65.9,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Montego Bay",
+              "nights": 2,
+              "inboundDistanceKm": 1387,
+              "outboundDistanceKm": 2800,
+              "inboundHours": 5.61,
+              "outboundHours": 7.39,
+              "maxTravelHours": 7.39,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 41.6,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Toronto route travel burden accepted",
+      "passed": true,
+      "details": {
+        "metrics": {
+          "nights": 8,
+          "allocatedNights": 8,
+          "stopCount": 3,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 12419,
+          "shortestCycleDistanceKm": 12409,
+          "backtrackingRatio": 1.001,
+          "longestLegKm": 6195,
+          "medianLegKm": 2800,
+          "estimatedTravelHours": 31.1,
+          "travelBurdenRatio": 0.162,
+          "stopTravelProfiles": [
+            {
+              "city": "Lima",
+              "nights": 3,
+              "inboundDistanceKm": 6195,
+              "outboundDistanceKm": 2037,
+              "inboundHours": 11.69,
+              "outboundHours": 6.43,
+              "maxTravelHours": 11.69,
+              "longHaul": true,
+              "ultraLongHaul": false,
+              "minimumNights": 3,
+              "usableHours": 62.5,
+              "minimumUsefulHours": 44
+            },
+            {
+              "city": "Medellin",
+              "nights": 3,
+              "inboundDistanceKm": 2037,
+              "outboundDistanceKm": 1387,
+              "inboundHours": 6.43,
+              "outboundHours": 5.61,
+              "maxTravelHours": 6.43,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 65.9,
+              "minimumUsefulHours": 30
+            },
+            {
+              "city": "Montego Bay",
+              "nights": 2,
+              "inboundDistanceKm": 1387,
+              "outboundDistanceKm": 2800,
+              "inboundHours": 5.61,
+              "outboundHours": 7.39,
+              "maxTravelHours": 7.39,
+              "longHaul": false,
+              "ultraLongHaul": false,
+              "minimumNights": 2,
+              "usableHours": 41.6,
+              "minimumUsefulHours": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Toronto planning route uses honest affordability claim",
+      "passed": true,
+      "details": {
+        "claim": "estimated-to-fit-budget",
+        "confidence": {
+          "level": "planning-estimate",
+          "providerDiscoveredLegCount": 0,
+          "totalLegCount": 4,
+          "travelTimeGuardApplied": true,
+          "exactBookablePriceClaimed": false
+        }
+      }
+    },
+    {
+      "name": "provider-driven graph discovers connected first and second legs",
+      "passed": true,
+      "details": {
+        "topRoutes": [
+          "DXB>MCT",
+          "DXB",
+          "MCT>DXB",
+          "MCT>RKT",
+          "DOH>DXB"
+        ],
+        "diagnostics": {
+          "enabled": true,
+          "version": "GV-GLOBAL-665B",
+          "providerDriven": {
+            "enabled": true,
+            "version": "GV-GLOBAL-665B",
+            "providerDriven": true,
+            "providerAvailable": true,
+            "scannedMonths": [
+              "2026-09",
+              "2026-10",
+              "2026-11",
+              "2026-12",
+              "2027-01",
+              "2027-02"
+            ],
+            "firstLegObservationCount": 1,
+            "firstDestinationCount": 1,
+            "feasibleProviderConnectedRouteCount": 2,
+            "fallbackRequired": false
+          },
+          "deterministicFallback": {
+            "enabled": true,
+            "version": "GV-GLOBAL-665B",
+            "generatedWithoutManualRouteTemplates": true,
+            "originResolved": true,
+            "originCity": "Faisalabad",
+            "originAirportCode": "LYP",
+            "originResolutionType": "direct-flightable-city",
+            "gatewayAirport": null,
+            "catalogueCityCount": 9665,
+            "trustedAnchorCount": 445,
+            "automaticDiscoveryCount": 327,
+            "anchorCandidateCount": 12,
+            "feasibleRouteCandidateCount": 16,
+            "requestedNights": 5,
+            "desiredStopCount": 2,
+            "budgetUsd": 1000
+          },
+          "combinedFeasibleRouteCount": 18
+        }
+      }
+    },
+    {
+      "name": "provider-driven route records provider evidence without claiming exact total",
+      "passed": true,
+      "details": {
+        "confidence": {
+          "level": "provider-informed",
+          "providerDiscoveredLegCount": 2,
+          "totalLegCount": 3,
+          "travelTimeGuardApplied": true,
+          "exactBookablePriceClaimed": false
+        },
+        "claim": "provider-supported-budget-estimate"
+      }
+    },
+    {
+      "name": "provider-driven route passes travel-time guard",
+      "passed": true,
+      "details": {
+        "evaluation": {
+          "accepted": true,
+          "tour": {
+            "tourId": "gv665b-lyp-dxb-mct",
+            "routeId": "gv665b-lyp-dxb-mct",
+            "tourRole": "best-balance",
+            "tourRoleLabel": "Best balance",
+            "recommendationLabel": "Coherent value route",
+            "routeTheme": "provider-connected-story",
+            "origin": {
+              "cityId": "global-city-lyp",
+              "city": "Faisalabad",
+              "displayCity": "Faisalabad",
+              "country": "Pakistan",
+              "countryCode": "PK",
+              "code": "LYP",
+              "airportCode": "LYP",
+              "airportCodes": [
+                "LYP"
+              ],
+              "latitude": 31.363043,
+              "longitude": 72.98757,
+              "timeZone": "Asia/Karachi",
+              "requestedOrigin": "Faisalabad",
+              "isGlobalOrigin": true,
+              "sourceConfidence": "high",
+              "globalEligibilityClass": "GLOBAL_ELIGIBLE",
+              "providerSupportStatus": "flightable-airport-supported",
+              "originResolutionType": "direct-flightable-city",
+              "isOrigin": true,
+              "evidenceLabel": "Flightable origin city"
+            },
+            "stops": [
+              {
+                "cityId": "dubai-ae",
+                "city": "Dubai",
+                "displayCity": "Dubai",
+                "country": "United Arab Emirates",
+                "countryCode": "AE",
+                "code": "DXB",
+                "airportCode": "DXB",
+                "airportCodes": [
+                  "DXB",
+                  "DWC"
+                ],
+                "latitude": 25.2644444,
+                "longitude": 55.3116667,
+                "group": "GROUP_2",
+                "groupSubtype": "candidate",
+                "regionCluster": "middle-east",
+                "nights": 3,
+                "hotel": {
+                  "provider": "Agoda",
+                  "providerCityId": 2994,
+                  "hotelCoverageCount": 5196,
+                  "coverageDepth": "very-strong",
+                  "estimatedNightlyUsd": 80,
+                  "estimatedStayUsd": 240,
+                  "estimateSource": "global-route-graph-hotel-planning-estimate-665b",
+                  "livePriceVerified": false,
+                  "name": "Dubai central value stay",
+                  "reviewSummary": "Guest review and live rate are confirmed on the partner website."
+                },
+                "replaceable": true,
+                "removable": true,
+                "globalRouteGraphTier": "trusted-anchor"
+              },
+              {
+                "cityId": "muscat-om",
+                "city": "Muscat",
+                "displayCity": "Muscat",
+                "country": "Oman",
+                "countryCode": "OM",
+                "code": "MCT",
+                "airportCode": "MCT",
+                "airportCodes": [
+                  "MCT"
+                ],
+                "latitude": 23.588078,
+                "longitude": 58.29022,
+                "group": "GROUP_1",
+                "groupSubtype": "anchor",
+                "regionCluster": "middle-east",
+                "nights": 2,
+                "hotel": {
+                  "provider": "Agoda",
+                  "providerCityId": 6445,
+                  "hotelCoverageCount": 269,
+                  "coverageDepth": "strong",
+                  "estimatedNightlyUsd": 85,
+                  "estimatedStayUsd": 170,
+                  "estimateSource": "global-route-graph-hotel-planning-estimate-665b",
+                  "livePriceVerified": false,
+                  "name": "Muscat central value stay",
+                  "reviewSummary": "Guest review and live rate are confirmed on the partner website."
+                },
+                "replaceable": true,
+                "removable": true,
+                "globalRouteGraphTier": "trusted-anchor"
+              }
+            ],
+            "legs": [
+              {
+                "legNumber": 1,
+                "from": {
+                  "cityId": "global-city-lyp",
+                  "city": "Faisalabad",
+                  "country": "Pakistan",
+                  "countryCode": "PK",
+                  "code": "LYP",
+                  "airportCode": "LYP",
+                  "latitude": 31.363043,
+                  "longitude": 72.98757,
+                  "displayCity": "Faisalabad",
+                  "airportCodes": [
+                    "LYP"
+                  ],
+                  "timeZone": "Asia/Karachi",
+                  "requestedOrigin": "Faisalabad",
+                  "isGlobalOrigin": true,
+                  "sourceConfidence": "high",
+                  "globalEligibilityClass": "GLOBAL_ELIGIBLE",
+                  "providerSupportStatus": "flightable-airport-supported",
+                  "originResolutionType": "direct-flightable-city",
+                  "isOrigin": true,
+                  "evidenceLabel": "Flightable origin city"
+                },
+                "to": {
+                  "cityId": "dubai-ae",
+                  "city": "Dubai",
+                  "country": "United Arab Emirates",
+                  "countryCode": "AE",
+                  "code": "DXB",
+                  "airportCode": "DXB",
+                  "latitude": 25.2644444,
+                  "longitude": 55.3116667,
+                  "displayCity": "Dubai",
+                  "airportCodes": [
+                    "DXB",
+                    "DWC"
+                  ],
+                  "group": "GROUP_2",
+                  "groupSubtype": "candidate",
+                  "regionCluster": "middle-east",
+                  "nights": 3,
+                  "hotel": {
+                    "provider": "Agoda",
+                    "providerCityId": 2994,
+                    "hotelCoverageCount": 5196,
+                    "coverageDepth": "very-strong",
+                    "estimatedNightlyUsd": 80,
+                    "estimatedStayUsd": 240,
+                    "estimateSource": "global-route-graph-hotel-planning-estimate-665b",
+                    "livePriceVerified": false,
+                    "name": "Dubai central value stay",
+                    "reviewSummary": "Guest review and live rate are confirmed on the partner website."
+                  },
+                  "replaceable": true,
+                  "removable": true,
+                  "globalRouteGraphTier": "trusted-anchor"
+                },
+                "mode": "flight",
+                "transportType": "flight",
+                "distanceKm": 1856,
+                "durationMinutes": 210,
+                "estimatedDoorToDoorHours": 7,
+                "estimatedTransportUsd": 198,
+                "estimatedFlightUsd": 198,
+                "estimateSource": "travelpayouts-provider-route-discovery-665b",
+                "liveFareVerified": true,
+                "providerObservation": {
+                  "source": "travelpayouts-one-way-discovery",
+                  "departureDate": "2026-09-10",
+                  "amountUsd": 198,
+                  "bookingLink": "https://tp.media/r?campaign_id=100&marker=725649&p=4114&trs=526085&u=https%3A%2F%2Fwww.aviasales.com%2Fsearch%2FLYP1009DXB1"
+                },
+                "providerVerificationRequired": false,
+                "fromCode": "LYP",
+                "toCode": "DXB",
+                "destinationGateway": null,
+                "groundAccessTransferRequired": false
+              },
+              {
+                "legNumber": 2,
+                "from": {
+                  "cityId": "dubai-ae",
+                  "city": "Dubai",
+                  "country": "United Arab Emirates",
+                  "countryCode": "AE",
+                  "code": "DXB",
+                  "airportCode": "DXB",
+                  "latitude": 25.2644444,
+                  "longitude": 55.3116667,
+                  "displayCity": "Dubai",
+                  "airportCodes": [
+                    "DXB",
+                    "DWC"
+                  ],
+                  "group": "GROUP_2",
+                  "groupSubtype": "candidate",
+                  "regionCluster": "middle-east",
+                  "nights": 3,
+                  "hotel": {
+                    "provider": "Agoda",
+                    "providerCityId": 2994,
+                    "hotelCoverageCount": 5196,
+                    "coverageDepth": "very-strong",
+                    "estimatedNightlyUsd": 80,
+                    "estimatedStayUsd": 240,
+                    "estimateSource": "global-route-graph-hotel-planning-estimate-665b",
+                    "livePriceVerified": false,
+                    "name": "Dubai central value stay",
+                    "reviewSummary": "Guest review and live rate are confirmed on the partner website."
+                  },
+                  "replaceable": true,
+                  "removable": true,
+                  "globalRouteGraphTier": "trusted-anchor"
+                },
+                "to": {
+                  "cityId": "muscat-om",
+                  "city": "Muscat",
+                  "country": "Oman",
+                  "countryCode": "OM",
+                  "code": "MCT",
+                  "airportCode": "MCT",
+                  "latitude": 23.588078,
+                  "longitude": 58.29022,
+                  "displayCity": "Muscat",
+                  "airportCodes": [
+                    "MCT"
+                  ],
+                  "group": "GROUP_1",
+                  "groupSubtype": "anchor",
+                  "regionCluster": "middle-east",
+                  "nights": 2,
+                  "hotel": {
+                    "provider": "Agoda",
+                    "providerCityId": 6445,
+                    "hotelCoverageCount": 269,
+                    "coverageDepth": "strong",
+                    "estimatedNightlyUsd": 85,
+                    "estimatedStayUsd": 170,
+                    "estimateSource": "global-route-graph-hotel-planning-estimate-665b",
+                    "livePriceVerified": false,
+                    "name": "Muscat central value stay",
+                    "reviewSummary": "Guest review and live rate are confirmed on the partner website."
+                  },
+                  "replaceable": true,
+                  "removable": true,
+                  "globalRouteGraphTier": "trusted-anchor"
+                },
+                "mode": "flight",
+                "transportType": "flight",
+                "distanceKm": 354,
+                "durationMinutes": 70,
+                "estimatedDoorToDoorHours": 4.67,
+                "estimatedTransportUsd": 77,
+                "estimatedFlightUsd": 77,
+                "estimateSource": "travelpayouts-provider-route-discovery-665b",
+                "liveFareVerified": true,
+                "providerObservation": {
+                  "source": "travelpayouts-one-way-discovery",
+                  "departureDate": "2026-09-13",
+                  "amountUsd": 77,
+                  "bookingLink": "https://tp.media/r?campaign_id=100&marker=725649&p=4114&trs=526085&u=https%3A%2F%2Fwww.aviasales.com%2Fsearch%2FDXB1309MCT1"
+                },
+                "providerVerificationRequired": false,
+                "fromCode": "DXB",
+                "toCode": "MCT",
+                "destinationGateway": null,
+                "groundAccessTransferRequired": false
+              },
+              {
+                "legNumber": 3,
+                "from": {
+                  "cityId": "muscat-om",
+                  "city": "Muscat",
+                  "country": "Oman",
+                  "countryCode": "OM",
+                  "code": "MCT",
+                  "airportCode": "MCT",
+                  "latitude": 23.588078,
+                  "longitude": 58.29022,
+                  "displayCity": "Muscat",
+                  "airportCodes": [
+                    "MCT"
+                  ],
+                  "group": "GROUP_1",
+                  "groupSubtype": "anchor",
+                  "regionCluster": "middle-east",
+                  "nights": 2,
+                  "hotel": {
+                    "provider": "Agoda",
+                    "providerCityId": 6445,
+                    "hotelCoverageCount": 269,
+                    "coverageDepth": "strong",
+                    "estimatedNightlyUsd": 85,
+                    "estimatedStayUsd": 170,
+                    "estimateSource": "global-route-graph-hotel-planning-estimate-665b",
+                    "livePriceVerified": false,
+                    "name": "Muscat central value stay",
+                    "reviewSummary": "Guest review and live rate are confirmed on the partner website."
+                  },
+                  "replaceable": true,
+                  "removable": true,
+                  "globalRouteGraphTier": "trusted-anchor"
+                },
+                "to": {
+                  "cityId": "global-city-lyp",
+                  "city": "Faisalabad",
+                  "country": "Pakistan",
+                  "countryCode": "PK",
+                  "code": "LYP",
+                  "airportCode": "LYP",
+                  "latitude": 31.363043,
+                  "longitude": 72.98757,
+                  "displayCity": "Faisalabad",
+                  "airportCodes": [
+                    "LYP"
+                  ],
+                  "timeZone": "Asia/Karachi",
+                  "requestedOrigin": "Faisalabad",
+                  "isGlobalOrigin": true,
+                  "sourceConfidence": "high",
+                  "globalEligibilityClass": "GLOBAL_ELIGIBLE",
+                  "providerSupportStatus": "flightable-airport-supported",
+                  "originResolutionType": "direct-flightable-city",
+                  "isOrigin": true,
+                  "evidenceLabel": "Flightable origin city"
+                },
+                "mode": "flight",
+                "transportType": "flight",
+                "distanceKm": 1686,
+                "durationMinutes": null,
+                "estimatedDoorToDoorHours": 5.98,
+                "estimatedTransportUsd": 170,
+                "estimatedFlightUsd": 170,
+                "estimateSource": "global-route-graph-flight-planning-estimate-665b",
+                "liveFareVerified": false,
+                "providerObservation": null,
+                "providerVerificationRequired": true,
+                "fromCode": "MCT",
+                "toCode": "LYP",
+                "destinationGateway": null,
+                "groundAccessTransferRequired": false
+              }
+            ],
+            "totalNights": 5,
+            "totalDistanceKm": 3896,
+            "totalFlightEstimateUsd": 445,
+            "totalTransportEstimateUsd": 445,
+            "totalHotelEstimateUsd": 410,
+            "estimatedTotalUsd": 855,
+            "totalBudgetUsd": 1000,
+            "reservePercent": 0.05,
+            "reserveAmountUsd": 50,
+            "usableTripBudgetUsd": 950,
+            "amountLeftUsd": 145,
+            "affordabilityStatus": "within-budget",
+            "pricingStatus": "global-route-graph-665b-provider-first-planning-fallback",
+            "selectionSource": "on-demand-provider-aware-global-route-graph-665b",
+            "evidenceLabel": "Generated route",
+            "providerVerificationRequired": true,
+            "affordabilityClaim": "provider-supported-budget-estimate",
+            "routeConfidence": {
+              "level": "provider-informed",
+              "providerDiscoveredLegCount": 2,
+              "totalLegCount": 3,
+              "travelTimeGuardApplied": true,
+              "exactBookablePriceClaimed": false
+            },
+            "globalRouteGraph": {
+              "enabled": true,
+              "version": "GV-GLOBAL-665B",
+              "generatedWithoutManualRouteTemplate": true,
+              "originResolutionType": "direct-flightable-city",
+              "gatewayAirport": null,
+              "candidateScore": 340
+            },
+            "mapCoordinates": [
+              {
+                "type": "origin",
+                "cityId": "global-city-lyp",
+                "city": "Faisalabad",
+                "latitude": 31.363043,
+                "longitude": 72.98757
+              },
+              {
+                "type": "stop",
+                "cityId": "dubai-ae",
+                "city": "Dubai",
+                "latitude": 25.2644444,
+                "longitude": 55.3116667
+              },
+              {
+                "type": "stop",
+                "cityId": "muscat-om",
+                "city": "Muscat",
+                "latitude": 23.588078,
+                "longitude": 58.29022
+              },
+              {
+                "type": "return",
+                "cityId": "global-city-lyp",
+                "city": "Faisalabad",
+                "latitude": 31.363043,
+                "longitude": 72.98757
+              }
+            ],
+            "routeExplanation": [
+              "Globevoy generated this route automatically from the global city and airport graph; no fixed itinerary template was used.",
+              "The route passed trip-length, travel-time, usable-destination-time, geography, airport and budget checks before AI curation.",
+              "Provider-discovered flight legs are used when available; unverified flights and stays remain clearly labelled as planning estimates."
+            ],
+            "editableActions": {
+              "removeStop": false,
+              "replaceStop": true,
+              "addStop": false,
+              "reorderStops": false,
+              "undo": true
+            },
+            "displayBudget": {
+              "presentationVersion": "GV-MIXED-610C-1",
+              "currency": "USD",
+              "symbol": "$",
+              "exchangeRateFromUsd": 1,
+              "totalBudget": 1000,
+              "reservePercent": 0.05,
+              "reserveAmount": 50,
+              "usableTripBudget": 950,
+              "flightEstimate": 445,
+              "accommodationEstimate": 410,
+              "tripEstimate": 855,
+              "amountLeft": 95,
+              "affordabilityStatus": "within-protected-budget",
+              "equation": {
+                "formula": "totalBudget - reserveAmount - tripEstimate = amountLeft",
+                "leftSide": 95,
+                "rightSide": 95,
+                "consistent": true
+              }
+            }
+          },
+          "reasons": [],
+          "warnings": [],
+          "metrics": {
+            "nights": 5,
+            "allocatedNights": 5,
+            "stopCount": 2,
+            "maximumStops": 2,
+            "macroRegionCount": 1,
+            "orderedDistanceKm": 3896,
+            "shortestCycleDistanceKm": 3896,
+            "backtrackingRatio": 1,
+            "longestLegKm": 1856,
+            "medianLegKm": 1686,
+            "estimatedTravelHours": 17.6,
+            "travelBurdenRatio": 0.147,
+            "stopTravelProfiles": [
+              {
+                "city": "Dubai",
+                "nights": 3,
+                "inboundDistanceKm": 1856,
+                "outboundDistanceKm": 354,
+                "inboundHours": 7,
+                "outboundHours": 4.67,
+                "maxTravelHours": 7,
+                "longHaul": false,
+                "ultraLongHaul": false,
+                "minimumNights": 2,
+                "usableHours": 66,
+                "minimumUsefulHours": 30
+              },
+              {
+                "city": "Muscat",
+                "nights": 2,
+                "inboundDistanceKm": 354,
+                "outboundDistanceKm": 1686,
+                "inboundHours": 4.67,
+                "outboundHours": 5.98,
+                "maxTravelHours": 5.98,
+                "longHaul": false,
+                "ultraLongHaul": false,
+                "minimumNights": 2,
+                "usableHours": 42.8,
+                "minimumUsefulHours": 30
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "frontend distinguishes estimated budget fit",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "frontend preserves six-month calendar navigation",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "frontend cache version bumped to 665b",
+      "passed": true,
+      "details": {}
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+GV-CITY-668P — Merge 420-City Activation Snapshot
+
+BASE
+- lambda-gv-city-668o-expansion500-priority-audit-wave2.zip
+
+AUTHORITATIVE SOURCE
+- data/provider-live-expansion150-668o-source.json
+
+MODIFIED
+- services/verified-city-activation.js
+- validate-gv-city-668o-results.js (UTF-8 BOM-safe result parsing)
+
+ADDED ACTIVATION DATA
+- data/verified-city-activation-845-668p.json
+- data/verified-city-retry-queues-668p.json
+- data/verified-city-production-active-420-668p.json
+- data/verified-city-production-active-420-668p.csv
+- data/verified-city-review-425-668p.json
+- data/verified-city-review-425-668p.csv
+- data/provider-live-expansion150-668o-source-VALIDATION.json
+
+ADDED BUILD, VALIDATION, DEPLOYMENT AND DOCUMENTATION
+- build-gv-city-668p-activation.js
+- validate-gv-city-668p.js
+- VALIDATION_GV_CITY_668P.json
+- Run-GV-CITY-668P-Activation-Smoke.ps1
+- GV-CITY-668P_REPORT.md
+- MANIFEST_GV_CITY_668P.txt
+- GV-CITY-668P_SHA256.txt
+
+UNCHANGED PRODUCT BEHAVIOR
+- Provider verification policy remains GV-CITY-668E.
+- Exact itinerary validation remains mandatory.
+- 668M Wave 1 and 668O Wave 2 audit endpoints remain available.
+- No frontend files changed.
+- No credentials bundled.

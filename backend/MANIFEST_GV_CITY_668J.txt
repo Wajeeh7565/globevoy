@@ -1,0 +1,28 @@
+GV-CITY-668J changed or added files
+
+Runtime modified:
+- services/verified-city-activation.js
+- services/global-route-graph.js
+
+Source evidence added:
+- data/provider-live-remaining-150-668i-source.json
+
+Generated activation data added:
+- data/verified-city-activation-400-668j.json
+- data/verified-city-retry-queues-668j.json
+- data/verified-city-production-active-259-668j.json
+- data/verified-city-production-active-259-668j.csv
+- data/verified-city-review-141-668j.json
+- data/verified-city-review-141-668j.csv
+
+Build, validation, and operator artifacts added:
+- build-gv-city-668j-activation.js
+- validate-gv-city-668j.js
+- VALIDATION_GV_CITY_668J.json
+- Run-GV-CITY-668J-Activation-Smoke.ps1
+- GV-CITY-668J_REPORT.md
+- MANIFEST_GV_CITY_668J.txt
+
+The GV-CITY-668I audit-plan endpoint and files remain present.
+No frontend files changed.
+No credentials included.

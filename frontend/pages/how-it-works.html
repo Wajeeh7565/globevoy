@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>How It Works | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+                    "surface-variant": "#d2e5f6",
+                    "on-surface-variant": "#44474d",
+                    "on-tertiary-fixed": "#281900",
+                    "inverse-on-surface": "#e6f2ff",
+                    "secondary-fixed": "#7af6ed",
+                    "amber-100": "#FFF2CF",
+                    "primary": "#000000",
+                    "on-primary-fixed": "#071c33",
+                    "error": "#ba1a1a",
+                    "ink": "#122232",
+                    "surface-tint": "#4d5f7a",
+                    "tertiary": "#000000",
+                    "surface-dim": "#c9dcee",
+                    "background": "#f6faff",
+                    "navy-950": "#071C33",
+                    "border": "#D7E0E7",
+                    "purple-600": "#7357E6",
+                    "primary-fixed": "#d3e3ff",
+                    "on-surface": "#0a1d2a",
+                    "tertiary-container": "#281900",
+                    "green-600": "#16885E",
+                    "amber-500": "#FFB51B",
+                    "primary-fixed-dim": "#b5c8e6",
+                    "surface-bright": "#f6faff",
+                    "purple-100": "#EEE9FF",
+                    "secondary-fixed-dim": "#5bdad1",
+                    "teal-500": "#08A8A0",
+                    "secondary": "#006a65",
+                    "on-secondary-fixed": "#00201e",
+                    "on-primary": "#ffffff",
+                    "teal-100": "#E5F7F5",
+                    "on-secondary-fixed-variant": "#00504c",
+                    "on-secondary": "#ffffff",
+                    "green-100": "#E4F5EC",
+                    "teal-600": "#008F89",
+                    "error-container": "#ffdad6",
+                    "surface-soft": "#F4F7F9",
+                    "red-600": "#B93F45",
+                    "surface-container-lowest": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "inverse-primary": "#b5c8e6",
+                    "on-primary-container": "#7385a1",
+                    "amber-600": "#E99B00",
+                    "surface": "#f6faff",
+                    "surface-container-high": "#d8ebfc",
+                    "surface-warm": "#FFFAF0",
+                    "on-error": "#ffffff",
+                    "surface-container-highest": "#d2e5f6",
+                    "surface-container-low": "#ebf5ff",
+                    "outline": "#74777e",
+                    "on-tertiary-container": "#af7a00",
+                    "navy-900": "#0B2038",
+                    "tertiary-fixed-dim": "#ffba39",
+                    "surface-container": "#e0f0ff",
+                    "primary-container": "#071c33",
+                    "on-background": "#0a1d2a",
+                    "on-secondary-container": "#006f69",
+                    "on-primary-fixed-variant": "#364861",
+                    "on-tertiary": "#ffffff",
+                    "outline-variant": "#c4c6ce",
+                    "tertiary-fixed": "#ffdead",
+                    "on-tertiary-fixed-variant": "#604100",
+                    "inverse-surface": "#21323f",
+                    "secondary-container": "#77f3ea"
+            },
+            borderRadius: {
+                    DEFAULT: "0.25rem",
+                    lg: "0.5rem",
+                    xl: "0.75rem",
+                    full: "9999px"
+            },
+            spacing: {
+                    "max-width": "1280px",
+                    "major": "32px",
+                    "compact": "8px",
+                    "control": "16px",
+                    "separation": "64px",
+                    "section": "24px",
+                    "micro": "4px"
+            },
+            fontFamily: {
+                    "h3": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "h2": ["Inter"],
+                    "body": ["Inter"],
+                    "display-mobile": ["Inter"],
+                    "display": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "h1-mobile": ["Inter"],
+                    "caption": ["Inter"],
+                    "small": ["Inter"],
+                    "h1": ["Inter"]
+            },
+            fontSize: {
+                    "h3": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                    "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "700" }],
+                    "h2": ["32px", { lineHeight: "1.4", fontWeight: "600" }],
+                    "body": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+                    "display-mobile": ["36px", { lineHeight: "1.2", fontWeight: "700" }],
+                    "display": ["56px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }],
+                    "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                    "h1-mobile": ["30px", { lineHeight: "1.3", fontWeight: "600" }],
+                    "caption": ["12px", { lineHeight: "1.4", letterSpacing: "0.01em", fontWeight: "400" }],
+                    "small": ["14px", { lineHeight: "1.4", fontWeight: "500" }],
+                    "h1": ["40px", { lineHeight: "1.3", fontWeight: "600" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="original-stitch-code-html" name="gv-source-status"/></head>
+<body class="bg-surface font-body text-body text-on-surface antialiased gv-canonical" data-depth="1" data-nav-active="How it works" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> How It Works · MVP now · not connected to production data.</div>
+<!-- TopAppBar -->
+
+<main class="max-w-max-width mx-auto px-control md:px-separation py-separation space-y-separation">
+<!-- Hero Section -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-major items-center min-h-[500px]">
+<div class="space-y-6">
+<h1 class="font-display-mobile md:font-display text-navy-950 leading-tight">Start with your budget. <br/><span class="text-teal-600">Discover where it can take you.</span></h1>
+<p class="font-body-lg text-on-surface-variant max-w-xl">Globevoy compares realistic trip possibilities around your total budget, travel dates and preferences—then organizes the strongest options into a clear set of recommendations.</p>
+<p class="font-small text-small text-on-surface-variant text-opacity-80">Final availability and prices are confirmed on partner websites.</p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="bg-navy-950 hover:bg-navy-900 text-surface font-small text-small py-3 px-6 rounded-lg transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">explore</span>
+                        Explore trip ideas
+                    </button>
+<button class="border border-border hover:border-teal-600 text-navy-950 font-small text-small py-3 px-6 rounded-lg transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">route</span>
+                        Try Multi-city
+                    </button>
+</div>
+</div>
+<div class="relative h-80 rounded-xl overflow-hidden shadow-lg border border-border group">
+<div class="w-full h-full bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A bright, editorial style photograph of a modern train traveling through a scenic European countryside. The lighting is crisp and natural, emphasizing the sleek design of the train against vibrant green hills under a clear blue sky. The composition feels optimistic and forward-moving, perfectly aligned with the concept of discovering new destinations efficiently and on a budget." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDOsPGUWg_5G7AJOtICcOAvaiHAG6aoqmA0N_O4OKE-0O-7rVm2q83UeQGYbv7lPlx86en6CQsPwFO1vnGQrpuMk_HfLmSzMzpEqzNncdrmn5B1flaVOkcXuYgSzfPuVKl4lDv0jjX_kh9ArkxuwsVGoMVNGg6JlYz-ZcaxLyPKOsDTLJWH78ldwUW3wtZWoGnhzWZf_6bq7ffMxQ1Hbf5dAdzVOJ-Xxwpql566otCwrbWoWqiQmR9VYWtF_V4CD8_bvneiyZyWBgI')"></div>
+</div>
+</section>
+<!-- 4 Step Process -->
+<section class="space-y-major">
+<h2 class="font-h2 text-h2 text-navy-950 text-center mb-12">How Globevoy builds your trip options</h2>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-surface-soft p-6 rounded-xl border border-border flex flex-col gap-4">
+<div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">1</div>
+<h3 class="font-h3 text-navy-950">Start with the complete trip budget</h3>
+<p class="text-on-surface-variant font-small text-sm mb-4">Example: Toronto – YYZ, C$1,000, 1 traveller, Flexible dates, 4–6 nights</p>
+</div>
+<div class="bg-surface-soft p-6 rounded-xl border border-border flex flex-col gap-4">
+<div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">2</div>
+<h3 class="font-h3 text-navy-950">We protect 10% for personal spending</h3>
+<div class="text-on-surface-variant font-small text-sm">
+<div class="flex justify-between border-b border-border pb-1 mb-1"><span>Total</span><span>C$1,000</span></div>
+<div class="flex justify-between border-b border-border pb-1 mb-1 text-amber-600"><span>Reserve (10%)</span><span>- C$100</span></div>
+<div class="flex justify-between font-bold text-navy-950 pt-1"><span>Planning Budget</span><span>C$900</span></div>
+</div>
+</div>
+<div class="bg-surface-soft p-6 rounded-xl border border-border flex flex-col gap-4">
+<div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">3</div>
+<h3 class="font-h3 text-navy-950">We compare realistic options</h3>
+<ul class="text-on-surface-variant font-small text-sm space-y-1 list-disc list-inside">
+<li>Travel cost &amp; practicality</li>
+<li>Stay value &amp; location</li>
+<li>Trip duration</li>
+</ul>
+</div>
+<div class="bg-surface-soft p-6 rounded-xl border border-border flex flex-col gap-4">
+<div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center font-bold text-lg">4</div>
+<h3 class="font-h3 text-navy-950">Review the plan and confirm with partners</h3>
+<ul class="text-on-surface-variant font-small text-sm space-y-1 list-disc list-inside">
+<li>View trip details</li>
+<li>Compare stay options</li>
+<li>View on partner websites</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Budget Calculation -->
+<section class="bg-navy-950 text-surface p-separation rounded-2xl">
+<h2 class="font-h2 text-h2 mb-8 text-center">How the budget calculation works</h2>
+<div class="max-w-3xl mx-auto space-y-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+<div>
+<p class="font-label-caps text-surface-variant mb-1">TOTAL BUDGET</p>
+<p class="font-h2 text-amber-500">C$1,000</p>
+</div>
+<div class="md:col-span-2 text-left bg-navy-900 p-6 rounded-xl">
+<p class="font-small text-surface-variant mb-4">Example Trip to Montreal</p>
+<div class="space-y-2 font-body text-surface">
+<div class="flex justify-between"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">flight</span> Flight</span><span>C$250</span></div>
+<div class="flex justify-between border-b border-surface-variant/30 pb-2"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-sm">hotel</span> Stay</span><span>C$300</span></div>
+<div class="flex justify-between pt-2"><span>Planned Trip Cost</span><span>C$550</span></div>
+<div class="flex justify-between text-amber-500"><span>Protected Reserve (10%)</span><span>C$100</span></div>
+<div class="flex justify-between font-bold pt-2 border-t border-surface-variant/30 mt-2"><span>Budget Remaining</span><span>C$350</span></div>
+</div>
+</div>
+</div>
+<!-- Segmented Bar -->
+<div class="space-y-2">
+<div class="flex h-4 rounded-full overflow-hidden w-full bg-navy-900">
+<div class="bg-teal-500 h-full" style="width: 55%"></div>
+<div class="bg-amber-500 h-full" style="width: 10%"></div>
+<div class="bg-surface-variant h-full" style="width: 35%"></div>
+</div>
+<div class="flex justify-between text-caption font-caption text-surface-variant">
+<div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-teal-500"></div> Planned trip (55%)</div>
+<div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-amber-500"></div> Protected reserve (10%)</div>
+<div class="flex items-center gap-1"><div class="w-3 h-3 rounded-sm bg-surface-variant"></div> Budget remaining (35%)</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommendation Styles -->
+<section class="space-y-major">
+<h2 class="font-h2 text-h2 text-navy-950 text-center mb-12">Three useful ways to compare trips</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="border border-border rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-teal-500"></div>
+<h3 class="font-label-caps text-teal-600 mb-2">LOWEST COST</h3>
+<p class="font-body text-on-surface-variant">Prioritizes the lowest realistic trip estimate while still meeting the selected trip requirements.</p>
+</div>
+<div class="border border-navy-950 rounded-xl p-6 relative overflow-hidden bg-navy-950 text-surface">
+<div class="absolute top-0 left-0 w-full h-1 bg-teal-500"></div>
+<h3 class="font-label-caps text-teal-400 mb-2">BEST BALANCE</h3>
+<p class="font-body text-surface-variant">Balances estimated cost, convenience, travel time, stay value and overall destination fit.</p>
+</div>
+<div class="border border-border rounded-xl p-6 relative overflow-hidden bg-surface-warm">
+<div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+<h3 class="font-label-caps text-amber-600 mb-2">MOST MEMORABLE</h3>
+<p class="font-body text-on-surface-variant">Prioritizes a more distinctive destination or route experience while remaining within the planning limit.</p>
+</div>
+</div>
+<p class="text-center text-on-surface-variant font-small text-sm mt-6">A higher estimated cost should provide visible user value. It is not automatically a better recommendation.</p>
+</section>
+<!-- Single & Multi-city -->
+<section class="bg-surface-soft p-separation rounded-2xl border border-border">
+<h2 class="font-h2 text-h2 text-navy-950 mb-8 text-center">Planning Modes</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-separation">
+<div class="space-y-4">
+<div class="flex items-center gap-2 text-teal-600 font-h3 mb-4">
+<span class="material-symbols-outlined">explore</span> Single Destination
+            </div>
+<p class="font-body text-on-surface-variant mb-6">Discover trips from your origin to a single destination based on your budget.</p>
+<div class="bg-surface p-4 rounded-lg border border-border">
+<p class="font-small font-medium text-navy-950 mb-2">Example Flow (Montreal):</p>
+<ol class="list-decimal list-inside space-y-2 text-sm text-on-surface-variant">
+<li>Search: Toronto -&gt; Anywhere (Budget C$1000)</li>
+<li>Result: Montreal recommended (Best Balance)</li>
+<li>Review: Flight details &amp; Stay options</li>
+<li>Confirm: Link to airline &amp; hotel partners</li>
+</ol>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-2 text-teal-600 font-h3 mb-4">
+<span class="material-symbols-outlined">route</span> Multi-city Routing
+            </div>
+<p class="font-body text-on-surface-variant mb-6">Globevoy compares eligible city combinations and recommends a connected two- or three-city route within the selected budget and trip preferences.</p>
+<div class="bg-surface p-4 rounded-lg border border-border mb-4">
+<p class="font-small font-medium text-navy-950 mb-2">Example Route:</p>
+<p class="text-sm text-on-surface-variant flex items-center gap-2">
+                    Toronto <span class="material-symbols-outlined text-[16px]">arrow_forward</span> Montreal <span class="material-symbols-outlined text-[16px]">arrow_forward</span> Quebec City <span class="material-symbols-outlined text-[16px]">arrow_forward</span> Toronto
+                </p>
+</div>
+<div class="bg-surface-variant/30 p-4 rounded-lg text-sm text-on-surface-variant">
+<span class="font-medium text-navy-950">Multi-city Access:</span> One complete recommended route is available without an account. Signed-in users may compare up to three curated route options and save preferences.
+            </div>
+</div>
+</div>
+</section>
+<!-- Stay Comparison -->
+<section class="space-y-major">
+<h2 class="font-h2 text-h2 text-navy-950 text-center mb-8">Evaluating Accommodations</h2>
+<p class="text-center text-on-surface-variant max-w-2xl mx-auto mb-12">Globevoy doesn't just show hotels; it evaluates them within the context of your trip budget, location, and guest feedback.</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+<div class="p-4 border border-border rounded-lg text-center bg-surface-soft">
+<span class="material-symbols-outlined text-teal-600 text-3xl mb-2">balance</span>
+<p class="font-small font-medium text-navy-950">Best balance</p>
+<p class="text-caption text-on-surface-variant mt-1">Optimal mix of price, rating, and location.</p>
+</div>
+<div class="p-4 border border-border rounded-lg text-center bg-surface-soft">
+<span class="material-symbols-outlined text-teal-600 text-3xl mb-2">location_on</span>
+<p class="font-small font-medium text-navy-950">Best location</p>
+<p class="text-caption text-on-surface-variant mt-1">Strong practical location based on available neighbourhood and transit information.</p>
+</div>
+<div class="p-4 border border-border rounded-lg text-center bg-surface-soft">
+<span class="material-symbols-outlined text-teal-600 text-3xl mb-2">sell</span>
+<p class="font-small font-medium text-navy-950">Best value</p>
+<p class="text-caption text-on-surface-variant mt-1">Strong balance of estimated price and practical trip fit.</p>
+</div>
+<div class="p-4 border border-border rounded-lg text-center bg-surface-soft">
+<span class="material-symbols-outlined text-teal-600 text-3xl mb-2">star</span>
+<p class="font-small font-medium text-navy-950">Higher guest rating</p>
+<p class="text-caption text-on-surface-variant mt-1">Prioritizes stronger provider guest feedback when a verified score is supplied.</p>
+</div>
+</div>
+<p class="text-center text-on-surface-variant font-small text-sm mt-6">A hotel’s star category does not always represent the overall guest experience. Globevoy also considers location, cleanliness, provider guest feedback and value.</p>
+</section>
+<!-- Evidence Labels -->
+<section class="bg-navy-950 text-surface p-separation rounded-2xl">
+<h2 class="font-h2 text-h2 mb-8 text-center">Data Transparency</h2>
+<p class="text-center text-surface-variant max-w-2xl mx-auto mb-12">We use specific labels so you know exactly where a price comes from and how reliable it is.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-navy-900 p-4 rounded-lg border border-surface-variant/20">
+<span class="inline-block px-2 py-1 bg-green-600 text-white text-xs font-bold rounded mb-3">Live Result</span>
+<p class="font-small font-medium text-white mb-1">PROVIDER PRICE RESULT</p>
+<p class="text-caption text-surface-variant">Pricing information returned by a travel or accommodation provider.</p>
+</div>
+<div class="bg-navy-900 p-4 rounded-lg border border-surface-variant/20">
+<span class="inline-block px-2 py-1 bg-teal-600 text-white text-xs font-bold rounded mb-3">Cached Result</span>
+<p class="font-small font-medium text-white mb-1">CACHED PROVIDER RESULT</p>
+<p class="text-caption text-surface-variant">Previously returned provider data, with freshness information when supplied.</p>
+</div>
+<div class="bg-navy-900 p-4 rounded-lg border border-surface-variant/20">
+<span class="inline-block px-2 py-1 bg-amber-600 text-white text-xs font-bold rounded mb-3">Estimate</span>
+<p class="font-small font-medium text-white mb-1">PLANNING ESTIMATE</p>
+<p class="text-caption text-surface-variant">A planning value used when current provider pricing is unavailable or incomplete.</p>
+</div>
+<div class="bg-navy-900 p-4 rounded-lg border border-surface-variant/20">
+<span class="material-symbols-outlined text-amber-500 mb-2 block">verified</span>
+<p class="font-small font-medium text-white mb-1">PARTNER CONFIRMS FINAL PRICE</p>
+<p class="text-caption text-surface-variant">Final availability, taxes, baggage rules, room policies and prices are confirmed on the partner website.</p>
+</div>
+</div>
+<p class="text-center text-surface-variant font-small text-sm mt-6">Use a Live label only when the backend confirms that the result is live and provides valid freshness information.</p>
+</section>
+<!-- What Globevoy Does/Doesn't -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-major">
+<div class="border border-border p-8 rounded-2xl bg-surface-soft">
+<div class="flex items-center gap-3 text-teal-600 mb-6">
+<span class="material-symbols-outlined text-3xl">check_circle</span>
+<h3 class="font-h3 text-navy-950">What Globevoy Does</h3>
+</div>
+<ul class="space-y-4 text-on-surface-variant">
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-teal-600 text-[20px] mt-0.5">check</span> Discovers trips from a total budget.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-teal-600 text-[20px] mt-0.5">check</span> Compares realistic eligible destinations.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-teal-600 text-[20px] mt-0.5">check</span> Shows complete planning estimates.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-teal-600 text-[20px] mt-0.5">check</span> Keeps a 10% protected reserve outside the trip estimate.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-teal-600 text-[20px] mt-0.5">check</span> Explains why recommendations fit.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-teal-600 text-[20px] mt-0.5">check</span> Links to partner websites for final confirmation.</li>
+</ul>
+</div>
+<div class="border border-border p-8 rounded-2xl bg-surface-soft">
+<div class="flex items-center gap-3 text-error mb-6">
+<span class="material-symbols-outlined text-3xl">cancel</span>
+<h3 class="font-h3 text-navy-950">What Globevoy Does NOT Do</h3>
+</div>
+<ul class="space-y-4 text-on-surface-variant">
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-error text-[20px] mt-0.5">close</span> Does not guarantee prices or availability.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-error text-[20px] mt-0.5">close</span> Does not directly process travel payments.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-error text-[20px] mt-0.5">close</span> Does not confirm visas or entry eligibility.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-error text-[20px] mt-0.5">close</span> Does not independently inspect every hotel.</li>
+<li class="flex items-start gap-2"><span class="material-symbols-outlined text-error text-[20px] mt-0.5">close</span> Does not guarantee that planning estimates will remain unchanged.</li>
+</ul>
+</div>
+</section>
+<!-- Product Journey Diagram -->
+<section class="space-y-8">
+<h2 class="font-h2 text-h2 text-navy-950 text-center">The Journey</h2>
+<div class="flex flex-col md:flex-row items-center justify-center gap-4 text-center">
+<div class="bg-surface-soft border border-border p-4 rounded-lg w-full md:w-48">
+<span class="material-symbols-outlined text-teal-600 text-3xl mb-2">search</span>
+<p class="font-small font-medium text-navy-950">1. Search</p>
+<p class="text-caption text-on-surface-variant">Set budget &amp; dates</p>
+</div>
+<span class="material-symbols-outlined text-surface-variant hidden md:block">arrow_forward</span>
+<span class="material-symbols-outlined text-surface-variant block md:hidden">arrow_downward</span>
+<div class="bg-surface-soft border border-border p-4 rounded-lg w-full md:w-48">
+<span class="material-symbols-outlined text-teal-600 text-3xl mb-2">tune</span>
+<p class="font-small font-medium text-navy-950">2. Review options</p>
+<p class="text-caption text-on-surface-variant">Single or Multi-city</p>
+</div>
+<span class="material-symbols-outlined text-surface-variant hidden md:block">arrow_forward</span>
+<span class="material-symbols-outlined text-surface-variant block md:hidden">arrow_downward</span>
+<div class="bg-surface-soft border border-border p-4 rounded-lg w-full md:w-48">
+<span class="material-symbols-outlined text-teal-600 text-3xl mb-2">fact_check</span>
+<p class="font-small font-medium text-navy-950">3. View trip details</p>
+<p class="text-caption text-on-surface-variant">Choose flights &amp; stays</p>
+</div>
+<span class="material-symbols-outlined text-surface-variant hidden md:block">arrow_forward</span>
+<span class="material-symbols-outlined text-surface-variant block md:hidden">arrow_downward</span>
+<div class="bg-teal-50 border border-teal-200 p-4 rounded-lg w-full md:w-48">
+<span class="material-symbols-outlined text-teal-600 text-3xl mb-2">open_in_new</span>
+<p class="font-small font-medium text-navy-950">4. Confirm on partner</p>
+<p class="text-caption text-on-surface-variant">Review final availability and price.</p>
+</div>
+</div>
+</section>
+<!-- FAQ -->
+<section class="max-w-3xl mx-auto space-y-6">
+<h2 class="font-h2 text-h2 text-navy-950 text-center mb-8">Frequently Asked Questions</h2>
+<div class="space-y-4">
+<details class="group border border-border rounded-lg bg-surface-soft open:bg-surface">
+<summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4 text-navy-950">
+<span>Do I book directly on Globevoy?</span>
+<span class="transition group-open:rotate-180 material-symbols-outlined">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant text-sm border-t border-border mt-2 pt-4">
+                No. Globevoy helps users discover, compare and plan. Final booking and payment take place on partner websites.
+            </div>
+</details>
+<details class="group border border-border rounded-lg bg-surface-soft open:bg-surface">
+<summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4 text-navy-950">
+<span>Why do you reserve 10% of my budget?</span>
+<span class="transition group-open:rotate-180 material-symbols-outlined">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant text-sm border-t border-border mt-2 pt-4">
+                We believe in realistic travel planning. The 10% reserve acts as a buffer for personal spending, meals, local transit, or unexpected minor fees, ensuring you don't overspend your total intended budget just on flights and hotels.
+            </div>
+</details>
+<details class="group border border-border rounded-lg bg-surface-soft open:bg-surface">
+<summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4 text-navy-950">
+<span>Are the prices shown guaranteed?</span>
+<span class="transition group-open:rotate-180 material-symbols-outlined">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant text-sm border-t border-border mt-2 pt-4">
+                No. Some values may come from provider results, while others may be cached or planning estimates. Travel prices and availability can change. Final values are confirmed on the partner website.
+            </div>
+</details>
+<details class="group border border-border rounded-lg bg-surface-soft open:bg-surface">
+<summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4 text-navy-950">
+<span>How does Multi-city planning work?</span>
+<span class="transition group-open:rotate-180 material-symbols-outlined">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant text-sm border-t border-border mt-2 pt-4">
+                Globevoy compares eligible city combinations and builds a connected route that includes outbound travel, every stay, inter-city transport and the return journey.
+            </div>
+</details>
+<details class="group border border-border rounded-lg bg-surface-soft open:bg-surface">
+<summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4 text-navy-950">
+<span>How do you select stay recommendations?</span>
+<span class="transition group-open:rotate-180 material-symbols-outlined">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant text-sm border-t border-border mt-2 pt-4">
+                We evaluate accommodations based on a combination of factors: cost relative to your remaining budget, location centrality, and aggregate guest ratings. We present options categorized by 'Best balance', 'Best value', etc.
+            </div>
+</details>
+<details class="group border border-border rounded-lg bg-surface-soft open:bg-surface">
+<summary class="flex justify-between items-center font-medium cursor-pointer list-none p-4 text-navy-950">
+<span>Is Globevoy free to use?</span>
+<span class="transition group-open:rotate-180 material-symbols-outlined">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant text-sm border-t border-border mt-2 pt-4">
+                Globevoy currently presents travel discovery and planning tools without direct checkout. Any future fees, account benefits or referral relationships should be clearly disclosed.
+            </div>
+</details>
+</div>
+</section>
+<!-- Final CTA -->
+<section class="text-center py-major bg-teal-50 rounded-2xl border border-teal-100 mb-8">
+<h2 class="font-h2 text-h2 text-navy-950 mb-6">Ready to see where your budget can take you?</h2>
+<div class="flex justify-center gap-4">
+<button class="bg-navy-950 hover:bg-navy-900 text-surface font-small text-small py-3 px-8 rounded-lg transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">explore</span> Explore destinations
+        </button>
+<button class="border border-border hover:border-teal-600 text-navy-950 font-small text-small py-3 px-8 rounded-lg transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined">route</span> Plan a Multi-city route
+        </button>
+</div>
+<p class="font-small text-small text-on-surface-variant text-opacity-80 mt-4">Final availability and prices are confirmed on partner websites.</p>
+</section>
+</main>
+<!-- Footer -->
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

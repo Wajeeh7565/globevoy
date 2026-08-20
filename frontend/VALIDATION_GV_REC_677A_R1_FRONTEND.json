@@ -1,0 +1,45 @@
+{
+  "release": "GV-REC-677A-R1",
+  "generatedAt": "2026-08-11T03:23:48.101Z",
+  "passed": true,
+  "checkCount": 7,
+  "passedCount": 7,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "frontend preserves GV-REC-677A-R1 transport integrity under current release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "visualizer detects composite flight-bearing transport before ground labels",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "booking hub uses the same transport-mode integrity defense",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "trip details use the same transport-mode integrity defense",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "visualizer cache-bust points at R1 or superseding release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "booking cache-bust points at R1 or superseding release",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "trip-details cache-bust points at R1 or superseding release",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

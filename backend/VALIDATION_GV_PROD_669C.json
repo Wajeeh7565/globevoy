@@ -1,0 +1,200 @@
+{
+  "taskId": "GV-PROD-669C",
+  "version": "GV-PROD-669C",
+  "generatedAt": "2026-08-06T17:16:07.707Z",
+  "passed": true,
+  "checkCount": 22,
+  "passedCount": 22,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "668T activation remains selected",
+      "passed": true,
+      "details": {
+        "version": "GV-CITY-668T"
+      }
+    },
+    {
+      "name": "439-city production allowlist remains unchanged",
+      "passed": true,
+      "details": {
+        "active": 439
+      }
+    },
+    {
+      "name": "1,000-city audit remains complete",
+      "passed": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCount": 1000,
+        "productionActiveCount": 439,
+        "directOrMetroCount": 412,
+        "gatewaySupportedCount": 27,
+        "auditedInactiveCount": 561,
+        "unauditedCount": 0,
+        "estimateOnlyCount": 561,
+        "providerCoveredCount": 492,
+        "recoveredActiveCount": 18,
+        "recoveryReviewedInactiveCount": 132,
+        "current500": {
+          "audited": 500,
+          "productionActive": 318,
+          "reviewedInactive": 182
+        },
+        "expansion500": {
+          "audited": 500,
+          "productionActive": 121,
+          "reviewedInactive": 379
+        },
+        "classificationCounts": {
+          "estimate-only": 43,
+          "gateway-supported": 29,
+          "live-both": 463,
+          "live-flights-only": 25,
+          "live-stays-only": 327,
+          "provider-error": 4,
+          "unresolved": 109
+        },
+        "activeModeCounts": {
+          "direct-or-metro": 412,
+          "gateway-supported": 27
+        },
+        "retryQueueCounts": {
+          "missing-flight-observations": 423,
+          "unresolved-agoda-mapping": 130,
+          "no-live-hotel-rate": 51,
+          "hotel-quality-failure": 50,
+          "flight-comfort-failure": 54
+        }
+      }
+    },
+    {
+      "name": "669B active-destination and origin repairs remain enabled",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C budget-safe recovery flag is enabled",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C recovery attempt defaults to zero",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C recovery attempt parses positive integers",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C recovery attempt rejects negative values",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "generated-tour version identifies 669C or a superseding 669D release",
+      "passed": true,
+      "details": {
+        "version": "2.12.0-gv-rec-677d-destination-value-proximity"
+      }
+    },
+    {
+      "name": "provider-over-budget branch invokes 669C recovery",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C recovery lowers stop cap by exactly one",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C recovery is bounded at one stop",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C recovery does not relax thresholds",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C recovery preserves original provider verification diagnostics",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "unsupported over-budget response remains available after recovery exhaustion",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Montreal origin remains YUL",
+      "passed": true,
+      "details": {
+        "city": "Montreal",
+        "airportCode": "YUL"
+      }
+    },
+    {
+      "name": "one-stop Montreal recovery candidates exist",
+      "passed": true,
+      "details": {
+        "tourCount": 16
+      }
+    },
+    {
+      "name": "one-stop Montreal candidates obey stop cap",
+      "passed": true,
+      "details": {
+        "counts": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "name": "one-stop Montreal candidates are production-active only",
+      "passed": true,
+      "details": {
+        "inactive": []
+      }
+    },
+    {
+      "name": "Havana remains excluded from Montreal recovery candidates",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "New York origin repair remains intact",
+      "passed": true,
+      "details": {
+        "city": "New York",
+        "airportCode": "JFK"
+      }
+    },
+    {
+      "name": "global fallback remains production-active only",
+      "passed": true,
+      "details": {
+        "poolCount": 64
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+GV-GLOBAL-665A
+Backend baseline: GV-GUARD-664A with GV-LINK-663A, GV-AI-662C, GV-FLIGHT-658C lineage.
+New module: services/global-route-graph.js
+Modified: generated-tour.js
+Modified: global-generated-tour-fallback.js
+Added report and validation.

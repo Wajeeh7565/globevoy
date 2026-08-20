@@ -1,0 +1,56 @@
+{
+  "task": "GV-DATE-666B",
+  "version": "1.1.0-gv-live-667a-provider-reverified-date-sync",
+  "passed": 12,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "rejected provider date cannot overwrite official automatic route date",
+      "passed": true
+    },
+    {
+      "name": "applied provider date remains the official route date",
+      "passed": true
+    },
+    {
+      "name": "presentation layer uses official date instead of stale evidence date",
+      "passed": true
+    },
+    {
+      "name": "baseline generated tour is available for integration validation",
+      "passed": true
+    },
+    {
+      "name": "date recalculation preserves the exact route cities",
+      "passed": true
+    },
+    {
+      "name": "selected date becomes the canonical first-leg date",
+      "passed": true
+    },
+    {
+      "name": "all later legs and stay windows are derived chronologically",
+      "passed": true
+    },
+    {
+      "name": "partner flight searches use the recalculated official dates",
+      "passed": true
+    },
+    {
+      "name": "six-month calendar keeps original scan-window month position",
+      "passed": true
+    },
+    {
+      "name": "POST Lambda endpoint returns synchronized route",
+      "passed": true
+    },
+    {
+      "name": "frontend calls backend date recalculation instead of mutating one leg locally",
+      "passed": true
+    },
+    {
+      "name": "frontend calendar cache version is bumped to 666b",
+      "passed": true
+    }
+  ]
+}

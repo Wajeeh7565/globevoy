@@ -1,0 +1,35 @@
+{
+  "release": "GV-REC-677B-R2",
+  "generatedAt": "2026-08-05T22:52:27.290Z",
+  "passed": true,
+  "checkCount": 5,
+  "passedCount": 5,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "frontend identifies GV-REC-677B-R2",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend recognizes R2 quality evidence",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend does not call limited provider evidence a smart choice",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend still shows 677B smart tradeoff explanation for acceptable flights",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend still preserves R1 transport integrity helper",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

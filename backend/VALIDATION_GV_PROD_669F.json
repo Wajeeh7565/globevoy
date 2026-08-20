@@ -1,0 +1,301 @@
+{
+  "taskId": "GV-PROD-669F",
+  "version": "GV-PROD-669F",
+  "generatedAt": "2026-08-06T17:16:09.022Z",
+  "passed": true,
+  "checkCount": 25,
+  "passedCount": 25,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "668T activation remains selected",
+      "passed": true,
+      "details": {
+        "version": "GV-CITY-668T"
+      }
+    },
+    {
+      "name": "1,000-city audit remains complete",
+      "passed": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCount": 1000,
+        "productionActiveCount": 439,
+        "directOrMetroCount": 412,
+        "gatewaySupportedCount": 27,
+        "auditedInactiveCount": 561,
+        "unauditedCount": 0,
+        "estimateOnlyCount": 561,
+        "providerCoveredCount": 492,
+        "recoveredActiveCount": 18,
+        "recoveryReviewedInactiveCount": 132,
+        "current500": {
+          "audited": 500,
+          "productionActive": 318,
+          "reviewedInactive": 182
+        },
+        "expansion500": {
+          "audited": 500,
+          "productionActive": 121,
+          "reviewedInactive": 379
+        },
+        "classificationCounts": {
+          "estimate-only": 43,
+          "gateway-supported": 29,
+          "live-both": 463,
+          "live-flights-only": 25,
+          "live-stays-only": 327,
+          "provider-error": 4,
+          "unresolved": 109
+        },
+        "activeModeCounts": {
+          "direct-or-metro": 412,
+          "gateway-supported": 27
+        },
+        "retryQueueCounts": {
+          "missing-flight-observations": 423,
+          "unresolved-agoda-mapping": 130,
+          "no-live-hotel-rate": 51,
+          "hotel-quality-failure": 50,
+          "flight-comfort-failure": 54
+        }
+      }
+    },
+    {
+      "name": "439-city production allowlist remains unchanged",
+      "passed": true,
+      "details": {
+        "active": 439
+      }
+    },
+    {
+      "name": "669F generated-tour version is packaged",
+      "passed": true,
+      "details": {
+        "version": "2.12.0-gv-rec-677d-destination-value-proximity"
+      }
+    },
+    {
+      "name": "669F global route graph version is packaged",
+      "passed": true,
+      "details": {
+        "version": "GV-GLOBAL-665B+GV-MVP-666A+GV-CITY-668A+GV-CITY-668J+GV-PROD-669B+GV-PROD-669C+GV-PROD-669F"
+      }
+    },
+    {
+      "name": "669F origin integrity flag is active",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Vancouver (YVR) preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "Vancouver (YVR)",
+        "city": "Vancouver",
+        "airportCode": "YVR",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "Vancouver preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "Vancouver",
+        "city": "Vancouver",
+        "airportCode": "YVR",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "YVR preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "YVR",
+        "city": "Vancouver",
+        "airportCode": "YVR",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "Whistler preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "Whistler",
+        "city": "Whistler",
+        "airportCode": "YVR",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "Whistler (YVR) preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "Whistler (YVR)",
+        "city": "Whistler",
+        "airportCode": "YVR",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "New York (JFK) preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "New York (JFK)",
+        "city": "New York",
+        "airportCode": "JFK",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "Paris (BVA) preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "Paris (BVA)",
+        "city": "Paris",
+        "airportCode": "BVA",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "Paris preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "Paris",
+        "city": "Paris",
+        "airportCode": "CDG",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "Suwon, South Korea preserves city identity and airport intent",
+      "passed": true,
+      "details": {
+        "input": "Suwon, South Korea",
+        "city": "Suwon",
+        "airportCode": "ICN",
+        "resolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "Global route candidate response keeps Vancouver origin",
+      "passed": true,
+      "details": {
+        "cityId": "global-city-yvr",
+        "city": "Vancouver",
+        "displayCity": "Vancouver",
+        "country": "Canada",
+        "countryCode": "CA",
+        "code": "YVR",
+        "airportCode": "YVR",
+        "airportCodes": [
+          "YVR",
+          "CXH",
+          "YDT"
+        ],
+        "latitude": 49.28,
+        "longitude": -123.12,
+        "timeZone": "America/Vancouver",
+        "requestedOrigin": "Vancouver (YVR)",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "verified",
+        "globalEligibilityClass": "TRUSTED_500",
+        "providerSupportStatus": "verified-live-provider-capability-668t",
+        "originResolutionType": "direct-flightable-city"
+      }
+    },
+    {
+      "name": "Generated graph tours keep Vancouver origin",
+      "passed": true,
+      "details": {
+        "count": 15,
+        "origins": [
+          {
+            "city": "Vancouver",
+            "airportCode": "YVR"
+          },
+          {
+            "city": "Vancouver",
+            "airportCode": "YVR"
+          },
+          {
+            "city": "Vancouver",
+            "airportCode": "YVR"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Route graph still sees 439 verified-active destinations",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665B+GV-MVP-666A+GV-CITY-668A+GV-CITY-668J+GV-PROD-669B+GV-PROD-669C+GV-PROD-669F",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Vancouver",
+        "originAirportCode": "YVR",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 500,
+        "registryDestinationCount": 1000,
+        "automaticDiscoveryCount": 381,
+        "anchorCandidateCount": 23,
+        "feasibleRouteCandidateCount": 15,
+        "requestedNights": 8,
+        "desiredStopCount": 2,
+        "budgetUsd": 1911,
+        "verifiedActivationEnabled": true,
+        "verifiedActiveDestinationCount": 439
+      }
+    },
+    {
+      "name": "Adaptive resolver remains Vancouver",
+      "passed": true,
+      "details": {
+        "city": "Vancouver",
+        "cityId": "vancouver-ca"
+      }
+    },
+    {
+      "name": "Legacy resolver remains Vancouver",
+      "passed": true,
+      "details": {
+        "city": "Vancouver",
+        "cityId": "vancouver-ca"
+      }
+    },
+    {
+      "name": "Route-control resolver remains Vancouver",
+      "passed": true,
+      "details": {
+        "city": "Vancouver",
+        "cityId": "vancouver-ca"
+      }
+    },
+    {
+      "name": "Shared YVR code owner prefers direct Vancouver over gateway Whistler",
+      "passed": true,
+      "details": {
+        "owner": "Vancouver",
+        "requiresGatewayTransfer": false
+      }
+    },
+    {
+      "name": "669F city-first path is packaged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669F airport override path is packaged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669F shared-code ownership guard is packaged",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+GV-SHELL-686A VALIDATION RECORD
+Date: 2026-08-18 America/Toronto
+Deployment: NOT PERFORMED
+Live provider calls: NOT PERFORMED
+
+BASELINE
+PASS — R2 ZIP SHA-256 = 8dc5a10d555f47ed9d52f4772f49462e72b200a2bef60c5dbf956ac59e49121f
+PASS — Baseline file count = 294
+
+STATIC REGRESSION
+PASS 01 — Shared shell declares 686A runtime
+PASS 02 — Primary navigation has four stable destinations
+PASS 03 — Guest account action is Travel profile
+PASS 04 — Accessible mobile menu supports expanded state and Escape
+PASS 05 — Mobile menu fills viewport below header
+PASS 06 — Shared shell defines consolidated colour and surface tokens
+PASS 07 — Homepage uses canonical shell with Plan active
+PASS 08 — Homepage no longer offers fake sign-in
+PASS 09 — Account boundary has no login form or password input
+PASS 10 — Account boundary states secure accounts are unavailable
+PASS 11 — Account return is restricted to the current origin
+PASS 12 — Saved trips does not expose a design-reference redirect
+PASS 13 — Legacy multi-city URL preserves query and hash
+PASS 14 — Generated-trip loading explains four stages
+PASS 15 — Generated-trip shell uses current map language
+PASS 16 — Mixed results uses one honest travel-profile action
+PASS 17 — Mixed-results runtime retains return path for local profile
+PASS 18 — How, Trust and About are canonical root pages
+PASS 19 — Booking engine remains byte-identical to trusted R2
+PASS 20 — Budget-confidence engine remains byte-identical to trusted R2
+PASS 21 — Generated-tour engine remains byte-identical to trusted R2
+RESULT — GV-SHELL-686A: 21/21 PASS
+
+SYNTAX
+PASS — scripts/shell-670f.js
+PASS — scripts/mixed-results-674a.js
+PASS — scripts/booking-hub-685d.js
+PASS — scripts/budget-confidence-685b.js
+PASS — scripts/multicity-visualizer-674a.js
+
+RENDERED QA
+PASS — Desktop 1280×720 shared header/navigation/footer
+PASS — Desktop navigation is visible and Plan a trip is active
+PASS — Desktop has no horizontal overflow
+PASS — 375×812 mobile burger/menu
+PASS — Mobile menu rectangle = 375×744 at y=68
+PASS — Mobile body scroll locks while menu is open
+PASS — Mobile has no horizontal overflow
+PASS — Information/account pages have no console errors
+PASS — Sign-in compatibility route has 0 forms and 0 password inputs
+PASS — Legacy URL preserved origin, budget, currency and hash during redirect
+PASS — Booking page renders complete-trip content on desktop and mobile
+PASS — Booking page has no horizontal overflow at 375px
+
+TRUSTED R2 ENGINE HASHES
+PASS — booking-hub-685d.js = 6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a
+PASS — budget-confidence-685b.js = 3ed77e95f240096f6d241499c1e0b517a1f97c77ae855bb9c85d0098f54eb832
+PASS — multicity-visualizer-674a.js = 4f8705b65d44e276b1502fd35d110af1a15c7e09b98a95753911ef78e4d8ba17
+
+INTEGRITY
+PASS — No backend or Lambda content exists in this frontend release
+PASS — No provider, pricing, FX, quota, payment or transaction expansion
+PASS — No environment-variable delta
+PASS — No deployment

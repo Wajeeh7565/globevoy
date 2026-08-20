@@ -1,0 +1,221 @@
+{
+  "taskId": "GV-CITY-668I",
+  "generatedAt": "2026-07-21T00:25:38.142Z",
+  "passed": 51,
+  "failed": 0,
+  "total": 51,
+  "checks": [
+    {
+      "name": "plan identifies GV-CITY-668I",
+      "pass": true
+    },
+    {
+      "name": "plan status is remaining Current-500 priority audit",
+      "pass": true
+    },
+    {
+      "name": "registry contains 1000 cities and 500 Current-500 cities",
+      "pass": true
+    },
+    {
+      "name": "668H source snapshot contains 250 audited cities",
+      "pass": true
+    },
+    {
+      "name": "668H baseline contains 205 audited Current-500 cities",
+      "pass": true
+    },
+    {
+      "name": "295 Current-500 cities remain unaudited before 668I",
+      "pass": true
+    },
+    {
+      "name": "four remaining cities are REVIEW_REQUIRED and excluded",
+      "pass": true
+    },
+    {
+      "name": "candidate pool contains 291 mapped non-review cities",
+      "pass": true
+    },
+    {
+      "name": "plan contains exactly 150 cities",
+      "pass": true
+    },
+    {
+      "name": "plan city IDs are unique",
+      "pass": true
+    },
+    {
+      "name": "all selected cities are Current-500",
+      "pass": true
+    },
+    {
+      "name": "no selected city was already audited in 668H",
+      "pass": true
+    },
+    {
+      "name": "all selected cities resolve in registry",
+      "pass": true
+    },
+    {
+      "name": "all selected cities have both static provider mappings",
+      "pass": true
+    },
+    {
+      "name": "all selected cities are Group 2 discoveries",
+      "pass": true
+    },
+    {
+      "name": "region quotas match the 668I balanced plan",
+      "pass": true,
+      "details": {
+        "Americas": 60,
+        "Europe": 45,
+        "Asia": 25,
+        "Africa": 10,
+        "Oceania": 5,
+        "Other": 5
+      }
+    },
+    {
+      "name": "selected city set matches deterministic top-per-region scoring",
+      "pass": true
+    },
+    {
+      "name": "all plan ranks are contiguous",
+      "pass": true
+    },
+    {
+      "name": "all priority scores match source-record calculations",
+      "pass": true
+    },
+    {
+      "name": "plan summary counts are exact",
+      "pass": true
+    },
+    {
+      "name": "plan summary reports 83 international-airport signals",
+      "pass": true
+    },
+    {
+      "name": "plan summary reports 61 product-review items",
+      "pass": true
+    },
+    {
+      "name": "plan summary reports four approved gateway candidates",
+      "pass": true
+    },
+    {
+      "name": "all four gateway candidates preserve gateway data",
+      "pass": true
+    },
+    {
+      "name": "smoke cities are in the 668I priority list",
+      "pass": true
+    },
+    {
+      "name": "activation baseline is pinned to 250 audited and 176 active",
+      "pass": true
+    },
+    {
+      "name": "plan explicitly leaves 668H activation unchanged",
+      "pass": true
+    },
+    {
+      "name": "668I service version and feature flag are active",
+      "pass": true
+    },
+    {
+      "name": "668I summary reports 150 selected",
+      "pass": true
+    },
+    {
+      "name": "668I summary preserves the 668H baseline",
+      "pass": true
+    },
+    {
+      "name": "668I search returns all 150 records",
+      "pass": true
+    },
+    {
+      "name": "668I search filters 45 European cities",
+      "pass": true
+    },
+    {
+      "name": "668I search filters 61 product-review cities",
+      "pass": true
+    },
+    {
+      "name": "668I search filters four gateway candidates",
+      "pass": true
+    },
+    {
+      "name": "668I search resolves Philadelphia",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668I summary endpoint works",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668I list endpoint returns 150",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668I region filter returns ten African cities",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668I endpoint is read-only",
+      "pass": true
+    },
+    {
+      "name": "668H production activation remains at 176 before import",
+      "pass": true
+    },
+    {
+      "name": "Philadelphia remains unaudited estimate-only before import",
+      "pass": true
+    },
+    {
+      "name": "existing verified Osaka remains active",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner supports Smoke5, Priority50, and Remaining150",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner uses the 668I endpoint and fixed URL interpolation",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner supports checkpoint resume",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner never embeds the admin token",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner uses bounded two-city batches",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner keeps strict 668E audit policy",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner computes projected activation from deployed baseline",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner marks activation import as required",
+      "pass": true
+    },
+    {
+      "name": "flag-off disables 668I plan status",
+      "pass": true
+    }
+  ]
+}

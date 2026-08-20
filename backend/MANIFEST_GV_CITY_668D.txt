@@ -1,0 +1,16 @@
+GV-CITY-668D changed files relative to GV-CITY-668C:
+
+MODIFIED
+services/provider-live-coverage.js
+services/agoda.js
+
+ADDED
+data/provider-live-review-66-668d.json
+run-gv-city-668d-live-audit.js
+validate-gv-city-668d.js
+VALIDATION_GV_CITY_668D.json
+GV-CITY-668D_REPORT.md
+MANIFEST_GV_CITY_668D.txt
+
+EXTERNAL OPERATOR ARTIFACT
+Run-GV-CITY-668D-Multi-Window-Audit.ps1

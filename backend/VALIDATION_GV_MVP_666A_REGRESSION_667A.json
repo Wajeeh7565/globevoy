@@ -1,0 +1,52 @@
+{
+  "task": "GV-MVP-666A",
+  "version": "1.0",
+  "passed": 11,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "one adult produces one fare unit and one room",
+      "passed": true
+    },
+    {
+      "name": "two adults multiply flight fare but share one room",
+      "passed": true
+    },
+    {
+      "name": "three adults require two rooms by default",
+      "passed": true
+    },
+    {
+      "name": "two adults and two children require two rooms",
+      "passed": true
+    },
+    {
+      "name": "infant uses conservative ten-percent flight allowance",
+      "passed": true
+    },
+    {
+      "name": "flight estimate scales by fare units",
+      "passed": true
+    },
+    {
+      "name": "public transfer scales by all travellers",
+      "passed": true
+    },
+    {
+      "name": "private taxi stays per party",
+      "passed": true
+    },
+    {
+      "name": "stay total scales by rooms not travellers",
+      "passed": true
+    },
+    {
+      "name": "full tour recomputes transport hotel total and affordability",
+      "passed": true
+    },
+    {
+      "name": "corrected party total can trigger over-budget status",
+      "passed": true
+    }
+  ]
+}

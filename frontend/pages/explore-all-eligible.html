@@ -1,0 +1,426 @@
+<!-- Globevoy - Explore Results (All Eligible) -->
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Explore Results — All Eligible | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "green-100": "#E4F5EC",
+                      "on-secondary": "#ffffff",
+                      "on-primary-container": "#7385a1",
+                      "border": "#D7E0E7",
+                      "surface-tint": "#4d5f7a",
+                      "inverse-on-surface": "#e6f2ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-warm": "#FFFAF0",
+                      "on-secondary-fixed-variant": "#00504c",
+                      "surface-bright": "#f6faff",
+                      "primary-container": "#071c33",
+                      "tertiary-fixed": "#ffdead",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed": "#071c33",
+                      "primary": "#000000",
+                      "navy-950": "#071C33",
+                      "teal-100": "#E5F7F5",
+                      "surface-variant": "#d2e5f6",
+                      "tertiary": "#000000",
+                      "surface": "#f6faff",
+                      "teal-600": "#008F89",
+                      "tertiary-container": "#281900",
+                      "surface-soft": "#F4F7F9",
+                      "secondary": "#006a65",
+                      "on-background": "#0a1d2a",
+                      "error-container": "#ffdad6",
+                      "purple-100": "#EEE9FF",
+                      "amber-600": "#E99B00",
+                      "primary-fixed": "#d3e3ff",
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed-variant": "#604100",
+                      "surface-dim": "#c9dcee",
+                      "secondary-fixed": "#7af6ed",
+                      "on-surface": "#0a1d2a",
+                      "surface-container-low": "#ebf5ff",
+                      "surface-container-highest": "#d2e5f6",
+                      "surface-container": "#e0f0ff",
+                      "on-primary": "#ffffff",
+                      "red-600": "#B93F45",
+                      "primary-fixed-dim": "#b5c8e6",
+                      "tertiary-fixed-dim": "#ffba39",
+                      "on-tertiary-fixed": "#281900",
+                      "on-secondary-fixed": "#00201e",
+                      "green-600": "#16885E",
+                      "secondary-container": "#77f3ea",
+                      "inverse-primary": "#b5c8e6",
+                      "amber-100": "#FFF2CF",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-container": "#af7a00",
+                      "surface-container-high": "#d8ebfc",
+                      "background": "#f6faff",
+                      "on-surface-variant": "#44474d",
+                      "secondary-fixed-dim": "#5bdad1",
+                      "ink": "#122232",
+                      "inverse-surface": "#21323f",
+                      "amber-500": "#FFB51B",
+                      "teal-500": "#08A8A0",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#006f69",
+                      "outline": "#74777e",
+                      "purple-600": "#7357E6",
+                      "on-primary-fixed-variant": "#364861",
+                      "navy-900": "#0B2038",
+                      "outline-variant": "#c4c6ce"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "max-width": "1280px",
+                      "separation": "64px",
+                      "section": "24px",
+                      "major": "32px",
+                      "compact": "8px",
+                      "micro": "4px",
+                      "control": "16px"
+              },
+              "fontFamily": {
+                      "caption": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "h1": ["Inter"],
+                      "small": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "h2": ["Inter"],
+                      "display-mobile": ["Inter"],
+                      "body": ["Inter"],
+                      "h3": ["Inter"],
+                      "h1-mobile": ["Inter"],
+                      "display": ["Inter"]
+              },
+              "fontSize": {
+                      "caption": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "h1": ["40px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "small": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                      "h2": ["32px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "display-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "body": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "h1-mobile": ["30px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "display": ["56px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom scrollbar for left panel */
+        .results-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .results-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .results-scroll::-webkit-scrollbar-thumb {
+            background-color: #D7E0E7; /* border color */
+            border-radius: 10px;
+        }
+        
+        /* Map pulsing animation for clusters */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 143, 137, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 143, 137, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(0, 143, 137, 0); }
+        }
+        .cluster-pin {
+            animation: pulse-ring 2s infinite;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="exact-recovered-html" name="gv-source-status"/></head>
+<body class="bg-surface text-on-surface font-body overflow-hidden gv-canonical" data-depth="1" data-nav-active="Explore" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Explore Results — All Eligible · MVP supporting · not connected to production data.</div>
+<!-- TopNavBar (Small / Search Summary) -->
+
+<!-- Main Content - Split Screen Layout -->
+<main class="mt-16 h-[calc(100vh-64px)] flex w-full max-w-max-width mx-auto">
+<!-- Left Panel: Results Grid -->
+<div class="w-full lg:w-3/5 xl:w-2/3 h-full overflow-y-auto results-scroll bg-surface pb-separation relative flex flex-col">
+<!-- Filters & Header Section (Sticky inside scrollable area) -->
+<div class="sticky top-0 bg-surface/95 backdrop-blur-sm z-30 pt-major pb-section px-major lg:px-separation border-b border-border/50">
+<!-- Filter Controls -->
+<div class="flex items-center gap-compact mb-section">
+<button class="font-small text-small px-control py-compact rounded-full border border-border text-on-surface-variant hover:bg-surface-variant transition-colors flex items-center gap-compact">
+<span class="material-symbols-outlined text-[18px]">hotel_class</span>
+                        Curated picks
+                    </button>
+<button class="font-small text-small px-control py-compact rounded-full bg-navy-950 text-on-primary transition-colors flex items-center gap-compact shadow-sm">
+<span class="material-symbols-outlined text-[18px] icon-fill">grid_view</span>
+                        Show all
+                    </button>
+</div>
+<!-- Headline -->
+<h1 class="font-h2 text-h2 text-navy-950">137 eligible destinations found</h1>
+<p class="font-body text-body text-on-surface-variant mt-micro">Based on your budget and travel constraints.</p>
+</div>
+<!-- Dense Grid -->
+<div class="px-major lg:px-separation pt-section pb-major flex-1">
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-control">
+<!-- Compact Card 1 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A bright, editorial-style photograph of a sunlit plaza in Madrid, Spain. The image is bathed in warm, calm light, emphasizing historic architecture against a clear blue sky. The composition is clean, highly structured, and avoids any sense of tourist clutter, focusing instead on credible, modern discovery. Colors are a balanced mix of warm terracotta and optimistic teal shadows, perfectly aligning with a sophisticated, budget-first travel aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAjZSjmkNvamIzfyEmOqqrCZSwUVKdBlur36SCasz2VhYc2Aa5pFPSK95Qp2vZr8Oz6w2a5Wh_GZzvyDVU_hW0ndrmKu3IeJUyn9NAfY3WYfo26dO___n5vhqgOBuzX6z-hnk4fJlf8QBSl6BEWA7bSITRIbiWFleM-Cb9x6CrtCMXyOXF7qPc9pYokiZsu5M4-UJZp6WSo43CZsSh1jz_jdE46ce4LZBS23JwH5oo5s-BRcU-sulqPuOanJRSkCJQEt3NjIBMRRZw"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Madrid, Spain</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">flight_takeoff</span>
+<span class="font-caption text-caption">Est. $450 • 5 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Compact Card 2 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A pristine, high-resolution photograph of the rugged coastline in Lisbon, Portugal. The scene is captured with modern, editorial clarity, featuring deep navy blue waters contrasting with bright, sun-bleached cliffs. The lighting is crisp and optimistic, evoking a sense of calm curiosity. The composition relies on strong geometric lines and a minimalist approach, avoiding any visual noise to maintain a highly credible and premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA11RNebM4kZq0Pv3DAJsYFxlWhqUeCsPizZPM5BEZ5kYssawJrS1foXSH11vkq3KQ16kO5gti3kTAX-RcznGAh-gPnMxPUeZXo63-SjoEoW_NM3p2QR7Jo_YQ07Yoq-FKDE1D_jHWLDlWDE4t2sg2dmbPFteO0R3wpraC3bJrJOo6ABbtWih0MwiPUitRCwb48QtISojpV5g7Ufp3GTJtTcP23CvEfL_ryMtP5fatdcwbqONSVdYzHPy3T_m1SWSovzt1PjRxsbF8"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Lisbon, Portugal</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">flight_takeoff</span>
+<span class="font-caption text-caption">Est. $510 • 6 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Compact Card 3 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A serene, editorial-quality image of a quiet canal in Amsterdam during early morning. The water reflects soft, diffused light and the crisp lines of historic brick houses. The color palette is heavily anchored in calming navy and soft surface tones, with subtle pops of amber from distant streetlamps. The image conveys a highly structured, peaceful, and credible exploration experience, free from overwhelming crowds." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBALGDSw9YGi6xX1aReUj0RUbUUekHZChbit3TcF-ch4eDrRxvYn92R9aNegqXrAdCvjL725gUp24rY0fGnsy9SOjVDd_xmvOxpHx2K8QNy7hgITqyrODqiRBO8jWXmIAoJPvwcrAas6NeDz_Myywg9MgFuBK_QKRc4TcXaZ2Ip3PkTWBiBpUn8eCuU_2bHeasRPii_IbWx4alU7IAL2dHBiAUhZPFab37RvjI-foGqcrJAi8EbELZ9IUPuQc4A-GJOatj5XZAzyQA"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Amsterdam, NL</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">train</span>
+<span class="font-caption text-caption">Est. $290 • 4 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Compact Card 4 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sharp, data-driven style photograph of a dense pine forest near Vancouver, Canada, transitioning into majestic mountains. The lighting is cool and clear, emphasizing deep emerald greens and slate grays, embodying a calm and credible nature escape. The composition is expansive yet uncluttered, offering a modern, editorial perspective on outdoor exploration that feels accessible and thoughtfully curated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzJwwCkPBJdZjQ1iyaFXJ7e6P36XjNTfh27NKwxS4rUOUKnh4kBHboJ8Po4s1xqCLTp58l13tg5ecKztrBvujCvmOhRHKwTj144eNovEarmJpx0_9Z0qRqxFPR6gs00pbP7UD2wHv00kT7b8QrCzMaUZqSXHcRA94f__rMh2syt6hSGSY3_afq--lwQyj1PPSnlUwIY-eg6MJX8v3exAfuZUvX7FovscQg17O9VLNbXQy2k3A19ULYIY201BvXn69LGSUwXLuGPIs"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Vancouver, BC</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">flight_takeoff</span>
+<span class="font-caption text-caption">Est. $380 • 5 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Compact Card 5 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A modern, high-contrast photograph of the Chicago skyline viewed from a quiet park. The architecture is crisp against a bright, clear sky, utilizing a strong navy and white color palette. The image feels orderly, optimistic, and highly curated, representing a credible urban discovery. There are no distracting elements, maintaining an editorial clarity that appeals to a structured, budget-conscious traveler." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj3HAnD-HUbUcCSdudQtGuHeJQ7Q3lPPoR8BUsgE4CwhSvUVy23WYKr-AKfTirzmmPhj68TQW2ADWyHHVclWVI5mKR9s1K7bty7lFiqJRQLN6Xt1JIOOuboU5H7wC8cBmdlHoA-0J8gjIfLYjJTk7-RHytEEzHVQBA4WRgVp-1ss-DF0wOM1A1rylRfG5Ir0QEwFvY7cLY5TuywSPg8dwvvfrmTxq5WB1jqTdImvIYwiBjgCzQoXHTJIBB_FEKaB04vsel1sL7Zrs"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Chicago, IL</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">flight_takeoff</span>
+<span class="font-caption text-caption">Est. $210 • 3 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Compact Card 6 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An inviting, clean editorial shot of a cobblestone street in Prague. Soft, natural daylight illuminates pastel-colored building facades, avoiding harsh shadows or artificial vibrancy. The scene is calm and structured, evoking a sense of tranquil curiosity. The visual aesthetic relies on flat-refined surface tones and meticulous composition, ensuring the destination looks highly credible and expertly curated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdivaWouUiPHlQA8WsSGnj3DtQHN6H6SFtMPN2GdCmSr_e1hDwQcB6qVPrhaq5jB-xMGw6u72kdf0KYOFPRd1oqWDdJ0Br2RXgmkFuWOwj-u2PYhvbBf35Ft05wDVyIkMICplCA9C4oWdmuVr2ZQPXu7siaTFHsgVruYivaMFWgY7NFizhLYkIr39GbyIuJ_QSP5TYnbnJQfKrTzobPQ87FcDbpf4Cg69p77bLC7H79xn0XkvKoRvOpw4lMz6UARr0ZMWNDP4cBR4"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Prague, CZ</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">flight_takeoff</span>
+<span class="font-caption text-caption">Est. $420 • 6 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Compact Card 7 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A bright, minimalist photograph of a coastal town in Maine. The image highlights clean white clapboard houses against a deep navy blue sea. The lighting is crisp and optimistic, emphasizing structural clarity and a calm atmosphere. The composition is highly curated and editorial, rejecting cluttered tourist perspectives in favor of a serene, credible visual narrative." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2dGuxQ5QlBtmpM-c_sS0lVHFTbM5vw3LDVrnf9Pci7SM5Mu4gc8Qj-JLJM5o7gpTqZPZ5JFwAR9MpNM9xn85Q-mzy_rQMugZ9DuHTghAJYwByU380EanCZMBW803gYTV3wEGrGZ539mXC_f27tHTzsrRbV_n2yFa8AQW_nXEdgxNUiDd3dr_qOA6cA08c-H_2jfqhxxCDSdXK07xU2Eo0kwtdye7S_1MUQjci7gLabnDeD2HzWre2Mh9DvxYmPKHQoONxK8o2ix8"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Portland, ME</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">directions_car</span>
+<span class="font-caption text-caption">Est. $180 • 2 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Compact Card 8 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="An editorial, data-focused visual of a modern train crossing a serene alpine viaduct in Switzerland. The scenery is dominated by calm surface-soft grays and deep greens, with the teal train providing a subtle focal point. The image is structured, clear, and highly credible, focusing on the mechanics and beauty of efficient travel rather than overwhelming spectacle." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA25MRRODa184ChULbHiLOPoejsSh5a31KFJPeEPaJnftJRZuSqhXr4OomXBsFutzgEDYlfw5v1WQUw6gqB1nktDLkO3LDhiBuFVf0ao_r0zWyntG8sTNgAuh3c2GzbXaNLRKeZU9uJEMvUXH7Dh6vGqkWaAJD5gZmZdhPH-ttHqPuyb4npYzWZmISpxqRTsmCwvgCjNryD5Iz67GENmo42SWRml8duXGrs1oaCu_OMi469GCCMf7ZfT81G_dyfVUqaYggk3eNfDrc"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Zurich, CH</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">flight_takeoff</span>
+<span class="font-caption text-caption">Est. $590 • 4 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+<!-- Compact Card 9 -->
+<div class="bg-surface-container-lowest border border-border rounded-lg overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow">
+<div class="h-32 w-full relative bg-surface-variant overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A high-key, sophisticated photograph of an ancient ruin in Rome, bathed in bright, even daylight. The composition isolates a specific architectural detail, creating a modern, uncluttered, and highly editorial visual. The color palette relies on warm stone and pristine white sky, eliminating visual noise to present a calm, credible, and intellectually curious view of the destination." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_x7nljxXI0Shw-N9tqW1D7cqk86IRswZyWgO8UaqfNMSR0UlTyMeqe1EVoXnyeUqot4SGKJlOPh-VvV5W7n40LuwSlba0yWNV82EqWyFIUxj7KiSUKsd9XfHMHuFMUkvBMnkM4mqUcjSUOkD0PlrxELDimj-pRiDh6bGELkPYheFYziT9BM8LJP1kAlrNMN6WeqrO5bZSn9o2oPoIoRKxL2yhCzYJWQFo3xtKqE33q2dYHdg8u3t14yaFRbECurxLkBrzRAzsZJg"/>
+</div>
+<div class="p-control flex flex-col flex-1">
+<div class="flex justify-between items-start mb-compact">
+<h3 class="font-small text-small font-bold text-navy-950 leading-tight">Rome, Italy</h3>
+</div>
+<div class="flex items-center gap-compact text-on-surface-variant mb-auto">
+<span class="material-symbols-outlined text-[16px]">flight_takeoff</span>
+<span class="font-caption text-caption">Est. $480 • 5 days</span>
+</div>
+<div class="mt-section pt-compact border-t border-border/50 flex justify-between items-center">
+<span class="font-caption text-teal-600 font-bold group-hover:text-teal-500 transition-colors">View details</span>
+<span class="material-symbols-outlined text-teal-600 text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Load More Action -->
+<div class="mt-major flex justify-center">
+<button class="font-small text-small font-bold text-navy-950 bg-surface-container-highest border border-border rounded-full px-major py-control hover:bg-surface-dim transition-colors">
+                        Load 24 more destinations
+                    </button>
+</div>
+</div>
+<!-- Footer (appended at bottom of scrolling area so it naturally flows) -->
+<footer class="w-full py-separation px-major flex flex-col md:flex-row justify-between items-center max-w-max-width mx-auto border-t border-border bg-surface-container mt-auto">
+<div class="font-h3 text-h3 text-navy-950 mb-section md:mb-0 font-bold">Globevoy</div>
+<div class="flex flex-wrap gap-section justify-center font-caption text-caption text-on-surface-variant">
+<a class="hover:text-primary underline transition-all duration-200" href="#">Privacy Policy</a>
+<a class="hover:text-primary underline transition-all duration-200" href="#">Terms of Service</a>
+<a class="hover:text-primary underline transition-all duration-200" href="#">Cookies</a>
+<a class="hover:text-primary underline transition-all duration-200" href="#">Contact Support</a>
+</div>
+<div class="font-caption text-caption text-on-surface-variant mt-section md:mt-0 text-center md:text-right">
+                    © 2024 Globevoy. All rights reserved. Partner disclaimers apply.
+                </div>
+</footer>
+</div>
+<!-- Right Panel: Sticky Map Area -->
+<div class="hidden lg:block lg:w-2/5 xl:w-1/3 h-full border-l border-border relative bg-surface-container-low overflow-hidden">
+<!-- Map Base Image -->
+<img class="w-full h-full object-cover opacity-80" data-alt="A highly detailed, stylized digital map of Europe and North America, designed with a modern, calm, and editorial aesthetic. The map uses a minimalist color palette of soft surface tones like pale ice-blue and off-white, with subtle teal borders defining landmasses. The visual style is clean, data-driven, and lacks traditional topological textures. The lighting is bright and even, evoking a highly credible, premium digital dashboard interface suitable for a structured travel planner." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiJ0sbpZiTEvEtVDgIQqiGTztkPM2vgFEvC4jO3gijuukAcqjxXlKqNsV5mlt2yX1Iy0mfqfdpmgKIgRtf1K_O6Wl_Pl7R0q_WKnuPu8GdSpc-PzbyPeM20bXb70Qkk24xqU9kGhzr0uz4Z4FsEXsqmNOkSxwbmWaJVCyXdliOK0Gd0WeZLO1OHvGAB4qaEgr3aEhgnFzQUv5Q_MKYNlFaX4mzaEn-TNWFYyhS5FCir-IZMtEx3dMt18VP7Kj1Y3tisHFNPf-SM5c"/>
+<!-- Map Overlay UI (Optional context) -->
+<div class="absolute top-control right-control z-10 flex gap-compact">
+<button class="w-8 h-8 bg-surface-container-lowest border border-border rounded-full flex items-center justify-center shadow-sm text-navy-950 hover:bg-surface-variant">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+<button class="w-8 h-8 bg-surface-container-lowest border border-border rounded-full flex items-center justify-center shadow-sm text-navy-950 hover:bg-surface-variant">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+</div>
+<!-- Simulated Map Clusters (Absolute positioned over the map) -->
+<!-- Europe Cluster 1 -->
+<div class="absolute top-[40%] right-[30%] flex flex-col items-center group cursor-pointer">
+<div class="bg-teal-600 text-on-primary font-small text-[12px] font-bold px-2 py-1 rounded-full shadow-md cluster-pin relative z-10 group-hover:bg-navy-950 transition-colors">
+                    42
+                </div>
+<div class="w-1 h-3 bg-teal-600 mt-[-4px] group-hover:bg-navy-950 transition-colors"></div>
+</div>
+<!-- Europe Cluster 2 -->
+<div class="absolute top-[45%] right-[20%] flex flex-col items-center group cursor-pointer">
+<div class="bg-teal-600 text-on-primary font-small text-[12px] font-bold px-2 py-1 rounded-full shadow-md cluster-pin relative z-10 group-hover:bg-navy-950 transition-colors" style="animation-delay: 0.5s;">
+                    18
+                </div>
+<div class="w-1 h-3 bg-teal-600 mt-[-4px] group-hover:bg-navy-950 transition-colors"></div>
+</div>
+<!-- NA Cluster 1 (East Coast) -->
+<div class="absolute top-[35%] left-[25%] flex flex-col items-center group cursor-pointer">
+<div class="bg-amber-500 text-navy-950 font-small text-[12px] font-bold px-2 py-1 rounded-full shadow-md relative z-10 group-hover:bg-navy-950 group-hover:text-on-primary transition-colors">
+                    27
+                </div>
+<div class="w-1 h-3 bg-amber-500 mt-[-4px] group-hover:bg-navy-950 transition-colors"></div>
+</div>
+<!-- NA Cluster 2 (West Coast) -->
+<div class="absolute top-[38%] left-[10%] flex flex-col items-center group cursor-pointer">
+<div class="bg-teal-600 text-on-primary font-small text-[12px] font-bold px-2 py-1 rounded-full shadow-md relative z-10 group-hover:bg-navy-950 transition-colors">
+                    14
+                </div>
+<div class="w-1 h-3 bg-teal-600 mt-[-4px] group-hover:bg-navy-950 transition-colors"></div>
+</div>
+<!-- Small individual pin -->
+<div class="absolute top-[50%] left-[35%] w-3 h-3 bg-teal-500 border-2 border-surface-container-lowest rounded-full shadow-sm"></div>
+<div class="absolute top-[48%] right-[40%] w-3 h-3 bg-teal-500 border-2 border-surface-container-lowest rounded-full shadow-sm"></div>
+</div>
+</main>
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

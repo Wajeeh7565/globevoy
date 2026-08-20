@@ -1,0 +1,46 @@
+{
+  "release": "GV-PROD-673F",
+  "validatedAt": "2026-07-29",
+  "passed": true,
+  "checks": {
+    "cityPhotos": {
+      "passed": true,
+      "cards": [
+        {
+          "city": "Tehran",
+          "country": "Iran",
+          "confidence": "high",
+          "naturalWidth": 1709
+        },
+        {
+          "city": "Istanbul",
+          "country": "Turkey",
+          "confidence": "high",
+          "naturalWidth": 3301
+        },
+        {
+          "city": "Dubrovnik",
+          "country": "Croatia",
+          "confidence": "high",
+          "naturalWidth": 3543
+        }
+      ]
+    },
+    "tripDetails": {
+      "duplicateStayHeadingCount": 0,
+      "heroPhotoCount": 2,
+      "timelineStillVisible": true
+    },
+    "bookingHub": {
+      "currency": "USD",
+      "budget": "USD $2,000",
+      "flightLegCount": 3,
+      "hotelStayCount": 2,
+      "primaryAction": "View every flight and hotel"
+    },
+    "favicon": {
+      "ico": "./favicon.ico",
+      "png": "./assets/images/favicon-64.png?v=673f"
+    }
+  }
+}

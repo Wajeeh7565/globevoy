@@ -1,0 +1,36 @@
+PASS 01 — Release metadata is pinned to GV-SHELL-686D-R1
+PASS 02 — Scope is frontend-only with no deploy/provider/backend change
+PASS 03 — Visualizer activates only 687A journey assets
+PASS 04 — Minimal header shell remains unchanged
+PASS 05 — Desktop destination card width is reduced from 520px to 400px
+PASS 06 — Origin card is intentionally smaller than destination cards
+PASS 07 — Desktop photo height is reduced from 275px to 195px
+PASS 08 — Mobile cards remove the old 570px minimum height
+PASS 09 — Compact card presents provider-observed flight evidence
+PASS 10 — Compact card presents cached fare evidence honestly
+PASS 11 — Compact card presents hotel estimate honestly
+PASS 12 — Unavailable evidence never invents a live amount claim
+PASS 13 — Mixed-evidence destination subtotal is visibly estimated
+PASS 14 — Destination rows expose amount, evidence badge and concise action hierarchy
+PASS 15 — Origin card is simplified to starting point plus dates
+PASS 16 — Active journey wording no longer says prices checked
+PASS 17 — Active journey uses component-level pricing evidence wording
+PASS 18 — Ground legs cannot surface a flight CTA
+PASS 19 — Agoda/stay action behavior remains available
+PASS 20 — Journey player remains manual and non-autoplaying
+PASS 21 — Map/card synchronization remains in the active engine
+PASS 22 — Reduced motion remains supported
+PASS 23 — Booking workspace runtime is untouched
+PASS 24 — Budget evidence runtime is untouched
+PASS 25 — API client and runtime configuration are untouched
+PASS 26 — 687A journey module reports its version
+PASS 27 — Journey evidence model uses the new honest wording
+PASS 28 — 686D master regression remains green
+PASS 29 — 686D-R1 shell regression remains green
+PASS 30 — 686C booking regression remains green
+PASS 31 — 686B journey regression remains green
+PASS 32 — scripts/multicity-visualizer-687a.js syntax is valid
+PASS 33 — scripts/journey-experience-687a.js syntax is valid
+PASS 34 — Package contains no backend/Lambda/server runtime directory
+PASS 35 — 687A runtime makes no new fetch/XHR call
+GV-UX-687A: 35/35 PASS

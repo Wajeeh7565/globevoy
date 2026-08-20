@@ -1,0 +1,518 @@
+<!-- Globevoy - Multi-city Results (Logged-out) -->
+<!DOCTYPE html>
+<html class="light" lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Multi-city Results — Logged-out | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary": "#000000",
+                        "surface-container-high": "#d8ebfc",
+                        "teal-500": "#08A8A0",
+                        "surface": "#f6faff",
+                        "on-surface": "#0a1d2a",
+                        "on-secondary-container": "#006f69",
+                        "green-100": "#E4F5EC",
+                        "surface-tint": "#4d5f7a",
+                        "outline": "#74777e",
+                        "on-tertiary-container": "#af7a00",
+                        "surface-dim": "#c9dcee",
+                        "surface-container-low": "#ebf5ff",
+                        "primary-fixed": "#d3e3ff",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#071c33",
+                        "primary-fixed-dim": "#b5c8e6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-soft": "#F4F7F9",
+                        "amber-500": "#FFB51B",
+                        "navy-900": "#0B2038",
+                        "surface-bright": "#f6faff",
+                        "amber-600": "#E99B00",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "secondary": "#006a65",
+                        "tertiary-fixed": "#ffdead",
+                        "on-tertiary-fixed-variant": "#604100",
+                        "background": "#f6faff",
+                        "surface-container-highest": "#d2e5f6",
+                        "secondary-fixed-dim": "#5bdad1",
+                        "on-tertiary-fixed": "#281900",
+                        "navy-950": "#071C33",
+                        "teal-600": "#008F89",
+                        "surface-variant": "#d2e5f6",
+                        "on-primary-container": "#7385a1",
+                        "on-secondary-fixed-variant": "#00504c",
+                        "on-error-container": "#93000a",
+                        "primary": "#000000",
+                        "on-surface-variant": "#44474d",
+                        "surface-warm": "#FFFAF0",
+                        "green-600": "#16885E",
+                        "tertiary-container": "#281900",
+                        "secondary-fixed": "#7af6ed",
+                        "on-primary-fixed-variant": "#364861",
+                        "ink": "#122232",
+                        "border": "#D7E0E7",
+                        "inverse-surface": "#21323f",
+                        "surface-container": "#e0f0ff",
+                        "inverse-primary": "#b5c8e6",
+                        "red-600": "#B93F45",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffba39",
+                        "purple-100": "#EEE9FF",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#77f3ea",
+                        "teal-100": "#E5F7F5",
+                        "inverse-on-surface": "#e6f2ff",
+                        "amber-100": "#FFF2CF",
+                        "on-secondary-fixed": "#00201e",
+                        "purple-600": "#7357E6",
+                        "on-primary-fixed": "#071c33",
+                        "outline-variant": "#c4c6ce",
+                        "on-background": "#0a1d2a"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "separation": "64px",
+                        "max-width": "1280px",
+                        "control": "16px",
+                        "section": "24px",
+                        "micro": "4px",
+                        "major": "32px",
+                        "compact": "8px"
+                    },
+                    fontFamily: {
+                        "h3": ["Inter"],
+                        "display-mobile": ["Inter"],
+                        "small": ["Inter"],
+                        "h2": ["Inter"],
+                        "h1-mobile": ["Inter"],
+                        "caption": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "h1": ["Inter"],
+                        "display": ["Inter"]
+                    },
+                    fontSize: {
+                        "h3": ["24px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "display-mobile": ["36px", { lineHeight: "1.2", fontWeight: "700" }],
+                        "small": ["14px", { lineHeight: "1.4", fontWeight: "500" }],
+                        "h2": ["32px", { lineHeight: "1.4", fontWeight: "600" }],
+                        "h1-mobile": ["30px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "caption": ["12px", { lineHeight: "1.4", letterSpacing: "0.01em", fontWeight: "400" }],
+                        "body-lg": ["18px", { lineHeight: "1.6", fontWeight: "400" }],
+                        "body": ["16px", { lineHeight: "1.5", fontWeight: "400" }],
+                        "label-caps": ["12px", { lineHeight: "1", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "h1": ["40px", { lineHeight: "1.3", fontWeight: "600" }],
+                        "display": ["56px", { lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "700" }]
+                    }
+                }
+            }
+        };
+    </script>
+<style>
+        .timeline-line {
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            bottom: 24px;
+            width: 2px;
+            background-color: #D7E0E7;
+            z-index: 0;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="exact-recovered-html" name="gv-source-status"/></head>
+<body class="bg-background text-on-background font-body text-body antialiased min-h-screen flex flex-col gv-canonical" data-depth="1" data-nav-active="Multi-city" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Multi-city Results — Logged-out · MVP conversion · not connected to production data.</div>
+<!-- TopNavBar -->
+
+<!-- Search Summary Bar -->
+<div class="bg-surface-soft border-b border-border py-control px-major w-full">
+<div class="max-w-max-width mx-auto flex flex-wrap items-center gap-control text-small text-on-surface-variant">
+<div class="flex items-center gap-compact">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-medium text-on-surface">Toronto – YYZ</span>
+</div>
+<span class="text-outline-variant">•</span>
+<div class="flex items-center gap-compact">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span class="">C$1,500</span>
+</div>
+<span class="text-outline-variant">•</span>
+<div class="flex items-center gap-compact">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span class="">1 traveller</span>
+</div>
+<span class="text-outline-variant">•</span>
+<div class="flex items-center gap-compact">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+<span class="">Flexible dates</span>
+</div>
+<span class="text-outline-variant">•</span>
+<div class="flex items-center gap-compact">
+<span class="material-symbols-outlined text-[18px]">bed</span>
+<span class="">6 nights</span>
+</div>
+<span class="text-outline-variant">•</span>
+<div class="flex items-center gap-compact">
+<span class="material-symbols-outlined text-[18px]">map</span>
+<span class="">2 cities</span>
+</div>
+<span class="text-outline-variant">•</span>
+<span class="">North America</span>
+<button class="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border hover:bg-white hover:shadow-sm transition-all text-on-surface-variant hover:text-on-surface font-small text-small">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+<span class="">Edit search</span>
+</button></div>
+</div>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full px-major py-separation max-w-max-width mx-auto grid grid-cols-1 lg:grid-cols-12 gap-section items-start">
+<!-- Left Column: Route Details (Spans 8 columns on desktop) -->
+<div class="lg:col-span-8 flex flex-col gap-major">
+<!-- Results Header -->
+<section class="flex flex-col gap-control">
+<div class="inline-flex items-center gap-compact bg-amber-100 text-on-tertiary-container px-3 py-1 rounded-full w-fit">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span class="font-label-caps text-label-caps uppercase tracking-wider">Best Balance</span>
+</div>
+<h1 class="font-h1 text-h1 text-on-surface text-navy-900">Your recommended Multi-city route</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">
+                    We protected C$150 for personal spending and built one connected route within a maximum planning budget of C$1,350.
+                </p>
+</section>
+<!-- Route Hero Image Split -->
+<div class="relative w-full h-[400px] rounded-xl overflow-hidden flex shadow-sm border border-border">
+<div class="w-1/2 h-full relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A cinematic, wide-angle shot of Old Montreal at golden hour, featuring historic cobblestone streets, classic architecture, and a warm, inviting glow. The image has a sophisticated travel photography style, emphasizing rich textures and a slightly muted color palette to fit a modern corporate UI." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCWfFzAhOf6Kd7igpEuz25wEZu4upIveI0jzXbKqmtQUsSO_g1LKIBbD7C_J3ZfAVYBYSzBBAaBkp25o6-Op93g3iW-1qJPX4p8VHLS8g3eyjl-mXOsCccbwxVRZT6JTpPqn8uz0MPKD91Kuety0jU_A9krI-uPMgGXNYbsuZwJNXUpfsL3Vt_yBoqtaM8v8an42h3wPRZEIPe2pJ3UAJ_sEC8AXdHO8eOcxhtw7U3xFITxgTI5mFdtMEVl6Xjfnvh4LA7LZqayWn4");'></div>
+<div class="absolute inset-0 bg-gradient-to-r from-navy-950/60 to-transparent"></div>
+</div>
+<div class="w-1/2 h-full relative">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A breathtaking view of the Chateau Frontenac in Quebec City overlooking the St. Lawrence River during early morning light. The photography style is crisp, editorial, and aspirational, utilizing cool morning tones that contrast beautifully with the warm sunlight hitting the historic structure." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDrlDWZvvA35Jgsuec2dA4svYhwb7oH8Fg4Msl5IQAlLaXV8BbqXBg-WPlYCYSakEZnKnosiFuLoPIJWG1CR2wkqq9zx3E86pWnsHDCypUlIvm5s0UC2YBXVlgFAjySqNFgEkqehgI13usHLSJYW9Dvla1HQkRnJA3y_3d4WSs_kR78vw6jLeNZpN4yxhV0OVyu8p2b1p_VnwkPEBY-A0iMxtdB21QLB2DoiRo40xDRlSQb8taG4PTmkAgeQOn9BW9iPW2mv3-7e1k");'></div>
+<div class="absolute inset-0 bg-gradient-to-l from-navy-950/60 to-transparent"></div>
+</div>
+<!-- Route Overlay -->
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+<div class="bg-navy-950/80 backdrop-blur-md px-6 py-4 rounded-lg border border-white/10 shadow-lg flex items-center gap-3">
+<span class="font-small text-small text-white font-medium">Toronto</span>
+<span class="material-symbols-outlined text-amber-500 text-[20px]">arrow_forward</span>
+<span class="font-small text-small text-white font-bold">Montreal</span>
+<span class="material-symbols-outlined text-amber-500 text-[20px]">arrow_forward</span>
+<span class="font-small text-small text-white font-bold">Quebec City</span>
+<span class="material-symbols-outlined text-amber-500 text-[20px]">arrow_forward</span>
+<span class="font-small text-small text-white font-medium">Toronto</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid: Route Overview & Why it Fits -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-section">
+<!-- Route Timeline -->
+<div class="bg-surface-soft border border-border rounded-xl p-section relative">
+<h3 class="font-h3 text-h3 text-navy-900 mb-6">Route Overview</h3>
+<div class="relative pl-8 flex flex-col gap-6">
+<div class="timeline-line"></div>
+<!-- Flight Out -->
+<div class="relative z-10 flex gap-control items-start">
+<div class="absolute -left-[43px] bg-white border border-border rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-teal-600">flight_takeoff</span>
+</div>
+<div class="flex-1">
+<p class="font-small text-small font-medium text-navy-900">Outbound Flight</p>
+<p class="font-caption text-caption text-on-surface-variant">YYZ to YUL</p>
+</div>
+</div>
+<!-- Montreal Stay -->
+<div class="relative z-10 flex gap-control items-start">
+<div class="absolute -left-[43px] bg-white border border-border rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-amber-600">bed</span>
+</div>
+<div class="flex-1">
+<p class="font-small text-small font-medium text-navy-900">Montreal</p>
+<p class="font-caption text-caption text-on-surface-variant">3 Nights</p>
+</div>
+</div>
+<!-- Train -->
+<div class="relative z-10 flex gap-control items-start">
+<div class="absolute -left-[43px] bg-white border border-border rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-teal-600">train</span>
+</div>
+<div class="flex-1">
+<p class="font-small text-small font-medium text-navy-900">Inter-city Train</p>
+<p class="font-caption text-caption text-on-surface-variant">VIA Rail (approx 3h)</p>
+</div>
+</div>
+<!-- Quebec Stay -->
+<div class="relative z-10 flex gap-control items-start">
+<div class="absolute -left-[43px] bg-white border border-border rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-amber-600">bed</span>
+</div>
+<div class="flex-1">
+<p class="font-small text-small font-medium text-navy-900">Quebec City</p>
+<p class="font-caption text-caption text-on-surface-variant">3 Nights</p>
+</div>
+</div>
+<!-- Flight Return -->
+<div class="relative z-10 flex gap-control items-start">
+<div class="absolute -left-[43px] bg-white border border-border rounded-full w-6 h-6 flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[14px] text-teal-600">flight_land</span>
+</div>
+<div class="flex-1">
+<p class="font-small text-small font-medium text-navy-900">Return Flight</p>
+<p class="font-caption text-caption text-on-surface-variant">YQB to YYZ</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Why This Route Fits -->
+<div class="bg-surface-soft border border-border rounded-xl p-section flex flex-col gap-control">
+<div class="flex items-center gap-compact mb-2">
+<span class="material-symbols-outlined text-teal-600">check_circle</span>
+<h3 class="font-h3 text-h3 text-navy-900">Why this route fits</h3>
+</div>
+<p class="font-body text-body text-on-surface-variant">
+                        This itinerary perfectly balances the vibrant food and arts culture of Montreal with the rich historic character of Quebec City, all while staying comfortably under your C$1,350 planning budget.
+                    </p>
+<ul class="mt-4 flex flex-col gap-compact">
+<li class="flex items-start gap-compact">
+<span class="material-symbols-outlined text-[16px] text-amber-600 mt-1">bolt</span>
+<span class="font-small text-small text-on-surface">Simple, logical route flow</span>
+</li>
+<li class="flex items-start gap-compact">
+<span class="material-symbols-outlined text-[16px] text-amber-600 mt-1">balance</span>
+<span class="font-small text-small text-on-surface">Balanced 3-night stays in each city</span>
+</li>
+<li class="flex items-start gap-compact">
+<span class="material-symbols-outlined text-[16px] text-amber-600 mt-1">timer</span>
+<span class="font-small text-small text-on-surface">Short, scenic train leg between cities</span>
+</li>
+<li class="flex items-start gap-compact">
+<span class="material-symbols-outlined text-[16px] text-amber-600 mt-1">savings</span>
+<span class="font-small text-small text-on-surface">C$180 remaining in planning budget</span>
+</li>
+</ul>
+</div>
+</div>
+<!-- City Cards -->
+<div class="flex flex-col gap-section">
+<h2 class="font-h2 text-h2 text-navy-900">Destinations</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-section">
+<!-- Montreal Card -->
+<div class="bg-white border border-border rounded-xl overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="A lively street scene in the Plateau-Mont-Royal neighborhood of Montreal, featuring colorful row houses with iconic spiral staircases. The lighting suggests a bright, sunny afternoon, capturing a sense of community and cultural vibrancy suitable for a modern travel app." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDlBxp4mxfyAajNuXb7vHVI1Ql9UV29xy7YlzF9A1SZDSGfpZxycv0qn2j-MJ47newvFIsjemRgo3JPbFv7FJuXEOvHDRMOTbymwvhe7lIDV7fcWTbe6NWiQBpNFdiRtOlpH189OEdfzsbW0jGqLz5BBuQVWZC0872Qx9NCNSpl9lNwuzxY9pdCxUKfAgu492d4dihYrhCLcZqcGESnfsZOYuU67JPpU7v-TOReR4O9S2I_H4OSdkXmHbgSIrrMZldB005tiaYqd10");'></div>
+<div class="absolute top-4 left-4 bg-navy-950/80 backdrop-blur-sm text-white px-3 py-1 rounded-full font-label-caps text-label-caps uppercase tracking-wider">
+                                Anchor
+                            </div>
+</div>
+<div class="p-control flex flex-col gap-compact">
+<div class="flex justify-between items-start">
+<h3 class="font-h3 text-h3 text-navy-900">Montreal</h3>
+<span class="font-small text-small text-on-surface-variant">3 Nights</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">A vibrant hub of food, arts, and culture with a distinct European flair in North America.</p>
+<div class="mt-4 flex items-center justify-between border-t border-border pt-4">
+<span class="font-caption text-caption text-teal-600 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">hotel</span> C$270 Est. Stay</span>
+<span class="font-small text-small font-medium text-amber-600 hover:underline">Explore city</span>
+</div>
+</div>
+</div>
+<!-- Quebec City Card -->
+<div class="bg-white border border-border rounded-xl overflow-hidden hover:shadow-md transition-shadow group cursor-pointer">
+<div class="h-48 relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="A picturesque, narrow cobblestone street in Petit-Champlain, Quebec City, lined with charming stone boutiques and bistros. The scene is illuminated by warm, inviting sunlight, creating an editorial and deeply historic atmosphere perfect for a premium travel discovery platform." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAwf4efLT2BBvzA783s1HUZa319QJydeFrIOVIRSWPzuJdnzNuaibR--ZMvFXlbM4wSTzgmgy2cYpnqPWb_dwHFD_S5HggW8KQRCSDlssQcPF1erFOiUP6LHR3BLYIMzls60Jqvjp91hcuEmZgKXjS8Ft0tTmWE4_I0lrZSeIqYTtXa15KE7zY35vtW8Jrwqmt8iXfUrxK6o7MYYH0trOmrPUDWv0t9DHtji8zeRea8k9b6Wy1vIX-aFxVnYQr9f-G8HAZesbJRhSs");'></div>
+<div class="absolute top-4 left-4 bg-teal-600/90 backdrop-blur-sm text-white px-3 py-1 rounded-full font-label-caps text-label-caps uppercase tracking-wider">
+                                Discovery
+                            </div>
+</div>
+<div class="p-control flex flex-col gap-compact">
+<div class="flex justify-between items-start">
+<h3 class="font-h3 text-h3 text-navy-900">Quebec City</h3>
+<span class="font-small text-small text-on-surface-variant">3 Nights</span>
+</div>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-2">Immerse yourself in history with stunning architecture and romantic cobblestone streets.</p>
+<div class="mt-4 flex items-center justify-between border-t border-border pt-4">
+<span class="font-caption text-caption text-teal-600 flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">hotel</span> C$330 Est. Stay</span>
+<span class="font-small text-small font-medium text-amber-600 hover:underline">Explore city</span>
+</div>
+</div>
+</div>
+</div>
+</div><section class="bg-teal-50 border border-teal-100 rounded-xl p-section flex flex-col md:flex-row gap-major items-center">
+<div class="flex-1 flex flex-col gap-compact">
+<div class="flex items-center gap-2 text-teal-600 mb-2">
+<span class="material-symbols-outlined">lock</span>
+<h3 class="font-h3 text-h3 text-navy-900">Want more route options?</h3>
+</div>
+<p class="font-body text-body text-on-surface-variant mb-4">
+            Sign in to compare additional personalized routes based on your budget, interests, travel pace, hotel preferences and saved travel profile.
+        </p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+<div class="flex items-center gap-2 text-small text-on-surface">
+<span class="material-symbols-outlined text-teal-600 text-[18px]">check_circle</span>
+                Compare more route options
+            </div>
+<div class="flex items-center gap-2 text-small text-on-surface">
+<span class="material-symbols-outlined text-teal-600 text-[18px]">check_circle</span>
+                Remember travel preferences
+            </div>
+<div class="flex items-center gap-2 text-small text-on-surface">
+<span class="material-symbols-outlined text-teal-600 text-[18px]">check_circle</span>
+                Save searches and routes
+            </div>
+<div class="flex items-center gap-2 text-small text-on-surface">
+<span class="material-symbols-outlined text-teal-600 text-[18px]">check_circle</span>
+                Passport-aware suggestions
+            </div>
+</div>
+<div class="flex flex-wrap items-center gap-major">
+<button class="bg-teal-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-teal-500 transition-colors">Sign in to see more routes</button>
+<a class="text-teal-600 font-medium hover:underline" href="#">Continue with this route</a>
+</div>
+</div>
+</section>
+<!-- Cost Breakdown Detailed List -->
+<div class="bg-white border border-border rounded-xl p-section">
+<h3 class="font-h3 text-h3 text-navy-900 mb-6">Route Cost Breakdown</h3>
+<div class="flex flex-col gap-4">
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant text-[20px]">flight_takeoff</span>
+<span class="font-body text-body text-on-surface">Outbound Flight (YYZ - YUL)</span>
+<span class="bg-surface-soft border border-border text-outline text-[10px] uppercase px-2 py-0.5 rounded font-bold tracking-wider">Cached flight estimate</span>
+</div>
+<span class="font-small text-small font-medium text-navy-900">C$220</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant text-[20px]">bed</span>
+<span class="font-body text-body text-on-surface">Montreal Stay (3 nights)</span>
+<span class="bg-teal-50 border border-teal-100 text-teal-600 text-[10px] uppercase px-2 py-0.5 rounded font-bold tracking-wider">Planning estimate</span>
+</div>
+<span class="font-small text-small font-medium text-navy-900">C$270</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant text-[20px]">train</span>
+<span class="font-body text-body text-on-surface">Inter-city Train (YUL - YQB)</span>
+<span class="bg-teal-50 border border-teal-100 text-teal-600 text-[10px] uppercase px-2 py-0.5 rounded font-bold tracking-wider">Planning estimate</span>
+</div>
+<span class="font-small text-small font-medium text-navy-900">C$90</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant text-[20px]">bed</span>
+<span class="font-body text-body text-on-surface">Quebec City Stay (3 nights)</span>
+<span class="bg-teal-50 border border-teal-100 text-teal-600 text-[10px] uppercase px-2 py-0.5 rounded font-bold tracking-wider">Planning estimate</span>
+</div>
+<span class="font-small text-small font-medium text-navy-900">C$330</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-border border-dashed">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-outline-variant text-[20px]">flight_land</span>
+<span class="font-body text-body text-on-surface">Return Flight (YQB - YYZ)</span>
+<span class="bg-surface-soft border border-border text-outline text-[10px] uppercase px-2 py-0.5 rounded font-bold tracking-wider">Cached flight estimate</span>
+</div>
+<span class="font-small text-small font-medium text-navy-900">C$260</span>
+</div>
+</div>
+</div>
+<!-- Map View -->
+<div class="w-full h-64 bg-surface-soft border border-border rounded-xl overflow-hidden relative">
+<div class="absolute inset-0 bg-cover bg-center opacity-80 mix-blend-multiply" data-alt="A clean, minimalist vector map of Eastern Canada highlighting the route between Toronto, Montreal, and Quebec City. The map uses a sophisticated color palette of deep navy for landmasses, soft teal for water, and prominent amber connection lines to illustrate the travel path. It fits a high-end corporate application." data-location="Montreal, Canada" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCBy0F0ExnIGbkxGl7sdNnMbeHPeG2xHjRo8Kos6wqVH0NGBrvbt1AEH6a3SQO8BkWFW7xDcfiT2MoNsFGoG2mwie2v1E2tUrBGaWXjn90eGTV4zKHDiM6Cp58ICgn3-7mHgPerFurllr1lckAqU9SrWrw9hmz-WCw7gCeFODKL9SjnIPx0MnHfnAGpLHjciQVSbWgPjM-pRccVzJF6satwU8J0ljnWls2IFdUgPg6G5pF14K9A1vZ9EqCqRZ5_YKqjv8OYKNBktis");'></div>
+<div class="absolute inset-0 border-2 border-teal-600/10 rounded-xl pointer-events-none"></div>
+<div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur border border-border px-3 py-2 rounded shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-teal-600">route</span>
+<span class="font-caption text-caption font-medium text-navy-900">Toronto Loop</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Sticky Summary Panel (Spans 4 columns on desktop) -->
+<div class="lg:col-span-4 relative">
+<div class="sticky bg-white border border-border rounded-xl shadow-sm flex flex-col overflow-hidden" style="top: 200px; min-height: 600px; margin-top: 200px;">
+<div class="bg-navy-950 p-control text-white flex flex-col gap-1">
+<h2 class="font-h3 text-h3 text-amber-500">Route Summary</h2>
+<p class="font-caption text-caption text-white/80">Toronto Loop (2 Cities)</p>
+</div>
+<div class="p-section flex flex-col gap-6 flex-grow">
+<!-- Topline Numbers -->
+<div class="flex justify-between items-end border-b border-border pb-4">
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant uppercase tracking-wider">Estimated Total</span>
+<span class="font-h2 text-h2 text-navy-900 leading-none mt-1">C$1,170</span>
+</div>
+<div class="text-right flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant">vs C$1,350 Plan Limit</span>
+</div>
+</div>
+<!-- Budget Allocation Bar -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-[10px] uppercase font-bold tracking-wider">
+<span class="text-teal-600">Route C$1,170</span>
+<span class="text-amber-600">Reserve C$150</span>
+<span class="text-green-600">Rem. C$180</span>
+</div>
+<div class="h-3 w-full bg-surface-soft rounded-full overflow-hidden flex border border-border">
+<!-- Route Total (78% of 1500) -->
+<div class="h-full bg-teal-500" style="width: 78%"></div>
+<!-- Reserve (10% of 1500) -->
+<div class="h-full bg-amber-500" style="width: 10%"></div>
+<!-- Remaining (12% of 1500) -->
+<div class="h-full bg-green-100" style="width: 12%"></div>
+</div>
+</div>
+<!-- Granular Breakdown -->
+<div class="flex flex-col gap-3 mt-2">
+<div class="flex justify-between items-center">
+<span class="font-small text-small text-on-surface-variant flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-teal-500"></span> Flights
+                            </span>
+<span class="font-small text-small font-medium text-navy-900">C$480</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-small text-small text-on-surface-variant flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-teal-500 opacity-80"></span> Stays
+                            </span>
+<span class="font-small text-small font-medium text-navy-900">C$600</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-small text-small text-on-surface-variant flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-teal-500 opacity-60"></span> Transport
+                            </span>
+<span class="font-small text-small font-medium text-navy-900">C$90</span>
+</div>
+<div class="h-px w-full bg-border my-1"></div>
+<div class="flex justify-between items-center">
+<span class="font-small text-small text-on-surface-variant flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span> Protected Reserve
+                            </span>
+<span class="font-small text-small font-medium text-navy-900">C$150</span>
+</div>
+</div>
+<!-- Action -->
+<button class="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-navy-950 font-small text-small font-bold py-3 px-4 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-2">
+                        View full route details
+                        <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<p class="font-caption text-caption text-center text-outline-variant mt-2">
+                        Prices are estimates. Final costs calculated at booking.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

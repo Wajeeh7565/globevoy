@@ -1,0 +1,30 @@
+GV-CITY-668S — Inactive City Recovery Wave 1
+
+Added:
+- build-gv-city-668s-inactive-recovery-wave1.js
+- services/inactive-city-recovery-wave1.js
+- data/inactive-city-recovery-wave1-150-668s.json
+- data/inactive-city-recovery-wave1-150-668s.csv
+- Run-GV-CITY-668S-Inactive-Recovery-Wave1.ps1
+- validate-gv-city-668s.js
+- VALIDATION_GV_CITY_668S.json
+- GV-CITY-668S_REPORT.md
+- MANIFEST_GV_CITY_668S.txt
+
+Modified additively:
+- services/provider-live-coverage.js
+  - recoveryMode support
+  - six-anchor recovery search
+  - recovery policy metadata
+- server.js
+  - GET /api/inactive-city-recovery-wave1
+- lambda.js
+  - GET /api/inactive-city-recovery-wave1
+
+Baseline preserved:
+- GV-CITY-668R 1,000 audited / 421 production-active
+- Existing production qualification thresholds
+- GV-CONTROL-667D frontend compatibility
+
+Deployment flag:
+ENABLE_INACTIVE_CITY_RECOVERY_668S=true

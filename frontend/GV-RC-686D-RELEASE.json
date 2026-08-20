@@ -1,0 +1,16 @@
+{
+  "release": "GV-RC-686D",
+  "purpose": "Consolidated UX release candidate",
+  "authoritativeSource": "GV-BOOK-686C",
+  "authoritativeSourceSha256": "87409a8ce8cbea78c27bec65c217c150cf501fb0fc29e2507300943c322c5612",
+  "productionComparisonBaseline": "GV-BOOK-685D-R1",
+  "productionComparisonBaselineSha256": "a01337ec4494a4a1bf907811b3f24da1fc2854f7b35cb3ca94a423b52b10736e",
+  "knownGoodRollback": "GV-TRUST-685B / Amplify production job 231 artifact",
+  "knownGoodRollbackSha256": "22107006178F42914881E9A31E11CC2B372D784AD30C87ECAB4D483AD01E36FC",
+  "deploymentPerformed": false,
+  "backendChanged": false,
+  "lambdaChanged": false,
+  "liveProviderCallsDuringValidation": false,
+  "legalGate": "LEGAL-CONTENT-APPROVAL-REQUIRED"
+}
+

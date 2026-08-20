@@ -1,0 +1,74 @@
+GV-JOURNEY-686B VALIDATION RECORD
+Date: 2026-08-18
+Deployment: NOT PERFORMED
+Live provider calls: NONE
+
+BASELINE AUTHENTICATION
+- Source package: frontend-staging-gv-shell-686a-product-shell-consolidation-portable.zip
+- SHA-256: 02849c0fcf0cade561d1a16c2c2a62d7c018da0fa474a1c1fde261a9b7a7a4a5
+- Delta comparison: 2 changed, 4 added before release documents, 0 removed
+
+GV-JOURNEY-686B AUTOMATED VALIDATOR
+- PASS 24/24
+- Chronology and cumulative day ranges: PASS
+- Flight/ground-transfer integrity: PASS
+- Conservative evidence count: PASS
+- No autoplay: PASS
+- Pause, overview and Escape: PASS
+- Rail/map/card synchronization hooks: PASS
+- Reduced-motion manual mode: PASS
+- Mobile compact context: PASS
+- No network/provider request in journey module: PASS
+- Protected 686A file hashes: PASS
+
+REGRESSION SUITES
+- GV-BOOK-685D-R2 immediate trust repair: PASS 18/18
+- GV-TRUST-685B frontend: PASS 12/12
+- GV-TRUST-681A-R1 frontend: PASS 7/7
+- GV-BOOK-676A frontend: PASS 24/24
+- GV-BOOK-676A-R1 frontend: PASS 14/14
+
+SYNTAX / MODULE CHECKS
+- scripts/journey-experience-686b.js: PASS
+- scripts/multicity-visualizer-674a.js: PASS
+- scripts/booking-hub-685d.js: PASS
+- scripts/budget-confidence-685b.js: PASS
+- scripts/shell-670f.js: PASS
+
+BROWSER QA — OFFLINE FIXTURE
+- Fixture: gv-journey-686b-browser-fixture.html
+- Route: Toronto → Mexico City → Cancun → Toronto
+- Transport integrity: Mexico City → Cancun remains ground transfer
+- Price evidence: 2 of 5 prices checked
+- Whole-group budget: CAD 2,600
+- Current estimate: CAD 2,230
+- Play state: begins only after user activation
+- Timed playback: Toronto → Mexico City synchronized in rail, card and marker
+- Pause/continue/replay: PASS
+- Show-complete-route reset: PASS
+- Manual Cancun selection synchronization: PASS
+- Desktop horizontal overflow: NONE
+- 375 × 812 viewport: document client width 360, scroll width 360, overflow NONE
+- Mobile player width: 332 px
+- Mobile sticky context width: 340 px
+- Review complete trip handoff: PASS; existing generated/saved snapshot parameters retained
+- Console errors attributable to this release: NONE
+- External map/provider request during fixture: NONE
+
+EXACT DELTA FROM 686A
+CHANGED
+- multicity-visualizer.html
+- scripts/multicity-visualizer-674a.js
+ADDED RUNTIME
+- scripts/journey-experience-686b.js
+- styles/journey-experience-686b.css
+ADDED VALIDATION
+- gv-journey-686b-browser-fixture.html
+- validation/validate-gv-journey-686b.js
+REMOVED
+- none
+
+PACKAGE REOPEN / INTEGRITY
+- Completed after package creation; final package SHA-256 is in the adjacent .sha256 sidecar.
+- Internal file hashes are in GV-JOURNEY-686B-CHECKSUMS.sha256.
+

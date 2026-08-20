@@ -1,0 +1,199 @@
+{
+  "release": "GV-REC-677B-R2",
+  "generatedAt": "2026-08-06T17:21:46.400Z",
+  "passed": true,
+  "checkCount": 9,
+  "passedCount": 9,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "R2 generated-tour version packaged",
+      "passed": true,
+      "details": "2.12.0-gv-rec-677d-destination-value-proximity"
+    },
+    {
+      "name": "R2 quality guardrail flag active",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "R2 quality guardrail version exported",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "R2 rejects 23h20m cheap itinerary when a normal nonstop-like option is within premium ceiling",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-08-05",
+        "price": 350,
+        "currency": "CAD",
+        "durationMinutes": 275,
+        "transfers": 0,
+        "departureTime": "09:10",
+        "arrivalTime": "13:45",
+        "timingQuality": 0,
+        "cheapestPrice": 289,
+        "pricePremiumVsCheapest": 61,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 14.353,
+        "alternativesConsidered": 2,
+        "dateShiftDays": 0,
+        "durationMinutesSavedVsCheapest": 1125,
+        "connectionsSavedVsCheapest": 2,
+        "usefulTimeWarnings": [],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 0,
+          "durationMinutesSavedVsCheapest": 1125,
+          "connectionsSavedVsCheapest": 2,
+          "pricePremiumVsCheapest": 61,
+          "usefulTimeWarnings": [],
+          "targetDate": "2026-08-05"
+        },
+        "flightQualityGuardrailVersion": "GV-REC-677B-R2",
+        "flightQualityStatus": "guardrail-pass",
+        "flightQualityWarnings": [],
+        "expectedJourneyMinutes": 355,
+        "cautionDurationThresholdMinutes": 515,
+        "severeDurationThresholdMinutes": 695,
+        "durationRatioVsExpected": 0.77,
+        "routeRelativeExpectedFlightMinutes": null,
+        "routeRelativeCautionThresholdMinutes": null,
+        "routeRelativeSevereThresholdMinutes": null,
+        "routeDistanceBand": null,
+        "selectionReason": "smart-flight-comfort-within-budget-677b"
+      }
+    },
+    {
+      "name": "R2 chosen normal option passes quality guardrail",
+      "passed": true,
+      "details": {
+        "status": "guardrail-pass",
+        "warnings": []
+      }
+    },
+    {
+      "name": "R2 does not shift date merely for cheaper poor flight when all provider observations are severe",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-08-05",
+        "price": 310,
+        "currency": "CAD",
+        "durationMinutes": 1320,
+        "transfers": 2,
+        "departureTime": "07:00",
+        "arrivalTime": "05:00",
+        "timingQuality": 5,
+        "cheapestPrice": 260,
+        "pricePremiumVsCheapest": 50,
+        "timingLabel": "weak-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 130.577,
+        "alternativesConsidered": 2,
+        "dateShiftDays": 0,
+        "durationMinutesSavedVsCheapest": 90,
+        "connectionsSavedVsCheapest": 0,
+        "usefulTimeWarnings": [
+          "very-early-arrival"
+        ],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 0,
+          "durationMinutesSavedVsCheapest": 90,
+          "connectionsSavedVsCheapest": 0,
+          "pricePremiumVsCheapest": 50,
+          "usefulTimeWarnings": [
+            "very-early-arrival"
+          ],
+          "targetDate": "2026-08-05"
+        },
+        "flightQualityGuardrailVersion": "GV-REC-677B-R2",
+        "flightQualityStatus": "limited-provider-options",
+        "flightQualityWarnings": [
+          "multiple-connections",
+          "excessive-duration-for-route"
+        ],
+        "expectedJourneyMinutes": 355,
+        "cautionDurationThresholdMinutes": 595,
+        "severeDurationThresholdMinutes": 715,
+        "durationRatioVsExpected": 3.72,
+        "routeRelativeExpectedFlightMinutes": null,
+        "routeRelativeCautionThresholdMinutes": null,
+        "routeRelativeSevereThresholdMinutes": null,
+        "routeDistanceBand": null,
+        "selectionReason": "limited-flight-options-provider-evidence-677b-r2"
+      }
+    },
+    {
+      "name": "R2 labels all-poor provider evidence honestly",
+      "passed": true,
+      "details": {
+        "status": "limited-provider-options",
+        "reason": "limited-flight-options-provider-evidence-677b-r2",
+        "warnings": [
+          "multiple-connections",
+          "excessive-duration-for-route"
+        ]
+      }
+    },
+    {
+      "name": "R2 does not over-penalize realistic long-haul travel",
+      "passed": true,
+      "details": {
+        "status": "guardrail-pass",
+        "warnings": [],
+        "expectedJourneyMinutes": 969,
+        "cautionDurationThresholdMinutes": 1454,
+        "severeDurationThresholdMinutes": 1841,
+        "durationRatioVsExpected": 1.05,
+        "distanceKm": 10000
+      }
+    },
+    {
+      "name": "R2 preserves price ceiling under high budget pressure",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-09-01",
+        "price": 300,
+        "durationMinutes": 700,
+        "transfers": 1,
+        "timingQuality": 1,
+        "cheapestPrice": 300,
+        "pricePremiumVsCheapest": 0,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 30.7,
+        "alternativesConsidered": 1,
+        "dateShiftDays": 0,
+        "durationMinutesSavedVsCheapest": 0,
+        "connectionsSavedVsCheapest": 0,
+        "usefulTimeWarnings": [],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 0,
+          "durationMinutesSavedVsCheapest": 0,
+          "connectionsSavedVsCheapest": 0,
+          "pricePremiumVsCheapest": 0,
+          "usefulTimeWarnings": [],
+          "targetDate": "2026-09-01"
+        },
+        "flightQualityGuardrailVersion": "GV-REC-677B-R2",
+        "flightQualityStatus": "caution",
+        "flightQualityWarnings": [
+          "long-duration-for-route"
+        ],
+        "expectedJourneyMinutes": 355,
+        "cautionDurationThresholdMinutes": 595,
+        "severeDurationThresholdMinutes": 715,
+        "durationRatioVsExpected": 1.97,
+        "routeRelativeExpectedFlightMinutes": null,
+        "routeRelativeCautionThresholdMinutes": null,
+        "routeRelativeSevereThresholdMinutes": null,
+        "routeDistanceBand": null,
+        "selectionReason": "smart-flight-date-selection-kept-cheapest-677b"
+      }
+    }
+  ]
+}

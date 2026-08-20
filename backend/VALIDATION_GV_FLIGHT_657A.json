@@ -1,0 +1,15 @@
+{
+  "task": "GV-FLIGHT-657A",
+  "status": "passed",
+  "checks": [
+    "node -c services/cheap-one-way-flights.js",
+    "node -c generated-tour.js",
+    "node -c lambda.js",
+    "node -c server.js",
+    "mock month-window provider scan selected cheapest observation",
+    "generated tour smoke test returned budget-fit 2-stop route without provider token"
+  ],
+  "frontendChanged": false,
+  "backendChanged": true,
+  "notes": "Provider month-window scanner requires TRAVELPAYOUTS_TOKEN and ENABLE_CHEAP_ONE_WAY_MONTH_SCAN_657A=true for real provider data."
+}

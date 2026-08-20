@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Flexible-Date Intelligence — Final | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#66f8ef",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-container": "#00a8a1",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed": "#7af6ed",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#4d5f7a",
+                        "on-tertiary-fixed": "#00201e",
+                        "background": "#f8f9ff",
+                        "on-secondary-container": "#50627c",
+                        "on-primary-fixed-variant": "#00504c",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#5bdad1",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-low": "#eff4ff",
+                        "surface-tint": "#006a65",
+                        "surface-bright": "#f8f9ff",
+                        "on-surface-variant": "#3c4948",
+                        "primary-container": "#08a8a0",
+                        "on-secondary-fixed": "#071c33",
+                        "inverse-on-surface": "#eaf1ff",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#0b1c30",
+                        "tertiary-fixed-dim": "#41dbd3",
+                        "on-tertiary-fixed-variant": "#00504c",
+                        "on-tertiary-container": "#003533",
+                        "secondary-fixed-dim": "#b5c8e6",
+                        "secondary-container": "#cbdefd",
+                        "on-primary-container": "#003532",
+                        "surface-container-high": "#dce9ff",
+                        "on-background": "#0b1c30",
+                        "on-primary-fixed": "#00201e",
+                        "inverse-surface": "#213145",
+                        "tertiary": "#006a65",
+                        "primary-fixed-dim": "#5bdad1",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "primary": "#006a65",
+                        "outline-variant": "#bbc9c7",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#6c7a78",
+                        "surface": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#d3e3ff",
+                        "on-secondary-fixed-variant": "#364861"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "container-max": "1200px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="original-stitch-code-html" name="gv-source-status"/></head>
+<body class="bg-surface text-on-surface font-body-lg min-h-screen selection:bg-primary-container selection:text-on-primary-container gv-canonical" data-depth="1" data-nav-active="Explore" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Flexible-Date Intelligence — Final · Advanced later · not connected to production data.</div>
+<!-- Task-Focused Header (Suppressed main nav as per rules) -->
+
+<main class="max-w-container-max mx-auto px-md md:px-lg py-lg md:py-xl grid grid-cols-1 lg:grid-cols-12 gap-lg lg:gap-gutter items-start">
+<!-- Left Column: Calendar & Intelligence Canvas -->
+<div class="lg:col-span-8">
+<!-- Page Header -->
+<div class="mb-lg">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-sm">Choose strong travel dates</h1>
+<div class="flex flex-wrap gap-md font-body-sm text-body-sm text-on-surface-variant items-center">
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">calendar_month</span> August 2026</div>
+<div class="w-1 h-1 rounded-full bg-outline-variant hidden md:block"></div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">person</span> 1 traveller</div>
+<div class="w-1 h-1 rounded-full bg-outline-variant hidden md:block"></div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">bed</span> 7–9 nights</div>
+<div class="w-1 h-1 rounded-full bg-outline-variant hidden md:block"></div>
+<div class="flex items-center gap-xs"><span class="material-symbols-outlined text-[18px]">tune</span> Flexible dates</div>
+</div>
+</div>
+<!-- Recommendation Banner -->
+<div class="bg-amber-50 border border-amber-200 rounded-lg p-md mb-xl flex items-start gap-md shadow-sm">
+<span class="material-symbols-outlined text-amber-600 mt-xs" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+<div class="w-full">
+<h3 class="font-label-md text-label-md text-amber-900 mb-xs">Recommendation</h3>
+<p class="font-body-sm text-body-sm text-amber-800 mb-sm">Move by 2 days and reduce the observed flight estimate by C$160.</p>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-sm mb-sm bg-amber-100/50 p-sm rounded border border-amber-200/50">
+<div>
+<span class="font-label-sm text-[11px] text-amber-700/80 uppercase tracking-wider block mb-1">Current Window</span>
+<span class="font-body-sm text-amber-900 font-medium block">Aug 10–16, 2026</span>
+<span class="font-label-sm text-amber-800">C$720 (Cached)</span>
+</div>
+<div>
+<span class="font-label-sm text-[11px] text-amber-700/80 uppercase tracking-wider block mb-1">Suggested Window</span>
+<span class="font-body-sm text-amber-900 font-medium block">Aug 12–18, 2026</span>
+<span class="font-label-sm text-amber-800 font-bold">C$560 (Cached)</span>
+</div>
+</div>
+<p class="font-label-sm text-[11px] text-amber-700 opacity-80">Based on cached provider observations. Values may have changed.</p>
+</div>
+</div>
+<!-- Calendar Container -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md md:p-lg shadow-sm">
+<!-- Calendar Header -->
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">August 2026</h2>
+<div class="flex gap-xs">
+<button aria-label="Previous month" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button aria-label="Next month" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Calendar Grid (7-column) -->
+<div class="grid grid-cols-7 gap-px bg-outline-variant border border-outline-variant rounded-lg overflow-hidden relative">
+<!-- Days of Week -->
+<div class="bg-surface-container-low text-center py-sm font-label-sm text-label-sm text-on-surface-variant">Sun</div>
+<div class="bg-surface-container-low text-center py-sm font-label-sm text-label-sm text-on-surface-variant">Mon</div>
+<div class="bg-surface-container-low text-center py-sm font-label-sm text-label-sm text-on-surface-variant">Tue</div>
+<div class="bg-surface-container-low text-center py-sm font-label-sm text-label-sm text-on-surface-variant">Wed</div>
+<div class="bg-surface-container-low text-center py-sm font-label-sm text-label-sm text-on-surface-variant">Thu</div>
+<div class="bg-surface-container-low text-center py-sm font-label-sm text-label-sm text-on-surface-variant">Fri</div>
+<div class="bg-surface-container-low text-center py-sm font-label-sm text-label-sm text-on-surface-variant">Sat</div>
+<!-- Row 1: Aug 1 is Saturday -->
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<button aria-label="August 1, 2026. C$720. Planning Estimate." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0">
+<span class="font-label-md text-label-md text-on-surface">1</span>
+<div class="flex flex-col items-center w-full mt-auto">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">C$720</span>
+<span aria-label="Planning Estimate" class="material-symbols-outlined text-[14px] text-outline mt-1">analytics</span>
+</div>
+</button>
+<!-- Row 2: Aug 2 - 8 -->
+<button aria-label="August 2, 2026. C$710. Planning Estimate." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0">
+<span class="font-label-md text-label-md text-on-surface">2</span>
+<div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$710</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">analytics</span></div>
+</button>
+<button aria-label="August 3, 2026. No observation." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">3</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">—</span><span class="material-symbols-outlined text-[14px] text-outline opacity-50 mt-1">remove</span></div></button>
+<button aria-label="August 4, 2026. C$680. Planning Estimate." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">4</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$680</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">analytics</span></div></button>
+<button aria-label="August 5, 2026. C$650. Provider Price Result." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">5</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$650</span><span class="material-symbols-outlined text-[14px] text-primary mt-1" style="font-variation-settings: 'FILL' 1;">check_circle</span></div></button>
+<button aria-label="August 6, 2026. C$650. Provider Price Result." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">6</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$650</span><span class="material-symbols-outlined text-[14px] text-primary mt-1" style="font-variation-settings: 'FILL' 1;">check_circle</span></div></button>
+<button aria-label="August 7, 2026. C$690. Cached Provider Observation." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">7</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$690</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">schedule</span></div></button>
+<button aria-label="August 8, 2026. C$720. Planning Estimate." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">8</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$720</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">analytics</span></div></button>
+<!-- Row 3: Aug 9 - 15 (Contains selected start and middle) -->
+<button aria-label="August 9, 2026. C$720. Planning Estimate." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">9</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$720</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">analytics</span></div></button>
+<button aria-label="August 10, 2026. C$400. Highlighted Recommendation." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">10</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-amber-600 font-medium">C$400</span><span class="material-symbols-outlined text-[14px] text-amber-500 mt-1" style="font-variation-settings: 'FILL' 1;">lightbulb</span></div></button>
+<button aria-label="August 11, 2026. C$580. Cached Provider Observation." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">11</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$580</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">schedule</span></div></button>
+<!-- SELECTED RANGE START: Aug 12 -->
+<button aria-label="Selected start date, August 12, 2026. C$560. Cached Provider Observation." class="bg-primary p-sm flex flex-col items-center justify-between min-h-[90px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-inverse-primary relative shadow-[inset_2px_0_0_0_#003532,inset_0_2px_0_0_#003532,inset_0_-2px_0_0_#003532]" tabindex="0">
+<span class="font-label-md text-label-md text-on-primary">12</span>
+<div class="flex flex-col items-center w-full mt-auto">
+<span class="font-body-sm text-body-sm text-on-primary font-semibold">C$560</span>
+<span class="material-symbols-outlined text-[14px] text-on-primary mt-1 opacity-90">schedule</span>
+</div>
+</button>
+<!-- SELECTED RANGE MIDDLE: Aug 13 - 15 -->
+<button aria-label="August 13, 2026. Selected travel dates." class="bg-primary-container p-sm flex flex-col items-center justify-between min-h-[90px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary shadow-[inset_0_2px_0_0_#08a8a0,inset_0_-2px_0_0_#08a8a0]" tabindex="0">
+<span class="font-label-md text-label-md text-on-primary-container">13</span>
+<div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-primary-container">—</span></div>
+</button>
+<button aria-label="August 14, 2026. Selected travel dates." class="bg-primary-container p-sm flex flex-col items-center justify-between min-h-[90px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary shadow-[inset_0_2px_0_0_#08a8a0,inset_0_-2px_0_0_#08a8a0]" tabindex="0">
+<span class="font-label-md text-label-md text-on-primary-container">14</span>
+<div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-primary-container">—</span></div>
+</button>
+<button aria-label="August 15, 2026. Selected travel dates." class="bg-primary-container p-sm flex flex-col items-center justify-between min-h-[90px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary shadow-[inset_0_2px_0_0_#08a8a0,inset_0_-2px_0_0_#08a8a0]" tabindex="0">
+<span class="font-label-md text-label-md text-on-primary-container">15</span>
+<div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-primary-container">—</span></div>
+</button>
+<!-- Row 4: Aug 16 - 22 -->
+<!-- SELECTED RANGE MIDDLE: Aug 16 - 17 -->
+<button aria-label="August 16, 2026. Selected travel dates." class="bg-primary-container p-sm flex flex-col items-center justify-between min-h-[90px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary shadow-[inset_0_2px_0_0_#08a8a0,inset_0_-2px_0_0_#08a8a0]" tabindex="0">
+<span class="font-label-md text-label-md text-on-primary-container">16</span>
+<div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-primary-container">—</span></div>
+</button>
+<button aria-label="August 17, 2026. Selected travel dates." class="bg-primary-container p-sm flex flex-col items-center justify-between min-h-[90px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary shadow-[inset_0_2px_0_0_#08a8a0,inset_0_-2px_0_0_#08a8a0]" tabindex="0">
+<span class="font-label-md text-label-md text-on-primary-container">17</span>
+<div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-primary-container">—</span></div>
+</button>
+<!-- SELECTED RANGE END: Aug 18 -->
+<button aria-label="Selected end date, August 18, 2026." class="bg-primary p-sm flex flex-col items-center justify-between min-h-[90px] cursor-pointer focus:outline-none focus:ring-2 focus:ring-inset focus:ring-inverse-primary relative shadow-[inset_-2px_0_0_0_#003532,inset_0_2px_0_0_#003532,inset_0_-2px_0_0_#003532]" tabindex="0">
+<span class="font-label-md text-label-md text-on-primary">18</span>
+<div class="flex flex-col items-center w-full mt-auto">
+<span class="font-body-sm text-body-sm text-on-primary font-semibold">Return</span>
+</div>
+</button>
+<button aria-label="August 19, 2026. No observation." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">19</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">—</span><span class="material-symbols-outlined text-[14px] text-outline opacity-50 mt-1">remove</span></div></button>
+<button aria-label="August 20, 2026. C$620. Planning Estimate." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">20</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$620</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">analytics</span></div></button>
+<button aria-label="August 21, 2026. C$620. Planning Estimate." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">21</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$620</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">analytics</span></div></button>
+<button aria-label="August 22, 2026. C$750. Planning Estimate." class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary group" tabindex="0"><span class="font-label-md text-label-md text-on-surface">22</span><div class="flex flex-col items-center w-full mt-auto"><span class="font-body-sm text-body-sm text-on-surface-variant">C$750</span><span class="material-symbols-outlined text-[14px] text-outline mt-1">analytics</span></div></button>
+<!-- Fast forwarding remaining empty/filler cells to complete grid visual -->
+<!-- Row 5 -->
+<button aria-label="August 23, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">23</span></button>
+<button aria-label="August 24, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">24</span></button>
+<button aria-label="August 25, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">25</span></button>
+<button aria-label="August 26, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">26</span></button>
+<button aria-label="August 27, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">27</span></button>
+<button aria-label="August 28, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">28</span></button>
+<button aria-label="August 29, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">29</span></button>
+<!-- Row 6 -->
+<button aria-label="August 30, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">30</span></button>
+<button aria-label="August 31, 2026" class="bg-surface-container-lowest p-sm flex flex-col items-center justify-between min-h-[90px] hover:bg-surface-container focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary"><span class="font-label-md text-label-md text-on-surface">31</span></button>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+<div class="bg-surface-container-lowest min-h-[90px]"></div>
+</div>
+<!-- Interface note -->
+<p class="font-label-sm text-[12px] text-on-surface-variant opacity-80 mt-sm italic text-right">Illustrative observations for interface review</p>
+<!-- Evidence Legend -->
+<div class="mt-md pt-lg border-t border-outline-variant grid grid-cols-1 sm:grid-cols-2 gap-y-sm gap-x-lg font-body-sm text-body-sm text-on-surface-variant">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Provider Price Result</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px] text-outline">schedule</span>
+<span>Cached Provider Observation</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px] text-outline">analytics</span>
+<span>Planning Estimate</span>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px] text-outline opacity-50">remove</span>
+<span>No Current Observation</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Sticky Summary Panel -->
+<div class="lg:col-span-4 relative">
+<div class="sticky top-[100px] bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-md lg:shadow-[0_12px_32px_rgba(7,28,51,0.05)]">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-lg">Trip Summary</h2>
+<div class="space-y-md mb-xl">
+<div class="flex flex-col border-b border-outline-variant pb-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Selected travel window</span>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">Aug 12–18, 2026</span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant pb-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Trip length</span>
+<span class="font-body-lg text-body-lg text-on-surface font-medium">6 nights</span>
+</div>
+<div class="flex justify-between items-start border-b border-outline-variant pb-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Observed flight estimate</span>
+<div class="text-right">
+<span class="font-headline-md text-headline-md text-primary block">C$560</span>
+<div class="flex flex-col items-end gap-1 mt-xs">
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">schedule</span>
+<span class="font-label-sm text-[11px] leading-tight">Cached provider observation</span>
+</div>
+<span class="font-label-sm text-[10px] text-outline px-1.5 py-0.5 bg-surface-container rounded-sm border border-outline-variant/50">Example freshness value</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Recalculation Note -->
+<div class="bg-surface-container rounded-lg p-md mb-xl flex gap-sm items-start border border-outline-variant/50">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">This is a flight observation, not the complete trip estimate. The full trip estimate will update after the remaining components are checked.</p>
+</div>
+<!-- CTAs -->
+<div class="flex flex-col gap-md mb-lg">
+<button class="bg-primary hover:bg-[#00504c] text-on-primary font-label-md text-label-md py-sm px-lg rounded-xl transition-colors duration-200 w-full flex justify-center items-center h-[48px] shadow-sm">
+                        Use these dates
+                    </button>
+<button class="bg-transparent border border-secondary hover:bg-surface-container-low text-on-secondary-fixed font-label-md text-label-md py-sm px-lg rounded-xl transition-colors duration-200 w-full flex justify-center items-center h-[48px]">
+                        Keep current dates
+                    </button>
+</div>
+<!-- Trust Language -->
+<p class="font-body-sm text-[12px] leading-relaxed text-on-surface-variant opacity-80 mt-lg text-center">
+                    Flexible-date comparisons depend on available dated provider information. Cached observations may have changed. Final prices and availability are confirmed on partner websites.
+                </p>
+</div>
+</div>
+</main>
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

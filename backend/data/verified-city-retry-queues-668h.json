@@ -1,0 +1,143 @@
+{
+  "version": "1.0.0",
+  "taskId": "GV-CITY-668H",
+  "generatedAt": "2026-07-18T03:20:35.1985488Z",
+  "sourceSnapshot": "verified-city-activation-250-668h.json",
+  "sourceAuditSha256": {
+    "pilot100": "7f5a836e1b003ae12df60198902f92d49ad3e4c9613d4fc38a3915f5022deab6",
+    "priority150": "7ced3a263be1a8850011d59b7112ee7f12fd53f6fcb41986864f959bb82329b0"
+  },
+  "reviewCityCount": 74,
+  "queueMembershipCanOverlap": true,
+  "queues": {
+    "missing-flight-observations": {
+      "count": 57,
+      "cityIds": [
+        "caye-caulker-bz",
+        "aarhus-dk",
+        "aalborg-dk",
+        "abadan-ir",
+        "diani-beach-ke",
+        "bangui-cf",
+        "iqaluit-ca",
+        "aasiaat-gl",
+        "barcelona-ve",
+        "ahe-pf",
+        "arona-sb",
+        "akureyri-is",
+        "anjouan-km",
+        "boa-vista-cv",
+        "alghero-it",
+        "aalesund-no",
+        "al-ain-ae",
+        "aden-ye",
+        "beida-ly",
+        "muskoka-ca",
+        "abymes-gp",
+        "camaguey-cu",
+        "arutua-pf",
+        "arad-ro",
+        "bol-hr",
+        "ahwaz-ir",
+        "adrar-dz",
+        "benghazi-ly",
+        "arequipa-pe",
+        "acapulco-mx",
+        "camiri-bo",
+        "alotau-pg",
+        "atuona-pf",
+        "antsiranana-mg",
+        "dharavandhoo-island-mv",
+        "cusco-pe",
+        "kigali-rw",
+        "mendoza-ar",
+        "st-louis-us",
+        "belo-horizonte-br",
+        "hiroshima-jp",
+        "raleigh-us",
+        "manaus-br",
+        "milwaukee-us",
+        "kelowna-ca",
+        "saskatoon-ca",
+        "queretaro-mx",
+        "regina-ca",
+        "belize-city-bz",
+        "innsbruck-at",
+        "cork-ie",
+        "hue-vn",
+        "semarang-id",
+        "bandung-id",
+        "rotorua-nz",
+        "kahului-us",
+        "gaborone-bw"
+      ],
+      "policy": "Retry using future provider windows and additional safe regional origins; absence is not treated as a bad airport mapping."
+    },
+    "unresolved-agoda-mapping": {
+      "count": 25,
+      "cityIds": [
+        "tehran-ir",
+        "havana-cu",
+        "palma-de-mallorca-es",
+        "adler-sochi-ru",
+        "abadan-ir",
+        "diani-beach-ke",
+        "bangui-cf",
+        "iqaluit-ca",
+        "barcelona-ve",
+        "arona-sb",
+        "al-wakrah-qa",
+        "boa-vista-cv",
+        "basel-switzerland-mulhouse-ch",
+        "aden-ye",
+        "beida-ly",
+        "muskoka-ca",
+        "camaguey-cu",
+        "arutua-pf",
+        "christmas-island-cx",
+        "bol-hr",
+        "ahwaz-ir",
+        "benghazi-ly",
+        "camiri-bo",
+        "atuona-pf",
+        "dharavandhoo-island-mv"
+      ],
+      "policy": "Keep estimate-only until a reproducible Agoda market/city mapping is available."
+    },
+    "no-live-hotel-rate": {
+      "count": 4,
+      "cityIds": [
+        "aasiaat-gl",
+        "ahe-pf",
+        "adrar-dz",
+        "alotau-pg"
+      ],
+      "policy": "Retry alternate dates; keep static mapping but do not claim live stay coverage."
+    },
+    "hotel-quality-failure": {
+      "count": 2,
+      "cityIds": [
+        "anjouan-km",
+        "aitutaki-ck"
+      ],
+      "policy": "Keep strict quality floors and retry broader candidate/date windows without weakening standards."
+    },
+    "flight-comfort-failure": {
+      "count": 11,
+      "cityIds": [
+        "abuja-ng",
+        "aitutaki-ck",
+        "christmas-island-cx",
+        "honolulu-us",
+        "luxor-eg",
+        "brasilia-br",
+        "recife-br",
+        "windhoek-na",
+        "lille-fr",
+        "punta-arenas-cl",
+        "ponta-delgada-pt"
+      ],
+      "policy": "Provider inventory exists, but the sampled route exceeded duration or transfer limits."
+    }
+  }
+}

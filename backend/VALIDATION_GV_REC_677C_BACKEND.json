@@ -1,0 +1,1947 @@
+{
+  "release": "GV-REC-677C",
+  "generatedAt": "2026-08-20T01:34:38.457Z",
+  "passed": false,
+  "checkCount": 12,
+  "passedCount": 11,
+  "failedCount": 1,
+  "checks": [
+    {
+      "name": "677C generated-tour version packaged",
+      "passed": false,
+      "details": "2.18.3-gv-rec-684b-r3-strict-currency-budget-fit"
+    },
+    {
+      "name": "677C version exported",
+      "passed": true,
+      "details": "GV-REC-677C"
+    },
+    {
+      "name": "677C optimizer flag active",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677C evaluates all six three-stop orders",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677C",
+        "routeOrderOptimization": true,
+        "originalOrder": [
+          "C",
+          "A",
+          "B"
+        ],
+        "selectedOrder": [
+          "A",
+          "C",
+          "B"
+        ],
+        "originalOrderKey": "AAD>AAB>AAC",
+        "selectedOrderKey": "AAB>AAD>AAC",
+        "changed": true,
+        "evaluatedOrders": 6,
+        "skippedReason": null,
+        "originalMetrics": {
+          "accepted": true,
+          "reasons": [],
+          "legs": [
+            {
+              "legNumber": 1,
+              "from": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "to": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 786,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.84,
+              "estimatedTransportUsd": 120,
+              "estimatedFlightUsd": 120,
+              "amountUsd": 120,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAA",
+              "toCode": "AAD",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 120,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 120,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 2,
+              "from": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 711,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAD",
+              "toCode": "AAB",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 3,
+              "from": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 157,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 3.08,
+              "estimatedTransportUsd": 40,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 40,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAB",
+              "toCode": "AAC",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 40,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 40,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 4,
+              "from": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAC",
+              "toCode": "AAA",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            }
+          ],
+          "totalUsd": 910,
+          "transportUsd": 310,
+          "hotelUsd": 600,
+          "travelHours": 15.1,
+          "backtrackingRatio": 1.073,
+          "orderedDistanceKm": 1766,
+          "utilization": 0.303,
+          "penalty": 49.193
+        },
+        "selectedMetrics": {
+          "accepted": true,
+          "reasons": [],
+          "legs": [
+            {
+              "legNumber": 1,
+              "from": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "to": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAA",
+              "toCode": "AAB",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 2,
+              "from": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 711,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAB",
+              "toCode": "AAD",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 3,
+              "from": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 712,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAD",
+              "toCode": "AAC",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 4,
+              "from": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAC",
+              "toCode": "AAA",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            }
+          ],
+          "totalUsd": 900,
+          "transportUsd": 300,
+          "hotelUsd": 600,
+          "travelHours": 14.4,
+          "backtrackingRatio": 1,
+          "orderedDistanceKm": 1645,
+          "utilization": 0.3,
+          "penalty": 34.335
+        },
+        "improvementScore": 14.858,
+        "travelHoursSaved": 0.7,
+        "distanceSavedKm": 121
+      }
+    },
+    {
+      "name": "677C changes a materially inefficient order",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677C",
+        "routeOrderOptimization": true,
+        "originalOrder": [
+          "C",
+          "A",
+          "B"
+        ],
+        "selectedOrder": [
+          "A",
+          "C",
+          "B"
+        ],
+        "originalOrderKey": "AAD>AAB>AAC",
+        "selectedOrderKey": "AAB>AAD>AAC",
+        "changed": true,
+        "evaluatedOrders": 6,
+        "skippedReason": null,
+        "originalMetrics": {
+          "accepted": true,
+          "reasons": [],
+          "legs": [
+            {
+              "legNumber": 1,
+              "from": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "to": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 786,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.84,
+              "estimatedTransportUsd": 120,
+              "estimatedFlightUsd": 120,
+              "amountUsd": 120,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAA",
+              "toCode": "AAD",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 120,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 120,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 2,
+              "from": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 711,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAD",
+              "toCode": "AAB",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 3,
+              "from": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 157,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 3.08,
+              "estimatedTransportUsd": 40,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 40,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAB",
+              "toCode": "AAC",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 40,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 40,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 4,
+              "from": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAC",
+              "toCode": "AAA",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            }
+          ],
+          "totalUsd": 910,
+          "transportUsd": 310,
+          "hotelUsd": 600,
+          "travelHours": 15.1,
+          "backtrackingRatio": 1.073,
+          "orderedDistanceKm": 1766,
+          "utilization": 0.303,
+          "penalty": 49.193
+        },
+        "selectedMetrics": {
+          "accepted": true,
+          "reasons": [],
+          "legs": [
+            {
+              "legNumber": 1,
+              "from": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "to": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAA",
+              "toCode": "AAB",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 2,
+              "from": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 711,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAB",
+              "toCode": "AAD",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 3,
+              "from": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 712,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAD",
+              "toCode": "AAC",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 4,
+              "from": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAC",
+              "toCode": "AAA",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            }
+          ],
+          "totalUsd": 900,
+          "transportUsd": 300,
+          "hotelUsd": 600,
+          "travelHours": 14.4,
+          "backtrackingRatio": 1,
+          "orderedDistanceKm": 1645,
+          "utilization": 0.3,
+          "penalty": 34.335
+        },
+        "improvementScore": 14.858,
+        "travelHoursSaved": 0.7,
+        "distanceSavedKm": 121
+      }
+    },
+    {
+      "name": "677C reduces whole-trip planning penalty",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677C",
+        "routeOrderOptimization": true,
+        "originalOrder": [
+          "C",
+          "A",
+          "B"
+        ],
+        "selectedOrder": [
+          "A",
+          "C",
+          "B"
+        ],
+        "originalOrderKey": "AAD>AAB>AAC",
+        "selectedOrderKey": "AAB>AAD>AAC",
+        "changed": true,
+        "evaluatedOrders": 6,
+        "skippedReason": null,
+        "originalMetrics": {
+          "accepted": true,
+          "reasons": [],
+          "legs": [
+            {
+              "legNumber": 1,
+              "from": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "to": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 786,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.84,
+              "estimatedTransportUsd": 120,
+              "estimatedFlightUsd": 120,
+              "amountUsd": 120,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAA",
+              "toCode": "AAD",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 120,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 120,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 2,
+              "from": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 711,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAD",
+              "toCode": "AAB",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 3,
+              "from": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 157,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 3.08,
+              "estimatedTransportUsd": 40,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 40,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAB",
+              "toCode": "AAC",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 40,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 40,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 4,
+              "from": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAC",
+              "toCode": "AAA",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            }
+          ],
+          "totalUsd": 910,
+          "transportUsd": 310,
+          "hotelUsd": 600,
+          "travelHours": 15.1,
+          "backtrackingRatio": 1.073,
+          "orderedDistanceKm": 1766,
+          "utilization": 0.303,
+          "penalty": 49.193
+        },
+        "selectedMetrics": {
+          "accepted": true,
+          "reasons": [],
+          "legs": [
+            {
+              "legNumber": 1,
+              "from": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "to": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAA",
+              "toCode": "AAB",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 2,
+              "from": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 711,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAB",
+              "toCode": "AAD",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 3,
+              "from": {
+                "city": "C",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAD",
+                "code": "AAD",
+                "latitude": 5,
+                "longitude": 5,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "flight",
+              "transportType": "flight",
+              "distanceKm": 712,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 4.75,
+              "estimatedTransportUsd": 115,
+              "estimatedFlightUsd": 115,
+              "amountUsd": 115,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAD",
+              "toCode": "AAC",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 115,
+                "unitBasis": "per-passenger-flight-fare",
+                "multiplier": 1,
+                "partyTotalUsd": 115,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 4,
+              "from": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAC",
+              "toCode": "AAA",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            }
+          ],
+          "totalUsd": 900,
+          "transportUsd": 300,
+          "hotelUsd": 600,
+          "travelHours": 14.4,
+          "backtrackingRatio": 1,
+          "orderedDistanceKm": 1645,
+          "utilization": 0.3,
+          "penalty": 34.335
+        },
+        "improvementScore": 14.858,
+        "travelHoursSaved": 0.7,
+        "distanceSavedKm": 121
+      }
+    },
+    {
+      "name": "677C selected route remains three stops",
+      "passed": true,
+      "details": [
+        "A",
+        "C",
+        "B"
+      ]
+    },
+    {
+      "name": "677C rebuilt route has one leg per movement including return",
+      "passed": true,
+      "details": 4
+    },
+    {
+      "name": "saved/manual route order is preserved",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677C",
+        "routeOrderOptimization": true,
+        "originalOrder": [
+          "C",
+          "A",
+          "B"
+        ],
+        "selectedOrder": [
+          "C",
+          "A",
+          "B"
+        ],
+        "originalOrderKey": "AAD>AAB>AAC",
+        "selectedOrderKey": "AAD>AAB>AAC",
+        "changed": false,
+        "evaluatedOrders": 1,
+        "skippedReason": "explicit-or-saved-route-order-preserved"
+      }
+    },
+    {
+      "name": "equivalent two-stop cycle does not churn order without material gain",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677C",
+        "routeOrderOptimization": true,
+        "originalOrder": [
+          "A",
+          "B"
+        ],
+        "selectedOrder": [
+          "A",
+          "B"
+        ],
+        "originalOrderKey": "AAB>AAC",
+        "selectedOrderKey": "AAB>AAC",
+        "changed": false,
+        "evaluatedOrders": 2,
+        "skippedReason": "no-material-whole-trip-order-improvement",
+        "originalMetrics": {
+          "accepted": true,
+          "reasons": [],
+          "legs": [
+            {
+              "legNumber": 1,
+              "from": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "to": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAA",
+              "toCode": "AAB",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 2,
+              "from": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 157,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 3.08,
+              "estimatedTransportUsd": 40,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 40,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAB",
+              "toCode": "AAC",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 40,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 40,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 3,
+              "from": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAC",
+              "toCode": "AAA",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            }
+          ],
+          "totalUsd": 510,
+          "transportUsd": 110,
+          "hotelUsd": 400,
+          "travelHours": 8,
+          "backtrackingRatio": 1,
+          "orderedDistanceKm": 380,
+          "utilization": 0.17,
+          "penalty": 18.447
+        },
+        "selectedMetrics": {
+          "accepted": true,
+          "reasons": [],
+          "legs": [
+            {
+              "legNumber": 1,
+              "from": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "to": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAA",
+              "toCode": "AAB",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 2,
+              "from": {
+                "city": "A",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAB",
+                "code": "AAB",
+                "latitude": 1,
+                "longitude": 0,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 157,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 3.08,
+              "estimatedTransportUsd": 40,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 40,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAB",
+              "toCode": "AAC",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 40,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 40,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            },
+            {
+              "legNumber": 3,
+              "from": {
+                "city": "B",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAC",
+                "code": "AAC",
+                "latitude": 0,
+                "longitude": 1,
+                "nights": 4,
+                "hotel": {
+                  "estimatedNightlyUsd": 50,
+                  "estimatedStayUsd": 200
+                }
+              },
+              "to": {
+                "city": "Origin",
+                "country": "United States",
+                "countryCode": "US",
+                "airportCode": "AAA",
+                "code": "AAA",
+                "latitude": 0,
+                "longitude": 0
+              },
+              "mode": "ground",
+              "transportType": "rail-or-bus",
+              "distanceKm": 111,
+              "durationMinutes": null,
+              "estimatedDoorToDoorHours": 2.44,
+              "estimatedTransportUsd": 35,
+              "estimatedFlightUsd": 0,
+              "amountUsd": 35,
+              "estimateSource": "whole-trip-route-optimizer-planning-estimate-677c",
+              "liveFareVerified": false,
+              "providerObservation": null,
+              "providerVerificationRequired": true,
+              "fromCode": "AAC",
+              "toCode": "AAA",
+              "pricingIntegrity": {
+                "version": "GV-CONTROL-667D",
+                "unitAmountUsd": 35,
+                "unitBasis": "per-traveller-transfer",
+                "multiplier": 1,
+                "partyTotalUsd": 35,
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1
+              }
+            }
+          ],
+          "totalUsd": 510,
+          "transportUsd": 110,
+          "hotelUsd": 400,
+          "travelHours": 8,
+          "backtrackingRatio": 1,
+          "orderedDistanceKm": 380,
+          "utilization": 0.17,
+          "penalty": 18.447
+        },
+        "improvementScore": 0,
+        "travelHoursSaved": 0,
+        "distanceSavedKm": 0
+      }
+    },
+    {
+      "name": "677C detects origin-adjacent stop mixed with far destination",
+      "passed": true,
+      "details": {
+        "adjustment": -170,
+        "metrics": {
+          "accepted": true,
+          "orderedDistanceKm": 4367,
+          "shortestCycleDistanceKm": 4367,
+          "backtrackingRatio": 1,
+          "estimatedTravelHours": 17.4,
+          "travelBurdenRatio": 0.121,
+          "adjacentOriginStops": 1,
+          "farthestOriginKm": 2183,
+          "mixedOriginAdjacency": true,
+          "nearDuplicatePairs": 0,
+          "budgetUsd": 1000,
+          "estimatedTotalUsd": 734,
+          "budgetUtilization": 0.734,
+          "limitedProviderLegs": 0,
+          "cautionProviderLegs": 0,
+          "qualityRatioExcess": 0
+        },
+        "reasons": [
+          "origin-adjacent-stop-mixed-with-far-destination"
+        ]
+      }
+    },
+    {
+      "name": "677C penalizes mixed origin-adjacent/far itinerary more strongly than coherent alternative",
+      "passed": true,
+      "details": {
+        "mixed": -170,
+        "coherent": -2.38
+      }
+    }
+  ]
+}

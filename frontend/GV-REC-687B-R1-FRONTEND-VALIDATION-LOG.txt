@@ -1,0 +1,37 @@
+PASS 01 — Release metadata identifies GV-REC-687B
+PASS 02 — Active page loads 687B visualizer
+PASS 03 — 687A-R1 journey CSS remains active
+PASS 04 — 687A-R1 journey player remains active
+PASS 05 — Frontend version marker is 687B
+PASS 06 — Five portfolio roles are declared
+PASS 07 — Initial portfolio is exactly first three roles
+PASS 08 — Show-more portfolio uses final two roles
+PASS 09 — Initial three routes use a fast parallel first pass
+PASS 10 — High-overlap initial routes receive bounded repair with exclusions
+PASS 11 — Extra-route requests pass already-shown exclusions
+PASS 12 — Diversity request flag is sent
+PASS 13 — Candidate diversity pool is bounded
+PASS 14 — Old six random best-balance retry loop is removed
+PASS 15 — Additional roles have meaningful labels
+PASS 16 — Lowest-cost label remains explicit
+PASS 17 — Best-overall label remains explicit
+PASS 18 — Most-inspiring label remains explicit
+PASS 19 — Duplicate route keys are still rejected client-side
+PASS 20 — Near-duplicate route overlap is rejected at two-thirds overlap or higher
+PASS 21 — Backend role mismatch remains fail-closed
+PASS 22 — Show-more note explains intentional route difference
+PASS 23 — Uniform horizontal carousel survives 687B
+PASS 24 — Uniform card shell survives 687B
+PASS 25 — Ghost add-destination card remains suppressed when disabled
+PASS 26 — Ground transport still cannot surface flight handoff
+PASS 27 — Price evidence language remains honest
+PASS 28 — Map and journey synchronization remain present
+PASS 29 — No new direct fetch/XHR implementation added to visualizer
+PASS 30 — 687A regression remains green
+PASS 31 — 686D master regression remains green
+PASS 32 — 686D-R1 shell regression remains green
+PASS 33 — 686C booking regression remains green
+PASS 34 — 686B journey regression remains green
+PASS 35 — 687B visualizer syntax is valid
+PASS 36 — Package contains no backend/Lambda runtime
+GV-REC-687B FRONTEND: 36/36 PASS

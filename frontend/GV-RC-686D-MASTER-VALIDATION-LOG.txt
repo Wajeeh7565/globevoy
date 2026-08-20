@@ -1,0 +1,88 @@
+GV-RC-686D MASTER VALIDATION LOG
+Date: 2026-08-19
+Deployment: NOT PERFORMED
+Backend changes: NONE
+Lambda changes: NONE
+Live provider calls: NONE
+
+BASELINES
+686C authoritative source SHA-256:
+87409a8ce8cbea78c27bec65c217c150cf501fb0fc29e2507300943c322c5612
+
+685D-R1 production comparison SHA-256:
+a01337ec4494a4a1bf907811b3f24da1fc2854f7b35cb3ca94a423b52b10736e
+
+Known-good 685B / Amplify job 231 rollback SHA-256:
+22107006178F42914881E9A31E11CC2B372D784AD30C87ECAB4D483AD01E36FC
+
+MASTER VALIDATOR
+GV-RC-686D MASTER: total=51 pass=51 fail=0
+
+CUMULATIVE VALIDATORS
+GV-SHELL-686A: 21/21 PASS
+GV-JOURNEY-686B: 24/24 PASS
+GV-BOOK-686C: 27/27 PASS
+All JavaScript validators in validation/: PASS
+
+INHERITED VALIDATION REPAIR
+- 686A generated-tour byte-identity assertion superseded with approved 686B hash.
+- 686B booking-page byte-identity assertion superseded with approved 686D RC hash.
+- 686C fixture isolation and RC stylesheet assertions updated.
+- 686A, 686B and 686C checksum manifests reverified against final state.
+- No validator was deleted.
+
+PRODUCTION DELTA
+Changed runtime files: 21
+Added runtime files: 5
+Removed runtime files: 0
+Backend/Lambda/runtime-server files: 0
+
+DESKTOP WALKTHROUGH
+Homepage: PASS
+All-flight recommendation: PASS
+Ground-transfer journey: PASS
+Optional journey playback: PASS
+Manual rail/card/map synchronization: PASS
+Complete-trip saved handoff: PASS
+Booking-workspace five steps: PASS
+Aviasales handoffs: PASS
+Agoda handoffs: PASS
+JFK -> LGA metro-resolved handoff: PASS
+Public sandbox/prototype hidden: PASS
+Final isolated console errors: 0
+
+MOBILE 375 x 812
+Document client/scroll width: 360 / 360
+Horizontal page overflow: NONE
+Journey player: 332 px
+Journey rail: 304 / 626 px internal scroll
+Journey context dock: 340 px
+Booking stepper: 342 / 669 px internal scroll
+Booking summary: 334 px, collapsible PASS
+Sandbox visibility: HIDDEN
+
+PERFORMANCE — LOCAL ISOLATED HARNESS
+Homepage/search readiness: 1905 ms
+685D-R1 comparison: 2270 ms
+First recommendation visibility: 289 ms
+Journey readiness: 231 ms
+Booking workspace readiness: 347 ms
+Obvious regression: NO
+
+TRUST / COMPREHENSION
+Provider-backed fare wording: PASS
+Cached observation wording: PASS
+Planning estimate wording: PASS
+Estimated trip total wording: PASS
+Provider result reviewed wording: PASS
+Booking unknown/not confirmed boundary: PASS
+No Pay/payment/card/order/ticket/combined checkout: PASS
+
+LEGAL GATE
+LEGAL-CONTENT-APPROVAL-REQUIRED
+Privacy/Terms/Affiliate content changed: NO
+Owner/legal/commercial approval still required: YES
+
+PACKAGE REOPEN
+Completed after package creation. Final package hash is in the adjacent .sha256 sidecar.
+

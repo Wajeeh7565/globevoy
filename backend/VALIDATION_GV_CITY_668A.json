@@ -1,0 +1,419 @@
+{
+  "taskId": "GV-CITY-668A",
+  "passed": true,
+  "checkCount": 46,
+  "summary": {
+    "recordCount": 1000,
+    "currentFoundationCount": 500,
+    "expansionCount": 500,
+    "originEligibleCount": 1000,
+    "destinationEligibleCount": 1000,
+    "bothProvidersMappedCount": 444,
+    "gatewayCityCount": 53,
+    "countryCount": 237,
+    "group1Count": 114,
+    "group2Count": 881,
+    "productReviewRequiredCount": 725
+  },
+  "checks": [
+    {
+      "name": "registry has exactly 1000 records",
+      "passed": true,
+      "details": {
+        "count": 1000
+      }
+    },
+    {
+      "name": "current foundation tier has 500 records",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "expansion tier has 500 records",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "all records are origin eligible",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "all records are destination eligible",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "all records have valid coordinates",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "all records have a practical airport",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "all records have currency and country",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "city IDs are unique",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "registry spans at least 200 countries/territories",
+      "passed": true,
+      "details": {
+        "countries": 237
+      }
+    },
+    {
+      "name": "mapped provider subset is reported honestly",
+      "passed": true,
+      "details": {
+        "count": 444
+      }
+    },
+    {
+      "name": "expansion records require live provider checks",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "Toronto resolves in unified registry",
+      "passed": true,
+      "details": {
+        "result": {
+          "city": "Toronto",
+          "code": "YYZ"
+        }
+      }
+    },
+    {
+      "name": "Toronto uses expected practical airport",
+      "passed": true,
+      "details": {
+        "expectedCode": "YYZ",
+        "actual": "YYZ"
+      }
+    },
+    {
+      "name": "Rabat resolves in unified registry",
+      "passed": true,
+      "details": {
+        "result": {
+          "city": "Rabat",
+          "code": "RBA"
+        }
+      }
+    },
+    {
+      "name": "Rabat uses expected practical airport",
+      "passed": true,
+      "details": {
+        "expectedCode": "RBA",
+        "actual": "RBA"
+      }
+    },
+    {
+      "name": "Faisalabad resolves in unified registry",
+      "passed": true,
+      "details": {
+        "result": {
+          "city": "Faisalabad",
+          "code": "LYP"
+        }
+      }
+    },
+    {
+      "name": "Faisalabad uses expected practical airport",
+      "passed": true,
+      "details": {
+        "expectedCode": "LYP",
+        "actual": "LYP"
+      }
+    },
+    {
+      "name": "Algiers resolves in unified registry",
+      "passed": true,
+      "details": {
+        "result": {
+          "city": "Algiers",
+          "code": "ALG"
+        }
+      }
+    },
+    {
+      "name": "Algiers uses expected practical airport",
+      "passed": true,
+      "details": {
+        "expectedCode": "ALG",
+        "actual": "ALG"
+      }
+    },
+    {
+      "name": "Lima resolves in unified registry",
+      "passed": true,
+      "details": {
+        "result": {
+          "city": "Lima",
+          "code": "LIM"
+        }
+      }
+    },
+    {
+      "name": "Lima uses expected practical airport",
+      "passed": true,
+      "details": {
+        "expectedCode": "LIM",
+        "actual": "LIM"
+      }
+    },
+    {
+      "name": "Tehran resolves in unified registry",
+      "passed": true,
+      "details": {
+        "result": {
+          "city": "Tehran",
+          "code": "IKA"
+        }
+      }
+    },
+    {
+      "name": "Tehran uses expected practical airport",
+      "passed": true,
+      "details": {
+        "expectedCode": "IKA",
+        "actual": "IKA"
+      }
+    },
+    {
+      "name": "Suwon resolves in unified registry",
+      "passed": true,
+      "details": {
+        "result": {
+          "city": "Suwon",
+          "code": "ICN"
+        }
+      }
+    },
+    {
+      "name": "Suwon uses expected practical airport",
+      "passed": true,
+      "details": {
+        "expectedCode": "ICN",
+        "actual": "ICN"
+      }
+    },
+    {
+      "name": "Lucca resolves in unified registry",
+      "passed": true,
+      "details": {
+        "result": {
+          "city": "Lucca",
+          "code": "PSA"
+        }
+      }
+    },
+    {
+      "name": "Lucca uses expected practical airport",
+      "passed": true,
+      "details": {
+        "expectedCode": "PSA",
+        "actual": "PSA"
+      }
+    },
+    {
+      "name": "registry search returns Suwon as origin",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "registry search returns Rabat as destination",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "route graph exposes exactly 1000 registry destinations when enabled",
+      "passed": true,
+      "details": {
+        "count": 1000
+      }
+    },
+    {
+      "name": "deterministic fallback remains limited to reviewed current 500",
+      "passed": true,
+      "details": {
+        "count": 500
+      }
+    },
+    {
+      "name": "route graph includes 500 expansion discoveries",
+      "passed": true,
+      "details": {
+        "count": 500
+      }
+    },
+    {
+      "name": "global raw origin fallback remains broader than registry",
+      "passed": true,
+      "details": {
+        "rawRows": 9665
+      }
+    },
+    {
+      "name": "Suwon origin resolves through a practical airport",
+      "passed": true,
+      "details": {
+        "suwon": {
+          "cityId": "global-city-icn",
+          "city": "Suwon",
+          "displayCity": "Suwon",
+          "country": "South Korea",
+          "countryCode": "KR",
+          "code": "ICN",
+          "airportCode": "ICN",
+          "airportCodes": [
+            "ICN"
+          ],
+          "latitude": 37.283333,
+          "longitude": 127.01667,
+          "timeZone": "Asia/Seoul",
+          "requestedOrigin": "Suwon",
+          "isGlobalOrigin": true,
+          "sourceConfidence": "rejected",
+          "globalEligibilityClass": "REGISTRY_1000",
+          "providerSupportStatus": "static-flightable-hotel-pending",
+          "originResolutionType": "direct-flightable-city"
+        }
+      }
+    },
+    {
+      "name": "Rabat origin resolves directly",
+      "passed": true,
+      "details": {
+        "rabat": {
+          "cityId": "global-city-rba",
+          "city": "Rabat",
+          "displayCity": "Rabat",
+          "country": "Morocco",
+          "countryCode": "MA",
+          "code": "RBA",
+          "airportCode": "RBA",
+          "airportCodes": [
+            "RBA"
+          ],
+          "latitude": 34.036137,
+          "longitude": -6.748619,
+          "timeZone": "Africa/Casablanca",
+          "requestedOrigin": "Rabat",
+          "isGlobalOrigin": true,
+          "sourceConfidence": "high",
+          "globalEligibilityClass": "REGISTRY_1000",
+          "providerSupportStatus": "static-flightable-hotel-pending",
+          "originResolutionType": "direct-flightable-city"
+        }
+      }
+    },
+    {
+      "name": "Lambda city-registry summary endpoint returns 1000 records",
+      "passed": true,
+      "details": {
+        "statusCode": 200,
+        "summary": {
+          "recordCount": 1000,
+          "currentFoundationCount": 500,
+          "expansionCount": 500,
+          "originEligibleCount": 1000,
+          "destinationEligibleCount": 1000,
+          "bothProvidersMappedCount": 444,
+          "gatewayCityCount": 53,
+          "countryCount": 237,
+          "group1Count": 114,
+          "group2Count": 881,
+          "productReviewRequiredCount": 725
+        }
+      }
+    },
+    {
+      "name": "Lambda city-registry search endpoint returns Suwon",
+      "passed": true,
+      "details": {
+        "records": [
+          "Suwon"
+        ]
+      }
+    },
+    {
+      "name": "Rabat can generate automatic candidates from registry",
+      "passed": true,
+      "details": {
+        "count": 24,
+        "diagnostics": {
+          "enabled": true,
+          "version": "GV-GLOBAL-665B+GV-MVP-666A+GV-CITY-668A+GV-CITY-668F",
+          "generatedWithoutManualRouteTemplates": true,
+          "originResolved": true,
+          "originCity": "Rabat",
+          "originAirportCode": "RBA",
+          "originResolutionType": "direct-flightable-city",
+          "gatewayAirport": null,
+          "catalogueCityCount": 9665,
+          "trustedAnchorCount": 500,
+          "registryDestinationCount": 1000,
+          "automaticDiscoveryCount": 381,
+          "anchorCandidateCount": 27,
+          "feasibleRouteCandidateCount": 24,
+          "requestedNights": 6,
+          "desiredStopCount": 2,
+          "budgetUsd": 1500,
+          "verifiedActivationEnabled": false,
+          "verifiedActiveDestinationCount": null
+        }
+      }
+    },
+    {
+      "name": "generated destinations come from registry",
+      "passed": true,
+      "details": {
+        "sampleStops": [
+          "luxor-eg",
+          "goreme-tr"
+        ]
+      }
+    },
+    {
+      "name": "index.html loads registry before supported origins",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "explore.html loads registry before supported origins",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "mixed-results.html loads registry before supported origins",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "trip.html loads registry before supported origins",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "frontend registry exposes GlobevoyCityRegistry",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "frontend supported origins prioritizes registry",
+      "passed": true,
+      "details": {}
+    }
+  ]
+}

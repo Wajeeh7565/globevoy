@@ -1,0 +1,13 @@
+{
+  "release": "GV-IMG-673A + GV-BOOK-673B",
+  "status": "PASS",
+  "registryCityCount": 1000,
+  "productionActiveCount": 439,
+  "coordinateMatchedCount": 963,
+  "javascriptFilesChecked": 64,
+  "localReferencesChecked": 436,
+  "missingLocalReferences": 0,
+  "kiwiMultiCityFixtureUrl": "https://www.kiwi.com/deep?multicity=toronto-canada~cancun-mexico~2026-08-29/cancun-mexico~fort-lauderdale-united-states~2026-09-01/fort-lauderdale-united-states~toronto-canada~2026-09-03",
+  "imagePolicy": "Exact city-country entity lookup and coordinate matching; neutral generated artwork instead of an unverified photo.",
+  "bookingPolicy": "One-click complete flight search when all legs are dated flights; provider controls final packaging and checkout; hotels remain separate."
+}

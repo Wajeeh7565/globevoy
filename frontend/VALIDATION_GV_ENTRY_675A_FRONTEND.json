@@ -1,0 +1,109 @@
+{
+  "release": "GV-ENTRY-675A",
+  "generatedAt": "2026-08-11T03:22:55.738Z",
+  "checkCount": 20,
+  "passedCount": 20,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "homepage release marker is 675A",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "homepage sends passport and residence codes",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "homepage sends selected travel-passport flag",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "homepage sends U.S. existing-document exception flags",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile page release marker is 675A",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile page requires explicit second-passport selection",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile page includes optional protected U.S. visa field",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile page includes U.S. lawful permanent resident field",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile script saves no document numbers",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile script persists selected travel passport",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "profile script persists U.S. exception booleans",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "booking page includes entry and transit section",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "booking page loads entry guard after existing booking renderer",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "booking guard reads multi-city tour storage",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "booking guard calls normalized backend endpoint",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "booking guard pauses partner actions on hard block",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "booking guard keeps transit status explicit",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "API client exposes checkTravelEntry",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "visualizer includes passport-aware route summary",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "entry CSS includes blocked, warning and mobile states",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

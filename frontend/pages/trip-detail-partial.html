@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Multi-city Trip Detail — Partial Data | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#21323f",
+                      "outline": "#74777e",
+                      "on-primary-container": "#7385a1",
+                      "surface-variant": "#d2e5f6",
+                      "on-primary-fixed-variant": "#364861",
+                      "surface-warm": "#FFFAF0",
+                      "purple-100": "#EEE9FF",
+                      "on-tertiary-fixed": "#281900",
+                      "surface-dim": "#c9dcee",
+                      "secondary-fixed-dim": "#5bdad1",
+                      "on-tertiary-container": "#af7a00",
+                      "outline-variant": "#c4c6ce",
+                      "inverse-primary": "#b5c8e6",
+                      "surface-container": "#e0f0ff",
+                      "on-error-container": "#93000a",
+                      "surface-tint": "#4d5f7a",
+                      "on-tertiary-fixed-variant": "#604100",
+                      "primary-fixed": "#d3e3ff",
+                      "green-100": "#E4F5EC",
+                      "red-600": "#B93F45",
+                      "on-surface-variant": "#44474d",
+                      "surface-container-highest": "#d2e5f6",
+                      "amber-600": "#E99B00",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#071c33",
+                      "amber-500": "#FFB51B",
+                      "tertiary-fixed": "#ffdead",
+                      "secondary": "#006a65",
+                      "secondary-container": "#77f3ea",
+                      "teal-500": "#08A8A0",
+                      "error": "#ba1a1a",
+                      "ink": "#122232",
+                      "secondary-fixed": "#7af6ed",
+                      "error-container": "#ffdad6",
+                      "border": "#D7E0E7",
+                      "amber-100": "#FFF2CF",
+                      "surface": "#f6faff",
+                      "tertiary-container": "#281900",
+                      "on-error": "#ffffff",
+                      "primary": "#000000",
+                      "teal-600": "#008F89",
+                      "teal-100": "#E5F7F5",
+                      "inverse-on-surface": "#e6f2ff",
+                      "surface-container-high": "#d8ebfc",
+                      "on-background": "#0a1d2a",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed-variant": "#00504c",
+                      "on-primary-fixed": "#071c33",
+                      "on-secondary-fixed": "#00201e",
+                      "purple-600": "#7357E6",
+                      "primary-fixed-dim": "#b5c8e6",
+                      "tertiary": "#000000",
+                      "navy-950": "#071C33",
+                      "on-surface": "#0a1d2a",
+                      "tertiary-fixed-dim": "#ffba39",
+                      "on-secondary": "#ffffff",
+                      "surface-bright": "#f6faff",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#ebf5ff",
+                      "navy-900": "#0B2038",
+                      "surface-soft": "#F4F7F9",
+                      "on-secondary-container": "#006f69",
+                      "green-600": "#16885E",
+                      "background": "#f6faff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "section": "24px",
+                      "major": "32px",
+                      "separation": "64px",
+                      "micro": "4px",
+                      "control": "16px",
+                      "max-width": "1280px",
+                      "compact": "8px"
+              },
+              "fontFamily": {
+                      "caption": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "small": ["Inter"],
+                      "display": ["Inter"],
+                      "h2": ["Inter"],
+                      "h1-mobile": ["Inter"],
+                      "display-mobile": ["Inter"],
+                      "h1": ["Inter"],
+                      "body": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "h3": ["Inter"]
+              },
+              "fontSize": {
+                      "caption": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400" }],
+                      "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                      "small": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "display": ["56px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                      "h2": ["32px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                      "h1-mobile": ["30px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                      "display-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                      "h1": ["40px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                      "body": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                      "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                      "h3": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="original-stitch-code-html" name="gv-source-status"/></head>
+<body class="bg-background text-on-background font-body antialiased min-h-screen flex flex-col gv-canonical" data-depth="1" data-nav-active="Multi-city" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Multi-city Trip Detail — Partial Data · Supporting state · not connected to production data.</div>
+<!-- TopNavBar -->
+
+<main class="flex-grow">
+<!-- Main Content Area -->
+<div class="max-w-max-width mx-auto px-major md:px-major py-major">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-compact font-small text-small text-outline mb-section">
+<a class="hover:text-teal-600 transition-colors" href="#">Multi-city results</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-background font-medium">Route details</span>
+</nav>
+<!-- Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-separation items-start relative">
+<!-- Left Column (Canvas) -->
+<div class="lg:col-span-8 flex flex-col gap-separation">
+<!-- Title Section -->
+<section>
+<div class="flex flex-wrap gap-control items-center mb-control">
+<span class="inline-flex items-center gap-compact bg-amber-100 text-tertiary-container font-label-caps text-label-caps uppercase px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px]">balance</span>
+                                Best Balance
+                            </span>
+<span class="inline-flex items-center gap-compact bg-surface-variant text-on-surface-variant font-label-caps text-label-caps uppercase px-3 py-1 rounded-full">
+                                Illustrative planning route
+                            </span>
+</div>
+<h1 class="font-h1 text-h1 text-navy-950 mb-control">Toronto → Montreal → Quebec City → Toronto</h1>
+<div class="flex flex-wrap gap-major font-small text-small text-on-surface-variant mb-control">
+<span class="flex items-center gap-compact"><span class="material-symbols-outlined text-[18px]">location_city</span> 2 cities</span>
+<span class="flex items-center gap-compact"><span class="material-symbols-outlined text-[18px]">dark_mode</span> 6 nights</span>
+<span class="flex items-center gap-compact"><span class="material-symbols-outlined text-[18px]">person</span> 1 traveller</span>
+</div>
+<div class="font-small text-small text-outline border-t border-border pt-control mt-control">
+<p class="font-caption text-caption mb-compact">All amounts are total-trip planning estimates for one traveller unless stated otherwise.</p>
+<div class="flex flex-wrap gap-compact">
+<span class="inline-flex items-center bg-surface-container text-on-surface-variant px-2 py-1 rounded">Flexible dates</span>
+<span class="inline-flex items-center bg-surface-container text-on-surface-variant px-2 py-1 rounded">Balanced travel pace</span>
+<span class="inline-flex items-center bg-surface-container text-on-surface-variant px-2 py-1 rounded">Food and culture</span>
+<span class="inline-flex items-center bg-surface-container text-on-surface-variant px-2 py-1 rounded">Best-balance stays</span>
+</div>
+</div>
+</section>
+<!-- Route Hero Image -->
+<section class="rounded-xl overflow-hidden relative h-[400px] border border-border bg-surface-soft">
+<div class="absolute inset-0 flex">
+<!-- Placeholder 1: Montreal -->
+<div class="w-1/2 h-full bg-cover bg-center" data-alt="A vibrant, cinematic wide shot of Montreal's Old Port area during late afternoon golden hour. The sky is clear, casting warm light on historic stone architecture and cobblestone streets. People are casually walking. The mood is calm, credible, and curious. High-quality editorial travel photography style with a light, optimistic aesthetic." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA0Pi3Oyz_5UBsbPza202FctM0GOR16H17GU9BImmUd9q7vy2vp2XhoZYzP8CiPH31uStGZ-NIVxtmLr7lLHVMlfgJBQvga6WM8kNz3KqqA_xEOXtNw3EWmliv-7rrVXxAbHQK0NKlsRyoknAdwqFLkfz7uxfsQyUs465jEgehupe8PXlp-LwamhLn5e5WcJQqpxlROnalS8Umi-srEx-LhS6xkXzJ9SOm0VvPxU1qMGmidVUlhFdvP8liF3ifcEWJhzb_yv9ohGmk");'></div>
+<!-- Placeholder 2: Quebec City -->
+<div class="w-1/2 h-full bg-cover bg-center" data-alt="A sweeping, majestic view of Quebec City featuring the Chateau Frontenac dominating the skyline. Taken during crisp morning light with a bright, clear sky. The St. Lawrence River is visible in the background. The mood is historic, authoritative, and inviting. High-end modern travel photography style." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCk8ttiLR--pVSjNDnPyR92X5QLamYxe81_v1JfaKKGBRFxWjBuursPNAwm9drwT5T3gndqFBz24IK9qhLljizTDY36Weld1iXQ65dMb-fZUyONVSllk-MDA32gTUrI8rXZPGFSl2lVI2OKMumwQmiYyVmGvalh4E-Awz6Kbvxi-277GlokU4JhKSBsgeE8IAR7anRjBcI-ZaNdXg_ij-fC5-NCpFq0lQCsNPGTba-w6_jjLK5FxMtfXnwPYvfTmXicw0GPcVWkU8o");'></div>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/40 to-transparent flex flex-col justify-end p-section text-white">
+<h2 class="font-h2 text-h2 mb-compact text-white drop-shadow-md">Toronto → Montreal → Quebec City → Toronto</h2>
+<p class="font-body text-body max-w-2xl text-surface-container drop-shadow-sm">A balanced six-night route combining Montreal’s food and culture with Quebec City’s historic character. Designed for relaxed pacing with a simple inter-city train connection.</p>
+</div>
+</section>
+<!-- Why this route fits -->
+<section>
+<h3 class="font-h3 text-h3 text-navy-950 mb-section">Why this route fits</h3>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-control">
+<div class="bg-surface-container-low border border-border p-control rounded-lg flex items-start gap-control">
+<span class="material-symbols-outlined text-teal-600 mt-1">check_circle</span>
+<div>
+<h4 class="font-small text-small text-navy-950 mb-1">Simple connected route</h4>
+<p class="font-caption text-caption text-on-surface-variant">Easy loop starting and ending in Toronto.</p>
+</div>
+</div>
+<div class="bg-surface-container-low border border-border p-control rounded-lg flex items-start gap-control">
+<span class="material-symbols-outlined text-teal-600 mt-1">hotel</span>
+<div>
+<h4 class="font-small text-small text-navy-950 mb-1">Balanced 3-night stays</h4>
+<p class="font-caption text-caption text-on-surface-variant">Enough time in each city without rushing.</p>
+</div>
+</div>
+<div class="bg-surface-container-low border border-border p-control rounded-lg flex items-start gap-control">
+<span class="material-symbols-outlined text-teal-600 mt-1">train</span>
+<div>
+<h4 class="font-small text-small text-navy-950 mb-1">Short inter-city train journey</h4>
+<p class="font-caption text-caption text-on-surface-variant">Comfortable connection under 4 hours.</p>
+</div>
+</div>
+<div class="bg-surface-container-low border border-border p-control rounded-lg flex items-start gap-control">
+<span class="material-symbols-outlined text-green-600 mt-1">account_balance_wallet</span>
+<div>
+<h4 class="font-small text-small text-navy-950 mb-1">C$180 remaining</h4>
+<p class="font-caption text-caption text-on-surface-variant">Well under your C$1,350 planning limit.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Complete route timeline -->
+<section>
+<h3 class="font-h3 text-h3 text-navy-950 mb-section">Complete route</h3>
+<div class="relative pl-6 border-l-2 border-border flex flex-col gap-major">
+<!-- Flight -->
+<div class="relative">
+<div class="absolute -left-[35px] top-1 bg-surface-container-lowest border-2 border-border rounded-full w-6 h-6 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-outline">flight_takeoff</span>
+</div>
+<div class="flex flex-col sm:flex-row justify-between gap-control items-start sm:items-center bg-surface-container-lowest border border-border p-control rounded-lg">
+<div>
+<h4 class="font-small text-small text-navy-950">Outbound Flight (YYZ-YUL)</h4>
+<p class="font-caption text-caption text-on-surface-variant">Estimated flight cost</p>
+</div>
+<div class="flex items-center gap-control">
+<span class="font-small text-small text-navy-950 font-semibold">C$220</span>
+<button class="font-caption text-caption text-teal-600 hover:text-teal-700 font-medium">Compare</button>
+</div>
+</div>
+</div>
+<!-- Montreal Stay -->
+<div class="relative">
+<div class="absolute -left-[35px] top-1 bg-surface-container-lowest border-2 border-border rounded-full w-6 h-6 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-outline">hotel</span>
+</div>
+<div class="flex flex-col sm:flex-row justify-between gap-control items-start sm:items-center bg-surface-container-lowest border border-border p-control rounded-lg">
+<div>
+<h4 class="font-small text-small text-navy-950">Montreal Stay <span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded-full ml-2">Anchor city</span><span class="bg-amber-100 text-tertiary-container font-label-caps text-[10px] px-2 py-0.5 rounded-full ml-2">Price unavailable - using estimate</span></h4>
+<p class="font-caption text-caption text-on-surface-variant">3 nights</p>
+</div>
+<div class="flex items-center gap-control">
+<span class="font-small text-small text-navy-950 font-semibold">C$270</span>
+<button class="font-caption text-caption text-teal-600 hover:text-teal-700 font-medium">Compare</button>
+</div>
+</div>
+</div>
+<!-- Inter-city Train -->
+<div class="relative">
+<div class="absolute -left-[35px] top-1 bg-surface-container-lowest border-2 border-border rounded-full w-6 h-6 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-outline">train</span>
+</div>
+<div class="flex flex-col sm:flex-row justify-between gap-control items-start sm:items-center bg-surface-container-lowest border border-border p-control rounded-lg">
+<div>
+<h4 class="font-small text-small text-navy-950">Inter-city Train</h4>
+<p class="font-caption text-caption text-on-surface-variant">Montreal Central to Quebec City, ~3h</p>
+</div>
+<div class="flex items-center gap-control">
+<span class="font-small text-small text-navy-950 font-semibold">C$90</span>
+<button class="font-caption text-caption text-teal-600 hover:text-teal-700 font-medium">Compare</button>
+</div>
+</div>
+</div>
+<!-- Quebec City Stay -->
+<div class="relative">
+<div class="absolute -left-[35px] top-1 bg-surface-container-lowest border-2 border-border rounded-full w-6 h-6 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-outline">hotel</span>
+</div>
+<div class="flex flex-col sm:flex-row justify-between gap-control items-start sm:items-center bg-surface-container-lowest border border-border p-control rounded-lg">
+<div>
+<h4 class="font-small text-small text-navy-950">Quebec City Stay <span class="bg-surface-variant text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded-full ml-2">Discovery city</span></h4>
+<p class="font-caption text-caption text-on-surface-variant">3 nights</p>
+</div>
+<div class="flex items-center gap-control">
+<span class="font-small text-small text-navy-950 font-semibold">C$330</span>
+<button class="font-caption text-caption text-teal-600 hover:text-teal-700 font-medium">Compare</button>
+</div>
+</div>
+</div>
+<!-- Return Flight -->
+<div class="relative">
+<div class="absolute -left-[35px] top-1 bg-surface-container-lowest border-2 border-border rounded-full w-6 h-6 flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px] text-outline">flight_land</span>
+</div>
+<div class="flex flex-col sm:flex-row justify-between gap-control items-start sm:items-center bg-surface-container-lowest border border-border p-control rounded-lg">
+<div>
+<h4 class="font-small text-small text-navy-950">Return Flight (YQB-YYZ)</h4>
+<p class="font-caption text-caption text-on-surface-variant">Estimated flight cost</p>
+</div>
+<div class="flex items-center gap-control">
+<span class="font-small text-small text-navy-950 font-semibold">C$260</span>
+<button class="font-caption text-caption text-teal-600 hover:text-teal-700 font-medium">Compare</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Route budget breakdown -->
+<section>
+<h3 class="font-h3 text-h3 text-navy-950 mb-section">Route budget breakdown</h3>
+<div class="bg-surface-container-lowest border border-border rounded-xl p-section mb-control">
+<div class="w-full h-4 rounded-full overflow-hidden flex mb-control">
+<div class="bg-navy-900 h-full" style="width: 78%;" title="Route spending (78%)"></div>
+<div class="bg-amber-500 h-full" style="width: 10%;" title="Protected reserve (10%)"></div>
+<div class="bg-surface-variant h-full" style="width: 12%;" title="Budget remaining (12%)"></div>
+</div>
+<div class="flex flex-wrap gap-major justify-between font-small text-small text-navy-950 mb-section">
+<div class="flex items-center gap-compact"><span class="w-3 h-3 rounded-full bg-navy-900"></span> Route spending (78%)</div>
+<div class="flex items-center gap-compact"><span class="w-3 h-3 rounded-full bg-amber-500"></span> Protected reserve (10%)</div>
+<div class="flex items-center gap-compact"><span class="w-3 h-3 rounded-full bg-surface-variant"></span> Budget remaining (12%)</div>
+</div>
+<div class="border-t border-border pt-control">
+<p class="font-body text-body text-on-surface-variant text-center">
+                                C$220 + C$270 + C$90 + C$330 + C$260 = <strong class="text-navy-950">C$1,170</strong>
+</p>
+</div>
+</div>
+</section>
+<!-- Warning States -->
+<section class="flex flex-col gap-control border-t border-border pt-separation">
+<div class="bg-surface-container-low border border-border p-control rounded-lg flex items-start gap-control">
+<span class="material-symbols-outlined text-outline mt-1">warning</span>
+<div>
+<h4 class="font-small text-small text-navy-950 mb-1">Partner options are temporarily unavailable</h4>
+<p class="font-caption text-caption text-on-surface-variant">We are having trouble connecting to some booking partners. Please try again later.</p>
+</div>
+</div>
+<div class="bg-surface-container-low border border-border p-control rounded-lg flex items-start gap-control"><span class="material-symbols-outlined text-outline mt-1">info</span><div><h4 class="font-small text-small text-navy-950 mb-1">Some current route pricing is unavailable</h4><p class="font-caption text-caption text-on-surface-variant">We are showing planning estimates for the affected travel legs until partner data can be confirmed.</p></div></div>
+</section>
+</div>
+<!-- Right Column (Sticky Sidebar) -->
+<aside class="lg:col-span-4 sticky top-[104px]">
+<div class="bg-surface-container-lowest border border-border rounded-xl p-section shadow-sm flex flex-col gap-control mb-section">
+<h3 class="font-h3 text-h3 text-navy-950 border-b border-border pb-control">Route Summary</h3>
+<div class="flex justify-between items-baseline pt-control">
+<span class="font-body text-body text-on-surface-variant">Total budget</span>
+<span class="font-body-lg text-body-lg text-navy-950 font-medium">C$1,500</span>
+</div>
+<div class="flex justify-between items-baseline border-b border-border pb-control">
+<span class="font-body text-body text-on-surface-variant">Planning limit</span>
+<span class="font-h3 text-h3 text-navy-950">C$1,350</span>
+</div>
+<div class="flex flex-col gap-compact py-control border-b border-border">
+<div class="flex justify-between items-center font-small text-small text-on-surface-variant">
+<span class="">Outbound flight</span>
+<span class="">C$220</span>
+</div>
+<div class="flex justify-between items-center font-small text-small text-on-surface-variant">
+<span class="">Montreal stay</span>
+<span class="">C$270</span>
+</div>
+<div class="flex justify-between items-center font-small text-small text-on-surface-variant">
+<span class="">Inter-city train</span>
+<span class="">C$90</span>
+</div>
+<div class="flex justify-between items-center font-small text-small text-on-surface-variant">
+<span class="">Quebec City stay</span>
+<span class="">C$330</span>
+</div>
+<div class="flex justify-between items-center font-small text-small text-on-surface-variant">
+<span class="">Return flight</span>
+<span class="">C$260</span>
+</div>
+</div>
+<div class="flex flex-col gap-compact py-control border-b border-border">
+<div class="flex justify-between items-center font-small text-small text-navy-950 font-medium">
+<span class="">Estimated route total</span>
+<span class="">C$1,170</span>
+</div>
+<div class="flex justify-between items-center font-small text-small text-outline">
+<span class="">Protected reserve</span>
+<span class="">C$150</span>
+</div>
+</div>
+<div class="flex justify-between items-baseline py-control border-b border-border">
+<span class="font-body text-body text-navy-950 font-semibold">Budget remaining</span>
+<span class="font-h3 text-h3 text-green-600">C$180</span>
+</div>
+<div class="flex flex-col gap-compact py-control">
+<h4 class="font-label-caps text-label-caps text-outline uppercase mb-2">Category Totals</h4>
+<div class="flex justify-between items-center font-caption text-caption text-on-surface-variant">
+<span class="">Flights</span>
+<span class="">C$480</span>
+</div>
+<div class="flex justify-between items-center font-caption text-caption text-on-surface-variant">
+<span class="">Stays</span>
+<span class="">C$600</span>
+</div>
+<div class="flex justify-between items-center font-caption text-caption text-on-surface-variant">
+<span class="">Inter-city transport</span>
+<span class="">C$90</span>
+</div>
+</div>
+<div class="flex flex-col gap-control mt-control">
+<button class="w-full bg-amber-500 hover:bg-amber-600 text-navy-950 font-small text-small py-3 px-4 rounded-lg flex justify-center items-center gap-compact transition-colors">
+                            View partner options
+                            <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+</button>
+<a class="w-full bg-surface-container hover:bg-surface-dim text-navy-950 font-small text-small py-2 px-4 rounded-lg flex justify-center items-center gap-compact transition-colors border border-border" href="#">
+                            Compare flight options
+                            <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+<a class="w-full bg-surface-container hover:bg-surface-dim text-navy-950 font-small text-small py-2 px-4 rounded-lg flex justify-center items-center gap-compact transition-colors border border-border" href="#">
+                            Compare stay options
+                            <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+<a class="w-full bg-surface-container hover:bg-surface-dim text-navy-950 font-small text-small py-2 px-4 rounded-lg flex justify-center items-center gap-compact transition-colors border border-border" href="#">
+                            Compare train options
+                            <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</a>
+</div>
+<p class="font-caption text-caption text-outline text-center mt-control bg-surface-soft p-3 rounded-lg border border-border">
+                        Globevoy helps you plan and compare. Final routes, availability and prices are confirmed on partner websites.
+                    </p>
+</div>
+</aside>
+</div>
+</div>
+</main>
+<!-- Footer -->
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

@@ -1,0 +1,25 @@
+{
+  "taskId": "GV-CITY-668E",
+  "source": "GV-CITY-668D Review66 provider-covered but not recommendation-ready cities",
+  "generatedAt": "2026-07-18T00:25:00.000Z",
+  "cityIds": [
+    "lahore-pk",
+    "islamabad-pk",
+    "bangkok-th",
+    "nairobi-ke",
+    "delhi-in",
+    "mumbai-in",
+    "karachi-pk",
+    "colombo-lk",
+    "jakarta-id",
+    "abuja-ng",
+    "aitutaki-ck",
+    "antananarivo-mg",
+    "ayutthaya-th"
+  ],
+  "notes": {
+    "qualityOnly": 11,
+    "qualityAndFlightComfort": 2,
+    "policy": "Re-query Agoda with diversified quality-oriented candidate retrieval; do not relax the existing quality or flight-comfort floors."
+  }
+}

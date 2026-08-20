@@ -1,0 +1,42 @@
+GV-BOOK-685D-R1 LOCAL VALIDATION RECORD
+Date: 2026-08-18
+Command: .\Run-GV-BOOK-685D-R1-Validate.ps1
+Mode: local fixtures only; no provider call; no deployment
+
+PASS  GV-BOOK-685D-R1                         15/15
+PASS  GV-BOOK-685D                            17/17
+PASS  GV-TRUST-685B                           12/12
+PASS  GV-TRUST-681A-R1                         7/7
+PASS  GV-QUALITY-680B-R1                  inherited
+PASS  GV-BOOK-676A                            24/24
+PASS  GV-BOOK-676A-R1                         14/14
+PASS  GV-BOOK-676A browser fixture            13/13
+PASS  syntax/module checks
+
+R1 REQUIRED PROOF
+PASS  exact YYZ -> MEX has no metro notice
+PASS  live Duffel label is Fare observed via Duffel
+PASS  New York -> Ottawa remains the city-level card title
+PASS  resolved route is LGA -> YOW
+PASS  same-city notice is JFK -> LGA
+PASS  ground-access-not-repriced caveat is visible
+PASS  generated Aviasales search uses LGA, not JFK
+PASS  existing Aviasales tracking remains byte-identical
+PASS  destination and both-endpoint changes are supported
+PASS  cached Duffel label is Cached Duffel fare observation
+PASS  cached Duffel never receives the live Duffel label
+PASS  unavailable and planning-estimate states remain conservative
+PASS  GV-TRUST-685B behavior remains intact
+PASS  no backend/provider/payment/order/network expansion
+
+RENDERED BROWSER QA
+PASS  desktop layout and hierarchy
+PASS  375 x 844 mobile layout
+PASS  viewport width 375; document scroll width 360; no horizontal overflow
+PASS  metro disclosure wraps within flight card
+PASS  cached label visible in return-flight card
+PASS  three partner actions with accessible labels
+PASS  partner rel = noopener sponsored
+PASS  browser console contains no errors
+
+No deployment was performed.

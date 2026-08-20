@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>GV-BOOK-685D-R2 trust-repair browser fixture</title></head>
+<body>
+<p>Loading the immediate trust-repair fixture…</p>
+<script>
+(function(){
+  const toronto={city:'Toronto',country:'Canada',countryCode:'CA',code:'YYZ',airportCode:'YYZ'};
+  const cleveland={city:'Cleveland',country:'United States',countryCode:'US',code:'CLE',airportCode:'CLE'};
+  const pittsburgh={city:'Pittsburgh',country:'United States',countryCode:'US',code:'PIT',airportCode:'PIT'};
+  const legs=[
+    {from:toronto,to:cleveland,mode:'flight',departureDate:'2026-09-02',estimatedDisplayTotal:122,booking:{directSearchUrl:'https://www.aviasales.com/search/YYZ0209CLE1?marker=globevoy-r2-fixture'}},
+    {from:cleveland,to:pittsburgh,mode:'ground',transportType:'rail-or-bus',departureDate:'2026-09-05',estimatedDisplayTotal:35,booking:{directSearchUrl:'https://www.aviasales.com/search/CLE0509PIT1?marker=must-not-render'}},
+    {from:pittsburgh,to:toronto,mode:'flight',departureDate:'2026-09-08',estimatedDisplayTotal:129,providerDateEvidence:{provider:'Duffel',sourceType:'CACHED',departureDate:'2026-09-08'}}
+  ];
+  const tour={origin:toronto,cities:[cleveland,pittsburgh],legs,backendLegs:legs,stays:[
+    {...cleveland,nights:3,arrivalDate:'2026-09-02',departureDate:'2026-09-05',hotel:{estimatedDisplayTotal:551,providerHotel:{provider:'Agoda',hotelId:'cle-r2',hotelName:'Elevated Entertainment Sleep Suite',bookingUrl:'https://www.agoda.com/search?city=Cleveland&checkIn=2026-09-02&checkOut=2026-09-05&rooms=1&adults=1&cid=1891461'},providerVerification:{verified:true,productionEligible:true,provider:'Agoda',sourceType:'LIVE'},priceEvidence:{sourceType:'LIVE'}}},
+    {...pittsburgh,nights:3,arrivalDate:'2026-09-05',departureDate:'2026-09-08',hotel:{estimatedDisplayTotal:482,providerHotel:{provider:'Agoda',hotelId:'pit-r2',hotelName:'Pittsburgh Central Hotel',bookingUrl:'https://www.agoda.com/search?city=Pittsburgh&checkIn=2026-09-05&checkOut=2026-09-08&rooms=1&adults=1&cid=1891461'},providerVerification:{verified:true,productionEligible:true,provider:'Agoda',sourceType:'CACHED'},priceEvidence:{sourceType:'CACHED'}}}
+  ],budget:{total:{amount:1500,currency:'CAD'},estimatedCoreTotal:{amount:1319,currency:'CAD'}},canonicalPricing:{canonicalDisplayTotal:1319,exchangeRateFromUsd:1.36},passengerPricing:{adults:1,children:0,infants:0,travellers:1,rooms:1},liveProviderVerification:{criticalCount:5,verifiedCount:1,allCriticalVerified:false,budgetClaim:'planning-estimate'}};
+  window.name='globevoy.trip.handoff.v1:'+JSON.stringify({id:'gv-book-685d-r2-browser-fixture',tour});
+  location.replace('booking.html?multi=true&snapshot=gv-book-685d-r2-browser-fixture&currency=CAD&budget=1500&total=1319&adults=1&children=0&passengers=1&rooms=1');
+})();
+</script>
+</body>
+</html>

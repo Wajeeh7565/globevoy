@@ -1,0 +1,12 @@
+{
+  "version": "GV-TRUST-681A-R1",
+  "generatedAt": "2026-08-19T02:19:53.279Z",
+  "passed": 7,
+  "failed": 0,
+  "files": [
+    "scripts/multicity-visualizer-674a.js",
+    "scripts/booking-live-673d.js",
+    "scripts/trip-live.js",
+    "scripts/explore-live.js"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "release":"GV-REC-687B-R1",
+  "title":"AI-Assisted Diverse Multi-Tour + Horizontal Journey Carousel",
+  "authoritativeBaseline":"GV-REC-687B",
+  "authoritativeBaselineSha256":"9532faade6e4f2b89f6b810bc33659f16f6ce9943a0a459eef59d3b3f6b1a72c",
+  "scope":"frontend-only consistency repair",
+  "deploymentPerformed":false,
+  "backendChanged":false,
+  "lambdaChanged":false,
+  "providerLogicChanged":false
+}

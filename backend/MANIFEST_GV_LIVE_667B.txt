@@ -1,0 +1,15 @@
+GV-LIVE-667B backend delta from GV-LIVE-667A:
+- generated-tour.js
+- services/agoda.js
+- services/canonical-total-evidence.js (new)
+- services/live-provider-verification.js
+- services/partner-links.js
+- services/route-feasibility.js
+- validate-gv-live-667b.js (new)
+- validate-gv-live-667a.js (regression path/cache update)
+- validate-gv-date-666b.js (regression path/cache update)
+- VALIDATION_GV_LIVE_667B.json
+- VALIDATION_GV_LIVE_667A_REGRESSION_667B.json
+- VALIDATION_GV_DATE_666B_REGRESSION_667B.json
+- VALIDATION_GV_MVP_666A_REGRESSION_667B.json
+- GV-LIVE-667B_REPORT.md

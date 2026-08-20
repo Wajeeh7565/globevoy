@@ -1,0 +1,23 @@
+{
+  "title": "Booking options for Toronto → Fort Lauderdale → Cancún → Toronto | Globevoy",
+  "mainAction": "Book each flight separately",
+  "copyAction": "Copy route and dates",
+  "route": "Toronto → Fort Lauderdale → Cancún → Toronto",
+  "flightButtons": [
+    "Compare this flight ↗",
+    "Compare this flight ↗",
+    "Compare this flight ↗"
+  ],
+  "stayButtons": [
+    "Compare this stay ↗",
+    "Compare this stay ↗"
+  ],
+  "flightNote": "Step-by-step partner handoff: 3 route legs are listed here. Each available comparison button opens one exact leg and date. Book every flight separately, and book hotels separately. No combined payment or protected multi-ticket itinerary is currently provided by Globevoy.",
+  "continueAction": "Start with first flight",
+  "kiwiTextCount": 0,
+  "betaTextCount": 0,
+  "newGlobal": "GV-BOOK-673D",
+  "oldGlobal": false,
+  "toast": "Book each flight separately below, then book every hotel stay separately. No combined Globevoy checkout is available yet.",
+  "copied": "Route: Toronto → Fort Lauderdale → Cancún → Toronto\nDates: 2026-11-05 to 2026-11-11\nTravellers: 1\nCurrency: CAD\nEstimated total: CAD C$1,650\nTransport 1: Toronto → Fort Lauderdale on 2026-11-05\nTransport 2: Fort Lauderdale → Cancún on 2026-11-08\nTransport 3: Cancún → Toronto on 2026-11-11\nHotel: Fort Lauderdale, 3 nights\nHotel: Cancún, 3 nights"
+}

@@ -1,0 +1,79 @@
+{
+  "version": "GV-LIVE-667B",
+  "passed": 17,
+  "total": 17,
+  "checks": [
+    {
+      "name": "version",
+      "passed": true
+    },
+    {
+      "name": "all critical items verified",
+      "passed": true
+    },
+    {
+      "name": "provider-backed budget claim",
+      "passed": true
+    },
+    {
+      "name": "two-person flight pricing applied",
+      "passed": true
+    },
+    {
+      "name": "exact flight date retained",
+      "passed": true
+    },
+    {
+      "name": "provider evidence timestamp recorded",
+      "passed": true
+    },
+    {
+      "name": "hotel exact dates and occupancy recorded",
+      "passed": true
+    },
+    {
+      "name": "hotel rate scales by one room",
+      "passed": true
+    },
+    {
+      "name": "flight partner link carries exact route date and party",
+      "passed": true
+    },
+    {
+      "name": "Agoda link carries stay dates rooms and guests",
+      "passed": true
+    },
+    {
+      "name": "live verification is exposed in provenance",
+      "passed": true
+    },
+    {
+      "name": "missing exact flight date remains estimate",
+      "passed": true
+    },
+    {
+      "name": "comparison links remain partner-confirmed later",
+      "passed": true
+    },
+    {
+      "name": "provider verification can invalidate budget",
+      "passed": true
+    },
+    {
+      "name": "frontend shows provider-backed fit only for fully verified critical prices",
+      "passed": true
+    },
+    {
+      "name": "frontend distinguishes exact-date evidence from estimates",
+      "passed": true
+    },
+    {
+      "name": "frontend cache version is bumped to 667a",
+      "passed": true
+    }
+  ],
+  "notes": [
+    "Tests use deterministic provider-shaped responses; no production credentials were used.",
+    "Final inventory and price remain confirmed on partner websites."
+  ]
+}

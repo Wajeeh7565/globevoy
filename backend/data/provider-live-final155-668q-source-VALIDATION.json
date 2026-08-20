@@ -1,0 +1,158 @@
+{
+  "taskId": "GV-CITY-668Q-RESULTS",
+  "sourceFile": "provider-live-final155-668q-source.json",
+  "generatedAt": "2026-07-22T05:08:26.728Z",
+  "summary": {
+    "completedCount": 155,
+    "providerCoverageEligibleCount": 4,
+    "productionActiveCount": 1,
+    "reviewCount": 154,
+    "projectedMergedProductionActiveCount": 421,
+    "projectedExpansion500AuditedCount": 500,
+    "projectedTotalAuditedCount": 1000,
+    "projectedRemainingUnauditedCount": 0,
+    "activeCityIds": [
+      "eindhoven-nl"
+    ],
+    "classificationCounts": {
+      "live-flights-only": 15,
+      "live-stays-only": 27,
+      "estimate-only": 18,
+      "live-both": 4,
+      "unresolved": 91
+    }
+  },
+  "passed": 28,
+  "failed": 0,
+  "total": 28,
+  "checks": [
+    {
+      "name": "result identifies GV-CITY-668Q Final155",
+      "pass": true
+    },
+    {
+      "name": "result uses the GV-CITY-668E audit engine",
+      "pass": true
+    },
+    {
+      "name": "result contains 155 completed records",
+      "pass": true
+    },
+    {
+      "name": "result city IDs are unique",
+      "pass": true
+    },
+    {
+      "name": "result city set exactly matches the 668Q plan",
+      "pass": true
+    },
+    {
+      "name": "every record completed successfully",
+      "pass": true
+    },
+    {
+      "name": "every record reports the 668E engine version",
+      "pass": true
+    },
+    {
+      "name": "every record is Expansion-500",
+      "pass": true
+    },
+    {
+      "name": "provider-covered count matches records",
+      "pass": true
+    },
+    {
+      "name": "production-active count matches records",
+      "pass": true
+    },
+    {
+      "name": "review count matches records",
+      "pass": true
+    },
+    {
+      "name": "projected active total uses the 420-city baseline",
+      "pass": true
+    },
+    {
+      "name": "Expansion-500 baseline is 345 audited",
+      "pass": true
+    },
+    {
+      "name": "result projects 500 audited Expansion-500 cities",
+      "pass": true
+    },
+    {
+      "name": "result projects 1000 total audited",
+      "pass": true
+    },
+    {
+      "name": "result projects zero unaudited cities",
+      "pass": true
+    },
+    {
+      "name": "activation import remains required",
+      "pass": true
+    },
+    {
+      "name": "all active records have provider coverage",
+      "pass": true
+    },
+    {
+      "name": "all active records have recommendation readiness",
+      "pass": true
+    },
+    {
+      "name": "all active records have quality-qualified Agoda evidence",
+      "pass": true
+    },
+    {
+      "name": "all active records have comfort-qualified flight evidence",
+      "pass": true
+    },
+    {
+      "name": "all active records have a verification timestamp",
+      "pass": true
+    },
+    {
+      "name": "all inactive records remain in review rather than activation",
+      "pass": true
+    },
+    {
+      "name": "exactly one city is production-active",
+      "pass": true
+    },
+    {
+      "name": "three live-both cities are safely held",
+      "pass": true
+    },
+    {
+      "name": "classification counts match records",
+      "pass": true,
+      "details": {
+        "reportedClassifications": {
+          "estimate-only": 18,
+          "live-both": 4,
+          "live-flights-only": 15,
+          "live-stays-only": 27,
+          "unresolved": 91
+        },
+        "classificationCounts": {
+          "live-flights-only": 15,
+          "live-stays-only": 27,
+          "estimate-only": 18,
+          "live-both": 4,
+          "unresolved": 91
+        }
+      }
+    },
+    {
+      "name": "all batch summaries report zero failures",
+      "pass": true
+    },
+    {
+      "name": "batch completed totals sum to 155",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+GV-CITY-668O — Expansion-500 Priority Audit Wave 2
+
+BASE
+- lambda-gv-city-668n-merged-393-activation-snapshot.zip
+
+MODIFIED
+- lambda.js
+- server.js
+
+ADDED
+- services/expansion-priority-city-audit-wave2.js
+- data/expansion-500-priority-audit-150-668o.json
+- data/expansion-500-priority-audit-150-668o.csv
+- build-gv-city-668o-expansion-priority-plan.js
+- validate-gv-city-668o.js
+- validate-gv-city-668o-results.js
+- VALIDATION_GV_CITY_668O.json
+- Run-GV-CITY-668O-Expansion500-Priority-Audit.ps1
+- GV-CITY-668O_REPORT.md
+- MANIFEST_GV_CITY_668O.txt
+- GV-CITY-668O_SHA256.txt
+
+UNCHANGED PRODUCT BEHAVIOR
+- GV-CITY-668N verified activation remains 393 cities.
+- Provider verification policy remains GV-CITY-668E.
+- Exact itinerary validation remains mandatory.
+- Wave 1 audit endpoint remains available.
+- No frontend files changed.
+- No credentials bundled.

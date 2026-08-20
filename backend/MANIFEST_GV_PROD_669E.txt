@@ -1,0 +1,32 @@
+GV-PROD-669E — Stakeholder-Readiness Repair
+
+Canonical inputs
+- Backend: lambda-gv-prod-669d-exact-date-family-occupancy.zip
+  SHA-256: 8527cc109756b359120a5f0f3b394341ee621562b12f4a0cf65158204c68a456
+- Frontend: frontend-staging-gv-control-667d-date-preservation-gateway-transfers(1).zip
+  SHA-256: 8b80ffc62d9bd0c485fd632465b5ff18fbaec82f2e0f1d047c3210348b3496c7
+
+Backend changed files
+- generated-tour.js
+- generated-tour-controls.js
+- budget-adaptive-routes.js
+- multicity-routes.js
+- validate-gv-prod-669c.js (superseding-version acceptance only)
+- validate-gv-prod-669d.js (superseding-version acceptance only)
+- validate-gv-prod-669e.js (new)
+- VALIDATION_GV_PROD_669E.json (new)
+
+Frontend changed files
+- multicity-visualizer.html
+- scripts/multicity-visualizer-651b.js
+- scripts/city-images.js
+- styles/multi-city-visualizer-651b.css
+- validate-gv-prod-669e-frontend.js (validation only)
+- VALIDATION_GV_PROD_669E_FRONTEND.json (validation only)
+
+Deployment artifacts
+- lambda-gv-prod-669e-stakeholder-readiness.zip
+- frontend-gv-prod-669e-stakeholder-readiness-overlay.zip
+- Run-GV-PROD-669E-Stakeholder-Readiness-Smoke.ps1
+- GV-PROD-669E_MANUAL_STAKEHOLDER_CHECKLIST.md
+- GV-PROD-669E_REPORT.md

@@ -1,0 +1,332 @@
+{
+  "artifact": "ground-access-mapping",
+  "taskId": "GV-ROUTE-620A",
+  "version": "1.0.0",
+  "status": "strict-approved-subset",
+  "policy": {
+    "source": "GV-DATA-628A draft",
+    "criteria": [
+      "reviewRequired=false",
+      "same-country hub",
+      "distance <= 120 km",
+      "hub is a Globevoy city",
+      "destination has Agoda mapping",
+      "hub has both providers ready",
+      "destination is Group 2"
+    ],
+    "excluded": "cross-border, remote, long-transfer, or human-review records"
+  },
+  "summary": {
+    "approvedRecordCount": 28
+  },
+  "records": [
+    {
+      "cityId": "antigua-guatemala-gt",
+      "hubCityId": "guatemala-city-gt",
+      "airportCode": "GUA",
+      "locationCode": "GUA",
+      "distanceKm": 22,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "ayutthaya-th",
+      "hubCityId": "bangkok-th",
+      "airportCode": "DMK",
+      "locationCode": "BKK",
+      "distanceKm": 49,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "banff-ca",
+      "hubCityId": "calgary-ca",
+      "airportCode": "YYC",
+      "locationCode": "YYC",
+      "distanceKm": 109,
+      "accessTier": "feasible-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "bath-gb",
+      "hubCityId": "bristol-gb",
+      "airportCode": "BRS",
+      "locationCode": "BRS",
+      "distanceKm": 24,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "braga-pt",
+      "hubCityId": "porto-pt",
+      "airportCode": "OPO",
+      "locationCode": "OPO",
+      "distanceKm": 40,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "brighton-gb",
+      "hubCityId": "london-gb",
+      "airportCode": "LGW",
+      "locationCode": "LON",
+      "distanceKm": 37,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "chefchaouen-ma",
+      "hubCityId": "tangier-ma",
+      "airportCode": "TNG",
+      "locationCode": "TNG",
+      "distanceKm": 85,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "coimbra-pt",
+      "hubCityId": "porto-pt",
+      "airportCode": "OPO",
+      "locationCode": "OPO",
+      "distanceKm": 117,
+      "accessTier": "feasible-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "hakone-jp",
+      "hubCityId": "tokyo-jp",
+      "airportCode": "HND",
+      "locationCode": "TYO",
+      "distanceKm": 71,
+      "accessTier": "feasible-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "hoi-an-vn",
+      "hubCityId": "da-nang-vn",
+      "airportCode": "DAD",
+      "locationCode": "DAD",
+      "distanceKm": 24,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "koh-lanta-th",
+      "hubCityId": "krabi-th",
+      "airportCode": "KBV",
+      "locationCode": "KBV",
+      "distanceKm": 54,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "kyoto-jp",
+      "hubCityId": "osaka-jp",
+      "airportCode": "ITM",
+      "locationCode": "OSA",
+      "distanceKm": 39,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "lucca-it",
+      "hubCityId": "pisa-it",
+      "airportCode": "PSA",
+      "locationCode": "PSA",
+      "distanceKm": 18,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "matera-it",
+      "hubCityId": "bari-it",
+      "airportCode": "BRI",
+      "locationCode": "BRI",
+      "distanceKm": 54,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "naivasha-ke",
+      "hubCityId": "nairobi-ke",
+      "airportCode": "WIL",
+      "locationCode": "NBO",
+      "distanceKm": 79,
+      "accessTier": "feasible-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "napa-us",
+      "hubCityId": "sacramento-us",
+      "airportCode": "SAC",
+      "locationCode": "SAC",
+      "distanceKm": 41,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "ravenna-it",
+      "hubCityId": "rimini-it",
+      "airportCode": "RMI",
+      "locationCode": "RMI",
+      "distanceKm": 55,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "ronda-es",
+      "hubCityId": "malaga-es",
+      "airportCode": "AGP",
+      "locationCode": "AGP",
+      "distanceKm": 60,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "san-miguel-de-allende-mx",
+      "hubCityId": "queretaro-mx",
+      "airportCode": "QRO",
+      "locationCode": "QRO",
+      "distanceKm": 51,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "santa-cruz-us",
+      "hubCityId": "monterey-us",
+      "airportCode": "MRY",
+      "locationCode": "MRY",
+      "distanceKm": 46,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "segovia-es",
+      "hubCityId": "madrid-es",
+      "airportCode": "MAD",
+      "locationCode": "MAD",
+      "distanceKm": 70,
+      "accessTier": "feasible-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "siena-it",
+      "hubCityId": "florence-it",
+      "airportCode": "FLR",
+      "locationCode": "FLR",
+      "distanceKm": 55,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "sintra-pt",
+      "hubCityId": "lisbon-pt",
+      "airportCode": "LIS",
+      "locationCode": "LIS",
+      "distanceKm": 22,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "taormina-it",
+      "hubCityId": "catania-it",
+      "airportCode": "CTA",
+      "locationCode": "CTA",
+      "distanceKm": 47,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "taos-us",
+      "hubCityId": "santa-fe-us",
+      "airportCode": "SAF",
+      "locationCode": "SAF",
+      "distanceKm": 99,
+      "accessTier": "feasible-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "toledo-es",
+      "hubCityId": "madrid-es",
+      "airportCode": "MAD",
+      "locationCode": "MAD",
+      "distanceKm": 77,
+      "accessTier": "feasible-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "whistler-ca",
+      "hubCityId": "vancouver-ca",
+      "airportCode": "CXH",
+      "locationCode": "YVR",
+      "distanceKm": 95,
+      "accessTier": "feasible-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    },
+    {
+      "cityId": "york-gb",
+      "hubCityId": "leeds-gb",
+      "airportCode": "LBA",
+      "locationCode": "LBA",
+      "distanceKm": 39,
+      "accessTier": "practical-ground-transfer",
+      "sameCountry": true,
+      "reviewStatus": "approved-by-strict-620a-filter",
+      "sourceTask": "GV-DATA-628A-draft"
+    }
+  ]
+}

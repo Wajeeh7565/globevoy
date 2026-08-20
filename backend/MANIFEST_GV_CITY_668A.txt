@@ -1,0 +1,10 @@
+GV-CITY-668A backend changed/added files
+- data/unified-city-registry-1000.json
+- services/city-registry.js
+- services/global-route-graph.js
+- lambda.js
+- server.js
+- validate-gv-city-668a.js
+- VALIDATION_GV_CITY_668A.json
+- GV-CITY-668A_REPORT.md
+- MANIFEST_GV_CITY_668A.txt

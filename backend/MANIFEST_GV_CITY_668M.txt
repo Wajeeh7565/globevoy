@@ -1,0 +1,27 @@
+GV-CITY-668M — Expansion-500 Priority Audit Wave 1
+
+BASE
+- lambda-gv-city-668l-current500-complete-322-activation-snapshot.zip
+
+MODIFIED
+- lambda.js
+- server.js
+
+ADDED
+- services/expansion-priority-city-audit.js
+- data/expansion-500-priority-audit-150-668m.json
+- data/expansion-500-priority-audit-150-668m.csv
+- build-gv-city-668m-expansion-priority-plan.js
+- validate-gv-city-668m.js
+- validate-gv-city-668m-results.js
+- VALIDATION_GV_CITY_668M.json
+- Run-GV-CITY-668M-Expansion500-Priority-Audit.ps1
+- GV-CITY-668M_REPORT.md
+- MANIFEST_GV_CITY_668M.txt
+
+UNCHANGED PRODUCT BEHAVIOR
+- 668L verified activation remains 322 cities.
+- Provider verification policy remains GV-CITY-668E.
+- Exact itinerary validation remains mandatory.
+- No frontend files changed.
+- No credentials bundled.

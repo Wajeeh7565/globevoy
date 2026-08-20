@@ -1,0 +1,27 @@
+{
+  "release": "GV-PROD-673F-R2",
+  "passed": true,
+  "checkCount": 5,
+  "checks": [
+    {
+      "name": "every rendered itinerary card resolves immediately",
+      "ok": true
+    },
+    {
+      "name": "route hydration does not depend on IntersectionObserver",
+      "ok": true
+    },
+    {
+      "name": "route cards request eager images",
+      "ok": true
+    },
+    {
+      "name": "valid Codex 673F photo cache is reused",
+      "ok": true
+    },
+    {
+      "name": "legacy cache is migrated into R2 namespace",
+      "ok": true
+    }
+  ]
+}

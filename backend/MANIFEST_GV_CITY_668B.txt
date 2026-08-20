@@ -1,0 +1,17 @@
+GV-CITY-668B backend changed/added files
+- data/provider-mappings-1000-668b.json
+- data/unified-city-registry-1000-668b.json
+- services/provider-mapping-audit.js
+- services/city-registry.js
+- lambda.js
+- server.js
+- validate-gv-city-668b.js
+- VALIDATION_GV_CITY_668B.json
+- GV-CITY-668B_REPORT.md
+- GV-CITY-668B_UNRESOLVED_AGODA_REVIEW.csv
+- MANIFEST_GV_CITY_668B.txt
+
+Static source inputs used to generate the derived mapping files (not bundled):
+- cities.json
+- airports.json
+- E342B777-64FD-4A49-9C9F-FEF4BA635863_EN.csv

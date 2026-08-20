@@ -1,0 +1,7 @@
+Task: GV-UX-670A-R2
+Backend version: 2.7.1-gv-ux-670a-r2-role-assignment
+Base: GV-UX-670A / GV-PROD-669F
+Feature flag: ENABLE_MAP_FIRST_THREE_PICKS_670A=true
+Changed production file: generated-tour.js
+Frontend change: none
+Activation baseline: GV-CITY-668T, 1000 audited, 439 active, 0 unaudited

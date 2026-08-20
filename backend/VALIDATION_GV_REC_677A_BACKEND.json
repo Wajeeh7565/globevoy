@@ -1,0 +1,260 @@
+{
+  "release": "GV-REC-677A",
+  "generatedAt": "2026-08-11T03:27:19.851Z",
+  "passed": true,
+  "checkCount": 12,
+  "passedCount": 12,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "677A generated-tour version is packaged",
+      "passed": true,
+      "details": "2.12.0-gv-rec-677d-destination-value-proximity"
+    },
+    {
+      "name": "677A smart duration version is exported",
+      "passed": true,
+      "details": "GV-REC-677A"
+    },
+    {
+      "name": "677A feature flag is enabled for validation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Cairo + Antalya is expanded beyond six rushed nights",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A",
+        "mode": "adaptive",
+        "nights": 9,
+        "baseBudgetNights": 6,
+        "routeMinimumNights": 8,
+        "routeMaximumNights": 14,
+        "travelRecoveryNights": 1,
+        "estimatedTravelHours": 22,
+        "stopCount": 2,
+        "stopNightBounds": [
+          {
+            "city": "Cairo",
+            "minimum": 4,
+            "maximum": 7
+          },
+          {
+            "city": "Antalya",
+            "minimum": 4,
+            "maximum": 7
+          }
+        ],
+        "budgetCapacity": {
+          "totalBudgetUsd": 1000,
+          "usableBudgetUsd": 900,
+          "transportUsd": 250,
+          "nightlyTripCostUsd": 60,
+          "maxAffordableNights": 10
+        },
+        "affordabilityRisk": false,
+        "smartEnabled": true,
+        "smartVersion": "GV-REC-677A",
+        "reason": "Duration combines the cities' useful minimum stays, about 22 hours of route travel, the traveller count, and the protected trip budget."
+      }
+    },
+    {
+      "name": "smart duration records route travel burden",
+      "passed": true,
+      "details": {
+        "travel": 22,
+        "bounds": [
+          {
+            "city": "Cairo",
+            "minimum": 4,
+            "maximum": 7
+          },
+          {
+            "city": "Antalya",
+            "minimum": 4,
+            "maximum": 7
+          }
+        ]
+      }
+    },
+    {
+      "name": "long-haul route gets recovery time beyond city minimums",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A",
+        "mode": "adaptive",
+        "nights": 11,
+        "baseBudgetNights": 8,
+        "routeMinimumNights": 9,
+        "routeMaximumNights": 16,
+        "travelRecoveryNights": 2,
+        "estimatedTravelHours": 44.8,
+        "stopCount": 2,
+        "stopNightBounds": [
+          {
+            "city": "Tokyo",
+            "minimum": 5,
+            "maximum": 9
+          },
+          {
+            "city": "Seoul",
+            "minimum": 4,
+            "maximum": 7
+          }
+        ],
+        "budgetCapacity": {
+          "totalBudgetUsd": 2600,
+          "usableBudgetUsd": 2340,
+          "transportUsd": 900,
+          "nightlyTripCostUsd": 90,
+          "maxAffordableNights": 15
+        },
+        "affordabilityRisk": false,
+        "smartEnabled": true,
+        "smartVersion": "GV-REC-677A",
+        "reason": "Duration combines the cities' useful minimum stays, about 45 hours of route travel, the traveller count, and the protected trip budget."
+      }
+    },
+    {
+      "name": "short regional override can stay compact",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A",
+        "mode": "adaptive",
+        "nights": 6,
+        "baseBudgetNights": 6,
+        "routeMinimumNights": 4,
+        "routeMaximumNights": 6,
+        "travelRecoveryNights": 0,
+        "estimatedTravelHours": 11.4,
+        "stopCount": 2,
+        "stopNightBounds": [
+          {
+            "city": "Nearby A",
+            "minimum": 2,
+            "maximum": 3
+          },
+          {
+            "city": "Nearby B",
+            "minimum": 2,
+            "maximum": 3
+          }
+        ],
+        "budgetCapacity": {
+          "totalBudgetUsd": 900,
+          "usableBudgetUsd": 810,
+          "transportUsd": 120,
+          "nightlyTripCostUsd": 60,
+          "maxAffordableNights": 10
+        },
+        "affordabilityRisk": false,
+        "smartEnabled": true,
+        "smartVersion": "GV-REC-677A",
+        "reason": "Duration combines the cities' useful minimum stays, about 11 hours of route travel, the traveller count, and the protected trip budget."
+      }
+    },
+    {
+      "name": "unaffordable rushed route is flagged instead of compressed below city minimums",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A",
+        "mode": "adaptive",
+        "nights": 9,
+        "baseBudgetNights": 6,
+        "routeMinimumNights": 8,
+        "routeMaximumNights": 14,
+        "travelRecoveryNights": 1,
+        "estimatedTravelHours": 22,
+        "stopCount": 2,
+        "stopNightBounds": [
+          {
+            "city": "Cairo",
+            "minimum": 4,
+            "maximum": 7
+          },
+          {
+            "city": "Antalya",
+            "minimum": 4,
+            "maximum": 7
+          }
+        ],
+        "budgetCapacity": {
+          "totalBudgetUsd": 650,
+          "usableBudgetUsd": 585,
+          "transportUsd": 420,
+          "nightlyTripCostUsd": 70,
+          "maxAffordableNights": 2
+        },
+        "affordabilityRisk": true,
+        "smartEnabled": true,
+        "smartVersion": "GV-REC-677A",
+        "reason": "The route needs about 8 destination nights, but the current planning budget may not support that comfortably. Globevoy will prefer a simpler route rather than compressing the stays."
+      }
+    },
+    {
+      "name": "explicit exact-date duration remains protected",
+      "passed": true,
+      "details": {
+        "version": "GV-UX-674A",
+        "mode": "exact-dates",
+        "nights": 7,
+        "reason": "The traveller selected the trip length or exact dates."
+      }
+    },
+    {
+      "name": "smart flight selection can pay a small premium to remove connections and hours",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-10-02",
+        "price": 115,
+        "durationMinutes": 420,
+        "transfers": 0,
+        "timingQuality": 0,
+        "cheapestPrice": 100,
+        "pricePremiumVsCheapest": 15,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677A",
+        "smartFlightScore": 16.8,
+        "alternativesConsidered": 3,
+        "selectionReason": "smart-price-duration-connection-balance-677a"
+      }
+    },
+    {
+      "name": "smart flight selection records score and version",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-10-02",
+        "price": 115,
+        "durationMinutes": 420,
+        "transfers": 0,
+        "timingQuality": 0,
+        "cheapestPrice": 100,
+        "pricePremiumVsCheapest": 15,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677A",
+        "smartFlightScore": 16.8,
+        "alternativesConsidered": 3,
+        "selectionReason": "smart-price-duration-connection-balance-677a"
+      }
+    },
+    {
+      "name": "expensive option outside reasonable premium is not selected",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-10-02",
+        "price": 115,
+        "durationMinutes": 420,
+        "transfers": 0,
+        "timingQuality": 0,
+        "cheapestPrice": 100,
+        "pricePremiumVsCheapest": 15,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677A",
+        "smartFlightScore": 16.8,
+        "alternativesConsidered": 3,
+        "selectionReason": "smart-price-duration-connection-balance-677a"
+      }
+    }
+  ]
+}

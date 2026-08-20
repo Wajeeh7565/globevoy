@@ -1,0 +1,26 @@
+GV-PROD-673F-R2 changed and added files
+
+FUNCTIONAL
+- scripts/multicity-visualizer-673c.js
+- scripts/city-images-673c.js
+
+RELEASE/CACHE MARKERS
+- booking.html
+- explore.html
+- index.html
+- mixed-results.html
+- multi-city-trip.html
+- multi-city.html
+- multicity-visualizer.html
+- trip.html
+- scripts/booking-live-673d.js
+- runtime/supported-origins.js
+
+RELEASE SUPPORT
+- DEPLOY_GV_PROD_673F_R2.md
+- GV-PROD-673F-R2_CHANGED_FILES.txt
+- GV-PROD-673F-R2_MANUAL_CHECKLIST.md
+- GV-PROD-673F-R2_ORIGIN_QUARANTINE.json
+- GV-PROD-673F-R2_REPORT.md
+- Run-GV-PROD-673F-R2-Deployment-Smoke.ps1
+- validate-gv-prod-673f-r2.js

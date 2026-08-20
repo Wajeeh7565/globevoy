@@ -1,0 +1,25 @@
+GV-UX-670A - Map-First Three Picks
+
+Production code changed:
+- generated-tour.js
+
+Release support files added:
+- validate-gv-ux-670a.js
+- VALIDATION_GV_UX_670A_BACKEND.json
+- GV-UX-670A_REPORT.md
+- MANIFEST_GV_UX_670A.txt
+
+Feature flag:
+- ENABLE_MAP_FIRST_THREE_PICKS_670A=true
+
+Backend version:
+- 2.7.0-gv-ux-670a-map-first-three-picks
+
+Protected production baseline:
+- GV-CITY-668T
+- 1000 audited
+- 439 production-active
+- 0 unaudited
+
+Rollback backend:
+- lambda-gv-prod-669f-origin-display-integrity.zip

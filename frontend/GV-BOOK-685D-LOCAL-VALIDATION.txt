@@ -1,0 +1,33 @@
+GV-BOOK-685D LOCAL VALIDATION
+Date: 2026-08-18 America/Toronto
+Runtime: Node v24.15.0
+Mode: local fixtures only; no provider call; no deployment; no transaction
+
+PASS 17/17 GV-BOOK-685D frontend
+PASS 12/12 GV-TRUST-685B
+PASS 7/7 GV-TRUST-681A-R1 frontend
+PASS GV-QUALITY-680B-R1 inherited frontend integrity
+PASS 24/24 GV-BOOK-676A
+PASS 14/14 GV-BOOK-676A-R1
+PASS 13/13 GV-BOOK-676A browser fixture
+PASS syntax and module checks
+
+Rendered browser QA:
+- desktop full-page render: PASS
+- mobile viewport override 390 x 844: PASS
+- effective document viewport: 375 px
+- document scroll width: 375 px
+- horizontal overflow: false
+- rendered order: flight, stay, flight, stay, flight
+- rendered component count: 5
+- external action links: 5, each with useful aria-label and rel="noopener sponsored"
+- GV-TRUST-685B visible state: Planning estimate — verify price
+- forbidden "Estimated to fit budget": absent
+- forbidden one-click booking claim: absent
+- legacy separated transport list hidden after timeline success: true
+
+Handoff fixture proof:
+- Aviasales routes/dates and marker parameter preserved
+- Agoda city/check-in/check-out/rooms/adults/CID parameters preserved
+- Duffel evidence and Aviasales fulfilment shown as separate concepts
+

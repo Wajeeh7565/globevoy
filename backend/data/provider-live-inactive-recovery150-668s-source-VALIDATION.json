@@ -1,0 +1,166 @@
+{
+  "taskId": "GV-CITY-668S-RESULTS",
+  "generatedAt": "2026-07-22T05:55:25.330Z",
+  "sourceFile": "provider-live-inactive-recovery150-668s-source.json",
+  "sourceFileSha256": "e21fb5ae1e30906365ddf268e6b8b0fea455f05c81c84f89c6908dbe2c52c0e7",
+  "passed": 31,
+  "failed": 0,
+  "total": 31,
+  "checks": [
+    {
+      "name": "source identity is GV-CITY-668S Recovery150",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "source engine is GV-CITY-668E",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "150 records completed",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "150 city IDs are unique",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all records completed successfully",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all records use 668E policy",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "71 records are provider-covered",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "18 records are production-ready",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "132 records remain review",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "projected active total is 439",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "projected reviewed inactive total is 561",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "full registry remains audited",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "thresholds were not relaxed",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation import is explicitly required",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight policy uses four months",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "regional anchor policy uses six anchors",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight attempt cap is 20",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "stay policy uses four windows",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Agoda policy uses three strategies",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight-recovery lane is 80/14/9",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "readiness-recovery lane is 64/57/9",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "stay-recovery lane is 6/0/0",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "classification totals sum to 150",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active records have both production evidence streams",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active records passed readiness",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active records are direct/metro",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "active records split 9 Current-500 and 9 Expansion-500",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "source SHA-256 is reproducible",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Smoke5 contains five unique records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Smoke5 and Recovery150 agree on shared eligibility",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Smoke5 and Recovery150 agree on shared classifications",
+      "pass": true,
+      "details": {}
+    }
+  ]
+}

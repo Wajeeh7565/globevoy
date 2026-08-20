@@ -1,0 +1,13 @@
+Globevoy local city image credits — GV-UX-672B
+
+Toronto: “Toronto Skyline, Ontario Canada” by Peter Glyn / Antares, Wikimedia Commons, CC0.
+Cancún: “Cancun Beach” by Keith Pomakis, Wikimedia Commons, CC BY-SA 2.5.
+Fort Lauderdale: “Fort Lauderdale Skyline” by Rstepp, Wikimedia Commons, public domain.
+Ottawa: “Parliament Hill, Ottawa, Ontario (29985773591)” by Ken Lund, Wikimedia Commons, CC BY-SA 2.0.
+Montréal: “Skyline of Montreal” by Marc-Olivier Jodoin, Wikimedia Commons, CC0.
+
+Other existing image credits remain governed by their original source records.
+
+GV-PROD-673C additions:
+Miami: MiamiSkyline.jpg by Massimo Catarinella, Wikimedia Commons, CC BY-SA 3.0. https://commons.wikimedia.org/wiki/File:MiamiSkyline.jpg
+Montego Bay: Montego Bay, Jamaica (51235287332).jpg by Just a Brazilian man, Wikimedia Commons, CC BY 2.0. https://commons.wikimedia.org/wiki/File:Montego_Bay,_Jamaica_(51235287332).jpg

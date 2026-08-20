@@ -1,0 +1,154 @@
+/* GV-UI-540B live wiring additions. No legacy frontend selectors are imported. */
+#gv-home-status{min-height:1.25rem}
+#gv-results-status{margin:.75rem 0 1.25rem;color:#5a6d82;font-size:.875rem}
+#gv-map-panel{overflow:hidden}
+#gv-map-pins{z-index:4}
+@media(max-width:767px){#gv-results-list article{min-width:0}#gv-results-list article a{display:inline-flex;align-items:center;justify-content:center}}
+
+
+/* GV-UI-541A homepage completion */
+#gv-advanced-options:not([open])>div{display:none}
+.gv-date-panel{margin-top:.75rem;padding:1rem;border:1px solid #c4c6ce;border-radius:.65rem;background:#fff;box-shadow:0 10px 25px rgba(7,28,51,.12);position:relative;z-index:30}
+.gv-date-panel[hidden],.gv-multi-edit-panel[hidden],#gv-multi-advanced[hidden]{display:none!important}
+.gv-date-panel-head,.gv-edit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;color:#071c33;margin-bottom:.75rem}
+.gv-date-panel-head button,.gv-edit-head button{border:0;background:transparent;color:#5a6d82;font-size:1.5rem;line-height:1;cursor:pointer}
+.gv-date-mode{display:grid;grid-template-columns:1fr 1fr;background:#eceef3;border-radius:999px;padding:3px;margin-bottom:1rem}
+.gv-date-mode button{border:0;border-radius:999px;padding:.55rem .75rem;background:transparent;color:#44474d;font-weight:600;cursor:pointer}
+.gv-date-mode button.is-active{background:#071c33;color:white;box-shadow:0 2px 6px rgba(7,28,51,.2)}
+.gv-date-grid,.gv-edit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}
+.gv-date-grid label,.gv-edit-grid label,.gv-multi-advanced label{display:flex;flex-direction:column;gap:.35rem;color:#44474d;font-size:.78rem;font-weight:600}
+.gv-date-grid input,.gv-date-grid select,.gv-edit-grid input,.gv-edit-grid select,.gv-multi-advanced select{width:100%;border:1px solid #c4c6ce;border-radius:.4rem;background:#f7f9fb;padding:.65rem;color:#071c33}
+.gv-date-note{margin-top:.75rem;font-size:.75rem;line-height:1.4;color:#5a6d82}
+.gv-multi-advanced{display:grid;grid-template-columns:1fr;gap:.75rem;margin-top:1rem;padding-top:1rem;border-top:1px solid rgba(196,198,206,.5)}
+.gv-multi-edit-panel{max-width:1180px;margin:1.5rem auto;padding:1.25rem;background:#fff;border:1px solid #d7e0e7;border-radius:.75rem;box-shadow:0 8px 24px rgba(7,28,51,.08)}
+.gv-edit-head p{margin:.25rem 0 0;color:#5a6d82;font-size:.85rem}
+.gv-edit-actions{display:flex;align-items:center;justify-content:flex-end;gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid #d7e0e7}
+.gv-edit-actions a{color:#008f89;font-weight:600}.gv-edit-actions button{background:#008f89;color:#fff;border:0;border-radius:.45rem;padding:.7rem 1.1rem;font-weight:700;cursor:pointer}
+.gv-runtime-notice{max-width:1180px;margin:1rem auto;padding:.8rem 1rem;border:1px solid #f0c45e;border-radius:.5rem;background:#fffaf0;color:#684a00;font-size:.82rem}
+@media(max-width:767px){.gv-date-grid,.gv-edit-grid{grid-template-columns:1fr}.gv-date-panel{position:static}.gv-multi-edit-panel,.gv-runtime-notice{margin:1rem}.gv-edit-actions{justify-content:space-between}}
+
+
+/* GV-UI-541A-R1 homepage final repair */
+#gv-travel-dates{cursor:pointer}
+#gv-travel-dates:focus{outline:2px solid #008f89;outline-offset:2px}
+.gv-date-panel-head>div{min-width:0}
+.gv-date-panel-head p{margin:.25rem 0 0;color:#5a6d82;font-size:.75rem;line-height:1.35}
+.gv-date-panel button:focus-visible,#gv-advanced-options summary:focus-visible{outline:2px solid #008f89;outline-offset:2px}
+#gv-advanced-options summary{user-select:none}
+#gv-home-status:not(:empty){margin-top:.75rem;padding:.65rem .75rem;border:1px solid #ffb4ab;border-radius:.4rem;background:#fff4f2}
+@media(max-width:520px){.gv-date-mode{grid-template-columns:1fr}.gv-date-panel{padding:.8rem}.gv-date-panel-head{align-items:flex-start}}
+
+/* GV-UI-542A — homepage simplification from June 27 product review */
+@keyframes gvHomeFade{0%{opacity:0;transform:scale(1)}8%{opacity:1}30%{opacity:1}38%{opacity:0;transform:scale(1.04)}100%{opacity:0;transform:scale(1.04)}}
+.gv-home-hero{position:relative;min-height:680px;overflow:hidden;background:#071c33}.gv-home-slides,.gv-home-overlay{position:absolute;inset:0}.gv-home-slide{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;animation:gvHomeFade 24s infinite}.gv-home-slide:nth-child(2){animation-delay:8s}.gv-home-slide:nth-child(3){animation-delay:16s}.gv-home-overlay{background:linear-gradient(90deg,rgba(3,14,30,.92) 0%,rgba(7,28,51,.78) 42%,rgba(7,28,51,.44) 100%)}
+.gv-home-hero-inner{position:relative;z-index:2;max-width:1280px;margin:0 auto;min-height:680px;padding:64px 24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(420px,520px);gap:64px;align-items:center}.gv-home-copy{color:#fff;max-width:650px}.gv-home-copy h1{margin:8px 0 22px;font-size:clamp(42px,5.4vw,72px);line-height:1.04;letter-spacing:-.035em;font-weight:800}.gv-home-copy>p:not(.gv-eyebrow){font-size:18px;line-height:1.65;color:rgba(255,255,255,.86);max-width:620px}.gv-home-copy-note{font-size:14px!important;color:rgba(255,255,255,.66)!important;margin-top:14px}.gv-eyebrow{margin:0;color:#7af6ed;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}.gv-eyebrow-dark{color:#008f89}
+.gv-search-card{background:#fff;border:1px solid rgba(215,224,231,.9);border-radius:18px;padding:26px;box-shadow:0 28px 70px rgba(3,14,30,.32)}.gv-search-card-head h2{font-size:24px;line-height:1.25;margin:4px 0 22px;color:#071c33}.gv-search-fields,.gv-advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.gv-field{display:flex;flex-direction:column;gap:7px;min-width:0;position:relative}.gv-field-full{grid-column:1/-1}.gv-field>span:first-child{font-size:13px;font-weight:700;color:#44474d}.gv-field small{font-weight:500;color:#74777e;margin-left:5px}.gv-input-wrap{position:relative;display:flex;align-items:center}.gv-input-wrap>.material-symbols-outlined,.gv-prefix{position:absolute;left:13px;color:#74777e;z-index:1}.gv-input-wrap input{padding-left:43px!important}.gv-prefix+input{padding-left:42px!important}.gv-field input,.gv-field select,.gv-field textarea,.gv-passenger-button{width:100%;border:1px solid #c4c6ce;border-radius:9px;background:#f7f9fb;color:#071c33;padding:12px 13px;font:inherit;outline:none;transition:border-color .15s,box-shadow .15s}.gv-field input:focus,.gv-field select:focus,.gv-field textarea:focus,.gv-passenger-button:focus{border-color:#008f89;box-shadow:0 0 0 3px rgba(8,168,160,.14)}.gv-field textarea{resize:vertical;min-height:84px}.gv-char-count{align-self:flex-end;font-size:11px!important;font-weight:500!important;color:#74777e!important;margin-top:-2px}
+.gv-passenger-button{height:47px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;text-align:left;cursor:pointer}.gv-passenger-button .material-symbols-outlined{color:#74777e}.gv-chevron{justify-self:end}.gv-passenger-panel{position:absolute;z-index:60;top:75px;left:0;right:0;background:#fff;border:1px solid #d7e0e7;border-radius:12px;padding:8px 16px;box-shadow:0 18px 44px rgba(7,28,51,.18)}.gv-passenger-panel[hidden]{display:none!important}.gv-counter-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 0}.gv-counter-row+.gv-counter-row{border-top:1px solid #e7e8ee}.gv-counter-row strong{display:block;color:#071c33;font-size:14px}.gv-counter-row span{display:block;color:#74777e;font-size:11px;margin-top:2px}.gv-counter{display:flex;align-items:center;gap:11px}.gv-counter button{width:30px;height:30px;border-radius:50%;border:1px solid #c4c6ce;background:#fff;color:#008f89;font-size:20px;line-height:1;cursor:pointer}.gv-counter button:disabled{color:#a8afb6;background:#f2f3f9;cursor:not-allowed}.gv-counter output{min-width:20px;text-align:center;font-weight:800;color:#071c33}
+.gv-advanced{margin-top:18px;border:1px solid #d7e0e7;border-radius:10px;background:#f7f9fb}.gv-advanced summary{padding:13px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;list-style:none;color:#071c33;font-size:13px;font-weight:800}.gv-advanced summary::-webkit-details-marker{display:none}.gv-advanced summary .material-symbols-outlined{transition:transform .18s;color:#74777e}.gv-advanced[open] summary .material-symbols-outlined{transform:rotate(180deg)}.gv-advanced-body{border-top:1px solid #d7e0e7;padding:16px}.gv-advanced:not([open]) .gv-advanced-body{display:none}.gv-date-panel{grid-column:1/-1;margin-top:2px;padding:15px;border:1px solid #c4c6ce;border-radius:10px;background:#fff;box-shadow:none}.gv-date-panel[hidden]{display:none!important}.gv-date-grid{grid-template-columns:1fr 1fr}.gv-date-mode{max-width:340px}.gv-search-submit{display:inline-flex;align-items:center;justify-content:center;width:100%;margin-top:18px;padding:13px 18px;border:0;border-radius:9px;background:#008f89;color:#fff;text-decoration:none;font-weight:800;cursor:pointer}.gv-search-submit:hover{background:#007a75}.gv-home-status{min-height:20px;margin:10px 0 0;color:#93000a;font-size:13px}.gv-home-status:not(:empty){padding:9px 11px;border:1px solid #ffb4ab;border-radius:8px;background:#fff4f2}.gv-search-hint{margin:8px 0 0;text-align:center;color:#5a6d82;font-size:11px;line-height:1.45}
+.gv-home-benefits{max-width:1160px;margin:0 auto;padding:56px 24px 68px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px}.gv-home-benefits article{text-align:center;padding:10px 18px}.gv-home-benefits .material-symbols-outlined{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#e5f7f5;color:#008f89;font-size:24px}.gv-home-benefits h2{font-size:18px;margin:15px 0 8px;color:#071c33}.gv-home-benefits p{margin:0;color:#5a6d82;font-size:14px;line-height:1.6}
+.gv-modal[hidden]{display:none!important}.gv-modal{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:20px}.gv-modal-backdrop{position:absolute;inset:0;background:rgba(3,14,30,.66);backdrop-filter:blur(3px)}.gv-modal-card{position:relative;z-index:1;width:min(100%,470px);background:#fff;border-radius:16px;padding:30px;box-shadow:0 30px 90px rgba(0,0,0,.32)}.gv-modal-card h2{font-size:28px;margin:5px 0 12px;color:#071c33}.gv-modal-card>p:not(.gv-eyebrow):not(.gv-modal-note){color:#5a6d82;line-height:1.6}.gv-modal-close{position:absolute;right:15px;top:12px;width:38px;height:38px;border:0;border-radius:50%;background:#f2f3f9;color:#071c33;font-size:25px;cursor:pointer}.gv-modal-actions{display:grid;gap:10px;margin-top:22px}.gv-secondary-action,.gv-guest-action{display:flex;align-items:center;justify-content:center;width:100%;padding:12px 16px;border:1px solid #c4c6ce;border-radius:9px;background:#fff;color:#071c33;text-decoration:none;font-weight:800;cursor:pointer}.gv-guest-action{border:0;background:transparent;color:#008f89}.gv-modal-note{margin:16px 0 0;font-size:11px;line-height:1.5;color:#74777e}.gv-modal-open{overflow:hidden!important}
+body[data-simple-nav="true"] .gv-header__inner{justify-content:space-between}body[data-simple-nav="true"] .gv-nav{display:none}body[data-simple-nav="true"] .gv-utils{margin-left:auto}body[data-simple-nav="true"] .gv-burger,body[data-simple-nav="true"] .gv-currency{display:none!important}
+@media(max-width:900px){.gv-home-hero-inner{grid-template-columns:1fr;gap:34px;padding-top:52px;padding-bottom:52px}.gv-home-copy{text-align:center;margin:0 auto}.gv-home-copy h1{font-size:48px}.gv-search-card{max-width:620px;width:100%;margin:0 auto}.gv-home-benefits{grid-template-columns:1fr}}
+@media(max-width:600px){.gv-home-hero-inner{padding:38px 14px}.gv-home-copy h1{font-size:37px}.gv-home-copy>p:not(.gv-eyebrow){font-size:16px}.gv-search-card{padding:18px;border-radius:14px}.gv-search-fields,.gv-advanced-grid,.gv-date-grid{grid-template-columns:1fr}.gv-field-full{grid-column:auto}.gv-passenger-panel{top:74px}.gv-home-benefits{padding:38px 16px}.gv-modal-card{padding:24px 18px}.gv-search-card-head h2{font-size:21px}}
+@media(prefers-reduced-motion:reduce){.gv-home-slide{animation:none;opacity:0}.gv-home-slide:first-child{opacity:1}.gv-advanced summary .material-symbols-outlined{transition:none}}
+.gv-preference-field{min-width:0;margin:0;padding:0;border:0}.gv-preference-field legend{margin:0 0 8px;padding:0;font-size:13px;font-weight:700;color:#44474d}.gv-preference-field legend small{margin-left:5px;font-weight:500;color:#74777e}.gv-preference-chips{display:flex;flex-wrap:wrap;gap:8px}.gv-preference-chips label{position:relative;cursor:pointer}.gv-preference-chips input{position:absolute;width:1px;height:1px;opacity:0}.gv-preference-chips span{display:inline-flex;align-items:center;min-height:38px;padding:8px 12px;border:1px solid #c4c6ce;border-radius:999px;background:#fff;color:#31465b;font-size:13px;font-weight:700;transition:border-color .15s,background .15s,color .15s}.gv-preference-chips input:checked+span{border-color:#008f89;background:#e6f7f5;color:#006c68}.gv-preference-chips input:focus-visible+span{outline:2px solid #008f89;outline-offset:2px}
+
+
+/* GV-UI-542A-R1 — geolocation and origin-aware homepage ideas */
+.gv-origin-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:7px}.gv-location-button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#008f89;padding:3px 0;font-size:12px;font-weight:800;cursor:pointer}.gv-location-button .material-symbols-outlined{font-size:17px}.gv-location-button:disabled{opacity:.62;cursor:wait}.gv-location-status{font-size:11px;color:#5a6d82;line-height:1.35}.gv-location-status.is-error{color:#93000a}
+.gv-home-ideas{max-width:1160px;margin:0 auto;padding:64px 24px 10px}.gv-home-ideas-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px}.gv-home-ideas-head h2{margin:6px 0 8px;font-size:clamp(28px,3vw,40px);line-height:1.2;color:#071c33}.gv-home-ideas-head p:last-child{margin:0;color:#5a6d82;max-width:760px;line-height:1.55}.gv-home-ideas-state{padding:28px;border:1px dashed #b8c6d1;border-radius:14px;background:#fff;text-align:center;color:#5a6d82}.gv-home-ideas-state.is-error{border-color:#f0c45e;background:#fffaf0;color:#684a00}.gv-home-ideas-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.gv-home-idea-card{overflow:hidden;border:1px solid #d7e0e7;border-radius:14px;background:#fff;box-shadow:0 7px 22px rgba(7,28,51,.08)}.gv-home-idea-photo{height:190px;position:relative;overflow:hidden;background:linear-gradient(135deg,#dff4f4,#dbe8f2)}.gv-home-idea-photo img{width:100%;height:100%;display:block;object-fit:cover;transition:transform .35s ease}.gv-home-idea-card:hover .gv-home-idea-photo img{transform:scale(1.035)}.gv-home-idea-placeholder{height:100%;display:grid;place-items:center;color:#071c33;font-size:22px;font-weight:800}.gv-home-idea-label{position:absolute;left:12px;top:12px;padding:6px 9px;border-radius:999px;background:#071c33;color:#fff;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.gv-home-idea-card:nth-child(1) .gv-home-idea-label{background:#008f89}.gv-home-idea-card:nth-child(3) .gv-home-idea-label{background:#ffb51b;color:#071c33}.gv-home-idea-body{padding:18px}.gv-home-idea-type{margin:0 0 5px;color:#008f89;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}.gv-home-idea-body h3{margin:0 0 5px;font-size:21px;line-height:1.25;color:#071c33}.gv-home-idea-body>p:not(.gv-home-idea-type){margin:0 0 16px;color:#5a6d82;font-size:13px}.gv-home-idea-cost,.gv-home-idea-remaining{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid #e4e9ee}.gv-home-idea-cost span,.gv-home-idea-remaining span{color:#5a6d82;font-size:12px}.gv-home-idea-cost strong{font-size:19px;color:#071c33}.gv-home-idea-remaining strong{color:#008f89}.gv-home-idea-body a{display:flex;justify-content:center;margin-top:12px;padding:10px;border:1px solid #008f89;border-radius:8px;color:#007a75;text-decoration:none;font-weight:800;font-size:13px}.gv-home-idea-body a:hover{background:#e5f7f5}
+@media(max-width:900px){.gv-home-ideas-grid{grid-template-columns:1fr 1fr}.gv-home-idea-card:last-child{grid-column:1/-1;max-width:560px;width:100%;justify-self:center}}
+@media(max-width:600px){.gv-home-ideas{padding:42px 16px 0}.gv-home-ideas-grid{grid-template-columns:1fr}.gv-home-idea-card:last-child{grid-column:auto;max-width:none}.gv-home-idea-photo{height:210px}.gv-origin-actions{align-items:flex-start;flex-direction:column;gap:4px}}
+
+
+/* GV-UI-542A-R2 — instant origin, cached trip ideas and faster homepage boot */
+body.gv-canonical{margin:0;background:#f7f9fb;color:#071c33;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.gv-home-ideas-state{min-height:76px;display:grid;place-items:center}.gv-home-ideas-state[hidden]{display:none!important}
+.gv-home-ideas-grid[hidden]{display:none!important}
+.gv-location-button.is-loading .material-symbols-outlined{animation:gvLocationSpin 1s linear infinite}
+@keyframes gvLocationSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.gv-location-button.is-loading .material-symbols-outlined{animation:none}}
+
+/* GV-UI-542A-R4 — enforce mutually exclusive homepage card/state UI */
+.gv-home-ideas.has-cards .gv-home-ideas-state{display:none!important;min-height:0;padding:0;border:0;margin:0}
+.gv-home-ideas.has-cards .gv-home-ideas-grid{display:grid!important}
+
+
+/* GV-UI-631A: concise, fully clickable homepage trip cards */
+.gv-home-idea-card{position:relative;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.gv-home-idea-card:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(7,28,51,.12);border-color:#aec3d0}
+.gv-home-idea-hitarea{position:absolute;inset:0;z-index:5;border-radius:14px}
+.gv-home-idea-hitarea:focus-visible{outline:3px solid #ffb51b;outline-offset:3px}
+.gv-home-idea-body{position:relative;z-index:1}
+.gv-home-idea-cost{margin-top:2px}
+.gv-home-idea-cta{display:flex;justify-content:center;margin-top:12px;padding:10px;border:1px solid #008f89;border-radius:8px;color:#007a75;font-weight:800;font-size:13px;background:#fff}
+.gv-home-idea-card:hover .gv-home-idea-cta{background:#e5f7f5}
+.gv-home-idea-remaining{display:none!important}
+
+/* GV-UI-631B-R2 — background-only old-cinematic motion parity. Layout and trip tiles are unchanged. */
+.gv-home-slides{overflow:hidden;background:#071c33}
+.gv-home-slide{opacity:0;animation:none!important;transform:scale(1.04);transition:opacity 2s ease-in-out;will-change:opacity,transform}
+.gv-home-slide:nth-child(1){--gv-pan-x:-1.8%;--gv-pan-y:-1.2%;transform-origin:58% 52%}
+.gv-home-slide:nth-child(2){--gv-pan-x:1.6%;--gv-pan-y:-1.8%;transform-origin:42% 48%}
+.gv-home-slide:nth-child(3){--gv-pan-x:-1.2%;--gv-pan-y:1.6%;transform-origin:50% 60%}
+.gv-home-slide:nth-child(4){--gv-pan-x:1.4%;--gv-pan-y:1.2%;transform-origin:46% 54%}
+.gv-home-slide.is-active{opacity:1;animation:gvHomeScenicDrift 7.5s ease-out forwards!important}
+@keyframes gvHomeScenicDrift{from{transform:scale(1.04) translate3d(0,0,0)}to{transform:scale(1.12) translate3d(var(--gv-pan-x),var(--gv-pan-y),0)}}
+.gv-home-overlay{z-index:1;background:linear-gradient(90deg,rgba(3,14,30,.9) 0%,rgba(7,28,51,.7) 44%,rgba(7,28,51,.36) 100%),linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.34))}
+.gv-home-route-motion{position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:screen;opacity:.46}
+.gv-home-route-motion svg{width:100%;height:100%;display:block}
+.gv-motion-route{fill:none;stroke:rgba(94,234,212,.72);stroke-width:1.4;stroke-linecap:round;stroke-dasharray:6 16;filter:drop-shadow(0 0 6px rgba(94,234,212,.5));animation:gvRouteDrift 9s linear infinite}
+.gv-motion-route-b{stroke:rgba(125,211,252,.62);stroke-width:1.4;opacity:1;animation-duration:12.5s;animation-delay:-5s;animation-direction:reverse}
+.gv-motion-node{fill:rgba(255,255,255,.72);filter:drop-shadow(0 0 7px rgba(255,255,255,.55));animation:gvRoutePulse 3.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.gv-motion-node-a{fill:rgba(251,191,36,.78)}
+.gv-motion-node-b{fill:rgba(94,234,212,.82);animation-delay:-1.1s}
+.gv-motion-node-c{fill:rgba(255,255,255,.76);animation-delay:-2.2s}
+@keyframes gvRouteDrift{to{stroke-dashoffset:-132}}
+@keyframes gvRoutePulse{0%,100%{opacity:.32;transform:scale(.9)}50%{opacity:.92;transform:scale(1.16)}}
+.gv-home-slide-controls{position:absolute;left:50%;bottom:22px;z-index:4;display:flex;align-items:center;gap:9px;transform:translateX(-50%)}
+.gv-home-slide-dot{width:9px;height:9px;padding:0;border:1px solid rgba(255,255,255,.86);border-radius:999px;background:rgba(255,255,255,.28);box-shadow:0 2px 9px rgba(0,0,0,.25);cursor:pointer;transition:width .2s ease,background .2s ease,transform .2s ease}
+.gv-home-slide-dot:hover,.gv-home-slide-dot:focus-visible{transform:scale(1.18);outline:2px solid #7af6ed;outline-offset:3px}
+.gv-home-slide-dot.is-active{width:28px;background:#fff}
+@media(max-width:600px){.gv-home-route-motion{opacity:.3}.gv-home-slide-controls{bottom:14px}}
+@media(prefers-reduced-motion:reduce){.gv-home-slide{transition:none!important;transform:none!important;animation:none!important}.gv-home-slide:not(.is-active){opacity:0}.gv-home-slide.is-active{opacity:1}.gv-home-route-motion{display:none}.gv-home-slide-dot{transition:none}}
+
+
+/* GV-UI-631B-R3 — background-only motion refinement.
+   Preserve the accepted homepage/search/tile layout; remove decorative route graphics and
+   slide dots, shorten the cadence, and use transform transitions instead of restarted
+   keyframe animations for a smoother crossfade. */
+.gv-home-route-motion,
+.gv-home-slide-controls{display:none!important}
+.gv-home-slide{
+  opacity:0;
+  animation:none!important;
+  transform:scale(1.035) translate3d(0,0,0);
+  transition:
+    opacity 1.25s cubic-bezier(.4,0,.2,1),
+    transform 5.4s cubic-bezier(.2,.7,.2,1);
+  will-change:opacity,transform;
+  backface-visibility:hidden;
+}
+.gv-home-slide.is-active{
+  opacity:1;
+  animation:none!important;
+  transform:scale(1.095) translate3d(var(--gv-pan-x,0),var(--gv-pan-y,0),0);
+}
+@media(prefers-reduced-motion:reduce){
+  .gv-home-slide{transition:none!important;transform:none!important}
+}
+
+/* GV-HOME-654A: homepage idea shuffle and fallback cards */
+.gv-home-ideas-shuffle{appearance:none;border:1px solid #008f89;background:#fff;color:#007a75;border-radius:999px;padding:11px 16px;font-weight:900;font-size:13px;box-shadow:0 8px 22px rgba(7,28,51,.08);cursor:pointer;white-space:nowrap}.gv-home-ideas-shuffle:hover{background:#e8fbfa}.gv-home-ideas-shuffle:disabled{opacity:.55;cursor:wait}.gv-home-idea-type--route{color:#071c33}.gv-home-idea-source{display:inline-flex;margin-bottom:10px;border-radius:999px;background:#effafa;color:#007a75;padding:5px 8px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}.gv-home-idea-hitarea{position:absolute;inset:0;z-index:2;border-radius:14px}.gv-home-idea-card{position:relative}.gv-home-idea-body{position:relative;z-index:3;background:#fff}.gv-home-idea-photo{z-index:1}.gv-home-idea-cta{display:flex;justify-content:center;margin-top:12px;padding:10px;border:1px solid #008f89;border-radius:8px;color:#007a75;text-decoration:none;font-weight:800;font-size:13px}.gv-home-idea-card:hover .gv-home-idea-cta{background:#e5f7f5}@media(max-width:700px){.gv-home-ideas-head{align-items:start;flex-direction:column}.gv-home-ideas-shuffle{width:100%}}
+
+/* GV-BOOK-676A-R1: compact, scrollable origin search menu. Native datalist popups are browser-controlled and could fill the screen. */
+.gv-origin-menu{position:absolute;left:0;right:0;top:68px;z-index:120;max-height:286px;overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid #b8c7d3;border-radius:10px;box-shadow:0 18px 42px rgba(3,14,30,.24);padding:5px;scrollbar-gutter:stable;color:#071c33}
+.gv-origin-menu[hidden]{display:none!important}
+.gv-origin-option{display:flex;width:100%;flex-direction:column;align-items:flex-start;gap:2px;border:0;border-radius:7px;background:#fff;color:#071c33;padding:9px 10px;text-align:left;font:inherit;cursor:pointer}
+.gv-origin-option:hover,.gv-origin-option.is-active{background:#e8f8f7;outline:none}
+.gv-origin-option-main{font-size:13px;font-weight:800;line-height:1.25}
+.gv-origin-option-detail{font-size:11px;color:#5a6d82;line-height:1.3}
+.gv-origin-menu::-webkit-scrollbar{width:11px}
+.gv-origin-menu::-webkit-scrollbar-track{background:#f1f5f7;border-radius:10px}
+.gv-origin-menu::-webkit-scrollbar-thumb{background:#8497a8;border:3px solid #f1f5f7;border-radius:10px}
+@media(max-width:600px){.gv-origin-menu{top:66px;max-height:240px}}

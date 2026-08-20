@@ -1,0 +1,48 @@
+{
+  "version": "GV-TRUST-681B-P2",
+  "generatedAt": "2026-08-13T09:42:31.761Z",
+  "passed": 10,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "P2 release version is exported",
+      "status": "PASS"
+    },
+    {
+      "name": "whole-trip schedule preserves city nights across every leg",
+      "status": "PASS"
+    },
+    {
+      "name": "candidate start dates come only from provider-backed first-leg observations inside the window",
+      "status": "PASS"
+    },
+    {
+      "name": "whole-trip candidate requires exact-date provider evidence for every flight leg",
+      "status": "PASS"
+    },
+    {
+      "name": "cheapest first flight cannot beat a more complete whole-trip schedule",
+      "status": "PASS"
+    },
+    {
+      "name": "incomplete schedules never win cheapest even when their first leg is cheapest",
+      "status": "PASS"
+    },
+    {
+      "name": "budget-fit complete candidate is preferred over an over-budget complete candidate",
+      "status": "PASS"
+    },
+    {
+      "name": "severe or limited provider schedules cannot win P2 just because they are cheaper",
+      "status": "PASS"
+    },
+    {
+      "name": "P2 can be explicitly disabled for rollback",
+      "status": "PASS"
+    },
+    {
+      "name": "integration applies the cheapest complete route schedule, not the cheapest first leg",
+      "status": "PASS"
+    }
+  ]
+}

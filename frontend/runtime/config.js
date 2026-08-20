@@ -1,15 +1,16 @@
-// Globevoy browser config — sanitized source-review copy.
-// Keep real provider/server secrets outside Git. Browser keys should still be restricted by domain/API.
+// Globevoy browser config
+// Place your restricted Google Maps browser key here.
+// NEVER put Gemini, Amadeus, SearchAPI, or any private keys here.
 window.GLOBEVOY_CONFIG = {
   googleMapsApiKey: "YOUR_RESTRICTED_GOOGLE_MAPS_BROWSER_KEY",
-  enableLiveApi: false,
-  apiBaseUrl: "http://localhost:8787",
+  enableLiveApi: true,
+  apiBaseUrl: "https://7pibv4zp7tzx7qcyrymwsh44ta0wtrei.lambda-url.us-east-2.on.aws",
   apiTimeoutMs: 20000,
   mapFirstThreePicksEnabled: true,
   topSwitchThreePicksEnabled: true,
   selectedTripDetailHandoffEnabled: true,
   neutralOptionLabelsEnabled: true,
-  frontendVersion: "GV-REC-687B-R1",
-  bookingTrustVersion: "GV-TRUST-685B",
+  frontendVersion: "GV-HOTEL-679A-R2",
+  bookingTrustVersion: "GV-QUALITY-680A",
   routeQualityVersion: "GV-QUALITY-680B-R1"
 };

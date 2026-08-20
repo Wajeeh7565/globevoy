@@ -1,0 +1,343 @@
+{
+  "taskId": "GV-PROD-669E",
+  "version": "GV-PROD-669E",
+  "generatedAt": "2026-08-06T17:16:08.379Z",
+  "passed": true,
+  "checkCount": 19,
+  "passedCount": 19,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "668T activation remains selected",
+      "passed": true,
+      "details": {
+        "version": "GV-CITY-668T"
+      }
+    },
+    {
+      "name": "1,000-city audit remains complete",
+      "passed": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCount": 1000,
+        "productionActiveCount": 439,
+        "directOrMetroCount": 412,
+        "gatewaySupportedCount": 27,
+        "auditedInactiveCount": 561,
+        "unauditedCount": 0,
+        "estimateOnlyCount": 561,
+        "providerCoveredCount": 492,
+        "recoveredActiveCount": 18,
+        "recoveryReviewedInactiveCount": 132,
+        "current500": {
+          "audited": 500,
+          "productionActive": 318,
+          "reviewedInactive": 182
+        },
+        "expansion500": {
+          "audited": 500,
+          "productionActive": 121,
+          "reviewedInactive": 379
+        },
+        "classificationCounts": {
+          "estimate-only": 43,
+          "gateway-supported": 29,
+          "live-both": 463,
+          "live-flights-only": 25,
+          "live-stays-only": 327,
+          "provider-error": 4,
+          "unresolved": 109
+        },
+        "activeModeCounts": {
+          "direct-or-metro": 412,
+          "gateway-supported": 27
+        },
+        "retryQueueCounts": {
+          "missing-flight-observations": 423,
+          "unresolved-agoda-mapping": 130,
+          "no-live-hotel-rate": 51,
+          "hotel-quality-failure": 50,
+          "flight-comfort-failure": 54
+        }
+      }
+    },
+    {
+      "name": "439-city production allowlist remains unchanged",
+      "passed": true,
+      "details": {
+        "active": 439
+      }
+    },
+    {
+      "name": "669E generated-tour baseline remains packaged in the current release",
+      "passed": true,
+      "details": {
+        "version": "2.12.0-gv-rec-677d-destination-value-proximity"
+      }
+    },
+    {
+      "name": "669E route-control baseline remains packaged in the current release",
+      "passed": true,
+      "details": {
+        "version": "2.1.0-gv-ux-674a-choice-controls"
+      }
+    },
+    {
+      "name": "669E feature flag is enabled in all origin resolvers",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Vancouver resolves to Vancouver in adaptive routing",
+      "passed": true,
+      "details": {
+        "city": "Vancouver",
+        "cityId": "vancouver-ca"
+      }
+    },
+    {
+      "name": "Vancouver resolves to Vancouver in legacy multi-city routing",
+      "passed": true,
+      "details": {
+        "city": "Vancouver",
+        "cityId": "vancouver-ca"
+      }
+    },
+    {
+      "name": "Vancouver resolves to Vancouver in route controls",
+      "passed": true,
+      "details": {
+        "city": "Vancouver",
+        "cityId": "vancouver-ca"
+      }
+    },
+    {
+      "name": "Explicit Whistler search still resolves to Whistler",
+      "passed": true,
+      "details": {
+        "city": "Whistler",
+        "cityId": "whistler-ca"
+      }
+    },
+    {
+      "name": "Saved one-stop route can be restored",
+      "passed": true,
+      "details": {
+        "supported": true,
+        "records": [
+          {
+            "cityId": "new-york-us",
+            "displayCity": "New York",
+            "country": "United States",
+            "countryCode": "US",
+            "region": "North America",
+            "latitude": 40.71,
+            "longitude": -74.01,
+            "group": "GROUP_1",
+            "groupSubtype": "famous-anchor",
+            "sourceGroupRole": "group1-famous-anchor",
+            "taxonomyConfidence": "high",
+            "taxonomyReviewRequired": false,
+            "groupReasonCodes": [
+              "anchor-role",
+              "source-role-group1-famous-anchor"
+            ],
+            "providerSupport": {
+              "bothProviderReady": true,
+              "flight": {
+                "status": "reconfirmed",
+                "locationCode": "NYC",
+                "locationCodeType": "metro-code",
+                "airportCodes": [
+                  "EWR",
+                  "JFK",
+                  "LGA"
+                ],
+                "locationFlightable": true,
+                "physicalAirportsVerified": true,
+                "countryConsistent": true
+              },
+              "hotel": {
+                "status": "reconfirmed-exact",
+                "cityId": 318,
+                "hotelCount": 917,
+                "depth": "strong",
+                "matchMethod": "exact normalized city-country",
+                "verification": "exact-uploaded-agoda-feed-r1",
+                "distanceKm": 4.975
+              }
+            },
+            "cityIntelligence": {
+              "themeScores": {
+                "nature": 2,
+                "food": 5,
+                "culture": 5,
+                "beach": 1,
+                "nightlife": 5,
+                "relaxation": 1
+              },
+              "recommendedMinNights": 4,
+              "recommendedMaxNights": 7,
+              "publicTransitPracticality": 5,
+              "typicalTripPace": "active"
+            },
+            "multiCitySuitability": {
+              "status": "strong",
+              "activationTier": "CORE",
+              "readinessScore": 100,
+              "routeNodeType": "anchor",
+              "regionCluster": "north-america-east",
+              "compatibleRegionClusters": [
+                "north-america-east",
+                "north-america-west",
+                "mexico-central-america-caribbean",
+                "western-europe",
+                "southern-europe"
+              ],
+              "gatewayStrength": "major-metro",
+              "hotelDepth": "strong",
+              "recommendedMinNights": 4,
+              "recommendedMaxNights": 7,
+              "reasonCodes": [
+                "agoda-city-resolved",
+                "both-providers-ready",
+                "city-intelligence-complete",
+                "flightable-location",
+                "hotel-depth-strong",
+                "physical-airports-verified",
+                "provider-country-consistent",
+                "recognized-product-group",
+                "travelpayouts-reconfirmed"
+              ],
+              "blockingReasons": []
+            },
+            "productionStatus": "live",
+            "initialCoreEligible": true,
+            "initialLaunchSet": true
+          }
+        ],
+        "action": "restore",
+        "message": "Saved route restored with its selected destinations and budget guardrails.",
+        "budgetGuardrail": {
+          "budgetUsd": 1102.5,
+          "reserveUsd": 110,
+          "usableUsd": 1102.5,
+          "toleranceUsd": 27.5625,
+          "ceilingUsd": 1130.0625,
+          "estimatedUsd": 990,
+          "withinBudget": true
+        },
+        "allowedMaxStops": 2
+      }
+    },
+    {
+      "name": "Saved-route restoration is explicitly labelled",
+      "passed": true,
+      "details": {
+        "action": "restore",
+        "message": "Saved route restored with its selected destinations and budget guardrails."
+      }
+    },
+    {
+      "name": "Inactive Havana remains blocked by production-active guard",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Active New York remains eligible for saved-route restoration",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Saved-route date preservation keeps departure date",
+      "passed": true,
+      "details": [
+        {
+          "from": {
+            "city": "Montreal"
+          },
+          "to": {
+            "city": "New York"
+          },
+          "departureDate": "2026-11-01",
+          "dateLabel": "2026-11-01",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-11-01",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        },
+        {
+          "from": {
+            "city": "New York"
+          },
+          "to": {
+            "city": "Montreal"
+          },
+          "departureDate": "2026-11-07",
+          "dateLabel": "2026-11-07",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-11-07",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "Saved-route date preservation keeps chronological return",
+      "passed": true,
+      "details": [
+        {
+          "from": {
+            "city": "Montreal"
+          },
+          "to": {
+            "city": "New York"
+          },
+          "departureDate": "2026-11-01",
+          "dateLabel": "2026-11-01",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-11-01",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        },
+        {
+          "from": {
+            "city": "New York"
+          },
+          "to": {
+            "city": "Montreal"
+          },
+          "departureDate": "2026-11-07",
+          "dateLabel": "2026-11-07",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-11-07",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restore action keeps one-stop routes instead of forcing two stops",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Restore action uses saved-route restoration source",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "All three origin resolvers prefer exact city-country match under 669E",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

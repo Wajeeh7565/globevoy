@@ -1,0 +1,7 @@
+GV-EVIDENCE-667E backend delta from GV-CONTROL-667D
+- generated-tour.js
+- services/canonical-total-evidence.js
+- services/live-provider-verification.js
+- validate-gv-evidence-667e.js
+- VALIDATION_GV_EVIDENCE_667E.json
+- GV-EVIDENCE-667E_REPORT.md

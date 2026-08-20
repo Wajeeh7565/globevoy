@@ -1,0 +1,36 @@
+GV-CITY-668R — Complete 1,000-City Activation Snapshot
+
+Changed:
+- services/verified-city-activation.js
+
+Added:
+- build-gv-city-668r-activation.js
+- data/provider-live-final155-668q-source.json
+- data/verified-city-activation-1000-668r.json
+- data/verified-city-retry-queues-668r.json
+- data/verified-city-production-active-421-668r.json
+- data/verified-city-production-active-421-668r.csv
+- data/verified-city-review-579-668r.json
+- data/verified-city-review-579-668r.csv
+- validate-gv-city-668q-results.js
+- data/provider-live-final155-668q-source-VALIDATION.json
+- validate-gv-city-668r.js
+- VALIDATION_GV_CITY_668R.json
+- Run-GV-CITY-668R-Activation-Smoke.ps1
+- GV-CITY-668R_REPORT.md
+- MANIFEST_GV_CITY_668R.txt
+
+Feature flag:
+- ENABLE_VERIFIED_CITY_ACTIVATION_668R=true
+
+Activation state:
+- registry audited: 1,000/1,000
+- production-active: 421
+- reviewed inactive: 579
+- unaudited: 0
+- Current-500: 500 audited, 309 active
+- Expansion-500: 500 audited, 112 active
+
+Rollback:
+- disable ENABLE_VERIFIED_CITY_ACTIVATION_668R to cold-start on GV-CITY-668P
+- or redeploy the verified 668P backend package

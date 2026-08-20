@@ -1,0 +1,999 @@
+{
+  "version": "1.9.0-gv-control-667d-date-preservation-gateway-transfers",
+  "task": "GV-CONTROL-667D",
+  "passed": 21,
+  "total": 21,
+  "checks": [
+    {
+      "name": "667D feature is active",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "test cities exist",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Tulum uses CUN as practical gateway",
+      "passed": true,
+      "details": {
+        "city": "Tulum",
+        "country": "Mexico",
+        "code": "CUN",
+        "airportCode": "CUN",
+        "airportCodes": [
+          "CUN",
+          "TQO"
+        ],
+        "displayCode": "CUN",
+        "localAirportCode": "TQO",
+        "gatewayAirport": {
+          "airportCode": "CUN",
+          "gatewayCity": "Cancun",
+          "city": "Cancun",
+          "transferMode": "ground-transfer",
+          "transferDistanceKm": 118,
+          "transferMinutes": 105,
+          "estimatedOneWayUsd": 35,
+          "destinationCity": "Tulum",
+          "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+        },
+        "requiresGroundAccessTransfer": true,
+        "airportSelectionReason": "practical-destination-gateway-667d"
+      }
+    },
+    {
+      "name": "Tulum keeps local airport metadata",
+      "passed": true,
+      "details": {
+        "city": "Tulum",
+        "country": "Mexico",
+        "code": "CUN",
+        "airportCode": "CUN",
+        "airportCodes": [
+          "CUN",
+          "TQO"
+        ],
+        "displayCode": "CUN",
+        "localAirportCode": "TQO",
+        "gatewayAirport": {
+          "airportCode": "CUN",
+          "gatewayCity": "Cancun",
+          "city": "Cancun",
+          "transferMode": "ground-transfer",
+          "transferDistanceKm": 118,
+          "transferMinutes": 105,
+          "estimatedOneWayUsd": 35,
+          "destinationCity": "Tulum",
+          "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+        },
+        "requiresGroundAccessTransfer": true,
+        "airportSelectionReason": "practical-destination-gateway-667d"
+      }
+    },
+    {
+      "name": "Tulum gateway transfer metadata is present",
+      "passed": true,
+      "details": {
+        "airportCode": "CUN",
+        "gatewayCity": "Cancun",
+        "city": "Cancun",
+        "transferMode": "ground-transfer",
+        "transferDistanceKm": 118,
+        "transferMinutes": 105,
+        "estimatedOneWayUsd": 35,
+        "destinationCity": "Tulum",
+        "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+      }
+    },
+    {
+      "name": "Caye Caulker uses BZE as practical gateway",
+      "passed": true,
+      "details": {
+        "city": "Caye Caulker",
+        "country": "Belize",
+        "code": "BZE",
+        "airportCode": "BZE",
+        "airportCodes": [
+          "BZE",
+          "CUK"
+        ],
+        "displayCode": "BZE",
+        "localAirportCode": "CUK",
+        "gatewayAirport": {
+          "airportCode": "BZE",
+          "gatewayCity": "Belize City",
+          "city": "Belize City",
+          "transferMode": "ferry-or-domestic-hop",
+          "transferDistanceKm": 50,
+          "transferMinutes": 90,
+          "estimatedOneWayUsd": 40,
+          "destinationCity": "Caye Caulker",
+          "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+        },
+        "requiresGroundAccessTransfer": true,
+        "airportSelectionReason": "practical-destination-gateway-667d"
+      }
+    },
+    {
+      "name": "Caye Caulker gateway is not counted as a destination",
+      "passed": true,
+      "details": [
+        {
+          "type": "origin",
+          "city": "Toronto"
+        },
+        {
+          "type": "stop",
+          "city": "Caye Caulker"
+        },
+        {
+          "type": "return",
+          "city": "Toronto"
+        }
+      ]
+    },
+    {
+      "name": "destination gateway transfer is priced",
+      "passed": true,
+      "details": [
+        {
+          "index": 0,
+          "version": "GV-CONTROL-667D",
+          "destinationCity": "Caye Caulker",
+          "gatewayCity": "Belize City",
+          "airportCode": "BZE",
+          "localAirportCode": "CUK",
+          "distanceKm": 50,
+          "transferMinutes": 90,
+          "transferMode": "ferry-or-domestic-hop",
+          "unitOneWayUsd": 40,
+          "oneWayPartyUsd": 80,
+          "roundTripPartyUsd": 160,
+          "travellers": 2,
+          "source": "destination-gateway-transfer-planning-estimate-667d",
+          "finalPriceRequiresPartnerConfirmation": true,
+          "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+        }
+      ]
+    },
+    {
+      "name": "gateway transfer is included in total transport",
+      "passed": true,
+      "details": {
+        "route": 800,
+        "gateway": 160,
+        "total": 960
+      }
+    },
+    {
+      "name": "canonical ledger contains destination gateway transfer",
+      "passed": true,
+      "details": {
+        "key": "destination-access:0",
+        "kind": "destination-access",
+        "index": 0,
+        "visibleOnCard": true,
+        "amountUsd": 160,
+        "amountDisplay": 160,
+        "currency": "USD",
+        "access": {
+          "version": "GV-CONTROL-667D",
+          "destinationCity": "Caye Caulker",
+          "gatewayCity": "Belize City",
+          "airportCode": "BZE",
+          "localAirportCode": "CUK",
+          "distanceKm": 50,
+          "transferMinutes": 90,
+          "transferMode": "ferry-or-domestic-hop",
+          "unitOneWayUsd": 40,
+          "oneWayPartyUsd": 80,
+          "roundTripPartyUsd": 160,
+          "travellers": 2,
+          "source": "destination-gateway-transfer-planning-estimate-667d",
+          "finalPriceRequiresPartnerConfirmation": true,
+          "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+        },
+        "evidence": {
+          "verified": false,
+          "critical": false,
+          "provider": "Globevoy planning model",
+          "category": "destination-gateway-transfer-estimate",
+          "status": "destination-gateway-transfer-estimate",
+          "checkedAt": null,
+          "observedAt": null,
+          "productionEligible": false
+        }
+      }
+    },
+    {
+      "name": "canonical header total includes visible gateway transfer",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-EVIDENCE-667E",
+        "currency": "USD",
+        "exchangeRateFromUsd": 1,
+        "components": [
+          {
+            "key": "transport:0",
+            "kind": "flight",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 400,
+            "amountDisplay": 400,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": null,
+                "airportCode": "YYZ"
+              },
+              "to": {
+                "city": null,
+                "airportCode": "BZE"
+              },
+              "departureDate": null
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "planning-estimate",
+              "status": "not-verified",
+              "cacheHit": false,
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "transport:1",
+            "kind": "flight",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 400,
+            "amountDisplay": 400,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": null,
+                "airportCode": "BZE"
+              },
+              "to": {
+                "city": null,
+                "airportCode": "YYZ"
+              },
+              "departureDate": null
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "planning-estimate",
+              "status": "not-verified",
+              "cacheHit": false,
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "stay:0",
+            "kind": "stay",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 200,
+            "amountDisplay": 200,
+            "currency": "USD",
+            "stay": {
+              "city": "Caye Caulker",
+              "checkIn": null,
+              "checkOut": null,
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "planning-estimate",
+              "status": "not-verified",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "destination-access:0",
+            "kind": "destination-access",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 160,
+            "amountDisplay": 160,
+            "currency": "USD",
+            "access": {
+              "version": "GV-CONTROL-667D",
+              "destinationCity": "Caye Caulker",
+              "gatewayCity": "Belize City",
+              "airportCode": "BZE",
+              "localAirportCode": "CUK",
+              "distanceKm": 50,
+              "transferMinutes": 90,
+              "transferMode": "ferry-or-domestic-hop",
+              "unitOneWayUsd": 40,
+              "oneWayPartyUsd": 80,
+              "roundTripPartyUsd": 160,
+              "travellers": 2,
+              "source": "destination-gateway-transfer-planning-estimate-667d",
+              "finalPriceRequiresPartnerConfirmation": true,
+              "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+            },
+            "evidence": {
+              "verified": false,
+              "critical": false,
+              "provider": "Globevoy planning model",
+              "category": "destination-gateway-transfer-estimate",
+              "status": "destination-gateway-transfer-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          }
+        ],
+        "transportTotalUsd": 960,
+        "transportDisplayTotal": 960,
+        "stayTotalUsd": 200,
+        "stayDisplayTotal": 200,
+        "originAccessUsd": 0,
+        "destinationAccessUsd": 160,
+        "canonicalTotalUsd": 1160,
+        "canonicalDisplayTotal": 1160,
+        "visibleCardTotalUsd": 1160,
+        "visibleCardDisplayTotal": 1160,
+        "totalsMatchVisibleCards": true,
+        "criticalCount": 3,
+        "verifiedCount": 0,
+        "criticalTransportCount": 2,
+        "verifiedTransportCount": 0,
+        "providerCoverage": 0,
+        "allCriticalVerified": false,
+        "generatedAt": "2026-07-22T22:50:27.977Z"
+      }
+    },
+    {
+      "name": "shuffle preserves selected departure date",
+      "passed": true,
+      "details": [
+        {
+          "departureDate": "2026-07-25",
+          "dateLabel": "2026-07-25",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-07-25",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        },
+        {
+          "departureDate": "2026-07-28",
+          "dateLabel": "2026-07-28",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-07-28",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        },
+        {
+          "departureDate": "2026-07-30",
+          "dateLabel": "2026-07-30",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-07-30",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "later legs remain chronological after preserved-date shuffle",
+      "passed": true,
+      "details": [
+        {
+          "departureDate": "2026-07-25",
+          "dateLabel": "2026-07-25",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-07-25",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        },
+        {
+          "departureDate": "2026-07-28",
+          "dateLabel": "2026-07-28",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-07-28",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        },
+        {
+          "departureDate": "2026-07-30",
+          "dateLabel": "2026-07-30",
+          "dateSource": "route-control-preserved-date-667d",
+          "automaticTourDate": {
+            "departureDate": "2026-07-30",
+            "source": "route-control-preserved-date-667d",
+            "providerBacked": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "stay windows match preserved dates",
+      "passed": true,
+      "details": [
+        {
+          "city": "Cancun",
+          "nights": 3,
+          "arrivalDate": "2026-07-25",
+          "departureDate": "2026-07-28",
+          "dateSource": "route-control-preserved-date-667d"
+        },
+        {
+          "city": "Caye Caulker",
+          "nights": 2,
+          "arrivalDate": "2026-07-28",
+          "departureDate": "2026-07-30",
+          "dateSource": "route-control-preserved-date-667d"
+        }
+      ]
+    },
+    {
+      "name": "controlled route preserves destination names while using gateways",
+      "passed": true,
+      "details": [
+        {
+          "id": "tulum-mx",
+          "city": "Tulum",
+          "country": "Mexico",
+          "airportCode": "CUN",
+          "code": "CUN",
+          "latitude": 20.216667,
+          "longitude": -87.46667,
+          "lat": 20.216667,
+          "lng": -87.46667,
+          "nights": 3,
+          "hotel": {
+            "provider": "Agoda",
+            "providerCityId": 19741,
+            "hotelCoverageCount": 447,
+            "coverageDepth": "strong",
+            "estimatedNightlyUsd": 65,
+            "estimatedStayUsd": 195,
+            "lodgingStyle": "value",
+            "estimateSource": "route-control-region-hotel-planning-fallback",
+            "livePriceVerified": false,
+            "averageNightlyUsd": 65,
+            "estimatedNightlyAllRoomsUsd": 65,
+            "totalStayUsd": 195,
+            "rooms": 1,
+            "adults": 1,
+            "children": 0,
+            "infants": 0,
+            "pricingIntegrity": {
+              "version": "GV-CONTROL-667D",
+              "nightlyPerRoomUsd": 65,
+              "roomCount": 1,
+              "nights": 3,
+              "partyStayTotalUsd": 195,
+              "adults": 1,
+              "children": 0,
+              "infants": 0,
+              "rateBasis": "per-room-per-night"
+            },
+            "name": "Tulum central value stay",
+            "hotelName": null,
+            "source": "route-control-region-hotel-planning-fallback",
+            "rating": 8.6,
+            "reviews": 1240,
+            "reviewSummary": "Guest review estimate pending partner confirmation.",
+            "bookingUrl": "https://www.agoda.com/search?city=19741&checkIn=2026-08-08&checkOut=2026-08-11&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-tulum",
+            "providerUrl": "https://www.agoda.com/search?city=19741&checkIn=2026-08-08&checkOut=2026-08-11&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-tulum",
+            "hotelUrl": null,
+            "agodaCityId": 19741,
+            "sampleSize": 0,
+            "booking": {
+              "provider": "Agoda",
+              "status": "prefilled-city-search",
+              "url": "https://www.agoda.com/search?city=19741&checkIn=2026-08-08&checkOut=2026-08-11&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-tulum",
+              "label": "View stays in this city",
+              "specificHotel": false,
+              "prefilled": true,
+              "cityId": 19741,
+              "checkIn": "2026-08-08",
+              "checkOut": "2026-08-11",
+              "passengers": {
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1,
+                "rooms": 1
+              },
+              "finalPriceRequiresPartnerConfirmation": true
+            },
+            "priceProvenance": {
+              "category": "planning-estimate",
+              "provider": "Globevoy planning model",
+              "source": "route-control-region-hotel-planning-fallback",
+              "amountUsd": 195,
+              "nightlyPerRoomUsd": 65,
+              "roomCount": 1,
+              "partyStayTotalUsd": 195,
+              "passengerPricingVersion": "GV-CONTROL-667D",
+              "sampleSize": null,
+              "observedAt": null,
+              "checkedAt": null,
+              "observedAgeSeconds": null,
+              "exactStayDates": false,
+              "finalPriceRequiresPartnerConfirmation": true
+            }
+          },
+          "gatewayAirport": {
+            "airportCode": "CUN",
+            "gatewayCity": "Cancun",
+            "city": "Cancun",
+            "transferMode": "ground-transfer",
+            "transferDistanceKm": 118,
+            "transferMinutes": 105,
+            "estimatedOneWayUsd": 35,
+            "destinationCity": "Tulum",
+            "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+          },
+          "gatewayAirportCode": "CUN",
+          "localAirportCode": "TQO",
+          "destinationAccess": {
+            "version": "GV-CONTROL-667D",
+            "destinationCity": "Tulum",
+            "gatewayCity": "Cancun",
+            "airportCode": "CUN",
+            "localAirportCode": "TQO",
+            "distanceKm": 118,
+            "transferMinutes": 105,
+            "transferMode": "ground-transfer",
+            "unitOneWayUsd": 35,
+            "oneWayPartyUsd": 35,
+            "roundTripPartyUsd": 70,
+            "travellers": 1,
+            "source": "destination-gateway-transfer-planning-estimate-667d",
+            "finalPriceRequiresPartnerConfirmation": true,
+            "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+          },
+          "destinationAccessEstimateUsd": 70,
+          "image": ""
+        },
+        {
+          "id": "caye-caulker-bz",
+          "city": "Caye Caulker",
+          "country": "Belize",
+          "airportCode": "BZE",
+          "code": "BZE",
+          "latitude": 17.742,
+          "longitude": -88.025,
+          "lat": 17.742,
+          "lng": -88.025,
+          "nights": 2,
+          "hotel": {
+            "provider": "Agoda",
+            "providerCityId": 103136,
+            "hotelCoverageCount": 30,
+            "coverageDepth": "limited",
+            "estimatedNightlyUsd": 75,
+            "estimatedStayUsd": 150,
+            "lodgingStyle": "value",
+            "estimateSource": "route-control-region-hotel-planning-fallback",
+            "livePriceVerified": false,
+            "averageNightlyUsd": 75,
+            "estimatedNightlyAllRoomsUsd": 75,
+            "totalStayUsd": 150,
+            "rooms": 1,
+            "adults": 1,
+            "children": 0,
+            "infants": 0,
+            "pricingIntegrity": {
+              "version": "GV-CONTROL-667D",
+              "nightlyPerRoomUsd": 75,
+              "roomCount": 1,
+              "nights": 2,
+              "partyStayTotalUsd": 150,
+              "adults": 1,
+              "children": 0,
+              "infants": 0,
+              "rateBasis": "per-room-per-night"
+            },
+            "name": "Caye Caulker central value stay",
+            "hotelName": null,
+            "source": "route-control-region-hotel-planning-fallback",
+            "rating": 8.3,
+            "reviews": 862,
+            "reviewSummary": "Guest review estimate pending partner confirmation.",
+            "bookingUrl": "https://www.agoda.com/search?city=103136&checkIn=2026-08-10&checkOut=2026-08-12&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-caye-caulker",
+            "providerUrl": "https://www.agoda.com/search?city=103136&checkIn=2026-08-10&checkOut=2026-08-12&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-caye-caulker",
+            "hotelUrl": null,
+            "agodaCityId": 103136,
+            "sampleSize": 0,
+            "booking": {
+              "provider": "Agoda",
+              "status": "prefilled-city-search",
+              "url": "https://www.agoda.com/search?city=103136&checkIn=2026-08-10&checkOut=2026-08-12&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-caye-caulker",
+              "label": "View stays in this city",
+              "specificHotel": false,
+              "prefilled": true,
+              "cityId": 103136,
+              "checkIn": "2026-08-10",
+              "checkOut": "2026-08-12",
+              "passengers": {
+                "adults": 1,
+                "children": 0,
+                "infants": 0,
+                "travellers": 1,
+                "seatCount": 1,
+                "rooms": 1
+              },
+              "finalPriceRequiresPartnerConfirmation": true
+            },
+            "priceProvenance": {
+              "category": "planning-estimate",
+              "provider": "Globevoy planning model",
+              "source": "route-control-region-hotel-planning-fallback",
+              "amountUsd": 150,
+              "nightlyPerRoomUsd": 75,
+              "roomCount": 1,
+              "partyStayTotalUsd": 150,
+              "passengerPricingVersion": "GV-CONTROL-667D",
+              "sampleSize": null,
+              "observedAt": null,
+              "checkedAt": null,
+              "observedAgeSeconds": null,
+              "exactStayDates": false,
+              "finalPriceRequiresPartnerConfirmation": true
+            }
+          },
+          "gatewayAirport": {
+            "airportCode": "BZE",
+            "gatewayCity": "Belize City",
+            "city": "Belize City",
+            "transferMode": "ferry-or-domestic-hop",
+            "transferDistanceKm": 50,
+            "transferMinutes": 90,
+            "estimatedOneWayUsd": 40,
+            "destinationCity": "Caye Caulker",
+            "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+          },
+          "gatewayAirportCode": "BZE",
+          "localAirportCode": "CUK",
+          "destinationAccess": {
+            "version": "GV-CONTROL-667D",
+            "destinationCity": "Caye Caulker",
+            "gatewayCity": "Belize City",
+            "airportCode": "BZE",
+            "localAirportCode": "CUK",
+            "distanceKm": 50,
+            "transferMinutes": 90,
+            "transferMode": "ferry-or-domestic-hop",
+            "unitOneWayUsd": 40,
+            "oneWayPartyUsd": 40,
+            "roundTripPartyUsd": 80,
+            "travellers": 1,
+            "source": "destination-gateway-transfer-planning-estimate-667d",
+            "finalPriceRequiresPartnerConfirmation": true,
+            "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+          },
+          "destinationAccessEstimateUsd": 80,
+          "image": ""
+        }
+      ]
+    },
+    {
+      "name": "controlled route exposes Tulum gateway code",
+      "passed": true,
+      "details": {
+        "id": "tulum-mx",
+        "city": "Tulum",
+        "country": "Mexico",
+        "airportCode": "CUN",
+        "code": "CUN",
+        "latitude": 20.216667,
+        "longitude": -87.46667,
+        "lat": 20.216667,
+        "lng": -87.46667,
+        "nights": 3,
+        "hotel": {
+          "provider": "Agoda",
+          "providerCityId": 19741,
+          "hotelCoverageCount": 447,
+          "coverageDepth": "strong",
+          "estimatedNightlyUsd": 65,
+          "estimatedStayUsd": 195,
+          "lodgingStyle": "value",
+          "estimateSource": "route-control-region-hotel-planning-fallback",
+          "livePriceVerified": false,
+          "averageNightlyUsd": 65,
+          "estimatedNightlyAllRoomsUsd": 65,
+          "totalStayUsd": 195,
+          "rooms": 1,
+          "adults": 1,
+          "children": 0,
+          "infants": 0,
+          "pricingIntegrity": {
+            "version": "GV-CONTROL-667D",
+            "nightlyPerRoomUsd": 65,
+            "roomCount": 1,
+            "nights": 3,
+            "partyStayTotalUsd": 195,
+            "adults": 1,
+            "children": 0,
+            "infants": 0,
+            "rateBasis": "per-room-per-night"
+          },
+          "name": "Tulum central value stay",
+          "hotelName": null,
+          "source": "route-control-region-hotel-planning-fallback",
+          "rating": 8.6,
+          "reviews": 1240,
+          "reviewSummary": "Guest review estimate pending partner confirmation.",
+          "bookingUrl": "https://www.agoda.com/search?city=19741&checkIn=2026-08-08&checkOut=2026-08-11&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-tulum",
+          "providerUrl": "https://www.agoda.com/search?city=19741&checkIn=2026-08-08&checkOut=2026-08-11&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-tulum",
+          "hotelUrl": null,
+          "agodaCityId": 19741,
+          "sampleSize": 0,
+          "booking": {
+            "provider": "Agoda",
+            "status": "prefilled-city-search",
+            "url": "https://www.agoda.com/search?city=19741&checkIn=2026-08-08&checkOut=2026-08-11&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-tulum",
+            "label": "View stays in this city",
+            "specificHotel": false,
+            "prefilled": true,
+            "cityId": 19741,
+            "checkIn": "2026-08-08",
+            "checkOut": "2026-08-11",
+            "passengers": {
+              "adults": 1,
+              "children": 0,
+              "infants": 0,
+              "travellers": 1,
+              "seatCount": 1,
+              "rooms": 1
+            },
+            "finalPriceRequiresPartnerConfirmation": true
+          },
+          "priceProvenance": {
+            "category": "planning-estimate",
+            "provider": "Globevoy planning model",
+            "source": "route-control-region-hotel-planning-fallback",
+            "amountUsd": 195,
+            "nightlyPerRoomUsd": 65,
+            "roomCount": 1,
+            "partyStayTotalUsd": 195,
+            "passengerPricingVersion": "GV-CONTROL-667D",
+            "sampleSize": null,
+            "observedAt": null,
+            "checkedAt": null,
+            "observedAgeSeconds": null,
+            "exactStayDates": false,
+            "finalPriceRequiresPartnerConfirmation": true
+          }
+        },
+        "gatewayAirport": {
+          "airportCode": "CUN",
+          "gatewayCity": "Cancun",
+          "city": "Cancun",
+          "transferMode": "ground-transfer",
+          "transferDistanceKm": 118,
+          "transferMinutes": 105,
+          "estimatedOneWayUsd": 35,
+          "destinationCity": "Tulum",
+          "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+        },
+        "gatewayAirportCode": "CUN",
+        "localAirportCode": "TQO",
+        "destinationAccess": {
+          "version": "GV-CONTROL-667D",
+          "destinationCity": "Tulum",
+          "gatewayCity": "Cancun",
+          "airportCode": "CUN",
+          "localAirportCode": "TQO",
+          "distanceKm": 118,
+          "transferMinutes": 105,
+          "transferMode": "ground-transfer",
+          "unitOneWayUsd": 35,
+          "oneWayPartyUsd": 35,
+          "roundTripPartyUsd": 70,
+          "travellers": 1,
+          "source": "destination-gateway-transfer-planning-estimate-667d",
+          "finalPriceRequiresPartnerConfirmation": true,
+          "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+        },
+        "destinationAccessEstimateUsd": 70,
+        "image": ""
+      }
+    },
+    {
+      "name": "controlled route exposes Caye Caulker gateway code",
+      "passed": true,
+      "details": {
+        "id": "caye-caulker-bz",
+        "city": "Caye Caulker",
+        "country": "Belize",
+        "airportCode": "BZE",
+        "code": "BZE",
+        "latitude": 17.742,
+        "longitude": -88.025,
+        "lat": 17.742,
+        "lng": -88.025,
+        "nights": 2,
+        "hotel": {
+          "provider": "Agoda",
+          "providerCityId": 103136,
+          "hotelCoverageCount": 30,
+          "coverageDepth": "limited",
+          "estimatedNightlyUsd": 75,
+          "estimatedStayUsd": 150,
+          "lodgingStyle": "value",
+          "estimateSource": "route-control-region-hotel-planning-fallback",
+          "livePriceVerified": false,
+          "averageNightlyUsd": 75,
+          "estimatedNightlyAllRoomsUsd": 75,
+          "totalStayUsd": 150,
+          "rooms": 1,
+          "adults": 1,
+          "children": 0,
+          "infants": 0,
+          "pricingIntegrity": {
+            "version": "GV-CONTROL-667D",
+            "nightlyPerRoomUsd": 75,
+            "roomCount": 1,
+            "nights": 2,
+            "partyStayTotalUsd": 150,
+            "adults": 1,
+            "children": 0,
+            "infants": 0,
+            "rateBasis": "per-room-per-night"
+          },
+          "name": "Caye Caulker central value stay",
+          "hotelName": null,
+          "source": "route-control-region-hotel-planning-fallback",
+          "rating": 8.3,
+          "reviews": 862,
+          "reviewSummary": "Guest review estimate pending partner confirmation.",
+          "bookingUrl": "https://www.agoda.com/search?city=103136&checkIn=2026-08-10&checkOut=2026-08-12&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-caye-caulker",
+          "providerUrl": "https://www.agoda.com/search?city=103136&checkIn=2026-08-10&checkOut=2026-08-12&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-caye-caulker",
+          "hotelUrl": null,
+          "agodaCityId": 103136,
+          "sampleSize": 0,
+          "booking": {
+            "provider": "Agoda",
+            "status": "prefilled-city-search",
+            "url": "https://www.agoda.com/search?city=103136&checkIn=2026-08-10&checkOut=2026-08-12&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-caye-caulker",
+            "label": "View stays in this city",
+            "specificHotel": false,
+            "prefilled": true,
+            "cityId": 103136,
+            "checkIn": "2026-08-10",
+            "checkOut": "2026-08-12",
+            "passengers": {
+              "adults": 1,
+              "children": 0,
+              "infants": 0,
+              "travellers": 1,
+              "seatCount": 1,
+              "rooms": 1
+            },
+            "finalPriceRequiresPartnerConfirmation": true
+          },
+          "priceProvenance": {
+            "category": "planning-estimate",
+            "provider": "Globevoy planning model",
+            "source": "route-control-region-hotel-planning-fallback",
+            "amountUsd": 150,
+            "nightlyPerRoomUsd": 75,
+            "roomCount": 1,
+            "partyStayTotalUsd": 150,
+            "passengerPricingVersion": "GV-CONTROL-667D",
+            "sampleSize": null,
+            "observedAt": null,
+            "checkedAt": null,
+            "observedAgeSeconds": null,
+            "exactStayDates": false,
+            "finalPriceRequiresPartnerConfirmation": true
+          }
+        },
+        "gatewayAirport": {
+          "airportCode": "BZE",
+          "gatewayCity": "Belize City",
+          "city": "Belize City",
+          "transferMode": "ferry-or-domestic-hop",
+          "transferDistanceKm": 50,
+          "transferMinutes": 90,
+          "estimatedOneWayUsd": 40,
+          "destinationCity": "Caye Caulker",
+          "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+        },
+        "gatewayAirportCode": "BZE",
+        "localAirportCode": "CUK",
+        "destinationAccess": {
+          "version": "GV-CONTROL-667D",
+          "destinationCity": "Caye Caulker",
+          "gatewayCity": "Belize City",
+          "airportCode": "BZE",
+          "localAirportCode": "CUK",
+          "distanceKm": 50,
+          "transferMinutes": 90,
+          "transferMode": "ferry-or-domestic-hop",
+          "unitOneWayUsd": 40,
+          "oneWayPartyUsd": 40,
+          "roundTripPartyUsd": 80,
+          "travellers": 1,
+          "source": "destination-gateway-transfer-planning-estimate-667d",
+          "finalPriceRequiresPartnerConfirmation": true,
+          "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+        },
+        "destinationAccessEstimateUsd": 80,
+        "image": ""
+      }
+    },
+    {
+      "name": "frontend sends current departure date during shuffle",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend requests date preservation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend renders gateway transfer row",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend adds gateway transfer to visible card total",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "samplePreservedDates": [
+    "2026-07-25",
+    "2026-07-28",
+    "2026-07-30"
+  ],
+  "sampleGateways": {
+    "Tulum": {
+      "airportCode": "CUN",
+      "gatewayCity": "Cancun",
+      "city": "Cancun",
+      "transferMode": "ground-transfer",
+      "transferDistanceKm": 118,
+      "transferMinutes": 105,
+      "estimatedOneWayUsd": 35,
+      "destinationCity": "Tulum",
+      "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+    },
+    "CayeCaulker": {
+      "airportCode": "BZE",
+      "gatewayCity": "Belize City",
+      "city": "Belize City",
+      "transferMode": "ferry-or-domestic-hop",
+      "transferDistanceKm": 50,
+      "transferMinutes": 90,
+      "estimatedOneWayUsd": 40,
+      "destinationCity": "Caye Caulker",
+      "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+    }
+  }
+}

@@ -1,0 +1,391 @@
+{
+  "taskId": "GV-CITY-668L",
+  "generatedAt": "2026-07-22T03:17:34.904Z",
+  "passed": 68,
+  "failed": 0,
+  "total": 68,
+  "checks": [
+    {
+      "name": "service version is 668L",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668L feature flag is enabled",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot identity is correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668J baseline identity is correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668K source identity is correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "four source audits are preserved",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668J baseline SHA is pinned",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668K source SHA is pinned",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668J and 668K city sets do not overlap",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot contains 545 unique audited cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "source attribution is 100 plus 150 plus 150 plus 145",
+      "pass": true,
+      "details": {
+        "source668E": 100,
+        "source668G": 150,
+        "source668I": 150,
+        "source668K": 145
+      }
+    },
+    {
+      "name": "snapshot contains exactly 322 production-active cities",
+      "pass": true,
+      "details": 322
+    },
+    {
+      "name": "snapshot contains exactly 223 reviewed inactive cities",
+      "pass": true,
+      "details": 223
+    },
+    {
+      "name": "active modes are 295 direct/metro and 27 gateway",
+      "pass": true,
+      "details": {
+        "direct-or-metro": 295,
+        "gateway-supported": 27
+      }
+    },
+    {
+      "name": "Current-500 is fully audited",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Current-500 split is 309 active and 191 inactive",
+      "pass": true,
+      "details": {
+        "audited": 500,
+        "productionActive": 309,
+        "reviewedInactive": 191
+      }
+    },
+    {
+      "name": "expansion split remains 13 active of 45 audited",
+      "pass": true,
+      "details": {
+        "audited": 45,
+        "productionActive": 13,
+        "reviewedInactive": 32
+      }
+    },
+    {
+      "name": "registry count is 1000 and unaudited count is 455",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "estimate-only total is 678",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-covered count is 349",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "classification counts are exact",
+      "pass": true,
+      "details": {
+        "estimate-only": 4,
+        "gateway-supported": 29,
+        "live-both": 320,
+        "live-flights-only": 7,
+        "live-stays-only": 167,
+        "unresolved": 18
+      }
+    },
+    {
+      "name": "all active cities use production provider evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities passed recommendation readiness",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities have no retry queues",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all inactive audited cities remain discoverable estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no inactive city is accidentally activated",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all records use 668L policy version",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway-active cities retain gateway evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668K contributes exactly 18 active gateways",
+      "pass": true,
+      "details": [
+        "banff-ca",
+        "bath-gb",
+        "braga-pt",
+        "brighton-gb",
+        "cesky-krumlov-cz",
+        "guanajuato-mx",
+        "koh-lanta-th",
+        "kyoto-jp",
+        "matera-it",
+        "moshi-tz",
+        "naivasha-ke",
+        "niagara-falls-ca",
+        "ronda-es",
+        "segovia-es",
+        "siena-it",
+        "sintra-pt",
+        "toledo-es",
+        "whistler-ca"
+      ]
+    },
+    {
+      "name": "missing-flight queue count is 189",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "unresolved-Agoda queue count is 25",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no-live-hotel-rate queue count is 4",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "hotel-quality queue count is 7",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight-comfort queue count is 27",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "retry snapshot allows overlapping membership",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "retry snapshot queue counts match activation snapshot",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Toronto remains active from 668E",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Philadelphia remains active from 668I",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Sapporo is newly active from 668K",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Kyoto is newly gateway-active via KIX",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Brighton is newly gateway-active via LHR",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Kuantan stays estimate-only after missing flight observations",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Chefchaouen stays estimate-only after flight comfort failure",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Cape Coast carries overlapping missing-flight and quality queues",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Moscow remains unaudited expansion estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation service search sees 1000 discovery cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "active search returns 322 total matches",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "review search returns 223 total matches",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway search returns 27 total matches",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Current-500 search returns all 500 audited cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry live filter exposes 322 active cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry keeps all 500 Current-500 cities discoverable",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "route graph selection still contains all 1000 cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "route graph selection annotates 322 live-eligible rows",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Sapporo row is marked verified live capability",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Kuantan row is marked audited estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Moscow row is marked unaudited estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-driven discovery accepts active Sapporo observation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-driven discovery blocks reviewed Kuantan observation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "destination record still requires exact provider verification",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda activation summary endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda activation search endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda retry endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda city-registry live filter uses 668L activation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668K completion plan endpoint remains preserved",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation endpoint remains read-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flag-off rollback disables enforcement",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flag-off rollback restores provider observation behavior",
+      "pass": true,
+      "details": {}
+    }
+  ]
+}

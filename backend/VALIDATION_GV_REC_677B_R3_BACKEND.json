@@ -1,0 +1,157 @@
+{
+  "release": "GV-REC-677B-R3",
+  "generatedAt": "2026-08-11T22:45:31.950Z",
+  "passed": true,
+  "checkCount": 8,
+  "passedCount": 8,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "R3 generated-tour version packaged",
+      "passed": true,
+      "details": "2.12.0-gv-rec-677d-destination-value-proximity"
+    },
+    {
+      "name": "R3 route-relative guardrail flag active",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "R3 version exported",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "CUN-NYC-like 9h55 observation is severe relative to route baseline",
+      "passed": true,
+      "details": {
+        "status": "severe",
+        "warnings": [
+          "long-duration-for-route",
+          "route-relative-duration-severe",
+          "route-relative-duration-ratio-severe"
+        ],
+        "expectedJourneyMinutes": 253,
+        "cautionDurationThresholdMinutes": 373,
+        "severeDurationThresholdMinutes": 463,
+        "durationRatioVsExpected": 2.35,
+        "distanceKm": 2500,
+        "routeRelativeExpectedFlightMinutes": 253,
+        "routeRelativeCautionThresholdMinutes": 373,
+        "routeRelativeSevereThresholdMinutes": 463,
+        "routeDistanceBand": "short-medium-haul"
+      }
+    },
+    {
+      "name": "CUN-NYC baseline remains near efficient flight scale",
+      "passed": true,
+      "details": 253
+    },
+    {
+      "name": "all-poor CUN-NYC-like evidence is labelled limited",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-08-09",
+        "price": 321,
+        "currency": "CAD",
+        "durationMinutes": 595,
+        "transfers": 1,
+        "timingQuality": 2,
+        "cheapestPrice": 321,
+        "pricePremiumVsCheapest": 0,
+        "timingLabel": "acceptable-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 94.4,
+        "alternativesConsidered": 1,
+        "dateShiftDays": 0,
+        "durationMinutesSavedVsCheapest": 0,
+        "connectionsSavedVsCheapest": 0,
+        "usefulTimeWarnings": [],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 0,
+          "durationMinutesSavedVsCheapest": 0,
+          "connectionsSavedVsCheapest": 0,
+          "pricePremiumVsCheapest": 0,
+          "usefulTimeWarnings": [],
+          "targetDate": "2026-08-09"
+        },
+        "flightQualityGuardrailVersion": "GV-REC-677B-R3",
+        "flightQualityStatus": "limited-provider-options",
+        "flightQualityWarnings": [
+          "long-duration-for-route",
+          "route-relative-duration-severe",
+          "route-relative-duration-ratio-severe"
+        ],
+        "expectedJourneyMinutes": 253,
+        "cautionDurationThresholdMinutes": 373,
+        "severeDurationThresholdMinutes": 463,
+        "durationRatioVsExpected": 2.35,
+        "routeRelativeExpectedFlightMinutes": 253,
+        "routeRelativeCautionThresholdMinutes": 373,
+        "routeRelativeSevereThresholdMinutes": 463,
+        "routeDistanceBand": "short-medium-haul",
+        "selectionReason": "limited-flight-options-provider-evidence-677b-r3"
+      }
+    },
+    {
+      "name": "R3 still prefers normal YYZ-CUN option over 23h20 cheap option",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-08-05",
+        "price": 350,
+        "durationMinutes": 275,
+        "transfers": 0,
+        "timingQuality": 0,
+        "cheapestPrice": 289,
+        "pricePremiumVsCheapest": 61,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 14.353,
+        "alternativesConsidered": 2,
+        "dateShiftDays": 0,
+        "durationMinutesSavedVsCheapest": 1125,
+        "connectionsSavedVsCheapest": 2,
+        "usefulTimeWarnings": [],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 0,
+          "durationMinutesSavedVsCheapest": 1125,
+          "connectionsSavedVsCheapest": 2,
+          "pricePremiumVsCheapest": 61,
+          "usefulTimeWarnings": [],
+          "targetDate": "2026-08-05"
+        },
+        "flightQualityGuardrailVersion": "GV-REC-677B-R3",
+        "flightQualityStatus": "guardrail-pass",
+        "flightQualityWarnings": [],
+        "expectedJourneyMinutes": 260,
+        "cautionDurationThresholdMinutes": 380,
+        "severeDurationThresholdMinutes": 470,
+        "durationRatioVsExpected": 1.06,
+        "routeRelativeExpectedFlightMinutes": 260,
+        "routeRelativeCautionThresholdMinutes": 380,
+        "routeRelativeSevereThresholdMinutes": 470,
+        "routeDistanceBand": "short-medium-haul",
+        "selectionReason": "smart-flight-comfort-within-budget-677b"
+      }
+    },
+    {
+      "name": "R3 does not reject realistic long-haul example",
+      "passed": true,
+      "details": {
+        "status": "guardrail-pass",
+        "warnings": [],
+        "expectedJourneyMinutes": 788,
+        "cautionDurationThresholdMinutes": 1182,
+        "severeDurationThresholdMinutes": 1537,
+        "durationRatioVsExpected": 1.29,
+        "distanceKm": 10000,
+        "routeRelativeExpectedFlightMinutes": 788,
+        "routeRelativeCautionThresholdMinutes": 1182,
+        "routeRelativeSevereThresholdMinutes": 1537,
+        "routeDistanceBand": "ultra-long-haul"
+      }
+    }
+  ]
+}

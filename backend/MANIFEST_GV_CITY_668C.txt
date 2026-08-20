@@ -1,0 +1,21 @@
+GV-CITY-668C — changed/added files
+
+ADDED
+services/provider-live-coverage.js
+data/provider-live-coverage-1000-668c.json
+data/provider-live-pilot-100-668c.json
+run-gv-city-668c-live-audit.js
+validate-gv-city-668c.js
+VALIDATION_GV_CITY_668C.json
+GV-CITY-668C_REPORT.md
+MANIFEST_GV_CITY_668C.txt
+
+MODIFIED
+lambda.js
+server.js
+
+UNCHANGED BY SCOPE
+frontend
+route generation and ranking
+existing 668B static provider mappings
+existing provider credentials and environment files

@@ -1,0 +1,15 @@
+{
+  "release":"GV-UX-687A-R1",
+  "title":"Uniform Journey Card Grid",
+  "authoritativeBaseline":"GV-UX-687A",
+  "authoritativeBaselineSha256":"5e236dc535cc5361dbfc0027a8b230ec5c6914ceb06a6f1f54712e3f2e5414d6",
+  "scope":"frontend-only",
+  "deploymentPerformed":false,
+  "backendChanged":false,
+  "lambdaChanged":false,
+  "providerLogicChanged":false,
+  "liveProviderCallsDuringValidation":false,
+  "mapProviderChanged":false,
+  "authenticationChanged":false,
+  "paymentChanged":false
+}

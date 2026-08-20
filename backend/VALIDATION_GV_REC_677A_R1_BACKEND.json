@@ -1,0 +1,199 @@
+{
+  "release": "GV-REC-677A-R1",
+  "generatedAt": "2026-08-09T04:00:53.182Z",
+  "passed": true,
+  "checkCount": 19,
+  "passedCount": 19,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "R1 transport integrity version is packaged",
+      "passed": true,
+      "details": "GV-REC-677A-R1"
+    },
+    {
+      "name": "R1 transport integrity feature flag is enabled",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Cancun to New York cannot remain a ground transfer",
+      "passed": true,
+      "details": {
+        "from": {
+          "city": "Cancun",
+          "country": "Mexico",
+          "countryCode": "MX",
+          "code": "CUN",
+          "airportCode": "CUN"
+        },
+        "to": {
+          "city": "New York",
+          "country": "United States",
+          "countryCode": "US",
+          "code": "JFK",
+          "airportCode": "JFK"
+        },
+        "mode": "flight",
+        "transportType": "flight",
+        "distanceKm": 2500,
+        "estimatedTransportUsd": 310,
+        "estimatedFlightUsd": 310,
+        "estimateSource": "transport-mode-integrity-flight-repair-677a-r1",
+        "operator": "Estimated flight option",
+        "transportModeIntegrity": {
+          "version": "GV-REC-677A-R1",
+          "status": "repaired-impossible-ground-to-flight",
+          "repaired": true,
+          "previousMode": "ground",
+          "previousTransportType": "rail-or-bus",
+          "distanceKm": 2500,
+          "fromCountry": "MX",
+          "toCountry": "US"
+        }
+      }
+    },
+    {
+      "name": "repaired impossible ground leg keeps amount but moves it to flight estimate",
+      "passed": true,
+      "details": {
+        "estimatedTransportUsd": 310,
+        "estimatedFlightUsd": 310
+      }
+    },
+    {
+      "name": "repair records auditable transport-mode integrity provenance",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A-R1",
+        "status": "repaired-impossible-ground-to-flight",
+        "repaired": true,
+        "previousMode": "ground",
+        "previousTransportType": "rail-or-bus",
+        "distanceKm": 2500,
+        "fromCountry": "MX",
+        "toCountry": "US"
+      }
+    },
+    {
+      "name": "legitimate Ottawa to Montreal regional ground transfer is preserved",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A-R1",
+        "status": "ground-leg-preserved",
+        "repaired": false,
+        "flightComponent": false,
+        "groundComponent": true
+      }
+    },
+    {
+      "name": "composite route with a flight segment is flight-bearing",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "composite route with a flight segment is not treated as pure ground",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A-R1",
+        "status": "flight-component-preserved",
+        "repaired": false,
+        "flightComponent": true,
+        "groundComponent": true
+      }
+    },
+    {
+      "name": "traveller pricing treats composite flight-bearing route as a flight fare",
+      "passed": true,
+      "details": {
+        "unitBasis": "per-passenger-flight-fare",
+        "estimatedFlightUsd": 200,
+        "multiplier": 2
+      }
+    },
+    {
+      "name": "canonical pricing does not classify composite flight-bearing route as ground",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "route-feasibility travel time uses flight logic for composite flight-bearing route",
+      "passed": true,
+      "details": {
+        "estimatedHours": 4.99
+      }
+    },
+    {
+      "name": "partner links expose flight comparison behavior for composite flight-bearing route",
+      "passed": true,
+      "details": {
+        "bookingStatus": "prefilled-comparison-link",
+        "label": "Compare this flight",
+        "route": {
+          "origin": "AAA",
+          "destination": "BBB",
+          "departureDate": "2026-09-10"
+        }
+      }
+    },
+    {
+      "name": "missing country codes are not treated as same-country ground friendly",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "different non-European countries are not ground-friendly by default",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "nearby European countries remain eligible for ground planning",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "foundation records for transport-integrity benchmark exist",
+      "passed": true,
+      "details": {
+        "cancun": true,
+        "newYork": true,
+        "ottawa": true,
+        "montreal": true
+      }
+    },
+    {
+      "name": "adaptive route planner selects a flight for Cancun to New York",
+      "passed": true,
+      "details": {
+        "mode": "flight",
+        "transportType": "flight",
+        "distanceKm": 2502,
+        "costUsd": 290
+      }
+    },
+    {
+      "name": "adaptive route planner still permits Ottawa to Montreal ground transport",
+      "passed": true,
+      "details": {
+        "mode": "ground",
+        "transportType": "bus-or-shuttle",
+        "distanceKm": 166,
+        "costUsd": 35
+      }
+    },
+    {
+      "name": "adaptive public route nodes retain country metadata",
+      "passed": true,
+      "details": {
+        "cityId": "ottawa-ca",
+        "city": "Ottawa",
+        "country": "Canada",
+        "countryCode": "CA",
+        "code": "YOW",
+        "airportCode": "YOW",
+        "latitude": 45.411572,
+        "longitude": -75.698194
+      }
+    }
+  ]
+}

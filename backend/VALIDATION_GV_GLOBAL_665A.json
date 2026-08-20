@@ -1,0 +1,1733 @@
+{
+  "task": "GV-GLOBAL-665A",
+  "title": "On-demand global route graph",
+  "generatedAtUtc": "2026-07-15T09:06:22Z",
+  "summary": {
+    "passed": 53,
+    "total": 53,
+    "allPassed": true
+  },
+  "checks": [
+    {
+      "name": "Rabat: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "RBA",
+        "stops": [
+          "Vienna",
+          "Stockholm"
+        ]
+      }
+    },
+    {
+      "name": "Rabat: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 7,
+        "stopNights": [
+          4,
+          3
+        ]
+      }
+    },
+    {
+      "name": "Rabat: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 2,
+        "maxStops": 3
+      }
+    },
+    {
+      "name": "Rabat: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 7,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 7069,
+          "shortestCycleDistanceKm": 7069,
+          "backtrackingRatio": 1,
+          "longestLegKm": 3348,
+          "medianLegKm": 2480
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "Rabat: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Rabat",
+        "originAirportCode": "RBA",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 27,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 7,
+        "desiredStopCount": 2,
+        "budgetUsd": 1620
+      }
+    },
+    {
+      "name": "Suwon: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "ICN",
+        "stops": [
+          "Bangkok",
+          "Kuala Lumpur"
+        ]
+      }
+    },
+    {
+      "name": "Suwon: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 6,
+        "stopNights": [
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "name": "Suwon: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 2,
+        "maxStops": 2
+      }
+    },
+    {
+      "name": "Suwon: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 9487,
+          "shortestCycleDistanceKm": 9487,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4593,
+          "medianLegKm": 3710
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "Suwon: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Suwon",
+        "originAirportCode": "ICN",
+        "originResolutionType": "nearby-flight-gateway",
+        "gatewayAirport": {
+          "airportCode": "ICN",
+          "gatewayCity": "Seoul",
+          "distanceKm": 32,
+          "transferMode": "ground-access",
+          "note": "Suwon uses Seoul (ICN) as the practical flight gateway."
+        },
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 13,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 6,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      }
+    },
+    {
+      "name": "Lahore: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "LHE",
+        "stops": [
+          "Alexandria",
+          "Ankara"
+        ]
+      }
+    },
+    {
+      "name": "Lahore: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 7,
+        "stopNights": [
+          4,
+          3
+        ]
+      }
+    },
+    {
+      "name": "Lahore: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 2,
+        "maxStops": 3
+      }
+    },
+    {
+      "name": "Lahore: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 7,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 9023,
+          "shortestCycleDistanceKm": 9023,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4191,
+          "medianLegKm": 3829
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "Lahore: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Lahore",
+        "originAirportCode": "LHE",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 13,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 7,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      }
+    },
+    {
+      "name": "Accra: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "ACC",
+        "stops": [
+          "Tunis",
+          "Naples"
+        ]
+      }
+    },
+    {
+      "name": "Accra: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 7,
+        "stopNights": [
+          4,
+          3
+        ]
+      }
+    },
+    {
+      "name": "Accra: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 2,
+        "maxStops": 3
+      }
+    },
+    {
+      "name": "Accra: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 7,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 2,
+          "orderedDistanceKm": 8368,
+          "shortestCycleDistanceKm": 8368,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4173,
+          "medianLegKm": 3631
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 19,
+          "acceptedCount": 19,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "Accra: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Accra",
+        "originAirportCode": "ACC",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 8,
+        "feasibleRouteCandidateCount": 16,
+        "requestedNights": 7,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      }
+    },
+    {
+      "name": "Lima, Peru: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "LIM",
+        "stops": [
+          "Guatemala City",
+          "Merida"
+        ]
+      }
+    },
+    {
+      "name": "Lima, Peru: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 7,
+        "stopNights": [
+          4,
+          3
+        ]
+      }
+    },
+    {
+      "name": "Lima, Peru: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 2,
+        "maxStops": 3
+      }
+    },
+    {
+      "name": "Lima, Peru: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 7,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 2,
+          "orderedDistanceKm": 7932,
+          "shortestCycleDistanceKm": 7932,
+          "backtrackingRatio": 1,
+          "longestLegKm": 3913,
+          "medianLegKm": 3308
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "Lima, Peru: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Lima",
+        "originAirportCode": "LIM",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 15,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 7,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      }
+    },
+    {
+      "name": "Tehran: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "IKA",
+        "stops": [
+          "Paris",
+          "Warsaw"
+        ]
+      }
+    },
+    {
+      "name": "Tehran: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 5,
+        "stopNights": [
+          3,
+          2
+        ]
+      }
+    },
+    {
+      "name": "Tehran: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 2,
+        "maxStops": 2
+      }
+    },
+    {
+      "name": "Tehran: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 8586,
+          "shortestCycleDistanceKm": 8586,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4210,
+          "medianLegKm": 3013
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "Tehran: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Tehran",
+        "originAirportCode": "IKA",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 24,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 5,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      }
+    },
+    {
+      "name": "Halifax: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "YHZ",
+        "stops": [
+          "Havana",
+          "Tulum"
+        ]
+      }
+    },
+    {
+      "name": "Halifax: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 6,
+        "stopNights": [
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "name": "Halifax: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 2,
+        "maxStops": 2
+      }
+    },
+    {
+      "name": "Halifax: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 2,
+          "orderedDistanceKm": 7057,
+          "shortestCycleDistanceKm": 7057,
+          "backtrackingRatio": 1,
+          "longestLegKm": 3495,
+          "medianLegKm": 2954
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 21,
+          "acceptedCount": 21,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "Halifax: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Halifax",
+        "originAirportCode": "YHZ",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 26,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 6,
+        "desiredStopCount": 2,
+        "budgetUsd": 1103
+      }
+    },
+    {
+      "name": "San Diego: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "SAN",
+        "stops": [
+          "Cancun",
+          "San Jose"
+        ]
+      }
+    },
+    {
+      "name": "San Diego: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 6,
+        "stopNights": [
+          3,
+          3
+        ]
+      }
+    },
+    {
+      "name": "San Diego: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 2,
+        "maxStops": 2
+      }
+    },
+    {
+      "name": "San Diego: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 2,
+          "orderedDistanceKm": 8731,
+          "shortestCycleDistanceKm": 8731,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4214,
+          "medianLegKm": 3257
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 27,
+          "acceptedCount": 27,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "San Diego: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "San Diego",
+        "originAirportCode": "SAN",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 22,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 6,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      }
+    },
+    {
+      "name": "Toronto: supported route returned",
+      "passed": true,
+      "details": {
+        "originAirport": "YYZ",
+        "stops": [
+          "Dublin",
+          "Hamburg",
+          "Wroclaw"
+        ]
+      }
+    },
+    {
+      "name": "Toronto: nights match requested and minimum 2 per city",
+      "passed": true,
+      "details": {
+        "totalNights": 8,
+        "stopNights": [
+          3,
+          3,
+          2
+        ]
+      }
+    },
+    {
+      "name": "Toronto: stop count respects comfort cap",
+      "passed": true,
+      "details": {
+        "stopCount": 3,
+        "maxStops": 3
+      }
+    },
+    {
+      "name": "Toronto: route feasibility guard accepted",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 8,
+          "stopCount": 3,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 13626,
+          "shortestCycleDistanceKm": 13601,
+          "backtrackingRatio": 1.002,
+          "longestLegKm": 6763,
+          "medianLegKm": 5249
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 27,
+          "acceptedCount": 27,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      }
+    },
+    {
+      "name": "Toronto: global graph generated candidates",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Toronto",
+        "originAirportCode": "YYZ",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 52,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 8,
+        "desiredStopCount": 3,
+        "budgetUsd": 2205
+      }
+    },
+    {
+      "name": "Suwon resolves through nearby ICN gateway",
+      "passed": true,
+      "details": {
+        "airportCode": "ICN",
+        "gatewayCity": "Seoul",
+        "distanceKm": 32,
+        "transferMode": "ground-access",
+        "note": "Suwon uses Seoul (ICN) as the practical flight gateway."
+      }
+    },
+    {
+      "name": "Tehran international origin normalizes to IKA",
+      "passed": true,
+      "details": {
+        "cityId": "global-city-thr",
+        "city": "Tehran",
+        "displayCity": "Tehran",
+        "country": "Iran",
+        "countryCode": "IR",
+        "code": "IKA",
+        "airportCode": "IKA",
+        "airportCodes": [
+          "IKA",
+          "THR"
+        ],
+        "latitude": 35.6961111,
+        "longitude": 51.4230556,
+        "timeZone": "Asia/Tehran",
+        "requestedOrigin": "Tehran",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "high",
+        "globalEligibilityClass": "GLOBAL_ELIGIBLE",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "IKA",
+        "airportSelectionReason": "tehran-international-default-664a"
+      }
+    },
+    {
+      "name": "Toronto normalizes to YYZ",
+      "passed": true,
+      "details": {
+        "cityId": "global-city-yto",
+        "city": "Toronto",
+        "displayCity": "Toronto",
+        "country": "Canada",
+        "countryCode": "CA",
+        "code": "YYZ",
+        "airportCode": "YYZ",
+        "airportCodes": [
+          "YYZ",
+          "YHM",
+          "YTZ"
+        ],
+        "latitude": 43.653524,
+        "longitude": -79.3839069,
+        "timeZone": "America/Toronto",
+        "requestedOrigin": "Toronto",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "verified",
+        "globalEligibilityClass": "TRUSTED_500",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "YYZ",
+        "airportSelectionReason": "toronto-default-international-airport-664a"
+      }
+    },
+    {
+      "name": "Toronto 8-night route is capped at 3 destinations",
+      "passed": true,
+      "details": {
+        "stops": [
+          "Dublin",
+          "Hamburg",
+          "Wroclaw"
+        ]
+      }
+    },
+    {
+      "name": "Frontend no longer falls back to local random route mutation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Frontend max stops derives from trip comfort",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "All backend and frontend JavaScript passes syntax check",
+      "passed": true,
+      "details": {
+        "checked": 68,
+        "failed": []
+      }
+    },
+    {
+      "name": "All JSON files parse",
+      "passed": true,
+      "details": {
+        "checked": 39,
+        "failed": []
+      }
+    }
+  ],
+  "sampleResults": [
+    {
+      "query": {
+        "origin": "Rabat",
+        "budget": "1500",
+        "currency": "EUR",
+        "nights": "7"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-rba",
+        "city": "Rabat",
+        "displayCity": "Rabat",
+        "country": "Morocco",
+        "countryCode": "MA",
+        "code": "RBA",
+        "airportCode": "RBA",
+        "airportCodes": [
+          "RBA"
+        ],
+        "latitude": 34.036137,
+        "longitude": -6.748619,
+        "timeZone": "Africa/Casablanca",
+        "requestedOrigin": "Rabat",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "high",
+        "globalEligibilityClass": "GLOBAL_ELIGIBLE",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "RBA"
+      },
+      "stops": [
+        {
+          "city": "Vienna",
+          "country": "Austria",
+          "code": "VIE",
+          "nights": 4
+        },
+        {
+          "city": "Stockholm",
+          "country": "Sweden",
+          "code": "ARN",
+          "nights": 3
+        }
+      ],
+      "totalNights": 7,
+      "estimatedTotalUsd": 1270,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Rabat",
+        "originAirportCode": "RBA",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 27,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 7,
+        "desiredStopCount": 2,
+        "budgetUsd": 1620
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 7,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 7069,
+          "shortestCycleDistanceKm": 7069,
+          "backtrackingRatio": 1,
+          "longestLegKm": 3348,
+          "medianLegKm": 2480
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    },
+    {
+      "query": {
+        "origin": "Suwon",
+        "budget": "1500",
+        "currency": "USD",
+        "nights": "6"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-swu",
+        "city": "Suwon",
+        "displayCity": "Suwon",
+        "country": "South Korea",
+        "countryCode": "KR",
+        "code": "ICN",
+        "airportCode": "ICN",
+        "airportCodes": [
+          "ICN",
+          "GMP"
+        ],
+        "latitude": 37.283333,
+        "longitude": 127.01667,
+        "timeZone": "Asia/Seoul",
+        "requestedOrigin": "Suwon",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "rejected",
+        "globalEligibilityClass": "GLOBAL_HIDDEN",
+        "providerSupportStatus": "flightable-airport-supported",
+        "gatewayAirport": {
+          "airportCode": "ICN",
+          "gatewayCity": "Seoul",
+          "distanceKm": 32,
+          "transferMode": "ground-access",
+          "note": "Suwon uses Seoul (ICN) as the practical flight gateway."
+        },
+        "originResolutionType": "nearby-flight-gateway",
+        "requiresGroundAccessTransfer": true,
+        "isOrigin": true,
+        "evidenceLabel": "Nearest practical airport: ICN",
+        "displayCode": "ICN"
+      },
+      "stops": [
+        {
+          "city": "Bangkok",
+          "country": "Thailand",
+          "code": "BKK",
+          "nights": 3
+        },
+        {
+          "city": "Kuala Lumpur",
+          "country": "Malaysia",
+          "code": "KUL",
+          "nights": 3
+        }
+      ],
+      "totalNights": 6,
+      "estimatedTotalUsd": 1055,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Suwon",
+        "originAirportCode": "ICN",
+        "originResolutionType": "nearby-flight-gateway",
+        "gatewayAirport": {
+          "airportCode": "ICN",
+          "gatewayCity": "Seoul",
+          "distanceKm": 32,
+          "transferMode": "ground-access",
+          "note": "Suwon uses Seoul (ICN) as the practical flight gateway."
+        },
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 13,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 6,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 9487,
+          "shortestCycleDistanceKm": 9487,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4593,
+          "medianLegKm": 3710
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    },
+    {
+      "query": {
+        "origin": "Lahore",
+        "budget": "1500",
+        "currency": "USD",
+        "nights": "7"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-lhe",
+        "city": "Lahore",
+        "displayCity": "Lahore",
+        "country": "Pakistan",
+        "countryCode": "PK",
+        "code": "LHE",
+        "airportCode": "LHE",
+        "airportCodes": [
+          "LHE"
+        ],
+        "latitude": 31.520832,
+        "longitude": 74.40278,
+        "timeZone": "Asia/Karachi",
+        "requestedOrigin": "Lahore",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "high",
+        "globalEligibilityClass": "GLOBAL_ELIGIBLE",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "LHE"
+      },
+      "stops": [
+        {
+          "city": "Alexandria",
+          "country": "Egypt",
+          "code": "HBE",
+          "nights": 4
+        },
+        {
+          "city": "Ankara",
+          "country": "Turkey",
+          "code": "ESB",
+          "nights": 3
+        }
+      ],
+      "totalNights": 7,
+      "estimatedTotalUsd": 1170,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Lahore",
+        "originAirportCode": "LHE",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 13,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 7,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 7,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 9023,
+          "shortestCycleDistanceKm": 9023,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4191,
+          "medianLegKm": 3829
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    },
+    {
+      "query": {
+        "origin": "Accra",
+        "budget": "1500",
+        "currency": "USD",
+        "nights": "7"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-acc",
+        "city": "Accra",
+        "displayCity": "Accra",
+        "country": "Ghana",
+        "countryCode": "GH",
+        "code": "ACC",
+        "airportCode": "ACC",
+        "airportCodes": [
+          "ACC"
+        ],
+        "latitude": 5.60737,
+        "longitude": -0.171769,
+        "timeZone": "Africa/Accra",
+        "requestedOrigin": "Accra",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "verified",
+        "globalEligibilityClass": "TRUSTED_500",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "ACC"
+      },
+      "stops": [
+        {
+          "city": "Tunis",
+          "country": "Tunisia",
+          "code": "TUN",
+          "nights": 4
+        },
+        {
+          "city": "Naples",
+          "country": "Italy",
+          "code": "NAP",
+          "nights": 3
+        }
+      ],
+      "totalNights": 7,
+      "estimatedTotalUsd": 1170,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Accra",
+        "originAirportCode": "ACC",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 8,
+        "feasibleRouteCandidateCount": 16,
+        "requestedNights": 7,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 7,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 2,
+          "orderedDistanceKm": 8368,
+          "shortestCycleDistanceKm": 8368,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4173,
+          "medianLegKm": 3631
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 19,
+          "acceptedCount": 19,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    },
+    {
+      "query": {
+        "origin": "Lima, Peru",
+        "budget": "1500",
+        "currency": "USD",
+        "nights": "7"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-lim",
+        "city": "Lima",
+        "displayCity": "Lima",
+        "country": "Peru",
+        "countryCode": "PE",
+        "code": "LIM",
+        "airportCode": "LIM",
+        "airportCodes": [
+          "LIM"
+        ],
+        "latitude": -12.019421,
+        "longitude": -77.107666,
+        "timeZone": "America/Lima",
+        "requestedOrigin": "Lima, Peru",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "verified",
+        "globalEligibilityClass": "TRUSTED_500",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "LIM"
+      },
+      "stops": [
+        {
+          "city": "Guatemala City",
+          "country": "Guatemala",
+          "code": "GUA",
+          "nights": 4
+        },
+        {
+          "city": "Merida",
+          "country": "Mexico",
+          "code": "MID",
+          "nights": 3
+        }
+      ],
+      "totalNights": 7,
+      "estimatedTotalUsd": 1170,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Lima",
+        "originAirportCode": "LIM",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 15,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 7,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 7,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 2,
+          "orderedDistanceKm": 7932,
+          "shortestCycleDistanceKm": 7932,
+          "backtrackingRatio": 1,
+          "longestLegKm": 3913,
+          "medianLegKm": 3308
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    },
+    {
+      "query": {
+        "origin": "Tehran",
+        "budget": "1500",
+        "currency": "USD",
+        "nights": "5"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-thr",
+        "city": "Tehran",
+        "displayCity": "Tehran",
+        "country": "Iran",
+        "countryCode": "IR",
+        "code": "IKA",
+        "airportCode": "IKA",
+        "airportCodes": [
+          "IKA",
+          "THR"
+        ],
+        "latitude": 35.6961111,
+        "longitude": 51.4230556,
+        "timeZone": "Asia/Tehran",
+        "requestedOrigin": "Tehran",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "high",
+        "globalEligibilityClass": "GLOBAL_ELIGIBLE",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "IKA",
+        "airportSelectionReason": "tehran-international-default-664a"
+      },
+      "stops": [
+        {
+          "city": "Paris",
+          "country": "France",
+          "code": "BVA",
+          "nights": 3
+        },
+        {
+          "city": "Warsaw",
+          "country": "Poland",
+          "code": "WAW",
+          "nights": 2
+        }
+      ],
+      "totalNights": 5,
+      "estimatedTotalUsd": 1160,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Tehran",
+        "originAirportCode": "IKA",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 24,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 5,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 8586,
+          "shortestCycleDistanceKm": 8586,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4210,
+          "medianLegKm": 3013
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 24,
+          "acceptedCount": 24,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    },
+    {
+      "query": {
+        "origin": "Halifax",
+        "budget": "1500",
+        "currency": "CAD",
+        "nights": "6"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-yhz",
+        "city": "Halifax",
+        "displayCity": "Halifax",
+        "country": "Canada",
+        "countryCode": "CA",
+        "code": "YHZ",
+        "airportCode": "YHZ",
+        "airportCodes": [
+          "YHZ"
+        ],
+        "latitude": 44.648881,
+        "longitude": -63.575312,
+        "timeZone": "America/Halifax",
+        "requestedOrigin": "Halifax",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "verified",
+        "globalEligibilityClass": "TRUSTED_500",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "YHZ"
+      },
+      "stops": [
+        {
+          "city": "Havana",
+          "country": "Cuba",
+          "code": "HAV",
+          "nights": 3
+        },
+        {
+          "city": "Tulum",
+          "country": "Mexico",
+          "code": "TQO",
+          "nights": 3
+        }
+      ],
+      "totalNights": 6,
+      "estimatedTotalUsd": 1045,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Halifax",
+        "originAirportCode": "YHZ",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 26,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 6,
+        "desiredStopCount": 2,
+        "budgetUsd": 1103
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 2,
+          "orderedDistanceKm": 7057,
+          "shortestCycleDistanceKm": 7057,
+          "backtrackingRatio": 1,
+          "longestLegKm": 3495,
+          "medianLegKm": 2954
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 21,
+          "acceptedCount": 21,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    },
+    {
+      "query": {
+        "origin": "San Diego",
+        "budget": "1500",
+        "currency": "USD",
+        "nights": "6"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-san",
+        "city": "San Diego",
+        "displayCity": "San Diego",
+        "country": "United States",
+        "countryCode": "US",
+        "code": "SAN",
+        "airportCode": "SAN",
+        "airportCodes": [
+          "SAN",
+          "CLD"
+        ],
+        "latitude": 32.7153292,
+        "longitude": -117.1572551,
+        "timeZone": "America/Los_Angeles",
+        "requestedOrigin": "San Diego",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "verified",
+        "globalEligibilityClass": "TRUSTED_500",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "SAN"
+      },
+      "stops": [
+        {
+          "city": "Cancun",
+          "country": "Mexico",
+          "code": "CUN",
+          "nights": 3
+        },
+        {
+          "city": "San Jose",
+          "country": "Costa Rica",
+          "code": "SJO",
+          "nights": 3
+        }
+      ],
+      "totalNights": 6,
+      "estimatedTotalUsd": 1170,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "San Diego",
+        "originAirportCode": "SAN",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 22,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 6,
+        "desiredStopCount": 2,
+        "budgetUsd": 1500
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 2,
+          "orderedDistanceKm": 8731,
+          "shortestCycleDistanceKm": 8731,
+          "backtrackingRatio": 1,
+          "longestLegKm": 4214,
+          "medianLegKm": 3257
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 27,
+          "acceptedCount": 27,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    },
+    {
+      "query": {
+        "origin": "Toronto",
+        "budget": "3000",
+        "currency": "CAD",
+        "nights": "8"
+      },
+      "ok": true,
+      "supported": true,
+      "origin": {
+        "cityId": "global-city-yto",
+        "city": "Toronto",
+        "displayCity": "Toronto",
+        "country": "Canada",
+        "countryCode": "CA",
+        "code": "YYZ",
+        "airportCode": "YYZ",
+        "airportCodes": [
+          "YYZ",
+          "YHM",
+          "YTZ"
+        ],
+        "latitude": 43.653524,
+        "longitude": -79.3839069,
+        "timeZone": "America/Toronto",
+        "requestedOrigin": "Toronto",
+        "isGlobalOrigin": true,
+        "sourceConfidence": "verified",
+        "globalEligibilityClass": "TRUSTED_500",
+        "providerSupportStatus": "flightable-airport-supported",
+        "originResolutionType": "direct-flightable-city",
+        "isOrigin": true,
+        "evidenceLabel": "Flightable origin city",
+        "displayCode": "YYZ",
+        "airportSelectionReason": "toronto-default-international-airport-664a"
+      },
+      "stops": [
+        {
+          "city": "Dublin",
+          "country": "Ireland",
+          "code": "DUB",
+          "nights": 3
+        },
+        {
+          "city": "Hamburg",
+          "country": "Germany",
+          "code": "HAM",
+          "nights": 3
+        },
+        {
+          "city": "Wroclaw",
+          "country": "Poland",
+          "code": "WRO",
+          "nights": 2
+        }
+      ],
+      "totalNights": 8,
+      "estimatedTotalUsd": 1725,
+      "graph": {
+        "enabled": true,
+        "version": "GV-GLOBAL-665A",
+        "generatedWithoutManualRouteTemplates": true,
+        "originResolved": true,
+        "originCity": "Toronto",
+        "originAirportCode": "YYZ",
+        "originResolutionType": "direct-flightable-city",
+        "gatewayAirport": null,
+        "catalogueCityCount": 9665,
+        "trustedAnchorCount": 445,
+        "automaticDiscoveryCount": 327,
+        "anchorCandidateCount": 52,
+        "feasibleRouteCandidateCount": 24,
+        "requestedNights": 8,
+        "desiredStopCount": 3,
+        "budgetUsd": 2205
+      },
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 8,
+          "stopCount": 3,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 13626,
+          "shortestCycleDistanceKm": 13601,
+          "backtrackingRatio": 1.002,
+          "longestLegKm": 6763,
+          "medianLegKm": 5249
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 27,
+          "acceptedCount": 27,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "selectedBy": "deterministic-wow-curator"
+    }
+  ]
+}

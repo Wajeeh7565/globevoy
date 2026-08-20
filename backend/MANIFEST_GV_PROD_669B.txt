@@ -1,0 +1,16 @@
+GV-PROD-669B targeted MVP validation repairs
+
+Modified:
+- services/global-route-graph.js
+- global-generated-tour-fallback.js
+- generated-tour.js
+
+Added:
+- validate-gv-prod-669b.js
+- VALIDATION_GV_PROD_669B.json
+- Run-GV-PROD-669B-Repair-Smoke.ps1
+- GV-PROD-669B_REPORT.md
+- MANIFEST_GV_PROD_669B.txt
+
+Activation data remains GV-CITY-668T: 1,000 audited / 439 active / 561 reviewed inactive.
+No frontend changes.

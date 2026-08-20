@@ -1,0 +1,177 @@
+/* GV-UI-640B-R1 — split-pane route preview map for mixed results.
+   Intent: restore the older Explore-style right-side map presence while leaving the current cards/copy/logic untouched. */
+
+@media (min-width: 901px){
+  .mx-shell{
+    width:min(1540px,calc(100% - 44px));
+  }
+
+  .mx-results-layout{
+    grid-template-columns:minmax(620px,1fr) minmax(520px,44vw);
+    gap:30px;
+    align-items:start;
+  }
+
+  .mx-results-column{
+    min-width:0;
+  }
+
+  .mx-map-panel{
+    position:sticky;
+    top:96px;
+    min-width:0;
+    height:calc(100vh - 112px);
+    min-height:640px;
+  }
+
+  .mx-map-card{
+    position:relative;
+    height:100%;
+    min-height:640px;
+    border:1px solid rgba(7,28,51,.10);
+    border-radius:0;
+    overflow:hidden;
+    background:#dcecf4;
+    box-shadow:none;
+  }
+
+  .mx-map-head{
+    position:absolute;
+    top:14px;
+    left:14px;
+    right:auto;
+    z-index:5;
+    max-width:calc(100% - 28px);
+    padding:9px 12px;
+    border:0;
+    border-radius:999px;
+    background:rgba(255,255,255,.92);
+    box-shadow:0 10px 24px rgba(7,28,51,.12);
+    backdrop-filter:blur(10px);
+    align-items:center;
+  }
+
+  .mx-map-head .mx-eyebrow{
+    display:none;
+  }
+
+  .mx-map-head h2{
+    font-size:12px;
+    line-height:1.15;
+    color:var(--mx-navy);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:340px;
+  }
+
+  .mx-map{
+    height:100%;
+    min-height:640px;
+    width:100%;
+    background:#dcecf4;
+  }
+
+  .mx-map-fallback{
+    height:100%;
+    min-height:640px;
+    border:0;
+    background:linear-gradient(145deg,#edf6fb 0%,#dcecf4 45%,#c9e0ea 100%);
+  }
+
+  .mx-map-summary{
+    position:absolute;
+    left:16px;
+    right:16px;
+    bottom:16px;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:10px 12px;
+    border:1px solid rgba(215,224,231,.82);
+    border-radius:14px;
+    background:rgba(255,255,255,.93);
+    box-shadow:0 12px 30px rgba(7,28,51,.12);
+    backdrop-filter:blur(10px);
+  }
+
+  .mx-map-summary div{
+    min-width:0;
+    display:flex;
+    align-items:baseline;
+    justify-content:flex-start;
+    gap:8px;
+  }
+
+  .mx-map-summary div:first-child{
+    flex:1 1 auto;
+  }
+
+  .mx-map-summary div:last-child{
+    flex:0 0 auto;
+  }
+
+  .mx-map-summary span{
+    font-size:9px;
+    letter-spacing:.07em;
+    white-space:nowrap;
+  }
+
+  .mx-map-summary strong{
+    font-size:12px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    text-align:left;
+  }
+
+  .mx-map-summary div:first-child strong{
+    max-width:220px;
+  }
+}
+
+@media (min-width: 1280px){
+  .mx-results-layout{
+    grid-template-columns:minmax(680px,1fr) minmax(600px,43vw);
+  }
+  .mx-map-head h2{max-width:440px}
+  .mx-map-summary div:first-child strong{max-width:320px}
+}
+
+@media (min-width: 1500px){
+  .mx-shell{width:min(1600px,calc(100% - 56px))}
+  .mx-results-layout{
+    grid-template-columns:minmax(720px,1fr) 680px;
+    gap:34px;
+  }
+}
+
+@media (min-width:901px) and (max-width:1130px){
+  .mx-shell{width:min(100% - 28px,1240px)}
+  .mx-results-layout{
+    grid-template-columns:minmax(540px,1fr) 430px;
+    gap:22px;
+  }
+  .mx-map-panel,
+  .mx-map-card,
+  .mx-map,
+  .mx-map-fallback{
+    min-height:560px;
+  }
+  .mx-map-head h2{max-width:300px}
+  .mx-map-summary{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+}
+
+@media (min-width:901px) and (max-height:760px){
+  .mx-map-panel,
+  .mx-map-card,
+  .mx-map,
+  .mx-map-fallback{
+    min-height:520px;
+  }
+}

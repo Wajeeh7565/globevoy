@@ -1,0 +1,19 @@
+{
+  "release": "GV-SHELL-686D-R1",
+  "authoritativeBaseline": "GV-RC-686D",
+  "authoritativeBaselineZip": "frontend-staging-gv-rc-686d-consolidated-ux-release-candidate-portable.zip",
+  "authoritativeBaselineSha256": "cac8de2a870c4edca3393e358c6559d16a59607d473da43efd7e0b57ad10b3c4",
+  "deploymentPerformed": false,
+  "frontendOnly": true,
+  "backendChanged": false,
+  "lambdaChanged": false,
+  "providerChanged": false,
+  "pricingChanged": false,
+  "bookingChanged": false,
+  "paymentChanged": false,
+  "authenticationChanged": false,
+  "liveProviderCallsDuringValidation": false,
+  "headerActions": ["Globevoy home", "Travel profile"],
+  "footerSecondaryNavigationPreserved": true,
+  "rollbackArtifactSha256": "cac8de2a870c4edca3393e358c6559d16a59607d473da43efd7e0b57ad10b3c4"
+}

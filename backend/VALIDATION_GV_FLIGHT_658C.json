@@ -1,0 +1,24 @@
+{
+  "task": "GV-FLIGHT-658C",
+  "scope": "backend-only city-night date alignment",
+  "syntaxCheck": "passed",
+  "checks": [
+    "generated-tour.js parses successfully with node --check",
+    "default later-leg alignment tolerance is 0 days",
+    "provider observation after aligned planned city-night date is rejected by default",
+    "fallback/original leg dates are clamped back to the aligned planned date when they drift",
+    "first leg still supports six-month cheap-date scanning",
+    "budget guardrail behavior preserved",
+    "YUL/Montreal normalization preserved from 658A",
+    "ground-transfer wording behavior preserved"
+  ],
+  "exampleExpectedPattern": {
+    "sixNightThreeStop": [
+      "start date",
+      "start + 2 nights",
+      "start + 4 nights",
+      "start + 6 nights"
+    ]
+  },
+  "notes": "Real provider availability depends on Travelpayouts/Aviasales cache coverage. Provider dates are now used only when they match the planned city-night itinerary by default."
+}

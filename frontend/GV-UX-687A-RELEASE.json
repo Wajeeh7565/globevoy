@@ -1,0 +1,15 @@
+{
+  "release": "GV-UX-687A",
+  "title": "Compact Journey Cards + Price Clarity",
+  "authoritativeBaseline": "GV-SHELL-686D-R1",
+  "authoritativeBaselineSha256": "c9f1dba944ee5ece6ba229176c8a5a78bbaabb7c21cc16902df88ebfb9ecb2e5",
+  "scope": "frontend-only",
+  "deploymentPerformed": false,
+  "backendChanged": false,
+  "lambdaChanged": false,
+  "providerLogicChanged": false,
+  "liveProviderCallsDuringValidation": false,
+  "mapProviderChanged": false,
+  "authenticationChanged": false,
+  "paymentChanged": false
+}

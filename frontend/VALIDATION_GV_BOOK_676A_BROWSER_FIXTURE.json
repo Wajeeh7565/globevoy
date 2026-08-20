@@ -1,0 +1,148 @@
+{
+  "release": "GV-BOOK-676A",
+  "fixture": "duffel-booking-panel-dom",
+  "generatedAt": "2026-08-19T02:19:53.994Z",
+  "checkCount": 13,
+  "passedCount": 13,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "configured status renders ready",
+      "passed": true,
+      "details": "<strong>Duffel test mode is connected</strong><br>Run the proof to search every dated flight slice. No real money or booking will be created."
+    },
+    {
+      "name": "configured status enables button",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "sandbox search runs once on click",
+      "passed": true,
+      "details": 1
+    },
+    {
+      "name": "tour payload preserves three dated legs",
+      "passed": true,
+      "details": {
+        "tour": {
+          "origin": {
+            "city": "Toronto",
+            "code": "YYZ"
+          },
+          "cities": [
+            {
+              "city": "Fort Lauderdale",
+              "code": "FLL",
+              "hotel": {
+                "estimatedDisplayTotal": 420
+              }
+            },
+            {
+              "city": "Cancún",
+              "code": "CUN",
+              "hotel": {
+                "estimatedDisplayTotal": 390
+              }
+            }
+          ],
+          "legs": [
+            {
+              "from": {
+                "city": "Toronto",
+                "code": "YYZ"
+              },
+              "to": {
+                "city": "Fort Lauderdale",
+                "code": "FLL"
+              },
+              "departureDate": "2026-11-05"
+            },
+            {
+              "from": {
+                "city": "Fort Lauderdale",
+                "code": "FLL"
+              },
+              "to": {
+                "city": "Cancún",
+                "code": "CUN"
+              },
+              "departureDate": "2026-11-08"
+            },
+            {
+              "from": {
+                "city": "Cancún",
+                "code": "CUN"
+              },
+              "to": {
+                "city": "Toronto",
+                "code": "YYZ"
+              },
+              "departureDate": "2026-11-11"
+            }
+          ],
+          "budget": {
+            "total": {
+              "currency": "CAD"
+            }
+          },
+          "passengerPricing": {
+            "travellers": 1,
+            "rooms": 1
+          }
+        },
+        "travellers": 1,
+        "rooms": 1,
+        "currency": "CAD",
+        "hotelSubtotal": 810,
+        "transferSubtotal": 0,
+        "maxConnections": 1
+      }
+    },
+    {
+      "name": "hotel estimate is sent",
+      "passed": true,
+      "details": 810
+    },
+    {
+      "name": "request summary renders",
+      "passed": true,
+      "details": "<span class=\"gv-duffel-chip\">3 dated flight slices</span><span class=\"gv-duffel-chip\">1 traveller</span><span class=\"gv-duffel-chip\">economy</span><span class=\"gv-duffel-chip\">Up to 1 connection per slice</span>"
+    },
+    {
+      "name": "offer route renders all slices",
+      "passed": true,
+      "details": "<article class=\"gv-duffel-offer is-selected\"><div><h3>Selected sandbox offer · Duffel Airways</h3><p>YYZ → FLL · FLL → CUN · CUN → YYZ · 3 slices · expires 9:00 a.m.</p></div><div class=\"gv-duffel-offer-price\">CAD C$620<small>test price, not live</small></div></article>"
+    },
+    {
+      "name": "offer price is labelled test only",
+      "passed": true,
+      "details": "<article class=\"gv-duffel-offer is-selected\"><div><h3>Selected sandbox offer · Duffel Airways</h3><p>YYZ → FLL · FLL → CUN · CUN → YYZ · 3 slices · expires 9:00 a.m.</p></div><div class=\"gv-duffel-offer-price\">CAD C$620<small>test price, not live</small></div></article>"
+    },
+    {
+      "name": "combined display total renders",
+      "passed": true,
+      "details": "<div class=\"gv-duffel-total-card \"><span>Duffel test-mode flight offer — not a live market price</span><strong>CAD C$620</strong></div><div class=\"gv-duffel-total-card is-estimate\"><span>Globevoy hotel estimate — not a Duffel Stays quote</span><strong>CAD C$810</strong></div><div class=\"gv-duffel-total-card is-estimate\"><span>Globevoy transfer estimate</span><strong>CAD C$0</strong></div><div class=\"gv-duffel-total-card is-combined\"><span>Sandbox combined display total</span><strong>CAD C$1,430</strong></div>"
+    },
+    {
+      "name": "hotel remains labelled estimate",
+      "passed": true,
+      "details": "<div class=\"gv-duffel-total-card \"><span>Duffel test-mode flight offer — not a live market price</span><strong>CAD C$620</strong></div><div class=\"gv-duffel-total-card is-estimate\"><span>Globevoy hotel estimate — not a Duffel Stays quote</span><strong>CAD C$810</strong></div><div class=\"gv-duffel-total-card is-estimate\"><span>Globevoy transfer estimate</span><strong>CAD C$0</strong></div><div class=\"gv-duffel-total-card is-combined\"><span>Sandbox combined display total</span><strong>CAD C$1,430</strong></div>"
+    },
+    {
+      "name": "completion status says no order or payment",
+      "passed": true,
+      "details": "<strong>Multi-city sandbox proof completed</strong><br>A single combined display total is shown below. No order or payment was created."
+    },
+    {
+      "name": "entry guard prevents second provider call",
+      "passed": true,
+      "details": 1
+    },
+    {
+      "name": "entry guard explains block",
+      "passed": true,
+      "details": "<strong>Entry check blocks this route</strong><br>Resolve the passport or entry restriction before searching a booking provider."
+    }
+  ]
+}

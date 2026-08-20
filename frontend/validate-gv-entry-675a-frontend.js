@@ -1,0 +1,30 @@
+'use strict';
+const fs=require('fs');const path=require('path');
+const root=__dirname,checks=[];
+function read(name){return fs.readFileSync(path.join(root,name),'utf8');}
+function check(name,condition,details){checks.push({name,passed:Boolean(condition),details:details??null});if(!condition)process.exitCode=1;}
+const index=read('index.html'),home=read('scripts/home-live-674a.js'),profileHtml=read('create-account.html'),profileJs=read('scripts/travel-profile-675a.js'),booking=read('booking.html'),bookingEntry=read('scripts/booking-entry-675a.js'),api=read('runtime/api-client.js'),visualizer=read('multicity-visualizer.html'),visualizerJs=read('scripts/multicity-visualizer-674a.js'),css=read('styles/entry-675a.css');
+check('homepage release marker is 675A',index.includes('GV-ENTRY-675A'));
+check('homepage sends passport and residence codes',home.includes("params.set('passportCountryCode'")&&home.includes("params.set('residenceCountryCode'"));
+check('homepage sends selected travel-passport flag',home.includes("useSecondPassportForTrip")&&home.includes("params.set('useSecondPassportForTrip'"));
+check('homepage sends U.S. existing-document exception flags',home.includes("validUsVisaOn20260101")&&home.includes("usLawfulPermanentResident"));
+check('profile page release marker is 675A',profileHtml.includes('GV-ENTRY-675A'));
+check('profile page requires explicit second-passport selection',profileHtml.includes('gv-profile-use-second-passport'));
+check('profile page includes optional protected U.S. visa field',profileHtml.includes('gv-profile-us-valid-visa-2026'));
+check('profile page includes U.S. lawful permanent resident field',profileHtml.includes('gv-profile-us-lpr'));
+check('profile script saves no document numbers',!profileJs.includes('passportNumber')&&!profileJs.includes('documentNumber'));
+check('profile script persists selected travel passport',profileJs.includes('useSecondPassportForTrip'));
+check('profile script persists U.S. exception booleans',profileJs.includes('validUsVisaOn20260101')&&profileJs.includes('usLawfulPermanentResident'));
+check('booking page includes entry and transit section',booking.includes('ENTRY & TRANSIT CHECK')&&booking.includes('gv-entry-grid'));
+check('booking page loads entry guard after existing booking renderer',booking.indexOf('booking-live-673d.js')<booking.indexOf('booking-entry-675a.js'));
+check('booking guard reads multi-city tour storage',bookingEntry.includes('globevoy.multi.selected.v1')&&bookingEntry.includes('globevoy.generated.snapshot.v1.'));
+check('booking guard calls normalized backend endpoint',bookingEntry.includes('checkTravelEntry'));
+check('booking guard pauses partner actions on hard block',bookingEntry.includes('setPartnerGuard')&&bookingEntry.includes('result.hardBlocked'));
+check('booking guard keeps transit status explicit',bookingEntry.includes('Transit verification still required')&&bookingEntry.includes('Connecting-airport requirements'));
+check('API client exposes checkTravelEntry',api.includes('async function checkTravelEntry')&&api.includes("'/api/travel-entry-eligibility'")&&api.includes('checkTravelEntry,'));
+check('visualizer includes passport-aware route summary',visualizer.includes('mcv-entry-summary')&&visualizerJs.includes('Passport-aware route check active'));
+check('entry CSS includes blocked, warning and mobile states',css.includes('.gv-entry-summary.is-blocked')&&css.includes('.gv-entry-summary.is-warning')&&css.includes('@media(max-width:720px)'));
+const result={release:'GV-ENTRY-675A',generatedAt:new Date().toISOString(),checkCount:checks.length,passedCount:checks.filter(x=>x.passed).length,failedCount:checks.filter(x=>!x.passed).length,checks};
+fs.writeFileSync(path.join(root,'VALIDATION_GV_ENTRY_675A_FRONTEND.json'),JSON.stringify(result,null,2)+'\n');
+if(process.exitCode)throw new Error('GV-ENTRY-675A frontend validation failed.');
+console.log(`GV-ENTRY-675A frontend validation passed (${result.passedCount}/${result.checkCount}).`);

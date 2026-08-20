@@ -1,0 +1,19 @@
+GV-PROD-669C - Budget-Safe Route Recovery
+
+Modified:
+- generated-tour.js
+- services/global-route-graph.js
+
+Added:
+- validate-gv-prod-669c.js
+- VALIDATION_GV_PROD_669C.json
+- Run-GV-PROD-669C-Budget-Recovery-Smoke.ps1
+- GV-PROD-669C_REPORT.md
+- MANIFEST_GV_PROD_669C.txt
+
+Required new environment flag:
+- ENABLE_BUDGET_SAFE_ROUTE_RECOVERY_669C=true
+
+Required retained flags:
+- ENABLE_MVP_VALIDATION_REPAIRS_669B=true
+- ENABLE_VERIFIED_CITY_ACTIVATION_668T=true

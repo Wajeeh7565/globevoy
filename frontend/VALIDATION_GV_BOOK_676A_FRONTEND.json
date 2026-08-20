@@ -1,0 +1,132 @@
+{
+  "release": "GV-BOOK-676A",
+  "generatedAt": "2026-08-19T02:19:53.697Z",
+  "checkCount": 24,
+  "passedCount": 24,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "booking release meta updated or superseded",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend config version updated or superseded",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Duffel section present",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "sandbox language visible",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "combined-total proof described honestly",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "no single-payment promise",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "flight and stay resources disclosed",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "new stylesheet linked",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "new script linked after entry guard",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "API client has sandbox status method",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "API client has sandbox proof POST method",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "API calls only Globevoy backend",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Duffel token is never referenced in frontend",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend does not collect card data",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend does not create order",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend sends tour and estimates to backend",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "unlike currencies are not combined",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "test prices labelled non-live",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "entry guard includes Duffel action",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "mobile layout included",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "four-part total layout included",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "no automatic provider request on load",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "script exports release marker",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "new assets exist",
+      "passed": true,
+      "details": [
+        "scripts/booking-duffel-676a.js",
+        "styles/booking-duffel-676a.css"
+      ]
+    }
+  ]
+}

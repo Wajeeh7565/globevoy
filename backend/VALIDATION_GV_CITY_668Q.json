@@ -1,0 +1,299 @@
+{
+  "taskId": "GV-CITY-668Q",
+  "generatedAt": "2026-07-23T00:32:42.494Z",
+  "passed": 67,
+  "failed": 0,
+  "total": 67,
+  "checks": [
+    {
+      "name": "plan identifies GV-CITY-668Q",
+      "pass": true
+    },
+    {
+      "name": "plan status is final 155 coverage audit",
+      "pass": true
+    },
+    {
+      "name": "registry contains 1000 cities and 500 Expansion-500 cities",
+      "pass": true
+    },
+    {
+      "name": "668P source snapshot contains 845 unique audited cities",
+      "pass": true
+    },
+    {
+      "name": "668P source snapshot contains 420 active cities",
+      "pass": true
+    },
+    {
+      "name": "668P baseline contains 345 audited expansion cities",
+      "pass": true
+    },
+    {
+      "name": "exactly 155 expansion cities remain unaudited",
+      "pass": true
+    },
+    {
+      "name": "plan contains exactly 155 cities",
+      "pass": true
+    },
+    {
+      "name": "plan city IDs are unique",
+      "pass": true
+    },
+    {
+      "name": "all selected cities are Expansion-500",
+      "pass": true
+    },
+    {
+      "name": "no selected city was already audited in 668P",
+      "pass": true
+    },
+    {
+      "name": "all selected cities resolve in registry and static audit",
+      "pass": true
+    },
+    {
+      "name": "all final cities retain accepted Travelpayouts mappings",
+      "pass": true
+    },
+    {
+      "name": "all final cities remain product-review targets",
+      "pass": true
+    },
+    {
+      "name": "final wave contains 50 fully mapped cities",
+      "pass": true
+    },
+    {
+      "name": "final wave contains 105 Agoda-unresolved cities",
+      "pass": true
+    },
+    {
+      "name": "fully mapped lane comes before unresolved lane",
+      "pass": true
+    },
+    {
+      "name": "selected city order matches deterministic final-wave ordering",
+      "pass": true
+    },
+    {
+      "name": "all plan ranks are contiguous",
+      "pass": true
+    },
+    {
+      "name": "all priority scores match source calculations",
+      "pass": true
+    },
+    {
+      "name": "boundary IDs are stable",
+      "pass": true
+    },
+    {
+      "name": "all Smoke5 cities are present in the plan",
+      "pass": true
+    },
+    {
+      "name": "Smoke5 spans both audit lanes",
+      "pass": true
+    },
+    {
+      "name": "region distribution is exact",
+      "pass": true,
+      "details": {
+        "Africa": 44,
+        "Asia": 42,
+        "Europe": 17,
+        "Oceania": 24,
+        "Americas": 16,
+        "Other": 12
+      }
+    },
+    {
+      "name": "audit lane distribution is exact",
+      "pass": true,
+      "details": {
+        "fully-mapped-final-50": 50,
+        "agoda-unresolved-final-105": 105
+      }
+    },
+    {
+      "name": "Agoda unresolved status distribution is exact",
+      "pass": true,
+      "details": {
+        "resolved-fuzzy-alias": 2,
+        "resolved-exact": 30,
+        "resolved-alias": 3,
+        "resolved-coordinate": 14,
+        "resolved-nearby-market": 1,
+        "unresolved-country-absent-from-feed": 34,
+        "unresolved-no-safe-market": 71
+      }
+    },
+    {
+      "name": "plan summary baseline counts are exact",
+      "pass": true
+    },
+    {
+      "name": "plan summary lane counts are exact",
+      "pass": true
+    },
+    {
+      "name": "plan projects 500 Expansion-500 audited",
+      "pass": true
+    },
+    {
+      "name": "plan projects 1000 total audited and zero remaining",
+      "pass": true
+    },
+    {
+      "name": "plan reports 42 international-airport signals",
+      "pass": true
+    },
+    {
+      "name": "plan reports no preapproved gateway transfers",
+      "pass": true
+    },
+    {
+      "name": "priority score range is exact",
+      "pass": true
+    },
+    {
+      "name": "unresolved plan records never invent Agoda IDs",
+      "pass": true
+    },
+    {
+      "name": "final audit service is enabled and versioned",
+      "pass": true
+    },
+    {
+      "name": "service summary preserves 668P activation baseline",
+      "pass": true
+    },
+    {
+      "name": "service projection reports complete audit coverage",
+      "pass": true
+    },
+    {
+      "name": "service list returns all 155 plan rows",
+      "pass": true
+    },
+    {
+      "name": "service fully mapped filter returns 50",
+      "pass": true
+    },
+    {
+      "name": "service unresolved Agoda filter returns 105",
+      "pass": true
+    },
+    {
+      "name": "service Africa filter returns 44",
+      "pass": true
+    },
+    {
+      "name": "service text search resolves Moscow",
+      "pass": true
+    },
+    {
+      "name": "service lane filter returns final mapped 50",
+      "pass": true
+    },
+    {
+      "name": "668P activation remains current baseline",
+      "pass": true
+    },
+    {
+      "name": "Moscow remains unaudited before 668Q import",
+      "pass": true
+    },
+    {
+      "name": "Ndjamena remains unaudited before 668Q import",
+      "pass": true
+    },
+    {
+      "name": "fully mapped final city can exercise both provider paths",
+      "pass": true,
+      "details": "live-both"
+    },
+    {
+      "name": "injected mapped evidence cannot activate production",
+      "pass": true
+    },
+    {
+      "name": "Agoda-unresolved final city still audits flight evidence",
+      "pass": true
+    },
+    {
+      "name": "Agoda-unresolved final city remains inactive",
+      "pass": true
+    },
+    {
+      "name": "unresolved Agoda mapping does not call Agoda provider",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668Q summary endpoint works",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668Q list endpoint returns 155",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668Q unresolved filter returns 105",
+      "pass": true
+    },
+    {
+      "name": "Lambda activation endpoint remains on 668P",
+      "pass": true
+    },
+    {
+      "name": "668O Wave 2 endpoint remains preserved",
+      "pass": true
+    },
+    {
+      "name": "668Q plan endpoint is read-only",
+      "pass": true
+    },
+    {
+      "name": "runner supports Smoke5 and Final155 modes",
+      "pass": true
+    },
+    {
+      "name": "runner uses the 668Q final plan endpoint",
+      "pass": true
+    },
+    {
+      "name": "runner uses the protected provider verifier",
+      "pass": true
+    },
+    {
+      "name": "runner masks and does not persist the audit token",
+      "pass": true
+    },
+    {
+      "name": "runner projects 1000 audited and zero remaining",
+      "pass": true
+    },
+    {
+      "name": "runner supports resumable checkpoints",
+      "pass": true
+    },
+    {
+      "name": "runner exports all, active, review and live-result files",
+      "pass": true
+    },
+    {
+      "name": "runner includes the exact five smoke cities",
+      "pass": true
+    },
+    {
+      "name": "668Q flag-off disables only the plan service",
+      "pass": true
+    },
+    {
+      "name": "668Q flag-off does not change 668P activation",
+      "pass": true
+    }
+  ]
+}

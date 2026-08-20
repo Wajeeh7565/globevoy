@@ -1,0 +1,17 @@
+{
+  "version": "GV-TRUST-685B",
+  "generatedAt": "2026-08-19T02:19:53.152Z",
+  "passed": 12,
+  "failed": 0,
+  "changedFiles": [
+    "multicity-visualizer.html",
+    "scripts/multicity-visualizer-674a.js",
+    "scripts/budget-confidence-685b.js"
+  ],
+  "policy": {
+    "overBudget": "Over budget",
+    "providerBackedAllCritical": "Provider-backed fit",
+    "partialCriticalEvidence": "Planning estimate — verify price",
+    "noVerifiedCriticalEvidence": "Price verification required"
+  }
+}

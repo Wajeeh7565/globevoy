@@ -1,0 +1,40 @@
+GV-CITY-668F
+
+BASELINE
+lambda-gv-city-668e-agoda-quality-candidate-retrieval.zip
+
+AUTHORITATIVE INPUT
+GV-CITY-668E-Pilot100-20260717-204648-LIVE-RESULTS.json
+SHA-256: 7f5a836e1b003ae12df60198902f92d49ad3e4c9613d4fc38a3915f5022deab6
+
+CHANGED
+lambda.js
+server.js
+services/city-registry.js
+services/global-route-graph.js
+
+ADDED
+services/verified-city-activation.js
+build-gv-city-668f-activation.js
+data/provider-live-pilot-100-668e-source.json
+data/verified-city-activation-100-668f.json
+data/verified-city-production-active-56-668f.json
+data/verified-city-production-active-56-668f.csv
+data/verified-city-review-44-668f.json
+data/verified-city-review-44-668f.csv
+data/verified-city-retry-queues-668f.json
+Run-GV-CITY-668F-Activation-Smoke.ps1
+validate-gv-city-668f.js
+VALIDATION_GV_CITY_668F.json
+GV-CITY-668F_REPORT.md
+MANIFEST_GV_CITY_668F.txt
+
+ACTIVATION RESULT
+100 audited
+56 verified production-active capability
+44 reviewed inactive
+900 unaudited estimate-only
+
+NO FRONTEND CHANGES
+NO CREDENTIALS INCLUDED
+NO NEW LIVE PROVIDER CALLS DURING PACKAGING
