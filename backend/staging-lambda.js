@@ -9,8 +9,9 @@
 //   production without adding a second feature-flag environment variable.
 //
 // GV-DATA-701B adds one bounded read-only staging endpoint for the 701A
-// worldwide-registry overlay. It does not change the production handler or
-// generated-tour recommendation path.
+// worldwide-registry overlay. GV-REC-702A adds a second read-only endpoint for
+// deterministic global recommendation coverage auditing. Neither endpoint
+// changes the production handler or generated-tour recommendation path.
 //
 // IMPORTANT: configure the staging Lambda handler as `staging-lambda.handler`.
 // Do not use this entrypoint for the production function.
@@ -23,9 +24,17 @@ const {
   resolveWorldwideCity,
   searchWorldwideRegistry
 } = require('./services/worldwide-city-registry-701a');
+const {
+  VERSION: GLOBAL_COVERAGE_VERSION,
+  enabled: globalCoverageEnabled,
+  summary: globalCoverageSummary,
+  resolve: resolveGlobalCoverage,
+  search: searchGlobalCoverage
+} = require('./services/global-recommendation-coverage-702a');
 
 const VERSION = 'GV-PLATFORM-700A-STAGING-API-R1';
 const WORLDWIDE_API_VERSION = 'GV-DATA-701B';
+const GLOBAL_COVERAGE_API_VERSION = 'GV-REC-702A';
 const PRODUCTION_ORIGIN = 'https://globevoy.com';
 
 function headerValue(headers = {}, name = '') {
@@ -162,6 +171,81 @@ function handleWorldwideRegistryApi(event = {}, requestOrigin = '') {
   return worldwideApiResponse(200, { ...result, status: 'search' }, requestOrigin);
 }
 
+function globalCoverageApiResponse(statusCode, payload, requestOrigin) {
+  return {
+    statusCode,
+    headers: stagingHeaders(requestOrigin, { 'X-Globevoy-Audit': GLOBAL_COVERAGE_API_VERSION }),
+    body: JSON.stringify({
+      apiVersion: GLOBAL_COVERAGE_API_VERSION,
+      auditVersion: GLOBAL_COVERAGE_VERSION,
+      staging: true,
+      ...payload
+    })
+  };
+}
+
+function handleGlobalCoverageApi(event = {}, requestOrigin = '') {
+  if (eventMethod(event) !== 'GET') {
+    return globalCoverageApiResponse(405, { ok: false, error: 'GET required' }, requestOrigin);
+  }
+
+  const query = event.queryStringParameters || {};
+  const auditSummary = globalCoverageSummary();
+  const resolveInput = String(query.resolve || query.city || '').trim();
+  const hasSearch = Boolean(
+    String(query.q || query.query || '').trim()
+    || query.countryCode
+    || query.country
+    || query.region
+    || query.worldRegion
+    || query.tier
+    || query.selectionTier
+    || query.readiness
+    || query.readinessTier
+    || query.gap
+    || query.primaryGap
+    || query.active
+    || query.productionActive
+    || query.mapped
+    || query.bothProvidersMapped
+    || query.gateway
+    || query.requiresGatewayTransfer
+    || query.offset
+    || query.limit
+  );
+
+  if (!resolveInput && !hasSearch) {
+    return globalCoverageApiResponse(200, auditSummary, requestOrigin);
+  }
+
+  if (!globalCoverageEnabled()) {
+    return globalCoverageApiResponse(200, {
+      ok: true,
+      enabled: false,
+      status: 'feature-disabled',
+      counts: auditSummary.counts,
+      records: [],
+      disclaimer: auditSummary.disclaimer
+    }, requestOrigin);
+  }
+
+  if (resolveInput) {
+    const record = resolveGlobalCoverage(resolveInput, { countryCode: query.countryCode || query.country });
+    return globalCoverageApiResponse(200, {
+      ok: true,
+      enabled: true,
+      status: record ? 'resolved' : 'not-found',
+      mode: 'resolve',
+      found: Boolean(record),
+      record,
+      disclaimer: '702A resolution reports reviewed readiness evidence only; it never activates a city.'
+    }, requestOrigin);
+  }
+
+  const result = searchGlobalCoverage(query);
+  return globalCoverageApiResponse(200, { ...result, status: 'search' }, requestOrigin);
+}
+
 async function handler(event = {}) {
   const configuredOrigin = configuredStagingOrigin(process.env);
   const requestOrigin = normalizeHttpsOrigin(headerValue(event.headers || {}, 'origin'));
@@ -171,7 +255,7 @@ async function handler(event = {}) {
   }
 
   // The staging Function URL is browser-only. Missing or unknown origins fail
-  // before either the read-only staging endpoint or verified production handler executes.
+  // before either read-only staging endpoint or verified production handler executes.
   if (!requestOrigin) {
     return stagingError(403, 'staging-origin-required');
   }
@@ -181,6 +265,10 @@ async function handler(event = {}) {
 
   if (eventPath(event) === '/api/worldwide-city-registry') {
     return handleWorldwideRegistryApi(event, configuredOrigin);
+  }
+
+  if (eventPath(event) === '/api/global-recommendation-coverage') {
+    return handleGlobalCoverageApi(event, configuredOrigin);
   }
 
   // The verified 687B production runtime uses a trusted browser-origin marker
@@ -204,6 +292,7 @@ async function handler(event = {}) {
 module.exports = {
   VERSION,
   WORLDWIDE_API_VERSION,
+  GLOBAL_COVERAGE_API_VERSION,
   PRODUCTION_ORIGIN,
   handler,
   _internal: {
@@ -216,6 +305,8 @@ module.exports = {
     eventPath,
     eventMethod,
     worldwideApiResponse,
-    handleWorldwideRegistryApi
+    handleWorldwideRegistryApi,
+    globalCoverageApiResponse,
+    handleGlobalCoverageApi
   }
 };
