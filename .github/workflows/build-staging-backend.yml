@@ -77,6 +77,9 @@ jobs:
       - name: Validate staging-only high-confidence airport overlay
         run: node backend/validate-gv-rec-702f-d.js
 
+      - name: Validate staging five-origin final-live policy
+        run: node backend/validate-gv-flight-703b.js
+
       - name: Syntax checks
         run: |
           node --check backend/lambda.js
@@ -92,6 +95,7 @@ jobs:
           node --check backend/services/staging-reviewed-recovery-702d.js
           node --check backend/services/reviewed-activation-promotion-702e.js
           node --check backend/services/staging-gateway-foundation-702f-d.js
+          node --check backend/services/staging-duffel-five-origin-703b.js
           node --check backend/validate-gv-data-701b.js
           node --check backend/validate-gv-rec-702a.js
           node --check backend/validate-gv-rec-702b.js
@@ -102,6 +106,7 @@ jobs:
           node --check backend/validate-gv-rec-702d-r1.js
           node --check backend/validate-gv-rec-702e.js
           node --check backend/validate-gv-rec-702f-d.js
+          node --check backend/validate-gv-flight-703b.js
 
       - name: Build Lambda ZIP
         shell: bash
@@ -126,6 +131,8 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'services/staging-reviewed-recovery-702d.js'
           unzip -l "dist/${artifact}" | grep -q 'services/reviewed-activation-promotion-702e.js'
           unzip -l "dist/${artifact}" | grep -q 'services/staging-gateway-foundation-702f-d.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-five-origin-703b.js'
+          unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703b.js'
           unzip -l "dist/${artifact}" | grep -q 'data/gv-rec-702c-r2-reviewed-evidence-manifest.json'
           unzip -l "dist/${artifact}" | grep -q 'data/gv-rec-702e-promotion-manifest.json'
           unzip -l "dist/${artifact}" | grep -q 'data/gateway-foundation-corrections-702f-d.json'
@@ -139,7 +146,7 @@ jobs:
           Globevoy staging backend artifact
           Commit: ${GITHUB_SHA}
           Standard staging handler: staging-lambda.handler
-          702D/702F-D QA handler: staging-lambda-702d.handler
+          702D/702F-D/703B QA handler: staging-lambda-702d.handler
           Required staging origin: CORS_ORIGIN=https://staging.dy4fw8gx1ccie.amplifyapp.com/
           702D route-surface QA requires all of:
             ENABLE_VERIFIED_CITY_ACTIVATION_668T=true
@@ -149,13 +156,19 @@ jobs:
             ENABLE_PROVIDER_MAPPING_COMPLETION_668B=true
           702F-D preferred-airport QA additionally requires:
             ENABLE_STAGING_GATEWAY_FOUNDATION_702F_D=true
+          GV-FLIGHT-703B is code-only inside the staging QA wrapper and requires NO new AWS environment variable. With the exact staging CORS origin it installs only this 684A final-schedule origin policy:
+            GV_DUFFEL_PUBLIC_PILOT_ORIGINS_684A=YYZ,JFK,LAX,DUB,DXB
+          703B does NOT enable Duffel, add/copy DUFFEL_ACCESS_TOKEN, expand 684B discovery, increase request caps, or add booking/payment/ticketing capability.
+          684B affordable-flight discovery remains hard-allowlisted to YYZ only.
+          Live Duffel execution still requires the pre-existing 684A/683D dependency gates and a live token; those are intentionally NOT enabled by this package.
           The curated route surface remains 1,000 cities. 702D still limits staging QA live eligibility to 439 + 2 reviewed recoveries = 441.
           GV-REC-702F-D changes only nine in-memory staging preferred-airport mappings. It does not modify provider mappings, coordinates, activation, or the committed 1,000-city registry.
           GV-REC-702E is candidate-only. Its service/manifest are packaged for reproducible validation but are NOT imported by Lambda runtime and require NO environment variable.
           Do not treat 702E packaging as production activation approval or deployment.
+          Rollback for 703B: restore the prior staging backend artifact. No 703B AWS environment variable needs removal.
           Rollback for 702F-D QA: remove ENABLE_STAGING_GATEWAY_FOUNDATION_702F_D or restore the prior staging backend artifact.
           Rollback for 702D QA: restore handler staging-lambda.handler and remove ENABLE_STAGING_REVIEWED_RECOVERY_702D. Remove the two registry QA flags as well if returning to the earlier candidate surface.
-          Do not deploy the 702D/702F-D QA handler to the production Lambda.
+          Do not deploy the 702D/702F-D/703B QA handler to the production Lambda.
           EOF
           echo "Built ${artifact} (${bytes} bytes)"
 
