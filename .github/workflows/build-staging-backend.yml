@@ -71,6 +71,9 @@ jobs:
       - name: Validate curated 1000-city staging route surface
         run: node backend/validate-gv-rec-702d-r1.js
 
+      - name: Validate reviewed 439-to-441 activation candidate
+        run: node backend/validate-gv-rec-702e.js
+
       - name: Syntax checks
         run: |
           node --check backend/lambda.js
@@ -84,6 +87,7 @@ jobs:
           node --check backend/services/global-provider-recovery-smoke-plan-702c.js
           node --check backend/services/reviewed-recovery-overlay-702c-r2.js
           node --check backend/services/staging-reviewed-recovery-702d.js
+          node --check backend/services/reviewed-activation-promotion-702e.js
           node --check backend/validate-gv-data-701b.js
           node --check backend/validate-gv-rec-702a.js
           node --check backend/validate-gv-rec-702b.js
@@ -92,6 +96,7 @@ jobs:
           node --check backend/validate-gv-rec-702c-r2.js
           node --check backend/validate-gv-rec-702d.js
           node --check backend/validate-gv-rec-702d-r1.js
+          node --check backend/validate-gv-rec-702e.js
 
       - name: Build Lambda ZIP
         shell: bash
@@ -114,7 +119,9 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'services/global-provider-recovery-smoke-plan-702c.js'
           unzip -l "dist/${artifact}" | grep -q 'services/reviewed-recovery-overlay-702c-r2.js'
           unzip -l "dist/${artifact}" | grep -q 'services/staging-reviewed-recovery-702d.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/reviewed-activation-promotion-702e.js'
           unzip -l "dist/${artifact}" | grep -q 'data/gv-rec-702c-r2-reviewed-evidence-manifest.json'
+          unzip -l "dist/${artifact}" | grep -q 'data/gv-rec-702e-promotion-manifest.json'
           bytes=$(stat -c%s "dist/${artifact}")
           if [ "$bytes" -gt 52428800 ]; then
             echo "Lambda ZIP exceeds the 50 MB direct-upload limit: ${bytes} bytes"
@@ -134,7 +141,9 @@ jobs:
             ENABLE_UNIFIED_CITY_REGISTRY_668A=true
             ENABLE_PROVIDER_MAPPING_COMPLETION_668B=true
           The curated route surface is 1,000 cities, but verified activation still limits staging QA to 439 + 2 reviewed recoveries = 441.
-          Rollback: restore handler staging-lambda.handler and remove ENABLE_STAGING_REVIEWED_RECOVERY_702D. Remove the two registry QA flags as well if returning to the earlier candidate surface.
+          GV-REC-702E is candidate-only. Its service/manifest are packaged for reproducible validation but are NOT imported by Lambda runtime and require NO environment variable.
+          Do not treat 702E packaging as production activation approval or deployment.
+          Rollback for 702D QA: restore handler staging-lambda.handler and remove ENABLE_STAGING_REVIEWED_RECOVERY_702D. Remove the two registry QA flags as well if returning to the earlier candidate surface.
           Do not deploy the 702D QA handler to the production Lambda.
           EOF
           echo "Built ${artifact} (${bytes} bytes)"
