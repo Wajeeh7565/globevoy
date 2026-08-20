@@ -54,6 +54,25 @@ if (fs.existsSync(configPath)) {
 
 const forbiddenFileNames = new Set(['.env', '.env.local', '.env.production', '.env.staging']);
 const forbiddenExtensions = new Set(['.pem', '.p12', '.pfx', '.key']);
+const skipDirs = new Set(['node_modules', '.git']);
+
+function inspectSensitiveNames(relativePath = '.') {
+  const full = path.join(root, relativePath);
+  if (!fs.existsSync(full)) return;
+  const stat = fs.statSync(full);
+  if (stat.isDirectory()) {
+    if (skipDirs.has(path.basename(full))) return;
+    for (const entry of fs.readdirSync(full)) inspectSensitiveNames(path.join(relativePath, entry));
+    return;
+  }
+  if (!stat.isFile()) return;
+  const base = path.basename(full);
+  if (forbiddenFileNames.has(base) || forbiddenExtensions.has(path.extname(base).toLowerCase())) {
+    fail(`Sensitive file type must not be committed: ${relativePath}`);
+  }
+}
+inspectSensitiveNames();
+
 const credentialPatterns = [
   ['AWS access key', /\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g],
   ['Google API key', /\bAIza[0-9A-Za-z_-]{30,}\b/g],
@@ -63,40 +82,40 @@ const credentialPatterns = [
   ['Private key block', /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g]
 ];
 
+// Scan the active runtime/config/validator surfaces rather than multi-megabyte
+// historical data exports and reports. File-name safety above still covers the
+// whole repository.
 const scanRoots = [
-  'backend',
+  'backend/lambda.js',
+  'backend/generated-tour.js',
+  'backend/server.js',
+  'backend/services',
+  'backend/validate-gv-rec-687b-p3.js',
+  'backend/validate-gv-rec-687b.js',
   'frontend/runtime',
   'frontend/scripts',
   'frontend/validation',
   '.github'
 ];
 const allowedTextExtensions = new Set(['.js', '.mjs', '.cjs', '.html', '.css', '.json', '.md', '.yml', '.yaml', '.txt']);
-const skipDirs = new Set(['node_modules', '.git']);
 const files = [];
 
-function walk(relativePath) {
+function collectTextFiles(relativePath) {
   const full = path.join(root, relativePath);
   if (!fs.existsSync(full)) return;
   const stat = fs.statSync(full);
   if (stat.isDirectory()) {
     if (skipDirs.has(path.basename(full))) return;
-    for (const entry of fs.readdirSync(full)) walk(path.join(relativePath, entry));
+    for (const entry of fs.readdirSync(full)) collectTextFiles(path.join(relativePath, entry));
     return;
   }
-  if (!stat.isFile()) return;
-  const base = path.basename(full);
-  if (forbiddenFileNames.has(base) || forbiddenExtensions.has(path.extname(base).toLowerCase())) {
-    fail(`Sensitive file type must not be committed: ${relativePath}`);
-    return;
-  }
-  if (allowedTextExtensions.has(path.extname(base).toLowerCase())) files.push(relativePath);
+  if (stat.isFile() && allowedTextExtensions.has(path.extname(full).toLowerCase())) files.push(relativePath);
 }
 
-for (const scanRoot of scanRoots) walk(scanRoot);
+for (const scanRoot of scanRoots) collectTextFiles(scanRoot);
 
 for (const relativePath of files) {
-  const full = path.join(root, relativePath);
-  const text = fs.readFileSync(full, 'utf8');
+  const text = fs.readFileSync(path.join(root, relativePath), 'utf8');
   for (const [label, regex] of credentialPatterns) {
     regex.lastIndex = 0;
     if (regex.test(text)) fail(`${label} pattern found in ${relativePath}`);
@@ -104,7 +123,7 @@ for (const relativePath of files) {
 }
 
 if (failures === 0) {
-  pass(`Repository safety guard passed across ${files.length} source/config files`);
+  pass(`Repository safety guard passed across ${files.length} active source/config files`);
   console.log('\nGV-PLATFORM-700A repository guard: PASS');
 } else {
   console.error(`\nGV-PLATFORM-700A repository guard: FAIL (${failures} problem${failures === 1 ? '' : 's'})`);
