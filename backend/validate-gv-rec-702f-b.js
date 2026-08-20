@@ -9,7 +9,8 @@ const CSV = [
   '1,"MMUN","large_airport","Cancun International Airport",21.0365,-86.8771,20,"NA","MX","MX-ROO","Cancun","yes","MMUN","CUN","MMUN",,,,',
   '2,"MMTL","medium_airport","Tulum International Airport",20.1721,-87.6603,48,"NA","MX","MX-ROO","Tulum","yes","MMTL","TQO","MMTL",,,,',
   '3,"TEST","small_airport","Old Local Airport",20.2200,-87.4800,10,"NA","MX","MX-ROO","Tulum","no",,"OLD","TEST",,,,',
-  '4,"MZBZ","medium_airport","Philip S. W. Goldson International Airport",17.5391,-88.3082,15,"NA","BZ","BZ-BZ","Belize City","yes","MZBZ","BZE","MZBZ",,,,'
+  '4,"MZBZ","medium_airport","Philip S. W. Goldson International Airport",17.5391,-88.3082,15,"NA","BZ","BZ-BZ","Belize City","yes","MZBZ","BZE","MZBZ",,,,',
+  '5,"BGAM","heliport","Tasiilaq Heliport",65.612296,-37.618335,24,"NA","GL","GL-SM","Tasiilaq","yes",,"AGM","BGAM",,,,'
 ].join('\n');
 
 const city = {
@@ -35,6 +36,29 @@ const city = {
   }
 };
 
+const tasiilaq = {
+  cityId: 'tasiilaq-gl',
+  displayName: 'Tasiilaq',
+  country: 'Greenland',
+  countryCode: 'GL',
+  latitude: 65.6,
+  longitude: -37.683334,
+  selectionTier: 'expansion-500',
+  origin: {
+    preferredAirportCode: 'AGM',
+    airportCodes: ['AGM'],
+    requiresGatewayTransfer: false,
+    gateway: null
+  },
+  providers: {
+    travelpayouts: {
+      preferredAirportCode: 'AGM',
+      airportCodes: ['AGM'],
+      gateway: null
+    }
+  }
+};
+
 function main() {
   assert.strictEqual(enrichment.VERSION, 'GV-REC-702F-B');
   assert.strictEqual(source.commit, '55fd4071c99668a29f9d3625d72405c44074ef2f');
@@ -42,9 +66,11 @@ function main() {
   assert.strictEqual(source.policy.routingChanged, false);
 
   const parsed = enrichment.parseAirportsCsv(CSV);
-  assert.strictEqual(parsed.length, 4, 'all valid-IATA airport records should remain available for evidence comparison');
+  assert.strictEqual(parsed.length, 5, 'valid-IATA passenger-relevant airport and heliport records should remain available');
   assert.strictEqual(parsed.find(row => row.iata === 'OLD').scheduledService, false);
   assert.strictEqual(parsed.find(row => row.iata === 'TQO').scheduledService, true);
+  assert.strictEqual(parsed.find(row => row.iata === 'AGM').type, 'heliport');
+  assert.strictEqual(parsed.find(row => row.iata === 'AGM').scheduledService, true);
 
   const scheduled = parsed.filter(row => row.scheduledService);
   const byIata = new Map(parsed.map(row => [row.iata, row]));
@@ -68,21 +94,31 @@ function main() {
   assert.strictEqual(enriched.review.routingChanged, false);
   assert.strictEqual(enriched.review.automaticOverrideAllowed, false);
 
-  const report = enrichment.buildReport(CSV, { registryRecords: [city] });
-  assert.strictEqual(report.summary.curatedCityCount, 1);
+  const tasiilaqEnriched = enrichment.enrichCity(tasiilaq, scheduled, byIata);
+  assert.strictEqual(tasiilaqEnriched.currentMapping.preferredEvidence.status, 'scheduled-service-confirmed');
+  assert.strictEqual(tasiilaqEnriched.currentMapping.preferredEvidence.type, 'heliport');
+  assert.strictEqual(enrichment.localScheduledServiceStrong(tasiilaq, tasiilaqEnriched.currentMapping.preferredEvidence), true);
+  assert.strictEqual(tasiilaqEnriched.review.classification, 'current-mapping-confirmed', 'local scheduled passenger heliports must not be rejected just because they are heliports');
+  assert.strictEqual(tasiilaqEnriched.review.priority, 'none');
+
+  const report = enrichment.buildReport(CSV, { registryRecords: [city, tasiilaq] });
+  assert.strictEqual(report.summary.curatedCityCount, 2);
   assert.strictEqual(report.summary.preferredAirportExistsWithoutScheduledService, 1);
+  assert.strictEqual(report.summary.preferredAirportScheduledServiceConfirmed, 1);
   assert.strictEqual(report.summary.reviewQueueCount, 1);
+  assert.strictEqual(report.policy.scheduledPassengerHeliportsSupported, true);
   assert.strictEqual(report.policy.routingChanged, false);
   assert.strictEqual(report.policy.providerCallsPerformed, false);
-  assert.strictEqual(report.records.length, 1);
+  assert.strictEqual(report.records.length, 2);
 
-  console.log('GV-REC-702F-B validation PASS');
+  console.log('GV-REC-702F-B-R1 validation PASS');
   console.log(JSON.stringify({
     version: report.version,
     sourceCommit: report.source.commit,
     sourceBlob: report.source.gitBlobSha,
-    reviewClassification: report.records[0].review.classification,
-    generatedCandidates: report.records[0].generatedCandidates.map(row => row.iata),
+    tulumReviewClassification: report.records[0].review.classification,
+    tasiilaqReviewClassification: report.records[1].review.classification,
+    scheduledPassengerHeliportsSupported: report.policy.scheduledPassengerHeliportsSupported,
     routingChanged: report.summary.routingChanged
   }, null, 2));
 }
