@@ -1,0 +1,54 @@
+{
+  "version": "GV-REC-702F-E-PERMANENT-FOUNDATION-CANDIDATE-R1",
+  "status": "reviewed-permanent-foundation-candidate",
+  "baseRegistry": {
+    "version": "GV-CITY-668B",
+    "path": "backend/data/unified-city-registry-1000-668b.json"
+  },
+  "sourceStagingQa": {
+    "version": "GV-REC-702F-D",
+    "manifestVersion": "GV-REC-702F-D-CORRECTIONS",
+    "manifestPath": "backend/data/gateway-foundation-corrections-702f-d.json",
+    "manifestGitBlobSha": "af91dcd1b0e4558710fd030c6a687322a771e2ea",
+    "stagingMergeCommit": "e22db6a05e6c5985613741699950b35e52b0068c"
+  },
+  "sourceOurAirports": {
+    "repository": "davidmegginson/ourairports-data",
+    "commit": "55fd4071c99668a29f9d3625d72405c44074ef2f",
+    "gitBlobSha": "b95a254e2d970ecb37320d645abced90c6d1a95f",
+    "file": "airports.csv"
+  },
+  "stagingValidation": {
+    "validatedDate": "2026-08-20",
+    "registryChecksPassed": 9,
+    "registryChecksTotal": 9,
+    "generatedTourOriginsPassed": 3,
+    "generatedTourOriginsTotal": 3,
+    "generatedTourOrigins": [
+      { "cityId": "beijing-cn", "expectedAirportCode": "PEK" },
+      { "cityId": "detroit-us", "expectedAirportCode": "DTW" },
+      { "cityId": "orlando-us", "expectedAirportCode": "MCO" }
+    ],
+    "effectiveStagingActiveBefore": 441,
+    "effectiveStagingActiveAfter": 441,
+    "activationChanged": false
+  },
+  "candidate": {
+    "correctionCount": 9,
+    "unchangedRecordCount": 991,
+    "preserveExistingAirportCodes": true,
+    "providerMappingsChanged": false,
+    "coordinatesChanged": false,
+    "activationChanged": false,
+    "onlyPreferredAirportAndAirportCodeOrderMayChange": true
+  },
+  "policy": {
+    "reviewOnly": true,
+    "runtimeWired": false,
+    "productionDeploymentPerformed": false,
+    "automaticProductionPromotionAllowed": false,
+    "requiresExplicitPromotionDecision": true,
+    "requiresExactItineraryVerification": true,
+    "productionMainUntouched": true
+  }
+}
