@@ -82,8 +82,10 @@ function registryRow(cityId) {
   });
 
   await check('real global route-graph diagnostics report 441 verified-active destinations', () => {
-    assert.strictEqual(generated?.diagnostics?.verifiedActivationEnabled, true);
-    assert.strictEqual(generated?.diagnostics?.verifiedActiveDestinationCount, 441);
+    const deterministic = generated?.diagnostics?.deterministicFallback;
+    assert.ok(deterministic, 'combined graph must retain deterministic fallback diagnostics');
+    assert.strictEqual(deterministic.verifiedActivationEnabled, true);
+    assert.strictEqual(deterministic.verifiedActiveDestinationCount, 441);
   });
 
   process.env.ENABLE_STAGING_REVIEWED_RECOVERY_702D = 'false';
