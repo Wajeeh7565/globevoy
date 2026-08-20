@@ -52,8 +52,6 @@ Current gates are:
 
 CI success means the source passed automated checks. It does not mean the change is approved for production.
 
-CI proof note: this branch contains a harmless documentation-only change solely to prove that the pull-request validation workflow executes after the workflow has landed on `staging`.
-
 ## Staging deployment boundary
 
 GV-PLATFORM-700A creates the GitHub staging branch and validation foundation only.
