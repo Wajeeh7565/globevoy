@@ -25,7 +25,60 @@ The audit is deliberately read-only. It answers:
 
 It does not call providers while calculating the audit.
 
-The known 668T baseline remains 439 production-active cities out of the curated 1,000. The remaining 561 are not automatically activated by 702A.
+## Observed 702A baseline
+
+The focused CI audit reconciled all 1,000 curated destinations and produced this deterministic snapshot:
+
+- curated destinations: **1,000**;
+- destination-eligible: **1,000**;
+- usable route identity: **1,000**;
+- Travelpayouts static mapping: **1,000**;
+- Agoda static mapping: **870**;
+- both static provider mappings: **870**;
+- audited in GV-CITY-668T: **1,000**;
+- production-active: **439**;
+- reviewed-inactive: **561**;
+- gateway-dependent: **53**;
+- mapped + reviewed-inactive: **431**;
+- foundation-gap: **130**.
+
+The key finding is that the next expansion bottleneck is **not city identity, route identity, or flight mapping**. All 1,000 already have those foundations. The largest immediate pools are:
+
+1. **431 mapped/reviewed-inactive cities** that already have both static provider mappings and need targeted evidence/re-audit work rather than blind mapping expansion;
+2. **130 foundation-gap cities**, all represented by missing stay-provider mapping in the current data.
+
+Primary blocker classification across the 561 reviewed-inactive cities is mutually exhaustive:
+
+- `retry-queue:missing-flight-observations`: **335**;
+- `missing-stay-provider-mapping`: **130**;
+- `retry-queue:flight-comfort-failure`: **44**;
+- `reviewed-not-production-active`: **30**;
+- `retry-queue:hotel-quality-failure`: **14**;
+- `retry-queue:no-live-hotel-rate`: **8**.
+
+Retry-queue membership can overlap, so operational queue counts are larger than primary-blocker counts:
+
+- missing flight observations: **423**;
+- unresolved Agoda mapping: **130**;
+- flight comfort failure: **54**;
+- hotel quality failure: **50**;
+- no live hotel rate: **51**.
+
+Regional production-active coverage in the reviewed 668T snapshot:
+
+- Europe: **139 / 225 (61.8%)**;
+- Asia: **126 / 238 (52.9%)**;
+- Americas: **95 / 266 (35.7%)**;
+- Other: **21 / 58 (36.2%)**;
+- Oceania: **20 / 72 (27.8%)**;
+- Africa: **38 / 141 (27.0%)**.
+
+Selection-tier coverage shows the strongest imbalance:
+
+- current-500: **318 / 500 (63.6%)** production-active;
+- expansion-500: **121 / 500 (24.2%)** production-active.
+
+This means later 702 work should prioritize evidence recovery and regional/expansion-tier balance before simply widening the recommendation candidate pool.
 
 ## Readiness tiers
 
@@ -99,7 +152,9 @@ Every 702A record therefore exposes:
 
 ## Intended next use
 
-702A should identify the highest-value expansion pools for later 702 phases. In particular, `mapped-reviewed-inactive` cities are candidates for targeted provider re-audit because their static foundation is already present. They are not automatic activation candidates.
+The audit changes the recommended sequence for later 702 phases. The highest-leverage next pool is the **431 mapped/reviewed-inactive cities**, especially the 335 whose primary blocker is missing flight observations. Those cities have more supporting foundation than the 130 cities still missing stay mappings.
+
+No city should become production-active merely because it appears in this pool. Later work must preserve the reviewed activation gate and exact route/date/price verification.
 
 ## Deployment
 
