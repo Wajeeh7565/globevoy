@@ -48,7 +48,7 @@ function parseAirportsCsv(text) {
     const latitude = finite(cells[index.latitude_deg]);
     const longitude = finite(cells[index.longitude_deg]);
     const scheduled = lower(cells[index.scheduled_service]) === 'yes';
-    if (!scheduled || !validIata(iata) || latitude == null || longitude == null || !ALLOWED_TYPES.has(type)) continue;
+    if (!validIata(iata) || latitude == null || longitude == null || !ALLOWED_TYPES.has(type)) continue;
     rows.push({
       iata,
       type,
@@ -57,7 +57,7 @@ function parseAirportsCsv(text) {
       longitude,
       countryCode: upper(cells[index.iso_country]),
       municipality: clean(cells[index.municipality]),
-      scheduledService: true
+      scheduledService: scheduled
     });
   }
   return rows;
@@ -96,6 +96,7 @@ function candidateScore(city, airport, distanceKm) {
 function nearbyCandidates(city, airports, limit = 8) {
   const out = [];
   for (const airport of airports) {
+    if (airport.scheduledService !== true) continue;
     const km = haversineKm(city, airport);
     const sameCountry = upper(city.countryCode) === upper(airport.countryCode);
     if ((sameCountry && km > 400) || (!sameCountry && km > 200)) continue;
@@ -191,10 +192,11 @@ function enrichCity(city, airports, byIata) {
 }
 
 function buildReport(csvText, options = {}) {
-  const airports = parseAirportsCsv(csvText);
-  const byIata = new Map(airports.map(row => [row.iata, row]));
+  const allAirports = parseAirportsCsv(csvText);
+  const scheduledAirports = allAirports.filter(row => row.scheduledService === true);
+  const byIata = new Map(allAirports.map(row => [row.iata, row]));
   const cities = Array.isArray(options.registryRecords) ? options.registryRecords : (registry.records || []);
-  const records = cities.map(city => enrichCity(city, airports, byIata));
+  const records = cities.map(city => enrichCity(city, scheduledAirports, byIata));
   const counts = {};
   for (const row of records) counts[row.review.classification] = (counts[row.review.classification] || 0) + 1;
   const reviewQueue = records.filter(row => row.review.priority !== 'none')
@@ -219,9 +221,12 @@ function buildReport(csvText, options = {}) {
     },
     summary: {
       curatedCityCount: records.length,
-      eligibleScheduledServiceAirportCount: airports.length,
+      iataAirportRecordCount: allAirports.length,
+      eligibleScheduledServiceAirportCount: scheduledAirports.length,
       citiesWithNearbyCandidates: records.filter(row => row.generatedCandidates.length > 0).length,
       preferredAirportScheduledServiceConfirmed: records.filter(row => row.currentMapping.preferredEvidence?.scheduledService).length,
+      preferredAirportExistsWithoutScheduledService: records.filter(row => row.currentMapping.preferredEvidence?.status === 'no-scheduled-service').length,
+      preferredAirportNotFoundInSnapshot: records.filter(row => row.currentMapping.preferredEvidence?.status === 'not-found-in-pinned-ourairports').length,
       existingGatewayCount: records.filter(row => row.currentMapping.existingGatewayCode).length,
       existingGatewayScheduledServiceConfirmed: records.filter(row => row.currentMapping.existingGatewayEvidence?.scheduledService).length,
       reviewQueueCount: reviewQueue.length,
