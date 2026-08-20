@@ -1,6 +1,6 @@
 # Globevoy
 
-This private repository now tracks the current validated Globevoy source baseline.
+This private repository tracks the current validated Globevoy source baseline.
 
 ## Current baseline
 
@@ -11,6 +11,6 @@ This private repository now tracks the current validated Globevoy source baselin
 
 `backend/` mirrors the current Lambda package source tree. `frontend/` mirrors the current Amplify frontend package source tree.
 
-The repository does not contain Lambda environment values or server-side provider credentials. By default, the GitHub sync also replaces the concrete Google Maps browser key in `frontend/runtime/config.js` with a placeholder. Configure that restricted browser key during deployment rather than storing it in Git.
+The repository does not contain Lambda environment values or server-side provider credentials. The concrete Google Maps browser key in `frontend/runtime/config.js` is replaced with a placeholder for source control and should be configured securely during deployment.
 
-Production deployment is a separate action. Pushing this branch does not deploy AWS and does not modify `main`.
+`main` is the canonical source branch. Source-control changes do not by themselves deploy AWS unless an external deployment integration is configured to react to `main`.
