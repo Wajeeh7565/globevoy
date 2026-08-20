@@ -45,7 +45,7 @@ jobs:
         run: |
           node --check backend/services/permanent-gateway-foundation-candidate-702f-e.js
           node --check backend/validate-gv-rec-702f-e.js
-          node backend/validate-gv-rec-702f-e.js
+          ENABLE_VERIFIED_CITY_ACTIVATION_668T=true node backend/validate-gv-rec-702f-e.js
 
       - name: Generate full candidate registry artifact
         shell: bash
