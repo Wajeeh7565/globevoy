@@ -4,7 +4,7 @@
 window.GLOBEVOY_CONFIG = {
   googleMapsApiKey: "YOUR_RESTRICTED_GOOGLE_MAPS_BROWSER_KEY",
   enableLiveApi: true,
-  apiBaseUrl: "https://7pibv4zp7tzx7qcyrymwsh44ta0wtrei.lambda-url.us-east-2.on.aws",
+  apiBaseUrl: "https://mirksnjcjim4iowstuda4lesrm0ghmfw.lambda-url.us-east-2.on.aws",
   apiTimeoutMs: 20000,
   mapFirstThreePicksEnabled: true,
   topSwitchThreePicksEnabled: true,
