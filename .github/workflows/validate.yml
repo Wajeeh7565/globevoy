@@ -63,6 +63,9 @@ jobs:
       - name: Global recovery priority 702B-R1 summary routing
         run: node backend/validate-gv-rec-702b-r1.js
 
+      - name: Bounded provider recovery Smoke10 plan 702C
+        run: node backend/validate-gv-rec-702c.js
+
       - name: Frontend 687B exact + regression validation
         run: node frontend/validation/validate-gv-rec-687b-frontend.js
 
@@ -76,11 +79,13 @@ jobs:
           node --check backend/services/worldwide-city-registry-701a.js
           node --check backend/services/global-recommendation-coverage-702a.js
           node --check backend/services/global-recovery-priority-702b.js
+          node --check backend/services/global-provider-recovery-smoke-plan-702c.js
           node --check backend/validate-gv-data-701a.js
           node --check backend/validate-gv-data-701b.js
           node --check backend/validate-gv-rec-702a.js
           node --check backend/validate-gv-rec-702b.js
           node --check backend/validate-gv-rec-702b-r1.js
+          node --check backend/validate-gv-rec-702c.js
           node --check frontend/runtime/api-client.js
           node --check frontend/validation/validate-gv-data-701c.js
           node --check frontend/scripts/multicity-visualizer-687b.js
