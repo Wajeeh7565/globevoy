@@ -69,6 +69,9 @@ jobs:
       - name: Reviewed recovery projection 702C-R2
         run: node backend/validate-gv-rec-702c-r2.js
 
+      - name: Staging-only reviewed recovery QA 702D
+        run: node backend/validate-gv-rec-702d.js
+
       - name: Frontend 687B exact + regression validation
         run: node frontend/validation/validate-gv-rec-687b-frontend.js
 
@@ -77,6 +80,7 @@ jobs:
         run: |
           node --check backend/lambda.js
           node --check backend/staging-lambda.js
+          node --check backend/staging-lambda-702d.js
           node --check backend/generated-tour.js
           node --check backend/services/route-diversity-687b.js
           node --check backend/services/worldwide-city-registry-701a.js
@@ -84,6 +88,7 @@ jobs:
           node --check backend/services/global-recovery-priority-702b.js
           node --check backend/services/global-provider-recovery-smoke-plan-702c.js
           node --check backend/services/reviewed-recovery-overlay-702c-r2.js
+          node --check backend/services/staging-reviewed-recovery-702d.js
           node --check backend/validate-gv-data-701a.js
           node --check backend/validate-gv-data-701b.js
           node --check backend/validate-gv-rec-702a.js
@@ -91,6 +96,7 @@ jobs:
           node --check backend/validate-gv-rec-702b-r1.js
           node --check backend/validate-gv-rec-702c.js
           node --check backend/validate-gv-rec-702c-r2.js
+          node --check backend/validate-gv-rec-702d.js
           node --check frontend/runtime/api-client.js
           node --check frontend/validation/validate-gv-data-701c.js
           node --check frontend/scripts/multicity-visualizer-687b.js
