@@ -1,0 +1,186 @@
+{
+  "taskId": "GV-PROD-669B",
+  "version": "GV-PROD-669B",
+  "generatedAt": "2026-07-22T22:50:01.686Z",
+  "passed": true,
+  "checkCount": 16,
+  "passedCount": 16,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "668T activation remains selected",
+      "passed": true,
+      "details": {
+        "version": "GV-CITY-668T"
+      }
+    },
+    {
+      "name": "439-city production allowlist remains unchanged",
+      "passed": true,
+      "details": {
+        "active": 439
+      }
+    },
+    {
+      "name": "1,000-city audit remains complete",
+      "passed": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCount": 1000,
+        "productionActiveCount": 439,
+        "directOrMetroCount": 412,
+        "gatewaySupportedCount": 27,
+        "auditedInactiveCount": 561,
+        "unauditedCount": 0,
+        "estimateOnlyCount": 561,
+        "providerCoveredCount": 492,
+        "recoveredActiveCount": 18,
+        "recoveryReviewedInactiveCount": 132,
+        "current500": {
+          "audited": 500,
+          "productionActive": 318,
+          "reviewedInactive": 182
+        },
+        "expansion500": {
+          "audited": 500,
+          "productionActive": 121,
+          "reviewedInactive": 379
+        },
+        "classificationCounts": {
+          "estimate-only": 43,
+          "gateway-supported": 29,
+          "live-both": 463,
+          "live-flights-only": 25,
+          "live-stays-only": 327,
+          "provider-error": 4,
+          "unresolved": 109
+        },
+        "activeModeCounts": {
+          "direct-or-metro": 412,
+          "gateway-supported": 27
+        },
+        "retryQueueCounts": {
+          "missing-flight-observations": 423,
+          "unresolved-agoda-mapping": 130,
+          "no-live-hotel-rate": 51,
+          "hotel-quality-failure": 50,
+          "flight-comfort-failure": 54
+        }
+      }
+    },
+    {
+      "name": "669B repair flag is enabled",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "New York parenthesized IATA resolves to New York",
+      "passed": true,
+      "details": {
+        "city": "New York",
+        "code": "JFK",
+        "airportCode": "JFK"
+      }
+    },
+    {
+      "name": "New York parenthesized IATA resolves to JFK",
+      "passed": true,
+      "details": {
+        "code": "JFK",
+        "airportCode": "JFK"
+      }
+    },
+    {
+      "name": "ordinary word New is not treated as airport code NEW",
+      "passed": true,
+      "details": {
+        "raw": "New York (JFK)",
+        "normalized": "new york",
+        "codes": [
+          "JFK"
+        ],
+        "cityPart": "new york",
+        "countryPart": ""
+      }
+    },
+    {
+      "name": "global fallback origin resolver also selects New York/JFK",
+      "passed": true,
+      "details": {
+        "city": "New York",
+        "airportCode": "JFK"
+      }
+    },
+    {
+      "name": "Montreal origin remains stable",
+      "passed": true,
+      "details": {
+        "city": "Montreal",
+        "airportCode": "YUL"
+      }
+    },
+    {
+      "name": "deterministic graph emits only production-active destinations",
+      "passed": true,
+      "details": {
+        "tourCount": 24,
+        "inactive": []
+      }
+    },
+    {
+      "name": "Havana is excluded from Montreal generated-route candidates",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "global fallback pool emits only production-active destinations",
+      "passed": true,
+      "details": {
+        "poolCount": 64,
+        "inactive": []
+      }
+    },
+    {
+      "name": "Havana is excluded from global fallback pool",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "final generated-tour safety gate rejects inactive Havana",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "final generated-tour safety gate accepts active New York",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "active destination hotel link is HTTPS and date-prefilled",
+      "passed": true,
+      "details": {
+        "city": "Guatemala City",
+        "booking": {
+          "provider": "Agoda",
+          "status": "prefilled-city-search",
+          "url": "https://www.agoda.com/search?city=12939&checkIn=2026-11-05&checkOut=2026-11-08&rooms=1&adults=1&children=0&currency=CAD&cid=1963873&tag=globevoy-tour-guatemala-city",
+          "label": "View stays in this city",
+          "specificHotel": false,
+          "prefilled": true,
+          "cityId": 12939,
+          "checkIn": "2026-11-05",
+          "checkOut": "2026-11-08",
+          "passengers": {
+            "adults": 1,
+            "children": 0,
+            "infants": 0,
+            "travellers": 1,
+            "seatCount": 1,
+            "rooms": 1
+          },
+          "finalPriceRequiresPartnerConfirmation": true
+        }
+      }
+    }
+  ]
+}

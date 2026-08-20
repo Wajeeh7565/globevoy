@@ -1,0 +1,502 @@
+{
+  "taskId": "GV-PROD-669D",
+  "version": "GV-PROD-669D",
+  "generatedAt": "2026-08-06T17:16:08.161Z",
+  "passed": true,
+  "checkCount": 35,
+  "passedCount": 35,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "668T activation remains selected",
+      "passed": true,
+      "details": {
+        "version": "GV-CITY-668T"
+      }
+    },
+    {
+      "name": "439-city production allowlist remains unchanged",
+      "passed": true,
+      "details": {
+        "active": 439
+      }
+    },
+    {
+      "name": "1,000-city audit remains complete",
+      "passed": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCount": 1000,
+        "productionActiveCount": 439,
+        "directOrMetroCount": 412,
+        "gatewaySupportedCount": 27,
+        "auditedInactiveCount": 561,
+        "unauditedCount": 0,
+        "estimateOnlyCount": 561,
+        "providerCoveredCount": 492,
+        "recoveredActiveCount": 18,
+        "recoveryReviewedInactiveCount": 132,
+        "current500": {
+          "audited": 500,
+          "productionActive": 318,
+          "reviewedInactive": 182
+        },
+        "expansion500": {
+          "audited": 500,
+          "productionActive": 121,
+          "reviewedInactive": 379
+        },
+        "classificationCounts": {
+          "estimate-only": 43,
+          "gateway-supported": 29,
+          "live-both": 463,
+          "live-flights-only": 25,
+          "live-stays-only": 327,
+          "provider-error": 4,
+          "unresolved": 109
+        },
+        "activeModeCounts": {
+          "direct-or-metro": 412,
+          "gateway-supported": 27
+        },
+        "retryQueueCounts": {
+          "missing-flight-observations": 423,
+          "unresolved-agoda-mapping": 130,
+          "no-live-hotel-rate": 51,
+          "hotel-quality-failure": 50,
+          "flight-comfort-failure": 54
+        }
+      }
+    },
+    {
+      "name": "669B repair flag remains enabled",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C budget recovery flag remains enabled",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669D exact-date/family flag is enabled",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "generated-tour version identifies 669D",
+      "passed": true,
+      "details": {
+        "version": "2.12.0-gv-rec-677d-destination-value-proximity"
+      }
+    },
+    {
+      "name": "two adults and one child require two planning rooms",
+      "passed": true,
+      "details": {
+        "adults": 2,
+        "children": 1,
+        "infants": 0,
+        "travellers": 3,
+        "seatCount": 3,
+        "flightFareUnits": 3,
+        "rooms": 2,
+        "maxAdultsPerRoom": 2,
+        "maxGuestsPerRoom": 2,
+        "configuredMaxGuestsPerRoom": 3,
+        "occupancyPolicyVersion": "GV-PROD-669D",
+        "familyOccupancyConservative": true,
+        "assumptions": {
+          "flightFareBasis": "per-passenger-observation-or-estimate",
+          "childFareRule": "one-seat-equivalent-per-child-for-planning; partner confirms exact child fare",
+          "infantFareRule": "ten-percent-planning-allowance; partner confirms exact infant fare",
+          "hotelRateBasis": "per-room-per-night",
+          "groundTransferRule": "public rail/bus estimates are per traveller; private/taxi estimates are per party"
+        }
+      }
+    },
+    {
+      "name": "family occupancy policy is labelled 669D",
+      "passed": true,
+      "details": {
+        "adults": 2,
+        "children": 1,
+        "infants": 0,
+        "travellers": 3,
+        "seatCount": 3,
+        "flightFareUnits": 3,
+        "rooms": 2,
+        "maxAdultsPerRoom": 2,
+        "maxGuestsPerRoom": 2,
+        "configuredMaxGuestsPerRoom": 3,
+        "occupancyPolicyVersion": "GV-PROD-669D",
+        "familyOccupancyConservative": true,
+        "assumptions": {
+          "flightFareBasis": "per-passenger-observation-or-estimate",
+          "childFareRule": "one-seat-equivalent-per-child-for-planning; partner confirms exact child fare",
+          "infantFareRule": "ten-percent-planning-allowance; partner confirms exact infant fare",
+          "hotelRateBasis": "per-room-per-night",
+          "groundTransferRule": "public rail/bus estimates are per traveller; private/taxi estimates are per party"
+        }
+      }
+    },
+    {
+      "name": "two adults without children remain one room",
+      "passed": true,
+      "details": {
+        "adults": 2,
+        "children": 0,
+        "infants": 0,
+        "travellers": 2,
+        "seatCount": 2,
+        "flightFareUnits": 2,
+        "rooms": 1,
+        "maxAdultsPerRoom": 2,
+        "maxGuestsPerRoom": 3,
+        "configuredMaxGuestsPerRoom": 3,
+        "occupancyPolicyVersion": "GV-PROD-669D",
+        "familyOccupancyConservative": false,
+        "assumptions": {
+          "flightFareBasis": "per-passenger-observation-or-estimate",
+          "childFareRule": "one-seat-equivalent-per-child-for-planning; partner confirms exact child fare",
+          "infantFareRule": "ten-percent-planning-allowance; partner confirms exact infant fare",
+          "hotelRateBasis": "per-room-per-night",
+          "groundTransferRule": "public rail/bus estimates are per traveller; private/taxi estimates are per party"
+        }
+      }
+    },
+    {
+      "name": "explicit larger room request remains honoured",
+      "passed": true,
+      "details": {
+        "adults": 2,
+        "children": 1,
+        "infants": 0,
+        "travellers": 3,
+        "seatCount": 3,
+        "flightFareUnits": 3,
+        "rooms": 3,
+        "maxAdultsPerRoom": 2,
+        "maxGuestsPerRoom": 2,
+        "configuredMaxGuestsPerRoom": 3,
+        "occupancyPolicyVersion": "GV-PROD-669D",
+        "familyOccupancyConservative": true,
+        "assumptions": {
+          "flightFareBasis": "per-passenger-observation-or-estimate",
+          "childFareRule": "one-seat-equivalent-per-child-for-planning; partner confirms exact child fare",
+          "infantFareRule": "ten-percent-planning-allowance; partner confirms exact infant fare",
+          "hotelRateBasis": "per-room-per-night",
+          "groundTransferRule": "public rail/bus estimates are per traveller; private/taxi estimates are per party"
+        }
+      }
+    },
+    {
+      "name": "family flight fare scales to three travellers",
+      "passed": true,
+      "details": {
+        "version": "GV-CONTROL-667D",
+        "unitAmountUsd": 100,
+        "unitBasis": "per-passenger-flight-fare",
+        "multiplier": 3,
+        "partyTotalUsd": 300,
+        "adults": 2,
+        "children": 1,
+        "infants": 0,
+        "travellers": 3,
+        "seatCount": 3
+      }
+    },
+    {
+      "name": "family stay scales to two rooms",
+      "passed": true,
+      "details": {
+        "estimatedNightlyUsd": 100,
+        "averageNightlyUsd": 100,
+        "estimatedNightlyAllRoomsUsd": 200,
+        "estimatedStayUsd": 400,
+        "totalStayUsd": 400,
+        "rooms": 2,
+        "adults": 2,
+        "children": 1,
+        "infants": 0,
+        "pricingIntegrity": {
+          "version": "GV-CONTROL-667D",
+          "nightlyPerRoomUsd": 100,
+          "roomCount": 2,
+          "nights": 2,
+          "partyStayTotalUsd": 400,
+          "adults": 2,
+          "children": 1,
+          "infants": 0,
+          "rateBasis": "per-room-per-night"
+        }
+      }
+    },
+    {
+      "name": "family pricing ledger exposes two rooms",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-CONTROL-667D",
+        "adults": 2,
+        "children": 1,
+        "infants": 0,
+        "travellers": 3,
+        "seatCount": 3,
+        "flightFareUnits": 3,
+        "rooms": 2,
+        "maxAdultsPerRoom": 2,
+        "maxGuestsPerRoom": 2,
+        "configuredMaxGuestsPerRoom": 3,
+        "occupancyPolicyVersion": "GV-PROD-669D",
+        "familyOccupancyConservative": true,
+        "assumptions": {
+          "flightFareBasis": "per-passenger-observation-or-estimate",
+          "childFareRule": "one-seat-equivalent-per-child-for-planning; partner confirms exact child fare",
+          "infantFareRule": "ten-percent-planning-allowance; partner confirms exact infant fare",
+          "hotelRateBasis": "per-room-per-night",
+          "groundTransferRule": "public rail/bus estimates are per traveller; private/taxi estimates are per party"
+        },
+        "totalTransportEstimateUsd": 300,
+        "routeTransportEstimateUsd": 300,
+        "originAccessEstimateUsd": 0,
+        "originAccess": null,
+        "destinationAccessEstimateUsd": 0,
+        "destinationAccesses": [],
+        "totalHotelEstimateUsd": 400,
+        "estimatedTotalUsd": 700,
+        "finalProviderPriceRequired": true
+      }
+    },
+    {
+      "name": "exact date window is recognized",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-11-05",
+        "returnDate": "2026-11-11",
+        "nights": 6
+      }
+    },
+    {
+      "name": "flexible request does not become exact",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "invalid reversed exact window is rejected",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "exact-date night allocation matches requested duration",
+      "passed": true,
+      "details": [
+        4,
+        2
+      ]
+    },
+    {
+      "name": "six-night two-stop route preserves two-night minimum",
+      "passed": true,
+      "details": [
+        4,
+        2
+      ]
+    },
+    {
+      "name": "exact departure date is preserved",
+      "passed": true,
+      "details": [
+        "2026-11-05",
+        "2026-11-08",
+        "2026-11-11"
+      ]
+    },
+    {
+      "name": "exact return date is preserved",
+      "passed": true,
+      "details": [
+        "2026-11-05",
+        "2026-11-08",
+        "2026-11-11"
+      ]
+    },
+    {
+      "name": "intermediate dates remain chronological",
+      "passed": true,
+      "details": [
+        "2026-11-05",
+        "2026-11-08",
+        "2026-11-11"
+      ]
+    },
+    {
+      "name": "stop windows synchronize to exact leg dates",
+      "passed": true,
+      "details": [
+        {
+          "cityId": "a",
+          "city": "A",
+          "country": "One",
+          "code": "AAA",
+          "airportCode": "AAA",
+          "nights": 3,
+          "arrivalDate": "2026-11-05",
+          "departureDate": "2026-11-08",
+          "dateSource": "user-requested-exact-date-669d"
+        },
+        {
+          "cityId": "b",
+          "city": "B",
+          "country": "Two",
+          "code": "BBB",
+          "airportCode": "BBB",
+          "nights": 3,
+          "arrivalDate": "2026-11-08",
+          "departureDate": "2026-11-11",
+          "dateSource": "user-requested-exact-date-669d"
+        }
+      ]
+    },
+    {
+      "name": "stale provider dates are removed rather than relabelled",
+      "passed": true,
+      "details": [
+        {
+          "mode": "flight",
+          "from": {
+            "code": "SAN"
+          },
+          "to": {
+            "code": "AAA"
+          },
+          "departureDate": "2026-11-05",
+          "airline": null,
+          "dateLabel": "2026-11-05",
+          "dateSource": "user-requested-exact-date-669d",
+          "automaticTourDate": {
+            "departureDate": "2026-11-05",
+            "source": "user-requested-exact-date-669d",
+            "providerBacked": false,
+            "exactDateRequested": true
+          }
+        },
+        {
+          "mode": "flight",
+          "from": {
+            "code": "AAA"
+          },
+          "to": {
+            "code": "BBB"
+          },
+          "departureDate": "2026-11-08",
+          "airline": null,
+          "dateLabel": "2026-11-08",
+          "dateSource": "user-requested-exact-date-669d",
+          "automaticTourDate": {
+            "departureDate": "2026-11-08",
+            "source": "user-requested-exact-date-669d",
+            "providerBacked": false,
+            "exactDateRequested": true
+          }
+        },
+        {
+          "mode": "flight",
+          "from": {
+            "code": "BBB"
+          },
+          "to": {
+            "code": "SAN"
+          },
+          "departureDate": "2026-11-11",
+          "airline": null,
+          "dateLabel": "2026-11-11",
+          "dateSource": "user-requested-exact-date-669d",
+          "automaticTourDate": {
+            "departureDate": "2026-11-11",
+            "source": "user-requested-exact-date-669d",
+            "providerBacked": false,
+            "exactDateRequested": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "exact-date metadata states provider evidence is still required",
+      "passed": true,
+      "details": {
+        "version": "GV-PROD-669D",
+        "departureDate": "2026-11-05",
+        "returnDate": "2026-11-11",
+        "nights": 6,
+        "preserved": true,
+        "providerEvidenceStillRequiredForExactFare": true
+      }
+    },
+    {
+      "name": "exact itinerary is internally consistent",
+      "passed": true,
+      "details": {
+        "consistent": true,
+        "issues": []
+      }
+    },
+    {
+      "name": "exact-date selection never substitutes a cheaper later flight",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-11-05",
+        "price": 500
+      }
+    },
+    {
+      "name": "missing exact observation stays missing",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "exact mode filters provider observations to the target date",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "exact dates are reapplied before final visualizer output",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "669C bounded budget recovery remains packaged",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "family occupancy uses conservative two-guest default",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "San Diego origin remains SAN",
+      "passed": true,
+      "details": {
+        "city": "San Diego",
+        "airportCode": "SAN"
+      }
+    },
+    {
+      "name": "Los Angeles origin remains LAX",
+      "passed": true,
+      "details": {
+        "city": "Los Angeles",
+        "airportCode": "LAX"
+      }
+    },
+    {
+      "name": "New York origin repair remains intact",
+      "passed": true,
+      "details": {
+        "city": "New York",
+        "airportCode": "JFK"
+      }
+    }
+  ]
+}

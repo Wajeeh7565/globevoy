@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Travel Preferences | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ba1a1a",
+                      "surface-container-highest": "#d3e4fe",
+                      "on-secondary-container": "#50627c",
+                      "surface-dim": "#cbdbf5",
+                      "surface-tint": "#006a65",
+                      "outline": "#6c7a78",
+                      "on-primary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-surface": "#0b1c30",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-background": "#0b1c30",
+                      "background": "#f8f9ff",
+                      "on-secondary-fixed-variant": "#364861",
+                      "inverse-primary": "#5bdad1",
+                      "on-surface-variant": "#3c4948",
+                      "secondary-container": "#cbdefd",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#00504c",
+                      "tertiary-fixed": "#66f8ef",
+                      "error-container": "#ffdad6",
+                      "tertiary": "#006a65",
+                      "surface-bright": "#f8f9ff",
+                      "primary": "#006a65",
+                      "on-secondary-fixed": "#071c33",
+                      "tertiary-container": "#00a8a1",
+                      "tertiary-fixed-dim": "#41dbd3",
+                      "surface-container-high": "#dce9ff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-container": "#003532",
+                      "outline-variant": "#bbc9c7",
+                      "primary-fixed-dim": "#5bdad1",
+                      "on-tertiary-container": "#003533",
+                      "inverse-surface": "#213145",
+                      "secondary-fixed-dim": "#b5c8e6",
+                      "secondary": "#4d5f7a",
+                      "secondary-fixed": "#d3e3ff",
+                      "surface": "#f8f9ff",
+                      "surface-container-low": "#eff4ff",
+                      "primary-container": "#08a8a0",
+                      "on-primary-fixed": "#00201e",
+                      "on-error": "#ffffff",
+                      "surface-variant": "#d3e4fe",
+                      "surface-container": "#e5eeff",
+                      "primary-fixed": "#7af6ed",
+                      "on-primary-fixed-variant": "#00504c",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed": "#00201e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xs": "4px",
+                      "md": "16px",
+                      "container-max": "1200px",
+                      "xl": "32px",
+                      "base": "4px",
+                      "gutter": "24px",
+                      "sm": "8px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+          .custom-scrollbar::-webkit-scrollbar {
+              width: 6px;
+          }
+          .custom-scrollbar::-webkit-scrollbar-track {
+              background: transparent;
+          }
+          .custom-scrollbar::-webkit-scrollbar-thumb {
+              background-color: #cbd5e1;
+              border-radius: 20px;
+          }
+      </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="original-stitch-code-html" name="gv-source-status"/></head>
+<body class="bg-background text-on-background font-body-sm min-h-screen flex flex-col gv-canonical" data-depth="1" data-nav-active="Account" data-signed-in="true"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Travel Preferences · Post-login · not connected to production data.</div>
+<!-- Top Navigation Area - Simplified for settings flow -->
+
+<main class="flex-grow flex justify-center py-xl px-md md:px-lg">
+<div class="w-full max-w-3xl">
+<!-- Header Section -->
+<div class="mb-xl text-center md:text-left">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-xs">Travel preferences</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">These preferences are optional and can be changed at any time.</p>
+</div>
+<form class="space-y-xl">
+<!-- 1. Travel Pace (Segmented Control) -->
+<section class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Travel Pace</h2>
+<div class="flex flex-col sm:flex-row bg-surface-container-low p-sm rounded-lg border border-outline-variant gap-xs">
+<label class="flex-1 text-center">
+<input class="peer sr-only" name="travel_pace" type="radio" value="relaxed"/>
+<div class="px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant cursor-pointer peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:font-bold hover:bg-surface-container-high transition-colors">
+                                Relaxed
+                            </div>
+</label>
+<label class="flex-1 text-center">
+<input checked="" class="peer sr-only" name="travel_pace" type="radio" value="balanced"/>
+<div class="px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant cursor-pointer peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:font-bold hover:bg-surface-container-high transition-colors">
+                                Balanced
+                            </div>
+</label>
+<label class="flex-1 text-center">
+<input class="peer sr-only" name="travel_pace" type="radio" value="fast"/>
+<div class="px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant cursor-pointer peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:font-bold hover:bg-surface-container-high transition-colors">
+                                Faster-paced
+                            </div>
+</label>
+</div>
+</section>
+<!-- 2. Preferred Multi-city size -->
+<section class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Preferred Multi-city size</h2>
+<div class="flex flex-col sm:flex-row bg-surface-container-low p-sm rounded-lg border border-outline-variant gap-xs">
+<label class="flex-1 text-center">
+<input checked="" class="peer sr-only" name="multi_city_size" type="radio" value="2"/>
+<div class="px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant cursor-pointer peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:font-bold hover:bg-surface-container-high transition-colors">
+                                2 cities
+                            </div>
+</label>
+<label class="flex-1 text-center">
+<input class="peer sr-only" name="multi_city_size" type="radio" value="3"/>
+<div class="px-md py-sm rounded-md font-label-md text-label-md text-on-surface-variant cursor-pointer peer-checked:bg-primary-container peer-checked:text-on-primary-container peer-checked:font-bold hover:bg-surface-container-high transition-colors">
+                                3 cities
+                            </div>
+</label>
+</div>
+</section>
+<!-- 3. Interests (Chips) -->
+<section class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Interests</h2>
+<div class="flex flex-wrap gap-sm">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="interest_food" type="checkbox"/>
+<div class="px-md py-sm border border-outline-variant rounded-full font-label-md text-label-md text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">restaurant</span> Food
+                            </div>
+</label>
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" name="interest_culture" type="checkbox"/>
+<div class="px-md py-sm border border-outline-variant rounded-full font-label-md text-label-md text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">museum</span> Culture
+                            </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="interest_nature" type="checkbox"/>
+<div class="px-md py-sm border border-outline-variant rounded-full font-label-md text-label-md text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">park</span> Nature
+                            </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="interest_nightlife" type="checkbox"/>
+<div class="px-md py-sm border border-outline-variant rounded-full font-label-md text-label-md text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">nightlife</span> Nightlife
+                            </div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" name="interest_adventure" type="checkbox"/>
+<div class="px-md py-sm border border-outline-variant rounded-full font-label-md text-label-md text-on-surface-variant peer-checked:bg-primary peer-checked:text-on-primary peer-checked:border-primary hover:bg-surface-container-low transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">hiking</span> Adventure
+                            </div>
+</label>
+</div>
+</section>
+<!-- 4. Default currency -->
+<section class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Default currency</h2>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer">
+<option value="cad">CAD - Canadian Dollar</option>
+<option value="usd">USD - US Dollar</option>
+<option value="eur">EUR - Euro</option>
+<option value="gbp">GBP - British Pound</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-md text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</section>
+<!-- 5. Hotel Preference (Dropdown) -->
+<section class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-md">Hotel Preference</h2>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer">
+<option value="balance">Best balance</option>
+<option value="location">Best location</option>
+<option value="value">Best value</option>
+<option value="rating">Higher guest rating</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-md text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</section>
+<!-- 6. Passport-aware Suggestions -->
+<section class="bg-surface-container-lowest p-lg rounded-xl border border-outline-variant shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container opacity-10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-sm mb-sm">
+<span class="material-symbols-outlined text-primary">public</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Passport-aware Suggestions</h2>
+</div>
+<div class="mb-sm">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs" for="passport">Passport nationality — optional</label>
+<div class="relative">
+<select class="w-full appearance-none bg-surface-container-lowest border border-outline-variant rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer" id="passport" name="passport">
+<option value="">Select a country...</option>
+<option value="ca">Canada</option>
+<option value="us">United States</option>
+<option value="uk">United Kingdom</option>
+<option value="au">Australia</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-md text-on-surface-variant">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">Used only for passport-aware suggestions when provided.</p>
+</div>
+<div class="flex items-start gap-xs mt-md bg-surface-container-high p-sm rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant mt-1">info</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant italic">This does not guarantee visa approval or entry eligibility.</p>
+</div>
+</div>
+</section>
+<!-- CTA -->
+<div class="flex justify-end gap-md pt-md border-t border-outline-variant">
+<button class="bg-surface-container-lowest border border-outline text-on-surface font-label-md text-label-md px-xl py-sm rounded-xl transition-colors hover:bg-surface-container-low shadow-sm active:scale-95 duration-100" type="button">
+Reset preferences
+</button>
+<button class="bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md px-xl py-sm rounded-xl transition-colors shadow-sm active:scale-95 duration-100 flex items-center gap-sm" type="button">
+<span>Save preferences</span>
+<span class="material-symbols-outlined text-[18px]">save</span>
+</button>
+</div>
+</form>
+</div>
+</main>
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

@@ -1,0 +1,168 @@
+{
+  "task": "GV-LINK-663A",
+  "generatedAt": "2026-07-14T05:55:49.942Z",
+  "mode": "offline-provider-unavailable-smoke",
+  "cases": [
+    {
+      "query": {
+        "origin": "Toronto",
+        "budget": "2000",
+        "currency": "CAD"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "route": [
+        "Toronto",
+        "Panama City",
+        "Cartagena",
+        "Toronto"
+      ],
+      "version": "1.8.0-gv-link-663a-bookable-links-provenance",
+      "flightLegCount": 3,
+      "groundLegCount": 0,
+      "flightLinkCount": 3,
+      "hotelStayCount": 2,
+      "hotelLinkCount": 2,
+      "priceProvenance": {
+        "version": "GV-LINK-663A",
+        "flightProviderCount": 0,
+        "flightEstimateCount": 3,
+        "groundEstimateCount": 0,
+        "hotelProviderCount": 0,
+        "hotelEstimateCount": 2,
+        "allPricesRequirePartnerConfirmation": true,
+        "description": "Each transport and stay amount is labelled as provider-backed/cached evidence or a planning estimate."
+      },
+      "passed": true
+    },
+    {
+      "query": {
+        "origin": "Montreal",
+        "budget": "1500",
+        "currency": "CAD"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "route": [
+        "Montreal",
+        "Portland (Maine)",
+        "Boston",
+        "Montreal"
+      ],
+      "version": "1.8.0-gv-link-663a-bookable-links-provenance",
+      "flightLegCount": 2,
+      "groundLegCount": 1,
+      "flightLinkCount": 2,
+      "hotelStayCount": 2,
+      "hotelLinkCount": 2,
+      "priceProvenance": {
+        "version": "GV-LINK-663A",
+        "flightProviderCount": 0,
+        "flightEstimateCount": 2,
+        "groundEstimateCount": 1,
+        "hotelProviderCount": 0,
+        "hotelEstimateCount": 2,
+        "allPricesRequirePartnerConfirmation": true,
+        "description": "Each transport and stay amount is labelled as provider-backed/cached evidence or a planning estimate."
+      },
+      "passed": true
+    },
+    {
+      "query": {
+        "origin": "Tehran",
+        "budget": "1500",
+        "currency": "CAD"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "route": [
+        "Tehran",
+        "Doha",
+        "Batumi",
+        "Tehran"
+      ],
+      "version": "1.8.0-gv-link-663a-bookable-links-provenance",
+      "flightLegCount": 3,
+      "groundLegCount": 0,
+      "flightLinkCount": 3,
+      "hotelStayCount": 2,
+      "hotelLinkCount": 2,
+      "priceProvenance": {
+        "version": "GV-LINK-663A",
+        "flightProviderCount": 0,
+        "flightEstimateCount": 3,
+        "groundEstimateCount": 0,
+        "hotelProviderCount": 0,
+        "hotelEstimateCount": 2,
+        "allPricesRequirePartnerConfirmation": true,
+        "description": "Each transport and stay amount is labelled as provider-backed/cached evidence or a planning estimate."
+      },
+      "passed": true
+    },
+    {
+      "query": {
+        "origin": "San Diego",
+        "budget": "1500",
+        "currency": "USD"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "route": [
+        "San Diego",
+        "Cancun",
+        "Campeche",
+        "San Diego"
+      ],
+      "version": "1.8.0-gv-link-663a-bookable-links-provenance",
+      "flightLegCount": 2,
+      "groundLegCount": 1,
+      "flightLinkCount": 2,
+      "hotelStayCount": 2,
+      "hotelLinkCount": 2,
+      "priceProvenance": {
+        "version": "GV-LINK-663A",
+        "flightProviderCount": 0,
+        "flightEstimateCount": 2,
+        "groundEstimateCount": 1,
+        "hotelProviderCount": 0,
+        "hotelEstimateCount": 2,
+        "allPricesRequirePartnerConfirmation": true,
+        "description": "Each transport and stay amount is labelled as provider-backed/cached evidence or a planning estimate."
+      },
+      "passed": true
+    },
+    {
+      "query": {
+        "origin": "London",
+        "budget": "1500",
+        "currency": "GBP"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "route": [
+        "London",
+        "Cairo",
+        "Batumi",
+        "London"
+      ],
+      "version": "1.8.0-gv-link-663a-bookable-links-provenance",
+      "flightLegCount": 3,
+      "groundLegCount": 0,
+      "flightLinkCount": 3,
+      "hotelStayCount": 2,
+      "hotelLinkCount": 2,
+      "priceProvenance": {
+        "version": "GV-LINK-663A",
+        "flightProviderCount": 0,
+        "flightEstimateCount": 3,
+        "groundEstimateCount": 0,
+        "hotelProviderCount": 0,
+        "hotelEstimateCount": 2,
+        "allPricesRequirePartnerConfirmation": true,
+        "description": "Each transport and stay amount is labelled as provider-backed/cached evidence or a planning estimate."
+      },
+      "passed": true
+    }
+  ],
+  "passed": true
+}

@@ -1,0 +1,45 @@
+{
+  "release": "GV-REC-677A",
+  "generatedAt": "2026-08-05T22:03:44.794Z",
+  "passed": true,
+  "checkCount": 7,
+  "passedCount": 7,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "677A frontend release marker is present",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677A visualizer version is active or superseded by R1",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "smart duration label helper is present",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "smart duration reason helper is present",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "result subtitle identifies smart duration",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "results context explains smart duration reason",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677A cache-busting visualizer reference is active",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

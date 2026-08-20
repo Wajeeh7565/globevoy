@@ -1,0 +1,165 @@
+{
+  "release": "GV-UX-674A",
+  "generatedAt": "2026-08-06T17:21:57.084Z",
+  "passed": true,
+  "checkCount": 19,
+  "passedCount": 19,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "674A generated-tour version is packaged",
+      "passed": true,
+      "details": "2.12.0-gv-rec-677d-destination-value-proximity"
+    },
+    {
+      "name": "674A route-control version is packaged",
+      "passed": true,
+      "details": "2.1.0-gv-ux-674a-choice-controls"
+    },
+    {
+      "name": "legacy auto nights=5 is ignored",
+      "passed": true,
+      "details": {
+        "version": "GV-UX-674A",
+        "mode": "adaptive",
+        "nights": 12,
+        "budgetUsd": 3000,
+        "perTravellerBudgetUsd": 3000,
+        "travellers": 1,
+        "reason": "Duration was selected from the total-group budget and traveller count, then route comfort checks limited the number of stops."
+      }
+    },
+    {
+      "name": "CAD 3000 adaptive duration is 10 nights",
+      "passed": true,
+      "details": {
+        "version": "GV-UX-674A",
+        "mode": "adaptive",
+        "nights": 10,
+        "budgetUsd": 2205,
+        "perTravellerBudgetUsd": 2205,
+        "travellers": 1,
+        "reason": "Duration was selected from the total-group budget and traveller count, then route comfort checks limited the number of stops."
+      }
+    },
+    {
+      "name": "explicit five-night choice is preserved",
+      "passed": true,
+      "details": {
+        "version": "GV-UX-674A",
+        "mode": "user-selected",
+        "nights": 5,
+        "reason": "The traveller selected the trip length or exact dates."
+      }
+    },
+    {
+      "name": "exact-date duration is preserved",
+      "passed": true,
+      "details": {
+        "version": "GV-UX-674A",
+        "mode": "exact-dates",
+        "nights": 7,
+        "reason": "The traveller selected the trip length or exact dates."
+      }
+    },
+    {
+      "name": "5 nights supports at most 2 stops",
+      "passed": true,
+      "details": 2
+    },
+    {
+      "name": "9 nights supports at most 2 stops",
+      "passed": true,
+      "details": 2
+    },
+    {
+      "name": "10 nights may support 3 stops",
+      "passed": true,
+      "details": 3
+    },
+    {
+      "name": "14 nights may support 3 stops",
+      "passed": true,
+      "details": 3
+    },
+    {
+      "name": "15 nights may support 4 stops",
+      "passed": true,
+      "details": 4
+    },
+    {
+      "name": "test route records resolved",
+      "passed": true,
+      "details": {
+        "origin": "toronto-ca",
+        "current": [
+          "aarhus-dk",
+          "aberdeen-gb"
+        ]
+      }
+    },
+    {
+      "name": "shuffle returns four replacement choices",
+      "passed": true,
+      "details": [
+        "Copenhagen",
+        "Bornholm",
+        "Reykjavik",
+        "Gothenburg"
+      ]
+    },
+    {
+      "name": "replacement choices are distinct",
+      "passed": true,
+      "details": [
+        "copenhagen-dk",
+        "bornholm-dk",
+        "reykjavik-is",
+        "gothenburg-se"
+      ]
+    },
+    {
+      "name": "replacement choices stay within the displayed budget estimate",
+      "passed": true,
+      "details": [
+        2130,
+        2165,
+        2125,
+        2150
+      ]
+    },
+    {
+      "name": "selected replacement is honoured",
+      "passed": true,
+      "details": {
+        "chosen": "bornholm-dk",
+        "actual": "bornholm-dk"
+      }
+    },
+    {
+      "name": "10-night route may add a third city when budget-safe",
+      "passed": true,
+      "details": {
+        "supported": true,
+        "count": 3,
+        "message": "Inverness added and route estimate kept inside budget."
+      }
+    },
+    {
+      "name": "5-night route blocks a third city",
+      "passed": true,
+      "details": {
+        "reason": "trip-max-stops",
+        "message": "This trip length and budget support up to 2 destination stops. Increase the trip length or budget before adding another city."
+      }
+    },
+    {
+      "name": "replacement-options API contract returns four choices",
+      "passed": true,
+      "details": {
+        "supported": true,
+        "count": 4
+      }
+    }
+  ]
+}

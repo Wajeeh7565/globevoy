@@ -1,0 +1,27 @@
+GV-CITY-668L — Current-500 Completion Activation Merge
+
+Changed:
+services/verified-city-activation.js
+
+Added:
+data/provider-live-current500-final145-668k-source.json
+data/provider-live-current500-final145-668k-source-VALIDATION.json
+data/verified-city-activation-545-668l.json
+data/verified-city-retry-queues-668l.json
+data/verified-city-production-active-322-668l.json
+data/verified-city-production-active-322-668l.csv
+data/verified-city-review-223-668l.json
+data/verified-city-review-223-668l.csv
+build-gv-city-668l-activation.js
+validate-gv-city-668l.js
+Run-GV-CITY-668L-Activation-Smoke.ps1
+VALIDATION_GV_CITY_668L.json
+GV-CITY-668L_REPORT.md
+MANIFEST_GV_CITY_668L.txt
+
+Feature flag:
+ENABLE_VERIFIED_CITY_ACTIVATION_668L=true
+
+No frontend files changed.
+No provider credentials included.
+No provider calls made during packaging.

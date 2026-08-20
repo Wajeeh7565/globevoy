@@ -1,0 +1,26 @@
+{
+  "release": "GV-PROD-673C",
+  "registryCities": 1000,
+  "productionActive": 439,
+  "activeWithCoordinates": 419,
+  "activeWithoutCoordinates": 20,
+  "verifiedLocalRepairs": [
+    "Miami, United States",
+    "Montego Bay, Jamaica"
+  ],
+  "providerHandoff": "Kiwi direct multi-city results path, explicitly beta; individual links retained",
+  "oneCheckoutGuaranteed": false,
+  "neutralFallbackCachedForActive": false,
+  "javascriptFilesChecked": 45,
+  "htmlFilesChecked": 58,
+  "localReferencesChecked": 407,
+  "missingLocalReferences": 0,
+  "kiwiFixturePath": "toronto-canada~miami-united-states~2026-08-29/miami-united-states~montego-bay-jamaica~2026-09-01/montego-bay-jamaica~toronto-canada~2026-09-03",
+  "miamiImageSha256": "265725fb0af94356f4173bf3c023f70dfc154858de7912efc2615855efd2c2d5",
+  "montegoBayImageSha256": "b541fb0220690e683413612e2f8f92406888746b886134ff2ab51f4b898d12b3",
+  "javascriptSyntax": "passed",
+  "kiwiUrlFixture": "passed",
+  "zipIntegrity": "passed",
+  "frontendZipSha256": "11df6532bde690703ec99e138223f11cf2f2bd50fb42e26dbdddf346b692ede1",
+  "frontendZipFiles": 189
+}

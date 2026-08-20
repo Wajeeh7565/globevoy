@@ -1,0 +1,28 @@
+{
+  "task": "GV-DATE-666B regression under gateway-aware budget",
+  "passed": 5,
+  "total": 5,
+  "checks": [
+    {
+      "name": "baseline generated",
+      "passed": true
+    },
+    {
+      "name": "date recalculation supported",
+      "passed": true
+    },
+    {
+      "name": "first date selected",
+      "passed": true
+    },
+    {
+      "name": "later dates chronological",
+      "passed": true
+    },
+    {
+      "name": "cities preserved",
+      "passed": true
+    }
+  ],
+  "note": "The inherited CAD 2000 Toronto/Tulum fixture now correctly fails after gateway transfers are included; CAD 3000 validates unchanged canonical date synchronization."
+}

@@ -1,0 +1,38 @@
+GV-CITY-668T — Recovery Wave 1 Merged Activation Snapshot
+
+Changed:
+- services/verified-city-activation.js
+
+Added:
+- build-gv-city-668t-activation.js
+- data/provider-live-inactive-recovery150-668s-source.json
+- data/provider-live-inactive-recovery-smoke5-668s-source.json
+- data/provider-live-inactive-recovery150-668s-source-VALIDATION.json
+- data/verified-city-activation-1000-668t.json
+- data/verified-city-retry-queues-668t.json
+- data/verified-city-production-active-439-668t.json
+- data/verified-city-production-active-439-668t.csv
+- data/verified-city-review-561-668t.json
+- data/verified-city-review-561-668t.csv
+- validate-gv-city-668s-results.js
+- validate-gv-city-668t.js
+- VALIDATION_GV_CITY_668T.json
+- Run-GV-CITY-668T-Activation-Smoke.ps1
+- GV-CITY-668T_REPORT.md
+- MANIFEST_GV_CITY_668T.txt
+
+Feature flag:
+- ENABLE_VERIFIED_CITY_ACTIVATION_668T=true
+
+Activation state:
+- registry audited: 1,000/1,000
+- production-active: 439
+- reviewed inactive: 561
+- unaudited: 0
+- Current-500: 500 audited, 318 active
+- Expansion-500: 500 audited, 121 active
+- recovered from 668S: 18 active
+
+Rollback:
+- disable ENABLE_VERIFIED_CITY_ACTIVATION_668T to cold-start on GV-CITY-668R
+- or redeploy the verified 668R backend package

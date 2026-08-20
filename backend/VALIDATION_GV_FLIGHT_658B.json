@@ -1,0 +1,16 @@
+{
+  "task": "GV-FLIGHT-658B",
+  "status": "passed_static_validation",
+  "scope": "backend-only chronological date-window guardrail",
+  "checks": [
+    "node syntax validation passed for generated-tour.js",
+    "first leg can still use six-month cheap-date scan",
+    "subsequent legs are filtered by minDepartureDate and maxDepartureDate",
+    "default later-leg window is 3 days, configurable with GV_FLIGHT_658B_LEG_WINDOW_DAYS",
+    "provider observations outside the trip window are rejected and replaced with automatic estimated dates",
+    "budget guardrail preserved",
+    "YUL display normalization inherited from 658A"
+  ],
+  "changedFiles": ["generated-tour.js"],
+  "frontendRequired": false
+}

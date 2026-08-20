@@ -1,0 +1,88 @@
+{
+  "task": "GV-LIVE-667B",
+  "version": "GV-LIVE-667B",
+  "passed": 19,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "canonical header total equals visible component total",
+      "passed": true
+    },
+    {
+      "name": "stale display budget is replaced",
+      "passed": true
+    },
+    {
+      "name": "canonical internal total equals transport plus stays",
+      "passed": true
+    },
+    {
+      "name": "injected flight and hotel responses are not production evidence",
+      "passed": true
+    },
+    {
+      "name": "test-only Agoda response is explicitly ineligible",
+      "passed": true
+    },
+    {
+      "name": "667b versions are exposed",
+      "passed": true
+    },
+    {
+      "name": "evidence counter is derived from final ledger",
+      "passed": true
+    },
+    {
+      "name": "summary total equals final visible ledger",
+      "passed": true
+    },
+    {
+      "name": "visualizer header uses canonical total",
+      "passed": true
+    },
+    {
+      "name": "visualizer card records carry canonical amounts",
+      "passed": true
+    },
+    {
+      "name": "provider flight button preserves exact route and date",
+      "passed": true
+    },
+    {
+      "name": "provider hotel link preserves exact stay dates",
+      "passed": true
+    },
+    {
+      "name": "Paris city search defaults to CDG",
+      "passed": true
+    },
+    {
+      "name": "explicit BVA includes airport access estimate",
+      "passed": true
+    },
+    {
+      "name": "Paris destination does not silently default to BVA",
+      "passed": true
+    },
+    {
+      "name": "frontend total prefers canonical visible total",
+      "passed": true
+    },
+    {
+      "name": "frontend no longer presents Agoda sample as production evidence",
+      "passed": true
+    },
+    {
+      "name": "frontend card amounts use canonical component records",
+      "passed": true
+    },
+    {
+      "name": "frontend cache version is 667b",
+      "passed": true
+    }
+  ],
+  "notes": [
+    "Provider calls use deterministic injected responses; injected evidence counts only when the validation-only switch is explicitly enabled.",
+    "Production evidence requires productionEligible=true and final prices remain confirmed on partner websites."
+  ]
+}

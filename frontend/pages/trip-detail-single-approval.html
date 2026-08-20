@@ -1,0 +1,265 @@
+<!-- Globevoy - Trip Detail (Final Approval) -->
+<!DOCTYPE html>
+<html lang="en" style=""><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Single-destination Trip Detail — Final Approval | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+
+
+
+
+
+<script src="../assets/vendor/tailwind.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#0a1d2a",
+                        "green-600": "#16885E",
+                        "surface": "#f6faff",
+                        "inverse-surface": "#21323f",
+                        "amber-100": "#FFF2CF",
+                        "surface-tint": "#4d5f7a",
+                        "on-tertiary-fixed-variant": "#604100",
+                        "on-tertiary-container": "#af7a00",
+                        "on-secondary-fixed": "#00201e",
+                        "tertiary": "#000000",
+                        "inverse-on-surface": "#e6f2ff",
+                        "surface-container-high": "#d8ebfc",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#071c33",
+                        "teal-600": "#008F89",
+                        "on-secondary": "#ffffff",
+                        "navy-950": "#071C33",
+                        "green-100": "#E4F5EC",
+                        "on-error": "#ffffff",
+                        "surface-container-low": "#ebf5ff",
+                        "background": "#f6faff",
+                        "surface-container-highest": "#d2e5f6",
+                        "purple-100": "#EEE9FF",
+                        "border": "#D7E0E7",
+                        "red-600": "#B93F45",
+                        "surface-variant": "#d2e5f6",
+                        "secondary-container": "#77f3ea",
+                        "tertiary-fixed": "#ffdead",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#000000",
+                        "primary-fixed-dim": "#b5c8e6",
+                        "teal-500": "#08A8A0",
+                        "secondary": "#006a65",
+                        "teal-100": "#E5F7F5",
+                        "on-primary-container": "#7385a1",
+                        "tertiary-fixed-dim": "#ffba39",
+                        "on-primary-fixed-variant": "#364861",
+                        "on-secondary-container": "#006f69",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "amber-600": "#E99B00",
+                        "ink": "#122232",
+                        "surface-warm": "#FFFAF0",
+                        "on-secondary-fixed-variant": "#00504c",
+                        "on-background": "#0a1d2a",
+                        "outline-variant": "#c4c6ce",
+                        "amber-500": "#FFB51B",
+                        "tertiary-container": "#281900",
+                        "surface-dim": "#c9dcee",
+                        "surface-bright": "#f6faff",
+                        "secondary-fixed": "#7af6ed",
+                        "outline": "#74777e",
+                        "surface-container": "#e0f0ff",
+                        "surface-soft": "#F4F7F9",
+                        "primary-fixed": "#d3e3ff",
+                        "on-tertiary-fixed": "#281900",
+                        "navy-900": "#0B2038",
+                        "secondary-fixed-dim": "#5bdad1",
+                        "primary-container": "#071c33",
+                        "on-surface-variant": "#44474d",
+                        "purple-600": "#7357E6",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#b5c8e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "separation": "64px",
+                        "control": "16px",
+                        "section": "24px",
+                        "max-width": "1280px",
+                        "major": "32px",
+                        "micro": "4px",
+                        "compact": "8px"
+                    },
+                    "fontFamily": {
+                        "h1-mobile": ["Inter"],
+                        "h3": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "h2": ["Inter"],
+                        "display-mobile": ["Inter"],
+                        "display": ["Inter"],
+                        "h1": ["Inter"],
+                        "small": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body": ["Inter"],
+                        "caption": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h1-mobile": ["30px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "h3": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h2": ["32px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "display": ["56px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "h1": ["40px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "small": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "caption": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="exact-recovered-html" name="gv-source-status"/></head>
+<body class="bg-surface text-on-surface font-body text-body antialiased gv-canonical" data-depth="1" data-nav-active="Explore" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Single-destination Trip Detail — Final Approval · Alternate · not connected to production data.</div>
+<!-- Top Navigation -->
+
+<!-- Breadcrumbs -->
+<div class="max-w-max-width mx-auto px-separation py-compact mt-4">
+<div class="flex items-center gap-2 font-small text-small text-on-surface-variant">
+<a class="hover:text-teal-600 flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                Back to results
+            </a>
+<span class="">/</span>
+<span class="">Explore results</span>
+<span class="">/</span>
+<span class="text-navy-950 font-medium">Montreal</span>
+</div>
+</div>
+<!-- Hero Section -->
+<div class="max-w-max-width mx-auto px-separation py-section">
+<div class="relative h-[400px] rounded-xl overflow-hidden group">
+<div class="absolute inset-0 bg-cover bg-center w-full h-full transition-transform duration-700 group-hover:scale-105" data-alt="A sweeping, high-quality photograph of Montreal, Canada, taken during the golden hour. The image captures the historic architecture of Old Montreal alongside modern skyscrapers, bathed in warm, optimistic light. The scene emphasizes a clean, editorial, and modern budget-first travel aesthetic, featuring deep navy and subtle amber hues reflecting off the St. Lawrence River." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAeo5gqIF1dccZQxvPM8-eGmTBJEqU1xvXgXs7MpKX9fU3jgKRqstSLmuGL4A6gKY0Zc505L8O04ZKVDLWxqU0IW_O8-AASbGMCARZrsw-6DnDxAENXma_Mt4c79On5ZkSTbYql0opVMgsGbxxbag3IgwmL5ijofX363E1ZCXsZGJW8qR1dKz6GycPapfiTIHKAcZ3SC8FVtTgGKcxDntKJtp6V56bSXPbj3acar_VJ2FmPw2A9O40r-EgbiAV67dh45C_dlW5zffg");'></div>
+<div class="absolute inset-0 bg-gradient-to-t from-navy-950/80 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-major w-full flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="text-surface">
+<span class="inline-block bg-teal-600 text-surface font-label-caps text-label-caps px-3 py-1 rounded-full mb-3 shadow-sm border border-teal-500/30">Lowest Cost</span>
+<h1 class="font-display text-display text-surface mb-2">Montreal, Canada</h1>
+<div class="flex flex-wrap items-center gap-x-4 gap-y-2 font-body text-body text-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">calendar_month</span> 5-night example trip</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">event_available</span> Flexible dates</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">flight_takeoff</span> From Toronto – YYZ</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[18px]">person</span> 1 traveller</span>
+</div>
+</div>
+<div class="text-surface-variant font-caption text-caption text-right bg-navy-950/50 backdrop-blur-sm p-3 rounded-lg border border-surface/10 text-small"><span class="flex items-center gap-1 justify-end mb-1"><span class="material-symbols-outlined text-[14px]">info</span> Planning estimates based on available travel data</span>All amounts are total-trip planning estimates for one traveller unless stated otherwise.</div>
+</div>
+</div>
+</div>
+<!-- Main Content Grid -->
+<main class="max-w-max-width mx-auto px-separation py-section mb-separation grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Details (8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-8">
+<!-- Why this trip fits -->
+<section class="bg-surface-soft border border-border p-major rounded-xl shadow-sm hover:shadow-md transition-shadow"><h2 class="font-h3 text-h3 text-navy-950 mb-4">Why this trip fits</h2><p class="font-body text-body text-on-surface-variant mb-6">Montreal offers one of the strongest combinations of affordable travel from Toronto, good accommodation value and easy city access. The estimated trip remains well below the C$900 planning limit.</p><div class="grid grid-cols-1 md:grid-cols-3 gap-4"><div class="flex items-start gap-3 bg-surface p-4 rounded-lg border border-border/50"><span class="material-symbols-outlined text-teal-600 bg-teal-100 p-2 rounded-full">schedule</span><div><span class="font-small text-small text-navy-950 block font-bold">Short and practical journey</span><span class="font-caption text-caption text-on-surface-variant">Quick flight or train</span></div></div><div class="flex items-start gap-3 bg-surface p-4 rounded-lg border border-border/50"><span class="material-symbols-outlined text-teal-600 bg-teal-100 p-2 rounded-full">hotel</span><div><span class="font-small text-small text-navy-950 block font-bold">Strong stay value</span><span class="font-caption text-caption text-on-surface-variant">Good value within the selected budget</span></div></div><div class="flex items-start gap-3 bg-surface p-4 rounded-lg border border-border/50"><span class="material-symbols-outlined text-teal-600 bg-teal-100 p-2 rounded-full">directions_walk</span><div><span class="font-small text-small text-navy-950 block font-bold">Walkable central neighbourhoods</span><span class="font-caption text-caption text-on-surface-variant">Save on transit</span></div></div></div></section>
+<!-- Budget Breakdown Card -->
+<section class="bg-surface border border-border p-major rounded-xl">
+<h3 class="font-h3 text-h3 text-navy-950 mb-6">Budget Breakdown</h3>
+<div class="mb-4">
+<div class="flex justify-between font-small text-small text-navy-950 mb-2">
+<span class="">Total Target: C$1,000</span>
+<span class="text-teal-600 font-bold">C$350 Remaining</span>
+</div>
+<div class="w-full h-4 bg-surface-container rounded-full overflow-hidden flex">
+<div class="bg-navy-950 h-full" style="width: 55%;" title="Planned Trip: C$550"></div>
+<div class="bg-amber-500 h-full border-l border-surface" style="width: 10%;" title="Reserve: C$100"></div>
+<div class="bg-surface-container h-full" style="width: 35%;"></div>
+</div>
+</div>
+<div class="flex gap-6 mt-4"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-navy-950"></div><span class="font-caption text-caption text-on-surface-variant">Planned trip (C$550)</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-amber-500"></div><span class="font-caption text-caption text-on-surface-variant">Protected reserve (C$100)</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-surface-container border border-border"></div><span class="font-caption text-caption text-on-surface-variant">Budget remaining (C$350)</span></div></div>
+</section>
+<!-- Flight & Stay Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Flight Card -->
+<div class="bg-surface-soft border border-border rounded-xl p-control flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<span class="bg-surface-container-high text-navy-950 font-label-caps text-label-caps px-2 py-1 rounded border border-border flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">flight</span> Flight Estimate</span>
+<span class="bg-teal-100 text-teal-600 font-label-caps text-label-caps px-2 py-1 rounded">Cached Data</span>
+</div>
+<h4 class="font-h3 text-h3 text-navy-950 mb-1">Toronto to Montreal</h4>
+<div class="font-h2 text-h2 text-navy-950 font-bold mb-4">C$250 <span class="font-small text-small font-normal text-on-surface-variant">/ round trip</span></div>
+<p class="font-caption text-caption text-on-surface-variant mt-2 italic">Final routes, baggage rules, availability and prices are confirmed on the flight partner website.</p></div>
+<button class="w-full mt-4 bg-surface border border-border text-navy-950 font-small text-small py-2 rounded-lg hover:bg-surface-container transition-colors flex items-center justify-center gap-2">
+                        Compare flight options <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+</div>
+<!-- Stay Card -->
+<div class="bg-surface-soft border border-border rounded-xl p-control flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<span class="bg-surface-container-high text-navy-950 font-label-caps text-label-caps px-2 py-1 rounded border border-border flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">hotel</span> Stay Estimate</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps px-2 py-1 rounded">Planning</span>
+</div>
+<h4 class="font-h3 text-h3 text-navy-950 mb-1">Montreal • 5 Nights</h4>
+<div class="font-h2 text-h2 text-navy-950 font-bold mb-4">C$300 <span class="font-small text-small font-normal text-on-surface-variant">Total (C$60/night)</span></div>
+<p class="font-small text-small text-navy-950 font-bold mb-2">Hotel preference: Best balance</p><p class="font-caption text-caption text-on-surface-variant mt-2 italic">Globevoy considers location, cleanliness, guest feedback and value—not only hotel star category.</p><p class="font-caption text-caption text-on-surface-variant mt-1 italic">Final room availability, taxes, policies and prices are confirmed on the accommodation partner website.</p></div>
+<button class="w-full mt-4 bg-surface border border-border text-navy-950 font-small text-small py-2 rounded-lg hover:bg-surface-container transition-colors flex items-center justify-center gap-2">
+                        Compare stay options <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+</div>
+</div>
+<!-- UI State 2: Partner link unavailable -->
+<div class="bg-error-container/50 border border-error/20 p-4 rounded-xl flex items-start gap-3"><span class="material-symbols-outlined text-error">warning</span><div class=""><p class="font-small text-small text-navy-950 font-bold">Partner options are temporarily unavailable</p><p class="font-caption text-caption text-on-surface-variant">Your trip plan and planning estimates are still available. Final prices and availability may change. Try again shortly.</p></div></div>
+<!-- Trip Structure Timeline -->
+<section class="bg-surface border border-border p-major rounded-xl"><div class="flex justify-between items-center mb-6"><h3 class="font-h3 text-h3 text-navy-950">Suggested planning outline</h3><span class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps px-2 py-1 rounded">Not a confirmed itinerary</span></div><div class="relative border-l-2 border-border ml-3 flex flex-col gap-8"><div class="relative pl-6"><div class="absolute -left-[9px] top-1 w-4 h-4 bg-surface border-2 border-teal-600 rounded-full"></div><h4 class="font-small text-small font-bold text-navy-950">Day 1: Arrival &amp; Orientation</h4><p class="font-caption text-caption text-on-surface-variant mt-1">Settle into accommodation, explore immediate neighborhood, initial grocery run for essentials.</p></div><div class="relative pl-6"><div class="absolute -left-[9px] top-1 w-4 h-4 bg-surface border-2 border-navy-950 rounded-full"></div><h4 class="font-small text-small font-bold text-navy-950">Day 2 - 4: Core Exploration</h4><p class="font-caption text-caption text-on-surface-variant mt-1">Focus on major free or low-cost sights: Mount Royal, Old Port walking tours, Plateau Mont-Royal street art.</p></div><div class="relative pl-6"><div class="absolute -left-[9px] top-1 w-4 h-4 bg-surface border-2 border-navy-950 rounded-full"></div><h4 class="font-small text-small font-bold text-navy-950">Day 5: Deep Dive</h4><p class="font-caption text-caption text-on-surface-variant mt-1">Allocate budget for one major paid experience (e.g., Museum of Fine Arts) or a slightly nicer meal.</p></div><div class="relative pl-6"><div class="absolute -left-[9px] top-1 w-4 h-4 bg-surface border-2 border-amber-500 rounded-full"></div><h4 class="font-small text-small font-bold text-navy-950">Day 6: Departure</h4><p class="font-caption text-caption text-on-surface-variant mt-1">Morning coffee in local cafe, transit to airport/station.</p></div></div></section>
+</div>
+<!-- Right Column: Sticky Summary Panel (4 cols) -->
+<div class="lg:col-span-4">
+<div class="sticky top-[88px] bg-surface-soft border border-border rounded-xl p-major shadow-sm flex flex-col gap-6">
+<div>
+<h3 class="font-h3 text-h3 text-navy-950 mb-4 border-b border-border pb-2">Financial Summary</h3>
+<div class="flex justify-between items-center py-2 border-t border-border/50 mt-2"><span class="font-body text-body text-on-surface-variant">Max Planning Budget</span><span class="font-body text-body font-medium text-navy-950">C$900</span></div><div class="flex justify-between items-center py-2"><span class="font-body text-body text-on-surface-variant">Flight Estimate</span><span class="font-body text-body font-medium text-navy-950">C$250</span></div><div class="flex justify-between items-center py-2"><span class="font-body text-body text-on-surface-variant">Stay Estimate</span><span class="font-body text-body font-medium text-navy-950">C$300</span></div><div class="flex justify-between items-center py-2">
+<span class="font-body text-body text-on-surface-variant">Trip Estimate</span>
+<span class="font-body text-body font-medium text-navy-950">C$550</span>
+</div>
+<div class="flex justify-between items-center py-2 text-amber-600">
+<span class="font-body text-body flex items-center gap-1">Protected Reserve <span class="material-symbols-outlined text-[16px]" title="10% buffer for unexpected costs">info</span></span>
+<span class="font-body text-body font-medium">C$100</span>
+</div>
+<div class="flex justify-between items-center py-4 mt-2 border-t border-border">
+<span class="font-h3 text-h3 font-bold text-navy-950">Total Budget</span>
+<span class="font-h3 text-h3 font-bold text-navy-950">C$1,000</span>
+</div>
+<div class="bg-teal-100 rounded-lg p-3 mt-2 flex justify-between items-center border border-teal-500/20">
+<span class="font-small text-small text-teal-600 font-bold">Budget Remaining</span>
+<span class="font-small text-small text-teal-600 font-bold">C$350</span>
+</div>
+</div>
+<!-- UI State 3: Partial pricing data warning -->
+<div class="bg-amber-100/50 border border-amber-500/30 p-3 rounded-lg flex items-start gap-2"><span class="material-symbols-outlined text-amber-600 text-[18px] mt-0.5">warning</span><p class="font-caption text-caption text-on-tertiary-fixed-variant">Some current pricing data is unavailable. We are showing a planning estimate until partner data can be confirmed. Airport-to-city transport may not be included.</p></div>
+<div class="flex flex-col gap-3 mt-4">
+<button class="w-full bg-amber-500 text-navy-950 font-small text-small font-bold py-3 px-4 rounded-lg hover:bg-amber-600 transition-colors shadow-sm active:scale-95 duration-150">Compare flight options <span class="material-symbols-outlined text-[16px] ml-2">open_in_new</span></button>
+<button class="w-full bg-surface border border-border text-navy-950 font-small text-small font-bold py-3 px-4 rounded-lg hover:bg-surface-container transition-colors active:scale-95 duration-150">Compare stay options <span class="material-symbols-outlined text-[16px] ml-2">open_in_new</span></button>
+</div>
+<!-- Map -->
+<div class="mt-4 rounded-lg overflow-hidden border border-border h-48 bg-surface-variant relative">
+<div class="absolute inset-0 bg-cover bg-center flex items-center justify-center text-on-surface-variant font-caption text-caption" data-location="Toronto to Montreal map route"><div class="flex flex-col items-center justify-center w-full h-full p-4 bg-surface-container-low"><div class="flex items-center gap-4 w-full max-w-[200px]"><div class="flex flex-col items-center"><div class="w-3 h-3 rounded-full bg-navy-950"></div><span class="text-[10px] font-bold mt-1">YYZ</span></div><div class="flex-1 h-[2px] bg-gradient-to-r from-navy-950 to-teal-600 relative"><span class="material-symbols-outlined absolute -top-2 left-1/2 -translate-x-1/2 text-teal-600 text-[16px]">flight</span></div><div class="flex flex-col items-center"><div class="w-3 h-3 rounded-full bg-teal-600"></div><span class="text-[10px] font-bold mt-1">YUL</span></div></div><span class="mt-4 font-label-caps text-[10px] text-on-surface-variant">Toronto to Montreal Route</span></div></div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

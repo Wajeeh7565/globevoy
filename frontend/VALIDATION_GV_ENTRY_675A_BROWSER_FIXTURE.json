@@ -1,0 +1,55 @@
+{
+  "release": "GV-ENTRY-675A",
+  "fixture": "booking-entry-dom-behaviour",
+  "generatedAt": "2026-08-11T03:28:26.847Z",
+  "checkCount": 8,
+  "passedCount": 8,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "blocked route renders partner-booking pause",
+      "passed": true,
+      "details": "<strong>Partner booking paused</strong>1 destination is blocked by a current authoritative entry guardrail for this passport profile."
+    },
+    {
+      "name": "blocked route renders destination and official-source link",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "blocked route renders transit warning",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "blocked route disables all main partner actions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "blocked route removes partner href",
+      "passed": true,
+      "details": {
+        "href": null,
+        "ariaDisabled": "true"
+      }
+    },
+    {
+      "name": "clear verification state restores partner actions",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "clear verification state restores partner href",
+      "passed": true,
+      "details": {
+        "href": "https://example.com/flight"
+      }
+    },
+    {
+      "name": "clear state remains honest about live verification",
+      "passed": true,
+      "details": "<strong>Entry checkpoint</strong>No hard restriction was found by the limited built-in guardrails. Live verification remains required."
+    }
+  ]
+}

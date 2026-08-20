@@ -1,0 +1,36 @@
+{
+  "version": "GV-TRUST-681B-P1",
+  "generatedAt": "2026-08-14T00:48:52.057Z",
+  "passed": 7,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "681B-P1 release version is exported",
+      "status": "PASS"
+    },
+    {
+      "name": "first automatic flexible leg scans 14 days by default",
+      "status": "PASS"
+    },
+    {
+      "name": "first-leg window is configurable but bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "downstream legs remain fixed to canonical stay cadence",
+      "status": "PASS"
+    },
+    {
+      "name": "provider observations five days later are now eligible",
+      "status": "PASS"
+    },
+    {
+      "name": "lowest-cost role chooses the lowest provider-backed usable fare",
+      "status": "PASS"
+    },
+    {
+      "name": "exact-date behavior remains protected",
+      "status": "PASS"
+    }
+  ]
+}

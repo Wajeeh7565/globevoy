@@ -1,0 +1,218 @@
+<!-- Globevoy - Explore Results (Empty/Error States) -->
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Explore Results — Empty and Error States | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "green-100": "#E4F5EC",
+                      "on-secondary": "#ffffff",
+                      "on-primary-container": "#7385a1",
+                      "border": "#D7E0E7",
+                      "surface-tint": "#4d5f7a",
+                      "inverse-on-surface": "#e6f2ff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-warm": "#FFFAF0",
+                      "on-secondary-fixed-variant": "#00504c",
+                      "surface-bright": "#f6faff",
+                      "primary-container": "#071c33",
+                      "tertiary-fixed": "#ffdead",
+                      "on-error": "#ffffff",
+                      "on-primary-fixed": "#071c33",
+                      "primary": "#000000",
+                      "navy-950": "#071C33",
+                      "teal-100": "#E5F7F5",
+                      "surface-variant": "#d2e5f6",
+                      "tertiary": "#000000",
+                      "surface": "#f6faff",
+                      "teal-600": "#008F89",
+                      "tertiary-container": "#281900",
+                      "surface-soft": "#F4F7F9",
+                      "secondary": "#006a65",
+                      "on-background": "#0a1d2a",
+                      "error-container": "#ffdad6",
+                      "purple-100": "#EEE9FF",
+                      "amber-600": "#E99B00",
+                      "primary-fixed": "#d3e3ff",
+                      "error": "#ba1a1a",
+                      "on-tertiary-fixed-variant": "#604100",
+                      "surface-dim": "#c9dcee",
+                      "secondary-fixed": "#7af6ed",
+                      "on-surface": "#0a1d2a",
+                      "surface-container-low": "#ebf5ff",
+                      "surface-container-highest": "#d2e5f6",
+                      "surface-container": "#e0f0ff",
+                      "on-primary": "#ffffff",
+                      "red-600": "#B93F45",
+                      "primary-fixed-dim": "#b5c8e6",
+                      "tertiary-fixed-dim": "#ffba39",
+                      "on-tertiary-fixed": "#281900",
+                      "on-secondary-fixed": "#00201e",
+                      "green-600": "#16885E",
+                      "secondary-container": "#77f3ea",
+                      "inverse-primary": "#b5c8e6",
+                      "amber-100": "#FFF2CF",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-container": "#af7a00",
+                      "surface-container-high": "#d8ebfc",
+                      "background": "#f6faff",
+                      "on-surface-variant": "#44474d",
+                      "secondary-fixed-dim": "#5bdad1",
+                      "ink": "#122232",
+                      "inverse-surface": "#21323f",
+                      "amber-500": "#FFB51B",
+                      "teal-500": "#08A8A0",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary-container": "#006f69",
+                      "outline": "#74777e",
+                      "purple-600": "#7357E6",
+                      "on-primary-fixed-variant": "#364861",
+                      "navy-900": "#0B2038",
+                      "outline-variant": "#c4c6ce"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "max-width": "1280px",
+                      "separation": "64px",
+                      "section": "24px",
+                      "major": "32px",
+                      "compact": "8px",
+                      "micro": "4px",
+                      "control": "16px"
+              },
+              "fontFamily": {
+                      "caption": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "h1": ["Inter"],
+                      "small": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "h2": ["Inter"],
+                      "display-mobile": ["Inter"],
+                      "body": ["Inter"],
+                      "h3": ["Inter"],
+                      "h1-mobile": ["Inter"],
+                      "display": ["Inter"]
+              },
+              "fontSize": {
+                      "caption": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "h1": ["40px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "small": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                      "h2": ["32px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "display-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                      "body": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                      "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "h1-mobile": ["30px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                      "display": ["56px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="exact-recovered-html" name="gv-source-status"/></head>
+<body class="bg-surface text-on-surface font-body text-body min-h-screen flex flex-col antialiased gv-canonical" data-depth="1" data-nav-active="Explore" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Explore Results — Empty and Error States · MVP supporting · not connected to production data.</div>
+<!-- Global TopNavBar (Large) -->
+
+<!-- Contextual TopNavBar (Small) - Search Summary -->
+<div class="bg-surface text-on-surface font-small text-small fixed top-16 w-full z-40 flex justify-between items-center px-major py-control border-b border-border shadow-sm">
+<div class="flex items-center gap-control">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 20px;">search</span>
+<div class="flex gap-compact text-on-surface-variant items-center">
+<span class="font-medium text-primary">Europe</span>
+<span class="w-1 h-1 rounded-full bg-border"></span>
+<span>Oct 12 - Oct 26</span>
+<span class="w-1 h-1 rounded-full bg-border"></span>
+<span>$1,500 CAD max</span>
+</div>
+</div>
+<button class="text-navy-950 hover:bg-surface-variant px-control py-compact rounded-full transition-colors border border-outline-variant font-medium">Edit search</button>
+</div>
+<!-- Main Content: Split View -->
+<main class="flex-1 flex mt-32 min-h-[calc(100vh-8rem)]">
+<!-- Left Column: Results / States Presentation -->
+<section class="w-full md:w-[480px] lg:w-[560px] bg-surface flex flex-col border-r border-border overflow-y-auto p-major gap-separation relative z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+<!-- Presentation Header (Not part of the actual states, just to structure the single-page view) -->
+<div class="pb-section border-b border-border">
+<h1 class="font-h2 text-h2 text-navy-950 mb-compact">Search States</h1>
+<p class="font-body text-body text-on-surface-variant">UI representations for empty and error conditions within the results feed.</p>
+</div>
+<!-- EMPTY STATE MODULE -->
+<div class="flex flex-col items-center justify-center text-center p-major py-separation bg-surface-container-lowest border border-border rounded-xl">
+<div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center mb-section">
+<span class="material-symbols-outlined text-surface-tint" style="font-size: 32px;">travel_explore</span>
+</div>
+<h2 class="font-h3 text-h3 text-navy-950 mb-compact">No destinations currently fit these filters.</h2>
+<p class="font-body text-body text-on-surface-variant max-w-sm mx-auto mb-major">Try increasing the budget, changing the continent or using flexible dates.</p>
+<div class="flex flex-wrap items-center justify-center gap-control">
+<button class="bg-navy-950 hover:bg-navy-900 text-on-primary px-section py-3 rounded-full font-small text-small font-medium transition-colors">
+                        Edit search
+                    </button>
+<button class="bg-transparent hover:bg-surface-soft border border-outline text-navy-950 px-section py-3 rounded-full font-small text-small font-medium transition-colors">
+                        Clear filters
+                    </button>
+</div>
+</div>
+<!-- ERROR STATE MODULE -->
+<div class="flex flex-col items-center justify-center text-center p-major py-separation bg-surface-container-lowest border border-border rounded-xl">
+<div class="w-16 h-16 rounded-full bg-error-container flex items-center justify-center mb-section">
+<span class="material-symbols-outlined text-error" style="font-size: 32px;">wifi_off</span>
+</div>
+<h2 class="font-h3 text-h3 text-navy-950 mb-compact">We couldn’t load recommendations.</h2>
+<p class="font-body text-body text-on-surface-variant max-w-sm mx-auto mb-major">Your search is saved. Try again in a moment.</p>
+<div class="flex flex-wrap items-center justify-center gap-control">
+<button class="bg-navy-950 hover:bg-navy-900 text-on-primary px-section py-3 rounded-full font-small text-small font-medium transition-colors flex items-center gap-compact">
+<span class="material-symbols-outlined" style="font-size: 18px;">refresh</span>
+                        Try again
+                    </button>
+</div>
+</div>
+<!-- Spacer for scrolling -->
+<div class="h-8"></div>
+</section>
+<!-- Right Column: Neutral Map -->
+<section class="hidden md:block flex-1 relative bg-surface-container-low overflow-hidden">
+<!-- Map Placeholder Background -->
+<div class="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-multiply" data-alt="A highly stylized, minimalist vector map of Europe in light muted grey and soft teal tones. The map is devoid of labels or pins, creating a calm, empty state canvas. The lighting is soft and flat, adhering to a modern corporate aesthetic suitable for a budget travel application's light mode." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAmGaHmeFTDd4BNfnJBqlaLHUrgzQIKaS_mtGi88ArHoBBoyo5ol0kkSCVsXwiG7DycvnT5v7O9jSoBnlxPk7NC0rNR5_Nk5-ZYtwFrLman4xtJVl8iWuQ9EwkFcTsIUCCbFqHVqdae9LcTl9smcuYESc1mp8KtvRrbPvkltruYUC0EiDUF2MXM9isefyZOxaJDk5ZxN8UkwTwOcU_jwM9BDoTRXBXe1QdHAhCdLfWsZMFNJYfnxtin3vsH9KWhtffzVzF1tVQsJGE')"></div>
+<!-- Map UI Controls (Neutral State) -->
+<div class="absolute right-major top-major flex flex-col gap-compact z-20">
+<button aria-label="Zoom in" class="w-10 h-10 bg-surface-container-lowest rounded-full shadow-sm border border-border flex items-center justify-center text-navy-950 hover:bg-surface-soft transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+</button>
+<button aria-label="Zoom out" class="w-10 h-10 bg-surface-container-lowest rounded-full shadow-sm border border-border flex items-center justify-center text-navy-950 hover:bg-surface-soft transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">remove</span>
+</button>
+</div>
+<!-- Empty Map Overlay Message (Optional, subtle reinforcement) -->
+<div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+<div class="bg-surface-container-lowest/80 backdrop-blur-sm px-section py-compact rounded-full border border-border text-on-surface-variant font-caption text-caption flex items-center gap-compact">
+<span class="material-symbols-outlined" style="font-size: 16px;">map</span>
+                    Awaiting valid search results to display locations
+                </div>
+</div>
+</section>
+</main>
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

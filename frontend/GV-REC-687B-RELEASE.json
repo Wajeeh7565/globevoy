@@ -1,0 +1,8 @@
+{
+  "release": "GV-REC-687B",
+  "title": "AI-assisted diverse multi-tour generation",
+  "frontendBaseline": "GV-UX-687A-R1",
+  "backendBaseline": "GV-CORS-686D-P1 on GV-FLIGHT-685C-R3-R1",
+  "safety": "AI ranks only already-valid deterministic candidate IDs and cannot invent travel facts, prices, entry eligibility, availability or booking state.",
+  "deployment": "NOT_DEPLOYED"
+}

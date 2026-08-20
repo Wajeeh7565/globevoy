@@ -1,0 +1,7 @@
+GV-GLOBAL-665B changed backend files:
+- generated-tour.js
+- services/global-route-graph.js
+- services/route-feasibility.js
+- services/route-curator.js
+- GV-GLOBAL-665B_REPORT.md
+- VALIDATION_GV_GLOBAL_665B.json

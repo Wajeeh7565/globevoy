@@ -1,0 +1,323 @@
+{
+  "task": "GV-GUARD-664A",
+  "generatedAt": "2026-07-14T08:40:57.291Z",
+  "mode": "offline-provider-unavailable-smoke",
+  "generatedTourCases": [
+    {
+      "query": {
+        "origin": "Toronto",
+        "budget": "3000",
+        "currency": "CAD",
+        "nights": "8",
+        "maxStops": "5"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "version": "1.9.0-gv-guard-664a-route-feasibility-airport-integrity",
+      "origin": {
+        "city": "Toronto",
+        "airportCode": "YYZ"
+      },
+      "route": [
+        "Toronto",
+        "Cancun",
+        "Philadelphia",
+        "Toronto"
+      ],
+      "stopNights": [
+        {
+          "city": "Cancun",
+          "nights": 5
+        },
+        {
+          "city": "Philadelphia",
+          "nights": 3
+        }
+      ],
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 8,
+          "stopCount": 2,
+          "maximumStops": 3,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 5526,
+          "shortestCycleDistanceKm": 5526,
+          "backtrackingRatio": 1,
+          "longestLegKm": 2608,
+          "medianLegKm": 2378
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 3,
+          "acceptedCount": 3,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "passed": true
+    },
+    {
+      "query": {
+        "origin": "Toronto",
+        "budget": "2000",
+        "currency": "CAD",
+        "nights": "6"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "version": "1.9.0-gv-guard-664a-route-feasibility-airport-integrity",
+      "origin": {
+        "city": "Toronto",
+        "airportCode": "YYZ"
+      },
+      "route": [
+        "Toronto",
+        "Panama City",
+        "Cartagena",
+        "Toronto"
+      ],
+      "stopNights": [
+        {
+          "city": "Panama City",
+          "nights": 3
+        },
+        {
+          "city": "Cartagena",
+          "nights": 3
+        }
+      ],
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 8008,
+          "shortestCycleDistanceKm": 8008,
+          "backtrackingRatio": 1,
+          "longestLegKm": 3846,
+          "medianLegKm": 3712
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 3,
+          "acceptedCount": 3,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "passed": true
+    },
+    {
+      "query": {
+        "origin": "Montreal",
+        "budget": "1500",
+        "currency": "CAD",
+        "nights": "6"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "version": "1.9.0-gv-guard-664a-route-feasibility-airport-integrity",
+      "origin": {
+        "city": "Montreal",
+        "airportCode": "YUL"
+      },
+      "route": [
+        "Montreal",
+        "Ottawa",
+        "Boston",
+        "Montreal"
+      ],
+      "stopNights": [
+        {
+          "city": "Ottawa",
+          "nights": 3
+        },
+        {
+          "city": "Boston",
+          "nights": 3
+        }
+      ],
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 1072,
+          "shortestCycleDistanceKm": 1072,
+          "backtrackingRatio": 1,
+          "longestLegKm": 503,
+          "medianLegKm": 403
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 3,
+          "acceptedCount": 3,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "passed": true
+    },
+    {
+      "query": {
+        "origin": "Tehran",
+        "budget": "1500",
+        "currency": "CAD",
+        "nights": "5"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "version": "1.9.0-gv-guard-664a-route-feasibility-airport-integrity",
+      "origin": {
+        "city": "Tehran",
+        "airportCode": "IKA"
+      },
+      "route": [
+        "Tehran",
+        "Dubai",
+        "Doha",
+        "Tehran"
+      ],
+      "stopNights": [
+        {
+          "city": "Dubai",
+          "nights": 3
+        },
+        {
+          "city": "Doha",
+          "nights": 2
+        }
+      ],
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 5,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 2756,
+          "shortestCycleDistanceKm": 2756,
+          "backtrackingRatio": 1,
+          "longestLegKm": 1218,
+          "medianLegKm": 1158
+        },
+        "warnings": []
+      },
+      "passed": true
+    },
+    {
+      "query": {
+        "origin": "London",
+        "budget": "1500",
+        "currency": "GBP",
+        "nights": "6"
+      },
+      "statusCode": 200,
+      "supported": true,
+      "version": "1.9.0-gv-guard-664a-route-feasibility-airport-integrity",
+      "origin": {
+        "city": "London",
+        "airportCode": "LHR"
+      },
+      "route": [
+        "London",
+        "Cairo",
+        "Batumi",
+        "London"
+      ],
+      "stopNights": [
+        {
+          "city": "Cairo",
+          "nights": 4
+        },
+        {
+          "city": "Batumi",
+          "nights": 2
+        }
+      ],
+      "guard": {
+        "enabled": true,
+        "version": "GV-GUARD-664A",
+        "accepted": true,
+        "metrics": {
+          "nights": 6,
+          "stopCount": 2,
+          "maximumStops": 2,
+          "macroRegionCount": 1,
+          "orderedDistanceKm": 8414,
+          "shortestCycleDistanceKm": 8414,
+          "backtrackingRatio": 1,
+          "longestLegKm": 3515,
+          "medianLegKm": 3325
+        },
+        "warnings": [],
+        "candidateDiagnostics": {
+          "enabled": true,
+          "version": "GV-GUARD-664A",
+          "inputCount": 3,
+          "acceptedCount": 3,
+          "rejectedCount": 0,
+          "rejected": []
+        }
+      },
+      "passed": true
+    }
+  ],
+  "syntheticBadRoute": {
+    "accepted": false,
+    "reasons": [
+      "too-many-stops-for-8-night-trip",
+      "trip-too-rushed-for-stop-count",
+      "minimum-two-nights-per-destination-not-met",
+      "single-long-haul-outlier-after-regional-stops"
+    ],
+    "normalizedOriginAirport": "YYZ",
+    "luccaGatewayAirport": {
+      "airportCode": "PSA",
+      "city": "Pisa",
+      "transferMode": "ground-transfer",
+      "transferDistanceKm": 35,
+      "note": "Fly through Pisa (PSA), then continue to Lucca by ground transfer."
+    },
+    "passed": true
+  },
+  "gatewayAirportCase": {
+    "accepted": true,
+    "luccaAirportCode": "PSA",
+    "luccaGateway": {
+      "airportCode": "PSA",
+      "city": "Pisa",
+      "transferMode": "ground-transfer",
+      "transferDistanceKm": 35,
+      "note": "Fly through Pisa (PSA), then continue to Lucca by ground transfer."
+    },
+    "passed": true
+  },
+  "routeControlCase": {
+    "statusCode": 200,
+    "supported": false,
+    "reason": "trip-max-stops",
+    "message": "This trip length and budget support up to 2 destination stops. Increase the trip length or budget before adding another city.",
+    "passed": true
+  },
+  "passed": true
+}

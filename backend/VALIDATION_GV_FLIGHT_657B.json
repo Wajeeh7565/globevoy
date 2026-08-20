@@ -1,0 +1,28 @@
+{
+  "task": "GV-FLIGHT-657B",
+  "status": "passed-local-validation",
+  "checks": [
+    {
+      "name": "generated-tour.js syntax",
+      "status": "passed"
+    },
+    {
+      "name": "no-token chronological fallback",
+      "status": "passed"
+    },
+    {
+      "name": "stubbed provider automatic cheap date applied",
+      "status": "passed"
+    },
+    {
+      "name": "later leg cannot select date before previous stay completes",
+      "status": "passed"
+    },
+    {
+      "name": "budget guardrail preserved",
+      "status": "passed"
+    }
+  ],
+  "notes": "Provider-backed behavior depends on TRAVELPAYOUTS_TOKEN and available route observations in production.",
+  "createdAt": "2026-07-07T19:10:11Z"
+}

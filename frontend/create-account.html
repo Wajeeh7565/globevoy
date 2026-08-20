@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Create travel profile | Globevoy</title>
+  <meta name="gv-release" content="GV-ENTRY-675A">
+  <link rel="icon" href="./favicon.ico" sizes="any">
+  <link rel="stylesheet" href="./assets/fonts/fonts.css">
+  <link rel="stylesheet" href="./styles/shell.css?v=686d-r1">
+  <link rel="stylesheet" href="./styles/profile-672b.css?v=672b">
+  <link rel="stylesheet" href="./styles/entry-675a.css?v=675a">
+</head>
+<body class="gv-canonical gv-profile-page" data-depth="0" data-nav-active="Plan" data-signed-in="false">
+  <div id="gv-header"></div>
+  <main class="gv-profile-main">
+    <div class="gv-profile-shell">
+      <section class="gv-profile-story">
+        <div>
+          <div class="gv-profile-brand"><img src="./assets/images/globevoy-mark.png" alt=""> Globevoy</div>
+          <h1>Trips that fit your budget—and your travel reality.</h1>
+          <p>Create a lightweight travel profile so Globevoy can carry your group size, passport nationality and residence through the trip-planning journey—without pretending this is a secure account.</p>
+          <div class="gv-profile-benefits">
+            <div class="gv-profile-benefit"><div>1</div><div><b>Total group budget</b><span>Your budget remains the total amount for all travellers, not a per-person amount.</span></div></div>
+            <div class="gv-profile-benefit"><div>2</div><div><b>Passport-aware journey</b><span>Destinations can be flagged for entry-rule checks using the nationality you choose.</span></div></div>
+            <div class="gv-profile-benefit"><div>3</div><div><b>Safer by design</b><span>Globevoy does not ask for passport numbers, scans or document expiry dates at signup.</span></div></div>
+          </div>
+        </div>
+        <p class="gv-profile-privacy">This MVP stores the travel profile only in this browser. Globevoy uses limited authoritative guardrails and still requires live visa, eVisa, ETA and transit verification before purchase.</p>
+      </section>
+
+      <section class="gv-profile-form-wrap">
+        <span class="gv-profile-kicker">PASSPORT-AWARE PROFILE</span>
+        <h2>Create your travel profile</h2>
+        <p class="gv-profile-intro">Tell us who is travelling and which passport will be used. Partner websites will collect any legal document details later during an actual booking.</p>
+        <div class="gv-profile-note"><strong>MVP notice:</strong> this creates a travel profile stored only in this browser. It is not a secure Globevoy account, so this page does not ask for or store a password.</div>
+        <div class="gv-profile-progress"><div class="gv-profile-step is-active">1 · Profile basics</div><div class="gv-profile-step is-active">2 · Travel preferences</div></div>
+
+        <form id="gv-profile-form" novalidate>
+          <section class="gv-profile-section">
+            <h3>Profile basics</h3>
+            <p>Used only to personalize this browser-based travel profile. Secure sign-in will be connected separately.</p>
+            <div class="gv-profile-grid">
+              <label class="gv-profile-field"><span>Display name</span><input id="gv-profile-name" type="text" autocomplete="name" placeholder="e.g. Wajeeh"></label>
+              <label class="gv-profile-field"><span>Email address</span><input id="gv-profile-email" type="email" autocomplete="email" placeholder="name@example.com" required><small>Saved locally with this profile; no verification email is sent.</small></label>
+            </div>
+          </section>
+
+          <section class="gv-profile-section">
+            <h3>Travel documents and residence</h3>
+            <p>Choose countries only. Never enter a passport number or upload a passport here.</p>
+            <div class="gv-profile-grid">
+              <label class="gv-profile-field"><span>Primary passport nationality</span><select id="gv-profile-passport" required><option value="">Select passport country</option></select><small>Used to flag entry-requirement checks.</small></label>
+              <label class="gv-profile-field"><span>Country of residence</span><select id="gv-profile-residence" required><option value="">Select country of residence</option></select><small>Residence permits can affect transit and entry rules.</small></label>
+              <label class="gv-profile-field is-full"><span>Second passport nationality <small>(optional)</small></span><select id="gv-profile-passport-2"><option value="">No second passport</option></select></label>
+              <label class="gv-profile-check is-full"><input id="gv-profile-use-second-passport" type="checkbox"><span>Use my second passport for this trip. Entry checks will use this passport only when selected.</span></label>
+            </div>
+            <div class="gv-profile-document-exceptions" aria-labelledby="gv-profile-us-exceptions-title">
+              <div>
+                <h4 id="gv-profile-us-exceptions-title">U.S. document exceptions <small>(optional)</small></h4>
+                <p>These answers are used only for the current U.S. entry-restriction guardrail. Do not add document numbers.</p>
+              </div>
+              <label class="gv-profile-check"><input id="gv-profile-us-valid-visa-2026" type="checkbox"><span>I held a valid U.S. visa at 12:01 a.m. EST on January 1, 2026, and it is still valid for the planned trip.</span></label>
+              <label class="gv-profile-check"><input id="gv-profile-us-lpr" type="checkbox"><span>I am a U.S. lawful permanent resident (green card holder).</span></label>
+            </div>
+          </section>
+
+          <section class="gv-profile-section">
+            <h3>Usual travelling group</h3>
+            <p>These values can still be changed for each search. Children’s ages help future provider pricing and occupancy logic.</p>
+            <div class="gv-profile-party">
+              <div class="gv-profile-field"><span>Adults</span><div class="gv-profile-counter"><button type="button" data-profile-counter="adults" data-delta="-1">−</button><output id="gv-profile-adults">1</output><button type="button" data-profile-counter="adults" data-delta="1">+</button></div></div>
+              <div class="gv-profile-field"><span>Children</span><div class="gv-profile-counter"><button type="button" data-profile-counter="children" data-delta="-1">−</button><output id="gv-profile-children">0</output><button type="button" data-profile-counter="children" data-delta="1">+</button></div></div>
+            </div>
+            <div id="gv-profile-child-ages" class="gv-profile-children" hidden></div>
+          </section>
+
+          <label class="gv-profile-check"><input id="gv-profile-entry-aware" type="checkbox" checked><span>Carry this profile through searches and show an entry-requirements checkpoint before partner booking. Final visa and transit rules must still be verified from authoritative sources.</span></label>
+          <label class="gv-profile-check"><input id="gv-profile-terms" type="checkbox" required><span>I understand that this MVP stores only country choices and group preferences in this browser—not passport numbers, scans or payment details.</span></label>
+
+          <div class="gv-profile-actions"><a class="gv-profile-secondary" href="index.html">Continue as guest</a><button class="gv-profile-primary" type="submit">Save travel profile and explore</button></div>
+          <div id="gv-profile-status" class="gv-profile-status" role="status"></div>
+        </form>
+      </section>
+    </div>
+  </main>
+  <div id="gv-footer"></div>
+  <script src="./scripts/shell-670f.js?v=686d-r1"></script>
+  <script src="./scripts/travel-profile-675a.js?v=675a"></script>
+</body>
+</html>

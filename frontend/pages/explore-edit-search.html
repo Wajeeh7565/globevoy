@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Explore Results — Edit Search Flexible | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<!-- Google Fonts -->
+
+
+
+<!-- Material Symbols -->
+
+
+<!-- Tailwind CSS -->
+<script src="../assets/vendor/tailwind.js"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#66f8ef",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-container": "#00a8a1",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed": "#7af6ed",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#4d5f7a",
+                        "on-tertiary-fixed": "#00201e",
+                        "background": "#f8f9ff",
+                        "on-secondary-container": "#50627c",
+                        "on-primary-fixed-variant": "#00504c",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#5bdad1",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-low": "#eff4ff",
+                        "surface-tint": "#006a65",
+                        "surface-bright": "#f8f9ff",
+                        "on-surface-variant": "#3c4948",
+                        "primary-container": "#08a8a0",
+                        "on-secondary-fixed": "#071c33",
+                        "inverse-on-surface": "#eaf1ff",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#0b1c30",
+                        "tertiary-fixed-dim": "#41dbd3",
+                        "on-tertiary-fixed-variant": "#00504c",
+                        "on-tertiary-container": "#003533",
+                        "secondary-fixed-dim": "#b5c8e6",
+                        "secondary-container": "#cbdefd",
+                        "on-primary-container": "#003532",
+                        "surface-container-high": "#dce9ff",
+                        "on-background": "#0b1c30",
+                        "on-primary-fixed": "#00201e",
+                        "inverse-surface": "#213145",
+                        "tertiary": "#006a65",
+                        "primary-fixed-dim": "#5bdad1",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "primary": "#006a65",
+                        "outline-variant": "#bbc9c7",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#6c7a78",
+                        "surface": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#d3e3ff",
+                        "on-secondary-fixed-variant": "#364861"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "container-max": "1200px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="original-stitch-code-html" name="gv-source-status"/></head>
+<body class="bg-background text-on-background font-body-lg antialiased min-h-screen flex flex-col gv-canonical" data-depth="1" data-nav-active="Explore" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Explore Results — Edit Search Flexible · MVP supporting · not connected to production data.</div>
+<!-- TopNavBar -->
+
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-md lg:px-gutter py-lg md:py-xl">
+<!-- Header & Summary -->
+<div class="mb-lg">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-sm hidden md:block">Explore Results</h1>
+<div class="flex items-center gap-sm text-on-surface-variant font-body-sm text-body-sm bg-surface-container py-sm px-md rounded-lg w-fit border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">travel_explore</span>
+<span>Toronto – YYZ · C$1,000 · 1 traveller · Flexible dates · 4–6 nights</span>
+</div>
+</div>
+<!-- Edit Search Panel (Flexible-Date Intelligence) -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-[16px] p-lg mb-xl shadow-[0_4px_12px_rgba(7,28,51,0.05)] relative z-10">
+<div class="flex flex-col gap-lg">
+<!-- Context Fields (Preserved Context) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md pb-md border-b border-outline-variant/50">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Origin</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">flight_takeoff</span>
+<input class="w-full pl-[36px] pr-sm py-sm bg-surface rounded-lg border border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" readonly="" type="text" value="Toronto (YYZ)"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Destination</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">public</span>
+<input class="w-full pl-[36px] pr-sm py-sm bg-surface rounded-lg border border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" type="text" value="North America"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Budget</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">payments</span>
+<input class="w-full pl-[36px] pr-sm py-sm bg-surface rounded-lg border border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" type="text" value="C$ 1,000"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Travellers</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">person</span>
+<input class="w-full pl-[36px] pr-sm py-sm bg-surface rounded-lg border border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all" type="text" value="1 Adult"/>
+</div>
+</div>
+</div>
+<!-- Date Mode & Flexible Fields -->
+<div class="flex flex-col gap-md">
+<!-- Segmented Control -->
+<div class="flex items-center bg-surface-container rounded-full p-xs w-fit">
+<button class="px-md py-sm rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors">
+                            Exact dates
+                        </button>
+<button class="px-md py-sm rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm">
+                            Flexible dates
+                        </button>
+</div>
+<!-- Flexible Date Inputs -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Preferred month</label>
+<div class="relative">
+<select class="w-full pl-sm pr-[36px] py-[10px] bg-surface-container-lowest rounded-lg border border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none appearance-none cursor-pointer">
+<option>August</option>
+<option>September</option>
+<option>October</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Trip length</label>
+<div class="relative">
+<select class="w-full pl-sm pr-[36px] py-[10px] bg-surface-container-lowest rounded-lg border border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none appearance-none cursor-pointer">
+<option>Weekend (2-3 nights)</option>
+<option selected="">Short trip (4-6 nights)</option>
+<option>1 week (7-8 nights)</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Flexibility window</label>
+<div class="relative">
+<select class="w-full pl-sm pr-[36px] py-[10px] bg-surface-container-lowest rounded-lg border border-outline-variant font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none appearance-none cursor-pointer">
+<option>Exact dates only</option>
+<option selected="">+/- 3 days</option>
+<option>Anytime in month</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex justify-end gap-sm pt-md mt-sm border-t border-outline-variant/50">
+<button class="px-lg py-sm rounded-[12px] border border-on-secondary-fixed text-on-secondary-fixed bg-transparent font-label-md text-label-md hover:bg-surface-container transition-colors">
+                        Cancel
+                    </button>
+<button class="px-lg py-sm rounded-[12px] bg-primary text-on-primary font-label-md text-label-md hover:brightness-90 transition-all shadow-sm">
+                        Update Results
+                    </button>
+</div>
+</div>
+</section>
+<!-- Results Grid -->
+<section>
+<div class="flex justify-between items-end mb-md">
+<h2 class="font-headline-md text-headline-md text-on-surface">Top Recommendations for August</h2>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Based on C$1,000 budget</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-[16px] overflow-hidden hover:shadow-[0_4px_12px_rgba(7,28,51,0.05)] hover:border-outline transition-all duration-300 group cursor-pointer flex flex-col">
+<div class="relative aspect-[2/1] w-full overflow-hidden bg-surface-container-high">
+<div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="A modern, high-quality photograph of the Vancouver skyline at dusk. The scene is illuminated by soft, natural light contrasting with the cool, atmospheric navy of the approaching night. The aesthetic is clean, professional, and inviting, perfectly aligned with a light-mode corporate travel platform prioritizing utility and premium imagery." data-location="Vancouver" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD8kYGKclQfTjz4jDPsygEdgXS39x-NKY_QdWVvRAYPvC_QT0HOULZ12Ezx3Xm6aCuyKmHCDM-BTFqOpxqc7CvTac5yOwt9TkUNjTPvTMVjQ49VE8f3eFwiWSbjZ6o4sFhhBc4jtPyOqOK7LT5jRTN8zxGkLrpbzQUj_jhAGEI9h4UbvGlI5jq5L19e0dyBJQN0nH8MUGdM0bLV_4hORhuSjpcUKW-apyXp-0uWSKo-8B_kJK5v-TPmg2vn1UaI6JOt7qRHGvPFmaA')"></div>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm p-xs rounded-full shadow-sm">
+<span class="material-symbols-outlined text-on-surface text-[20px]">favorite_border</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-headline-md text-headline-md text-on-surface">Vancouver, BC</h3>
+<div class="text-right">
+<span class="font-body-sm text-body-sm text-on-surface-variant block">From</span>
+<span class="font-label-md text-label-md text-tertiary">C$ 640</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md flex-grow">Direct flights available · High scenic rating</p>
+<!-- Intelligent Recommendation Block -->
+<div class="bg-surface-container-low border border-outline-variant/60 rounded-lg p-sm flex items-start gap-sm mt-auto">
+<span class="material-symbols-outlined text-primary text-[20px] mt-[2px]">calendar_month</span>
+<div>
+<span class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide mb-[2px]">Recommended travel window</span>
+<span class="block font-label-md text-label-md text-on-surface">Aug 12–18 · 6 nights</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-[16px] overflow-hidden hover:shadow-[0_4px_12px_rgba(7,28,51,0.05)] hover:border-outline transition-all duration-300 group cursor-pointer flex flex-col">
+<div class="relative aspect-[2/1] w-full overflow-hidden bg-surface-container-high">
+<div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="A striking, crisp image of the Chicago River and surrounding modern architecture on a bright, sunny afternoon. The lighting is high-key and optimistic, reflecting a clean, light-mode design ethos. The color palette features deep structural navies and bright sky blues, emphasizing a high-utility, professional corporate travel experience." data-location="Chicago" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCjgVuPcNtd9bvjFy4v4nNQN_5wi4xX1psOQ6LzK57S_jNdX2uVkDnpOnF2_nT0L0ULGHw_wiuJ0VXzVQn6m58vaoXV3nsGvLVztVRY4jW2neKq2aDMNU_ySWsI14-SfFijuJy_1gQuOLan-5HSb893nkVwyalA8jRtDUTdtII5wraLRTatTsOlPwdFeLMJ8C2XLcgpuQJLuxABkBNaU5v9yB--y6C4syDM2cbjJU_xLORj8AXkcbJFQpUHKbVmDrqrQYFNN1BHaTc')"></div>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm p-xs rounded-full shadow-sm">
+<span class="material-symbols-outlined text-on-surface text-[20px]">favorite_border</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-headline-md text-headline-md text-on-surface">Chicago, IL</h3>
+<div class="text-right">
+<span class="font-body-sm text-body-sm text-on-surface-variant block">From</span>
+<span class="font-label-md text-label-md text-tertiary">C$ 420</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md flex-grow">1 stop · Great cultural events in August</p>
+<!-- Intelligent Recommendation Block -->
+<div class="bg-surface-container-low border border-outline-variant/60 rounded-lg p-sm flex items-start gap-sm mt-auto">
+<span class="material-symbols-outlined text-primary text-[20px] mt-[2px]">calendar_month</span>
+<div>
+<span class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide mb-[2px]">Recommended travel window</span>
+<span class="block font-label-md text-label-md text-on-surface">Aug 22–27 · 5 nights</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-[16px] overflow-hidden hover:shadow-[0_4px_12px_rgba(7,28,51,0.05)] hover:border-outline transition-all duration-300 group cursor-pointer flex flex-col">
+<div class="relative aspect-[2/1] w-full overflow-hidden bg-surface-container-high">
+<div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500" data-alt="A serene, detailed photograph of the coastal landscape near Halifax during early morning. The scene is bathed in clear, natural light, avoiding heavy shadows to maintain a welcoming, modern aesthetic. The palette incorporates subtle teals and calm navies, ensuring the image seamlessly integrates into a transparent, truth-over-persuasion UI layout." data-location="Halifax" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAeHWPBu7hmqh6c_e8j_-0infLe_clC0MQOndfGCFWnyg8_wxxkKE0ifR9IVlSJ8MBcvz38yu1FD32X8gQmLw-xPzdQ3PHokX-AvfKPUoeLsXDDN0h6yEc28d-ui94UqpHDihJHtyWCReVvmyRFY0jRjz14pnmLWozcrPYJOs6-zp0NnFuIlVQOHK4LANf59C_TJF-SmRr30JWdtnc1BTOMMaodVsMA37kUrBe_VHkU5oS825G8nrQMa3ox7JgGsHSfbnshDCg3rcA')"></div>
+<div class="absolute top-sm right-sm bg-surface-container-lowest/90 backdrop-blur-sm p-xs rounded-full shadow-sm">
+<span class="material-symbols-outlined text-on-surface text-[20px]">favorite_border</span>
+</div>
+</div>
+<div class="p-md flex flex-col flex-grow">
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-headline-md text-headline-md text-on-surface">Halifax, NS</h3>
+<div class="text-right">
+<span class="font-body-sm text-body-sm text-on-surface-variant block">From</span>
+<span class="font-label-md text-label-md text-tertiary">C$ 380</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-md flex-grow">Direct flights available · Ideal coastal weather</p>
+<!-- Intelligent Recommendation Block -->
+<div class="bg-surface-container-low border border-outline-variant/60 rounded-lg p-sm flex items-start gap-sm mt-auto">
+<span class="material-symbols-outlined text-primary text-[20px] mt-[2px]">calendar_month</span>
+<div>
+<span class="block font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wide mb-[2px]">Recommended travel window</span>
+<span class="block font-label-md text-label-md text-on-surface">Aug 05–09 · 4 nights</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

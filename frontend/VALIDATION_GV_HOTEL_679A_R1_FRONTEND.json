@@ -1,0 +1,64 @@
+{
+  "release": "GV-HOTEL-679A-R1",
+  "generatedAt": "2026-08-11T21:26:28.190Z",
+  "checkCount": 11,
+  "passedCount": 11,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "R1 frontend release marker active or superseded",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R1 cache busts changed booking assets or were superseded",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "R1 cache bust changed visualizer asset or was superseded",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "visualizer no longer calls observed provider rate exact",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "visualizer distinguishes results handoff from direct hotel",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "booking distinguishes observed rate from confirmed rate",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "booking preserves taxes-fees warning",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "booking distinguishes provider results from property page",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "booking has R1 provider note styling",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "frontend has no Agoda credential identifiers",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "no combined checkout claim added",
+      "pass": true,
+      "detail": null
+    }
+  ]
+}

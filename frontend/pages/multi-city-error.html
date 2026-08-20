@@ -1,0 +1,189 @@
+<!-- Globevoy - Multi-city Results (Error State) -->
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Multi-city Results — Error State | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#000000",
+                        "surface-container-high": "#d8ebfc",
+                        "teal-500": "#08A8A0",
+                        "surface": "#f6faff",
+                        "on-surface": "#0a1d2a",
+                        "on-secondary-container": "#006f69",
+                        "green-100": "#E4F5EC",
+                        "surface-tint": "#4d5f7a",
+                        "outline": "#74777e",
+                        "on-tertiary-container": "#af7a00",
+                        "surface-dim": "#c9dcee",
+                        "surface-container-low": "#ebf5ff",
+                        "primary-fixed": "#d3e3ff",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#071c33",
+                        "primary-fixed-dim": "#b5c8e6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-soft": "#F4F7F9",
+                        "amber-500": "#FFB51B",
+                        "navy-900": "#0B2038",
+                        "surface-bright": "#f6faff",
+                        "amber-600": "#E99B00",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "secondary": "#006a65",
+                        "tertiary-fixed": "#ffdead",
+                        "on-tertiary-fixed-variant": "#604100",
+                        "background": "#f6faff",
+                        "surface-container-highest": "#d2e5f6",
+                        "secondary-fixed-dim": "#5bdad1",
+                        "on-tertiary-fixed": "#281900",
+                        "navy-950": "#071C33",
+                        "teal-600": "#008F89",
+                        "surface-variant": "#d2e5f6",
+                        "on-primary-container": "#7385a1",
+                        "on-secondary-fixed-variant": "#00504c",
+                        "on-error-container": "#93000a",
+                        "primary": "#000000",
+                        "on-surface-variant": "#44474d",
+                        "surface-warm": "#FFFAF0",
+                        "green-600": "#16885E",
+                        "tertiary-container": "#281900",
+                        "secondary-fixed": "#7af6ed",
+                        "on-primary-fixed-variant": "#364861",
+                        "ink": "#122232",
+                        "border": "#D7E0E7",
+                        "inverse-surface": "#21323f",
+                        "surface-container": "#e0f0ff",
+                        "inverse-primary": "#b5c8e6",
+                        "red-600": "#B93F45",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffba39",
+                        "purple-100": "#EEE9FF",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#77f3ea",
+                        "teal-100": "#E5F7F5",
+                        "inverse-on-surface": "#e6f2ff",
+                        "amber-100": "#FFF2CF",
+                        "on-secondary-fixed": "#00201e",
+                        "purple-600": "#7357E6",
+                        "on-primary-fixed": "#071c33",
+                        "outline-variant": "#c4c6ce",
+                        "on-background": "#0a1d2a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "separation": "64px",
+                        "max-width": "1280px",
+                        "control": "16px",
+                        "section": "24px",
+                        "micro": "4px",
+                        "major": "32px",
+                        "compact": "8px"
+                    },
+                    "fontFamily": {
+                        "h3": ["Inter"],
+                        "display-mobile": ["Inter"],
+                        "small": ["Inter"],
+                        "h2": ["Inter"],
+                        "h1-mobile": ["Inter"],
+                        "caption": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "h1": ["Inter"],
+                        "display": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h3": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "display-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                        "small": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "h2": ["32px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                        "h1-mobile": ["30px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "caption": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "h1": ["40px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "display": ["56px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="exact-recovered-html" name="gv-source-status"/></head>
+<body class="bg-background text-on-surface font-body min-h-screen flex flex-col gv-canonical" data-depth="1" data-nav-active="Multi-city" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Multi-city Results — Error State · MVP supporting · not connected to production data.</div>
+<!-- TopNavBar -->
+
+<!-- Search Summary Bar (Progressive Disclosure - Kept visible during error) -->
+<div class="w-full bg-surface-soft border-b border-border py-control px-major shadow-sm">
+<div class="max-w-max-width mx-auto flex flex-col md:flex-row items-center justify-between gap-control">
+<div class="flex items-center gap-compact text-body text-on-surface">
+<span class="material-symbols-outlined text-outline">flight_takeoff</span>
+<span class="font-medium">Toronto (YYZ)</span>
+<span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+<span class="font-medium">London (LHR)</span>
+<span class="material-symbols-outlined text-outline text-sm">arrow_forward</span>
+<span class="font-medium">Paris (CDG)</span>
+</div>
+<div class="flex items-center gap-section text-small text-on-surface-variant">
+<div class="flex items-center gap-compact">
+<span class="material-symbols-outlined text-outline text-sm">calendar_month</span>
+<span>Oct 12 - Oct 26</span>
+</div>
+<div class="flex items-center gap-compact">
+<span class="material-symbols-outlined text-outline text-sm">person</span>
+<span>2 Travelers</span>
+</div>
+<button class="text-teal-600 font-medium hover:underline flex items-center gap-micro">
+                    Edit Search
+                </button>
+</div>
+</div>
+</div>
+<!-- Main Content Canvas - Error State -->
+<main class="flex-grow flex flex-col items-center justify-center p-major text-center my-separation">
+<div class="max-w-xl w-full bg-surface border border-border rounded-xl p-separation shadow-sm flex flex-col items-center">
+<!-- Error Icon / Illustration (Using Material Icon for simplicity, though a custom SVG illustration would be better) -->
+<div class="w-24 h-24 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-section">
+<span class="material-symbols-outlined text-5xl fill" style="font-variation-settings: 'FILL' 1;">error</span>
+</div>
+<h1 class="font-h2 text-h2 text-navy-950 mb-control">We couldn’t load your Multi-city recommendation.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-major max-w-md">Your search is saved. Try again in a moment or adjust your search parameters.</p>
+<button class="bg-amber-500 hover:bg-amber-600 text-navy-950 font-body text-body font-bold py-3 px-8 rounded-lg shadow-sm hover:shadow transition-all duration-200 flex items-center gap-control">
+<span class="material-symbols-outlined">refresh</span>
+                Try again
+            </button>
+<div class="mt-major pt-section border-t border-border w-full">
+<p class="font-small text-small text-on-surface-variant text-left flex items-center gap-compact justify-center">
+<span class="material-symbols-outlined text-sm">help</span>
+                   Need help? <a class="text-teal-600 hover:underline" href="#">Contact Support</a> or check our <a class="text-teal-600 hover:underline" href="#">System Status</a>.
+               </p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

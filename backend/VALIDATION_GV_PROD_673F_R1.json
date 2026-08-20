@@ -1,0 +1,48 @@
+{
+  "release": "GV-PROD-673F-R1",
+  "generatedAt": "2026-08-06T17:22:00.008Z",
+  "passed": true,
+  "checkCount": 8,
+  "checks": [
+    {
+      "name": "673F-R1 generated-tour version is packaged",
+      "ok": true,
+      "detail": "2.12.0-gv-rec-677d-destination-value-proximity"
+    },
+    {
+      "name": "rejected provider URL is removed",
+      "ok": true,
+      "detail": "https://tp.media/r?campaign_id=100&marker=725649&p=4114&trs=526085&u=https%3A%2F%2Fwww.aviasales.com%2Fsearch%2FDXB2908CAI1"
+    },
+    {
+      "name": "replacement URL uses displayed departure date",
+      "ok": true,
+      "detail": "https://tp.media/r?campaign_id=100&marker=725649&p=4114&trs=526085&u=https%3A%2F%2Fwww.aviasales.com%2Fsearch%2FDXB2908CAI1"
+    },
+    {
+      "name": "replacement is labelled comparison, not exact ticket",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "lowest-cost role is the actual minimum",
+      "ok": true,
+      "detail": "actual-low"
+    },
+    {
+      "name": "three role routes remain distinct",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "reassigned role records current release",
+      "ok": true,
+      "detail": "GV-UX-674A"
+    },
+    {
+      "name": "reassigned role remains derived from safe candidate pool",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

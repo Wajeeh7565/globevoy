@@ -1,0 +1,165 @@
+{
+  "release": "GV-REC-677A-R1",
+  "generatedAt": "2026-08-09T04:00:54.159Z",
+  "passed": true,
+  "checkCount": 9,
+  "passedCount": 9,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "high-budget smart-duration benchmark remains supported",
+      "passed": true,
+      "details": {
+        "route": [
+          "Rome",
+          "Hamburg",
+          "Strasbourg"
+        ],
+        "nights": 12
+      }
+    },
+    {
+      "name": "returned benchmark contains no geographically impossible pure-ground leg",
+      "passed": true,
+      "details": [
+        {
+          "from": "Toronto",
+          "to": "Rome",
+          "mode": "flight",
+          "transportType": "flight",
+          "distanceKm": 7082
+        },
+        {
+          "from": "Rome",
+          "to": "Hamburg",
+          "mode": "flight",
+          "transportType": "flight",
+          "distanceKm": 1309
+        },
+        {
+          "from": "Hamburg",
+          "to": "Strasbourg",
+          "mode": "flight",
+          "transportType": "flight",
+          "distanceKm": 574
+        },
+        {
+          "from": "Strasbourg",
+          "to": "Toronto",
+          "mode": "flight",
+          "transportType": "flight",
+          "distanceKm": 6361
+        }
+      ]
+    },
+    {
+      "name": "R1 transport integrity diagnostics are active",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677A-R1",
+        "policy": "pure ground legs are preserved only when geographically plausible; composite flight+ground legs remain flight-bearing"
+      }
+    },
+    {
+      "name": "677A smart duration remains active under R1",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A",
+        "mode": "adaptive",
+        "nights": 12,
+        "baseBudgetNights": 12,
+        "routeMinimumNights": 6,
+        "routeMaximumNights": 18,
+        "travelRecoveryNights": 2,
+        "estimatedTravelHours": 36.2,
+        "stopCount": 3,
+        "stopNightBounds": [
+          {
+            "city": "Rome",
+            "minimum": 2,
+            "maximum": 6
+          },
+          {
+            "city": "Hamburg",
+            "minimum": 2,
+            "maximum": 6
+          },
+          {
+            "city": "Strasbourg",
+            "minimum": 2,
+            "maximum": 6
+          }
+        ],
+        "budgetCapacity": {
+          "totalBudgetUsd": 2940,
+          "usableBudgetUsd": 2793,
+          "transportUsd": 1085,
+          "nightlyTripCostUsd": 85,
+          "maxAffordableNights": 18
+        },
+        "affordabilityRisk": false,
+        "smartEnabled": true,
+        "smartVersion": "GV-REC-677A",
+        "reason": "Duration combines the cities' useful minimum stays, about 36 hours of route travel, the traveller count, and the protected trip budget."
+      }
+    },
+    {
+      "name": "benchmark itinerary date plan remains synchronized",
+      "passed": true,
+      "details": {
+        "version": "GV-DATE-666B",
+        "canonicalDepartureDate": "2026-08-09",
+        "canonicalReturnDate": "2026-08-21",
+        "scanStartMonth": "2026-08",
+        "scanMonths": 6,
+        "consistent": true,
+        "issues": []
+      }
+    },
+    {
+      "name": "user-selected duration still remains exactly seven nights",
+      "passed": true,
+      "details": 7
+    },
+    {
+      "name": "R1 does not introduce unsafe ground legs into fixed-duration route",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "flight-bearing composite leg is scanned as a flight rather than skipped as ground",
+      "passed": true,
+      "details": {
+        "scanRow": {},
+        "dateSource": "automatic-estimated-date-provider-provider-unavailable",
+        "transportModeIntegrity": {
+          "version": "GV-REC-677A-R1",
+          "status": "flight-component-preserved",
+          "repaired": false,
+          "flightComponent": true,
+          "groundComponent": true
+        }
+      }
+    },
+    {
+      "name": "flight-bearing composite leg keeps flight passenger-pricing semantics after enrichment",
+      "passed": true,
+      "details": {
+        "pricingIntegrity": {
+          "version": "GV-CONTROL-667D",
+          "unitAmountUsd": 100,
+          "unitBasis": "per-passenger-flight-fare",
+          "multiplier": 2,
+          "partyTotalUsd": 200,
+          "adults": 2,
+          "children": 0,
+          "infants": 0,
+          "travellers": 2,
+          "seatCount": 2
+        },
+        "estimatedFlightUsd": 200
+      }
+    }
+  ]
+}

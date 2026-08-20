@@ -1,0 +1,142 @@
+{
+  "taskId": "GV-CITY-668O-RESULTS",
+  "sourceFile": "/mnt/data/gv668p_work/base/data/provider-live-expansion150-668o-source.json",
+  "generatedAt": "2026-07-22T04:01:15.530Z",
+  "summary": {
+    "completedCount": 150,
+    "providerCoverageEligibleCount": 45,
+    "productionActiveCount": 27,
+    "reviewCount": 123,
+    "projectedMergedProductionActiveCount": 420,
+    "projectedExpansion500AuditedCount": 345,
+    "projectedTotalAuditedCount": 845,
+    "classificationCounts": {
+      "live-stays-only": 82,
+      "live-both": 45,
+      "estimate-only": 18,
+      "live-flights-only": 4,
+      "provider-error": 1
+    }
+  },
+  "passed": 25,
+  "failed": 0,
+  "total": 25,
+  "checks": [
+    {
+      "name": "result identifies GV-CITY-668O Expansion150",
+      "pass": true
+    },
+    {
+      "name": "result uses the GV-CITY-668E audit engine",
+      "pass": true
+    },
+    {
+      "name": "result contains 150 completed records",
+      "pass": true
+    },
+    {
+      "name": "result city IDs are unique",
+      "pass": true
+    },
+    {
+      "name": "result city set exactly matches the 668O plan",
+      "pass": true
+    },
+    {
+      "name": "every record completed successfully",
+      "pass": true
+    },
+    {
+      "name": "every record reports the 668E engine version",
+      "pass": true
+    },
+    {
+      "name": "every record is Expansion-500",
+      "pass": true
+    },
+    {
+      "name": "provider-covered count matches records",
+      "pass": true
+    },
+    {
+      "name": "production-active count matches records",
+      "pass": true
+    },
+    {
+      "name": "review count matches records",
+      "pass": true
+    },
+    {
+      "name": "projected active total uses the 393-city baseline",
+      "pass": true
+    },
+    {
+      "name": "Expansion-500 baseline is 195 audited",
+      "pass": true
+    },
+    {
+      "name": "result projects 345 audited Expansion-500 cities",
+      "pass": true
+    },
+    {
+      "name": "result projects 845 total audited",
+      "pass": true
+    },
+    {
+      "name": "activation import remains required",
+      "pass": true
+    },
+    {
+      "name": "all active records have provider coverage",
+      "pass": true
+    },
+    {
+      "name": "all active records have recommendation readiness",
+      "pass": true
+    },
+    {
+      "name": "all active records have quality-qualified Agoda evidence",
+      "pass": true
+    },
+    {
+      "name": "all active records have comfort-qualified flight evidence",
+      "pass": true
+    },
+    {
+      "name": "all active records have a verification timestamp",
+      "pass": true
+    },
+    {
+      "name": "all inactive records remain in review rather than activation",
+      "pass": true
+    },
+    {
+      "name": "classification counts match records",
+      "pass": true,
+      "details": {
+        "reportedClassifications": {
+          "estimate-only": 18,
+          "live-both": 45,
+          "live-flights-only": 4,
+          "live-stays-only": 82,
+          "provider-error": 1
+        },
+        "classificationCounts": {
+          "live-stays-only": 82,
+          "live-both": 45,
+          "estimate-only": 18,
+          "live-flights-only": 4,
+          "provider-error": 1
+        }
+      }
+    },
+    {
+      "name": "all batch summaries report zero failures",
+      "pass": true
+    },
+    {
+      "name": "batch completed totals sum to 150",
+      "pass": true
+    }
+  ]
+}

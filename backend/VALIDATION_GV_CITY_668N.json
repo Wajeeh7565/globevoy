@@ -1,0 +1,390 @@
+{
+  "taskId": "GV-CITY-668N",
+  "generatedAt": "2026-07-23T00:32:45.369Z",
+  "passed": 70,
+  "failed": 0,
+  "total": 70,
+  "checks": [
+    {
+      "name": "service version is 668N",
+      "pass": true,
+      "details": "GV-CITY-668N"
+    },
+    {
+      "name": "668N feature flag is enabled",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot identity is correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668L baseline identity is correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668M source identity is correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "five source audits are preserved",
+      "pass": true,
+      "details": [
+        "GV-CITY-668E",
+        "GV-CITY-668G",
+        "GV-CITY-668I",
+        "GV-CITY-668K",
+        "GV-CITY-668M"
+      ]
+    },
+    {
+      "name": "668L baseline SHA is pinned",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668M source SHA is pinned",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668L and 668M city sets do not overlap",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot contains 695 unique audited cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668M contributes exactly 150 records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668M contributes 71 active and 79 reviewed inactive",
+      "pass": true,
+      "details": {
+        "active": 71,
+        "review": 79
+      }
+    },
+    {
+      "name": "snapshot contains exactly 393 production-active cities",
+      "pass": true,
+      "details": 393
+    },
+    {
+      "name": "snapshot contains exactly 302 reviewed inactive cities",
+      "pass": true,
+      "details": 302
+    },
+    {
+      "name": "active modes are 366 direct/metro and 27 gateway",
+      "pass": true,
+      "details": {
+        "direct-or-metro": 366,
+        "gateway-supported": 27
+      }
+    },
+    {
+      "name": "Current-500 remains fully audited",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Current-500 split remains 309 active and 191 inactive",
+      "pass": true,
+      "details": {
+        "audited": 500,
+        "productionActive": 309,
+        "reviewedInactive": 191
+      }
+    },
+    {
+      "name": "Expansion-500 split is 84 active of 195 audited",
+      "pass": true,
+      "details": {
+        "audited": 195,
+        "productionActive": 84,
+        "reviewedInactive": 111
+      }
+    },
+    {
+      "name": "registry count is 1000 and unaudited count is 305",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "estimate-only total is 607",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-covered count is 436",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "classification counts are exact",
+      "pass": true,
+      "details": {
+        "estimate-only": 7,
+        "gateway-supported": 29,
+        "live-both": 407,
+        "live-flights-only": 8,
+        "live-stays-only": 226,
+        "unresolved": 18
+      }
+    },
+    {
+      "name": "all active cities use production provider evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities passed recommendation readiness",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities have no retry queues",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all inactive audited cities remain discoverable estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no inactive city is accidentally activated",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all records use 668N policy version",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway-active cities retain gateway evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668M active cities are direct or metro only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "missing-flight queue count is 249",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "unresolved-Agoda queue count is 25",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no-live-hotel-rate queue count is 8",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "hotel-quality queue count is 17",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight-comfort queue count is 43",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "retry snapshot allows overlapping membership",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "retry snapshot queue counts match activation snapshot",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "active JSON has 393 unique records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "review JSON has 302 unique records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "active and review files partition all audited records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Baku is newly active from 668M",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Bucharest is newly active from 668M",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Nadi is newly active from 668M",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lagos remains inactive after comfort failure",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Kyiv remains inactive after missing flight observations",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Mahe Island remains inactive after no live hotel rate",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Toronto remains active from earlier audit",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Moscow remains unaudited expansion estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search sees all 1000 discovery cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "active search returns 393 total matches",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "review search returns 302 total matches",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway search returns 27 total matches",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Expansion-500 search returns 500 discovery cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry live filter exposes 393 active cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry keeps all 500 Expansion-500 cities discoverable",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "route graph selection still contains all 1000 cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "route graph selection annotates 393 live-eligible rows",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Baku row is marked verified live capability",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lagos row is marked audited estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Moscow row is marked unaudited estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-driven discovery accepts active Baku observation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-driven discovery blocks reviewed Lagos observation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda activation summary endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda activation search endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda retry endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda city-registry live filter uses 668N activation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668M expansion audit plan endpoint remains preserved",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation endpoint remains read-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668N flag-off disables new enforcement in current process",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "cold-start rollback returns to 668L snapshot",
+      "pass": true,
+      "details": {
+        "version": "GV-CITY-668L",
+        "active": 322,
+        "audited": 545
+      }
+    }
+  ]
+}

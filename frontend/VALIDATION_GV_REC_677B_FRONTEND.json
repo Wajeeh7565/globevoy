@@ -1,0 +1,40 @@
+{
+  "release": "GV-REC-677B",
+  "generatedAt": "2026-08-05T22:08:31.907Z",
+  "passed": true,
+  "checkCount": 6,
+  "passedCount": 6,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "frontend identifies GV-REC-677B",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677B visualizer surfaces smart-flight explanation helper",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677B smart-flight note is rendered only from provider evidence",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677B smart-flight note has lightweight styling",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "R1 transport display safeguards remain present",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677A smart duration label remains present",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

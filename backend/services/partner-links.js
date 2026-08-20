@@ -1,0 +1,423 @@
+'use strict';
+
+const { getDestination } = require('../data/destination-meta');
+const { wrapAviasalesAffiliateLink } = require('./travelpayouts');
+const { normalizeParty } = require('./traveller-pricing');
+const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('./price-evidence-integrity');
+
+const DEFAULT_AGODA_CID = process.env.AGODA_AFFILIATE_CID || process.env.AGODA_CID || '1963873';
+
+const AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2 = 'GV-HOTEL-679A-R2';
+const BOOKING_TRUST_VERSION_680A = 'GV-QUALITY-680A';
+
+function agodaHandoffIntegrity679AR2Enabled() {
+  return String(process.env.ENABLE_AGODA_HANDOFF_INTEGRITY_679A_R2 || '').trim().toLowerCase() === 'true';
+}
+
+function safeText(value) {
+  return String(value || '').trim();
+}
+
+function safeCode(value) {
+  const code = safeText(value).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+  return /^[A-Z0-9]{3,5}$/.test(code) ? code : null;
+}
+
+function safeIsoDate(value) {
+  const raw = safeText(value).slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) return null;
+  const parsed = new Date(`${raw}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === raw ? raw : null;
+}
+
+function addDays(value, days) {
+  const base = safeIsoDate(value);
+  if (!base) return null;
+  const date = new Date(`${base}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + Math.max(1, Math.round(Number(days) || 1)));
+  return date.toISOString().slice(0, 10);
+}
+
+function safeHttpsUrl(value) {
+  const raw = safeText(value);
+  if (!/^https:\/\//i.test(raw)) return null;
+  try {
+    return new URL(raw).toString();
+  } catch (_) {
+    return null;
+  }
+}
+
+function observedAgeSeconds(value) {
+  const parsed = Date.parse(String(value || ''));
+  return Number.isFinite(parsed) ? Math.max(0, Math.round((Date.now() - parsed) / 1000)) : null;
+}
+
+function observationFreshness(seconds) {
+  if (!Number.isFinite(Number(seconds))) return 'unknown';
+  if (Number(seconds) <= 900) return 'recent-observation';
+  if (Number(seconds) <= 21600) return 'cached-observation';
+  return 'stale-observation';
+}
+
+function passengersFromQuery(query = {}) {
+  const party = normalizeParty(query);
+  return {
+    adults: party.adults,
+    children: party.children,
+    infants: party.infants,
+    travellers: party.travellers,
+    seatCount: party.seatCount,
+    rooms: party.rooms
+  };
+}
+
+function currencyFromQuery(query = {}) {
+  const code = safeText(query.currency || 'CAD').toUpperCase();
+  return ['CAD', 'USD', 'EUR', 'GBP', 'AUD'].includes(code) ? code : 'CAD';
+}
+
+function aviasalesDatePart(value) {
+  const date = safeIsoDate(value);
+  return date ? `${date.slice(8, 10)}${date.slice(5, 7)}` : null;
+}
+
+function providerEvidence(leg = {}) {
+  return leg.cheapestOneWay || leg.providerDateEvidence || {};
+}
+
+function providerFareApplied(leg = {}) {
+  const evidence = providerEvidence(leg);
+  if (evidence.appliedToEstimate === false) return false;
+  if (evidence.productionEligible === false || leg?.providerVerification?.productionEligible === false) return false;
+  return !!(leg.liveFareVerified || evidence.providerBacked);
+}
+
+function legDepartureDate(leg = {}) {
+  const evidence = providerEvidence(leg);
+  const auto = leg.automaticTourDate || {};
+  return safeIsoDate(providerFareApplied(leg) ? evidence.departureDate : null)
+    || safeIsoDate(auto.departureDate)
+    || safeIsoDate(leg.departureDate)
+    || safeIsoDate(leg.dateLabel);
+}
+
+function endpointCode(node = {}) {
+  return safeCode(node.airportCode || node.code || node.displayCode);
+}
+
+function buildAviasalesOneWaySearchUrl({ origin, destination, departureDate, adults }) {
+  const from = safeCode(origin);
+  const to = safeCode(destination);
+  const datePart = aviasalesDatePart(departureDate);
+  if (!from || !to || !datePart) return null;
+  const travellerCount = Math.max(1, Math.min(9, Math.round(Number(adults) || 1)));
+  return `https://www.aviasales.com/search/${from}${datePart}${to}${travellerCount}`;
+}
+
+function enrichFlightLeg(leg = {}, query = {}) {
+  const next = { ...leg };
+  const mode = `${safeText(next.mode)} ${safeText(next.transportType)}`.toLowerCase();
+  const segments = Array.isArray(next.segments) ? next.segments : [];
+  const hasFlight = mode.includes('flight') || segments.some(segment => `${safeText(segment?.mode)} ${safeText(segment?.transportType)}`.toLowerCase().includes('flight'));
+  const isGround = !hasFlight && (mode.includes('ground') || mode.includes('rail') || mode.includes('bus'));
+  const amountUsd = Number(next.estimatedFlightUsd || next.estimatedTransportUsd || next.amountUsd || 0) || null;
+  if (isGround) {
+    next.bookingUrl = null;
+    next.providerUrl = null;
+    next.bookingStatus = 'ground-partner-link-pending';
+    next.booking = {
+      provider: null,
+      status: 'ground-partner-link-pending',
+      url: null,
+      label: 'Transfer options coming next',
+      finalPriceRequiresPartnerConfirmation: true
+    };
+    next.priceProvenance = {
+      category: 'ground-transfer-estimate',
+      provider: 'Globevoy planning model',
+      source: next.estimateSource || next.dateSource || 'ground-transfer-planning-estimate',
+      amountUsd,
+      finalPriceRequiresPartnerConfirmation: true
+    };
+    return next;
+  }
+  const evidence = providerEvidence(next);
+  const canonicalEvidence = evidence.priceEvidence || normalizeFlightEvidence({ ...evidence, sourceType: evidence.sourceType || SOURCE_TYPES.ESTIMATED }, {
+    origin: endpointCode(next.from || {}), destination: endpointCode(next.to || {}),
+    departureDate: legDepartureDate(next), currency: currencyFromQuery(query), sourceType: evidence.sourceType || SOURCE_TYPES.ESTIMATED
+  });
+  const departureDate = legDepartureDate(next);
+  const origin = endpointCode(next.from || {});
+  const destination = endpointCode(next.to || {});
+  const passengers = passengersFromQuery(query);
+  const providerApplied = providerFareApplied(next);
+  const exactVerified = !!(
+    providerApplied
+    && next?.providerVerification?.verified
+    && next?.providerVerification?.exactDateMatch
+    && next?.providerVerification?.productionEligible !== false
+  );
+  const existingProviderUrl = exactVerified ? safeHttpsUrl(
+    evidence.bookingLink || evidence.ticketLink || evidence.ticket_link || next.bookingUrl || next.providerUrl
+  ) : null;
+  const prefilledDirect = buildAviasalesOneWaySearchUrl({
+    origin,
+    destination,
+    departureDate,
+    adults: passengers.seatCount
+  });
+  const bookingUrl = existingProviderUrl || (prefilledDirect ? wrapAviasalesAffiliateLink(prefilledDirect) : null);
+  const observedAt = evidence.observedAt || evidence.updatedAt || next?.providerVerification?.observedAt || next?.providerVerification?.checkedAt || null;
+  const ageSeconds = Number.isFinite(Number(evidence.observedAgeSeconds))
+    ? Number(evidence.observedAgeSeconds)
+    : observedAgeSeconds(observedAt);
+  const itineraryHint = Boolean(existingProviderUrl && exactVerified);
+  const bookingStatus = itineraryHint ? 'provider-itinerary-hint' : (bookingUrl ? 'prefilled-comparison-link' : 'unavailable');
+
+  next.bookingUrl = bookingUrl;
+  next.providerUrl = bookingUrl;
+  next.bookingStatus = bookingStatus;
+  next.booking = {
+    provider: 'Aviasales',
+    status: bookingStatus,
+    url: bookingUrl,
+    directSearchUrl: prefilledDirect,
+    label: itineraryHint ? 'View provider fare' : 'Compare this flight',
+    exactTicketClaimed: false,
+    exactItineraryHint: itineraryHint,
+    prefilled: !!prefilledDirect,
+    route: { origin, destination, departureDate },
+    passengers,
+    finalPriceRequiresPartnerConfirmation: true,
+    trust: {
+      version: BOOKING_TRUST_VERSION_680A,
+      priceState: canonicalEvidence.sourceType === SOURCE_TYPES.LIVE ? 'current-provider-result' : canonicalEvidence.sourceType === SOURCE_TYPES.CACHED ? 'cached-provider-observation' : canonicalEvidence.sourceType === SOURCE_TYPES.UNAVAILABLE ? 'unavailable' : 'planning-estimate',
+      sourceType: canonicalEvidence.sourceType,
+      evidenceId: canonicalEvidence.evidenceId,
+      handoffState: itineraryHint ? 'itinerary-hint' : (bookingUrl ? 'route-search' : 'unavailable'),
+      currentPriceConfirmed: false,
+      availabilityConfirmed: false,
+      baggageBasis: 'unknown-unless-confirmed-on-partner',
+      taxAndFeeBasis: 'confirm-on-partner',
+      observedAt,
+      observedAgeSeconds: ageSeconds,
+      freshness: observationFreshness(ageSeconds),
+      ctaLabel: itineraryHint ? 'Check this itinerary on Aviasales' : 'Search this route on Aviasales'
+    }
+  };
+  next.priceProvenance = {
+    category: providerApplied ? 'provider-observation' : 'planning-estimate',
+    sourceType: canonicalEvidence.sourceType,
+    evidenceId: canonicalEvidence.evidenceId,
+    currentPriceConfirmed: canonicalEvidence.sourceType === SOURCE_TYPES.LIVE && canonicalEvidence.isBookable,
+    provider: providerApplied ? 'Travelpayouts/Aviasales' : 'Globevoy planning model',
+    source: providerApplied ? (evidence.source || next.estimateSource || 'travelpayouts-provider-observation') : (next.estimateSource || next.dateSource || 'planning-estimate'),
+    amountUsd,
+    unitAmountUsd: Number(next?.pricingIntegrity?.unitAmountUsd || evidence.perPassengerAmountUsd || 0) || null,
+    partyTotalAmountUsd: amountUsd,
+    passengerPricingVersion: next?.pricingIntegrity?.version || null,
+    observedCurrency: providerApplied ? (evidence.currency || query.currency || null) : 'USD',
+    observedAt: providerApplied ? observedAt : null,
+    checkedAt: next?.providerVerification?.checkedAt || null,
+    observedAgeSeconds: providerApplied ? ageSeconds : null,
+    freshness: providerApplied ? observationFreshness(ageSeconds) : null,
+    exactDateMatch: providerApplied ? Boolean(evidence.exactDateMatch || next?.providerVerification?.exactDateMatch) : false,
+    cacheHit: providerApplied ? Boolean(evidence.cacheHit || next?.providerVerification?.cacheHit) : false,
+    cached: providerApplied ? Boolean(evidence.cacheHit || next?.providerVerification?.cacheHit) : false,
+    appliedToEstimate: providerApplied,
+    finalPriceRequiresPartnerConfirmation: true
+  };
+  return next;
+}
+
+function destinationRecordForStop(stop = {}) {
+  const candidates = [stop.cityId, stop.id, stop.code, stop.airportCode, stop.city].filter(Boolean);
+  for (const candidate of candidates) {
+    const record = getDestination(candidate);
+    if (record) return record;
+  }
+  return null;
+}
+
+function withAgodaAffiliateParams(rawUrl, { checkIn, checkOut, currency, city, adults, children, rooms }) {
+  const urlString = safeHttpsUrl(rawUrl);
+  if (!urlString) return null;
+  try {
+    const url = new URL(urlString);
+    if (!/agoda\.com$/i.test(url.hostname) && !/\.agoda\.com$/i.test(url.hostname)) return url.toString();
+    if (checkIn) url.searchParams.set('checkIn', checkIn);
+    if (checkOut) url.searchParams.set('checkOut', checkOut);
+    url.searchParams.set('rooms', String(Math.max(1, Number(rooms) || Number(url.searchParams.get('rooms')) || 1)));
+    url.searchParams.set('adults', String(Math.max(1, Number(adults) || Number(url.searchParams.get('adults')) || 1)));
+    url.searchParams.set('children', String(Math.max(0, Number(children) || Number(url.searchParams.get('children')) || 0)));
+    url.searchParams.set('currency', currency);
+    url.searchParams.set('cid', url.searchParams.get('cid') || DEFAULT_AGODA_CID);
+    url.searchParams.set('tag', url.searchParams.get('tag') || `globevoy-tour-${safeText(city).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`);
+    return url.toString();
+  } catch (_) {
+    return null;
+  }
+}
+
+function buildAgodaCitySearchUrl({ cityId, checkIn, checkOut, currency, city, adults, children, rooms }) {
+  const numericCityId = Number(cityId);
+  if (!Number.isFinite(numericCityId) || numericCityId <= 0 || !checkIn || !checkOut) return null;
+  const url = new URL('https://www.agoda.com/search');
+  url.searchParams.set('city', String(Math.round(numericCityId)));
+  url.searchParams.set('checkIn', checkIn);
+  url.searchParams.set('checkOut', checkOut);
+  url.searchParams.set('rooms', String(Math.max(1, rooms || 1)));
+  url.searchParams.set('adults', String(Math.max(1, adults || 1)));
+  url.searchParams.set('children', String(Math.max(0, children || 0)));
+  url.searchParams.set('currency', currency);
+  url.searchParams.set('cid', DEFAULT_AGODA_CID);
+  url.searchParams.set('tag', `globevoy-tour-${safeText(city).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`);
+  return url.toString();
+}
+
+function enrichStay(stop = {}, query = {}) {
+  const next = { ...stop };
+  const hotel = { ...(next.hotel || {}) };
+  const record = destinationRecordForStop(next) || {};
+  const passengers = passengersFromQuery(query);
+  const currency = currencyFromQuery(query);
+  const checkIn = safeIsoDate(next.arrivalDate || next.checkIn || hotel.checkIn);
+  const checkOut = safeIsoDate(next.departureDate || next.checkOut || hotel.checkOut)
+    || addDays(checkIn, next.nights || 1);
+  const cityId = Number(next.agodaCityId || hotel.agodaCityId || hotel.providerCityId || record.agodaCityId || 0) || null;
+  const providerHotel = hotel.providerHotel || {};
+  const r2AgodaHandoff = agodaHandoffIntegrity679AR2Enabled()
+    && String(providerHotel.provider || hotel.provider || hotel.source || '').trim().toLowerCase().includes('agoda')
+    && String(providerHotel.priceLinkIntegrityVersion || hotel?.providerVerification?.priceLinkIntegrityVersion || '') === 'GV-HOTEL-679A-R1';
+  const rawHotelUrl = providerHotel.bookingUrl || hotel.hotelUrl || hotel.bookingUrl || hotel.providerUrl || hotel.url || null;
+  const specificHotelUrl = withAgodaAffiliateParams(rawHotelUrl, {
+    checkIn,
+    checkOut,
+    currency,
+    city: next.city,
+    adults: passengers.adults,
+    children: passengers.children,
+    rooms: passengers.rooms
+  });
+  const citySearchUrl = buildAgodaCitySearchUrl({
+    cityId,
+    checkIn,
+    checkOut,
+    currency,
+    city: next.city,
+    adults: passengers.adults,
+    children: passengers.children,
+    rooms: passengers.rooms
+  });
+  const bookingUrl = specificHotelUrl || citySearchUrl;
+  const providerLinkType = r2AgodaHandoff
+    ? safeText(providerHotel.linkType || 'provider-link-unverified')
+    : null;
+  const directPropertyLink = r2AgodaHandoff && providerHotel.directPropertyLink === true;
+  const providerResultsLink = r2AgodaHandoff && providerLinkType === 'provider-search-results';
+  const sourceText = safeText(hotel.source || hotel.estimateSource || '').toLowerCase();
+  const verification = hotel.providerVerification || {};
+  const providerRate = sourceText.includes('agoda')
+    && Number(hotel.estimatedStayUsd || hotel.totalStayUsd || 0) > 0
+    && verification.verified === true
+    && verification.exactStayDates === true
+    && verification.productionEligible === true;
+  const amountUsd = Number(hotel.estimatedStayUsd || hotel.totalStayUsd || 0) || null;
+  const canonicalEvidence = hotel.priceEvidence || normalizeHotelEvidence({ ...hotel, sourceType: providerRate ? SOURCE_TYPES.LIVE : SOURCE_TYPES.ESTIMATED }, {
+    city: next.city, checkIn, checkOut, currency
+  });
+
+  hotel.agodaCityId = cityId;
+  hotel.bookingUrl = bookingUrl;
+  hotel.providerUrl = bookingUrl;
+  hotel.booking = {
+    provider: 'Agoda',
+    status: r2AgodaHandoff
+      ? (directPropertyLink ? 'provider-property-page' : (specificHotelUrl ? (providerResultsLink ? 'provider-search-results' : 'provider-link-unverified') : (citySearchUrl ? 'prefilled-city-search' : 'unavailable')))
+      : (specificHotelUrl ? 'specific-hotel-deep-link' : (citySearchUrl ? 'prefilled-city-search' : 'unavailable')),
+    url: bookingUrl,
+    label: r2AgodaHandoff
+      ? (directPropertyLink ? 'View this hotel on Agoda' : (specificHotelUrl ? 'View in Agoda results' : (citySearchUrl ? 'View stays in this city' : 'Stay link unavailable')))
+      : (specificHotelUrl ? 'View this stay' : (citySearchUrl ? 'View stays in this city' : 'Stay link unavailable')),
+    specificHotel: r2AgodaHandoff ? directPropertyLink : !!specificHotelUrl,
+    prefilled: r2AgodaHandoff ? !directPropertyLink && !!bookingUrl : !!citySearchUrl,
+    ...(r2AgodaHandoff ? {
+      handoffIntegrityVersion: AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2,
+      linkType: directPropertyLink ? 'provider-property-page' : (providerResultsLink ? 'provider-search-results' : (specificHotelUrl ? 'provider-link-unverified' : (citySearchUrl ? 'prefilled-city-search' : 'unavailable'))),
+      directPropertyLink,
+      providerHotelIdInLink: providerHotel.providerHotelIdInLink === true,
+      finalDestinationRequiresPartnerConfirmation: directPropertyLink !== true
+    } : {}),
+    cityId,
+    checkIn,
+    checkOut,
+    passengers,
+    finalPriceRequiresPartnerConfirmation: true,
+    trust: {
+      version: BOOKING_TRUST_VERSION_680A,
+      priceState: canonicalEvidence.sourceType === SOURCE_TYPES.LIVE ? 'current-provider-result' : canonicalEvidence.sourceType === SOURCE_TYPES.CACHED ? 'cached-provider-observation' : 'planning-estimate',
+      sourceType: canonicalEvidence.sourceType,
+      evidenceId: canonicalEvidence.evidenceId,
+      handoffState: directPropertyLink ? 'property-page' : (specificHotelUrl ? 'selected-property-results' : (citySearchUrl ? 'city-search' : 'unavailable')),
+      currentPriceConfirmed: false,
+      availabilityConfirmed: false,
+      taxAndFeeBasis: providerHotel?.rateObservation?.taxBasis || 'unknown',
+      observedAt: hotel.observedAt || verification.observedAt || verification.checkedAt || null,
+      finalPriceRequiresPartnerConfirmation: true,
+      ctaLabel: directPropertyLink ? 'Check this property on Agoda' : (specificHotelUrl ? 'View selected property in Agoda results' : (citySearchUrl ? 'Search stays in this city' : 'Stay link unavailable'))
+    }
+  };
+  hotel.priceProvenance = {
+    category: providerRate ? 'provider-rate-evidence' : 'planning-estimate',
+    sourceType: canonicalEvidence.sourceType,
+    evidenceId: canonicalEvidence.evidenceId,
+    currentPriceConfirmed: false,
+    provider: providerRate ? 'Agoda' : 'Globevoy planning model',
+    source: hotel.source || hotel.provider || (providerRate ? 'agoda' : 'stay-planning-estimate'),
+    amountUsd,
+    nightlyPerRoomUsd: Number(hotel?.pricingIntegrity?.nightlyPerRoomUsd || hotel.estimatedNightlyUsd || 0) || null,
+    roomCount: Number(hotel?.pricingIntegrity?.roomCount || hotel.rooms || passengers.rooms || 1),
+    partyStayTotalUsd: amountUsd,
+    passengerPricingVersion: hotel?.pricingIntegrity?.version || null,
+    sampleSize: Number(hotel.sampleSize || 0) || null,
+    observedAt: providerRate ? (hotel.observedAt || hotel?.providerVerification?.observedAt || null) : null,
+    checkedAt: hotel?.providerVerification?.checkedAt || null,
+    observedAgeSeconds: providerRate && Number.isFinite(Number(hotel?.providerVerification?.observedAgeSeconds)) ? Number(hotel.providerVerification.observedAgeSeconds) : null,
+    exactStayDates: providerRate ? Boolean(hotel?.providerVerification?.exactStayDates || hotel?.requestEvidence?.exactStayDates) : false,
+    finalPriceRequiresPartnerConfirmation: true
+  };
+  next.agodaCityId = cityId;
+  next.hotel = hotel;
+  return next;
+}
+
+function summarizePriceProvenance(legs = [], stops = []) {
+  const flightProviderCount = legs.filter(leg => leg?.priceProvenance?.category === 'provider-observation').length;
+  const flightEstimateCount = legs.filter(leg => leg?.priceProvenance?.category === 'planning-estimate').length;
+  const groundEstimateCount = legs.filter(leg => leg?.priceProvenance?.category === 'ground-transfer-estimate').length;
+  const hotelProviderCount = stops.filter(stop => stop?.hotel?.priceProvenance?.category === 'provider-rate-evidence').length;
+  const hotelEstimateCount = stops.filter(stop => stop?.hotel?.priceProvenance?.category === 'planning-estimate').length;
+  return {
+    version: 'GV-LINK-663A+GV-LIVE-667B',
+    flightProviderCount,
+    flightEstimateCount,
+    groundEstimateCount,
+    hotelProviderCount,
+    hotelEstimateCount,
+    allPricesRequirePartnerConfirmation: true,
+    description: 'Each transport and stay amount is labelled as provider-backed/cached evidence or a planning estimate.'
+  };
+}
+
+module.exports = {
+  enrichFlightLeg,
+  enrichStay,
+  summarizePriceProvenance,
+  buildAviasalesOneWaySearchUrl,
+  buildAgodaCitySearchUrl,
+  safeIsoDate,
+  AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2,
+  BOOKING_TRUST_VERSION_680A,
+  agodaHandoffIntegrity679AR2Enabled
+};

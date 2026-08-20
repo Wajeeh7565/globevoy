@@ -1,0 +1,352 @@
+<!-- Globevoy - Explore Results (Edit Search Open) -->
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Explore Results — Edit Search Open | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+
+
+
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "green-100": "#E4F5EC",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#7385a1",
+                    "border": "#D7E0E7",
+                    "surface-tint": "#4d5f7a",
+                    "inverse-on-surface": "#e6f2ff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-warm": "#FFFAF0",
+                    "on-secondary-fixed-variant": "#00504c",
+                    "surface-bright": "#f6faff",
+                    "primary-container": "#071c33",
+                    "tertiary-fixed": "#ffdead",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#071c33",
+                    "primary": "#000000",
+                    "navy-950": "#071C33",
+                    "teal-100": "#E5F7F5",
+                    "surface-variant": "#d2e5f6",
+                    "tertiary": "#000000",
+                    "surface": "#f6faff",
+                    "teal-600": "#008F89",
+                    "tertiary-container": "#281900",
+                    "surface-soft": "#F4F7F9",
+                    "secondary": "#006a65",
+                    "on-background": "#0a1d2a",
+                    "error-container": "#ffdad6",
+                    "purple-100": "#EEE9FF",
+                    "amber-600": "#E99B00",
+                    "primary-fixed": "#d3e3ff",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#604100",
+                    "surface-dim": "#c9dcee",
+                    "secondary-fixed": "#7af6ed",
+                    "on-surface": "#0a1d2a",
+                    "surface-container-low": "#ebf5ff",
+                    "surface-container-highest": "#d2e5f6",
+                    "surface-container": "#e0f0ff",
+                    "on-primary": "#ffffff",
+                    "red-600": "#B93F45",
+                    "primary-fixed-dim": "#b5c8e6",
+                    "tertiary-fixed-dim": "#ffba39",
+                    "on-tertiary-fixed": "#281900",
+                    "on-secondary-fixed": "#00201e",
+                    "green-600": "#16885E",
+                    "secondary-container": "#77f3ea",
+                    "inverse-primary": "#b5c8e6",
+                    "amber-100": "#FFF2CF",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#af7a00",
+                    "surface-container-high": "#d8ebfc",
+                    "background": "#f6faff",
+                    "on-surface-variant": "#44474d",
+                    "secondary-fixed-dim": "#5bdad1",
+                    "ink": "#122232",
+                    "inverse-surface": "#21323f",
+                    "amber-500": "#FFB51B",
+                    "teal-500": "#08A8A0",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-container": "#006f69",
+                    "outline": "#74777e",
+                    "purple-600": "#7357E6",
+                    "on-primary-fixed-variant": "#364861",
+                    "navy-900": "#0B2038",
+                    "outline-variant": "#c4c6ce"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "max-width": "1280px",
+                    "separation": "64px",
+                    "section": "24px",
+                    "major": "32px",
+                    "compact": "8px",
+                    "micro": "4px",
+                    "control": "16px"
+            },
+            "fontFamily": {
+                    "caption": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "h1": ["Inter"],
+                    "small": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "h2": ["Inter"],
+                    "display-mobile": ["Inter"],
+                    "body": ["Inter"],
+                    "h3": ["Inter"],
+                    "h1-mobile": ["Inter"],
+                    "display": ["Inter"]
+            },
+            "fontSize": {
+                    "caption": ["12px", { "lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400" }],
+                    "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                    "h1": ["40px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                    "small": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                    "label-caps": ["12px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                    "h2": ["32px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                    "display-mobile": ["36px", { "lineHeight": "1.2", "fontWeight": "700" }],
+                    "body": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                    "h3": ["24px", { "lineHeight": "1.4", "fontWeight": "600" }],
+                    "h1-mobile": ["30px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                    "display": ["56px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="exact-recovered-html" name="gv-source-status"/></head>
+<body class="bg-background text-on-background font-body text-body antialiased min-h-screen flex flex-col relative overflow-hidden gv-canonical" data-depth="1" data-nav-active="Explore" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Explore Results — Edit Search Open · MVP supporting · not connected to production data.</div>
+<!-- Global TopNavBar (Large) -->
+
+<!-- Contextual TopNavBar (Small) - Search Summary -->
+<div class="bg-surface dark:bg-surface text-on-surface dark:text-on-surface font-small text-small border-b border-border flat no shadows fixed top-16 w-full z-[55] flex justify-between items-center px-major py-control h-16 shadow-sm">
+<div class="flex items-center gap-control flex-1">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+<div class="flex gap-2 items-center flex-wrap text-on-surface">
+<span class="font-small text-small font-semibold">Toronto (YYZ)</span>
+<span class="material-symbols-outlined text-outline text-[16px]">arrow_right_alt</span>
+<span class="font-small text-small font-semibold">Anywhere</span>
+<span class="text-border mx-1">|</span>
+<span class="font-small text-small text-on-surface-variant">Flexible Dates</span>
+<span class="text-border mx-1">|</span>
+<span class="font-small text-small text-on-surface-variant">1 Traveller</span>
+</div>
+</div>
+<button class="text-secondary font-small text-small font-semibold hover:bg-surface-variant px-3 py-1.5 rounded transition-colors scale-95 flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">edit</span> Edit search
+        </button>
+</div>
+<!-- Dimming Overlay for Background Content -->
+<div class="fixed inset-0 top-32 bg-navy-950/40 z-40 backdrop-blur-[2px] transition-opacity duration-300"></div>
+<!-- Edit Search Panel (Dropdown / Drawer) -->
+<section class="fixed top-32 left-0 w-full bg-surface z-50 border-b border-border shadow-md origin-top animate-in slide-in-from-top-4 duration-200">
+<div class="max-w-max-width mx-auto p-major">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-section">
+<!-- Row 1 -->
+<div class="md:col-span-4 flex flex-col gap-1">
+<label class="font-small text-small text-on-surface-variant">Leaving from</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline">flight_takeoff</span>
+<input class="w-full pl-10 pr-3 py-2 bg-surface-container-lowest border border-border rounded focus:outline-none focus:ring-2 focus:ring-teal-500 font-body text-body text-on-surface transition-shadow" placeholder="City or Airport" type="text" value="Toronto - YYZ"/>
+</div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-1">
+<label class="font-small text-small text-on-surface-variant">Total budget</label>
+<div class="relative">
+<span class="font-body text-body text-outline absolute left-3 top-2.5">C$</span>
+<input class="w-full pl-10 pr-3 py-2 bg-surface-container-lowest border border-border rounded focus:outline-none focus:ring-2 focus:ring-teal-500 font-body text-body text-on-surface transition-shadow" type="text" value="1,000"/>
+</div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-1">
+<label class="font-small text-small text-on-surface-variant">Travellers</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline">person</span>
+<select class="w-full pl-10 pr-8 py-2 bg-surface-container-lowest border border-border rounded focus:outline-none focus:ring-2 focus:ring-teal-500 font-body text-body text-on-surface appearance-none cursor-pointer">
+<option selected="">1 Adult</option>
+<option>2 Adults</option>
+<option>Family</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="md:col-span-4 flex flex-col gap-1">
+<label class="font-small text-small text-on-surface-variant">Dates</label>
+<div class="flex bg-surface-soft p-1 rounded border border-border">
+<button class="flex-1 py-1.5 text-center font-small text-small bg-surface-container-lowest shadow-sm rounded text-on-surface font-semibold">Flexible</button>
+<button class="flex-1 py-1.5 text-center font-small text-small text-on-surface-variant hover:text-on-surface rounded">Exact</button>
+<button class="flex-1 py-1.5 text-center font-small text-small text-on-surface-variant hover:text-on-surface rounded">Month</button>
+</div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-1">
+<label class="font-small text-small text-on-surface-variant">Trip length</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline">date_range</span>
+<select class="w-full pl-10 pr-8 py-2 bg-surface-container-lowest border border-border rounded focus:outline-none focus:ring-2 focus:ring-teal-500 font-body text-body text-on-surface appearance-none cursor-pointer">
+<option>Weekend (2-3 nights)</option>
+<option selected="">Short (4-6 nights)</option>
+<option>Week (7-9 nights)</option>
+<option>Long (10+ nights)</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-1">
+<label class="font-small text-small text-on-surface-variant">Continent</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline">public</span>
+<select class="w-full pl-10 pr-8 py-2 bg-surface-container-lowest border border-border rounded focus:outline-none focus:ring-2 focus:ring-teal-500 font-body text-body text-on-surface appearance-none cursor-pointer">
+<option selected="">Select All</option>
+<option>Europe</option>
+<option>Asia</option>
+<option>Americas</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="md:col-span-8 flex flex-col gap-2">
+<label class="font-small text-small text-on-surface-variant">Interests</label>
+<div class="flex flex-wrap gap-2">
+<button class="border border-teal-500 bg-teal-100 text-secondary-container-variant px-3 py-1.5 rounded-full font-small text-small inline-flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">done</span> Nature
+                        </button>
+<button class="border border-teal-500 bg-teal-100 text-secondary-container-variant px-3 py-1.5 rounded-full font-small text-small inline-flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">done</span> Culture
+                        </button>
+<button class="border border-border bg-surface-container-lowest text-on-surface-variant hover:border-outline px-3 py-1.5 rounded-full font-small text-small inline-flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">restaurant</span> Food
+                        </button>
+<button class="border border-border bg-surface-container-lowest text-on-surface-variant hover:border-outline px-3 py-1.5 rounded-full font-small text-small inline-flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">local_bar</span> Nightlife
+                        </button>
+<button class="border border-border bg-surface-container-lowest text-on-surface-variant hover:border-outline px-3 py-1.5 rounded-full font-small text-small inline-flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">hiking</span> Adventure
+                        </button>
+</div>
+</div>
+<div class="md:col-span-4 flex flex-col gap-1">
+<label class="font-small text-small text-on-surface-variant">Hotel style</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-outline">hotel</span>
+<select class="w-full pl-10 pr-8 py-2 bg-surface-container-lowest border border-border rounded focus:outline-none focus:ring-2 focus:ring-teal-500 font-body text-body text-on-surface appearance-none cursor-pointer">
+<option>Hostels &amp; Budget</option>
+<option selected="">Mid-range Comfort</option>
+<option>Boutique</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+</div>
+<div class="mt-section pt-section border-t border-border flex justify-end gap-control items-center">
+<button class="font-small text-small text-navy-950 px-4 py-2 rounded border border-border hover:bg-surface-variant transition-colors">Cancel</button>
+<button class="font-small text-small bg-teal-600 text-on-secondary px-6 py-2 rounded hover:bg-teal-500 transition-colors shadow-sm flex items-center gap-2">
+                    Apply changes
+                </button>
+</div>
+</div>
+</section>
+<!-- Main Canvas (Background Content - Dimmed via overlay above) -->
+<main class="pt-32 flex-1 flex max-w-max-width mx-auto w-full relative z-10 pointer-events-none select-none">
+<!-- Interactive Map Area (Left) -->
+<div class="hidden lg:block w-1/2 sticky top-32 h-[calc(100vh-8rem)] bg-surface-container-lowest border-r border-border p-compact">
+<div class="w-full h-full bg-surface-variant rounded flex items-center justify-center relative overflow-hidden" data-location="Europe">
+<!-- Simulated map background -->
+<div class="absolute inset-0 opacity-50" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;"></div>
+<span class="material-symbols-outlined text-[64px] text-outline">map</span>
+<!-- Simulated map markers -->
+<div class="absolute top-1/4 left-1/3 w-4 h-4 bg-amber-500 rounded-full border-2 border-white shadow-sm"></div>
+<div class="absolute top-1/2 left-2/3 w-4 h-4 bg-amber-500 rounded-full border-2 border-white shadow-sm"></div>
+<div class="absolute bottom-1/3 left-1/2 w-4 h-4 bg-amber-500 rounded-full border-2 border-white shadow-sm"></div>
+</div>
+</div>
+<!-- Results List (Right) -->
+<div class="w-full lg:w-1/2 p-major flex flex-col gap-section overflow-y-auto">
+<div class="flex justify-between items-end mb-2">
+<div>
+<h2 class="font-h2 text-h2 text-on-surface">Curated destinations</h2>
+<p class="font-body text-body text-on-surface-variant mt-1">Based on C$1,000 budget • 4-6 nights</p>
+</div>
+</div>
+<!-- Card 1 -->
+<article class="bg-surface border border-border rounded-lg p-control flex gap-control relative hover:shadow-md transition-shadow">
+<div class="absolute top-0 left-0 w-full h-1 bg-amber-500 rounded-t-lg"></div>
+<div class="w-40 h-32 rounded bg-cover bg-center shrink-0" data-alt="A wide angle photograph of a historic European city square at golden hour. Cobblestone streets, colorful building facades, and a prominent Gothic cathedral in the background. The lighting is warm and inviting, capturing a sense of discovery and cultural richness suitable for a travel app interface." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAWomb9zNufo09oCq367LTisoSWsTEEaYQdhPSBdXr0yB8MQKgUn7Dh5ESKnWgNdsNUwYGYGlvH5VFq_QXqEX8dAV-Fe40TCOpzuepZjuSJPxkfeY3gi2fgPIgcmflbG39clgDE0C175eFQP18eNRjykDkD7dAo71eggJEOgxbzQR_jD7VMws2BmozQUNtbBsLPAzxEm1IjBxuleQxgBkXqKPtkTEjxO3Poq0ECrteiUeV0GfuAmgs_HqwzPxywGqAoWlE-PVLBtIU')"></div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start">
+<span class="font-label-caps text-label-caps text-amber-600 bg-amber-100 px-2 py-0.5 rounded uppercase tracking-wider mb-2 inline-block">Best Balance</span>
+<span class="font-small text-small bg-teal-100 text-teal-600 px-2 py-0.5 rounded flex items-center gap-1 border border-teal-200">
+<span class="material-symbols-outlined text-[14px]">sensors</span> Live
+                            </span>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface leading-tight">Prague, Czechia</h3>
+<p class="font-caption text-caption text-on-surface-variant mt-1">Rich culture, affordable dining.</p>
+</div>
+<div class="flex justify-between items-end mt-4">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">flight</span>
+<span class="material-symbols-outlined text-[18px]">hotel</span>
+</div>
+<div class="text-right">
+<div class="font-h3 text-h3 font-bold text-navy-950">C$ 845</div>
+<div class="font-caption text-caption text-on-surface-variant">est. total per person</div>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-surface border border-border rounded-lg p-control flex gap-control relative hover:shadow-md transition-shadow opacity-90">
+<div class="w-40 h-32 rounded bg-cover bg-center shrink-0" data-alt="A serene landscape photo of a coastal village with white-washed houses built into a cliffside overlooking deep blue water. The scene is bathed in bright daylight with a clear sky, conveying a calm, aspirational, and relaxing travel mood." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCVshOllXVJBA26j0Z9LRecwoitdCRb7M_T47L6sfHw2Cdv4_w7UQoax4utGNxyYcLpbCQ_BdWkhzQzf_LRtl2_7A55H0QiVfX0ANuREW_q7kufd_ac_HFsJbKXnuBl9s3n9WtSCdoIuNDBXEtzywEyQaf6FW1x-EOaxDW32R6I-foy9HTHTzQGgoGORgGCx40q1v91v0BPLoSh6zMJQD-MHUqF4Lc1NJtRA95-GXQGOPedVDjsk45n2gOCtyiTNbUNV9ZLfwO2Ae0')"></div>
+<div class="flex-1 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-navy-950 bg-surface-dim px-2 py-0.5 rounded uppercase tracking-wider inline-block">Cheapest</span>
+</div>
+<h3 class="font-h3 text-h3 text-on-surface leading-tight">Lisbon, Portugal</h3>
+<p class="font-caption text-caption text-on-surface-variant mt-1">Coastal views, historic trams.</p>
+</div>
+<div class="flex justify-between items-end mt-4">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">flight</span>
+<span class="material-symbols-outlined text-[18px]">hotel</span>
+</div>
+<div class="text-right">
+<div class="font-h3 text-h3 font-bold text-navy-950">C$ 790</div>
+<div class="font-caption text-caption text-outline">cached data</div>
+</div>
+</div>
+</div>
+</article>
+</div>
+</main>
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

@@ -1,0 +1,830 @@
+{
+  "taskId": "GV-CITY-668E",
+  "generatedAt": "2026-07-23T00:32:47.007Z",
+  "passed": 40,
+  "failed": 0,
+  "total": 40,
+  "checks": [
+    {
+      "name": "service version is 668E",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668E feature is enabled",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "quality review list contains 13 unique cities",
+      "pass": true,
+      "details": [
+        "lahore-pk",
+        "islamabad-pk",
+        "bangkok-th",
+        "nairobi-ke",
+        "delhi-in",
+        "mumbai-in",
+        "karachi-pk",
+        "colombo-lk",
+        "jakarta-id",
+        "abuja-ng",
+        "aitutaki-ck",
+        "antananarivo-mg",
+        "ayutthaya-th"
+      ]
+    },
+    {
+      "name": "quality review list includes key false negatives",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "three supported quality strategies are available",
+      "pass": true,
+      "details": [
+        {
+          "id": "recommended-quality",
+          "sortBy": "Recommended",
+          "maxResult": 30
+        },
+        {
+          "id": "guest-review-quality",
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30
+        },
+        {
+          "id": "star-rating-quality",
+          "sortBy": "StarRatingDesc",
+          "maxResult": 30
+        }
+      ]
+    },
+    {
+      "name": "Agoda city-search maxResult is hard capped at 30",
+      "pass": true,
+      "details": [
+        {
+          "id": "recommended-quality",
+          "sortBy": "Recommended",
+          "maxResult": 30
+        },
+        {
+          "id": "guest-review-quality",
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30
+        },
+        {
+          "id": "star-rating-quality",
+          "sortBy": "StarRatingDesc",
+          "maxResult": 30
+        }
+      ]
+    },
+    {
+      "name": "default audit uses two bounded quality strategies",
+      "pass": true,
+      "details": [
+        {
+          "id": "recommended-quality",
+          "sortBy": "Recommended",
+          "maxResult": 30
+        },
+        {
+          "id": "guest-review-quality",
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30
+        }
+      ]
+    },
+    {
+      "name": "low-trust hotel exposes structural rejection reasons",
+      "pass": true,
+      "details": [
+        "low-trust-property-type",
+        "review-score-below-7",
+        "star-rating-below-3",
+        "review-count-below-25"
+      ]
+    },
+    {
+      "name": "first poor candidate slice does not end the audit",
+      "pass": true,
+      "details": [
+        {
+          "strategyId": "recommended-quality",
+          "sortBy": "Recommended",
+          "maxResult": 30,
+          "status": "live-inventory-unqualified",
+          "qualityFieldsRequested": true,
+          "fallbackWithoutQualityFields": false,
+          "rawHotelCount": 30,
+          "pricedHotelCount": 30,
+          "structuralQualityCount": 0,
+          "qualityQualifiedCount": 0,
+          "rejectionReasons": {
+            "low-trust-property-type": 30,
+            "review-score-below-7": 30,
+            "star-rating-below-3": 30,
+            "review-count-below-25": 30
+          }
+        },
+        {
+          "strategyId": "guest-review-quality",
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30,
+          "status": "quality-qualified-live-rate",
+          "qualityFieldsRequested": true,
+          "fallbackWithoutQualityFields": false,
+          "rawHotelCount": 39,
+          "pricedHotelCount": 39,
+          "structuralQualityCount": 1,
+          "qualityQualifiedCount": 1,
+          "rejectionReasons": {
+            "low-trust-property-type": 38,
+            "review-score-below-7": 38,
+            "star-rating-below-3": 38,
+            "review-count-below-25": 38
+          }
+        }
+      ]
+    },
+    {
+      "name": "second review-sorted slice recovers a qualified hotel",
+      "pass": true,
+      "details": {
+        "supported": true,
+        "reason": null,
+        "providerResponseMode": "injected-provider-response",
+        "checkIn": "2026-09-18",
+        "checkOut": "2026-09-20",
+        "candidateRetrievalMode": "quality-diversified-668e",
+        "selectedStrategy": {
+          "strategyId": "guest-review-quality",
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30
+        },
+        "strategiesRequested": 2,
+        "strategyAttempts": [
+          {
+            "strategyId": "recommended-quality",
+            "sortBy": "Recommended",
+            "maxResult": 30,
+            "status": "live-inventory-unqualified",
+            "qualityFieldsRequested": true,
+            "fallbackWithoutQualityFields": false,
+            "rawHotelCount": 30,
+            "pricedHotelCount": 30,
+            "structuralQualityCount": 0,
+            "qualityQualifiedCount": 0,
+            "rejectionReasons": {
+              "low-trust-property-type": 30,
+              "review-score-below-7": 30,
+              "star-rating-below-3": 30,
+              "review-count-below-25": 30
+            }
+          },
+          {
+            "strategyId": "guest-review-quality",
+            "sortBy": "AllGuestsReviewScore",
+            "maxResult": 30,
+            "status": "quality-qualified-live-rate",
+            "qualityFieldsRequested": true,
+            "fallbackWithoutQualityFields": false,
+            "rawHotelCount": 39,
+            "pricedHotelCount": 39,
+            "structuralQualityCount": 1,
+            "qualityQualifiedCount": 1,
+            "rejectionReasons": {
+              "low-trust-property-type": 38,
+              "review-score-below-7": 38,
+              "star-rating-below-3": 38,
+              "review-count-below-25": 38
+            }
+          }
+        ],
+        "rawHotelCount": 39,
+        "pricedHotelCount": 39,
+        "structuralQualityCount": 1,
+        "qualityQualifiedCount": 1,
+        "rejectedCount": 38,
+        "rejectionReasons": {
+          "low-trust-property-type": 38,
+          "review-score-below-7": 38,
+          "star-rating-below-3": 38,
+          "review-count-below-25": 38
+        },
+        "inventoryObserved": true,
+        "qualityQualifiedRate": true,
+        "sample": {
+          "averageNightlyUsd": 88,
+          "totalStayUsd": 176,
+          "hotelName": "Validation Grand Hotel",
+          "hotelUrlPresent": true,
+          "rating": 8.7,
+          "stars": 4,
+          "reviewCount": 250
+        }
+      }
+    },
+    {
+      "name": "quality recovery returns the trusted hotel sample",
+      "pass": true,
+      "details": {
+        "averageNightlyUsd": 88,
+        "totalStayUsd": 176,
+        "hotelName": "Validation Grand Hotel",
+        "hotelUrlPresent": true,
+        "rating": 8.7,
+        "stars": 4,
+        "reviewCount": 250
+      }
+    },
+    {
+      "name": "quality retrieval requests 30 candidates per strategy",
+      "pass": true,
+      "details": [
+        {
+          "sortBy": "Recommended",
+          "maxResult": 30,
+          "minimumReviewScore": 7,
+          "minimumStarRating": 3
+        },
+        {
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30,
+          "minimumReviewScore": 7,
+          "minimumStarRating": 3
+        },
+        {
+          "sortBy": "Recommended",
+          "maxResult": 30,
+          "minimumReviewScore": 7,
+          "minimumStarRating": 3
+        },
+        {
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30,
+          "minimumReviewScore": 7,
+          "minimumStarRating": 3
+        }
+      ]
+    },
+    {
+      "name": "quality retrieval requests provider quality filters",
+      "pass": true,
+      "details": [
+        {
+          "sortBy": "Recommended",
+          "maxResult": 30,
+          "minimumReviewScore": 7,
+          "minimumStarRating": 3
+        },
+        {
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30,
+          "minimumReviewScore": 7,
+          "minimumStarRating": 3
+        },
+        {
+          "sortBy": "Recommended",
+          "maxResult": 30,
+          "minimumReviewScore": 7,
+          "minimumStarRating": 3
+        },
+        {
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30,
+          "minimumReviewScore": 7,
+          "minimumStarRating": 3
+        }
+      ]
+    },
+    {
+      "name": "rejection diagnostics retain low-trust reasons",
+      "pass": true,
+      "details": {
+        "low-trust-property-type": 38,
+        "review-score-below-7": 38,
+        "star-rating-below-3": 38,
+        "review-count-below-25": 38
+      }
+    },
+    {
+      "name": "unqualified inventory remains visible but not recommendation-ready",
+      "pass": true,
+      "details": {
+        "supported": true,
+        "reason": null,
+        "providerResponseMode": "injected-provider-response",
+        "checkIn": "2026-09-18",
+        "checkOut": "2026-09-20",
+        "candidateRetrievalMode": "quality-diversified-668e",
+        "selectedStrategy": null,
+        "strategiesRequested": 2,
+        "strategyAttempts": [
+          {
+            "strategyId": "recommended-quality",
+            "sortBy": "Recommended",
+            "maxResult": 30,
+            "status": "live-inventory-unqualified",
+            "qualityFieldsRequested": true,
+            "fallbackWithoutQualityFields": false,
+            "rawHotelCount": 4,
+            "pricedHotelCount": 4,
+            "structuralQualityCount": 2,
+            "qualityQualifiedCount": 0,
+            "rejectionReasons": {
+              "low-trust-property-type": 1,
+              "review-score-below-7": 1,
+              "star-rating-below-3": 1,
+              "review-count-below-25": 2,
+              "ambiguous-price-unit": 1,
+              "implausibly-low-live-rate": 1
+            }
+          },
+          {
+            "strategyId": "guest-review-quality",
+            "sortBy": "AllGuestsReviewScore",
+            "maxResult": 30,
+            "status": "live-inventory-unqualified",
+            "qualityFieldsRequested": true,
+            "fallbackWithoutQualityFields": false,
+            "rawHotelCount": 4,
+            "pricedHotelCount": 4,
+            "structuralQualityCount": 2,
+            "qualityQualifiedCount": 0,
+            "rejectionReasons": {
+              "low-trust-property-type": 1,
+              "review-score-below-7": 1,
+              "star-rating-below-3": 1,
+              "review-count-below-25": 2,
+              "ambiguous-price-unit": 1,
+              "implausibly-low-live-rate": 1
+            }
+          }
+        ],
+        "rawHotelCount": 4,
+        "pricedHotelCount": 4,
+        "structuralQualityCount": 2,
+        "qualityQualifiedCount": 0,
+        "rejectedCount": 4,
+        "rejectionReasons": {
+          "low-trust-property-type": 1,
+          "review-score-below-7": 1,
+          "star-rating-below-3": 1,
+          "review-count-below-25": 2,
+          "ambiguous-price-unit": 1,
+          "implausibly-low-live-rate": 1
+        },
+        "inventoryObserved": true,
+        "qualityQualifiedRate": false,
+        "sample": null
+      }
+    },
+    {
+      "name": "ambiguous price unit is recorded",
+      "pass": true,
+      "details": {
+        "low-trust-property-type": 1,
+        "review-score-below-7": 1,
+        "star-rating-below-3": 1,
+        "review-count-below-25": 2,
+        "ambiguous-price-unit": 1,
+        "implausibly-low-live-rate": 1
+      }
+    },
+    {
+      "name": "implausibly low price is recorded",
+      "pass": true,
+      "details": {
+        "low-trust-property-type": 1,
+        "review-score-below-7": 1,
+        "star-rating-below-3": 1,
+        "review-count-below-25": 2,
+        "ambiguous-price-unit": 1,
+        "implausibly-low-live-rate": 1
+      }
+    },
+    {
+      "name": "thin review evidence is recorded",
+      "pass": true,
+      "details": {
+        "low-trust-property-type": 1,
+        "review-score-below-7": 1,
+        "star-rating-below-3": 1,
+        "review-count-below-25": 2,
+        "ambiguous-price-unit": 1,
+        "implausibly-low-live-rate": 1
+      }
+    },
+    {
+      "name": "customer stay estimator remains price-sorted and unchanged",
+      "pass": true,
+      "details": {
+        "customerEstimator": true,
+        "sortBy": "PriceAsc",
+        "maxResult": 10
+      }
+    },
+    {
+      "name": "city verifier exposes 668E candidate mode",
+      "pass": true,
+      "details": {
+        "provider": "Agoda",
+        "status": "live",
+        "verified": true,
+        "checkedAt": "2026-07-23T00:32:46.992Z",
+        "productionEligible": false,
+        "providerMappingVerified": false,
+        "inventoryObserved": true,
+        "qualityQualifiedRate": true,
+        "agodaCityId": 9395,
+        "mappingType": "inherited-exact",
+        "checkIn": "2026-09-18",
+        "checkOut": "2026-09-20",
+        "occupancy": {
+          "adults": 2,
+          "children": 0,
+          "rooms": 1,
+          "kind": "requested"
+        },
+        "occupancyFallbackUsed": false,
+        "rawHotelCount": 39,
+        "pricedHotelCount": 39,
+        "structuralQualityCount": 1,
+        "qualityQualifiedCount": 1,
+        "candidateRetrievalMode": "quality-diversified-668e",
+        "selectedStrategy": {
+          "strategyId": "guest-review-quality",
+          "sortBy": "AllGuestsReviewScore",
+          "maxResult": 30
+        },
+        "rejectionReasons": {
+          "low-trust-property-type": 38,
+          "review-score-below-7": 38,
+          "star-rating-below-3": 38,
+          "review-count-below-25": 38
+        },
+        "sample": {
+          "averageNightlyUsd": 88,
+          "totalStayUsd": 176,
+          "hotelName": "Validation Grand Hotel",
+          "hotelUrlPresent": true,
+          "rating": 8.7,
+          "stars": 4,
+          "reviewCount": 250
+        },
+        "attempts": [
+          {
+            "checkIn": "2026-09-18",
+            "checkOut": "2026-09-20",
+            "occupancy": {
+              "adults": 2,
+              "children": 0,
+              "rooms": 1,
+              "kind": "requested"
+            },
+            "status": "quality-qualified-live-rate",
+            "rawHotelCount": 39,
+            "pricedHotelCount": 39,
+            "structuralQualityCount": 1,
+            "qualityQualifiedCount": 1,
+            "rejectedCount": 38,
+            "candidateRetrievalMode": "quality-diversified-668e",
+            "selectedStrategy": {
+              "strategyId": "guest-review-quality",
+              "sortBy": "AllGuestsReviewScore",
+              "maxResult": 30
+            },
+            "strategiesRequested": 2,
+            "strategyAttempts": [
+              {
+                "strategyId": "recommended-quality",
+                "sortBy": "Recommended",
+                "maxResult": 30,
+                "status": "live-inventory-unqualified",
+                "qualityFieldsRequested": true,
+                "fallbackWithoutQualityFields": false,
+                "rawHotelCount": 30,
+                "pricedHotelCount": 30,
+                "structuralQualityCount": 0,
+                "qualityQualifiedCount": 0,
+                "rejectionReasons": {
+                  "low-trust-property-type": 30,
+                  "review-score-below-7": 30,
+                  "star-rating-below-3": 30,
+                  "review-count-below-25": 30
+                }
+              },
+              {
+                "strategyId": "guest-review-quality",
+                "sortBy": "AllGuestsReviewScore",
+                "maxResult": 30,
+                "status": "quality-qualified-live-rate",
+                "qualityFieldsRequested": true,
+                "fallbackWithoutQualityFields": false,
+                "rawHotelCount": 39,
+                "pricedHotelCount": 39,
+                "structuralQualityCount": 1,
+                "qualityQualifiedCount": 1,
+                "rejectionReasons": {
+                  "low-trust-property-type": 38,
+                  "review-score-below-7": 38,
+                  "star-rating-below-3": 38,
+                  "review-count-below-25": 38
+                }
+              }
+            ],
+            "rejectionReasons": {
+              "low-trust-property-type": 38,
+              "review-score-below-7": 38,
+              "star-rating-below-3": 38,
+              "review-count-below-25": 38
+            }
+          }
+        ],
+        "evidenceMode": "injected-test-response"
+      }
+    },
+    {
+      "name": "city verifier records selected review strategy",
+      "pass": true,
+      "details": {
+        "strategyId": "guest-review-quality",
+        "sortBy": "AllGuestsReviewScore",
+        "maxResult": 30
+      }
+    },
+    {
+      "name": "functional provider coverage is restored by broader candidates",
+      "pass": true,
+      "details": "live-both"
+    },
+    {
+      "name": "injected evidence still cannot activate production",
+      "pass": true,
+      "details": {
+        "eligible": false,
+        "mode": "inactive",
+        "reason": "flight-provider:live;stay-provider:live",
+        "activationPolicyVersion": "GV-CITY-668E"
+      }
+    },
+    {
+      "name": "batch reports 668E Agoda quality policy",
+      "pass": true,
+      "details": {
+        "recoveryMode": false,
+        "flightMonths": [
+          "2026-09"
+        ],
+        "regionalAnchorCount": 4,
+        "maximumFlightAttempts": 12,
+        "flightResultLimit": 8,
+        "stayCheckIns": [
+          "2026-09-18"
+        ],
+        "gatewayFallbackRepair": true,
+        "comfortQualificationRequired": true,
+        "qualityQualifiedStayRequired": true,
+        "agodaQualityCandidateRetrieval": true,
+        "agodaQualityStrategyCount": 2,
+        "agodaQualityMaxResult": 30,
+        "thresholdsRelaxed": false
+      }
+    },
+    {
+      "name": "batch reports bounded strategy and result counts",
+      "pass": true,
+      "details": {
+        "recoveryMode": false,
+        "flightMonths": [
+          "2026-09"
+        ],
+        "regionalAnchorCount": 4,
+        "maximumFlightAttempts": 12,
+        "flightResultLimit": 8,
+        "stayCheckIns": [
+          "2026-09-18"
+        ],
+        "gatewayFallbackRepair": true,
+        "comfortQualificationRequired": true,
+        "qualityQualifiedStayRequired": true,
+        "agodaQualityCandidateRetrieval": true,
+        "agodaQualityStrategyCount": 2,
+        "agodaQualityMaxResult": 30,
+        "thresholdsRelaxed": false
+      }
+    },
+    {
+      "name": "public summary reports 668E",
+      "pass": true,
+      "details": {
+        "ok": true,
+        "enabled": true,
+        "version": "GV-CITY-668E",
+        "snapshotVersion": "1.0.0",
+        "status": "verification-run-required",
+        "summary": {
+          "recordCount": 1000,
+          "verifiedAtLeastOnceCount": 0,
+          "pendingCount": 1000,
+          "productionActiveCount": 0,
+          "liveBothCount": 0,
+          "gatewaySupportedCount": 0,
+          "liveFlightsOnlyCount": 0,
+          "liveStaysOnlyCount": 0,
+          "estimateOnlyCount": 0,
+          "unresolvedCount": 0,
+          "providerErrorCount": 0,
+          "pendingCredentialsCount": 0,
+          "classificationCounts": {
+            "pending": 1000
+          }
+        },
+        "policy": {
+          "multiWindowFlightVerification": true,
+          "multiWindowStayVerification": true,
+          "gatewayFallbackRepair": true,
+          "providerCoverageSeparatedFromRecommendationReadiness": true,
+          "comfortQualifiedEvidenceRequiredForProductionRecommendation": true,
+          "agodaQualityCandidateRetrieval": true,
+          "agodaCandidateSorts": [
+            "Recommended",
+            "AllGuestsReviewScore",
+            "StarRatingDesc"
+          ],
+          "agodaCandidateMaximumPerStrategy": 30
+        },
+        "credentialsAvailable": {
+          "travelpayouts": true,
+          "agoda": true
+        },
+        "disclaimer": "The packaged snapshot is inherited from 668C. Live 668E counts become authoritative after rerunning the verifier and importing its output."
+      }
+    },
+    {
+      "name": "public summary documents supported sort strategies",
+      "pass": true,
+      "details": {
+        "multiWindowFlightVerification": true,
+        "multiWindowStayVerification": true,
+        "gatewayFallbackRepair": true,
+        "providerCoverageSeparatedFromRecommendationReadiness": true,
+        "comfortQualifiedEvidenceRequiredForProductionRecommendation": true,
+        "agodaQualityCandidateRetrieval": true,
+        "agodaCandidateSorts": [
+          "Recommended",
+          "AllGuestsReviewScore",
+          "StarRatingDesc"
+        ],
+        "agodaCandidateMaximumPerStrategy": 30
+      }
+    },
+    {
+      "name": "snapshot merge preserves 1000 records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot merge marks 668E policy",
+      "pass": true,
+      "details": {
+        "productionActivationRequires": "Production-eligible Travelpayouts observations and Agoda rates for the same city mapping strategy.",
+        "mockEvidencePolicy": "Injected or mock responses are validation-only and never activate a city.",
+        "batchPolicy": "Use bounded batches with checkpoint/resume; do not verify all 1,000 cities in one Lambda request.",
+        "transientFailurePolicy": "A single provider error does not permanently quarantine a city.",
+        "recommendationPolicy": "Pending, estimate-only, unresolved, or provider-error cities must not be described as fully provider-backed.",
+        "multiWindowFlightVerification": true,
+        "multiWindowStayVerification": true,
+        "gatewayFallbackRepair": true,
+        "providerCoverageSeparatedFromRecommendationReadiness": true,
+        "comfortQualifiedEvidenceRequiredForProductionRecommendation": true,
+        "agodaQualityCandidateRetrieval": true,
+        "agodaCandidateSorts": [
+          "Recommended",
+          "AllGuestsReviewScore",
+          "StarRatingDesc"
+        ],
+        "agodaCandidateMaximumPerStrategy": 30
+      }
+    },
+    {
+      "name": "snapshot merge uses new version",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda summary endpoint reports 668E",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda verifier remains protected",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "admin token still authorizes exact value",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "admin token still rejects wrong value",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Tulum CUN gateway repair remains intact",
+      "pass": true,
+      "details": [
+        {
+          "code": "CUN",
+          "kind": "gateway",
+          "mappingType": "gateway-airport",
+          "gateway": {
+            "airportCode": "CUN",
+            "gatewayCity": "Cancun",
+            "mode": "ground-transfer",
+            "distanceKm": 118,
+            "minutes": 105,
+            "estimatedOneWayUsd": 35,
+            "preferGateway": true,
+            "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+          }
+        },
+        {
+          "code": "TQO",
+          "kind": "direct",
+          "mappingType": "direct-city-or-airport-code"
+        }
+      ]
+    },
+    {
+      "name": "Caye Caulker BZE gateway repair remains intact",
+      "pass": true,
+      "details": [
+        {
+          "code": "BZE",
+          "kind": "gateway",
+          "mappingType": "gateway-airport",
+          "gateway": {
+            "airportCode": "BZE",
+            "gatewayCity": "Belize City",
+            "mode": "ferry-or-domestic-hop",
+            "distanceKm": 50,
+            "minutes": 90,
+            "estimatedOneWayUsd": 40,
+            "preferGateway": true,
+            "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+          }
+        },
+        {
+          "code": "CUK",
+          "kind": "direct",
+          "mappingType": "direct-city-or-airport-code"
+        }
+      ]
+    },
+    {
+      "name": "three flight months remain supported",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "three stay windows remain supported",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight comfort guard remains strict",
+      "pass": true,
+      "details": {
+        "qualified": false,
+        "durationKnown": true,
+        "transfersKnown": true,
+        "durationMinutes": 1925,
+        "transfers": 1,
+        "maxDurationMinutes": 1080,
+        "maxTransfers": 1,
+        "gatewayTransferMinutes": null,
+        "gatewayTransferQualified": true,
+        "reasons": [
+          "duration-too-long"
+        ]
+      }
+    },
+    {
+      "name": "668E can roll back to legacy candidate retrieval",
+      "pass": true,
+      "details": [
+        {
+          "id": "legacy-price-asc",
+          "sortBy": "PriceAsc",
+          "maxResult": 10
+        }
+      ]
+    }
+  ]
+}

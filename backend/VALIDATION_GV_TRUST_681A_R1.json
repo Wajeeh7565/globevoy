@@ -1,0 +1,44 @@
+{
+  "version": "GV-TRUST-681A-R1",
+  "generatedAt": "2026-08-20T02:15:37.322Z",
+  "passed": 9,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "DUB-BJV €39 root-cause fixture remains cached, not live/bookable",
+      "status": "PASS"
+    },
+    {
+      "name": "one-way and round-trip observations keep distinct evidence identities",
+      "status": "PASS"
+    },
+    {
+      "name": "route, date and currency contamination is rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "automatic flexible selection enforces +14 days",
+      "status": "PASS"
+    },
+    {
+      "name": "explicit exact-date request remains exact",
+      "status": "PASS"
+    },
+    {
+      "name": "hotel evidence never claims booking confirmation",
+      "status": "PASS"
+    },
+    {
+      "name": "canonical ledger separates planning total from current-provider total",
+      "status": "PASS"
+    },
+    {
+      "name": "flight and hotel handoffs preserve route, dates, party and currency",
+      "status": "PASS"
+    },
+    {
+      "name": "major-city and random-origin scenarios retain exact airport identity",
+      "status": "PASS"
+    }
+  ]
+}

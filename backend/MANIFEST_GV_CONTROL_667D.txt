@@ -1,0 +1,20 @@
+GV-CONTROL-667D backend manifest
+Baseline: GV-CONTROL-667C
+
+Changed implementation files:
+- generated-tour-controls.js
+- generated-tour.js
+- services/route-feasibility.js
+- services/traveller-pricing.js
+- services/canonical-total-evidence.js
+
+Added validation/report files:
+- validate-gv-control-667d.js
+- VALIDATION_GV_CONTROL_667D.json
+- VALIDATION_GV_CONTROL_667C_REGRESSION_667D.json
+- VALIDATION_GV_LIVE_667A_REGRESSION_667D.json
+- VALIDATION_GV_LIVE_667B_REGRESSION_667D.json
+- VALIDATION_GV_MVP_666A_REGRESSION_667D.json
+- VALIDATION_GV_DATE_666B_REGRESSION_667D.json
+- GV-CONTROL-667D_REPORT.md
+- MANIFEST_GV_CONTROL_667D.txt

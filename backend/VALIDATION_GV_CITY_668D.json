@@ -1,0 +1,1194 @@
+{
+  "taskId": "GV-CITY-668D",
+  "generatedAt": "2026-07-18T00:14:16.992Z",
+  "passed": 47,
+  "failed": 0,
+  "total": 47,
+  "checks": [
+    {
+      "name": "service version is 668D",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "review list contains 66 cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "review list includes Tulum and Caye Caulker",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668D feature is enabled",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight verification scans three months",
+      "pass": true,
+      "details": [
+        "2026-09",
+        "2026-10",
+        "2026-11"
+      ]
+    },
+    {
+      "name": "stay verification scans three windows",
+      "pass": true,
+      "details": [
+        "2026-09-18",
+        "2026-10-18",
+        "2026-11-17"
+      ]
+    },
+    {
+      "name": "Tulum gateway candidate is CUN",
+      "pass": true,
+      "details": [
+        {
+          "code": "CUN",
+          "kind": "gateway",
+          "mappingType": "gateway-airport",
+          "gateway": {
+            "airportCode": "CUN",
+            "gatewayCity": "Cancun",
+            "mode": "ground-transfer",
+            "distanceKm": 118,
+            "minutes": 105,
+            "estimatedOneWayUsd": 35,
+            "preferGateway": true,
+            "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+          }
+        },
+        {
+          "code": "TQO",
+          "kind": "direct",
+          "mappingType": "direct-city-or-airport-code"
+        }
+      ]
+    },
+    {
+      "name": "Tulum direct TQO remains an alternate",
+      "pass": true,
+      "details": [
+        {
+          "code": "CUN",
+          "kind": "gateway",
+          "mappingType": "gateway-airport",
+          "gateway": {
+            "airportCode": "CUN",
+            "gatewayCity": "Cancun",
+            "mode": "ground-transfer",
+            "distanceKm": 118,
+            "minutes": 105,
+            "estimatedOneWayUsd": 35,
+            "preferGateway": true,
+            "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+          }
+        },
+        {
+          "code": "TQO",
+          "kind": "direct",
+          "mappingType": "direct-city-or-airport-code"
+        }
+      ]
+    },
+    {
+      "name": "Caye Caulker gateway candidate is BZE",
+      "pass": true,
+      "details": [
+        {
+          "code": "BZE",
+          "kind": "gateway",
+          "mappingType": "gateway-airport",
+          "gateway": {
+            "airportCode": "BZE",
+            "gatewayCity": "Belize City",
+            "mode": "ferry-or-domestic-hop",
+            "distanceKm": 50,
+            "minutes": 90,
+            "estimatedOneWayUsd": 40,
+            "preferGateway": true,
+            "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+          }
+        },
+        {
+          "code": "CUK",
+          "kind": "direct",
+          "mappingType": "direct-city-or-airport-code"
+        }
+      ]
+    },
+    {
+      "name": "Caye Caulker direct CUK remains an alternate",
+      "pass": true,
+      "details": [
+        {
+          "code": "BZE",
+          "kind": "gateway",
+          "mappingType": "gateway-airport",
+          "gateway": {
+            "airportCode": "BZE",
+            "gatewayCity": "Belize City",
+            "mode": "ferry-or-domestic-hop",
+            "distanceKm": 50,
+            "minutes": 90,
+            "estimatedOneWayUsd": 40,
+            "preferGateway": true,
+            "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+          }
+        },
+        {
+          "code": "CUK",
+          "kind": "direct",
+          "mappingType": "direct-city-or-airport-code"
+        }
+      ]
+    },
+    {
+      "name": "Pakistan uses regional connection hubs",
+      "pass": true,
+      "details": [
+        "DXB",
+        "DOH",
+        "IST",
+        "LON"
+      ]
+    },
+    {
+      "name": "Caribbean uses MIA and NYC anchors",
+      "pass": true,
+      "details": [
+        "MIA",
+        "NYC",
+        "YTO",
+        "MEX"
+      ]
+    },
+    {
+      "name": "reasonable flight is comfort-qualified",
+      "pass": true,
+      "details": {
+        "qualified": true,
+        "durationKnown": true,
+        "transfersKnown": true,
+        "durationMinutes": 600,
+        "transfers": 1,
+        "maxDurationMinutes": 1080,
+        "maxTransfers": 1,
+        "gatewayTransferMinutes": null,
+        "gatewayTransferQualified": true,
+        "reasons": []
+      }
+    },
+    {
+      "name": "Tokyo-style 1925 minute sample fails comfort",
+      "pass": true,
+      "details": {
+        "qualified": false,
+        "durationKnown": true,
+        "transfersKnown": true,
+        "durationMinutes": 1925,
+        "transfers": 1,
+        "maxDurationMinutes": 1080,
+        "maxTransfers": 1,
+        "gatewayTransferMinutes": null,
+        "gatewayTransferQualified": true,
+        "reasons": [
+          "duration-too-long"
+        ]
+      }
+    },
+    {
+      "name": "two-transfer sample fails comfort",
+      "pass": true,
+      "details": {
+        "qualified": false,
+        "durationKnown": true,
+        "transfersKnown": true,
+        "durationMinutes": 700,
+        "transfers": 2,
+        "maxDurationMinutes": 1080,
+        "maxTransfers": 1,
+        "gatewayTransferMinutes": null,
+        "gatewayTransferQualified": true,
+        "reasons": [
+          "too-many-transfers"
+        ]
+      }
+    },
+    {
+      "name": "Tulum live verification uses CUN gateway",
+      "pass": true,
+      "details": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "verified": true,
+        "checkedAt": "2026-07-18T00:14:16.973Z",
+        "productionEligible": false,
+        "providerMappingVerified": false,
+        "inventoryObserved": true,
+        "comfortQualified": true,
+        "comfort": {
+          "qualified": true,
+          "durationKnown": true,
+          "transfersKnown": true,
+          "durationMinutes": 300,
+          "transfers": 0,
+          "maxDurationMinutes": 1080,
+          "maxTransfers": 1,
+          "gatewayTransferMinutes": 105,
+          "gatewayTransferQualified": true,
+          "reasons": []
+        },
+        "mappingType": "gateway-airport",
+        "destinationCode": "CUN",
+        "destinationKind": "gateway",
+        "gatewayFallbackUsed": true,
+        "gateway": {
+          "airportCode": "CUN",
+          "gatewayCity": "Cancun",
+          "mode": "ground-transfer",
+          "distanceKm": 118,
+          "minutes": 105,
+          "estimatedOneWayUsd": 35,
+          "preferGateway": true,
+          "note": "Use Cancun (CUN) as the practical international gateway, then continue to Tulum by ground transfer."
+        },
+        "verifiedOrigin": "YTO",
+        "verificationMonth": "2026-09",
+        "scannedMonths": [
+          "2026-09"
+        ],
+        "anchorOrigins": [
+          "YTO",
+          "MIA",
+          "NYC",
+          "MEX"
+        ],
+        "observationCount": 1,
+        "sample": {
+          "departureDate": "2026-09-18",
+          "amount": 200,
+          "currency": "CAD",
+          "transfers": 0,
+          "durationMinutes": 300,
+          "bookingLinkPresent": true
+        },
+        "attempts": [
+          {
+            "origin": "YTO",
+            "destination": "CUN",
+            "destinationKind": "gateway",
+            "month": "2026-09",
+            "supported": true,
+            "reason": null,
+            "observationCount": 1,
+            "endpointUsed": "prices_for_dates",
+            "cacheHit": false
+          }
+        ],
+        "evidenceMode": "injected-test-response"
+      }
+    },
+    {
+      "name": "Tulum remains a destination while gateway is metadata",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Tulum provider classification is gateway-supported",
+      "pass": true,
+      "details": "gateway-supported"
+    },
+    {
+      "name": "injected Tulum evidence cannot activate production",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Caye Caulker live verification uses BZE gateway",
+      "pass": true,
+      "details": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "verified": true,
+        "checkedAt": "2026-07-18T00:14:16.973Z",
+        "productionEligible": false,
+        "providerMappingVerified": false,
+        "inventoryObserved": true,
+        "comfortQualified": true,
+        "comfort": {
+          "qualified": true,
+          "durationKnown": true,
+          "transfersKnown": true,
+          "durationMinutes": 300,
+          "transfers": 0,
+          "maxDurationMinutes": 1080,
+          "maxTransfers": 1,
+          "gatewayTransferMinutes": 90,
+          "gatewayTransferQualified": true,
+          "reasons": []
+        },
+        "mappingType": "gateway-airport",
+        "destinationCode": "BZE",
+        "destinationKind": "gateway",
+        "gatewayFallbackUsed": true,
+        "gateway": {
+          "airportCode": "BZE",
+          "gatewayCity": "Belize City",
+          "mode": "ferry-or-domestic-hop",
+          "distanceKm": 50,
+          "minutes": 90,
+          "estimatedOneWayUsd": 40,
+          "preferGateway": true,
+          "note": "Use Belize City (BZE) as the practical international gateway, then continue to Caye Caulker by ferry or domestic hop."
+        },
+        "verifiedOrigin": "MIA",
+        "verificationMonth": "2026-09",
+        "scannedMonths": [
+          "2026-09"
+        ],
+        "anchorOrigins": [
+          "MIA",
+          "NYC",
+          "YTO",
+          "MEX"
+        ],
+        "observationCount": 1,
+        "sample": {
+          "departureDate": "2026-09-18",
+          "amount": 200,
+          "currency": "CAD",
+          "transfers": 0,
+          "durationMinutes": 300,
+          "bookingLinkPresent": true
+        },
+        "attempts": [
+          {
+            "origin": "MIA",
+            "destination": "BZE",
+            "destinationKind": "gateway",
+            "month": "2026-09",
+            "supported": true,
+            "reason": null,
+            "observationCount": 1,
+            "endpointUsed": "prices_for_dates",
+            "cacheHit": false
+          }
+        ],
+        "evidenceMode": "injected-test-response"
+      }
+    },
+    {
+      "name": "multi-month flight retry finds later inventory",
+      "pass": true,
+      "details": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "verified": true,
+        "checkedAt": "2026-07-18T00:14:16.974Z",
+        "productionEligible": false,
+        "providerMappingVerified": false,
+        "inventoryObserved": true,
+        "comfortQualified": true,
+        "comfort": {
+          "qualified": true,
+          "durationKnown": true,
+          "transfersKnown": true,
+          "durationMinutes": 300,
+          "transfers": 0,
+          "maxDurationMinutes": 1080,
+          "maxTransfers": 1,
+          "gatewayTransferMinutes": null,
+          "gatewayTransferQualified": true,
+          "reasons": []
+        },
+        "mappingType": "direct-city-or-airport-code",
+        "destinationCode": "ALG",
+        "destinationKind": "direct",
+        "gatewayFallbackUsed": false,
+        "gateway": null,
+        "verifiedOrigin": "PAR",
+        "verificationMonth": "2026-10",
+        "scannedMonths": [
+          "2026-09",
+          "2026-10"
+        ],
+        "anchorOrigins": [
+          "PAR",
+          "LON",
+          "IST",
+          "MAD"
+        ],
+        "observationCount": 1,
+        "sample": {
+          "departureDate": "2026-10-20",
+          "amount": 200,
+          "currency": "CAD",
+          "transfers": 0,
+          "durationMinutes": 300,
+          "bookingLinkPresent": true
+        },
+        "attempts": [
+          {
+            "origin": "PAR",
+            "destination": "ALG",
+            "destinationKind": "direct",
+            "month": "2026-09",
+            "supported": true,
+            "reason": null,
+            "observationCount": 0,
+            "endpointUsed": "prices_for_dates",
+            "cacheHit": false
+          },
+          {
+            "origin": "PAR",
+            "destination": "ALG",
+            "destinationKind": "direct",
+            "month": "2026-10",
+            "supported": true,
+            "reason": null,
+            "observationCount": 1,
+            "endpointUsed": "prices_for_dates",
+            "cacheHit": false
+          }
+        ],
+        "evidenceMode": "injected-test-response"
+      }
+    },
+    {
+      "name": "multi-month attempts retain empty first window",
+      "pass": true,
+      "details": [
+        {
+          "origin": "PAR",
+          "destination": "ALG",
+          "destinationKind": "direct",
+          "month": "2026-09",
+          "supported": true,
+          "reason": null,
+          "observationCount": 0,
+          "endpointUsed": "prices_for_dates",
+          "cacheHit": false
+        },
+        {
+          "origin": "PAR",
+          "destination": "ALG",
+          "destinationKind": "direct",
+          "month": "2026-10",
+          "supported": true,
+          "reason": null,
+          "observationCount": 1,
+          "endpointUsed": "prices_for_dates",
+          "cacheHit": false
+        }
+      ]
+    },
+    {
+      "name": "multi-window Agoda retry finds later rate",
+      "pass": true,
+      "details": {
+        "provider": "Agoda",
+        "status": "live",
+        "verified": true,
+        "checkedAt": "2026-07-18T00:14:16.974Z",
+        "productionEligible": false,
+        "providerMappingVerified": false,
+        "inventoryObserved": true,
+        "qualityQualifiedRate": true,
+        "agodaCityId": 15470,
+        "mappingType": "inherited-exact",
+        "checkIn": "2026-11-18",
+        "checkOut": "2026-11-20",
+        "occupancy": {
+          "adults": 1,
+          "children": 0,
+          "rooms": 1,
+          "kind": "requested"
+        },
+        "occupancyFallbackUsed": false,
+        "rawHotelCount": 1,
+        "pricedHotelCount": 1,
+        "qualityQualifiedCount": 1,
+        "sample": {
+          "averageNightlyUsd": 110,
+          "totalStayUsd": 221,
+          "hotelName": "Validation Grand Hotel",
+          "hotelUrlPresent": true,
+          "rating": 8.7,
+          "stars": 4,
+          "reviewCount": 250
+        },
+        "attempts": [
+          {
+            "checkIn": "2026-09-18",
+            "checkOut": "2026-09-20",
+            "occupancy": {
+              "adults": 1,
+              "children": 0,
+              "rooms": 1,
+              "kind": "requested"
+            },
+            "status": "no-live-rate",
+            "rawHotelCount": 0,
+            "pricedHotelCount": 0,
+            "qualityQualifiedCount": 0,
+            "rejectedCount": 0
+          },
+          {
+            "checkIn": "2026-10-18",
+            "checkOut": "2026-10-20",
+            "occupancy": {
+              "adults": 1,
+              "children": 0,
+              "rooms": 1,
+              "kind": "requested"
+            },
+            "status": "no-live-rate",
+            "rawHotelCount": 0,
+            "pricedHotelCount": 0,
+            "qualityQualifiedCount": 0,
+            "rejectedCount": 0
+          },
+          {
+            "checkIn": "2026-11-18",
+            "checkOut": "2026-11-20",
+            "occupancy": {
+              "adults": 1,
+              "children": 0,
+              "rooms": 1,
+              "kind": "requested"
+            },
+            "status": "quality-qualified-live-rate",
+            "rawHotelCount": 1,
+            "pricedHotelCount": 1,
+            "qualityQualifiedCount": 1,
+            "rejectedCount": 0
+          }
+        ],
+        "evidenceMode": "injected-test-response"
+      }
+    },
+    {
+      "name": "Agoda attempts include earlier empty windows",
+      "pass": true,
+      "details": [
+        {
+          "checkIn": "2026-09-18",
+          "checkOut": "2026-09-20",
+          "occupancy": {
+            "adults": 1,
+            "children": 0,
+            "rooms": 1,
+            "kind": "requested"
+          },
+          "status": "no-live-rate",
+          "rawHotelCount": 0,
+          "pricedHotelCount": 0,
+          "qualityQualifiedCount": 0,
+          "rejectedCount": 0
+        },
+        {
+          "checkIn": "2026-10-18",
+          "checkOut": "2026-10-20",
+          "occupancy": {
+            "adults": 1,
+            "children": 0,
+            "rooms": 1,
+            "kind": "requested"
+          },
+          "status": "no-live-rate",
+          "rawHotelCount": 0,
+          "pricedHotelCount": 0,
+          "qualityQualifiedCount": 0,
+          "rejectedCount": 0
+        },
+        {
+          "checkIn": "2026-11-18",
+          "checkOut": "2026-11-20",
+          "occupancy": {
+            "adults": 1,
+            "children": 0,
+            "rooms": 1,
+            "kind": "requested"
+          },
+          "status": "quality-qualified-live-rate",
+          "rawHotelCount": 1,
+          "pricedHotelCount": 1,
+          "qualityQualifiedCount": 1,
+          "rejectedCount": 0
+        }
+      ]
+    },
+    {
+      "name": "raw Agoda inventory is separated from quality rate",
+      "pass": true,
+      "details": {
+        "provider": "Agoda",
+        "status": "live-inventory-unqualified",
+        "verified": false,
+        "checkedAt": "2026-07-18T00:14:16.974Z",
+        "productionEligible": false,
+        "providerMappingVerified": false,
+        "inventoryObserved": true,
+        "qualityQualifiedRate": false,
+        "agodaCityId": 15470,
+        "mappingType": "inherited-exact",
+        "checkIn": "2026-09-18",
+        "checkOut": "2026-09-20",
+        "occupancy": {
+          "adults": 1,
+          "children": 0,
+          "rooms": 1,
+          "kind": "requested"
+        },
+        "rawHotelCount": 1,
+        "pricedHotelCount": 1,
+        "qualityQualifiedCount": 0,
+        "attempts": [
+          {
+            "checkIn": "2026-09-18",
+            "checkOut": "2026-09-20",
+            "occupancy": {
+              "adults": 1,
+              "children": 0,
+              "rooms": 1,
+              "kind": "requested"
+            },
+            "status": "live-inventory-unqualified",
+            "rawHotelCount": 1,
+            "pricedHotelCount": 1,
+            "qualityQualifiedCount": 0,
+            "rejectedCount": 1
+          }
+        ],
+        "evidenceMode": "injected-test-response"
+      }
+    },
+    {
+      "name": "production activation requires all separated signals",
+      "pass": true,
+      "details": {
+        "classification": "live-both",
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": true,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": true,
+          "reasons": []
+        },
+        "productionActivation": {
+          "eligible": true,
+          "mode": "direct-or-metro",
+          "reason": "providers-live-stay-quality-qualified-flight-comfort-qualified",
+          "activationPolicyVersion": "GV-CITY-668D"
+        }
+      }
+    },
+    {
+      "name": "provider-covered city can still fail route comfort",
+      "pass": true,
+      "details": {
+        "classification": "live-both",
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "flight-comfort:duration-too-long"
+          ]
+        },
+        "productionActivation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "flight-comfort:duration-too-long",
+          "activationPolicyVersion": "GV-CITY-668D"
+        }
+      }
+    },
+    {
+      "name": "provider-covered city can fail stay quality",
+      "pass": true,
+      "details": {
+        "classification": "live-both",
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": false,
+          "comfortQualifiedFlightObserved": true,
+          "reasons": [
+            "stay-quality:no-qualified-live-rate"
+          ]
+        },
+        "productionActivation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "stay-quality:no-qualified-live-rate",
+          "activationPolicyVersion": "GV-CITY-668D"
+        }
+      }
+    },
+    {
+      "name": "injected providers are recognized functionally",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "injected evidence never verifies production mapping",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "empty multi-window result remains estimate-only",
+      "pass": true,
+      "details": {
+        "ok": true,
+        "version": "GV-CITY-668D",
+        "cityId": "paris-fr",
+        "displayName": "Paris",
+        "country": "France",
+        "countryCode": "FR",
+        "selectionTier": "current-500",
+        "staticMapping": {
+          "travelpayouts": {
+            "mappingAccepted": true,
+            "mappingType": "metro-code",
+            "locationCode": "PAR",
+            "gateway": null,
+            "verificationCandidates": [
+              {
+                "code": "PAR",
+                "kind": "direct",
+                "mappingType": "metro-code"
+              }
+            ]
+          },
+          "agoda": {
+            "mappingAccepted": true,
+            "mappingType": "inherited-exact",
+            "cityId": 15470,
+            "hotelCount": 5422
+          }
+        },
+        "live": {
+          "travelpayouts": {
+            "provider": "Travelpayouts/Aviasales",
+            "status": "no-live-observations",
+            "verified": false,
+            "checkedAt": "2026-07-18T00:14:16.975Z",
+            "productionEligible": false,
+            "providerMappingVerified": false,
+            "destinationCandidates": [
+              {
+                "code": "PAR",
+                "kind": "direct",
+                "mappingType": "metro-code"
+              }
+            ],
+            "scannedMonths": [
+              "2026-09"
+            ],
+            "anchorOrigins": [
+              "LON",
+              "FRA",
+              "AMS"
+            ],
+            "attempts": [
+              {
+                "origin": "LON",
+                "destination": "PAR",
+                "destinationKind": "direct",
+                "month": "2026-09",
+                "supported": true,
+                "reason": null,
+                "observationCount": 0,
+                "endpointUsed": "prices_for_dates",
+                "cacheHit": false
+              },
+              {
+                "origin": "FRA",
+                "destination": "PAR",
+                "destinationKind": "direct",
+                "month": "2026-09",
+                "supported": true,
+                "reason": null,
+                "observationCount": 0,
+                "endpointUsed": "prices_for_dates",
+                "cacheHit": false
+              },
+              {
+                "origin": "AMS",
+                "destination": "PAR",
+                "destinationKind": "direct",
+                "month": "2026-09",
+                "supported": true,
+                "reason": null,
+                "observationCount": 0,
+                "endpointUsed": "prices_for_dates",
+                "cacheHit": false
+              }
+            ],
+            "evidenceMode": "injected-test-response"
+          },
+          "agoda": {
+            "provider": "Agoda",
+            "status": "no-live-rate",
+            "verified": false,
+            "checkedAt": "2026-07-18T00:14:16.975Z",
+            "productionEligible": false,
+            "providerMappingVerified": false,
+            "inventoryObserved": false,
+            "qualityQualifiedRate": false,
+            "agodaCityId": 15470,
+            "mappingType": "inherited-exact",
+            "scannedCheckIns": [
+              "2026-09-18"
+            ],
+            "attempts": [
+              {
+                "checkIn": "2026-09-18",
+                "checkOut": "2026-09-20",
+                "occupancy": {
+                  "adults": 1,
+                  "children": 0,
+                  "rooms": 1,
+                  "kind": "requested"
+                },
+                "status": "no-live-rate",
+                "rawHotelCount": 0,
+                "pricedHotelCount": 0,
+                "qualityQualifiedCount": 0,
+                "rejectedCount": 0
+              }
+            ],
+            "evidenceMode": "injected-test-response"
+          }
+        },
+        "providerCoverage": {
+          "eligible": false,
+          "classification": "estimate-only",
+          "flightInventoryObserved": false,
+          "stayInventoryObserved": false,
+          "flightMappingVerified": false,
+          "stayMappingVerified": false,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": false,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "flight-provider:no-live-observations",
+            "stay-provider:no-live-rate"
+          ]
+        },
+        "classification": "estimate-only",
+        "productionActivation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "flight-provider:no-live-observations;stay-provider:no-live-rate",
+          "activationPolicyVersion": "GV-CITY-668D"
+        },
+        "lastVerifiedAt": "2026-07-18T00:14:16.975Z"
+      }
+    },
+    {
+      "name": "provider errors remain visible",
+      "pass": true,
+      "details": {
+        "ok": true,
+        "version": "GV-CITY-668D",
+        "cityId": "paris-fr",
+        "displayName": "Paris",
+        "country": "France",
+        "countryCode": "FR",
+        "selectionTier": "current-500",
+        "staticMapping": {
+          "travelpayouts": {
+            "mappingAccepted": true,
+            "mappingType": "metro-code",
+            "locationCode": "PAR",
+            "gateway": null,
+            "verificationCandidates": [
+              {
+                "code": "PAR",
+                "kind": "direct",
+                "mappingType": "metro-code"
+              }
+            ]
+          },
+          "agoda": {
+            "mappingAccepted": true,
+            "mappingType": "inherited-exact",
+            "cityId": 15470,
+            "hotelCount": 5422
+          }
+        },
+        "live": {
+          "travelpayouts": {
+            "provider": "Travelpayouts/Aviasales",
+            "status": "provider-error",
+            "verified": false,
+            "checkedAt": "2026-07-18T00:14:16.976Z",
+            "productionEligible": false,
+            "providerMappingVerified": false,
+            "destinationCandidates": [
+              {
+                "code": "PAR",
+                "kind": "direct",
+                "mappingType": "metro-code"
+              }
+            ],
+            "scannedMonths": [
+              "2026-09"
+            ],
+            "anchorOrigins": [
+              "LON",
+              "FRA",
+              "AMS"
+            ],
+            "attempts": [
+              {
+                "origin": "LON",
+                "destination": "PAR",
+                "destinationKind": "direct",
+                "month": "2026-09",
+                "supported": false,
+                "reason": "provider-error",
+                "observationCount": 0,
+                "endpointUsed": null,
+                "cacheHit": false
+              },
+              {
+                "origin": "FRA",
+                "destination": "PAR",
+                "destinationKind": "direct",
+                "month": "2026-09",
+                "supported": false,
+                "reason": "provider-error",
+                "observationCount": 0,
+                "endpointUsed": null,
+                "cacheHit": false
+              },
+              {
+                "origin": "AMS",
+                "destination": "PAR",
+                "destinationKind": "direct",
+                "month": "2026-09",
+                "supported": false,
+                "reason": "provider-error",
+                "observationCount": 0,
+                "endpointUsed": null,
+                "cacheHit": false
+              }
+            ],
+            "evidenceMode": "injected-test-response"
+          },
+          "agoda": {
+            "provider": "Agoda",
+            "status": "provider-error",
+            "verified": false,
+            "checkedAt": "2026-07-18T00:14:16.976Z",
+            "productionEligible": false,
+            "providerMappingVerified": false,
+            "inventoryObserved": false,
+            "qualityQualifiedRate": false,
+            "agodaCityId": 15470,
+            "mappingType": "inherited-exact",
+            "scannedCheckIns": [
+              "2026-09-18"
+            ],
+            "attempts": [
+              {
+                "checkIn": "2026-09-18",
+                "occupancy": {
+                  "adults": 1,
+                  "children": 0,
+                  "rooms": 1,
+                  "kind": "requested"
+                },
+                "status": "provider-error",
+                "error": "Agoda request failed (503): {\"message\":\"temporary provider failure\"}"
+              }
+            ],
+            "evidenceMode": "injected-test-response"
+          }
+        },
+        "providerCoverage": {
+          "eligible": false,
+          "classification": "provider-error",
+          "flightInventoryObserved": false,
+          "stayInventoryObserved": false,
+          "flightMappingVerified": false,
+          "stayMappingVerified": false,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": false,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "flight-provider:provider-error",
+            "stay-provider:provider-error"
+          ]
+        },
+        "classification": "provider-error",
+        "productionActivation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "flight-provider:provider-error;stay-provider:provider-error",
+          "activationPolicyVersion": "GV-CITY-668D"
+        },
+        "lastVerifiedAt": "2026-07-18T00:14:16.976Z"
+      }
+    },
+    {
+      "name": "unknown city fails safely",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "batch remains hard capped at 10",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "batch exposes provider coverage and production counts separately",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "batch includes 668D verification policy",
+      "pass": true,
+      "details": {
+        "flightMonths": [
+          "2026-09"
+        ],
+        "stayCheckIns": [
+          "2026-11-18"
+        ],
+        "gatewayFallbackRepair": true,
+        "comfortQualificationRequired": true,
+        "qualityQualifiedStayRequired": true
+      }
+    },
+    {
+      "name": "batch never activates injected evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot merge preserves 1000 records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot merge marks 668D policy",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot summary separates provider coverage count",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "public summary reports 668D",
+      "pass": true,
+      "details": {
+        "ok": true,
+        "enabled": true,
+        "version": "GV-CITY-668D",
+        "snapshotVersion": "1.0.0",
+        "status": "verification-run-required",
+        "summary": {
+          "recordCount": 1000,
+          "verifiedAtLeastOnceCount": 0,
+          "pendingCount": 1000,
+          "productionActiveCount": 0,
+          "liveBothCount": 0,
+          "gatewaySupportedCount": 0,
+          "liveFlightsOnlyCount": 0,
+          "liveStaysOnlyCount": 0,
+          "estimateOnlyCount": 0,
+          "unresolvedCount": 0,
+          "providerErrorCount": 0,
+          "pendingCredentialsCount": 0,
+          "classificationCounts": {
+            "pending": 1000
+          }
+        },
+        "policy": {
+          "multiWindowFlightVerification": true,
+          "multiWindowStayVerification": true,
+          "gatewayFallbackRepair": true,
+          "providerCoverageSeparatedFromRecommendationReadiness": true,
+          "comfortQualifiedEvidenceRequiredForProductionRecommendation": true
+        },
+        "credentialsAvailable": {
+          "travelpayouts": true,
+          "agoda": true
+        },
+        "disclaimer": "The packaged snapshot is inherited from 668C. Live 668D counts become authoritative after rerunning the verifier and importing its output."
+      }
+    },
+    {
+      "name": "admin token accepts exact header",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "admin token rejects wrong header",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda summary endpoint reports 668D",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda verifier remains protected",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda verifier still requires POST",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "both feature flags can disable verification",
+      "pass": true,
+      "details": {}
+    }
+  ]
+}

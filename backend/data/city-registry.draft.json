@@ -1,0 +1,3679 @@
+{
+  "registryVersion": "city-registry-draft-v0.1",
+  "generatedFrom": [
+    "docs/city-registry-schema.md",
+    "docs/current-55-city-registry-draft.md",
+    "backend/src/data/destination-meta.js",
+    "frontend/destination-data.js"
+  ],
+  "generatedAt": "2026-06-01",
+  "status": "draft-not-production",
+  "notes": [
+    "This draft registry does not power production yet.",
+    "Live datasets remain frontend/destination-data.js and backend/src/data/destination-meta.js.",
+    "Provider IDs and airport mappings are review candidates, not final truth.",
+    "Raw Agoda hotel feeds and full Travelpayouts feeds are not stored in this file.",
+    "No API keys, tokens, passwords, or private credentials belong in this file."
+  ],
+  "cities": [
+    {
+      "globevoyCityId": "calgary-ca",
+      "displayCity": "Calgary",
+      "country": "Canada",
+      "countryCode": "CA",
+      "region": null,
+      "latitude": 51.05,
+      "longitude": -114.07,
+      "aliases": [
+        "Calgary",
+        "Calgary, Canada",
+        "Calgary Canada",
+        "YYC"
+      ],
+      "normalizedSearchNames": [
+        "calgary",
+        "calgary canada",
+        "yyc"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "YYC",
+      "travelpayoutsAirportCodes": [
+        "YYC"
+      ],
+      "agodaCityId": 8913,
+      "agodaHotelCount": 150,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "YYC",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Calgary",
+          "staticCityCountryCode": "CA",
+          "staticAirportName": "Calgary International Airport",
+          "staticAirportCityCode": "YYC",
+          "recommendedCityCode": "YYC",
+          "recommendedAirportCodes": [
+            "YYC"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: YYC matched provider city/airport data and current airport list YYC validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Calgary (AB)"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 8913, 150 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: YYC matched provider city/airport data and current airport list YYC validated."
+    },
+    {
+      "globevoyCityId": "montreal-ca",
+      "displayCity": "Montreal",
+      "country": "Canada",
+      "countryCode": "CA",
+      "region": null,
+      "latitude": 45.5,
+      "longitude": -73.57,
+      "aliases": [
+        "Montreal",
+        "Montreal, Canada",
+        "Montreal Canada",
+        "YUL"
+      ],
+      "normalizedSearchNames": [
+        "montreal",
+        "montreal canada",
+        "yul"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "YMQ",
+      "travelpayoutsAirportCodes": [
+        "YUL"
+      ],
+      "agodaCityId": 9933,
+      "agodaHotelCount": 282,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "YUL",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code-corrected",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "city-metro-code-corrected-airport-list-kept",
+          "staticCityName": "Montreal",
+          "staticCityCountryCode": "CA",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "YMQ",
+          "recommendedAirportCodes": [
+            "YUL"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: city/metro code corrected from YUL to YMQ for broad Montreal search; YUL remains the primary airport and current airport code."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Montreal (QC)"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, city-vs-airport policy corrected 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 9933, 282 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: city/metro code corrected from YUL to YMQ for broad Montreal search; YUL remains the primary airport and current airport code."
+    },
+    {
+      "globevoyCityId": "quebec-city-ca",
+      "displayCity": "Quebec City",
+      "country": "Canada",
+      "countryCode": "CA",
+      "region": null,
+      "latitude": 46.81,
+      "longitude": -71.21,
+      "aliases": [
+        "Quebec City",
+        "Quebec City, Canada",
+        "Quebec City Canada",
+        "YQB",
+        "Quebec"
+      ],
+      "normalizedSearchNames": [
+        "quebec city",
+        "quebec city canada",
+        "yqb",
+        "quebec"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "YQB",
+      "travelpayoutsAirportCodes": [
+        "YQB"
+      ],
+      "agodaCityId": 16644,
+      "agodaHotelCount": 194,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "YQB",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Quebec",
+          "staticCityCountryCode": "CA",
+          "staticAirportName": "Quebec City Jean Lesage International Airport",
+          "staticAirportCityCode": "YQB",
+          "recommendedCityCode": "YQB",
+          "recommendedAirportCodes": [
+            "YQB"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: YQB matched provider city/airport data and current airport list YQB validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-match-country-variant",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Quebec City (QC)"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 16644, 194 feed hotels, city-name-match-country-variant; not live availability. Travelpayouts static validation 2026-06-02: YQB matched provider city/airport data and current airport list YQB validated."
+    },
+    {
+      "globevoyCityId": "vancouver-ca",
+      "displayCity": "Vancouver",
+      "country": "Canada",
+      "countryCode": "CA",
+      "region": null,
+      "latitude": 49.28,
+      "longitude": -123.12,
+      "aliases": [
+        "Vancouver",
+        "Vancouver, Canada",
+        "Vancouver Canada",
+        "YVR"
+      ],
+      "normalizedSearchNames": [
+        "vancouver",
+        "vancouver canada",
+        "yvr"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "YVR",
+      "travelpayoutsAirportCodes": [
+        "YVR"
+      ],
+      "agodaCityId": 9023,
+      "agodaHotelCount": 148,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "YVR",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Vancouver",
+          "staticCityCountryCode": "CA",
+          "staticAirportName": "Vancouver International Airport",
+          "staticAirportCityCode": "YVR",
+          "recommendedCityCode": "YVR",
+          "recommendedAirportCodes": [
+            "YVR"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: YVR matched provider city/airport data and current airport list YVR validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Vancouver (BC)"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 9023, 148 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: YVR matched provider city/airport data and current airport list YVR validated."
+    },
+    {
+      "globevoyCityId": "winnipeg-ca",
+      "displayCity": "Winnipeg",
+      "country": "Canada",
+      "countryCode": "CA",
+      "region": null,
+      "latitude": 49.9,
+      "longitude": -97.14,
+      "aliases": [
+        "Winnipeg",
+        "Winnipeg, Canada",
+        "Winnipeg Canada",
+        "YWG"
+      ],
+      "normalizedSearchNames": [
+        "winnipeg",
+        "winnipeg canada",
+        "ywg"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "YWG",
+      "travelpayoutsAirportCodes": [
+        "YWG"
+      ],
+      "agodaCityId": 3564,
+      "agodaHotelCount": 78,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "YWG",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Winnipeg",
+          "staticCityCountryCode": "CA",
+          "staticAirportName": "Winnipeg James Armstrong Richardson International Airport",
+          "staticAirportCityCode": "YWG",
+          "recommendedCityCode": "YWG",
+          "recommendedAirportCodes": [
+            "YWG"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: YWG matched provider city/airport data and current airport list YWG validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Winnipeg (MB)"
+        }
+      },
+      "groupRole": "group2-hidden-gem-value",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 3564, 78 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: YWG matched provider city/airport data and current airport list YWG validated."
+    },
+    {
+      "globevoyCityId": "cartagena-co",
+      "displayCity": "Cartagena",
+      "country": "Colombia",
+      "countryCode": "CO",
+      "region": null,
+      "latitude": 10.44,
+      "longitude": -75.51,
+      "aliases": [
+        "Cartagena",
+        "Cartagena, Colombia",
+        "Cartagena Colombia",
+        "CTG"
+      ],
+      "normalizedSearchNames": [
+        "cartagena",
+        "cartagena colombia",
+        "ctg"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "CTG",
+      "travelpayoutsAirportCodes": [
+        "CTG"
+      ],
+      "agodaCityId": 10838,
+      "agodaHotelCount": 511,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "CTG",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Cartagena",
+          "staticCityCountryCode": "CO",
+          "staticAirportName": "Rafael Nunez International Airport",
+          "staticAirportCityCode": "CTG",
+          "recommendedCityCode": "CTG",
+          "recommendedAirportCodes": [
+            "CTG"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: CTG matched provider city/airport data and current airport list CTG validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Cartagena"
+        }
+      },
+      "groupRole": "group2-hidden-gem-value",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 10838, 511 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: CTG matched provider city/airport data and current airport list CTG validated."
+    },
+    {
+      "globevoyCityId": "medellin-co",
+      "displayCity": "Medellin",
+      "country": "Colombia",
+      "countryCode": "CO",
+      "region": null,
+      "latitude": 6.16,
+      "longitude": -75.42,
+      "aliases": [
+        "Medellin",
+        "Medellin, Colombia",
+        "Medellin Colombia",
+        "MDE"
+      ],
+      "normalizedSearchNames": [
+        "medellin",
+        "medellin colombia",
+        "mde"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "MDE",
+      "travelpayoutsAirportCodes": [
+        "MDE"
+      ],
+      "agodaCityId": 10309,
+      "agodaHotelCount": 566,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "MDE",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Medellin",
+          "staticCityCountryCode": "CO",
+          "staticAirportName": "Jose Maria Cordova International Airport",
+          "staticAirportCityCode": "MDE",
+          "recommendedCityCode": "MDE",
+          "recommendedAirportCodes": [
+            "MDE"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: MDE matched provider city/airport data and current airport list MDE validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Medellín"
+        }
+      },
+      "groupRole": "group2-hidden-gem-value",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 10309, 566 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: MDE matched provider city/airport data and current airport list MDE validated."
+    },
+    {
+      "globevoyCityId": "san-jose-cr",
+      "displayCity": "San Jose",
+      "country": "Costa Rica",
+      "countryCode": "CR",
+      "region": null,
+      "latitude": 9.99,
+      "longitude": -84.21,
+      "aliases": [
+        "San Jose",
+        "San Jose, Costa Rica",
+        "San Jose Costa Rica",
+        "SJO"
+      ],
+      "normalizedSearchNames": [
+        "san jose",
+        "san jose costa rica",
+        "sjo"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "SJO",
+      "travelpayoutsAirportCodes": [
+        "SJO"
+      ],
+      "agodaCityId": 6576,
+      "agodaHotelCount": 139,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "SJO",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "San Jose",
+          "staticCityCountryCode": "CR",
+          "staticAirportName": "Juan Santamaria International Airport",
+          "staticAirportCityCode": "SJO",
+          "recommendedCityCode": "SJO",
+          "recommendedAirportCodes": [
+            "SJO"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: SJO matched provider city/airport data and current airport list SJO validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "San Jose"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 6576, 139 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: SJO matched provider city/airport data and current airport list SJO validated."
+    },
+    {
+      "globevoyCityId": "prague-cz",
+      "displayCity": "Prague",
+      "country": "Czech Republic",
+      "countryCode": "CZ",
+      "region": null,
+      "latitude": 50.0878114,
+      "longitude": 14.4204598,
+      "aliases": [
+        "Prague",
+        "Prague, Czech Republic",
+        "Prague Czech Republic",
+        "PRG"
+      ],
+      "normalizedSearchNames": [
+        "prague",
+        "prague czech republic",
+        "prg"
+      ],
+      "mapCoordinatesSource": "travelpayouts-city-center-reviewed-2026-06-02",
+      "travelpayoutsCityCode": "PRG",
+      "travelpayoutsAirportCodes": [
+        "PRG"
+      ],
+      "agodaCityId": 15977,
+      "agodaHotelCount": 1071,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "PRG",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Prague",
+          "staticCityCountryCode": "CZ",
+          "staticAirportName": "Vaclav Havel Airport Prague",
+          "staticAirportCityCode": "PRG",
+          "recommendedCityCode": "PRG",
+          "recommendedAirportCodes": [
+            "PRG"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: PRG matched provider city/airport data and current airport list PRG validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Prague"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Exists in both current datasets; provider IDs and product labels still need review. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 15977, 1071 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: PRG matched provider city/airport data and current airport list PRG validated. Coordinate policy resolved 2026-06-02: registry latitude/longitude use Prague city-center/provider city coordinates for map/globe placement; PRG airport coordinates stay airport metadata only."
+    },
+    {
+      "globevoyCityId": "cairo-eg",
+      "displayCity": "Cairo",
+      "country": "Egypt",
+      "countryCode": "EG",
+      "region": null,
+      "latitude": 30.12,
+      "longitude": 31.41,
+      "aliases": [
+        "Cairo",
+        "Cairo, Egypt",
+        "Cairo Egypt",
+        "CAI"
+      ],
+      "normalizedSearchNames": [
+        "cairo",
+        "cairo egypt",
+        "cai"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "CAI",
+      "travelpayoutsAirportCodes": [
+        "CAI"
+      ],
+      "agodaCityId": 7923,
+      "agodaHotelCount": 1009,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "CAI",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Cairo",
+          "staticCityCountryCode": "EG",
+          "staticAirportName": "Cairo International Airport",
+          "staticAirportCityCode": "CAI",
+          "recommendedCityCode": "CAI",
+          "recommendedAirportCodes": [
+            "CAI"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: CAI matched provider city/airport data and current airport list CAI validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Cairo"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 7923, 1009 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: CAI matched provider city/airport data and current airport list CAI validated."
+    },
+    {
+      "globevoyCityId": "lyon-fr",
+      "displayCity": "Lyon",
+      "country": "France",
+      "countryCode": "FR",
+      "region": null,
+      "latitude": 45.76,
+      "longitude": 4.84,
+      "aliases": [
+        "Lyon",
+        "Lyon, France",
+        "Lyon France",
+        "LYS"
+      ],
+      "normalizedSearchNames": [
+        "lyon",
+        "lyon france",
+        "lys"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "LYS",
+      "travelpayoutsAirportCodes": [
+        "LYS"
+      ],
+      "agodaCityId": 11361,
+      "agodaHotelCount": 319,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "LYS",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Lyon",
+          "staticCityCountryCode": "FR",
+          "staticAirportName": "Lyon Saint-Exupery International Airport",
+          "staticAirportCityCode": "LYS",
+          "recommendedCityCode": "LYS",
+          "recommendedAirportCodes": [
+            "LYS"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: LYS matched provider city/airport data and current airport list LYS validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Lyon"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 11361, 319 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: LYS matched provider city/airport data and current airport list LYS validated."
+    },
+    {
+      "globevoyCityId": "paris-fr",
+      "displayCity": "Paris",
+      "country": "France",
+      "countryCode": "FR",
+      "region": null,
+      "latitude": 48.86,
+      "longitude": 2.35,
+      "aliases": [
+        "Paris",
+        "Paris, France",
+        "Paris France",
+        "PAR"
+      ],
+      "normalizedSearchNames": [
+        "paris",
+        "paris france",
+        "par"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "PAR",
+      "travelpayoutsAirportCodes": [
+        "CDG",
+        "ORY"
+      ],
+      "agodaCityId": 15470,
+      "agodaHotelCount": 5386,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "CDG",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "partial",
+          "source": "Travelpayouts public static cities.json and airports.json plus Globevoy draft metro-airport policy",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code",
+          "airportCodeStatus": "draft-conservative-airport-list-applied-needs-review",
+          "reviewStatus": "draft-metro-airport-list-needs-product-provider-review",
+          "staticCityName": "Paris",
+          "staticCityCountryCode": "FR",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "PAR",
+          "recommendedAirportCodes": [
+            "CDG",
+            "ORY"
+          ],
+          "primaryAirportCode": "CDG",
+          "excludedSecondaryCodes": [
+            "BVA"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: PAR remains the broad city/metro code for search; CDG is the draft primary airport for display/default fallback; airport list CDG, ORY is conservative draft policy and still needs product/provider review. BVA is left as secondary/provider-review, not included in the main draft list. Static code existence does not guarantee route availability or bookability."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Paris"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, conservative metro airport policy applied 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 15470, 5386 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: PAR remains the broad city/metro code for search; CDG is the draft primary airport for display/default fallback; airport list CDG, ORY is conservative draft policy and still needs product/provider review. BVA is left as secondary/provider-review, not included in the main draft list. Static code existence does not guarantee route availability or bookability."
+    },
+    {
+      "globevoyCityId": "berlin-de",
+      "displayCity": "Berlin",
+      "country": "Germany",
+      "countryCode": "DE",
+      "region": null,
+      "latitude": 52.52,
+      "longitude": 13.4,
+      "aliases": [
+        "Berlin",
+        "Berlin, Germany",
+        "Berlin Germany",
+        "BER"
+      ],
+      "normalizedSearchNames": [
+        "berlin",
+        "berlin germany",
+        "ber"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "BER",
+      "travelpayoutsAirportCodes": [
+        "BER"
+      ],
+      "agodaCityId": 2366,
+      "agodaHotelCount": 820,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "BER",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Berlin",
+          "staticCityCountryCode": "DE",
+          "staticAirportName": "Brandenburg",
+          "staticAirportCityCode": "BER",
+          "recommendedCityCode": "BER",
+          "recommendedAirportCodes": [
+            "BER"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: BER matched provider city/airport data and current airport list BER validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Berlin"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 2366, 820 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: BER matched provider city/airport data and current airport list BER validated."
+    },
+    {
+      "globevoyCityId": "budapest-hu",
+      "displayCity": "Budapest",
+      "country": "Hungary",
+      "countryCode": "HU",
+      "region": null,
+      "latitude": 47.44,
+      "longitude": 19.26,
+      "aliases": [
+        "Budapest",
+        "Budapest, Hungary",
+        "Budapest Hungary",
+        "BUD"
+      ],
+      "normalizedSearchNames": [
+        "budapest",
+        "budapest hungary",
+        "bud"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "BUD",
+      "travelpayoutsAirportCodes": [
+        "BUD"
+      ],
+      "agodaCityId": 10647,
+      "agodaHotelCount": 953,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "BUD",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Budapest",
+          "staticCityCountryCode": "HU",
+          "staticAirportName": "Budapest Ferenc Liszt International Airport",
+          "staticAirportCityCode": "BUD",
+          "recommendedCityCode": "BUD",
+          "recommendedAirportCodes": [
+            "BUD"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: BUD matched provider city/airport data and current airport list BUD validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Budapest"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 10647, 953 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: BUD matched provider city/airport data and current airport list BUD validated."
+    },
+    {
+      "globevoyCityId": "reykjavik-is",
+      "displayCity": "Reykjavik",
+      "country": "Iceland",
+      "countryCode": "IS",
+      "region": null,
+      "latitude": 64.135338,
+      "longitude": -21.89521,
+      "aliases": [
+        "Reykjavik",
+        "Reykjavik, Iceland",
+        "Reykjavik Iceland",
+        "KEF"
+      ],
+      "normalizedSearchNames": [
+        "reykjavik",
+        "reykjavik iceland",
+        "kef"
+      ],
+      "mapCoordinatesSource": "travelpayouts-city-center-reviewed-2026-06-02",
+      "travelpayoutsCityCode": "REK",
+      "travelpayoutsAirportCodes": [
+        "KEF"
+      ],
+      "agodaCityId": 13864,
+      "agodaHotelCount": 215,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "KEF",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code-corrected",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "city-metro-code-corrected-airport-list-kept",
+          "staticCityName": "Reykjavik",
+          "staticCityCountryCode": "IS",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "REK",
+          "recommendedAirportCodes": [
+            "KEF"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: city/metro code corrected from KEF to REK for broad Reykjavik search; KEF remains the primary airport and current airport code."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Reykjavik"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, city-vs-airport policy corrected 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Exists in both current datasets; provider IDs and product labels still need review. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 13864, 215 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: city/metro code corrected from KEF to REK for broad Reykjavik search; KEF remains the primary airport and current airport code. Coordinate policy resolved 2026-06-02: registry latitude/longitude use Reykjavik city-center/provider city coordinates for map/globe placement; KEF airport coordinates stay airport metadata only."
+    },
+    {
+      "globevoyCityId": "dublin-ie",
+      "displayCity": "Dublin",
+      "country": "Ireland",
+      "countryCode": "IE",
+      "region": null,
+      "latitude": 53.35,
+      "longitude": -6.26,
+      "aliases": [
+        "Dublin",
+        "Dublin, Ireland",
+        "Dublin Ireland",
+        "DUB"
+      ],
+      "normalizedSearchNames": [
+        "dublin",
+        "dublin ireland",
+        "dub"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "DUB",
+      "travelpayoutsAirportCodes": [
+        "DUB"
+      ],
+      "agodaCityId": 1131,
+      "agodaHotelCount": 340,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "DUB",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Dublin",
+          "staticCityCountryCode": "IE",
+          "staticAirportName": "Dublin Airport",
+          "staticAirportCityCode": "DUB",
+          "recommendedCityCode": "DUB",
+          "recommendedAirportCodes": [
+            "DUB"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: DUB matched provider city/airport data and current airport list DUB validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Dublin"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 1131, 340 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: DUB matched provider city/airport data and current airport list DUB validated."
+    },
+    {
+      "globevoyCityId": "bologna-it",
+      "displayCity": "Bologna",
+      "country": "Italy",
+      "countryCode": "IT",
+      "region": null,
+      "latitude": 44.54,
+      "longitude": 11.29,
+      "aliases": [
+        "Bologna",
+        "Bologna, Italy",
+        "Bologna Italy",
+        "BLQ"
+      ],
+      "normalizedSearchNames": [
+        "bologna",
+        "bologna italy",
+        "blq"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "BLQ",
+      "travelpayoutsAirportCodes": [
+        "BLQ"
+      ],
+      "agodaCityId": 1002,
+      "agodaHotelCount": 403,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "BLQ",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Bologna",
+          "staticCityCountryCode": "IT",
+          "staticAirportName": "Guglielmo Marconi Airport",
+          "staticAirportCityCode": "BLQ",
+          "recommendedCityCode": "BLQ",
+          "recommendedAirportCodes": [
+            "BLQ"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: BLQ matched provider city/airport data and current airport list BLQ validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Bologna"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 1002, 403 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: BLQ matched provider city/airport data and current airport list BLQ validated."
+    },
+    {
+      "globevoyCityId": "milan-it",
+      "displayCity": "Milan",
+      "country": "Italy",
+      "countryCode": "IT",
+      "region": null,
+      "latitude": 45.46,
+      "longitude": 9.19,
+      "aliases": [
+        "Milan",
+        "Milan, Italy",
+        "Milan Italy",
+        "MIL"
+      ],
+      "normalizedSearchNames": [
+        "milan",
+        "milan italy",
+        "mil"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "MIL",
+      "travelpayoutsAirportCodes": [
+        "MXP",
+        "LIN",
+        "BGY"
+      ],
+      "agodaCityId": 16585,
+      "agodaHotelCount": 1656,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "MXP",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "partial",
+          "source": "Travelpayouts public static cities.json and airports.json plus Globevoy draft metro-airport policy",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code",
+          "airportCodeStatus": "draft-conservative-airport-list-applied-needs-review",
+          "reviewStatus": "draft-metro-airport-list-needs-product-provider-review",
+          "staticCityName": "Milan",
+          "staticCityCountryCode": "IT",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "MIL",
+          "recommendedAirportCodes": [
+            "MXP",
+            "LIN",
+            "BGY"
+          ],
+          "primaryAirportCode": "MXP",
+          "excludedSecondaryCodes": [
+            "none"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: MIL remains the broad city/metro code for search; MXP is the draft primary airport for display/default fallback; airport list MXP, LIN, BGY is conservative draft policy and still needs product/provider review. Static code existence does not guarantee route availability or bookability."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Milan"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, conservative metro airport policy applied 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 16585, 1656 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: MIL remains the broad city/metro code for search; MXP is the draft primary airport for display/default fallback; airport list MXP, LIN, BGY is conservative draft policy and still needs product/provider review. Static code existence does not guarantee route availability or bookability."
+    },
+    {
+      "globevoyCityId": "palermo-it",
+      "displayCity": "Palermo",
+      "country": "Italy",
+      "countryCode": "IT",
+      "region": null,
+      "latitude": 38.18,
+      "longitude": 13.1,
+      "aliases": [
+        "Palermo",
+        "Palermo, Italy",
+        "Palermo Italy",
+        "PMO"
+      ],
+      "normalizedSearchNames": [
+        "palermo",
+        "palermo italy",
+        "pmo"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "PMO",
+      "travelpayoutsAirportCodes": [
+        "PMO"
+      ],
+      "agodaCityId": 14810,
+      "agodaHotelCount": 677,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "PMO",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Palermo",
+          "staticCityCountryCode": "IT",
+          "staticAirportName": "Falcone-Borsellino Airport",
+          "staticAirportCityCode": "PMO",
+          "recommendedCityCode": "PMO",
+          "recommendedAirportCodes": [
+            "PMO"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: PMO matched provider city/airport data and current airport list PMO validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Palermo"
+        }
+      },
+      "groupRole": "group2-hidden-gem-value",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 14810, 677 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: PMO matched provider city/airport data and current airport list PMO validated."
+    },
+    {
+      "globevoyCityId": "rome-it",
+      "displayCity": "Rome",
+      "country": "Italy",
+      "countryCode": "IT",
+      "region": null,
+      "latitude": 41.9,
+      "longitude": 12.5,
+      "aliases": [
+        "Rome",
+        "Rome, Italy",
+        "Rome Italy",
+        "ROM"
+      ],
+      "normalizedSearchNames": [
+        "rome",
+        "rome italy",
+        "rom"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "ROM",
+      "travelpayoutsAirportCodes": [
+        "FCO",
+        "CIA"
+      ],
+      "agodaCityId": 16594,
+      "agodaHotelCount": 4988,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "FCO",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "partial",
+          "source": "Travelpayouts public static cities.json and airports.json plus Globevoy draft metro-airport policy",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code",
+          "airportCodeStatus": "draft-conservative-airport-list-applied-needs-review",
+          "reviewStatus": "draft-metro-airport-list-needs-product-provider-review",
+          "staticCityName": "Rome",
+          "staticCityCountryCode": "IT",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "ROM",
+          "recommendedAirportCodes": [
+            "FCO",
+            "CIA"
+          ],
+          "primaryAirportCode": "FCO",
+          "excludedSecondaryCodes": [
+            "none"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: ROM remains the broad city/metro code for search; FCO is the draft primary airport for display/default fallback; airport list FCO, CIA is conservative draft policy and still needs product/provider review. Static code existence does not guarantee route availability or bookability."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Rome"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, conservative metro airport policy applied 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 16594, 4988 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: ROM remains the broad city/metro code for search; FCO is the draft primary airport for display/default fallback; airport list FCO, CIA is conservative draft policy and still needs product/provider review. Static code existence does not guarantee route availability or bookability."
+    },
+    {
+      "globevoyCityId": "osaka-jp",
+      "displayCity": "Osaka",
+      "country": "Japan",
+      "countryCode": "JP",
+      "region": null,
+      "latitude": 34.43,
+      "longitude": 135.24,
+      "aliases": [
+        "Osaka",
+        "Osaka, Japan",
+        "Osaka Japan",
+        "KIX"
+      ],
+      "normalizedSearchNames": [
+        "osaka",
+        "osaka japan",
+        "kix"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "OSA",
+      "travelpayoutsAirportCodes": [
+        "KIX"
+      ],
+      "agodaCityId": 9590,
+      "agodaHotelCount": 4848,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "KIX",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code-corrected",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "city-metro-code-corrected-airport-list-kept",
+          "staticCityName": "Osaka",
+          "staticCityCountryCode": "JP",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "OSA",
+          "recommendedAirportCodes": [
+            "KIX",
+            "ITM",
+            "UKB"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: city/metro code corrected from KIX to OSA for broad Osaka search; KIX remains the primary airport/current airport code, with ITM and UKB noted as future airport-list review candidates."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Osaka"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, city-vs-airport policy corrected 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 9590, 4848 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: city/metro code corrected from KIX to OSA for broad Osaka search; KIX remains the primary airport/current airport code, with ITM and UKB noted as future airport-list review candidates."
+    },
+    {
+      "globevoyCityId": "tokyo-jp",
+      "displayCity": "Tokyo",
+      "country": "Japan",
+      "countryCode": "JP",
+      "region": null,
+      "latitude": 35.77,
+      "longitude": 140.39,
+      "aliases": [
+        "Tokyo",
+        "Tokyo, Japan",
+        "Tokyo Japan",
+        "NRT"
+      ],
+      "normalizedSearchNames": [
+        "tokyo",
+        "tokyo japan",
+        "nrt"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "TYO",
+      "travelpayoutsAirportCodes": [
+        "NRT"
+      ],
+      "agodaCityId": 5085,
+      "agodaHotelCount": 5891,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "NRT",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code-corrected",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "city-metro-code-corrected-airport-list-kept",
+          "staticCityName": "Tokyo",
+          "staticCityCountryCode": "JP",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "TYO",
+          "recommendedAirportCodes": [
+            "NRT",
+            "HND"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: city/metro code corrected from NRT to TYO for broad Tokyo search; NRT remains the primary airport/current airport code, with HND noted as a future airport-list review candidate."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Tokyo"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, city-vs-airport policy corrected 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 5085, 5891 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: city/metro code corrected from NRT to TYO for broad Tokyo search; NRT remains the primary airport/current airport code, with HND noted as a future airport-list review candidate."
+    },
+    {
+      "globevoyCityId": "cancun-mx",
+      "displayCity": "Cancun",
+      "country": "Mexico",
+      "countryCode": "MX",
+      "region": null,
+      "latitude": 21.04,
+      "longitude": -86.87,
+      "aliases": [
+        "Cancun",
+        "Cancun, Mexico",
+        "Cancun Mexico",
+        "CUN"
+      ],
+      "normalizedSearchNames": [
+        "cancun",
+        "cancun mexico",
+        "cun"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "CUN",
+      "travelpayoutsAirportCodes": [
+        "CUN"
+      ],
+      "agodaCityId": 5954,
+      "agodaHotelCount": 499,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "CUN",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Cancun",
+          "staticCityCountryCode": "MX",
+          "staticAirportName": "Cancun International Airport",
+          "staticAirportCityCode": "CUN",
+          "recommendedCityCode": "CUN",
+          "recommendedAirportCodes": [
+            "CUN"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: CUN matched provider city/airport data and current airport list CUN validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Cancun"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 5954, 499 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: CUN matched provider city/airport data and current airport list CUN validated."
+    },
+    {
+      "globevoyCityId": "mexico-city-mx",
+      "displayCity": "Mexico City",
+      "country": "Mexico",
+      "countryCode": "MX",
+      "region": null,
+      "latitude": 19.44,
+      "longitude": -99.07,
+      "aliases": [
+        "Mexico City",
+        "Mexico City, Mexico",
+        "Mexico City Mexico",
+        "MEX",
+        "CDMX"
+      ],
+      "normalizedSearchNames": [
+        "mexico city",
+        "mexico city mexico",
+        "mex",
+        "cdmx"
+      ],
+      "mapCoordinatesSource": "current-backend-and-frontend-aligned-needs-review",
+      "travelpayoutsCityCode": "MEX",
+      "travelpayoutsAirportCodes": [
+        "MEX"
+      ],
+      "agodaCityId": 2086,
+      "agodaHotelCount": 987,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "MEX",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Mexico City",
+          "staticCityCountryCode": "MX",
+          "staticAirportName": "Benito Juarez International Airport",
+          "staticAirportCityCode": "MEX",
+          "recommendedCityCode": "MEX",
+          "recommendedAirportCodes": [
+            "MEX"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: MEX matched provider city/airport data and current airport list MEX validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Mexico City"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Exists in both current datasets; provider IDs and product labels still need review. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 2086, 987 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: MEX matched provider city/airport data and current airport list MEX validated."
+    },
+    {
+      "globevoyCityId": "puerto-vallarta-mx",
+      "displayCity": "Puerto Vallarta",
+      "country": "Mexico",
+      "countryCode": "MX",
+      "region": null,
+      "latitude": 20.65,
+      "longitude": -105.23,
+      "aliases": [
+        "Puerto Vallarta",
+        "Puerto Vallarta, Mexico",
+        "Puerto Vallarta Mexico",
+        "PVR"
+      ],
+      "normalizedSearchNames": [
+        "puerto vallarta",
+        "puerto vallarta mexico",
+        "pvr"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "PVR",
+      "travelpayoutsAirportCodes": [
+        "PVR"
+      ],
+      "agodaCityId": 61,
+      "agodaHotelCount": 191,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "PVR",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Puerto Vallarta",
+          "staticCityCountryCode": "MX",
+          "staticAirportName": "Gustavo Diaz Ordaz International Airport",
+          "staticAirportCityCode": "PVR",
+          "recommendedCityCode": "PVR",
+          "recommendedAirportCodes": [
+            "PVR"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: PVR matched provider city/airport data and current airport list PVR validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Puerto Vallarta"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 61, 191 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: PVR matched provider city/airport data and current airport list PVR validated."
+    },
+    {
+      "globevoyCityId": "marrakech-ma",
+      "displayCity": "Marrakech",
+      "country": "Morocco",
+      "countryCode": "MA",
+      "region": null,
+      "latitude": 31.61,
+      "longitude": -8.04,
+      "aliases": [
+        "Marrakech",
+        "Marrakech, Morocco",
+        "Marrakech Morocco",
+        "RAK"
+      ],
+      "normalizedSearchNames": [
+        "marrakech",
+        "marrakech morocco",
+        "rak"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "RAK",
+      "travelpayoutsAirportCodes": [
+        "RAK"
+      ],
+      "agodaCityId": 11825,
+      "agodaHotelCount": 1546,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "RAK",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Marrakech",
+          "staticCityCountryCode": "MA",
+          "staticAirportName": "Menara Airport",
+          "staticAirportCityCode": "RAK",
+          "recommendedCityCode": "RAK",
+          "recommendedAirportCodes": [
+            "RAK"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: RAK matched provider city/airport data and current airport list RAK validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Marrakech"
+        }
+      },
+      "groupRole": "group2-hidden-gem-value",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 11825, 1546 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: RAK matched provider city/airport data and current airport list RAK validated."
+    },
+    {
+      "globevoyCityId": "amsterdam-nl",
+      "displayCity": "Amsterdam",
+      "country": "Netherlands",
+      "countryCode": "NL",
+      "region": null,
+      "latitude": 52.37,
+      "longitude": 4.9,
+      "aliases": [
+        "Amsterdam",
+        "Amsterdam, Netherlands",
+        "Amsterdam Netherlands",
+        "AMS"
+      ],
+      "normalizedSearchNames": [
+        "amsterdam",
+        "amsterdam netherlands",
+        "ams"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "AMS",
+      "travelpayoutsAirportCodes": [
+        "AMS"
+      ],
+      "agodaCityId": 13868,
+      "agodaHotelCount": 675,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "AMS",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Amsterdam",
+          "staticCityCountryCode": "NL",
+          "staticAirportName": "Amsterdam Airport Schiphol",
+          "staticAirportCityCode": "AMS",
+          "recommendedCityCode": "AMS",
+          "recommendedAirportCodes": [
+            "AMS"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: AMS matched provider city/airport data and current airport list AMS validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Amsterdam"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 13868, 675 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: AMS matched provider city/airport data and current airport list AMS validated."
+    },
+    {
+      "globevoyCityId": "panama-city-pa",
+      "displayCity": "Panama City",
+      "country": "Panama",
+      "countryCode": "PA",
+      "region": null,
+      "latitude": 9.07,
+      "longitude": -79.38,
+      "aliases": [
+        "Panama City",
+        "Panama City, Panama",
+        "Panama City Panama",
+        "PTY"
+      ],
+      "normalizedSearchNames": [
+        "panama city",
+        "panama city panama",
+        "pty"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "PTY",
+      "travelpayoutsAirportCodes": [
+        "PTY"
+      ],
+      "agodaCityId": 3356,
+      "agodaHotelCount": 178,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "PTY",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Panama City",
+          "staticCityCountryCode": "PA",
+          "staticAirportName": "Tocumen International Airport",
+          "staticAirportCityCode": "PTY",
+          "recommendedCityCode": "PTY",
+          "recommendedAirportCodes": [
+            "PTY"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: PTY matched provider city/airport data and current airport list PTY validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Panama City"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 3356, 178 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: PTY matched provider city/airport data and current airport list PTY validated."
+    },
+    {
+      "globevoyCityId": "lima-pe",
+      "displayCity": "Lima",
+      "country": "Peru",
+      "countryCode": "PE",
+      "region": null,
+      "latitude": -12.02,
+      "longitude": -77.11,
+      "aliases": [
+        "Lima",
+        "Lima, Peru",
+        "Lima Peru",
+        "LIM"
+      ],
+      "normalizedSearchNames": [
+        "lima",
+        "lima peru",
+        "lim"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "LIM",
+      "travelpayoutsAirportCodes": [
+        "LIM"
+      ],
+      "agodaCityId": 7082,
+      "agodaHotelCount": 430,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "LIM",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Lima",
+          "staticCityCountryCode": "PE",
+          "staticAirportName": "Jorge Chavez International Airport",
+          "staticAirportCityCode": "LIM",
+          "recommendedCityCode": "LIM",
+          "recommendedAirportCodes": [
+            "LIM"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: LIM matched provider city/airport data and current airport list LIM validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Lima"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 7082, 430 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: LIM matched provider city/airport data and current airport list LIM validated."
+    },
+    {
+      "globevoyCityId": "krakow-pl",
+      "displayCity": "Krakow",
+      "country": "Poland",
+      "countryCode": "PL",
+      "region": null,
+      "latitude": 50.08,
+      "longitude": 19.78,
+      "aliases": [
+        "Krakow",
+        "Krakow, Poland",
+        "Krakow Poland",
+        "KRK"
+      ],
+      "normalizedSearchNames": [
+        "krakow",
+        "krakow poland",
+        "krk"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "KRK",
+      "travelpayoutsAirportCodes": [
+        "KRK"
+      ],
+      "agodaCityId": 15790,
+      "agodaHotelCount": 774,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "KRK",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Krakow",
+          "staticCityCountryCode": "PL",
+          "staticAirportName": "J. Paul II International Airport Krakow-Balice",
+          "staticAirportCityCode": "KRK",
+          "recommendedCityCode": "KRK",
+          "recommendedAirportCodes": [
+            "KRK"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: KRK matched provider city/airport data and current airport list KRK validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Kraków"
+        }
+      },
+      "groupRole": "group2-hidden-gem-value",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 15790, 774 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: KRK matched provider city/airport data and current airport list KRK validated."
+    },
+    {
+      "globevoyCityId": "lisbon-pt",
+      "displayCity": "Lisbon",
+      "country": "Portugal",
+      "countryCode": "PT",
+      "region": null,
+      "latitude": 38.77,
+      "longitude": -9.13,
+      "aliases": [
+        "Lisbon",
+        "Lisbon, Portugal",
+        "Lisbon Portugal",
+        "LIS"
+      ],
+      "normalizedSearchNames": [
+        "lisbon",
+        "lisbon portugal",
+        "lis"
+      ],
+      "mapCoordinatesSource": "current-backend-and-frontend-aligned-needs-review",
+      "travelpayoutsCityCode": "LIS",
+      "travelpayoutsAirportCodes": [
+        "LIS"
+      ],
+      "agodaCityId": 16364,
+      "agodaHotelCount": 1140,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "LIS",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Lisbon",
+          "staticCityCountryCode": "PT",
+          "staticAirportName": "Lisbon Portela Airport",
+          "staticAirportCityCode": "LIS",
+          "recommendedCityCode": "LIS",
+          "recommendedAirportCodes": [
+            "LIS"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: LIS matched provider city/airport data and current airport list LIS validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Lisbon"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Exists in both current datasets; provider IDs and product labels still need review. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 16364, 1140 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: LIS matched provider city/airport data and current airport list LIS validated."
+    },
+    {
+      "globevoyCityId": "porto-pt",
+      "displayCity": "Porto",
+      "country": "Portugal",
+      "countryCode": "PT",
+      "region": null,
+      "latitude": 41.16,
+      "longitude": -8.63,
+      "aliases": [
+        "Porto",
+        "Porto, Portugal",
+        "Porto Portugal",
+        "OPO"
+      ],
+      "normalizedSearchNames": [
+        "porto",
+        "porto portugal",
+        "opo"
+      ],
+      "mapCoordinatesSource": "current-backend-and-frontend-aligned-needs-review",
+      "travelpayoutsCityCode": "OPO",
+      "travelpayoutsAirportCodes": [
+        "OPO"
+      ],
+      "agodaCityId": 8738,
+      "agodaHotelCount": 1201,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "OPO",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Porto",
+          "staticCityCountryCode": "PT",
+          "staticAirportName": "Porto Airport",
+          "staticAirportCityCode": "OPO",
+          "recommendedCityCode": "OPO",
+          "recommendedAirportCodes": [
+            "OPO"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: OPO matched provider city/airport data and current airport list OPO validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Porto"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Exists in both current datasets; provider IDs and product labels still need review. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 8738, 1201 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: OPO matched provider city/airport data and current airport list OPO validated."
+    },
+    {
+      "globevoyCityId": "san-juan-pr",
+      "displayCity": "San Juan",
+      "country": "Puerto Rico",
+      "countryCode": "PR",
+      "region": null,
+      "latitude": 18.44,
+      "longitude": -66,
+      "aliases": [
+        "San Juan",
+        "San Juan, Puerto Rico",
+        "San Juan Puerto Rico",
+        "SJU"
+      ],
+      "normalizedSearchNames": [
+        "san juan",
+        "san juan puerto rico",
+        "sju"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "SJU",
+      "travelpayoutsAirportCodes": [
+        "SJU"
+      ],
+      "agodaCityId": 17823,
+      "agodaHotelCount": 196,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "SJU",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "San Juan",
+          "staticCityCountryCode": "PR",
+          "staticAirportName": "Luis Munoz Marin International Airport",
+          "staticAirportCityCode": "SJU",
+          "recommendedCityCode": "SJU",
+          "recommendedAirportCodes": [
+            "SJU"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: SJU matched provider city/airport data and current airport list SJU validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "San Juan"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 17823, 196 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: SJU matched provider city/airport data and current airport list SJU validated."
+    },
+    {
+      "globevoyCityId": "ljubljana-si",
+      "displayCity": "Ljubljana",
+      "country": "Slovenia",
+      "countryCode": "SI",
+      "region": null,
+      "latitude": 46.22,
+      "longitude": 14.46,
+      "aliases": [
+        "Ljubljana",
+        "Ljubljana, Slovenia",
+        "Ljubljana Slovenia",
+        "LJU"
+      ],
+      "normalizedSearchNames": [
+        "ljubljana",
+        "ljubljana slovenia",
+        "lju"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "LJU",
+      "travelpayoutsAirportCodes": [
+        "LJU"
+      ],
+      "agodaCityId": 14313,
+      "agodaHotelCount": 173,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "LJU",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Ljubljana",
+          "staticCityCountryCode": "SI",
+          "staticAirportName": "Ljubljana Joze Pucnik Airport",
+          "staticAirportCityCode": "LJU",
+          "recommendedCityCode": "LJU",
+          "recommendedAirportCodes": [
+            "LJU"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: LJU matched provider city/airport data and current airport list LJU validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Ljubljana"
+        }
+      },
+      "groupRole": "group2-hidden-gem-value",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 14313, 173 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: LJU matched provider city/airport data and current airport list LJU validated."
+    },
+    {
+      "globevoyCityId": "seoul-kr",
+      "displayCity": "Seoul",
+      "country": "South Korea",
+      "countryCode": "KR",
+      "region": null,
+      "latitude": 37.46,
+      "longitude": 126.44,
+      "aliases": [
+        "Seoul",
+        "Seoul, South Korea",
+        "Seoul South Korea",
+        "ICN"
+      ],
+      "normalizedSearchNames": [
+        "seoul",
+        "seoul south korea",
+        "icn"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "SEL",
+      "travelpayoutsAirportCodes": [
+        "ICN"
+      ],
+      "agodaCityId": 14690,
+      "agodaHotelCount": 3417,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "ICN",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code-corrected",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "city-metro-code-corrected-airport-list-kept",
+          "staticCityName": "Seoul",
+          "staticCityCountryCode": "KR",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "SEL",
+          "recommendedAirportCodes": [
+            "ICN",
+            "GMP"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: city/metro code corrected from ICN to SEL for broad Seoul search; ICN remains the primary airport/current airport code, with GMP noted as a future airport-list review candidate."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Seoul"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, city-vs-airport policy corrected 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 14690, 3417 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: city/metro code corrected from ICN to SEL for broad Seoul search; ICN remains the primary airport/current airport code, with GMP noted as a future airport-list review candidate."
+    },
+    {
+      "globevoyCityId": "barcelona-es",
+      "displayCity": "Barcelona",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": null,
+      "latitude": 41.39,
+      "longitude": 2.17,
+      "aliases": [
+        "Barcelona",
+        "Barcelona, Spain",
+        "Barcelona Spain",
+        "BCN"
+      ],
+      "normalizedSearchNames": [
+        "barcelona",
+        "barcelona spain",
+        "bcn"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "BCN",
+      "travelpayoutsAirportCodes": [
+        "BCN"
+      ],
+      "agodaCityId": 2002,
+      "agodaHotelCount": 1502,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "BCN",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Barcelona",
+          "staticCityCountryCode": "ES",
+          "staticAirportName": "Barcelona-El Prat Airport",
+          "staticAirportCityCode": "BCN",
+          "recommendedCityCode": "BCN",
+          "recommendedAirportCodes": [
+            "BCN"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: BCN matched provider city/airport data and current airport list BCN validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Barcelona"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 2002, 1502 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: BCN matched provider city/airport data and current airport list BCN validated."
+    },
+    {
+      "globevoyCityId": "madrid-es",
+      "displayCity": "Madrid",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": null,
+      "latitude": 40.42,
+      "longitude": -3.7,
+      "aliases": [
+        "Madrid",
+        "Madrid, Spain",
+        "Madrid Spain",
+        "MAD"
+      ],
+      "normalizedSearchNames": [
+        "madrid",
+        "madrid spain",
+        "mad"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "MAD",
+      "travelpayoutsAirportCodes": [
+        "MAD"
+      ],
+      "agodaCityId": 5531,
+      "agodaHotelCount": 1371,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "MAD",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Madrid",
+          "staticCityCountryCode": "ES",
+          "staticAirportName": "Adolfo Suarez Madrid-Barajas Airport",
+          "staticAirportCityCode": "MAD",
+          "recommendedCityCode": "MAD",
+          "recommendedAirportCodes": [
+            "MAD"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: MAD matched provider city/airport data and current airport list MAD validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Madrid"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 5531, 1371 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: MAD matched provider city/airport data and current airport list MAD validated."
+    },
+    {
+      "globevoyCityId": "seville-es",
+      "displayCity": "Seville",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": null,
+      "latitude": 37.42,
+      "longitude": -5.9,
+      "aliases": [
+        "Seville",
+        "Seville, Spain",
+        "Seville Spain",
+        "SVQ"
+      ],
+      "normalizedSearchNames": [
+        "seville",
+        "seville spain",
+        "svq"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "SVQ",
+      "travelpayoutsAirportCodes": [
+        "SVQ"
+      ],
+      "agodaCityId": 16577,
+      "agodaHotelCount": 655,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "SVQ",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Sevilla",
+          "staticCityCountryCode": "ES",
+          "staticAirportName": "Seville Airport",
+          "staticAirportCityCode": "SVQ",
+          "recommendedCityCode": "SVQ",
+          "recommendedAirportCodes": [
+            "SVQ"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: SVQ matched provider city/airport data and current airport list SVQ validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Seville"
+        }
+      },
+      "groupRole": "group2-hidden-gem-value",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 16577, 655 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: SVQ matched provider city/airport data and current airport list SVQ validated."
+    },
+    {
+      "globevoyCityId": "valencia-es",
+      "displayCity": "Valencia",
+      "country": "Spain",
+      "countryCode": "ES",
+      "region": null,
+      "latitude": 39.49,
+      "longitude": -0.48,
+      "aliases": [
+        "Valencia",
+        "Valencia, Spain",
+        "Valencia Spain",
+        "VLC",
+        "Valensia"
+      ],
+      "normalizedSearchNames": [
+        "valencia",
+        "valencia spain",
+        "vlc",
+        "valensia"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "VLC",
+      "travelpayoutsAirportCodes": [
+        "VLC"
+      ],
+      "agodaCityId": 1623,
+      "agodaHotelCount": 414,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "VLC",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Valencia",
+          "staticCityCountryCode": "ES",
+          "staticAirportName": "Valencia Airport",
+          "staticAirportCityCode": "VLC",
+          "recommendedCityCode": "VLC",
+          "recommendedAirportCodes": [
+            "VLC"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: VLC matched provider city/airport data and current airport list VLC validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "València"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Alias review should include Valencia, Valencia Spain, and Valensia typo handling. Agoda derived match applied 2026-06-01: city_id 1623, 414 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: VLC matched provider city/airport data and current airport list VLC validated."
+    },
+    {
+      "globevoyCityId": "taipei-tw",
+      "displayCity": "Taipei",
+      "country": "Taiwan",
+      "countryCode": "TW",
+      "region": null,
+      "latitude": 25.08,
+      "longitude": 121.23,
+      "aliases": [
+        "Taipei",
+        "Taipei, Taiwan",
+        "Taipei Taiwan",
+        "TPE"
+      ],
+      "normalizedSearchNames": [
+        "taipei",
+        "taipei taiwan",
+        "tpe"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "TPE",
+      "travelpayoutsAirportCodes": [
+        "TPE"
+      ],
+      "agodaCityId": 4951,
+      "agodaHotelCount": 1801,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "TPE",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Taipei",
+          "staticCityCountryCode": "TW",
+          "staticAirportName": "Taiwan Taoyuan International Airport",
+          "staticAirportCityCode": "TPE",
+          "recommendedCityCode": "TPE",
+          "recommendedAirportCodes": [
+            "TPE"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: TPE matched provider city/airport data and current airport list TPE validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Taipei"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 4951, 1801 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: TPE matched provider city/airport data and current airport list TPE validated."
+    },
+    {
+      "globevoyCityId": "bangkok-th",
+      "displayCity": "Bangkok",
+      "country": "Thailand",
+      "countryCode": "TH",
+      "region": null,
+      "latitude": 13.69,
+      "longitude": 100.75,
+      "aliases": [
+        "Bangkok",
+        "Bangkok, Thailand",
+        "Bangkok Thailand",
+        "BKK"
+      ],
+      "normalizedSearchNames": [
+        "bangkok",
+        "bangkok thailand",
+        "bkk"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "BKK",
+      "travelpayoutsAirportCodes": [
+        "BKK"
+      ],
+      "agodaCityId": 9395,
+      "agodaHotelCount": 6480,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "BKK",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Bangkok",
+          "staticCityCountryCode": "TH",
+          "staticAirportName": "Suvarnabhumi Airport",
+          "staticAirportCityCode": "BKK",
+          "recommendedCityCode": "BKK",
+          "recommendedAirportCodes": [
+            "BKK"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: BKK matched provider city/airport data and current airport list BKK validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Bangkok"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 9395, 6480 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: BKK matched provider city/airport data and current airport list BKK validated."
+    },
+    {
+      "globevoyCityId": "istanbul-tr",
+      "displayCity": "Istanbul",
+      "country": "Turkey",
+      "countryCode": "TR",
+      "region": null,
+      "latitude": 41.28,
+      "longitude": 28.75,
+      "aliases": [
+        "Istanbul",
+        "Istanbul, Turkey",
+        "Istanbul Turkey",
+        "IST"
+      ],
+      "normalizedSearchNames": [
+        "istanbul",
+        "istanbul turkey",
+        "ist"
+      ],
+      "mapCoordinatesSource": "frontend-current-dataset-needs-provider-review",
+      "travelpayoutsCityCode": "IST",
+      "travelpayoutsAirportCodes": [
+        "IST"
+      ],
+      "agodaCityId": 14932,
+      "agodaHotelCount": 4836,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "IST",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Istanbul",
+          "staticCityCountryCode": "TR",
+          "staticAirportName": "Istanbul New Airport",
+          "staticAirportCityCode": "IST",
+          "recommendedCityCode": "IST",
+          "recommendedAirportCodes": [
+            "IST"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: IST matched provider city/airport data and current airport list IST validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-match-country-variant",
+          "matchConfidence": "safe-same-city-name-country-variant-resolved",
+          "candidateAgodaCityName": "İstanbul"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": null,
+        "frontend": "frontend/destination-data.js",
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv deferred-case review, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Frontend-only current candidate; needs backend/provider review before live recommendations. Agoda city ID missing; do not use live Agoda coverage until verified. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda deferred case resolved 2026-06-01: İstanbul / Türkiye treated as same-city variant for Istanbul, city_id 14932, 4836 feed hotels; not live availability. Travelpayouts static validation 2026-06-02: IST matched provider city/airport data and current airport list IST validated."
+    },
+    {
+      "globevoyCityId": "edinburgh-uk",
+      "displayCity": "Edinburgh",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "region": null,
+      "latitude": 55.95,
+      "longitude": -3.19,
+      "aliases": [
+        "Edinburgh",
+        "Edinburgh, United Kingdom",
+        "Edinburgh United Kingdom",
+        "EDI"
+      ],
+      "normalizedSearchNames": [
+        "edinburgh",
+        "edinburgh united kingdom",
+        "edi"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "EDI",
+      "travelpayoutsAirportCodes": [
+        "EDI"
+      ],
+      "agodaCityId": 18924,
+      "agodaHotelCount": 668,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "EDI",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Edinburgh",
+          "staticCityCountryCode": "GB",
+          "staticAirportName": "Edinburgh Airport",
+          "staticAirportCityCode": "EDI",
+          "recommendedCityCode": "EDI",
+          "recommendedAirportCodes": [
+            "EDI"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: EDI matched provider city/airport data and current airport list EDI validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "Edinburgh"
+        }
+      },
+      "groupRole": "group2-secondary",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 18924, 668 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: EDI matched provider city/airport data and current airport list EDI validated."
+    },
+    {
+      "globevoyCityId": "london-uk",
+      "displayCity": "London",
+      "country": "United Kingdom",
+      "countryCode": "GB",
+      "region": null,
+      "latitude": 51.51,
+      "longitude": -0.13,
+      "aliases": [
+        "London",
+        "London, United Kingdom",
+        "London United Kingdom",
+        "LON"
+      ],
+      "normalizedSearchNames": [
+        "london",
+        "london united kingdom",
+        "lon"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "LON",
+      "travelpayoutsAirportCodes": [
+        "LHR",
+        "LGW",
+        "LCY",
+        "LTN",
+        "STN"
+      ],
+      "agodaCityId": 233,
+      "agodaHotelCount": 6109,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "LHR",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "partial",
+          "source": "Travelpayouts public static cities.json and airports.json plus Globevoy draft metro-airport policy",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code",
+          "airportCodeStatus": "draft-conservative-airport-list-applied-needs-review",
+          "reviewStatus": "draft-metro-airport-list-needs-product-provider-review",
+          "staticCityName": "London",
+          "staticCityCountryCode": "GB",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "LON",
+          "recommendedAirportCodes": [
+            "LHR",
+            "LGW",
+            "LCY",
+            "LTN",
+            "STN"
+          ],
+          "primaryAirportCode": "LHR",
+          "excludedSecondaryCodes": [
+            "SEN"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: LON remains the broad city/metro code for search; LHR is the draft primary airport for display/default fallback; airport list LHR, LGW, LCY, LTN, STN is conservative draft policy and still needs product/provider review. SEN is left as secondary/provider-review, not included in the main draft list. Static code existence does not guarantee route availability or bookability."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "exact-city-country",
+          "matchConfidence": "high-needs-review",
+          "candidateAgodaCityName": "London"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, conservative metro airport policy applied 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 233, 6109 feed hotels, exact-city-country; not live availability. Travelpayouts static validation 2026-06-02: LON remains the broad city/metro code for search; LHR is the draft primary airport for display/default fallback; airport list LHR, LGW, LCY, LTN, STN is conservative draft policy and still needs product/provider review. SEN is left as secondary/provider-review, not included in the main draft list. Static code existence does not guarantee route availability or bookability."
+    },
+    {
+      "globevoyCityId": "chicago-us",
+      "displayCity": "Chicago",
+      "country": "United States",
+      "countryCode": "US",
+      "region": null,
+      "latitude": 41.88,
+      "longitude": -87.63,
+      "aliases": [
+        "Chicago",
+        "Chicago, United States",
+        "Chicago United States",
+        "CHI"
+      ],
+      "normalizedSearchNames": [
+        "chicago",
+        "chicago united states",
+        "chi"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "CHI",
+      "travelpayoutsAirportCodes": [
+        "ORD",
+        "MDW"
+      ],
+      "agodaCityId": 13899,
+      "agodaHotelCount": 440,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "ORD",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "partial",
+          "source": "Travelpayouts public static cities.json and airports.json plus Globevoy draft metro-airport policy",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code",
+          "airportCodeStatus": "draft-conservative-airport-list-applied-needs-review",
+          "reviewStatus": "draft-metro-airport-list-needs-product-provider-review",
+          "staticCityName": "Chicago",
+          "staticCityCountryCode": "US",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "CHI",
+          "recommendedAirportCodes": [
+            "ORD",
+            "MDW"
+          ],
+          "primaryAirportCode": "ORD",
+          "excludedSecondaryCodes": [
+            "RFD",
+            "PWK"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: CHI remains the broad city/metro code for search; ORD is the draft primary airport for display/default fallback; airport list ORD, MDW is conservative draft policy and still needs product/provider review. RFD and PWK are left as secondary/provider-review, not included in the main draft list. Static code existence does not guarantee route availability or bookability."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Chicago (IL)"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, conservative metro airport policy applied 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 13899, 440 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: CHI remains the broad city/metro code for search; ORD is the draft primary airport for display/default fallback; airport list ORD, MDW is conservative draft policy and still needs product/provider review. RFD and PWK are left as secondary/provider-review, not included in the main draft list. Static code existence does not guarantee route availability or bookability."
+    },
+    {
+      "globevoyCityId": "honolulu-us",
+      "displayCity": "Honolulu",
+      "country": "United States",
+      "countryCode": "US",
+      "region": null,
+      "latitude": 21.31,
+      "longitude": -157.86,
+      "aliases": [
+        "Honolulu",
+        "Honolulu, United States",
+        "Honolulu United States",
+        "HNL"
+      ],
+      "normalizedSearchNames": [
+        "honolulu",
+        "honolulu united states",
+        "hnl"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "HNL",
+      "travelpayoutsAirportCodes": [
+        "HNL"
+      ],
+      "agodaCityId": 10921,
+      "agodaHotelCount": 224,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "HNL",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Honolulu",
+          "staticCityCountryCode": "US",
+          "staticAirportName": "Honolulu International Airport",
+          "staticAirportCityCode": "HNL",
+          "recommendedCityCode": "HNL",
+          "recommendedAirportCodes": [
+            "HNL"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: HNL matched provider city/airport data and current airport list HNL validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Honolulu (HI)"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 10921, 224 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: HNL matched provider city/airport data and current airport list HNL validated."
+    },
+    {
+      "globevoyCityId": "los-angeles-us",
+      "displayCity": "Los Angeles",
+      "country": "United States",
+      "countryCode": "US",
+      "region": null,
+      "latitude": 34.05,
+      "longitude": -118.24,
+      "aliases": [
+        "Los Angeles",
+        "Los Angeles, United States",
+        "Los Angeles United States",
+        "LAX"
+      ],
+      "normalizedSearchNames": [
+        "los angeles",
+        "los angeles united states",
+        "lax"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "LAX",
+      "travelpayoutsAirportCodes": [
+        "LAX"
+      ],
+      "agodaCityId": 12772,
+      "agodaHotelCount": 1244,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "LAX",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Los Angeles",
+          "staticCityCountryCode": "US",
+          "staticAirportName": "Los Angeles International Airport",
+          "staticAirportCityCode": "LAX",
+          "recommendedCityCode": "LAX",
+          "recommendedAirportCodes": [
+            "LAX"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: LAX matched provider city/airport data and current airport list LAX validated."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Los Angeles (CA)"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 12772, 1244 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: LAX matched provider city/airport data and current airport list LAX validated."
+    },
+    {
+      "globevoyCityId": "miami-us",
+      "displayCity": "Miami",
+      "country": "United States",
+      "countryCode": "US",
+      "region": null,
+      "latitude": 25.76,
+      "longitude": -80.19,
+      "aliases": [
+        "Miami",
+        "Miami, United States",
+        "Miami United States",
+        "MIA"
+      ],
+      "normalizedSearchNames": [
+        "miami",
+        "miami united states",
+        "mia"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "MIA",
+      "travelpayoutsAirportCodes": [
+        "MIA"
+      ],
+      "agodaCityId": 15289,
+      "agodaHotelCount": 482,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "MIA",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Miami",
+          "staticCityCountryCode": "US",
+          "staticAirportName": "Miami International Airport",
+          "staticAirportCityCode": "MIA",
+          "recommendedCityCode": "MIA",
+          "recommendedAirportCodes": [
+            "MIA"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: MIA matched provider city/airport data and current airport list MIA validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-resolved",
+          "candidateAgodaCityName": "Miami (FL)"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv deferred-case review, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda deferred case resolved 2026-06-01: selected Miami (FL), city_id 15289, 482 feed hotels; Miami Beach left separate; not live availability. Travelpayouts static validation 2026-06-02: MIA matched provider city/airport data and current airport list MIA validated."
+    },
+    {
+      "globevoyCityId": "new-york-us",
+      "displayCity": "New York",
+      "country": "United States",
+      "countryCode": "US",
+      "region": null,
+      "latitude": 40.71,
+      "longitude": -74.01,
+      "aliases": [
+        "New York",
+        "New York, United States",
+        "New York United States",
+        "NYC",
+        "New York City"
+      ],
+      "normalizedSearchNames": [
+        "new york",
+        "new york united states",
+        "nyc",
+        "new york city"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "NYC",
+      "travelpayoutsAirportCodes": [
+        "JFK",
+        "EWR",
+        "LGA"
+      ],
+      "agodaCityId": 318,
+      "agodaHotelCount": 921,
+      "agodaCoverageStatus": "strong",
+      "primaryAirportCode": "JFK",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "partial",
+          "source": "Travelpayouts public static cities.json and airports.json plus Globevoy draft metro-airport policy",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-metro-code",
+          "airportCodeStatus": "draft-conservative-airport-list-applied-needs-review",
+          "reviewStatus": "draft-metro-airport-list-needs-product-provider-review",
+          "staticCityName": "New York",
+          "staticCityCountryCode": "US",
+          "staticAirportName": null,
+          "staticAirportCityCode": null,
+          "recommendedCityCode": "NYC",
+          "recommendedAirportCodes": [
+            "JFK",
+            "EWR",
+            "LGA"
+          ],
+          "primaryAirportCode": "JFK",
+          "excludedSecondaryCodes": [
+            "none"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: NYC remains the broad city/metro code for search; JFK is the draft primary airport for display/default fallback; airport list JFK, EWR, LGA is conservative draft policy and still needs product/provider review. Static code existence does not guarantee route availability or bookability."
+        },
+        "agoda": {
+          "status": "strong",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "New York (NY)"
+        }
+      },
+      "groupRole": "group1-famous-anchor",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, conservative metro airport policy applied 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Review city-vs-airport code semantics before promoting to ready. Agoda derived match applied 2026-06-01: city_id 318, 921 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: NYC remains the broad city/metro code for search; JFK is the draft primary airport for display/default fallback; airport list JFK, EWR, LGA is conservative draft policy and still needs product/provider review. Static code existence does not guarantee route availability or bookability."
+    },
+    {
+      "globevoyCityId": "seattle-us",
+      "displayCity": "Seattle",
+      "country": "United States",
+      "countryCode": "US",
+      "region": null,
+      "latitude": 47.61,
+      "longitude": -122.33,
+      "aliases": [
+        "Seattle",
+        "Seattle, United States",
+        "Seattle United States",
+        "SEA"
+      ],
+      "normalizedSearchNames": [
+        "seattle",
+        "seattle united states",
+        "sea"
+      ],
+      "mapCoordinatesSource": "backend-current-dataset-needs-frontend-review",
+      "travelpayoutsCityCode": "SEA",
+      "travelpayoutsAirportCodes": [
+        "SEA"
+      ],
+      "agodaCityId": 3687,
+      "agodaHotelCount": 241,
+      "agodaCoverageStatus": "partial",
+      "primaryAirportCode": "SEA",
+      "nearestMajorAirportCode": null,
+      "providerCoverage": {
+        "travelpayouts": {
+          "status": "strong",
+          "source": "Travelpayouts public static cities.json and airports.json",
+          "validatedAt": "2026-06-02",
+          "cityCodeStatus": "valid-city-code-also-airport-code",
+          "airportCodeStatus": "valid-airport-code-list",
+          "reviewStatus": "code-and-airport-list-validated",
+          "staticCityName": "Seattle",
+          "staticCityCountryCode": "US",
+          "staticAirportName": "Seattle-Tacoma International Airport",
+          "staticAirportCityCode": "SEA",
+          "recommendedCityCode": "SEA",
+          "recommendedAirportCodes": [
+            "SEA"
+          ],
+          "note": "Travelpayouts static validation 2026-06-02: SEA matched provider city/airport data and current airport list SEA validated."
+        },
+        "agoda": {
+          "status": "partial",
+          "source": "docs/agoda-city-match-candidates.csv",
+          "matchType": "city-name-contains-target",
+          "matchConfidence": "high-existing-id-match-needs-review",
+          "candidateAgodaCityName": "Seattle (WA)"
+        }
+      },
+      "groupRole": "group1-airport-hub",
+      "hubScore": null,
+      "hiddenGemScore": null,
+      "popularityScore": null,
+      "validationStatus": "draft-needs-provider-review",
+      "validationSources": {
+        "backend": "backend/src/data/destination-meta.js",
+        "frontend": null,
+        "registryDraft": "docs/current-55-city-registry-draft.md",
+        "schema": "docs/city-registry-schema.md",
+        "travelpayouts": "Travelpayouts public static cities.json and airports.json, validated 2026-06-02",
+        "agoda": "docs/agoda-city-match-candidates.csv derived from Agoda hotel feed, 2026-06-01",
+        "productReview": null,
+        "generatedAt": "2026-06-01"
+      },
+      "notes": "Draft record only; does not power production. Backend-only current candidate; needs frontend map/display review before generated frontend use. Agoda city ID exists in current backend data but must be provider-verified before canonical approval. Travelpayouts/Aviasales code comes from current dataset and must be provider-verified. Agoda derived match applied 2026-06-01: city_id 3687, 241 feed hotels, city-name-contains-target; not live availability. Travelpayouts static validation 2026-06-02: SEA matched provider city/airport data and current airport list SEA validated."
+    }
+  ]
+}

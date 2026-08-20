@@ -1,0 +1,151 @@
+rank,cityId,displayName,country,countryCode,worldRegion,group,selectionScore,priorityScore,providerLocationCode,preferredAirportCode,internationalAirportSignal,requiresGatewayTransfer,agodaMappingType,agodaHotelCount,productReviewRequired,selectionReason
+1,philadelphia-us,Philadelphia,United States,US,Americas,GROUP_2,100,133.559,PHL,PHL,true,false,inherited-exact,204,false,high-readiness-group2-current-500
+2,san-juan-pr,San Juan,Puerto Rico,PR,Americas,GROUP_2,100,133.461,SJU,SJU,true,false,inherited-exact,195,false,high-readiness-group2-current-500
+3,puerto-vallarta-mx,Puerto Vallarta,Mexico,MX,Americas,GROUP_2,100,133.439,PVR,PVR,true,false,inherited-exact,193,false,high-readiness-group2-current-500
+4,quebec-city-ca,Quebec City,Canada,CA,Americas,GROUP_2,100,133.439,YQB,YQB,true,false,inherited-exact,193,false,high-readiness-group2-current-500
+5,portland-us-pdx,Portland,United States,US,Americas,GROUP_2,100,133.3,PDX,PDX,true,false,exact-city-country,181,false,high-readiness-group2-current-500
+6,minneapolis-us,Minneapolis,United States,US,Americas,GROUP_2,100,132.966,MSP,MSP,true,false,inherited-exact,155,false,high-readiness-group2-current-500
+7,calgary-ca,Calgary,Canada,CA,Americas,GROUP_2,100,132.909,YYC,YYC,true,false,inherited-exact,151,false,high-readiness-group2-current-500
+8,salt-lake-city-us,Salt Lake City,United States,US,Americas,GROUP_2,100,132.731,SLC,SLC,true,false,inherited-exact,139,false,high-readiness-group2-current-500
+9,san-jose-cr,San Jose,Costa Rica,CR,Americas,GROUP_2,100,132.684,SJO,SJO,true,false,inherited-exact,136,false,high-readiness-group2-current-500
+10,da-nang-vn,Da Nang,Vietnam,VN,Asia,GROUP_2,100,131.618,DAD,DAD,true,false,inherited-exact,3338,true,high-readiness-group2-current-500
+11,penang-my,Penang,Malaysia,MY,Asia,GROUP_2,100,131.509,PEN,PEN,true,false,inherited-exact,3174,true,high-readiness-group2-current-500
+12,malacca-my,Malacca,Malaysia,MY,Asia,GROUP_2,100,131.462,MKZ,MKZ,true,false,inherited-exact,3107,true,high-readiness-group2-current-500
+13,jaipur-in,Jaipur,India,IN,Asia,GROUP_2,100,130.9,JAI,JAI,false,false,inherited-exact,2398,false,high-readiness-group2-current-500
+14,lijiang-cn,Lijiang,China,CN,Asia,GROUP_2,100,130.756,LJG,LJG,false,false,inherited-exact,2244,false,high-readiness-group2-current-500
+15,surabaya-id,Surabaya,Indonesia,ID,Asia,GROUP_2,100,130.559,SUB,SUB,true,false,inherited-exact,2049,true,high-readiness-group2-current-500
+16,kota-kinabalu-my,Kota Kinabalu,Malaysia,MY,Asia,GROUP_2,100,130.547,BKI,BKI,true,false,inherited-exact,2038,true,high-readiness-group2-current-500
+17,nha-trang-vn,Nha Trang,Vietnam,VN,Asia,GROUP_2,100,130.199,NHA,CXR,true,false,inherited-exact,1736,true,high-readiness-group2-current-500
+18,kuching-my,Kuching,Malaysia,MY,Asia,GROUP_2,100,129.591,KCH,KCH,true,false,inherited-exact,1312,true,high-readiness-group2-current-500
+19,zhangjiajie-cn,Zhangjiajie,China,CN,Asia,GROUP_2,100,129.365,DYG,DYG,false,false,inherited-exact,1182,false,high-readiness-group2-current-500
+20,sao-paulo-br,Sao Paulo,Brazil,BR,Americas,GROUP_2,100,129.229,SAO,GRU,true,false,inherited-exact,1110,true,high-readiness-group2-current-500
+21,maceio-br,Maceio,Brazil,BR,Americas,GROUP_2,96,129.061,MCZ,MCZ,true,false,inherited-exact,162,false,high-readiness-group2-current-500
+22,hua-hin-th,Hua Hin,Thailand,TH,Asia,GROUP_2,100,129.011,HHQ,HHQ,false,false,inherited-validated,2524,false,high-readiness-group2-current-500
+23,ottawa-ca,Ottawa,Canada,CA,Americas,GROUP_2,97,128.956,YOW,YOW,true,false,inherited-exact,97,false,high-readiness-group2-current-500
+24,curitiba-br,Curitiba,Brazil,BR,Americas,GROUP_2,96,128.938,CWB,CWB,true,false,inherited-exact,153,false,high-readiness-group2-current-500
+25,salalah-om,Salalah,Oman,OM,Asia,GROUP_2,96,128.837,SLL,SLL,true,false,inherited-exact,146,false,high-readiness-group2-current-500
+26,foz-do-iguacu-br,Foz do Iguacu,Brazil,BR,Americas,GROUP_2,96,128.807,IGU,IGU,true,false,inherited-exact,144,false,high-readiness-group2-current-500
+27,salta-ar,Salta,Argentina,AR,Americas,GROUP_2,96,128.536,SLA,SLA,true,false,inherited-exact,127,false,high-readiness-group2-current-500
+28,winnipeg-ca,Winnipeg,Canada,CA,Americas,GROUP_2,97,128.488,YWG,YWG,true,false,inherited-exact,78,false,high-readiness-group2-current-500
+29,okinawa-jp,Okinawa,Japan,JP,Asia,GROUP_2,100,128.419,OKA,OKA,false,false,inherited-validated,1921,false,high-readiness-group2-current-500
+30,halifax-ca,Halifax,Canada,CA,Americas,GROUP_2,97,128.317,YHZ,YHZ,true,false,inherited-exact,72,false,high-readiness-group2-current-500
+31,victoria-ca,Victoria,Canada,CA,Americas,GROUP_2,97,128.256,YYJ,YYJ,true,false,inherited-exact,70,false,high-readiness-group2-current-500
+32,ushuaia-ar,Ushuaia,Argentina,AR,Americas,GROUP_2,96,128.246,USH,USH,true,false,inherited-exact,111,false,high-readiness-group2-current-500
+33,puerto-iguazu-ar,Puerto Iguazu,Argentina,AR,Americas,GROUP_2,96,128.227,IGR,IGR,true,false,inherited-exact,110,false,high-readiness-group2-current-500
+34,phu-quoc-vn,Phu Quoc,Vietnam,VN,Asia,GROUP_2,100,128.161,PQC,PQC,false,false,inherited-validated,1706,false,high-readiness-group2-current-500
+35,montego-bay-jm,Montego Bay,Jamaica,JM,Americas,GROUP_2,96,128.085,MBJ,MBJ,true,false,inherited-exact,103,false,high-readiness-group2-current-500
+36,aqaba-jo,Aqaba,Jordan,JO,Asia,GROUP_2,96,128.064,AQJ,AQJ,true,false,inherited-exact,102,false,high-readiness-group2-current-500
+37,pereira-co,Pereira,Colombia,CO,Americas,GROUP_2,96,128.022,PEI,PEI,true,false,inherited-exact,100,false,high-readiness-group2-current-500
+38,bologna-it,Bologna,Italy,IT,Europe,GROUP_2,100,127.043,BLQ,BLQ,false,false,inherited-exact,405,false,high-readiness-group2-current-500
+39,hualien-tw,Hualien,Taiwan,TW,Asia,GROUP_2,98,126.637,HUN,HUN,false,false,inherited-exact,845,false,high-readiness-group2-current-500
+40,nice-fr,Nice,France,FR,Europe,GROUP_2,100,126.492,NCE,NCE,false,false,inherited-exact,314,false,high-readiness-group2-current-500
+41,tainan-tw,Tainan,Taiwan,TW,Asia,GROUP_2,98,126.435,TNN,TNN,false,false,inherited-exact,770,false,high-readiness-group2-current-500
+42,cologne-de,Cologne,Germany,DE,Europe,GROUP_2,100,126.386,CGN,CGN,false,false,inherited-exact,299,false,high-readiness-group2-current-500
+43,bristol-gb,Bristol,United Kingdom,GB,Europe,GROUP_2,100,126.236,BRS,BRS,false,false,inherited-exact,279,false,high-readiness-group2-current-500
+44,bordeaux-fr,Bordeaux,France,FR,Europe,GROUP_2,100,126.092,BOD,BOD,false,false,inherited-exact,261,false,high-readiness-group2-current-500
+45,marseille-fr,Marseille,France,FR,Europe,GROUP_2,100,126.092,MRS,MRS,false,false,inherited-exact,261,false,high-readiness-group2-current-500
+46,toulouse-fr,Toulouse,France,FR,Europe,GROUP_2,100,125.516,TLS,TLS,false,false,inherited-exact,200,false,high-readiness-group2-current-500
+47,stuttgart-de,Stuttgart,Germany,DE,Europe,GROUP_2,100,125.348,STR,STR,false,false,inherited-exact,185,false,high-readiness-group2-current-500
+48,ljubljana-si,Ljubljana,Slovenia,SI,Europe,GROUP_2,100,125.203,LJU,LJU,false,false,inherited-exact,173,false,high-readiness-group2-current-500
+49,birmingham-gb,Birmingham,United Kingdom,GB,Europe,GROUP_2,97,125.13,BHX,BHX,true,false,inherited-exact,669,true,high-readiness-group2-current-500
+50,batumi-ge,Batumi,Georgia,GE,Asia,GROUP_2,98,125.064,BUS,BUS,false,false,inherited-exact,409,false,high-readiness-group2-current-500
+51,bogota-co,Bogota,Colombia,CO,Americas,GROUP_2,97,125.051,BOG,BOG,true,false,inherited-exact,645,true,high-readiness-group2-current-500
+52,bilbao-es,Bilbao,Spain,ES,Europe,GROUP_2,100,124.761,BIO,BIO,false,false,inherited-exact,141,false,high-readiness-group2-current-500
+53,san-antonio-us,San Antonio,United States,US,Americas,GROUP_2,97,124.737,SAT,SAT,true,false,inherited-exact,558,true,high-readiness-group2-current-500
+54,san-francisco-us,San Francisco,United States,US,Americas,GROUP_2,97,124.737,SFO,SFO,true,false,inherited-exact,558,true,high-readiness-group2-current-500
+55,rio-de-janeiro-br,Rio De Janeiro,Brazil,BR,Americas,GROUP_2,97,124.625,RIO,GIG,true,false,inherited-exact,530,true,high-readiness-group2-current-500
+56,kanazawa-jp,Kanazawa,Japan,JP,Asia,GROUP_2,98,124.579,KMQ,KMQ,false,false,inherited-exact,327,false,high-readiness-group2-current-500
+57,canberra-au,Canberra,Australia,AU,Oceania,GROUP_2,98,124.304,CBR,CBR,false,false,inherited-exact,288,false,high-readiness-group2-current-500
+58,queenstown-nz,Queenstown,New Zealand,NZ,Oceania,GROUP_2,98,124.173,ZQN,ZQN,false,false,inherited-exact,271,false,high-readiness-group2-current-500
+59,goreme-tr,Goreme,Turkey,TR,Europe,GROUP_2,98,124.124,NAV,NAV,false,false,inherited-exact,265,false,high-readiness-group2-current-500
+60,florianopolis-br,Florianopolis,Brazil,BR,Americas,GROUP_2,97,124.121,FLN,FLN,true,false,inherited-exact,420,true,high-readiness-group2-current-500
+61,pai-th,Pai,Thailand,TH,Asia,GROUP_2,98,124.083,PYY,PYY,false,false,inherited-exact,260,false,high-readiness-group2-current-500
+62,durban-za,Durban,South Africa,ZA,Africa,GROUP_2,97,124.027,DUR,DUR,true,false,inherited-exact,402,true,high-readiness-group2-current-500
+63,durham-us,Durham,United States,US,Americas,GROUP_2,93,123.962,RDU,RDU,true,false,inherited-exact,61,false,high-readiness-group2-current-500
+64,iquitos-pe,Iquitos,Peru,PE,Americas,GROUP_2,93,123.741,IQT,IQT,true,false,inherited-exact,55,false,high-readiness-group2-current-500
+65,santa-marta-co,Santa Marta,Colombia,CO,Americas,GROUP_2,97,123.708,SMR,SMR,true,false,inherited-exact,347,true,high-readiness-group2-current-500
+66,antwerp-be,Antwerp,Belgium,BE,Europe,GROUP_2,97,123.67,ANR,ANR,true,false,inherited-exact,341,true,high-readiness-group2-current-500
+67,campeche-mx,Campeche,Mexico,MX,Americas,GROUP_2,93,123.662,CPE,CPE,true,false,inherited-exact,53,false,high-readiness-group2-current-500
+68,thessaloniki-gr,Thessaloniki,Greece,GR,Europe,GROUP_2,97,123.651,SKG,SKG,true,false,inherited-exact,338,true,high-readiness-group2-current-500
+69,guadalajara-mx,Guadalajara,Mexico,MX,Americas,GROUP_2,97,123.612,GDL,GDL,true,false,inherited-exact,332,true,high-readiness-group2-current-500
+70,ankara-tr,Ankara,Turkey,TR,Europe,GROUP_2,97,123.533,ANK,ESB,true,false,inherited-exact,320,true,high-readiness-group2-current-500
+71,fort-myers-us,Fort Myers,United States,US,Americas,GROUP_2,97,123.512,FMY,RSW,true,false,inherited-exact,317,true,high-readiness-group2-current-500
+72,myrtle-beach-us,Myrtle Beach,United States,US,Americas,GROUP_2,97,123.312,MYR,MYR,true,false,inherited-exact,289,true,high-readiness-group2-current-500
+73,joao-pessoa-br,Joao Pessoa,Brazil,BR,Americas,GROUP_2,97,123.274,JPA,JPA,true,false,inherited-exact,284,true,high-readiness-group2-current-500
+74,zagreb-hr,Zagreb,Croatia,HR,Europe,GROUP_2,97,123.075,ZAG,ZAG,true,false,inherited-exact,259,true,high-readiness-group2-current-500
+75,dalat-vn,Dalat,Vietnam,VN,Asia,GROUP_2,100,122.924,DLI,DLI,false,false,inherited-exact,2425,true,high-readiness-group2-current-500
+76,malang-id,Malang,Indonesia,ID,Asia,GROUP_2,100,122.769,MLG,MLG,false,false,inherited-exact,2257,true,high-readiness-group2-current-500
+77,koh-samui-th,Koh Samui,Thailand,TH,Asia,GROUP_2,100,122.5,USM,USM,false,false,inherited-exact,1994,true,high-readiness-group2-current-500
+78,melbourne-au,Melbourne,Australia,AU,Oceania,GROUP_2,100,122.317,MEL,MEL,false,false,inherited-exact,1833,true,high-readiness-group2-current-500
+79,ipoh-my,Ipoh,Malaysia,MY,Asia,GROUP_2,100,122.044,IPH,IPH,false,false,inherited-exact,1616,true,high-readiness-group2-current-500
+80,kailua-kona-us,Kailua-Kona,United States,US,Oceania,GROUP_2,93,121.927,KOA,KOA,true,false,inherited-validated,60,false,high-readiness-group2-current-500
+81,lecce-it,Lecce,Italy,IT,Europe,GROUP_2,96,121.837,BDS,BDS,false,false,inherited-exact,232,false,high-readiness-group2-current-500
+82,nagasaki-jp,Nagasaki,Japan,JP,Asia,GROUP_2,96,121.702,NGS,NGS,false,false,inherited-exact,218,false,high-readiness-group2-current-500
+83,sousse-tn,Sousse,Tunisia,TN,Africa,GROUP_2,91,121.495,MIR,MIR,true,false,inherited-exact,49,false,high-readiness-group2-current-500
+84,cordoba-es,Cordoba,Spain,ES,Europe,GROUP_2,96,121.394,ODB,ODB,false,false,inherited-exact,189,false,high-readiness-group2-current-500
+85,maputo-mz,Maputo,Mozambique,MZ,Africa,GROUP_2,91,121.36,MPM,MPM,true,false,inherited-exact,46,false,high-readiness-group2-current-500
+86,natal-br,Natal,Brazil,BR,Americas,GROUP_2,96,121.3,NAT,NAT,false,false,inherited-exact,181,false,high-readiness-group2-current-500
+87,bratislava-sk,Bratislava,Slovakia,SK,Europe,GROUP_2,96,121.276,BTS,BTS,false,false,inherited-exact,179,false,high-readiness-group2-current-500
+88,missoula-us,Missoula,United States,US,Americas,GROUP_2,91,121.266,MSO,MSO,true,false,inherited-exact,44,false,high-readiness-group2-current-500
+89,bursa-tr,Bursa,Turkey,TR,Europe,GROUP_2,96,121.24,YEI,YEI,false,false,inherited-exact,176,false,high-readiness-group2-current-500
+90,antalya-tr,Antalya,Turkey,TR,Europe,GROUP_2,100,121.217,AYT,AYT,false,false,inherited-exact,1104,true,high-readiness-group2-current-500
+91,spokane-us,Spokane,United States,US,Americas,GROUP_2,91,121.217,GEG,GEG,true,false,inherited-exact,43,false,high-readiness-group2-current-500
+92,destin-us,Destin,United States,US,Americas,GROUP_2,100,121.175,DSI,DSI,false,false,inherited-exact,1083,true,high-readiness-group2-current-500
+93,bozeman-us,Bozeman,United States,US,Americas,GROUP_2,91,121.116,BZN,BZN,true,false,inherited-exact,41,false,high-readiness-group2-current-500
+94,leeds-gb,Leeds,United Kingdom,GB,Europe,GROUP_2,95,120.963,LBA,LBA,true,false,inherited-exact,246,true,high-readiness-group2-current-500
+95,portland-maine-us,Portland (Maine),United States,US,Americas,GROUP_2,91,120.955,PWM,PWM,true,false,inherited-exact,38,false,high-readiness-group2-current-500
+96,arusha-tz,Arusha,Tanzania,TZ,Africa,GROUP_2,96,120.923,ARK,ARK,false,false,inherited-exact,152,false,high-readiness-group2-current-500
+97,merida-mx,Merida,Mexico,MX,Americas,GROUP_2,95,120.883,MID,MID,true,false,inherited-exact,237,true,high-readiness-group2-current-500
+98,kotor-me,Kotor,Montenegro,ME,Europe,GROUP_2,96,120.746,TIV,TIV,false,false,inherited-exact,140,false,high-readiness-group2-current-500
+99,st-john-s-ca,St. John's,Canada,CA,Americas,GROUP_2,91,120.657,YYT,YYT,true,false,inherited-exact,33,false,high-readiness-group2-current-500
+100,montpellier-fr,Montpellier,France,FR,Europe,GROUP_2,96,120.636,MPL,MPL,false,false,inherited-exact,133,false,high-readiness-group2-current-500
+101,indianapolis-us,Indianapolis,United States,US,Americas,GROUP_2,95,120.611,IND,IND,true,false,inherited-exact,209,true,high-readiness-group2-current-500
+102,jacksonville-us,Jacksonville,United States,US,Americas,GROUP_2,95,120.527,JAX,JAX,true,false,inherited-exact,201,true,high-readiness-group2-current-500
+103,tallinn-ee,Tallinn,Estonia,EE,Europe,GROUP_2,96,120.519,TLL,TLL,false,false,inherited-exact,126,false,high-readiness-group2-current-500
+104,palm-springs-us,Palm Springs,United States,US,Americas,GROUP_2,95,120.494,PSP,PSP,true,false,inherited-exact,198,true,high-readiness-group2-current-500
+105,san-carlos-de-bariloche-ar,San Carlos de Bariloche,Argentina,AR,Americas,GROUP_2,95,120.483,BRC,BRC,true,false,inherited-exact,197,true,high-readiness-group2-current-500
+106,salvador-br,Salvador,Brazil,BR,Americas,GROUP_2,95,120.472,SSA,SSA,true,false,inherited-exact,196,true,high-readiness-group2-current-500
+107,key-west-us,Key West,United States,US,Americas,GROUP_2,95,120.461,EYW,EYW,true,false,inherited-exact,195,true,high-readiness-group2-current-500
+108,port-elizabeth-za,Port Elizabeth,South Africa,ZA,Africa,GROUP_2,95,120.439,PLZ,PLZ,true,false,inherited-exact,193,true,high-readiness-group2-current-500
+109,cabo-san-lucas-mx,Cabo San Lucas,Mexico,MX,Americas,GROUP_2,96,120.378,SJD,SJD,false,false,inherited-exact,118,false,high-readiness-group2-current-500
+110,essaouira-ma,Essaouira,Morocco,MA,Africa,GROUP_2,96,120.341,ESU,ESU,false,false,inherited-exact,116,false,high-readiness-group2-current-500
+111,el-calafate-ar,El Calafate,Argentina,AR,Americas,GROUP_2,96,120.322,FTE,FTE,false,false,inherited-exact,115,false,high-readiness-group2-current-500
+112,perugia-it,Perugia,Italy,IT,Europe,GROUP_2,96,120.303,PEG,PEG,false,false,inherited-exact,114,false,high-readiness-group2-current-500
+113,pisa-it,Pisa,Italy,IT,Europe,GROUP_2,95,120.3,PSA,PSA,true,false,inherited-exact,181,true,high-readiness-group2-current-500
+114,bruges-be,Bruges,Belgium,BE,Europe,GROUP_2,95,120.276,OST,OST,true,false,inherited-exact,179,true,high-readiness-group2-current-500
+115,aswan-eg,Aswan,Egypt,EG,Africa,GROUP_2,96,120.265,ASW,ASW,false,false,inherited-exact,112,false,high-readiness-group2-current-500
+116,cadiz-es,Cadiz,Spain,ES,Europe,GROUP_2,96,120.265,XRY,XRY,false,false,inherited-exact,112,false,high-readiness-group2-current-500
+117,avignon-fr,Avignon,France,FR,Europe,GROUP_2,96,120.147,AVN,AVN,false,false,inherited-exact,106,false,high-readiness-group2-current-500
+118,pittsburgh-us,Pittsburgh,United States,US,Americas,GROUP_2,95,120.127,PIT,PIT,true,false,inherited-exact,167,true,high-readiness-group2-current-500
+119,thunder-bay-ca,Thunder Bay,Canada,CA,Americas,GROUP_2,91,120.075,YQT,YQT,true,false,inherited-exact,25,false,high-readiness-group2-current-500
+120,djerba-tn,Djerba,Tunisia,TN,Africa,GROUP_2,96,120.064,DJE,DJE,false,false,inherited-exact,102,false,high-readiness-group2-current-500
+121,belfast-gb,Belfast,United Kingdom,GB,Europe,GROUP_2,95,119.952,BFS,BFS,true,false,inherited-exact,154,true,high-readiness-group2-current-500
+122,dresden-de,Dresden,Germany,DE,Europe,GROUP_2,95,119.923,DRS,DRS,true,false,inherited-exact,152,true,high-readiness-group2-current-500
+123,memphis-us,Memphis,United States,US,Americas,GROUP_2,95,119.895,MEM,MEM,true,false,inherited-exact,150,true,high-readiness-group2-current-500
+124,richmond-us,Richmond,United States,US,Americas,GROUP_2,95,119.837,RIC,RIC,true,false,inherited-exact,146,true,high-readiness-group2-current-500
+125,daytona-beach-us,Daytona Beach,United States,US,Americas,GROUP_2,95,119.807,DAB,DAB,true,false,inherited-exact,144,true,high-readiness-group2-current-500
+126,charleston-us,Charleston,United States,US,Americas,GROUP_2,95,119.777,CHS,CHS,true,false,inherited-exact,142,true,high-readiness-group2-current-500
+127,corpus-christi-us,Corpus Christi,United States,US,Americas,GROUP_2,95,119.761,CRP,CRP,true,false,inherited-exact,141,true,high-readiness-group2-current-500
+128,louisville-us,Louisville,United States,US,Americas,GROUP_2,95,119.652,SDF,SDF,true,false,inherited-exact,134,true,high-readiness-group2-current-500
+129,tucson-us,Tucson,United States,US,Americas,GROUP_2,95,119.536,TUS,TUS,true,false,inherited-exact,127,true,high-readiness-group2-current-500
+130,rhodes-gr,Rhodes,Greece,GR,Europe,GROUP_2,97,117.993,RHO,RHO,false,false,inherited-exact,996,true,high-readiness-group2-current-500
+131,warsaw-pl,Warsaw,Poland,PL,Europe,GROUP_2,97,117.675,WAW,WAW,false,false,inherited-exact,860,true,high-readiness-group2-current-500
+132,bodrum-tr,Bodrum,Turkey,TR,Europe,GROUP_2,97,117.034,BJV,BJV,false,false,inherited-exact,640,true,high-readiness-group2-current-500
+133,mardin-tr,Mardin,Turkey,TR,Europe,GROUP_2,93,116.795,MQM,MQM,false,false,inherited-exact,90,false,high-readiness-group2-current-500
+134,victoria-falls-zw,Victoria Falls,Zimbabwe,ZW,Africa,GROUP_2,93,116.771,VFA,VFA,false,false,inherited-exact,89,false,high-readiness-group2-current-500
+135,blackpool-gb,Blackpool,United Kingdom,GB,Europe,GROUP_2,97,116.756,BLK,BLK,false,false,inherited-exact,563,true,high-readiness-group2-current-500
+136,brno-cz,Brno,Czech Republic,CZ,Europe,GROUP_2,93,116.722,BRQ,BRQ,false,false,inherited-exact,87,false,high-readiness-group2-current-500
+137,split-hr,Split,Croatia,HR,Europe,GROUP_2,97,116.71,SPU,SPU,false,false,inherited-exact,551,true,high-readiness-group2-current-500
+138,rimini-it,Rimini,Italy,IT,Europe,GROUP_2,97,116.625,RMI,RMI,false,false,inherited-exact,530,true,high-readiness-group2-current-500
+139,zaragoza-es,Zaragoza,Spain,ES,Europe,GROUP_2,93,116.569,ZAZ,ZAZ,false,false,inherited-exact,81,false,high-readiness-group2-current-500
+140,bergen-no,Bergen,Norway,NO,Europe,GROUP_2,93,116.488,BGO,BGO,false,false,inherited-exact,78,false,high-readiness-group2-current-500
+141,verona-it,Verona,Italy,IT,Europe,GROUP_2,97,116.469,VRN,VRN,false,false,inherited-exact,493,true,high-readiness-group2-current-500
+142,rennes-fr,Rennes,France,FR,Europe,GROUP_2,93,116.432,RNS,RNS,false,false,inherited-exact,76,false,high-readiness-group2-current-500
+143,ibiza-es,Ibiza,Spain,ES,Europe,GROUP_2,97,116.37,IBZ,IBZ,false,false,inherited-exact,471,true,high-readiness-group2-current-500
+144,lanzarote-es,Lanzarote,Spain,ES,Other,GROUP_2,97,116.192,ACE,ACE,false,false,inherited-exact,434,true,high-readiness-group2-current-500
+145,ouarzazate-ma,Ouarzazate,Morocco,MA,Africa,GROUP_2,93,115.962,OZZ,OZZ,false,false,inherited-exact,61,false,high-readiness-group2-current-500
+146,broome-au,Broome,Australia,AU,Oceania,GROUP_2,91,112.526,BME,BME,false,false,inherited-exact,31,false,high-readiness-group2-current-500
+147,hoi-an-vn,Hoi An,Vietnam,VN,Other,GROUP_2,56,90.533,DAD,DAD,true,true,inherited-exact,1277,false,high-readiness-current-500-with-approved-gateway
+148,hakone-jp,Hakone,Japan,JP,Other,GROUP_2,53,84.983,NRT,NRT,true,true,inherited-exact,394,false,high-readiness-current-500-with-approved-gateway
+149,como-it,Como,Italy,IT,Other,GROUP_2,51,81.152,BGY,BGY,true,true,inherited-exact,169,false,high-readiness-current-500-with-approved-gateway
+150,gyeongju-kr,Gyeongju,South Korea,KR,Other,GROUP_2,56,80.895,KPO,KPO,false,true,inherited-validated,1509,false,high-readiness-current-500-with-approved-gateway

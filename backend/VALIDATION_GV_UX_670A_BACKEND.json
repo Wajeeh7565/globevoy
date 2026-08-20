@@ -1,0 +1,297 @@
+{
+  "taskId": "GV-UX-670A-R2",
+  "version": "2.12.0-gv-rec-677d-destination-value-proximity",
+  "generatedAt": "2026-08-06T17:21:59.198Z",
+  "passed": true,
+  "checkCount": 30,
+  "passedCount": 30,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "Generated-tour package includes the 670A role baseline plus current production repairs",
+      "passed": true,
+      "details": {
+        "version": "2.12.0-gv-rec-677d-destination-value-proximity"
+      }
+    },
+    {
+      "name": "Map-first three-pick feature flag is active",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "668T activation baseline remains selected",
+      "passed": true,
+      "details": {
+        "version": "GV-CITY-668T"
+      }
+    },
+    {
+      "name": "1,000-city audit remains complete",
+      "passed": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCount": 1000,
+        "productionActiveCount": 439,
+        "directOrMetroCount": 412,
+        "gatewaySupportedCount": 27,
+        "auditedInactiveCount": 561,
+        "unauditedCount": 0,
+        "estimateOnlyCount": 561,
+        "providerCoveredCount": 492,
+        "recoveredActiveCount": 18,
+        "recoveryReviewedInactiveCount": 132,
+        "current500": {
+          "audited": 500,
+          "productionActive": 318,
+          "reviewedInactive": 182
+        },
+        "expansion500": {
+          "audited": 500,
+          "productionActive": 121,
+          "reviewedInactive": 379
+        },
+        "classificationCounts": {
+          "estimate-only": 43,
+          "gateway-supported": 29,
+          "live-both": 463,
+          "live-flights-only": 25,
+          "live-stays-only": 327,
+          "provider-error": 4,
+          "unresolved": 109
+        },
+        "activeModeCounts": {
+          "direct-or-metro": 412,
+          "gateway-supported": 27
+        },
+        "retryQueueCounts": {
+          "missing-flight-observations": 423,
+          "unresolved-agoda-mapping": 130,
+          "no-live-hotel-rate": 51,
+          "hotel-quality-failure": 50,
+          "flight-comfort-failure": 54
+        }
+      }
+    },
+    {
+      "name": "439 production-active cities remain unchanged",
+      "passed": true,
+      "details": {
+        "active": 439
+      }
+    },
+    {
+      "name": "Role alias 'lowest cost' normalizes correctly",
+      "passed": true,
+      "details": {
+        "input": "lowest cost",
+        "expected": "lowest-cost",
+        "actual": "lowest-cost"
+      }
+    },
+    {
+      "name": "Role alias 'cost' normalizes correctly",
+      "passed": true,
+      "details": {
+        "input": "cost",
+        "expected": "lowest-cost",
+        "actual": "lowest-cost"
+      }
+    },
+    {
+      "name": "Role alias 'recommended' normalizes correctly",
+      "passed": true,
+      "details": {
+        "input": "recommended",
+        "expected": "best-balance",
+        "actual": "best-balance"
+      }
+    },
+    {
+      "name": "Role alias 'best_balance' normalizes correctly",
+      "passed": true,
+      "details": {
+        "input": "best_balance",
+        "expected": "best-balance",
+        "actual": "best-balance"
+      }
+    },
+    {
+      "name": "Role alias 'discovery' normalizes correctly",
+      "passed": true,
+      "details": {
+        "input": "discovery",
+        "expected": "most-memorable",
+        "actual": "most-memorable"
+      }
+    },
+    {
+      "name": "Role alias 'most memorable' normalizes correctly",
+      "passed": true,
+      "details": {
+        "input": "most memorable",
+        "expected": "most-memorable",
+        "actual": "most-memorable"
+      }
+    },
+    {
+      "name": "lowest-cost request scopes candidate selection",
+      "passed": true,
+      "details": {
+        "ids": [
+          "low"
+        ]
+      }
+    },
+    {
+      "name": "best-balance request scopes candidate selection",
+      "passed": true,
+      "details": {
+        "ids": [
+          "balanced"
+        ]
+      }
+    },
+    {
+      "name": "most-memorable request scopes candidate selection",
+      "passed": true,
+      "details": {
+        "ids": [
+          "memorable"
+        ]
+      }
+    },
+    {
+      "name": "Role scoping keeps a non-empty candidate pool",
+      "passed": true,
+      "details": {
+        "count": 1
+      }
+    },
+    {
+      "name": "Unlabelled safe candidates receive three distinct derived roles",
+      "passed": true,
+      "details": {
+        "lowest-cost": "u1",
+        "best-balance": "u3",
+        "most-memorable": "u2"
+      }
+    },
+    {
+      "name": "Selected tour receives pick-role metadata",
+      "passed": true,
+      "details": {
+        "id": "balanced",
+        "tourRole": "best-balance",
+        "pickRole": "best-balance",
+        "pickRoleLabel": "Best balance",
+        "pickRoleMatched": true,
+        "mapFirstThreePicks": {
+          "enabled": true,
+          "version": "GV-UX-670A-R2",
+          "requestedRole": "best-balance",
+          "actualRole": "best-balance",
+          "roleMatched": true
+        }
+      }
+    },
+    {
+      "name": "Role mismatch is exposed honestly",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-UX-670A-R2",
+        "requestedRole": "most-memorable",
+        "actualRole": "lowest-cost",
+        "roleMatched": false
+      }
+    },
+    {
+      "name": "Deterministic route planner returns three candidates",
+      "passed": true,
+      "details": {
+        "supported": true,
+        "count": 3
+      }
+    },
+    {
+      "name": "Route planner exposes all three distinct recommendation roles",
+      "passed": true,
+      "details": {
+        "roles": [
+          "lowest-cost",
+          "best-balance",
+          "most-memorable"
+        ]
+      }
+    },
+    {
+      "name": "Three planner candidates have distinct route structures",
+      "passed": true,
+      "details": {
+        "routes": [
+          "Queretaro > San Miguel de Allende",
+          "Cancun > San Jose",
+          "Panama City > Cartagena"
+        ]
+      }
+    },
+    {
+      "name": "Vancouver (YVR) origin-display regression remains fixed",
+      "passed": true,
+      "details": {
+        "city": "Vancouver",
+        "airportCode": "YVR"
+      }
+    },
+    {
+      "name": "Whistler (YVR) origin-display regression remains fixed",
+      "passed": true,
+      "details": {
+        "city": "Whistler",
+        "airportCode": "YVR"
+      }
+    },
+    {
+      "name": "New York (JFK) origin-display regression remains fixed",
+      "passed": true,
+      "details": {
+        "city": "New York",
+        "airportCode": "JFK"
+      }
+    },
+    {
+      "name": "Suwon, South Korea origin-display regression remains fixed",
+      "passed": true,
+      "details": {
+        "city": "Suwon",
+        "airportCode": "ICN"
+      }
+    },
+    {
+      "name": "Feature flag safely disables role request parsing",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Feature flag off leaves the full candidate list available",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Role-scoped selection is packaged before route curation",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Final visualizer response is decorated with role metadata",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "670A diagnostics are packaged",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

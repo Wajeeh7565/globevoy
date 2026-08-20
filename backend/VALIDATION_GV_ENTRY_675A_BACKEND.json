@@ -1,0 +1,721 @@
+{
+  "release": "GV-ENTRY-675A",
+  "generatedAt": "2026-08-20T02:15:36.795Z",
+  "checkCount": 24,
+  "passedCount": 24,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "release version",
+      "passed": true,
+      "details": "GV-ENTRY-675A"
+    },
+    {
+      "name": "built-in U.S. rule has a recorded implementation review date",
+      "passed": true,
+      "details": "2026-07-29"
+    },
+    {
+      "name": "full suspension list contains Iran",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "full suspension list has 20 entries including PA travel documents",
+      "passed": true,
+      "details": 20
+    },
+    {
+      "name": "partial tourist list contains Nigeria",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "partial tourist list has 19 countries",
+      "passed": true,
+      "details": 19
+    },
+    {
+      "name": "Iranian passport without exception is blocked for US tourist route",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "supported": true,
+        "version": "GV-ENTRY-675A",
+        "checkedAt": "2026-08-20T02:15:36.792Z",
+        "profile": {
+          "passportCountryCode": "IR",
+          "passportCountry": "",
+          "secondPassportCountryCode": "",
+          "secondPassportCountry": "",
+          "useSecondPassportForTrip": false,
+          "travelPassportCountryCode": "IR",
+          "residenceCountryCode": "CA",
+          "residenceCountry": "",
+          "entryAware": true,
+          "validUsVisaOn20260101": false,
+          "usLawfulPermanentResident": false
+        },
+        "itinerary": {
+          "origin": {
+            "kind": "origin",
+            "index": 0,
+            "city": "Toronto",
+            "country": "Canada",
+            "countryCode": "CA",
+            "airportCode": "YYZ"
+          },
+          "stops": [
+            {
+              "kind": "destination",
+              "index": 1,
+              "city": "Miami",
+              "country": "",
+              "countryCode": "US",
+              "airportCode": "MIA"
+            }
+          ]
+        },
+        "profileComplete": true,
+        "overallStatus": "blocked",
+        "hardBlocked": true,
+        "recommendationEligible": false,
+        "summary": "1 destination is blocked by a current authoritative entry guardrail for this passport profile.",
+        "checks": [
+          {
+            "kind": "destination",
+            "index": 1,
+            "city": "Miami",
+            "country": "",
+            "countryCode": "US",
+            "airportCode": "MIA",
+            "source": {
+              "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+              "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+              "lastOfficialUpdate": "2026-02-02",
+              "effectiveDate": "2026-01-01",
+              "implementationReviewedAt": "2026-07-29"
+            },
+            "status": "not-currently-eligible",
+            "label": "U.S. tourist entry is currently restricted",
+            "hardBlock": true,
+            "action": "Do not continue to partner booking for this route unless the traveller qualifies for an official exception or already holds a protected valid visa."
+          }
+        ],
+        "transit": {
+          "status": "unknown-until-flight-selected",
+          "label": "Transit check required after flight selection",
+          "hardBlock": false,
+          "action": "Partner comparison results may use connecting airports that are not known during route discovery. Re-check every connection country before payment."
+        },
+        "policyMaintenance": {
+          "builtInGuardrail": "U.S. PP 10998",
+          "reviewedAt": "2026-07-29",
+          "recheckRequiredBeforeEachProductionRelease": true
+        },
+        "provider": {
+          "live": false,
+          "mode": "authoritative-guardrails+provider-ready",
+          "reason": "live-provider-not-configured"
+        },
+        "sources": [
+          {
+            "title": "U.S. Department of State — PP 10998 guidance",
+            "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html"
+          },
+          {
+            "title": "IATA Travel Centre",
+            "url": "https://www.iata.org/en/travel-centre/"
+          },
+          {
+            "title": "Sherpa travel requirements",
+            "url": "https://apply.joinsherpa.com/travel-restrictions"
+          }
+        ],
+        "disclaimer": "Travel rules change frequently. This checkpoint is not legal advice and is not permission to board or enter a country. Airlines and border authorities make the final decision."
+      }
+    },
+    {
+      "name": "blocked US check uses current restriction status",
+      "passed": true,
+      "details": {
+        "kind": "destination",
+        "index": 1,
+        "city": "Miami",
+        "country": "",
+        "countryCode": "US",
+        "airportCode": "MIA",
+        "source": {
+          "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+          "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+          "lastOfficialUpdate": "2026-02-02",
+          "effectiveDate": "2026-01-01",
+          "implementationReviewedAt": "2026-07-29"
+        },
+        "status": "not-currently-eligible",
+        "label": "U.S. tourist entry is currently restricted",
+        "hardBlock": true,
+        "action": "Do not continue to partner booking for this route unless the traveller qualifies for an official exception or already holds a protected valid visa."
+      }
+    },
+    {
+      "name": "protected pre-2026 valid visa changes hard block to exception check",
+      "passed": true,
+      "details": {
+        "kind": "destination",
+        "index": 1,
+        "city": "Miami",
+        "country": "",
+        "countryCode": "US",
+        "airportCode": "MIA",
+        "source": {
+          "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+          "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+          "lastOfficialUpdate": "2026-02-02",
+          "effectiveDate": "2026-01-01",
+          "implementationReviewedAt": "2026-07-29"
+        },
+        "status": "exception-check-required",
+        "label": "U.S. exception or existing document must be verified",
+        "hardBlock": false,
+        "action": "The profile says the traveller held a valid U.S. visa at the proclamation effective time. Confirm the document is still valid and confirm admissibility with the airline and U.S. authorities before purchase."
+      }
+    },
+    {
+      "name": "US lawful permanent resident is not hard blocked",
+      "passed": true,
+      "details": {
+        "kind": "destination",
+        "index": 1,
+        "city": "Miami",
+        "country": "",
+        "countryCode": "US",
+        "airportCode": "MIA",
+        "source": {
+          "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+          "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+          "lastOfficialUpdate": "2026-02-02",
+          "effectiveDate": "2026-01-01",
+          "implementationReviewedAt": "2026-07-29"
+        },
+        "status": "exception-check-required",
+        "label": "U.S. exception or existing document must be verified",
+        "hardBlock": false,
+        "action": "The profile says the traveller is a U.S. lawful permanent resident. Confirm the document is still valid and confirm admissibility with the airline and U.S. authorities before purchase."
+      }
+    },
+    {
+      "name": "merely storing a second passport does not bypass a restriction",
+      "passed": true,
+      "details": {
+        "kind": "destination",
+        "index": 1,
+        "city": "Miami",
+        "country": "",
+        "countryCode": "US",
+        "airportCode": "MIA",
+        "source": {
+          "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+          "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+          "lastOfficialUpdate": "2026-02-02",
+          "effectiveDate": "2026-01-01",
+          "implementationReviewedAt": "2026-07-29"
+        },
+        "status": "not-currently-eligible",
+        "label": "U.S. tourist entry is currently restricted",
+        "hardBlock": true,
+        "action": "Do not continue to partner booking for this route unless the traveller qualifies for an official exception or already holds a protected valid visa."
+      }
+    },
+    {
+      "name": "dual national explicitly using non-restricted second passport is not hard blocked",
+      "passed": true,
+      "details": {
+        "kind": "destination",
+        "index": 1,
+        "city": "Miami",
+        "country": "",
+        "countryCode": "US",
+        "airportCode": "MIA",
+        "source": {
+          "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+          "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+          "lastOfficialUpdate": "2026-02-02",
+          "effectiveDate": "2026-01-01",
+          "implementationReviewedAt": "2026-07-29"
+        },
+        "status": "verification-required",
+        "label": "U.S. entry document check required",
+        "hardBlock": false,
+        "action": "Verify whether a visa, visa waiver, ESTA, passport-validity rule or other document applies before purchase."
+      }
+    },
+    {
+      "name": "disabling personalization does not bypass an authoritative hard block",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "supported": true,
+        "version": "GV-ENTRY-675A",
+        "checkedAt": "2026-08-20T02:15:36.792Z",
+        "profile": {
+          "passportCountryCode": "IR",
+          "passportCountry": "",
+          "secondPassportCountryCode": "",
+          "secondPassportCountry": "",
+          "useSecondPassportForTrip": false,
+          "travelPassportCountryCode": "IR",
+          "residenceCountryCode": "CA",
+          "residenceCountry": "",
+          "entryAware": false,
+          "validUsVisaOn20260101": false,
+          "usLawfulPermanentResident": false
+        },
+        "itinerary": {
+          "origin": {
+            "kind": "origin",
+            "index": 0,
+            "city": "Toronto",
+            "country": "Canada",
+            "countryCode": "CA",
+            "airportCode": "YYZ"
+          },
+          "stops": [
+            {
+              "kind": "destination",
+              "index": 1,
+              "city": "Miami",
+              "country": "",
+              "countryCode": "US",
+              "airportCode": "MIA"
+            }
+          ]
+        },
+        "profileComplete": true,
+        "overallStatus": "blocked",
+        "hardBlocked": true,
+        "recommendationEligible": false,
+        "summary": "1 destination is blocked by a current authoritative entry guardrail for this passport profile.",
+        "checks": [
+          {
+            "kind": "destination",
+            "index": 1,
+            "city": "Miami",
+            "country": "",
+            "countryCode": "US",
+            "airportCode": "MIA",
+            "source": {
+              "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+              "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+              "lastOfficialUpdate": "2026-02-02",
+              "effectiveDate": "2026-01-01",
+              "implementationReviewedAt": "2026-07-29"
+            },
+            "status": "not-currently-eligible",
+            "label": "U.S. tourist entry is currently restricted",
+            "hardBlock": true,
+            "action": "Do not continue to partner booking for this route unless the traveller qualifies for an official exception or already holds a protected valid visa."
+          }
+        ],
+        "transit": {
+          "status": "unknown-until-flight-selected",
+          "label": "Transit check required after flight selection",
+          "hardBlock": false,
+          "action": "Partner comparison results may use connecting airports that are not known during route discovery. Re-check every connection country before payment."
+        },
+        "policyMaintenance": {
+          "builtInGuardrail": "U.S. PP 10998",
+          "reviewedAt": "2026-07-29",
+          "recheckRequiredBeforeEachProductionRelease": true
+        },
+        "provider": {
+          "live": false,
+          "mode": "authoritative-guardrails+provider-ready",
+          "reason": "live-provider-not-configured"
+        },
+        "sources": [
+          {
+            "title": "U.S. Department of State — PP 10998 guidance",
+            "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html"
+          },
+          {
+            "title": "IATA Travel Centre",
+            "url": "https://www.iata.org/en/travel-centre/"
+          },
+          {
+            "title": "Sherpa travel requirements",
+            "url": "https://apply.joinsherpa.com/travel-restrictions"
+          }
+        ],
+        "disclaimer": "Travel rules change frequently. This checkpoint is not legal advice and is not permission to board or enter a country. Airlines and border authorities make the final decision."
+      }
+    },
+    {
+      "name": "partially suspended tourist nationality is blocked without existing document",
+      "passed": true,
+      "details": {
+        "kind": "destination",
+        "index": 1,
+        "city": "New York",
+        "country": "",
+        "countryCode": "US",
+        "airportCode": "MIA",
+        "source": {
+          "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+          "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+          "lastOfficialUpdate": "2026-02-02",
+          "effectiveDate": "2026-01-01",
+          "implementationReviewedAt": "2026-07-29"
+        },
+        "status": "visa-issuance-restricted",
+        "label": "U.S. tourist visa issuance is currently restricted",
+        "hardBlock": true,
+        "action": "A normal new B-1/B-2 tourist visa may not be issuable under the current proclamation. Choose another route or verify an official exception."
+      }
+    },
+    {
+      "name": "non-US route is not guessed and requires live verification",
+      "passed": true,
+      "details": {
+        "kind": "destination",
+        "index": 1,
+        "city": "Paris",
+        "country": "",
+        "countryCode": "FR",
+        "airportCode": "CDG",
+        "status": "verification-required",
+        "label": "Live visa or travel-authorization check required",
+        "hardBlock": false,
+        "action": "The current Globevoy package does not guess whether this is visa-free, eVisa, eTA/ETA or visa-required. Verify with a live authoritative provider before purchase."
+      }
+    },
+    {
+      "name": "transit remains unknown until exact flight selection",
+      "passed": true,
+      "details": {
+        "status": "unknown-until-flight-selected",
+        "label": "Transit check required after flight selection",
+        "hardBlock": false,
+        "action": "Partner comparison results may use connecting airports that are not known during route discovery. Re-check every connection country before payment."
+      }
+    },
+    {
+      "name": "missing profile yields profile-required rather than false clearance",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "supported": true,
+        "version": "GV-ENTRY-675A",
+        "checkedAt": "2026-08-20T02:15:36.793Z",
+        "profile": {
+          "passportCountryCode": "",
+          "passportCountry": "",
+          "secondPassportCountryCode": "",
+          "secondPassportCountry": "",
+          "useSecondPassportForTrip": false,
+          "travelPassportCountryCode": "",
+          "residenceCountryCode": "",
+          "residenceCountry": "",
+          "entryAware": true,
+          "validUsVisaOn20260101": false,
+          "usLawfulPermanentResident": false
+        },
+        "itinerary": {
+          "origin": {
+            "kind": "origin",
+            "index": 0,
+            "city": "Toronto",
+            "country": "Canada",
+            "countryCode": "CA",
+            "airportCode": "YYZ"
+          },
+          "stops": [
+            {
+              "kind": "destination",
+              "index": 1,
+              "city": "Paris",
+              "country": "",
+              "countryCode": "FR",
+              "airportCode": "CDG"
+            }
+          ]
+        },
+        "profileComplete": false,
+        "overallStatus": "profile-required",
+        "hardBlocked": false,
+        "recommendationEligible": true,
+        "summary": "Add passport nationality and residence to check destination and transit requirements.",
+        "checks": [
+          {
+            "kind": "destination",
+            "index": 1,
+            "city": "Paris",
+            "country": "",
+            "countryCode": "FR",
+            "airportCode": "CDG",
+            "status": "profile-required",
+            "label": "Passport profile required",
+            "hardBlock": false,
+            "action": "Add passport nationality and residence to receive a personalized entry checkpoint."
+          }
+        ],
+        "transit": {
+          "status": "unknown-until-flight-selected",
+          "label": "Transit check required after flight selection",
+          "hardBlock": false,
+          "action": "Partner comparison results may use connecting airports that are not known during route discovery. Re-check every connection country before payment."
+        },
+        "policyMaintenance": {
+          "builtInGuardrail": "U.S. PP 10998",
+          "reviewedAt": "2026-07-29",
+          "recheckRequiredBeforeEachProductionRelease": true
+        },
+        "provider": {
+          "live": false,
+          "mode": "authoritative-guardrails+provider-ready",
+          "reason": "live-provider-not-configured"
+        },
+        "sources": [
+          {
+            "title": "U.S. Department of State — PP 10998 guidance",
+            "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html"
+          },
+          {
+            "title": "IATA Travel Centre",
+            "url": "https://www.iata.org/en/travel-centre/"
+          },
+          {
+            "title": "Sherpa travel requirements",
+            "url": "https://apply.joinsherpa.com/travel-restrictions"
+          }
+        ],
+        "disclaimer": "Travel rules change frequently. This checkpoint is not legal advice and is not permission to board or enter a country. Airlines and border authorities make the final decision."
+      }
+    },
+    {
+      "name": "recommendation guard blocks US candidate for Iranian passport",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "supported": true,
+        "version": "GV-ENTRY-675A",
+        "checkedAt": "2026-08-20T02:15:36.793Z",
+        "profile": {
+          "passportCountryCode": "IR",
+          "passportCountry": "",
+          "secondPassportCountryCode": "",
+          "secondPassportCountry": "",
+          "useSecondPassportForTrip": false,
+          "travelPassportCountryCode": "IR",
+          "residenceCountryCode": "CA",
+          "residenceCountry": "",
+          "entryAware": true,
+          "validUsVisaOn20260101": false,
+          "usLawfulPermanentResident": false
+        },
+        "itinerary": {
+          "origin": {
+            "kind": "origin",
+            "index": 0,
+            "city": "Toronto",
+            "country": "Canada",
+            "countryCode": "CA",
+            "airportCode": "YYZ"
+          },
+          "stops": [
+            {
+              "kind": "destination",
+              "index": 1,
+              "city": "Miami",
+              "country": "",
+              "countryCode": "US",
+              "airportCode": "MIA"
+            }
+          ]
+        },
+        "profileComplete": true,
+        "overallStatus": "blocked",
+        "hardBlocked": true,
+        "recommendationEligible": false,
+        "summary": "1 destination is blocked by a current authoritative entry guardrail for this passport profile.",
+        "checks": [
+          {
+            "kind": "destination",
+            "index": 1,
+            "city": "Miami",
+            "country": "",
+            "countryCode": "US",
+            "airportCode": "MIA",
+            "source": {
+              "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+              "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+              "lastOfficialUpdate": "2026-02-02",
+              "effectiveDate": "2026-01-01",
+              "implementationReviewedAt": "2026-07-29"
+            },
+            "status": "not-currently-eligible",
+            "label": "U.S. tourist entry is currently restricted",
+            "hardBlock": true,
+            "action": "Do not continue to partner booking for this route unless the traveller qualifies for an official exception or already holds a protected valid visa."
+          }
+        ],
+        "transit": {
+          "status": "unknown-until-flight-selected",
+          "label": "Transit check required after flight selection",
+          "hardBlock": false,
+          "action": "Partner comparison results may use connecting airports that are not known during route discovery. Re-check every connection country before payment."
+        },
+        "policyMaintenance": {
+          "builtInGuardrail": "U.S. PP 10998",
+          "reviewedAt": "2026-07-29",
+          "recheckRequiredBeforeEachProductionRelease": true
+        },
+        "provider": {
+          "live": false,
+          "mode": "authoritative-guardrails+provider-ready",
+          "reason": "live-provider-not-configured"
+        },
+        "sources": [
+          {
+            "title": "U.S. Department of State — PP 10998 guidance",
+            "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html"
+          },
+          {
+            "title": "IATA Travel Centre",
+            "url": "https://www.iata.org/en/travel-centre/"
+          },
+          {
+            "title": "Sherpa travel requirements",
+            "url": "https://apply.joinsherpa.com/travel-restrictions"
+          }
+        ],
+        "disclaimer": "Travel rules change frequently. This checkpoint is not legal advice and is not permission to board or enter a country. Airlines and border authorities make the final decision."
+      }
+    },
+    {
+      "name": "Lambda endpoint returns 200",
+      "passed": true,
+      "details": 200
+    },
+    {
+      "name": "Lambda endpoint returns blocked route result",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "supported": true,
+        "version": "GV-ENTRY-675A",
+        "checkedAt": "2026-08-20T02:15:36.794Z",
+        "profile": {
+          "passportCountryCode": "IR",
+          "passportCountry": "",
+          "secondPassportCountryCode": "",
+          "secondPassportCountry": "",
+          "useSecondPassportForTrip": false,
+          "travelPassportCountryCode": "IR",
+          "residenceCountryCode": "CA",
+          "residenceCountry": "",
+          "entryAware": true,
+          "validUsVisaOn20260101": false,
+          "usLawfulPermanentResident": false
+        },
+        "itinerary": {
+          "origin": {
+            "kind": "origin",
+            "index": 0,
+            "city": "Toronto",
+            "country": "Canada",
+            "countryCode": "CA",
+            "airportCode": "YYZ"
+          },
+          "stops": [
+            {
+              "kind": "destination",
+              "index": 1,
+              "city": "Miami",
+              "country": "",
+              "countryCode": "US",
+              "airportCode": "MIA"
+            }
+          ]
+        },
+        "profileComplete": true,
+        "overallStatus": "blocked",
+        "hardBlocked": true,
+        "recommendationEligible": false,
+        "summary": "1 destination is blocked by a current authoritative entry guardrail for this passport profile.",
+        "checks": [
+          {
+            "kind": "destination",
+            "index": 1,
+            "city": "Miami",
+            "country": "",
+            "countryCode": "US",
+            "airportCode": "MIA",
+            "source": {
+              "title": "U.S. Department of State — Presidential Proclamation 10998 guidance",
+              "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html",
+              "lastOfficialUpdate": "2026-02-02",
+              "effectiveDate": "2026-01-01",
+              "implementationReviewedAt": "2026-07-29"
+            },
+            "status": "not-currently-eligible",
+            "label": "U.S. tourist entry is currently restricted",
+            "hardBlock": true,
+            "action": "Do not continue to partner booking for this route unless the traveller qualifies for an official exception or already holds a protected valid visa."
+          }
+        ],
+        "transit": {
+          "status": "unknown-until-flight-selected",
+          "label": "Transit check required after flight selection",
+          "hardBlock": false,
+          "action": "Partner comparison results may use connecting airports that are not known during route discovery. Re-check every connection country before payment."
+        },
+        "policyMaintenance": {
+          "builtInGuardrail": "U.S. PP 10998",
+          "reviewedAt": "2026-07-29",
+          "recheckRequiredBeforeEachProductionRelease": true
+        },
+        "provider": {
+          "live": false,
+          "mode": "authoritative-guardrails+provider-ready",
+          "reason": "live-provider-not-configured"
+        },
+        "sources": [
+          {
+            "title": "U.S. Department of State — PP 10998 guidance",
+            "url": "https://travel.state.gov/content/travel/en/News/visas-news/suspension-of-visa-issuance-to-foreign-nationals-to-protect-the-security-of-the-united-states.html"
+          },
+          {
+            "title": "IATA Travel Centre",
+            "url": "https://www.iata.org/en/travel-centre/"
+          },
+          {
+            "title": "Sherpa travel requirements",
+            "url": "https://apply.joinsherpa.com/travel-restrictions"
+          }
+        ],
+        "disclaimer": "Travel rules change frequently. This checkpoint is not legal advice and is not permission to board or enter a country. Airlines and border authorities make the final decision."
+      }
+    },
+    {
+      "name": "Lambda endpoint requires POST",
+      "passed": true,
+      "details": 405
+    },
+    {
+      "name": "generated-tour imports entry eligibility guard",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "generated-tour filters hard-blocked candidates before ranking",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "generated-tour attaches entry eligibility to final tour",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

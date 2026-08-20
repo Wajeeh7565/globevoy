@@ -1,0 +1,36 @@
+{
+  "task": "GV-RANK-659A",
+  "type": "backend-only",
+  "base": "GV-FLIGHT-658C",
+  "checks": {
+    "syntax": "node -c passed for generated-tour.js and budget-adaptive-routes.js",
+    "budgetGuardrailPreserved": true,
+    "cityNightDateAlignmentPreserved": true,
+    "airportDisplayPreserved": "Toronto YYZ / Montreal YUL",
+    "routeAmbitionRanking": true,
+    "rollbackFlag": "ENABLE_ROUTE_AMBITION_RANKING_659A=false"
+  },
+  "sampleResults": [
+    {
+      "input": "Toronto / CAD 2000",
+      "route": ["Panama City", "Cartagena"],
+      "estimatedTotalCad": 1748,
+      "dates": ["2026-07-08", "2026-07-11", "2026-07-14"],
+      "budgetFit": true
+    },
+    {
+      "input": "Toronto / CAD 1500",
+      "route": ["Buffalo", "Pittsburgh"],
+      "estimatedTotalCad": 1347,
+      "dates": ["2026-07-08", "2026-07-11", "2026-07-14"],
+      "budgetFit": true
+    },
+    {
+      "input": "Montreal / CAD 2000",
+      "route": ["Queretaro", "San Miguel de Allende"],
+      "estimatedTotalCad": 1728,
+      "dates": ["2026-07-08", "2026-07-12", "2026-07-14"],
+      "budgetFit": true
+    }
+  ]
+}

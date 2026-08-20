@@ -1,0 +1,136 @@
+{
+  "taskId": "GV-CITY-668K-RESULTS",
+  "sourceFile": "data/provider-live-current500-final145-668k-source.json",
+  "generatedAt": "2026-07-21T03:36:26.328Z",
+  "summary": {
+    "completedCount": 145,
+    "providerCoverageEligibleCount": 68,
+    "productionActiveCount": 63,
+    "reviewCount": 82,
+    "projectedMergedProductionActiveCount": 322,
+    "projectedCurrent500AuditedCount": 500,
+    "projectedTotalAuditedCount": 545,
+    "classificationCounts": {
+      "live-both": 48,
+      "live-stays-only": 77,
+      "gateway-supported": 20
+    }
+  },
+  "passed": 25,
+  "failed": 0,
+  "total": 25,
+  "checks": [
+    {
+      "name": "result identifies GV-CITY-668K Final145",
+      "pass": true
+    },
+    {
+      "name": "result uses the GV-CITY-668E audit engine",
+      "pass": true
+    },
+    {
+      "name": "result contains 145 completed records",
+      "pass": true
+    },
+    {
+      "name": "result city IDs are unique",
+      "pass": true
+    },
+    {
+      "name": "result city set exactly matches the 668K plan",
+      "pass": true
+    },
+    {
+      "name": "every record completed successfully",
+      "pass": true
+    },
+    {
+      "name": "every record reports the 668E engine version",
+      "pass": true
+    },
+    {
+      "name": "every record is Current-500",
+      "pass": true
+    },
+    {
+      "name": "provider-covered count matches records",
+      "pass": true
+    },
+    {
+      "name": "production-active count matches records",
+      "pass": true
+    },
+    {
+      "name": "review count matches records",
+      "pass": true
+    },
+    {
+      "name": "projected active total uses the 259-city baseline",
+      "pass": true
+    },
+    {
+      "name": "Current-500 baseline is 355 audited",
+      "pass": true
+    },
+    {
+      "name": "result projects 500/500 Current-500 audited",
+      "pass": true
+    },
+    {
+      "name": "result projects 545 total audited",
+      "pass": true
+    },
+    {
+      "name": "activation import remains required",
+      "pass": true
+    },
+    {
+      "name": "all active records have provider coverage",
+      "pass": true
+    },
+    {
+      "name": "all active records have recommendation readiness",
+      "pass": true
+    },
+    {
+      "name": "all active records have quality-qualified Agoda evidence",
+      "pass": true
+    },
+    {
+      "name": "all active records have comfort-qualified flight evidence",
+      "pass": true
+    },
+    {
+      "name": "all active records have a verification timestamp",
+      "pass": true
+    },
+    {
+      "name": "all inactive records remain in review rather than activation",
+      "pass": true
+    },
+    {
+      "name": "classification counts match records",
+      "pass": true,
+      "details": {
+        "reportedClassifications": {
+          "gateway-supported": 20,
+          "live-both": 48,
+          "live-stays-only": 77
+        },
+        "classificationCounts": {
+          "live-both": 48,
+          "live-stays-only": 77,
+          "gateway-supported": 20
+        }
+      }
+    },
+    {
+      "name": "all batch summaries report zero failures",
+      "pass": true
+    },
+    {
+      "name": "batch completed totals sum to 145",
+      "pass": true
+    }
+  ]
+}

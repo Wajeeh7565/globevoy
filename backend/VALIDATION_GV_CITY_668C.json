@@ -1,0 +1,228 @@
+{
+  "taskId": "GV-CITY-668C",
+  "generatedAt": "2026-07-17T07:46:58.915Z",
+  "passed": 40,
+  "failed": 0,
+  "total": 40,
+  "packagedSnapshotSummary": {
+    "recordCount": 1000,
+    "verifiedAtLeastOnceCount": 0,
+    "pendingCount": 1000,
+    "productionActiveCount": 0,
+    "liveBothCount": 0,
+    "gatewaySupportedCount": 0,
+    "liveFlightsOnlyCount": 0,
+    "liveStaysOnlyCount": 0,
+    "estimateOnlyCount": 0,
+    "unresolvedCount": 0,
+    "providerErrorCount": 0,
+    "pendingCredentialsCount": 0,
+    "classificationCounts": {
+      "pending": 1000
+    }
+  },
+  "checks": [
+    {
+      "name": "snapshot has exactly 1000 records",
+      "pass": true,
+      "details": {
+        "count": 1000
+      }
+    },
+    {
+      "name": "snapshot city ids are unique",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot starts pending",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot never preclaims live verification",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "pilot has exactly 100 unique cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "pilot includes Toronto",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "pilot includes gateway Suwon",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "pilot includes unresolved Agoda Tehran",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "summary reports 668C",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot search finds Toronto",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "classification search works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "initial active search is empty",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "admin token authorizes exact header",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "admin token authorizes bearer header",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "admin token rejects incorrect value",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "injected live responses are recognized functionally",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "injected responses are not production eligible",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "injected responses cannot activate city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "live test returns bounded evidence only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway city classification is preserved",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway test evidence still cannot activate",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "unresolved Agoda remains honest",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "unresolved Agoda city is inactive",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "empty provider results become estimate only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider errors are surfaced without activation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "unknown city fails safely",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "batch is hard capped at 10",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "batch reports no production-active mock cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "batch reports non-persistence truthfully",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "merge preserves 1000 records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "merge records three verifications",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "merge still has zero production-active test evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "merge preserves untouched pending records",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "production classification requires both eligible providers",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "one live provider cannot activate city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda summary endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda live coverage search works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda verifier rejects unauthenticated calls",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda verifier requires POST",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "feature flag disables verification",
+      "pass": true,
+      "details": {}
+    }
+  ]
+}

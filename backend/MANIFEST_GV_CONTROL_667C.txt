@@ -1,0 +1,9 @@
+GV-CONTROL-667C
+Base: GV-LIVE-667B backend
+Changed:
+- generated-tour-controls.js
+Added:
+- validate-gv-control-667c.js
+- VALIDATION_GV_CONTROL_667C.json
+- GV-CONTROL-667C_REPORT.md
+- MANIFEST_GV_CONTROL_667C.txt

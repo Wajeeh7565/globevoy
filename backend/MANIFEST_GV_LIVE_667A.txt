@@ -1,0 +1,13 @@
+GV-LIVE-667A backend delta from GV-DATE-666B:
+- generated-tour.js
+- generated-tour-controls.js
+- generated-tour-dates.js
+- services/agoda.js
+- services/cheap-one-way-flights.js
+- services/partner-links.js
+- services/live-provider-verification.js (new)
+- validate-gv-live-667a.js (new)
+- GV-LIVE-667A_REPORT.md (new)
+- VALIDATION_GV_LIVE_667A.json (new)
+- VALIDATION_GV_MVP_666A_REGRESSION_667A.json (new)
+- VALIDATION_GV_DATE_666B_REGRESSION_667A.json (new)

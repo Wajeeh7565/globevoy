@@ -1,0 +1,1026 @@
+{
+  "task": "GV-EVIDENCE-667E",
+  "passed": 12,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "rail, bus and ground legs are critical prices",
+      "pass": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-EVIDENCE-667E",
+        "currency": "USD",
+        "exchangeRateFromUsd": 1,
+        "components": [
+          {
+            "key": "transport:0",
+            "kind": "rail",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 85,
+            "amountDisplay": 85,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Toronto",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Ottawa",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-01"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "transport:1",
+            "kind": "bus",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 40,
+            "amountDisplay": 40,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Ottawa",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Montreal",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-03"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "transport:2",
+            "kind": "ground-transfer",
+            "index": 2,
+            "visibleOnCard": true,
+            "amountUsd": 110,
+            "amountDisplay": 110,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Montreal",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Toronto",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-05"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "stay:0",
+            "kind": "stay",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 210,
+            "amountDisplay": 210,
+            "currency": "USD",
+            "stay": {
+              "city": "Ottawa",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "stay:1",
+            "kind": "stay",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 230,
+            "amountDisplay": 230,
+            "currency": "USD",
+            "stay": {
+              "city": "Montreal",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          }
+        ],
+        "transportTotalUsd": 235,
+        "transportDisplayTotal": 235,
+        "stayTotalUsd": 440,
+        "stayDisplayTotal": 440,
+        "originAccessUsd": 0,
+        "destinationAccessUsd": 0,
+        "canonicalTotalUsd": 675,
+        "canonicalDisplayTotal": 675,
+        "visibleCardTotalUsd": 675,
+        "visibleCardDisplayTotal": 675,
+        "totalsMatchVisibleCards": true,
+        "criticalCount": 5,
+        "verifiedCount": 2,
+        "criticalTransportCount": 3,
+        "verifiedTransportCount": 0,
+        "providerCoverage": 0.4,
+        "allCriticalVerified": false,
+        "generatedAt": "2026-07-18T01:05:29.176Z"
+      }
+    },
+    {
+      "name": "regional route includes transport plus stays in critical count",
+      "pass": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-EVIDENCE-667E",
+        "currency": "USD",
+        "exchangeRateFromUsd": 1,
+        "components": [
+          {
+            "key": "transport:0",
+            "kind": "rail",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 85,
+            "amountDisplay": 85,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Toronto",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Ottawa",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-01"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "transport:1",
+            "kind": "bus",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 40,
+            "amountDisplay": 40,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Ottawa",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Montreal",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-03"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "transport:2",
+            "kind": "ground-transfer",
+            "index": 2,
+            "visibleOnCard": true,
+            "amountUsd": 110,
+            "amountDisplay": 110,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Montreal",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Toronto",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-05"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "stay:0",
+            "kind": "stay",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 210,
+            "amountDisplay": 210,
+            "currency": "USD",
+            "stay": {
+              "city": "Ottawa",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "stay:1",
+            "kind": "stay",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 230,
+            "amountDisplay": 230,
+            "currency": "USD",
+            "stay": {
+              "city": "Montreal",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          }
+        ],
+        "transportTotalUsd": 235,
+        "transportDisplayTotal": 235,
+        "stayTotalUsd": 440,
+        "stayDisplayTotal": 440,
+        "originAccessUsd": 0,
+        "destinationAccessUsd": 0,
+        "canonicalTotalUsd": 675,
+        "canonicalDisplayTotal": 675,
+        "visibleCardTotalUsd": 675,
+        "visibleCardDisplayTotal": 675,
+        "totalsMatchVisibleCards": true,
+        "criticalCount": 5,
+        "verifiedCount": 2,
+        "criticalTransportCount": 3,
+        "verifiedTransportCount": 0,
+        "providerCoverage": 0.4,
+        "allCriticalVerified": false,
+        "generatedAt": "2026-07-18T01:05:29.176Z"
+      }
+    },
+    {
+      "name": "estimated ground transport prevents all-critical verification",
+      "pass": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-EVIDENCE-667E",
+        "currency": "USD",
+        "exchangeRateFromUsd": 1,
+        "components": [
+          {
+            "key": "transport:0",
+            "kind": "rail",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 85,
+            "amountDisplay": 85,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Toronto",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Ottawa",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-01"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "transport:1",
+            "kind": "bus",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 40,
+            "amountDisplay": 40,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Ottawa",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Montreal",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-03"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "transport:2",
+            "kind": "ground-transfer",
+            "index": 2,
+            "visibleOnCard": true,
+            "amountUsd": 110,
+            "amountDisplay": 110,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Montreal",
+                "airportCode": null
+              },
+              "to": {
+                "city": "Toronto",
+                "airportCode": null
+              },
+              "departureDate": "2026-08-05"
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "ground-transfer-estimate",
+              "status": "ground-transport-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          },
+          {
+            "key": "stay:0",
+            "kind": "stay",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 210,
+            "amountDisplay": 210,
+            "currency": "USD",
+            "stay": {
+              "city": "Ottawa",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "stay:1",
+            "kind": "stay",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 230,
+            "amountDisplay": 230,
+            "currency": "USD",
+            "stay": {
+              "city": "Montreal",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          }
+        ],
+        "transportTotalUsd": 235,
+        "transportDisplayTotal": 235,
+        "stayTotalUsd": 440,
+        "stayDisplayTotal": 440,
+        "originAccessUsd": 0,
+        "destinationAccessUsd": 0,
+        "canonicalTotalUsd": 675,
+        "canonicalDisplayTotal": 675,
+        "visibleCardTotalUsd": 675,
+        "visibleCardDisplayTotal": 675,
+        "totalsMatchVisibleCards": true,
+        "criticalCount": 5,
+        "verifiedCount": 2,
+        "criticalTransportCount": 3,
+        "verifiedTransportCount": 0,
+        "providerCoverage": 0.4,
+        "allCriticalVerified": false,
+        "generatedAt": "2026-07-18T01:05:29.176Z"
+      }
+    },
+    {
+      "name": "regional route cannot claim provider-backed fit while transport is estimated",
+      "pass": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-EVIDENCE-667E",
+        "canonicalIntegrityVersion": "GV-EVIDENCE-667E",
+        "checkedAt": "2026-07-18T01:05:29.176Z",
+        "flightCritical": 0,
+        "flightVerified": 0,
+        "transportCritical": 3,
+        "transportVerified": 0,
+        "stayCritical": 2,
+        "stayVerified": 2,
+        "criticalCount": 5,
+        "verifiedCount": 2,
+        "providerCoverage": 0.4,
+        "allCriticalVerified": false,
+        "budgetClaim": "estimated-to-fit-budget",
+        "estimatedTotalUsd": 675,
+        "estimatedDisplayTotal": 675,
+        "visibleCardTotalUsd": 675,
+        "visibleCardDisplayTotal": 675,
+        "totalsMatchVisibleCards": true,
+        "budgetCeilingUsd": 1005,
+        "overBudget": false,
+        "finalAvailabilityRequiresPartnerConfirmation": true,
+        "meaning": "Evidence coverage and budget status are derived from the same final visible pricing ledger. Flights, rail, bus, ferry, gateway transfers and stays are critical when they contribute to the itinerary; only production-eligible exact evidence can support a provider-backed fit claim."
+      }
+    },
+    {
+      "name": "gateway transfer is a critical price",
+      "pass": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-EVIDENCE-667E",
+        "currency": "USD",
+        "exchangeRateFromUsd": 1,
+        "components": [
+          {
+            "key": "transport:0",
+            "kind": "flight",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 250,
+            "amountDisplay": 250,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Toronto",
+                "airportCode": "YYZ"
+              },
+              "to": {
+                "city": "Cancun",
+                "airportCode": "CUN"
+              },
+              "departureDate": "2026-08-01"
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Travelpayouts/Aviasales",
+              "category": "exact-date-provider-evidence",
+              "status": "exact-date-provider-observation",
+              "cacheHit": false,
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "transport:1",
+            "kind": "flight",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 120,
+            "amountDisplay": 120,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Cancun",
+                "airportCode": "CUN"
+              },
+              "to": {
+                "city": "Belize City",
+                "airportCode": "BZE"
+              },
+              "departureDate": "2026-08-04"
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Travelpayouts/Aviasales",
+              "category": "exact-date-provider-evidence",
+              "status": "exact-date-provider-observation",
+              "cacheHit": false,
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "transport:2",
+            "kind": "flight",
+            "index": 2,
+            "visibleOnCard": true,
+            "amountUsd": 300,
+            "amountDisplay": 300,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Belize City",
+                "airportCode": "BZE"
+              },
+              "to": {
+                "city": "Toronto",
+                "airportCode": "YYZ"
+              },
+              "departureDate": "2026-08-06"
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Travelpayouts/Aviasales",
+              "category": "exact-date-provider-evidence",
+              "status": "exact-date-provider-observation",
+              "cacheHit": false,
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "stay:0",
+            "kind": "stay",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 300,
+            "amountDisplay": 300,
+            "currency": "USD",
+            "stay": {
+              "city": "Cancun",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "stay:1",
+            "kind": "stay",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 220,
+            "amountDisplay": 220,
+            "currency": "USD",
+            "stay": {
+              "city": "Caye Caulker",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "destination-access:1",
+            "kind": "destination-access",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 80,
+            "amountDisplay": 80,
+            "currency": "USD",
+            "access": {
+              "gatewayCity": "Belize City",
+              "airportCode": "BZE",
+              "roundTripPartyUsd": 80
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "destination-gateway-transfer-estimate",
+              "status": "destination-gateway-transfer-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          }
+        ],
+        "transportTotalUsd": 750,
+        "transportDisplayTotal": 750,
+        "stayTotalUsd": 520,
+        "stayDisplayTotal": 520,
+        "originAccessUsd": 0,
+        "destinationAccessUsd": 80,
+        "canonicalTotalUsd": 1270,
+        "canonicalDisplayTotal": 1270,
+        "visibleCardTotalUsd": 1270,
+        "visibleCardDisplayTotal": 1270,
+        "totalsMatchVisibleCards": true,
+        "criticalCount": 6,
+        "verifiedCount": 5,
+        "criticalTransportCount": 4,
+        "verifiedTransportCount": 3,
+        "providerCoverage": 0.833,
+        "allCriticalVerified": false,
+        "generatedAt": "2026-07-18T01:05:29.176Z"
+      }
+    },
+    {
+      "name": "estimated gateway transfer downgrades an otherwise verified route",
+      "pass": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-EVIDENCE-667E",
+        "currency": "USD",
+        "exchangeRateFromUsd": 1,
+        "components": [
+          {
+            "key": "transport:0",
+            "kind": "flight",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 250,
+            "amountDisplay": 250,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Toronto",
+                "airportCode": "YYZ"
+              },
+              "to": {
+                "city": "Cancun",
+                "airportCode": "CUN"
+              },
+              "departureDate": "2026-08-01"
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Travelpayouts/Aviasales",
+              "category": "exact-date-provider-evidence",
+              "status": "exact-date-provider-observation",
+              "cacheHit": false,
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "transport:1",
+            "kind": "flight",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 120,
+            "amountDisplay": 120,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Cancun",
+                "airportCode": "CUN"
+              },
+              "to": {
+                "city": "Belize City",
+                "airportCode": "BZE"
+              },
+              "departureDate": "2026-08-04"
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Travelpayouts/Aviasales",
+              "category": "exact-date-provider-evidence",
+              "status": "exact-date-provider-observation",
+              "cacheHit": false,
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "transport:2",
+            "kind": "flight",
+            "index": 2,
+            "visibleOnCard": true,
+            "amountUsd": 300,
+            "amountDisplay": 300,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": "Belize City",
+                "airportCode": "BZE"
+              },
+              "to": {
+                "city": "Toronto",
+                "airportCode": "YYZ"
+              },
+              "departureDate": "2026-08-06"
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Travelpayouts/Aviasales",
+              "category": "exact-date-provider-evidence",
+              "status": "exact-date-provider-observation",
+              "cacheHit": false,
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "stay:0",
+            "kind": "stay",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 300,
+            "amountDisplay": 300,
+            "currency": "USD",
+            "stay": {
+              "city": "Cancun",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "stay:1",
+            "kind": "stay",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 220,
+            "amountDisplay": 220,
+            "currency": "USD",
+            "stay": {
+              "city": "Caye Caulker",
+              "checkIn": "2026-08-01",
+              "checkOut": "2026-08-03",
+              "rooms": 1
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Agoda",
+              "category": "exact-stay-provider-evidence",
+              "status": "exact-stay-provider-rate-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          },
+          {
+            "key": "destination-access:1",
+            "kind": "destination-access",
+            "index": 1,
+            "visibleOnCard": true,
+            "amountUsd": 80,
+            "amountDisplay": 80,
+            "currency": "USD",
+            "access": {
+              "gatewayCity": "Belize City",
+              "airportCode": "BZE",
+              "roundTripPartyUsd": 80
+            },
+            "evidence": {
+              "verified": false,
+              "critical": true,
+              "provider": "Globevoy planning model",
+              "category": "destination-gateway-transfer-estimate",
+              "status": "destination-gateway-transfer-estimate",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": false
+            }
+          }
+        ],
+        "transportTotalUsd": 750,
+        "transportDisplayTotal": 750,
+        "stayTotalUsd": 520,
+        "stayDisplayTotal": 520,
+        "originAccessUsd": 0,
+        "destinationAccessUsd": 80,
+        "canonicalTotalUsd": 1270,
+        "canonicalDisplayTotal": 1270,
+        "visibleCardTotalUsd": 1270,
+        "visibleCardDisplayTotal": 1270,
+        "totalsMatchVisibleCards": true,
+        "criticalCount": 6,
+        "verifiedCount": 5,
+        "criticalTransportCount": 4,
+        "verifiedTransportCount": 3,
+        "providerCoverage": 0.833,
+        "allCriticalVerified": false,
+        "generatedAt": "2026-07-18T01:05:29.176Z"
+      }
+    },
+    {
+      "name": "production-eligible exact ferry evidence can verify a transport price",
+      "pass": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-EVIDENCE-667E",
+        "currency": "USD",
+        "exchangeRateFromUsd": 1,
+        "components": [
+          {
+            "key": "transport:0",
+            "kind": "ferry",
+            "index": 0,
+            "visibleOnCard": true,
+            "amountUsd": 45,
+            "amountDisplay": 45,
+            "currency": "USD",
+            "route": {
+              "from": {
+                "city": null,
+                "airportCode": null
+              },
+              "to": {
+                "city": null,
+                "airportCode": null
+              },
+              "departureDate": null
+            },
+            "evidence": {
+              "verified": true,
+              "critical": true,
+              "provider": "Island Ferry",
+              "category": "exact-ground-transport-evidence",
+              "status": "exact-ground-transport-evidence",
+              "checkedAt": null,
+              "observedAt": null,
+              "productionEligible": true
+            }
+          }
+        ],
+        "transportTotalUsd": 45,
+        "transportDisplayTotal": 45,
+        "stayTotalUsd": 0,
+        "stayDisplayTotal": 0,
+        "originAccessUsd": 0,
+        "destinationAccessUsd": 0,
+        "canonicalTotalUsd": 45,
+        "canonicalDisplayTotal": 45,
+        "visibleCardTotalUsd": 45,
+        "visibleCardDisplayTotal": 45,
+        "totalsMatchVisibleCards": true,
+        "criticalCount": 1,
+        "verifiedCount": 1,
+        "criticalTransportCount": 1,
+        "verifiedTransportCount": 1,
+        "providerCoverage": 1,
+        "allCriticalVerified": true,
+        "generatedAt": "2026-07-18T01:05:29.176Z"
+      }
+    },
+    {
+      "name": "mixed and ground routes use a travel-options header label",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "ferry is recognized as non-flight transport",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "estimated legs do not use unverified airline names",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "return cards omit irrelevant CTA when no partner URL exists",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "default visualizer action is generic travel options",
+      "pass": true,
+      "details": null
+    }
+  ]
+}

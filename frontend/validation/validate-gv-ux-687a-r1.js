@@ -1,0 +1,35 @@
+'use strict';
+const fs=require('fs');
+const path=require('path');
+const crypto=require('crypto');
+const {spawnSync}=require('child_process');
+const root=path.resolve(__dirname,'..');
+const read=n=>fs.readFileSync(path.join(root,n),'utf8');
+const hash=n=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,n))).digest('hex');
+const checks=[]; const check=(name,pass,detail='')=>checks.push({name,pass:Boolean(pass),detail});
+const release=JSON.parse(read('GV-UX-687A-R1-RELEASE.json'));
+const html=read('multicity-visualizer.html');
+const engine=read('scripts/multicity-visualizer-687a.js');
+const css=read('styles/journey-experience-687a.css');
+const run=n=>spawnSync(process.execPath,[path.join(root,n)],{cwd:root,encoding:'utf8'});
+check('Release is GV-UX-687A-R1 on the authenticated 687A baseline',release.release==='GV-UX-687A-R1'&&release.authoritativeBaselineSha256==='5e236dc535cc5361dbfc0027a8b230ec5c6914ceb06a6f1f54712e3f2e5414d6');
+check('Scope remains frontend-only and undeployed',release.scope==='frontend-only'&&!release.deploymentPerformed&&!release.backendChanged&&!release.lambdaChanged&&!release.providerLogicChanged);
+check('Active visualizer preserves R1 card baseline or approved 687B successor',((html.includes('multicity-visualizer-687a.js?v=687a-r1'))||html.includes('multicity-visualizer-687b.js?v=687b'))&&html.includes('journey-experience-687a.css?v=687a-r1'));
+check('All journey cards use the same desktop outer width',css.includes('flex-basis:min(360px,80vw);max-width:360px')&&css.includes('mcv-card--origin{flex-basis:min(360px,80vw);max-width:360px}'));
+check('All journey photos use the same desktop height',css.includes('mcv-card--city .mcv-card-photo,body.gv-mcv-page .mcv-card--origin .mcv-card-photo{height:185px}'));
+check('All journey photos use the same mobile height',css.includes('mcv-card--city .mcv-card-photo,body.gv-mcv-page .mcv-card--origin .mcv-card-photo{height:180px}'));
+check('Four-card routes switch to equal desktop grid',engine.includes("row.classList.toggle('mcv-card-grid--fit-four',items.length<=4&&!addState.enabled)")&&css.includes('grid-template-columns:repeat(4,minmax(0,1fr))'));
+check('Fitted four-card route hides carousel arrows',engine.includes('prev.hidden=fitted;next.hidden=fitted'));
+check('Disabled add-destination slot is omitted instead of rendered as ghost card',engine.includes("+(addState.enabled?addDestinationCardHtml(t):'')"));
+check('Origin card fills its equal shell with useful journey context',engine.includes('mcv-origin-route')&&engine.includes('Journey begins'));
+check('Return card fills its equal shell with journey completion context',engine.includes('mcv-return-summary')&&engine.includes('Journey complete'));
+check('Arrival transition uses stronger pale-surface contrast',css.includes('background:#eafbf9')&&css.includes('color:#006764')&&css.includes('color:#173f49'));
+check('Ground leg flight CTA guard survives',engine.includes("const flightAction=ground?'':flightActionLabel(leg)")&&engine.includes('flightUrl&&!ground'));
+check('Provider/stay evidence wording survives unchanged',engine.includes("label:'Provider fare observed'")&&engine.includes("label:'Cached fare — may have changed'")&&engine.includes("label:'Estimated stay cost'"));
+check('Map provider and journey player assets are not replaced',!html.includes('mapbox')&&!html.includes('leaflet')&&html.includes('journey-experience-687a.js?v=687a-r1'));
+check('Minimal header shell remains byte-identical',hash('scripts/shell-670f.js')==='4d86b7ae7fd4d1119a852025174781029e9eada7bfcf994d37025d3f2d34f1b1');
+for(const [label,file,needle] of [['687A inherited','validation/validate-gv-ux-687a.js','GV-UX-687A: 35/35 PASS'],['686D master','validation/validate-gv-rc-686d.js','total=51 pass=51 fail=0'],['686D-R1 shell','validation/validate-gv-shell-686d-r1.js','28/28 PASS'],['686C booking','validation/validate-gv-book-686c.js','27/27 PASS'],['686B journey','validation/validate-gv-journey-686b.js','24/24 PASS']]){const r=run(file);check(`${label} regression remains green`,r.status===0&&r.stdout.includes(needle),r.stderr||r.stdout);}
+for(const f of ['scripts/multicity-visualizer-687a.js','scripts/journey-experience-687a.js']){const r=spawnSync(process.execPath,['--check',path.join(root,f)],{cwd:root,encoding:'utf8'});check(`${f} syntax is valid`,r.status===0,r.stderr);}
+check('No backend/Lambda runtime was added',!fs.readdirSync(root,{withFileTypes:true}).some(e=>e.isDirectory()&&/^(backend|lambda|server|serverless)$/i.test(e.name)));
+checks.forEach((x,i)=>console.log(`${x.pass?'PASS':'FAIL'} ${String(i+1).padStart(2,'0')} — ${x.name}${x.pass||!x.detail?'':` :: ${String(x.detail).trim().split(/\r?\n/).slice(-1)[0]}`}`));
+const passed=checks.filter(x=>x.pass).length; console.log(`GV-UX-687A-R1: ${passed}/${checks.length} PASS`); if(passed!==checks.length)process.exitCode=1;

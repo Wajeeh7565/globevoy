@@ -1,0 +1,76 @@
+{
+  "version": "GV-BOOK-685D-R2",
+  "generatedAt": "2026-08-19T02:19:52.905Z",
+  "passed": 17,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "1: one-city trip renders outbound flight, stay and return flight",
+      "passed": true
+    },
+    {
+      "name": "2: two-city multi-city trip is one coherent five-item journey",
+      "passed": true
+    },
+    {
+      "name": "3: all flight legs are visible",
+      "passed": true
+    },
+    {
+      "name": "4: all hotel stays are visible without inventing an unverified property name",
+      "passed": true
+    },
+    {
+      "name": "5: chronology interleaves each destination stay after its inbound flight",
+      "passed": true
+    },
+    {
+      "name": "6: flight and stay dates remain correct",
+      "passed": true
+    },
+    {
+      "name": "7: total budget and current total are evaluated and shown",
+      "passed": true
+    },
+    {
+      "name": "8: whole-group budget wording is explicit",
+      "passed": true
+    },
+    {
+      "name": "9: Duffel evidence stays distinct from Aviasales fulfilment",
+      "passed": true
+    },
+    {
+      "name": "10: Aviasales links retain exact routes, dates and tracking",
+      "passed": true
+    },
+    {
+      "name": "11: Agoda links retain city, dates, rooms, guests and CID",
+      "passed": true
+    },
+    {
+      "name": "12: provider-backed, partial and verification-required 685B labels survive",
+      "passed": true
+    },
+    {
+      "name": "13: active booking hub never says Estimated to fit budget",
+      "passed": true
+    },
+    {
+      "name": "14: mobile layout has bounded single-column cards and no horizontal table",
+      "passed": true
+    },
+    {
+      "name": "15: malformed optional provider details degrade safely",
+      "passed": true
+    },
+    {
+      "name": "integration: booking HTML loads 685B confidence before 685D and keeps semantic timeline",
+      "passed": true
+    },
+    {
+      "name": "scope: no payment, order, backend, credential or one-click checkout expansion",
+      "passed": true
+    }
+  ]
+}

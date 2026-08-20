@@ -1,0 +1,288 @@
+{
+  "taskId": "GV-CITY-668S",
+  "generatedAt": "2026-07-23T00:32:40.671Z",
+  "passed": 52,
+  "failed": 0,
+  "total": 52,
+  "checks": [
+    {
+      "name": "service version is 668S",
+      "pass": true,
+      "details": "GV-CITY-668S"
+    },
+    {
+      "name": "668S feature is enabled",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "plan identity is correct",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "plan contains 150 records",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "plan contains 150 unique IDs",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "baseline is 668R",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "baseline audited count is 1000",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "baseline active count is 421",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "baseline reviewed-inactive count is 579",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "readiness lane contains 64",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "stay lane contains 6",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "flight lane contains 80",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "lane order is deterministic",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "all records come from 668R review set",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "no already-active city is selected",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "no unresolved Agoda target is selected",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "all selected cities have registry records",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "all 64 provider-covered inactive cities are included",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "all 6 mapped live-flights-only cities are included",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "flight recovery targets were live-stays-only",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "stay recovery targets were live-flights-only",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "readiness targets were provider covered",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "all 25 recoverable Group 1 cities are selected",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "plan reports 25 Group 1 targets",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "plan reports 114 international-airport signals",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "plan reports two gateway targets",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "recovery thresholds remain strict",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "recovery audit uses four flight months",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "recovery audit uses six anchors",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "recovery audit uses 20 flight attempts",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "recovery audit uses four stay windows",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "recovery audit uses three Agoda strategies",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "standard verification keeps four anchors",
+      "pass": true,
+      "details": [
+        "SYD",
+        "SIN",
+        "AKL",
+        "MEL"
+      ]
+    },
+    {
+      "name": "recovery verification expands to six anchors",
+      "pass": true,
+      "details": [
+        "SYD",
+        "SIN",
+        "AKL",
+        "MEL",
+        "BNE",
+        "LAX"
+      ]
+    },
+    {
+      "name": "recovery anchors are unique",
+      "pass": true,
+      "details": [
+        "SYD",
+        "SIN",
+        "AKL",
+        "MEL",
+        "BNE",
+        "LAX"
+      ]
+    },
+    {
+      "name": "recovery mode parser accepts boolean true",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "recovery flight months can span four months",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "recovery stay windows can span four windows",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "summary exposes 668S counts",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "search returns all 150 targets",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "readiness filter returns 64",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "stay filter returns 6",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "flight filter returns 80",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Group 1 filter returns 25",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "flight-comfort queue filter returns 61",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "text search finds Honolulu",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Lambda summary endpoint works",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Lambda recovery-lane search works",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "Lambda recovery endpoint is read-only",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "feature flag disables recovery plan",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "668R snapshot remains unchanged",
+      "pass": true,
+      "details": null
+    },
+    {
+      "name": "421 active cities remain untouched by plan",
+      "pass": true,
+      "details": null
+    }
+  ]
+}

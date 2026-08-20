@@ -1,0 +1,835 @@
+{
+  "release": "GV-BOOK-676A",
+  "generatedAt": "2026-08-20T02:15:37.062Z",
+  "checkCount": 32,
+  "passedCount": 32,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "version",
+      "passed": true,
+      "details": "GV-BOOK-676A"
+    },
+    {
+      "name": "disabled by default",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "version": "GV-BOOK-676A",
+        "provider": "Duffel",
+        "enabled": false,
+        "configured": false,
+        "mode": "none",
+        "sandboxOnly": true,
+        "orderCreationEnabled": false,
+        "paymentCollectionEnabled": false,
+        "capabilities": {
+          "multiCityFlightSearch": true,
+          "datedSlicesRequired": true,
+          "testOfferPricesAreReal": false,
+          "combinedDisplayTotal": true,
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicFlightAndHotelTransactionProven": false,
+          "liveStaysSearchIncludedInThisProof": false
+        },
+        "limitations": [
+          "This proof searches Duffel Flights in test mode only.",
+          "Duffel test schedules and prices are not realistic live inventory.",
+          "Hotel amounts remain Globevoy estimates in this release.",
+          "No order, hotel booking, payment intent or card collection is created.",
+          "Flights Orders and Stays Bookings remain separate provider resources."
+        ],
+        "docs": {
+          "testMode": "https://duffel.com/docs/api/overview/test-mode/duffel-airways",
+          "offerRequests": "https://duffel.com/docs/api/v2/offer-requests",
+          "offers": "https://duffel.com/docs/api/v2/offers",
+          "orders": "https://duffel.com/docs/api/orders",
+          "stays": "https://duffel.com/docs/guides/getting-started-with-stays",
+          "payments": "https://duffel.com/docs/guides/choosing-a-payment-method"
+        }
+      }
+    },
+    {
+      "name": "test token configures sandbox",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "version": "GV-BOOK-676A",
+        "provider": "Duffel",
+        "enabled": true,
+        "configured": true,
+        "mode": "test",
+        "sandboxOnly": true,
+        "orderCreationEnabled": false,
+        "paymentCollectionEnabled": false,
+        "capabilities": {
+          "multiCityFlightSearch": true,
+          "datedSlicesRequired": true,
+          "testOfferPricesAreReal": false,
+          "combinedDisplayTotal": true,
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicFlightAndHotelTransactionProven": false,
+          "liveStaysSearchIncludedInThisProof": false
+        },
+        "limitations": [
+          "This proof searches Duffel Flights in test mode only.",
+          "Duffel test schedules and prices are not realistic live inventory.",
+          "Hotel amounts remain Globevoy estimates in this release.",
+          "No order, hotel booking, payment intent or card collection is created.",
+          "Flights Orders and Stays Bookings remain separate provider resources."
+        ],
+        "docs": {
+          "testMode": "https://duffel.com/docs/api/overview/test-mode/duffel-airways",
+          "offerRequests": "https://duffel.com/docs/api/v2/offer-requests",
+          "offers": "https://duffel.com/docs/api/v2/offers",
+          "orders": "https://duffel.com/docs/api/orders",
+          "stays": "https://duffel.com/docs/guides/getting-started-with-stays",
+          "payments": "https://duffel.com/docs/guides/choosing-a-payment-method"
+        }
+      }
+    },
+    {
+      "name": "live token is not configured for sandbox proof",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "version": "GV-BOOK-676A",
+        "provider": "Duffel",
+        "enabled": true,
+        "configured": false,
+        "mode": "live",
+        "sandboxOnly": true,
+        "orderCreationEnabled": false,
+        "paymentCollectionEnabled": false,
+        "capabilities": {
+          "multiCityFlightSearch": true,
+          "datedSlicesRequired": true,
+          "testOfferPricesAreReal": false,
+          "combinedDisplayTotal": true,
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicFlightAndHotelTransactionProven": false,
+          "liveStaysSearchIncludedInThisProof": false
+        },
+        "limitations": [
+          "This proof searches Duffel Flights in test mode only.",
+          "Duffel test schedules and prices are not realistic live inventory.",
+          "Hotel amounts remain Globevoy estimates in this release.",
+          "No order, hotel booking, payment intent or card collection is created.",
+          "Flights Orders and Stays Bookings remain separate provider resources."
+        ],
+        "docs": {
+          "testMode": "https://duffel.com/docs/api/overview/test-mode/duffel-airways",
+          "offerRequests": "https://duffel.com/docs/api/v2/offer-requests",
+          "offers": "https://duffel.com/docs/api/v2/offers",
+          "orders": "https://duffel.com/docs/api/orders",
+          "stays": "https://duffel.com/docs/guides/getting-started-with-stays",
+          "payments": "https://duffel.com/docs/guides/choosing-a-payment-method"
+        }
+      }
+    },
+    {
+      "name": "order and payment creation disabled",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "version": "GV-BOOK-676A",
+        "provider": "Duffel",
+        "enabled": true,
+        "configured": true,
+        "mode": "test",
+        "sandboxOnly": true,
+        "orderCreationEnabled": false,
+        "paymentCollectionEnabled": false,
+        "capabilities": {
+          "multiCityFlightSearch": true,
+          "datedSlicesRequired": true,
+          "testOfferPricesAreReal": false,
+          "combinedDisplayTotal": true,
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicFlightAndHotelTransactionProven": false,
+          "liveStaysSearchIncludedInThisProof": false
+        },
+        "limitations": [
+          "This proof searches Duffel Flights in test mode only.",
+          "Duffel test schedules and prices are not realistic live inventory.",
+          "Hotel amounts remain Globevoy estimates in this release.",
+          "No order, hotel booking, payment intent or card collection is created.",
+          "Flights Orders and Stays Bookings remain separate provider resources."
+        ],
+        "docs": {
+          "testMode": "https://duffel.com/docs/api/overview/test-mode/duffel-airways",
+          "offerRequests": "https://duffel.com/docs/api/v2/offer-requests",
+          "offers": "https://duffel.com/docs/api/v2/offers",
+          "orders": "https://duffel.com/docs/api/orders",
+          "stays": "https://duffel.com/docs/guides/getting-started-with-stays",
+          "payments": "https://duffel.com/docs/guides/choosing-a-payment-method"
+        }
+      }
+    },
+    {
+      "name": "three route legs become three Duffel slices",
+      "passed": true,
+      "details": [
+        {
+          "origin": "YYZ",
+          "destination": "FLL",
+          "departure_date": "2026-11-05"
+        },
+        {
+          "origin": "FLL",
+          "destination": "CUN",
+          "departure_date": "2026-11-08"
+        },
+        {
+          "origin": "CUN",
+          "destination": "YYZ",
+          "departure_date": "2026-11-11"
+        }
+      ]
+    },
+    {
+      "name": "slice routes are exact",
+      "passed": true,
+      "details": [
+        {
+          "origin": "YYZ",
+          "destination": "FLL",
+          "departure_date": "2026-11-05"
+        },
+        {
+          "origin": "FLL",
+          "destination": "CUN",
+          "departure_date": "2026-11-08"
+        },
+        {
+          "origin": "CUN",
+          "destination": "YYZ",
+          "departure_date": "2026-11-11"
+        }
+      ]
+    },
+    {
+      "name": "slice dates are exact",
+      "passed": true,
+      "details": [
+        {
+          "origin": "YYZ",
+          "destination": "FLL",
+          "departure_date": "2026-11-05"
+        },
+        {
+          "origin": "FLL",
+          "destination": "CUN",
+          "departure_date": "2026-11-08"
+        },
+        {
+          "origin": "CUN",
+          "destination": "YYZ",
+          "departure_date": "2026-11-11"
+        }
+      ]
+    },
+    {
+      "name": "passenger count is preserved",
+      "passed": true,
+      "details": 2
+    },
+    {
+      "name": "economy and connection limit are explicit",
+      "passed": true,
+      "details": {
+        "cabin_class": "economy",
+        "max_connections": 1,
+        "slices": [
+          {
+            "origin": "YYZ",
+            "destination": "FLL",
+            "departure_date": "2026-11-05"
+          },
+          {
+            "origin": "FLL",
+            "destination": "CUN",
+            "departure_date": "2026-11-08"
+          },
+          {
+            "origin": "CUN",
+            "destination": "YYZ",
+            "departure_date": "2026-11-11"
+          }
+        ],
+        "passengers": [
+          {
+            "type": "adult"
+          },
+          {
+            "type": "adult"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing date is rejected",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "ground leg is rejected from flight request",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "missing IATA code is rejected",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "one provider request made",
+      "passed": true,
+      "details": {
+        "providerRequestMade": true,
+        "calls": 1
+      }
+    },
+    {
+      "name": "correct Duffel endpoint and API version used",
+      "passed": true,
+      "details": {
+        "url": "https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=10000&view=offers",
+        "options": {
+          "method": "POST",
+          "headers": {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Duffel-Version": "v2",
+            "Authorization": "Bearer duffel_test_secret"
+          },
+          "body": "{\"data\":{\"cabin_class\":\"economy\",\"max_connections\":1,\"slices\":[{\"origin\":\"YYZ\",\"destination\":\"FLL\",\"departure_date\":\"2026-11-05\"},{\"origin\":\"FLL\",\"destination\":\"CUN\",\"departure_date\":\"2026-11-08\"},{\"origin\":\"CUN\",\"destination\":\"YYZ\",\"departure_date\":\"2026-11-11\"}],\"passengers\":[{\"type\":\"adult\"}]}}",
+          "signal": {}
+        }
+      }
+    },
+    {
+      "name": "test token sent only in request header",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "request body contains all three slices",
+      "passed": true,
+      "details": [
+        {
+          "origin": "YYZ",
+          "destination": "FLL",
+          "departure_date": "2026-11-05"
+        },
+        {
+          "origin": "FLL",
+          "destination": "CUN",
+          "departure_date": "2026-11-08"
+        },
+        {
+          "origin": "CUN",
+          "destination": "YYZ",
+          "departure_date": "2026-11-11"
+        }
+      ]
+    },
+    {
+      "name": "wrong-slice offer filtered",
+      "passed": true,
+      "details": [
+        {
+          "id": "off_cheapest",
+          "liveMode": false,
+          "totalAmount": 620,
+          "totalCurrency": "CAD",
+          "expiresAt": "2026-07-29T13:00:00Z",
+          "owner": {
+            "name": "Duffel Airways",
+            "iataCode": "ZZ"
+          },
+          "operatingCarriers": [
+            "Duffel Airways"
+          ],
+          "sliceCount": 3,
+          "slices": [
+            {
+              "origin": "YYZ",
+              "destination": "FLL",
+              "duration": "PT2H",
+              "segments": [
+                {
+                  "departingAt": "2026-11-05T09:00:00",
+                  "arrivingAt": "2026-11-05T11:00:00",
+                  "operatingCarrier": "Duffel Airways",
+                  "flightNumber": "100"
+                }
+              ]
+            },
+            {
+              "origin": "FLL",
+              "destination": "CUN",
+              "duration": "PT2H",
+              "segments": [
+                {
+                  "departingAt": "2026-11-08T09:00:00",
+                  "arrivingAt": "2026-11-08T11:00:00",
+                  "operatingCarrier": "Duffel Airways",
+                  "flightNumber": "101"
+                }
+              ]
+            },
+            {
+              "origin": "CUN",
+              "destination": "YYZ",
+              "duration": "PT2H",
+              "segments": [
+                {
+                  "departingAt": "2026-11-11T09:00:00",
+                  "arrivingAt": "2026-11-11T11:00:00",
+                  "operatingCarrier": "Duffel Airways",
+                  "flightNumber": "102"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "off_expensive",
+          "liveMode": false,
+          "totalAmount": 999,
+          "totalCurrency": "CAD",
+          "expiresAt": "2026-07-29T13:00:00Z",
+          "owner": {
+            "name": "Duffel Airways",
+            "iataCode": "ZZ"
+          },
+          "operatingCarriers": [
+            "Duffel Airways"
+          ],
+          "sliceCount": 3,
+          "slices": [
+            {
+              "origin": "YYZ",
+              "destination": "FLL",
+              "duration": "PT2H",
+              "segments": [
+                {
+                  "departingAt": "2026-11-05T09:00:00",
+                  "arrivingAt": "2026-11-05T11:00:00",
+                  "operatingCarrier": "Duffel Airways",
+                  "flightNumber": "100"
+                }
+              ]
+            },
+            {
+              "origin": "FLL",
+              "destination": "CUN",
+              "duration": "PT2H",
+              "segments": [
+                {
+                  "departingAt": "2026-11-08T09:00:00",
+                  "arrivingAt": "2026-11-08T11:00:00",
+                  "operatingCarrier": "Duffel Airways",
+                  "flightNumber": "101"
+                }
+              ]
+            },
+            {
+              "origin": "CUN",
+              "destination": "YYZ",
+              "duration": "PT2H",
+              "segments": [
+                {
+                  "departingAt": "2026-11-11T09:00:00",
+                  "arrivingAt": "2026-11-11T11:00:00",
+                  "operatingCarrier": "Duffel Airways",
+                  "flightNumber": "102"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "offers sorted cheapest first",
+      "passed": true,
+      "details": [
+        "off_cheapest",
+        "off_expensive"
+      ]
+    },
+    {
+      "name": "test offer is never live mode",
+      "passed": true,
+      "details": {
+        "id": "off_cheapest",
+        "liveMode": false,
+        "totalAmount": 620,
+        "totalCurrency": "CAD",
+        "expiresAt": "2026-07-29T13:00:00Z",
+        "owner": {
+          "name": "Duffel Airways",
+          "iataCode": "ZZ"
+        },
+        "operatingCarriers": [
+          "Duffel Airways"
+        ],
+        "sliceCount": 3,
+        "slices": [
+          {
+            "origin": "YYZ",
+            "destination": "FLL",
+            "duration": "PT2H",
+            "segments": [
+              {
+                "departingAt": "2026-11-05T09:00:00",
+                "arrivingAt": "2026-11-05T11:00:00",
+                "operatingCarrier": "Duffel Airways",
+                "flightNumber": "100"
+              }
+            ]
+          },
+          {
+            "origin": "FLL",
+            "destination": "CUN",
+            "duration": "PT2H",
+            "segments": [
+              {
+                "departingAt": "2026-11-08T09:00:00",
+                "arrivingAt": "2026-11-08T11:00:00",
+                "operatingCarrier": "Duffel Airways",
+                "flightNumber": "101"
+              }
+            ]
+          },
+          {
+            "origin": "CUN",
+            "destination": "YYZ",
+            "duration": "PT2H",
+            "segments": [
+              {
+                "departingAt": "2026-11-11T09:00:00",
+                "arrivingAt": "2026-11-11T11:00:00",
+                "operatingCarrier": "Duffel Airways",
+                "flightNumber": "102"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "same-currency combined display total calculated",
+      "passed": true,
+      "details": {
+        "displayCurrency": "CAD",
+        "currencyMatches": true,
+        "flightSandboxSubtotal": 620,
+        "flightSandboxCurrency": "CAD",
+        "hotelEstimateSubtotal": 810,
+        "transferEstimateSubtotal": 40,
+        "combinedAmount": 1470,
+        "combinedAmountStatus": "calculated",
+        "labels": {
+          "flight": "Duffel test-mode flight offer — not a live market price",
+          "hotel": "Globevoy hotel estimate — not a Duffel Stays quote",
+          "transfer": "Globevoy transfer estimate",
+          "combined": "Sandbox combined display total"
+        }
+      }
+    },
+    {
+      "name": "hotel amount labelled as estimate",
+      "passed": true,
+      "details": {
+        "flight": "Duffel test-mode flight offer — not a live market price",
+        "hotel": "Globevoy hotel estimate — not a Duffel Stays quote",
+        "transfer": "Globevoy transfer estimate",
+        "combined": "Sandbox combined display total"
+      }
+    },
+    {
+      "name": "architecture does not claim atomic transaction",
+      "passed": true,
+      "details": {
+        "flightResource": "Duffel Flights Order",
+        "stayResource": "Duffel Stays Booking",
+        "oneCheckoutScreenPossible": true,
+        "oneAtomicTransactionProven": false,
+        "orderCreationEnabled": false,
+        "reason": "This release proves search and combined display totals only. It does not collect payment or create provider bookings."
+      }
+    },
+    {
+      "name": "unlike currencies are not added",
+      "passed": true,
+      "details": {
+        "displayCurrency": "CAD",
+        "currencyMatches": false,
+        "flightSandboxSubtotal": 500,
+        "flightSandboxCurrency": "USD",
+        "hotelEstimateSubtotal": 500,
+        "transferEstimateSubtotal": 0,
+        "combinedAmount": null,
+        "combinedAmountStatus": "currency-conversion-required",
+        "labels": {
+          "flight": "Duffel test-mode flight offer — not a live market price",
+          "hotel": "Globevoy hotel estimate — not a Duffel Stays quote",
+          "transfer": "Globevoy transfer estimate",
+          "combined": "Combined display total unavailable until currencies match"
+        }
+      }
+    },
+    {
+      "name": "missing token makes no provider request",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "version": "GV-BOOK-676A",
+        "provider": "Duffel",
+        "enabled": true,
+        "configured": false,
+        "mode": "none",
+        "sandboxOnly": true,
+        "orderCreationEnabled": false,
+        "paymentCollectionEnabled": false,
+        "capabilities": {
+          "multiCityFlightSearch": true,
+          "datedSlicesRequired": true,
+          "testOfferPricesAreReal": false,
+          "combinedDisplayTotal": true,
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicFlightAndHotelTransactionProven": false,
+          "liveStaysSearchIncludedInThisProof": false
+        },
+        "limitations": [
+          "This proof searches Duffel Flights in test mode only.",
+          "Duffel test schedules and prices are not realistic live inventory.",
+          "Hotel amounts remain Globevoy estimates in this release.",
+          "No order, hotel booking, payment intent or card collection is created.",
+          "Flights Orders and Stays Bookings remain separate provider resources."
+        ],
+        "docs": {
+          "testMode": "https://duffel.com/docs/api/overview/test-mode/duffel-airways",
+          "offerRequests": "https://duffel.com/docs/api/v2/offer-requests",
+          "offers": "https://duffel.com/docs/api/v2/offers",
+          "orders": "https://duffel.com/docs/api/orders",
+          "stays": "https://duffel.com/docs/guides/getting-started-with-stays",
+          "payments": "https://duffel.com/docs/guides/choosing-a-payment-method"
+        },
+        "requestSummary": {
+          "sliceCount": 3,
+          "passengerCount": 1,
+          "cabinClass": "economy",
+          "maxConnections": 1,
+          "slices": [
+            {
+              "origin": "YYZ",
+              "destination": "FLL",
+              "departure_date": "2026-11-05"
+            },
+            {
+              "origin": "FLL",
+              "destination": "CUN",
+              "departure_date": "2026-11-08"
+            },
+            {
+              "origin": "CUN",
+              "destination": "YYZ",
+              "departure_date": "2026-11-11"
+            }
+          ]
+        },
+        "bookingArchitecture": {
+          "flightResource": "Duffel Flights Order",
+          "stayResource": "Duffel Stays Booking",
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicTransactionProven": false,
+          "orderCreationEnabled": false,
+          "reason": "This release proves search and combined display totals only. It does not collect payment or create provider bookings."
+        },
+        "providerRequestMade": false,
+        "reason": "duffel-test-token-required",
+        "offers": [],
+        "selectedOffer": null,
+        "total": {
+          "displayCurrency": "CAD",
+          "currencyMatches": false,
+          "flightSandboxSubtotal": null,
+          "flightSandboxCurrency": null,
+          "hotelEstimateSubtotal": 810,
+          "transferEstimateSubtotal": 0,
+          "combinedAmount": null,
+          "combinedAmountStatus": "currency-conversion-required",
+          "labels": {
+            "flight": "Duffel test-mode flight offer — not a live market price",
+            "hotel": "Globevoy hotel estimate — not a Duffel Stays quote",
+            "transfer": "Globevoy transfer estimate",
+            "combined": "Combined display total unavailable until currencies match"
+          }
+        }
+      }
+    },
+    {
+      "name": "live token is refused without provider call",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "version": "GV-BOOK-676A",
+        "provider": "Duffel",
+        "enabled": true,
+        "configured": false,
+        "mode": "live",
+        "sandboxOnly": true,
+        "orderCreationEnabled": false,
+        "paymentCollectionEnabled": false,
+        "capabilities": {
+          "multiCityFlightSearch": true,
+          "datedSlicesRequired": true,
+          "testOfferPricesAreReal": false,
+          "combinedDisplayTotal": true,
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicFlightAndHotelTransactionProven": false,
+          "liveStaysSearchIncludedInThisProof": false
+        },
+        "limitations": [
+          "This proof searches Duffel Flights in test mode only.",
+          "Duffel test schedules and prices are not realistic live inventory.",
+          "Hotel amounts remain Globevoy estimates in this release.",
+          "No order, hotel booking, payment intent or card collection is created.",
+          "Flights Orders and Stays Bookings remain separate provider resources."
+        ],
+        "docs": {
+          "testMode": "https://duffel.com/docs/api/overview/test-mode/duffel-airways",
+          "offerRequests": "https://duffel.com/docs/api/v2/offer-requests",
+          "offers": "https://duffel.com/docs/api/v2/offers",
+          "orders": "https://duffel.com/docs/api/orders",
+          "stays": "https://duffel.com/docs/guides/getting-started-with-stays",
+          "payments": "https://duffel.com/docs/guides/choosing-a-payment-method"
+        },
+        "requestSummary": {
+          "sliceCount": 3,
+          "passengerCount": 1,
+          "cabinClass": "economy",
+          "maxConnections": 1,
+          "slices": [
+            {
+              "origin": "YYZ",
+              "destination": "FLL",
+              "departure_date": "2026-11-05"
+            },
+            {
+              "origin": "FLL",
+              "destination": "CUN",
+              "departure_date": "2026-11-08"
+            },
+            {
+              "origin": "CUN",
+              "destination": "YYZ",
+              "departure_date": "2026-11-11"
+            }
+          ]
+        },
+        "bookingArchitecture": {
+          "flightResource": "Duffel Flights Order",
+          "stayResource": "Duffel Stays Booking",
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicTransactionProven": false,
+          "orderCreationEnabled": false,
+          "reason": "This release proves search and combined display totals only. It does not collect payment or create provider bookings."
+        },
+        "providerRequestMade": false,
+        "reason": "live-token-refused-for-sandbox-proof",
+        "offers": [],
+        "selectedOffer": null,
+        "total": {
+          "displayCurrency": "CAD",
+          "currencyMatches": false,
+          "flightSandboxSubtotal": null,
+          "flightSandboxCurrency": null,
+          "hotelEstimateSubtotal": 810,
+          "transferEstimateSubtotal": 0,
+          "combinedAmount": null,
+          "combinedAmountStatus": "currency-conversion-required",
+          "labels": {
+            "flight": "Duffel test-mode flight offer — not a live market price",
+            "hotel": "Globevoy hotel estimate — not a Duffel Stays quote",
+            "transfer": "Globevoy transfer estimate",
+            "combined": "Combined display total unavailable until currencies match"
+          }
+        }
+      }
+    },
+    {
+      "name": "Lambda GET status endpoint works",
+      "passed": true,
+      "details": {
+        "ok": true,
+        "version": "GV-BOOK-676A",
+        "provider": "Duffel",
+        "enabled": false,
+        "configured": false,
+        "mode": "none",
+        "sandboxOnly": true,
+        "orderCreationEnabled": false,
+        "paymentCollectionEnabled": false,
+        "capabilities": {
+          "multiCityFlightSearch": true,
+          "datedSlicesRequired": true,
+          "testOfferPricesAreReal": false,
+          "combinedDisplayTotal": true,
+          "oneCheckoutScreenPossible": true,
+          "oneAtomicFlightAndHotelTransactionProven": false,
+          "liveStaysSearchIncludedInThisProof": false
+        },
+        "limitations": [
+          "This proof searches Duffel Flights in test mode only.",
+          "Duffel test schedules and prices are not realistic live inventory.",
+          "Hotel amounts remain Globevoy estimates in this release.",
+          "No order, hotel booking, payment intent or card collection is created.",
+          "Flights Orders and Stays Bookings remain separate provider resources."
+        ],
+        "docs": {
+          "testMode": "https://duffel.com/docs/api/overview/test-mode/duffel-airways",
+          "offerRequests": "https://duffel.com/docs/api/v2/offer-requests",
+          "offers": "https://duffel.com/docs/api/v2/offers",
+          "orders": "https://duffel.com/docs/api/orders",
+          "stays": "https://duffel.com/docs/guides/getting-started-with-stays",
+          "payments": "https://duffel.com/docs/guides/choosing-a-payment-method"
+        }
+      }
+    },
+    {
+      "name": "Lambda rejects unsupported method",
+      "passed": true,
+      "details": 405
+    },
+    {
+      "name": "Lambda validation error returns 400",
+      "passed": true,
+      "details": {
+        "ok": false,
+        "version": "GV-BOOK-676A",
+        "error": "A multi-city Duffel proof needs at least two dated flight slices.",
+        "code": "too-few-slices"
+      }
+    },
+    {
+      "name": "Lambda imports sandbox proof service",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Lambda exposes only one proof route",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "no order creation endpoint added",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

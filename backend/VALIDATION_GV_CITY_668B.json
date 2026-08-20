@@ -1,0 +1,187 @@
+{
+  "taskId": "GV-CITY-668B",
+  "generatedAt": "2026-07-17",
+  "passed": 30,
+  "failed": 0,
+  "total": 30,
+  "summary": {
+    "recordCount": 1000,
+    "providerStrategyCompleteCount": 1000,
+    "travelpayoutsMappedCount": 1000,
+    "agodaMappedCount": 870,
+    "bothProvidersMappedCount": 870,
+    "bothProvidersExactOrAliasCount": 803,
+    "agodaUnresolvedCount": 130,
+    "agodaCountryAbsentCount": 43,
+    "agodaExactCount": 765,
+    "agodaAliasOrFuzzyCount": 38,
+    "agodaCoordinateCount": 60,
+    "agodaNearbyMarketCount": 7,
+    "currentFoundationBothMappedCount": 494,
+    "expansionBothMappedCount": 376,
+    "liveFareVerifiedCount": 0,
+    "liveRateVerifiedCount": 0
+  },
+  "checks": [
+    {
+      "name": "audit has exactly 1000 records",
+      "pass": true,
+      "details": {
+        "count": 1000
+      }
+    },
+    {
+      "name": "registry has exactly 1000 records",
+      "pass": true,
+      "details": {
+        "count": 1000
+      }
+    },
+    {
+      "name": "city ids are unique",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all provider strategies documented",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all 1000 have Travelpayouts static mapping",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all Travelpayouts mappings require live fare checks",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Agoda mapped summary matches records",
+      "pass": true,
+      "details": {
+        "count": 870
+      }
+    },
+    {
+      "name": "both-provider summary matches records",
+      "pass": true,
+      "details": {
+        "count": 870
+      }
+    },
+    {
+      "name": "unresolved Agoda summary matches records",
+      "pass": true,
+      "details": {
+        "count": 130
+      }
+    },
+    {
+      "name": "mapped Agoda records have city ids and inventory",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "mapped Agoda records carry partner evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "unresolved Agoda records are not presented as mapped",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no record claims live provider verification",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "new registry preserves 1000 city identities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "new registry mapped count agrees with audit",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Toronto inherited mapping preserved",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Suwon uses ICN gateway",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Rabat has both provider mappings",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Faisalabad has Travelpayouts mapping",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Algiers has both provider mappings",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Tehran remains honest when Agoda feed lacks Iran",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Havana inherited unresolved mapping remains honest",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "coverage summary service reports 668B",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "coverage unresolved search works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "coverage search finds Rabat",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry selects 668B under flag",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry exposes updated provider status",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda provider coverage endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda provider coverage search works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668B flag rollback restores 668A summary",
+      "pass": true,
+      "details": {}
+    }
+  ]
+}

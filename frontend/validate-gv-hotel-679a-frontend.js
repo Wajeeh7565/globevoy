@@ -1,0 +1,26 @@
+'use strict';
+const fs = require('fs');
+const path = require('path');
+const checks = [];
+function check(name, pass, detail) { checks.push({ name, pass: Boolean(pass), detail: detail ?? null }); if (!pass) process.exitCode = 1; }
+const visual = fs.readFileSync(path.join(__dirname, 'scripts', 'multicity-visualizer-674a.js'), 'utf8');
+const booking = fs.readFileSync(path.join(__dirname, 'scripts', 'booking-live-673d.js'), 'utf8');
+const css = fs.readFileSync(path.join(__dirname, 'styles', 'booking-672b.css'), 'utf8');
+const config = fs.readFileSync(path.join(__dirname, 'runtime', 'config.js'), 'utf8');
+const bookingHtml = fs.readFileSync(path.join(__dirname, 'booking.html'), 'utf8');
+const visualizerHtml = fs.readFileSync(path.join(__dirname, 'multicity-visualizer.html'), 'utf8');
+check('679A frontend release marker active or superseded', config.includes('frontendVersion: "GV-HOTEL-679A') && config.includes('routeQualityVersion: "GV-QUALITY-680B"'));
+check('679A cache-busts changed assets or were superseded', /booking-live-673d\.js\?v=(?:679a|680a)/.test(bookingHtml) && /booking-672b\.css\?v=679a/.test(bookingHtml) && /multicity-visualizer-674a\.js\?v=680(?:a|b)/.test(visualizerHtml));
+check('visualizer reads providerHotel review evidence', visual.includes('h.providerHotel||{}') && visual.includes('p.reviewScore') && visual.includes('p.starRating'));
+check('visualizer deep-link accepts providerHotel bookingUrl and hotelUrl', visual.includes('p.bookingUrl||h.booking?.url') && visual.includes('h.hotelUrl'));
+check('visualizer labels verified stay action distinctly', visual.includes("return'Check this property on Agoda'") && visual.includes("return'Search stays in this city'"));
+check('booking page uses provider hotel image', booking.includes('function hotelImage(stay)') && booking.includes('gv-booking-hotel-thumb'));
+check('booking page shows review/star evidence', booking.includes('function hotelMeta679A') && booking.includes('guest score'));
+check('booking page distinguishes exact Agoda rate', booking.includes("live?'Rate observed · availability not confirmed'"));
+check('booking page uses honest Agoda action', booking.includes('Check this property on Agoda') && booking.includes('Search stays in this city'));
+check('booking page does not claim combined hotel checkout', !booking.includes('Book all hotels in one payment') && !booking.includes('Book all stays in one payment'));
+check('booking CSS supports hotel thumbnail desktop/mobile', css.includes('.gv-booking-hotel-thumb') && css.includes('.gv-booking-item--hotel'));
+const result = { release: 'GV-HOTEL-679A', generatedAt: new Date().toISOString(), checkCount: checks.length, passedCount: checks.filter(x=>x.pass).length, failedCount: checks.filter(x=>!x.pass).length, checks };
+fs.writeFileSync(path.join(__dirname, 'VALIDATION_GV_HOTEL_679A_FRONTEND.json'), JSON.stringify(result, null, 2) + '\n');
+if (process.exitCode) throw new Error('GV-HOTEL-679A frontend validation failed.');
+console.log(`GV-HOTEL-679A frontend validation passed (${result.passedCount}/${result.checkCount}).`);

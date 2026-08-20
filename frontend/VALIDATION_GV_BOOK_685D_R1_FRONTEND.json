@@ -1,0 +1,68 @@
+{
+  "version": "GV-BOOK-685D-R1",
+  "generatedAt": "2026-08-19T02:12:09.710Z",
+  "passed": 15,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "1: R1 version is explicit",
+      "passed": true
+    },
+    {
+      "name": "2: production-A exact LIVE Duffel route keeps live label and no metro notice",
+      "passed": true
+    },
+    {
+      "name": "3: exact route Aviasales fallback retains resolved YYZ to MEX",
+      "passed": true
+    },
+    {
+      "name": "4: metro city title stays New York to Ottawa while codes show LGA to YOW",
+      "passed": true
+    },
+    {
+      "name": "5: metro disclosure renders the inherited ground-access caveat",
+      "passed": true
+    },
+    {
+      "name": "6: metro Aviasales fallback uses resolved LGA and never requested JFK",
+      "passed": true
+    },
+    {
+      "name": "7: destination and dual-endpoint metro substitutions are supported",
+      "passed": true
+    },
+    {
+      "name": "8: CACHED Duffel is visibly cached and never gets the live label",
+      "passed": true
+    },
+    {
+      "name": "9: UNAVAILABLE and no-provider component states remain conservative",
+      "passed": true
+    },
+    {
+      "name": "10: exact route with no metro object never shows a substitution notice",
+      "passed": true
+    },
+    {
+      "name": "11: existing Aviasales URL and tracking remain byte-for-byte intact",
+      "passed": true
+    },
+    {
+      "name": "12: GV-TRUST-685B confidence behavior remains intact",
+      "passed": true
+    },
+    {
+      "name": "13: release marker and cache busting activate R1",
+      "passed": true
+    },
+    {
+      "name": "14: frontend-only scope has no provider, backend, payment or order expansion",
+      "passed": true
+    },
+    {
+      "name": "15: metro disclosure style wraps safely without horizontal scrolling",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "version": "1.9.0-gv-control-667d-date-preservation-gateway-transfers",
+  "task": "GV-CONTROL-667C",
+  "passed": 20,
+  "total": 20,
+  "checks": [
+    {
+      "name": "667C feature flag is active",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Toronto origin exists",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend-shaped stop references parse",
+      "passed": true,
+      "details": [
+        {
+          "cityId": "havana-cu",
+          "code": "HAV",
+          "airportCode": "",
+          "gatewayAirportCode": "",
+          "city": "Havana",
+          "country": "",
+          "countryCode": "CU"
+        },
+        {
+          "cityId": "tulum-mx",
+          "code": "TQO",
+          "airportCode": "",
+          "gatewayAirportCode": "CUN",
+          "city": "Tulum",
+          "country": "",
+          "countryCode": "MX"
+        }
+      ]
+    },
+    {
+      "name": "gateway airport is metadata, not an extra stop",
+      "passed": true,
+      "details": {
+        "cityId": "tulum-mx",
+        "code": "TQO",
+        "airportCode": "",
+        "gatewayAirportCode": "CUN",
+        "city": "Tulum",
+        "country": "",
+        "countryCode": "MX"
+      }
+    },
+    {
+      "name": "Havana and Tulum both resolve as existing route stops",
+      "passed": true,
+      "details": [
+        "havana-cu",
+        "tulum-mx"
+      ]
+    },
+    {
+      "name": "limited existing stop is preserved even when not eligible as a new candidate",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "Toronto-Havana-Tulum shuffle no longer returns minimum-two-stops",
+      "passed": true,
+      "details": {
+        "message": "Tulum swapped for Cancun, within budget."
+      }
+    },
+    {
+      "name": "unselected Havana stop is preserved",
+      "passed": true,
+      "details": [
+        "havana-cu",
+        "cancun-mx"
+      ]
+    },
+    {
+      "name": "selected Tulum stop is replaced",
+      "passed": true,
+      "details": [
+        "havana-cu",
+        "cancun-mx"
+      ]
+    },
+    {
+      "name": "shuffle returns exactly two destination stops",
+      "passed": true,
+      "details": [
+        "havana-cu",
+        "cancun-mx"
+      ]
+    },
+    {
+      "name": "city and country fallback resolves a stop without an ID",
+      "passed": true,
+      "details": "havana-cu"
+    },
+    {
+      "name": "IATA/location-code fallback resolves a stop without an ID",
+      "passed": true,
+      "details": "tulum-mx"
+    },
+    {
+      "name": "malformed structured references safely fall back to legacy IDs",
+      "passed": true,
+      "details": [
+        "havana-cu",
+        "tulum-mx"
+      ]
+    },
+    {
+      "name": "unresolved current stop leaves route unchanged with accurate error",
+      "passed": true,
+      "details": {
+        "supported": false,
+        "reason": "route-stop-identity-unresolved",
+        "message": "Globevoy could not safely identify every current destination, so the route was left unchanged. Refresh the tour and try again.",
+        "unresolvedStops": [
+          {
+            "cityId": "unknown-place",
+            "code": "",
+            "airportCode": "",
+            "gatewayAirportCode": "",
+            "city": "Unknown Place",
+            "country": "",
+            "countryCode": "ZZ"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unresolved identity error does not falsely claim fewer than two stops",
+      "passed": true,
+      "details": "Globevoy could not safely identify every current destination, so the route was left unchanged. Refresh the tour and try again."
+    },
+    {
+      "name": "an actual one-stop route still receives the two-destination guard",
+      "passed": true,
+      "details": {
+        "supported": false,
+        "reason": "minimum-two-stops",
+        "message": "A generated tour needs at least two destination stops."
+      }
+    },
+    {
+      "name": "frontend sends structured currentStopRefs",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend preserves legacy currentStops for compatibility",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend separates route stop index from leg index",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "frontend includes gateway identity metadata",
+      "passed": true,
+      "details": null
+    }
+  ],
+  "sampleShuffle": {
+    "before": [
+      "havana-cu",
+      "tulum-mx"
+    ],
+    "after": [
+      "havana-cu",
+      "cancun-mx"
+    ],
+    "message": "Tulum swapped for Cancun, within budget."
+  }
+}

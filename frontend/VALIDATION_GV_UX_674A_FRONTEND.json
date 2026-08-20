@@ -1,0 +1,90 @@
+{
+  "release": "GV-UX-674A",
+  "generatedAt": "2026-08-07T06:55:05.723Z",
+  "passed": false,
+  "checkCount": 16,
+  "passedCount": 15,
+  "failedCount": 1,
+  "checks": [
+    {
+      "name": "homepage release marker is 674A or superseding 675A",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "homepage uses adaptive-duration script",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "auto trip length no longer returns five nights",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "homepage omits nights in adaptive mode",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "explicit and exact durations are sent to backend",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "mixed-results auto edit no longer forces five nights",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "visualizer release marker is 674A or superseding 675A",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "visualizer uses 674A JavaScript and CSS",
+      "passed": false,
+      "details": null
+    },
+    {
+      "name": "add-destination card is always rendered with enabled or disabled state",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "short trips show a longer-trip-needed card",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "shuffle requests four replacement choices",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "replacement choice modal is present",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "replacement selection sends the selected city ID",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "show-two-more-routes control is present",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "initial automatic queries remove stale nights=5",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "674A modal is responsive",
+      "passed": true,
+      "details": null
+    }
+  ]
+}

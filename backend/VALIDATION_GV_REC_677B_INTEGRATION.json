@@ -1,0 +1,183 @@
+{
+  "release": "GV-REC-677B",
+  "generatedAt": "2026-08-06T17:21:44.356Z",
+  "passed": true,
+  "checkCount": 14,
+  "passedCount": 14,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "automatic generated tour remains supported under 677B",
+      "passed": true,
+      "details": {
+        "reason": null
+      }
+    },
+    {
+      "name": "677A smart duration remains active under 677B",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A",
+        "mode": "adaptive",
+        "nights": 8,
+        "baseBudgetNights": 8,
+        "routeMinimumNights": 4,
+        "routeMaximumNights": 12,
+        "travelRecoveryNights": 1,
+        "estimatedTravelHours": 21.7,
+        "stopCount": 2,
+        "stopNightBounds": [
+          {
+            "city": "Panama City",
+            "minimum": 2,
+            "maximum": 6
+          },
+          {
+            "city": "Cartagena",
+            "minimum": 2,
+            "maximum": 6
+          }
+        ],
+        "budgetCapacity": {
+          "totalBudgetUsd": 1470,
+          "usableBudgetUsd": 1396,
+          "transportUsd": 635,
+          "nightlyTripCostUsd": 70,
+          "maxAffordableNights": 10
+        },
+        "affordabilityRisk": false,
+        "smartEnabled": true,
+        "smartVersion": "GV-REC-677A",
+        "reason": "Duration combines the cities' useful minimum stays, about 22 hours of route travel, the traveller count, and the protected trip budget."
+      }
+    },
+    {
+      "name": "677B flight/date diagnostics are active",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677B",
+        "maxAutomaticDateShiftDays": 3,
+        "firstLegMaxAutomaticDateShiftDays": 3,
+        "downstreamLegMaxAutomaticDateShiftDays": 3,
+        "independentDownstreamDateShifts": true,
+        "routeOrderOptimization": false,
+        "policy": "V1 optimizes each flight/date within the current route sequence and full-trip budget guardrail; route permutation is intentionally deferred"
+      }
+    },
+    {
+      "name": "677B exposes three-day automatic date flexibility",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677B",
+        "maxAutomaticDateShiftDays": 3,
+        "firstLegMaxAutomaticDateShiftDays": 3,
+        "downstreamLegMaxAutomaticDateShiftDays": 3,
+        "independentDownstreamDateShifts": true,
+        "routeOrderOptimization": false,
+        "policy": "V1 optimizes each flight/date within the current route sequence and full-trip budget guardrail; route permutation is intentionally deferred"
+      }
+    },
+    {
+      "name": "677B explicitly does not claim route-order optimization",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677B",
+        "maxAutomaticDateShiftDays": 3,
+        "firstLegMaxAutomaticDateShiftDays": 3,
+        "downstreamLegMaxAutomaticDateShiftDays": 3,
+        "independentDownstreamDateShifts": true,
+        "routeOrderOptimization": false,
+        "policy": "V1 optimizes each flight/date within the current route sequence and full-trip budget guardrail; route permutation is intentionally deferred"
+      }
+    },
+    {
+      "name": "smart flight selection diagnostic is superseded to 677B",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677B",
+        "policy": "provider-backed options may shift route cadence by up to three days and balance fare, duration, connections, useful travel time and full-trip budget pressure; exact user dates remain protected"
+      }
+    },
+    {
+      "name": "automatic route remains synchronized",
+      "passed": true,
+      "details": {
+        "version": "GV-DATE-666B",
+        "canonicalDepartureDate": "2026-08-06",
+        "canonicalReturnDate": "2026-08-14",
+        "scanStartMonth": "2026-08",
+        "scanMonths": 6,
+        "consistent": true,
+        "issues": []
+      }
+    },
+    {
+      "name": "R1 transport-mode integrity remains active",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677A-R1",
+        "policy": "pure ground legs are preserved only when geographically plausible; composite flight+ground legs remain flight-bearing"
+      }
+    },
+    {
+      "name": "user-selected seven-night route remains supported",
+      "passed": true,
+      "details": {
+        "reason": null
+      }
+    },
+    {
+      "name": "user-selected duration remains exactly seven nights",
+      "passed": true,
+      "details": 7
+    },
+    {
+      "name": "677B does not reactivate smart duration for explicit duration",
+      "passed": true,
+      "details": {
+        "version": "GV-UX-674A",
+        "mode": "user-selected",
+        "nights": 7,
+        "reason": "The traveller selected the trip length or exact dates."
+      }
+    },
+    {
+      "name": "fixed route remains synchronized",
+      "passed": true,
+      "details": {
+        "version": "GV-DATE-666B",
+        "canonicalDepartureDate": "2026-08-06",
+        "canonicalReturnDate": "2026-08-13",
+        "scanStartMonth": "2026-08",
+        "scanMonths": 6,
+        "consistent": true,
+        "issues": []
+      }
+    },
+    {
+      "name": "exact-date route remains supported",
+      "passed": true,
+      "details": {
+        "reason": null
+      }
+    },
+    {
+      "name": "exact departure date remains unchanged under 677B",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-10-10",
+        "automaticTourDate": {
+          "departureDate": "2026-10-10",
+          "source": "user-requested-exact-date-669d",
+          "providerBacked": false,
+          "exactDateRequested": true
+        }
+      }
+    }
+  ]
+}

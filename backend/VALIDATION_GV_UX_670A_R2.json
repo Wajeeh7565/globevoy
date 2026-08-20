@@ -1,0 +1,42 @@
+{
+  "taskId": "GV-UX-670A-R2",
+  "version": "2.7.1-gv-ux-670a-r2-role-assignment",
+  "generatedAt": "2026-07-23T05:14:55.022474+00:00",
+  "passed": true,
+  "focusedValidation": {
+    "passed": true,
+    "passedCount": 30,
+    "checkCount": 30
+  },
+  "regressions": {
+    "GV-PROD-669B": {
+      "behaviourPassed": 16,
+      "behaviourTotal": 16
+    },
+    "GV-CITY-668T": {
+      "passed": 76,
+      "total": 76
+    },
+    "GV-PROD-669F": {
+      "behaviourPassed": 24,
+      "behaviourTotal": 24,
+      "supersededVersionAssertions": 1
+    },
+    "GV-PROD-669D": {
+      "behaviourPassed": 34,
+      "behaviourTotal": 34,
+      "supersededVersionAssertions": 1
+    },
+    "GV-PROD-669C": {
+      "behaviourPassed": 21,
+      "behaviourTotal": 21,
+      "supersededVersionAssertions": 1
+    }
+  },
+  "javascriptSyntax": {
+    "passed": 96,
+    "total": 96
+  },
+  "thresholdsRelaxed": false,
+  "frontendChanged": false
+}

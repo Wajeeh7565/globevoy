@@ -1,0 +1,151 @@
+rank,cityId,displayName,country,countryCode,worldRegion,group,selectionScore,priorityScore,providerLocationCode,preferredAirportCode,internationalAirportSignal,requiresGatewayTransfer,agodaMappingType,agodaHotelCount,productReviewRequired,selectionReason
+1,bhubaneswar-in,Bhubaneswar,India,IN,Asia,GROUP_2,107,134.798,BBI,BBI,true,false,exact-city-country,574,true,highest-global-readiness-expansion-500-wave-2
+2,changchun-cn,Changchun,China,CN,Asia,GROUP_2,105,134.761,CGQ,CGQ,true,false,exact-city-country,1419,true,highest-global-readiness-expansion-500-wave-2
+3,coimbatore-in,Coimbatore,India,IN,Asia,GROUP_2,107,134.232,CJB,CJB,true,false,exact-city-country,442,true,highest-global-readiness-expansion-500-wave-2
+4,kutaisi-ge,Kutaisi,Georgia,GE,Asia,GROUP_2,110,134.106,KUT,KUT,true,false,exact-city-country,104,true,highest-global-readiness-expansion-500-wave-2
+5,general-santos-city-ph,General Santos City,Philippines,PH,Asia,GROUP_2,108,133.874,GES,GES,true,false,exact-city-country,236,true,highest-global-readiness-expansion-500-wave-2
+6,lankaran-az,Lankaran,Azerbaijan,AZ,Asia,GROUP_2,115,133.225,LLK,LLK,true,false,exact-city-country,6,true,highest-global-readiness-expansion-500-wave-2
+7,hat-yai-th,Hat Yai,Thailand,TH,Asia,GROUP_2,105,133.021,HDY,HDY,true,false,exact-city-country,636,true,highest-global-readiness-expansion-500-wave-2
+8,haiphong-vn,Haiphong,Vietnam,VN,Asia,GROUP_2,105,132.944,HPH,HPH,true,false,exact-city-country,614,true,highest-global-readiness-expansion-500-wave-2
+9,batam-id,Batam,Indonesia,ID,Asia,GROUP_2,105,132.74,BTH,BTH,true,false,alias-city-country,1405,true,highest-global-readiness-expansion-500-wave-2
+10,chiang-rai-th,Chiang Rai,Thailand,TH,Asia,GROUP_2,105,132.674,CEI,CEI,true,false,exact-city-country,542,true,highest-global-readiness-expansion-500-wave-2
+11,djibouti-dj,Djibouti,Djibouti,DJ,Africa,GROUP_2,115,132.276,JIB,JIB,true,false,coordinate-confirmed-market,17,true,highest-global-readiness-expansion-500-wave-2
+12,sulaimaniyah-iq,Sulaimaniyah,Iraq,IQ,Asia,GROUP_2,115,132,ISU,ISU,true,false,fuzzy-city-country,9,true,highest-global-readiness-expansion-500-wave-2
+13,bloemfontein-za,Bloemfontein,South Africa,ZA,Africa,GROUP_2,107,131.432,BFN,BFN,true,false,exact-city-country,121,true,highest-global-readiness-expansion-500-wave-2
+14,chlef-dz,Chlef,Algeria,DZ,Africa,GROUP_2,115,131.386,CFK,CFK,true,false,exact-city-country,2,true,highest-global-readiness-expansion-500-wave-2
+15,saint-vincent-vc,Saint Vincent,Saint Vincent and the Grenadines,VC,Americas,GROUP_2,115,131.386,SVD,SVD,true,false,exact-city-country,2,true,highest-global-readiness-expansion-500-wave-2
+16,udon-thani-th,Udon Thani,Thailand,TH,Asia,GROUP_2,105,131.334,UTH,UTH,true,false,exact-city-country,292,true,highest-global-readiness-expansion-500-wave-2
+17,valencia-ve,Valencia,Venezuela,VE,Americas,GROUP_2,115,131.207,VLN,VLN,true,false,coordinate-confirmed-market,10,true,highest-global-readiness-expansion-500-wave-2
+18,kannur-in,Kannur,India,IN,Asia,GROUP_2,107,131.167,CNN,CNN,true,false,exact-city-country,107,true,highest-global-readiness-expansion-500-wave-2
+19,padang-id,Padang,Indonesia,ID,Asia,GROUP_2,105,130.937,PDG,PDG,true,false,exact-city-country,243,true,highest-global-readiness-expansion-500-wave-2
+20,ubon-ratchathani-th,Ubon Ratchathani,Thailand,TH,Asia,GROUP_2,105,130.672,UBP,UBP,true,false,exact-city-country,215,true,highest-global-readiness-expansion-500-wave-2
+21,manado-id,Manado,Indonesia,ID,Asia,GROUP_2,105,130.58,MDC,MDC,true,false,exact-city-country,206,true,highest-global-readiness-expansion-500-wave-2
+22,banjul-gm,Banjul,Gambia,GM,Africa,GROUP_2,115,130.515,BJL,BJL,true,false,coordinate-confirmed-market,7,true,highest-global-readiness-expansion-500-wave-2
+23,asmara-er,Asmara,Eritrea,ER,Africa,GROUP_2,115,130.505,ASM,ASM,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+24,bimini-bs,Bimini,Bahamas,BS,Americas,GROUP_2,115,130.505,BIM,BIM,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+25,bonaire-bq,Bonaire,Caribbean Netherlands,BQ,Americas,GROUP_2,115,130.505,BON,BON,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+26,hambantota-lk,Hambantota,Sri Lanka,LK,Asia,GROUP_2,115,130.505,HRI,HRI,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+27,kabul-af,Kabul,Afghanistan,AF,Asia,GROUP_2,115,130.505,KBL,KBL,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+28,porlamar-ve,Porlamar,Venezuela,VE,Americas,GROUP_2,115,130.505,PMV,PMV,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+29,saint-kitts-kn,Saint Kitts,Saint Kitts and Nevis,KN,Americas,GROUP_2,115,130.505,SKB,SKB,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+30,sana-a-ye,Sana'a,Yemen,YE,Asia,GROUP_2,115,130.505,SAH,SAH,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+31,tamchy-kg,Tamchy,Kyrgyzstan,KG,Asia,GROUP_2,115,130.505,IKU,IKU,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+32,kalibo-ph,Kalibo,Philippines,PH,Asia,GROUP_2,108,130.167,KLO,KLO,true,false,exact-city-country,42,true,highest-global-readiness-expansion-500-wave-2
+33,kozhikode-in,Kozhikode,India,IN,Asia,GROUP_2,107,129.672,CCJ,CCJ,true,false,coordinate-confirmed-market,215,true,highest-global-readiness-expansion-500-wave-2
+34,betong-th,Betong,Thailand,TH,Asia,GROUP_2,105,129.432,BTZ,BTZ,true,false,exact-city-country,121,true,highest-global-readiness-expansion-500-wave-2
+35,banjarmasin-id,Banjarmasin,Indonesia,ID,Asia,GROUP_2,105,129.414,BDJ,BDJ,true,false,exact-city-country,120,true,highest-global-readiness-expansion-500-wave-2
+36,iquique-cl,Iquique,Chile,CL,Americas,GROUP_2,107,128.593,IQQ,IQQ,true,false,exact-city-country,32,true,highest-global-readiness-expansion-500-wave-2
+37,curacao-cw,Curacao,Curaçao,CW,Americas,GROUP_2,115,128.386,CUR,CUR,true,false,coordinate-confirmed-market,2,true,highest-global-readiness-expansion-500-wave-2
+38,antofagasta-cl,Antofagasta,Chile,CL,Americas,GROUP_2,107,128.386,ANF,ANF,true,false,exact-city-country,29,true,highest-global-readiness-expansion-500-wave-2
+39,belem-br,Belem,Brazil,BR,Americas,GROUP_2,105,128.098,BEL,BEL,true,false,exact-city-country,65,true,highest-global-readiness-expansion-500-wave-2
+40,piura-pe,Piura,Peru,PE,Americas,GROUP_2,107,127.99,PIU,PIU,true,false,exact-city-country,24,true,highest-global-readiness-expansion-500-wave-2
+41,bucaramanga-co,Bucaramanga,Colombia,CO,Americas,GROUP_2,105,127.538,BGA,BGA,true,false,exact-city-country,50,true,highest-global-readiness-expansion-500-wave-2
+42,aruba-aw,Aruba,Aruba,AW,Americas,GROUP_2,115,127.505,AUA,AUA,true,false,coordinate-confirmed-market,1,true,highest-global-readiness-expansion-500-wave-2
+43,beef-island-vg,Beef Island,British Virgin Islands,VG,Americas,GROUP_2,115,127.505,EIS,EIS,true,false,coordinate-confirmed-market,1,true,highest-global-readiness-expansion-500-wave-2
+44,kurgon-tyube-tj,Kurgon-Tyube (Bokhtar),Tajikistan,TJ,Asia,GROUP_2,115,127.505,KQT,KQT,true,false,coordinate-confirmed-market,1,true,highest-global-readiness-expansion-500-wave-2
+45,sint-maarten-sx,Sint Maarten,Sint Maarten,SX,Americas,GROUP_2,115,127.505,SXM,SXM,true,false,coordinate-confirmed-market,1,true,highest-global-readiness-expansion-500-wave-2
+46,south-caicos-tc,South Caicos,Turks and Caicos Islands,TC,Americas,GROUP_2,115,127.505,XSC,XSC,true,false,coordinate-confirmed-market,1,true,highest-global-readiness-expansion-500-wave-2
+47,zamboanga-ph,Zamboanga,Philippines,PH,Asia,GROUP_2,108,127.457,ZAM,ZAM,true,false,alias-city-country,30,true,highest-global-readiness-expansion-500-wave-2
+48,limon-cr,Limon,Costa Rica,CR,Americas,GROUP_2,111,127.386,LIO,LIO,true,false,exact-city-country,2,true,highest-global-readiness-expansion-500-wave-2
+49,al-fujairah-ae,Al-fujairah,United Arab Emirates,AE,Asia,GROUP_2,107,127.031,FJR,FJR,true,false,coordinate-confirmed-market,63,true,highest-global-readiness-expansion-500-wave-2
+50,cucuta-co,Cucuta,Colombia,CO,Americas,GROUP_2,105,126.899,CUC,CUC,true,false,exact-city-country,37,true,highest-global-readiness-expansion-500-wave-2
+51,neuquen-ar,Neuquen,Argentina,AR,Americas,GROUP_2,105,125.712,NQN,NQN,true,false,exact-city-country,21,true,highest-global-readiness-expansion-500-wave-2
+52,fredericton-ca,Fredericton,Canada,CA,Americas,GROUP_2,105,125.611,YFC,YFC,true,false,exact-city-country,20,true,highest-global-readiness-expansion-500-wave-2
+53,north-eleuthera-bs,North Eleuthera,Bahamas,BS,Americas,GROUP_2,115,125.505,ELH,ELH,true,false,explicit-nearby-or-regional-market,1,true,highest-global-readiness-expansion-500-wave-2
+54,mytilene-gr,Mytilene,Greece,GR,Europe,GROUP_2,109,125.396,MJT,MJT,true,false,coordinate-confirmed-market,11,true,highest-global-readiness-expansion-500-wave-2
+55,nador-ma,Nador,Morocco,MA,Africa,GROUP_2,105,124.57,NDR,NDR,true,false,exact-city-country,12,true,highest-global-readiness-expansion-500-wave-2
+56,chania-gr,Chania,Greece,GR,Europe,GROUP_2,109,124.505,CHQ,CHQ,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+57,gwangju-kr,Gwangju,South Korea,KR,Asia,GROUP_2,108,124.386,MWX,MWX,true,false,exact-city-country,2,true,highest-global-readiness-expansion-500-wave-2
+58,pau-fr,Pau,France,FR,Europe,GROUP_2,105,123.457,PUF,PUF,true,false,coordinate-confirmed-market,30,true,highest-global-readiness-expansion-500-wave-2
+59,comodoro-rivadavia-ar,Comodoro Rivadavia,Argentina,AR,Americas,GROUP_2,105,123.225,CRD,CRD,true,false,exact-city-country,6,true,highest-global-readiness-expansion-500-wave-2
+60,thira-gr,Thira,Greece,GR,Europe,GROUP_2,109,123.01,JTR,JTR,true,false,coordinate-confirmed-market,3,true,highest-global-readiness-expansion-500-wave-2
+61,taba-eg,Taba,Egypt,EG,Africa,GROUP_2,105,122.495,TCP,TCP,true,false,exact-city-country,4,true,highest-global-readiness-expansion-500-wave-2
+62,sohag-eg,Sohag,Egypt,EG,Africa,GROUP_2,105,122.01,HMB,HMB,true,false,exact-city-country,3,true,highest-global-readiness-expansion-500-wave-2
+63,banda-aceh-id,Banda Aceh,Indonesia,ID,Asia,GROUP_2,105,120.505,BTJ,BTJ,true,false,exact-city-country,1,true,highest-global-readiness-expansion-500-wave-2
+64,yaounde-cm,Yaounde,Cameroon,CM,Africa,GROUP_2,101,116.346,YAO,NSI,false,false,exact-city-country,73,true,highest-global-readiness-expansion-500-wave-2
+65,kandy-lk,Kandy,Sri Lanka,LK,Asia,GROUP_2,93,113.472,KDZ,KDZ,false,false,exact-city-country,783,true,highest-global-readiness-expansion-500-wave-2
+66,almaty-kz,Almaty,Kazakhstan,KZ,Asia,GROUP_2,93,112.027,ALA,ALA,false,false,exact-city-country,402,true,highest-global-readiness-expansion-500-wave-2
+67,belgrade-rs,Belgrade,Serbia,RS,Europe,GROUP_2,93,111.757,BEG,BEG,false,false,exact-city-country,355,true,highest-global-readiness-expansion-500-wave-2
+68,malmo-se,Malmo,Sweden,SE,Europe,GROUP_2,96,110.817,MMA,MMX,false,false,exact-city-country,57,true,highest-global-readiness-expansion-500-wave-2
+69,noumea-nc,Noumea,New Caledonia,NC,Oceania,GROUP_2,98,110.505,NOU,NOU,false,false,exact-city-country,19,true,highest-global-readiness-expansion-500-wave-2
+70,galapagos-islands-ec,Galapagos Islands,Ecuador,EC,Oceania,GROUP_2,93,109.668,GPS,GPS,false,false,exact-city-country,135,true,highest-global-readiness-expansion-500-wave-2
+71,haifa-il,Haifa,Israel,IL,Asia,GROUP_2,93,109.227,HFA,HFA,false,false,exact-city-country,110,true,highest-global-readiness-expansion-500-wave-2
+72,douala-cm,Douala,Cameroon,CM,Africa,GROUP_2,93,108.978,DLA,DLA,false,false,exact-city-country,98,true,highest-global-readiness-expansion-500-wave-2
+73,jaffna-lk,Jaffna,Sri Lanka,LK,Asia,GROUP_2,93,108.647,JAF,JAF,false,false,exact-city-country,84,true,highest-global-readiness-expansion-500-wave-2
+74,dikwella-lk,Dikwella,Sri Lanka,LK,Asia,GROUP_2,93,108.621,DIW,DIW,false,false,exact-city-country,83,true,highest-global-readiness-expansion-500-wave-2
+75,guayaquil-ec,Guayaquil,Ecuador,EC,Americas,GROUP_2,93,108.346,GYE,GYE,false,false,exact-city-country,73,true,highest-global-readiness-expansion-500-wave-2
+76,al-ula-sa,Al Ula,Saudi Arabia,SA,Asia,GROUP_2,93,108.225,ULH,ULH,false,false,exact-city-country,69,true,highest-global-readiness-expansion-500-wave-2
+77,paro-bt,Paro,Bhutan,BT,Asia,GROUP_2,93,107.962,PBH,PBH,false,false,exact-city-country,61,true,highest-global-readiness-expansion-500-wave-2
+78,lome-tg,Lome,Togo,TG,Africa,GROUP_2,93,107.741,LFW,LFW,false,false,exact-city-country,55,true,highest-global-readiness-expansion-500-wave-2
+79,cotonou-bj,Cotonou,Benin,BJ,Africa,GROUP_2,93,107.702,COO,COO,false,false,exact-city-country,54,true,highest-global-readiness-expansion-500-wave-2
+80,saint-martin-mf,Saint Martin,Saint Martin,MF,Americas,GROUP_2,93,107.495,SFG,SFG,false,false,exact-city-country,49,true,highest-global-readiness-expansion-500-wave-2
+81,ohrid-mk,Ohrid,Macedonia,MK,Europe,GROUP_2,93,107.167,OHD,OHD,false,false,exact-city-country,42,true,highest-global-readiness-expansion-500-wave-2
+82,elat-il,Elat,Israel,IL,Asia,GROUP_2,93,106.731,ETM,ETM,false,false,coordinate-confirmed-market,139,true,highest-global-readiness-expansion-500-wave-2
+83,norfolk-island-nf,Norfolk Island,Norfolk Island,NF,Oceania,GROUP_2,93,106.72,NLK,NLK,false,false,exact-city-country,34,true,highest-global-readiness-expansion-500-wave-2
+84,blantyre-mw,Blantyre,Malawi,MW,Africa,GROUP_2,93,106.386,BLZ,BLZ,false,false,exact-city-country,29,true,highest-global-readiness-expansion-500-wave-2
+85,atyrau-kz,Atyrau,Kazakhstan,KZ,Asia,GROUP_2,93,106.312,GUW,GUW,false,false,exact-city-country,28,true,highest-global-readiness-expansion-500-wave-2
+86,dushanbe-tj,Dushanbe,Tajikistan,TJ,Asia,GROUP_2,93,106.236,DYU,DYU,false,false,exact-city-country,27,true,highest-global-readiness-expansion-500-wave-2
+87,cochabamba-bo,Cochabamba,Bolivia,BO,Americas,GROUP_2,93,106.157,CBB,CBB,false,false,exact-city-country,26,true,highest-global-readiness-expansion-500-wave-2
+88,kinshasa-cd,Kinshasa,Democratic Republic of the Congo,CD,Africa,GROUP_2,93,106.075,FIH,FIH,false,false,exact-city-country,25,true,highest-global-readiness-expansion-500-wave-2
+89,bahawalpur-pk,Bahawalpur,Pakistan,PK,Asia,GROUP_2,93,105.99,BHV,BHV,false,false,exact-city-country,24,true,highest-global-readiness-expansion-500-wave-2
+90,coxs-bazar-bd,Coxs Bazar,Bangladesh,BD,Asia,GROUP_2,93,105.854,CXB,CXB,false,false,fuzzy-city-country,58,true,highest-global-readiness-expansion-500-wave-2
+91,karakol-kg,Karakol,Kyrgyzstan,KG,Asia,GROUP_2,93,105.809,IKG,IKG,false,false,exact-city-country,22,true,highest-global-readiness-expansion-500-wave-2
+92,baia-mare-ro,Baia Mare,Romania,RO,Europe,GROUP_2,93,105.712,BAY,BAY,false,false,exact-city-country,21,true,highest-global-readiness-expansion-500-wave-2
+93,luxembourg-lu,Luxembourg,Luxembourg,LU,Europe,GROUP_2,93,105.647,LUX,LUX,false,false,coordinate-confirmed-market,84,true,highest-global-readiness-expansion-500-wave-2
+94,brest-by,Brest,Belarus,BY,Europe,GROUP_2,93,105.505,BQT,BQT,false,false,exact-city-country,19,true,highest-global-readiness-expansion-500-wave-2
+95,castro-cl,Castro,Chile,CL,Americas,GROUP_2,93,105.505,WCA,MHC,false,false,exact-city-country,19,true,highest-global-readiness-expansion-500-wave-2
+96,bourgas-bg,Bourgas,Bulgaria,BG,Europe,GROUP_2,93,105.406,BOJ,BOJ,false,false,fuzzy-city-country,47,true,highest-global-readiness-expansion-500-wave-2
+97,bukhara-uz,Bukhara,Uzbekistan,UZ,Asia,GROUP_2,93,105.276,BHK,BHK,false,false,exact-city-country,17,true,highest-global-readiness-expansion-500-wave-2
+98,chitral-pk,Chitral,Pakistan,PK,Asia,GROUP_2,93,105.276,CJL,CJL,false,false,exact-city-country,17,true,highest-global-readiness-expansion-500-wave-2
+99,ciudad-del-este-py,Ciudad del Este,Paraguay,PY,Americas,GROUP_2,93,105.152,AGT,AGT,false,false,exact-city-country,16,true,highest-global-readiness-expansion-500-wave-2
+100,janakpur-np,Janakpur,Nepal,NP,Asia,GROUP_2,93,105.152,JKR,JKR,false,false,exact-city-country,16,true,highest-global-readiness-expansion-500-wave-2
+101,conakry-gn,Conakry,Guinea,GN,Africa,GROUP_2,93,105.021,CKY,CKY,false,false,exact-city-country,15,true,highest-global-readiness-expansion-500-wave-2
+102,libreville-ga,Libreville,Gabon,GA,Africa,GROUP_2,93,105.021,LBV,LBV,false,false,exact-city-country,15,true,highest-global-readiness-expansion-500-wave-2
+103,legaspi-ph,Legaspi,Philippines,PH,Asia,GROUP_2,94,104.99,LGP,DRP,false,false,alias-city-country,24,true,highest-global-readiness-expansion-500-wave-2
+104,bacau-ro,Bacau,Romania,RO,Europe,GROUP_2,93,104.88,BCM,BCM,false,false,exact-city-country,14,true,highest-global-readiness-expansion-500-wave-2
+105,cayenne-gf,Cayenne,French Guiana,GF,Americas,GROUP_2,93,104.88,CAY,CAY,false,false,exact-city-country,14,true,highest-global-readiness-expansion-500-wave-2
+106,dili-tl,Dili,East Timor,TL,Asia,GROUP_2,93,104.88,DIL,DIL,false,false,exact-city-country,14,true,highest-global-readiness-expansion-500-wave-2
+107,batticaloa-lk,Batticaloa,Sri Lanka,LK,Asia,GROUP_2,93,104.731,BTC,BTC,false,false,exact-city-country,13,true,highest-global-readiness-expansion-500-wave-2
+108,gomel-by,Gomel,Belarus,BY,Europe,GROUP_2,93,104.731,GME,GME,false,false,exact-city-country,13,true,highest-global-readiness-expansion-500-wave-2
+109,gyoumri-am,Gyoumri,Armenia,AM,Asia,GROUP_2,93,104.593,LWN,LWN,false,false,fuzzy-city-country,32,true,highest-global-readiness-expansion-500-wave-2
+110,ganja-az,Ganja,Azerbaijan,AZ,Asia,GROUP_2,93,104.57,GNJ,GNJ,false,false,exact-city-country,12,true,highest-global-readiness-expansion-500-wave-2
+111,grodno-by,Grodno,Belarus,BY,Europe,GROUP_2,93,104.396,GNA,GNA,false,false,exact-city-country,11,true,highest-global-readiness-expansion-500-wave-2
+112,koror-pw,Koror,Palau,PW,Oceania,GROUP_2,93,104.312,ROR,ROR,false,false,alias-city-country,28,true,highest-global-readiness-expansion-500-wave-2
+113,andizhan-uz,Andizhan,Uzbekistan,UZ,Asia,GROUP_2,93,104.207,AZN,AZN,false,false,exact-city-country,10,true,highest-global-readiness-expansion-500-wave-2
+114,comayagua-hn,Comayagua,Honduras,HN,Americas,GROUP_2,93,104.207,XPL,XPL,false,false,exact-city-country,10,true,highest-global-readiness-expansion-500-wave-2
+115,niamey-ne,Niamey,Niger,NE,Africa,GROUP_2,93,104,NIM,NIM,false,false,exact-city-country,9,true,highest-global-readiness-expansion-500-wave-2
+116,al-baha-sa,Al-Baha,Saudi Arabia,SA,Asia,GROUP_2,93,103.99,ABT,ABT,false,false,fuzzy-city-country,24,true,highest-global-readiness-expansion-500-wave-2
+117,bhairawa-np,Bhairawa,Nepal,NP,Asia,GROUP_2,93,103.901,BWA,BWA,false,false,alias-city-country,23,true,highest-global-readiness-expansion-500-wave-2
+118,annaba-dz,Annaba,Algeria,DZ,Africa,GROUP_2,93,103.771,AAE,AAE,false,false,exact-city-country,8,true,highest-global-readiness-expansion-500-wave-2
+119,bissau-gw,Bissau,Guinea-Bissau,GW,Africa,GROUP_2,93,103.771,OXB,OXB,false,false,exact-city-country,8,true,highest-global-readiness-expansion-500-wave-2
+120,brazzaville-cg,Brazzaville,Republic of the Congo,CG,Africa,GROUP_2,93,103.771,BZV,BZV,false,false,exact-city-country,8,true,highest-global-readiness-expansion-500-wave-2
+121,cap-haitien-ht,Cap Haitien,Haiti,HT,Americas,GROUP_2,93,103.771,CAP,CAP,false,false,exact-city-country,8,true,highest-global-readiness-expansion-500-wave-2
+122,karlovy-vary-cz,Karlovy Vary,Czech Republic,CZ,Europe,GROUP_2,87,103.668,KLV,KLV,false,false,exact-city-country,135,true,highest-global-readiness-expansion-500-wave-2
+123,podgorica-me,Podgorica,Montenegro,ME,Europe,GROUP_2,89,103.662,TGD,TGD,false,false,exact-city-country,53,true,highest-global-readiness-expansion-500-wave-2
+124,kharkov-ua,Kharkov,Ukraine,UA,Europe,GROUP_2,93,103.657,HRK,HRK,false,false,coordinate-confirmed-market,33,true,highest-global-readiness-expansion-500-wave-2
+125,biratnagar-np,Biratnagar,Nepal,NP,Asia,GROUP_2,93,103.515,BIR,BIR,false,false,exact-city-country,7,true,highest-global-readiness-expansion-500-wave-2
+126,ilulissat-gl,Ilulissat,Greenland,GL,Americas,GROUP_2,93,103.515,JAV,JAV,false,false,exact-city-country,7,true,highest-global-readiness-expansion-500-wave-2
+127,bora-bora-pf,Bora Bora,French Polynesia,PF,Oceania,GROUP_2,93,103.505,BOB,BOB,false,false,alias-city-country,19,true,highest-global-readiness-expansion-500-wave-2
+128,barquisimeto-ve,Barquisimeto,Venezuela,VE,Americas,GROUP_2,93,103.225,BRM,BRM,false,false,exact-city-country,6,true,highest-global-readiness-expansion-500-wave-2
+129,bejaia-dz,Bejaia,Algeria,DZ,Africa,GROUP_2,93,103.225,BJA,BJA,false,false,exact-city-country,6,true,highest-global-readiness-expansion-500-wave-2
+130,coca-ec,Coca,Ecuador,EC,Americas,GROUP_2,93,103.225,OCC,OCC,false,false,exact-city-country,6,true,highest-global-readiness-expansion-500-wave-2
+131,fergana-uz,Fergana,Uzbekistan,UZ,Asia,GROUP_2,93,103.225,FEG,FEG,false,false,exact-city-country,6,true,highest-global-readiness-expansion-500-wave-2
+132,khujand-tj,Khujand,Tajikistan,TJ,Asia,GROUP_2,93,103.225,LBD,LBD,false,false,exact-city-country,6,true,highest-global-readiness-expansion-500-wave-2
+133,ivano-frankovsk-ua,Ivano-Frankovsk,Ukraine,UA,Europe,GROUP_2,93,103.021,IFO,IFO,false,false,fuzzy-city-country,15,true,highest-global-readiness-expansion-500-wave-2
+134,graz-at,Graz,Austria,AT,Europe,GROUP_2,87,103,GRZ,GRZ,false,false,exact-city-country,99,true,highest-global-readiness-expansion-500-wave-2
+135,esmeraldas-ec,Esmeraldas,Ecuador,EC,Americas,GROUP_2,93,102.891,ESM,ESM,false,false,exact-city-country,5,true,highest-global-readiness-expansion-500-wave-2
+136,kosice-sk,Kosice,Slovakia,SK,Europe,GROUP_2,89,102.782,KSC,KSC,false,false,exact-city-country,35,true,highest-global-readiness-expansion-500-wave-2
+137,gibraltar-gi,Gibraltar,Gibraltar,GI,Europe,GROUP_2,93,102.611,GIB,GIB,false,false,coordinate-confirmed-market,20,true,highest-global-readiness-expansion-500-wave-2
+138,dominica-dm,Dominica,Dominica,DM,Americas,GROUP_2,98,102.505,DOM,DOM,false,false,coordinate-confirmed-market,1,true,highest-global-readiness-expansion-500-wave-2
+139,saint-lucia-lc,Saint Lucia,Saint Lucia,LC,Americas,GROUP_2,98,102.505,SLU,SLU,false,false,coordinate-confirmed-market,1,true,highest-global-readiness-expansion-500-wave-2
+140,bafoussam-cm,Bafoussam,Cameroon,CM,Africa,GROUP_2,93,102.495,BFX,BFX,false,false,exact-city-country,4,true,highest-global-readiness-expansion-500-wave-2
+141,batna-dz,Batna,Algeria,DZ,Africa,GROUP_2,93,102.495,BLJ,BLJ,false,false,exact-city-country,4,true,highest-global-readiness-expansion-500-wave-2
+142,gizo-sb,Gizo,Solomon Islands,SB,Oceania,GROUP_2,93,102.495,GZO,GZO,false,false,exact-city-country,4,true,highest-global-readiness-expansion-500-wave-2
+143,debrecen-hu,Debrecen,Hungary,HU,Europe,GROUP_2,89,102.457,DEB,DEB,false,false,exact-city-country,30,true,highest-global-readiness-expansion-500-wave-2
+144,huahine-pf,Huahine,French Polynesia,PF,Oceania,GROUP_2,93,102.207,HUH,HUH,false,false,alias-city-country,10,true,highest-global-readiness-expansion-500-wave-2
+145,kumasi-gh,Kumasi,Ghana,GH,Africa,GROUP_2,88,102.064,KMS,KMS,false,false,exact-city-country,40,true,highest-global-readiness-expansion-500-wave-2
+146,karaganda-kz,Karaganda,Kazakhstan,KZ,Asia,GROUP_2,93,102.021,KGF,KGF,false,false,coordinate-confirmed-market,15,true,highest-global-readiness-expansion-500-wave-2
+147,dalanzadgad-mn,Dalanzadgad,Mongolia,MN,Asia,GROUP_2,93,102.01,DLZ,DLZ,false,false,exact-city-country,3,true,highest-global-readiness-expansion-500-wave-2
+148,garoua-cm,Garoua,Cameroon,CM,Africa,GROUP_2,93,102.01,GOU,GOU,false,false,exact-city-country,3,true,highest-global-readiness-expansion-500-wave-2
+149,saint-pierre-pm,Saint Pierre,Saint Pierre and Miquelon,PM,Americas,GROUP_2,93,102.01,FSP,FSP,false,false,exact-city-country,3,true,highest-global-readiness-expansion-500-wave-2
+150,kasane-bw,Kasane,Botswana,BW,Africa,GROUP_2,88,101.955,BBK,BBK,false,false,exact-city-country,38,true,highest-global-readiness-expansion-500-wave-2

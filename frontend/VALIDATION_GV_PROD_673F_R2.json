@@ -1,0 +1,148 @@
+{
+  "release": "GV-PROD-673F-R2",
+  "generatedAt": "2026-08-05T22:03:45.558Z",
+  "passed": true,
+  "checkCount": 28,
+  "checks": [
+    {
+      "name": "booking release/cache version",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "honest primary action restored",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "old broad primary action is absent",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "booking loads API restoration dependencies",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "shared multi-city route restores from backend",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "booking contains transport and stay collections",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "booking remains honest about separate checkout",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "673F-R2 photo baseline remains active in the superseding visualizer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "all itinerary card photos resolve immediately",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "route photo hydration no longer waits for IntersectionObserver",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "all route card image requests are eager",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "photo resolver identifies neutral artwork honestly",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "photo resolver uses R2 cache",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "photo resolver reuses valid prior caches",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ambiguous photo cities use country validation",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "duplicated destination cards removed from active details",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "duplicated legacy destination section is hidden",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "favicon has ICO and PNG fallbacks",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "origin resolver version is current",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "origin catalogue reports filtered totals",
+      "ok": true,
+      "detail": "{\"rawOrigins\":9627,\"safeOrigins\":9232,\"rejectedOrigins\":395,\"airports\":3663}"
+    },
+    {
+      "name": "origin quarantine report matches catalogue",
+      "ok": true,
+      "detail": "{\"rawOrigins\":9627,\"safeOrigins\":9232,\"rejectedOrigins\":395,\"rejectedByReason\":{\"airport-country-mismatch\":367,\"fallback-distance-too-large\":28}}"
+    },
+    {
+      "name": "plain ambiguous city is rejected",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ambiguous suggestions include country",
+      "ok": true,
+      "detail": "Georgetown, Australia (CNS) | Georgetown, Guyana (GEO) | Georgetown, Guyana (OGL) | Georgetown, United States (MYR) | Georgetown, United States (SBY)"
+    },
+    {
+      "name": "wrong-country Georgetown mapping is removed",
+      "ok": true,
+      "detail": "Georgetown, Australia (CNS) | Georgetown, Guyana (GEO) | Georgetown, Guyana (OGL) | Georgetown, United States (MYR) | Georgetown, United States (SBY)"
+    },
+    {
+      "name": "known wrong-country Zwara mapping is removed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "known extreme Bingol mapping is removed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "unambiguous city still resolves",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "all exposed origins satisfy country and distance checks",
+      "ok": true,
+      "detail": "unsafe=0"
+    }
+  ]
+}

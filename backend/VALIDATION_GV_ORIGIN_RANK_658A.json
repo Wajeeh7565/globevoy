@@ -1,0 +1,26 @@
+{
+  "task": "GV-ORIGIN/RANK-658A",
+  "status": "passed-static-and-local-smoke",
+  "frontendChecks": {
+    "syntaxNodeC": "passed",
+    "originDisplayNormalization": "Montreal displays YUL when YMQ/YUL mixed data is present",
+    "returnGroundLegWording": "Return transfer for ground return legs",
+    "assetCacheBump": "v=658a"
+  },
+  "backendChecks": {
+    "syntaxNodeC": [
+      "generated-tour.js",
+      "global-generated-tour-fallback.js",
+      "multicity-routes.js"
+    ],
+    "localSmokeOrigins": [
+      "Montreal CAD 1000",
+      "Montreal CAD 1500",
+      "Montreal CAD 2000",
+      "Montreal CAD 3000"
+    ],
+    "montrealDisplay": "YUL normalized in generated tour origin and leg endpoints",
+    "budgetGuardrail": "preserved in local smoke tests"
+  },
+  "notes": "Provider-backed results still depend on Travelpayouts/Aviasales observations and token availability."
+}

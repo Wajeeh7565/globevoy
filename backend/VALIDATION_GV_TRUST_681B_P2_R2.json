@@ -1,0 +1,48 @@
+{
+  "version": "GV-TRUST-681B-P2-R2",
+  "generatedAt": "2026-08-13T09:42:31.596Z",
+  "passed": 10,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "insufficient coverage keeps whole-trip optimizer unapplied",
+      "status": "PASS"
+    },
+    {
+      "name": "fallback reason identifies insufficient complete schedules",
+      "status": "PASS"
+    },
+    {
+      "name": "R2 truthfulness marker is emitted",
+      "status": "PASS"
+    },
+    {
+      "name": "candidate count is exposed",
+      "status": "PASS"
+    },
+    {
+      "name": "complete candidate count is exposed",
+      "status": "PASS"
+    },
+    {
+      "name": "fully priced candidate alias is exposed",
+      "status": "PASS"
+    },
+    {
+      "name": "incomplete candidate count is exposed",
+      "status": "PASS"
+    },
+    {
+      "name": "missing observation count is exposed",
+      "status": "PASS"
+    },
+    {
+      "name": "missing route/date diagnostic identifies OPO to DUB on Sep 2",
+      "status": "PASS"
+    },
+    {
+      "name": "fallback does not falsely expose an optimized selected start date",
+      "status": "PASS"
+    }
+  ]
+}

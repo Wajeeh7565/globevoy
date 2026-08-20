@@ -1,0 +1,250 @@
+{
+  "taskId": "GV-CITY-668O",
+  "generatedAt": "2026-07-23T00:32:44.189Z",
+  "summary": {
+    "selectedCount": 150,
+    "candidatePoolCount": 200,
+    "projectedExpansion500AuditedCount": 345,
+    "projectedTotalAuditedCount": 845,
+    "projectedRemainingUnauditedCount": 155,
+    "regionCounts": {
+      "Asia": 58,
+      "Africa": 26,
+      "Americas": 37,
+      "Europe": 22,
+      "Oceania": 7
+    },
+    "internationalAirportSignalCount": 63
+  },
+  "passed": 53,
+  "failed": 0,
+  "total": 53,
+  "checks": [
+    {
+      "name": "plan identifies GV-CITY-668O",
+      "pass": true
+    },
+    {
+      "name": "plan status is Expansion-500 priority wave 2",
+      "pass": true
+    },
+    {
+      "name": "registry contains 1000 cities and 500 Expansion-500 cities",
+      "pass": true
+    },
+    {
+      "name": "668N source snapshot contains 695 unique audited cities",
+      "pass": true
+    },
+    {
+      "name": "668N source snapshot contains 393 active cities",
+      "pass": true
+    },
+    {
+      "name": "668N baseline contains 195 audited expansion cities",
+      "pass": true
+    },
+    {
+      "name": "305 expansion cities remain unaudited before 668O",
+      "pass": true
+    },
+    {
+      "name": "candidate pool contains 200 cities with both mappings",
+      "pass": true
+    },
+    {
+      "name": "plan contains exactly 150 cities",
+      "pass": true
+    },
+    {
+      "name": "plan city IDs are unique",
+      "pass": true
+    },
+    {
+      "name": "all selected cities are Expansion-500",
+      "pass": true
+    },
+    {
+      "name": "no selected city was already audited in 668N",
+      "pass": true
+    },
+    {
+      "name": "all selected cities resolve in registry",
+      "pass": true
+    },
+    {
+      "name": "all selected cities have both static provider mappings",
+      "pass": true
+    },
+    {
+      "name": "all selected cities are product-review targets",
+      "pass": true
+    },
+    {
+      "name": "selected city order matches global deterministic score",
+      "pass": true
+    },
+    {
+      "name": "all plan ranks are contiguous",
+      "pass": true
+    },
+    {
+      "name": "all priority scores match source calculations",
+      "pass": true
+    },
+    {
+      "name": "plan summary counts are exact",
+      "pass": true
+    },
+    {
+      "name": "plan projects 345 Expansion-500 audited",
+      "pass": true
+    },
+    {
+      "name": "plan projects 845 total audited and 155 remaining",
+      "pass": true
+    },
+    {
+      "name": "plan reports 63 international-airport signals",
+      "pass": true
+    },
+    {
+      "name": "plan reports no preapproved gateway transfers",
+      "pass": true
+    },
+    {
+      "name": "region distribution is exact",
+      "pass": true,
+      "details": {
+        "Asia": 58,
+        "Africa": 26,
+        "Americas": 37,
+        "Europe": 22,
+        "Oceania": 7
+      }
+    },
+    {
+      "name": "mapping distribution is exact",
+      "pass": true,
+      "details": {
+        "exact-city-country": 115,
+        "alias-city-country": 7,
+        "coordinate-confirmed-market": 21,
+        "fuzzy-city-country": 6,
+        "explicit-nearby-or-regional-market": 1
+      }
+    },
+    {
+      "name": "priority score range is exact",
+      "pass": true
+    },
+    {
+      "name": "all Smoke5 cities are in the selected plan",
+      "pass": true
+    },
+    {
+      "name": "wave 2 service is enabled and versioned",
+      "pass": true
+    },
+    {
+      "name": "service summary preserves 668N activation baseline",
+      "pass": true
+    },
+    {
+      "name": "service projection reports 345 expansion and 845 total audited",
+      "pass": true
+    },
+    {
+      "name": "service list returns all 150 plan rows",
+      "pass": true
+    },
+    {
+      "name": "service region filter returns 26 African cities",
+      "pass": true
+    },
+    {
+      "name": "service airport filter returns 63 cities",
+      "pass": true
+    },
+    {
+      "name": "service text search resolves Belgrade",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668O summary endpoint works",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668O list endpoint returns 150",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668O region filter returns 58 Asian cities",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668O endpoint is read-only",
+      "pass": true
+    },
+    {
+      "name": "668M endpoint remains preserved",
+      "pass": true
+    },
+    {
+      "name": "668N production activation remains at 393 before import",
+      "pass": true
+    },
+    {
+      "name": "selected Bhubaneswar remains unaudited before import",
+      "pass": true
+    },
+    {
+      "name": "selected Belgrade remains unaudited before import",
+      "pass": true
+    },
+    {
+      "name": "existing verified Baku remains active",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner supports Smoke5, Priority50, and Expansion150",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner uses the 668O endpoint and safe URL interpolation",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner supports checkpoint resume",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner never embeds the admin token",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner uses bounded two-city batches",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner keeps strict 668E audit policy",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner computes projected activation from deployed baseline",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner marks wave 2 and activation import required",
+      "pass": true
+    },
+    {
+      "name": "PowerShell Smoke5 list is the approved five-city sample",
+      "pass": true
+    },
+    {
+      "name": "flag-off disables 668O plan status",
+      "pass": true
+    }
+  ]
+}

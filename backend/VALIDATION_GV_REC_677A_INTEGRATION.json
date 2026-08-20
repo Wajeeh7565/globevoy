@@ -1,0 +1,128 @@
+{
+  "release": "GV-REC-677A",
+  "generatedAt": "2026-08-06T17:21:37.686Z",
+  "passed": true,
+  "checkCount": 10,
+  "passedCount": 10,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "automatic generated tour remains supported",
+      "passed": true,
+      "details": {
+        "reason": null
+      }
+    },
+    {
+      "name": "automatic route uses 677A smart duration",
+      "passed": true,
+      "details": {
+        "version": "GV-REC-677A",
+        "mode": "adaptive",
+        "nights": 8,
+        "baseBudgetNights": 8,
+        "routeMinimumNights": 4,
+        "routeMaximumNights": 12,
+        "travelRecoveryNights": 1,
+        "estimatedTravelHours": 21.7,
+        "stopCount": 2,
+        "stopNightBounds": [
+          {
+            "city": "Panama City",
+            "minimum": 2,
+            "maximum": 6
+          },
+          {
+            "city": "Cartagena",
+            "minimum": 2,
+            "maximum": 6
+          }
+        ],
+        "budgetCapacity": {
+          "totalBudgetUsd": 1470,
+          "usableBudgetUsd": 1396,
+          "transportUsd": 635,
+          "nightlyTripCostUsd": 70,
+          "maxAffordableNights": 10
+        },
+        "affordabilityRisk": false,
+        "smartEnabled": true,
+        "smartVersion": "GV-REC-677A",
+        "reason": "Duration combines the cities' useful minimum stays, about 22 hours of route travel, the traveller count, and the protected trip budget."
+      }
+    },
+    {
+      "name": "smart duration is reflected in visible tour nights",
+      "passed": true,
+      "details": {
+        "totalNights": 8,
+        "decision": 8
+      }
+    },
+    {
+      "name": "smart flight-selection policy is active in generated-tour diagnostics",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677A",
+        "policy": "provider-backed flight observations balance fare, duration, connection count and timing while preserving budget guardrails"
+      }
+    },
+    {
+      "name": "automatic route date plan remains synchronized",
+      "passed": true,
+      "details": {
+        "version": "GV-DATE-666B",
+        "canonicalDepartureDate": "2026-08-06",
+        "canonicalReturnDate": "2026-08-14",
+        "scanStartMonth": "2026-08",
+        "scanMonths": 6,
+        "consistent": true,
+        "issues": []
+      }
+    },
+    {
+      "name": "city activation remains verified on generated route",
+      "passed": true,
+      "details": [
+        "Panama City",
+        "Cartagena"
+      ]
+    },
+    {
+      "name": "user-selected seven-night route remains supported",
+      "passed": true,
+      "details": {
+        "reason": null
+      }
+    },
+    {
+      "name": "user-selected duration remains exactly seven nights",
+      "passed": true,
+      "details": 7
+    },
+    {
+      "name": "smart duration does not override user-selected duration",
+      "passed": true,
+      "details": {
+        "version": "GV-UX-674A",
+        "mode": "user-selected",
+        "nights": 7,
+        "reason": "The traveller selected the trip length or exact dates."
+      }
+    },
+    {
+      "name": "fixed route date plan remains synchronized",
+      "passed": true,
+      "details": {
+        "version": "GV-DATE-666B",
+        "canonicalDepartureDate": "2026-08-06",
+        "canonicalReturnDate": "2026-08-13",
+        "scanStartMonth": "2026-08",
+        "scanMonths": 6,
+        "consistent": true,
+        "issues": []
+      }
+    }
+  ]
+}

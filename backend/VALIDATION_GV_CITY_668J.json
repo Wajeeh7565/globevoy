@@ -1,0 +1,1334 @@
+{
+  "taskId": "GV-CITY-668J",
+  "generatedAt": "2026-07-21T02:21:05.419Z",
+  "passed": 82,
+  "failed": 0,
+  "total": 82,
+  "checks": [
+    {
+      "name": "service version is 668J",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668J feature flag is enabled",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot task and status are correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668H baseline identity is correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668I source identity is correct",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "three source audits are preserved",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668H baseline snapshot is pinned",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668I source SHA is pinned",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "668H and 668I city sets do not overlap",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "snapshot contains 400 unique audited cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "source attribution is 100 plus 150 plus 150",
+      "pass": true,
+      "details": {
+        "source668E": 100,
+        "source668G": 150,
+        "source668I": 150
+      }
+    },
+    {
+      "name": "snapshot contains exactly 259 production-active cities",
+      "pass": true,
+      "details": 259
+    },
+    {
+      "name": "snapshot contains exactly 141 reviewed inactive cities",
+      "pass": true,
+      "details": 141
+    },
+    {
+      "name": "active modes are 250 direct/metro and 9 gateway",
+      "pass": true,
+      "details": {
+        "direct-or-metro": 250,
+        "gateway-supported": 9
+      }
+    },
+    {
+      "name": "current-500 split is 246 active of 355 audited",
+      "pass": true,
+      "details": {
+        "audited": 355,
+        "productionActive": 246,
+        "reviewedInactive": 109
+      }
+    },
+    {
+      "name": "expansion-500 split remains 13 active of 45 audited",
+      "pass": true,
+      "details": {
+        "audited": 45,
+        "productionActive": 13,
+        "reviewedInactive": 32
+      }
+    },
+    {
+      "name": "registry count is 1000 and unaudited count is 600",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "estimate-only total is 741",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-covered count is 281",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "classification counts are stable",
+      "pass": true,
+      "details": {
+        "estimate-only": 4,
+        "gateway-supported": 9,
+        "live-both": 272,
+        "live-flights-only": 7,
+        "live-stays-only": 90,
+        "unresolved": 18
+      }
+    },
+    {
+      "name": "all active cities use production provider evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities passed recommendation readiness",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all active cities have no retry queues",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all inactive audited cities remain discoverable estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no inactive city is accidentally activated",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "all records use 668J policy version",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway-active cities retain gateway evidence",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "gateway city set is exact",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "missing-flight queue count is 112",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "unresolved-Agoda queue count is 25",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "no-live-hotel-rate queue count is 4",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "hotel-quality queue count is 2",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flight-comfort queue count is 23",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "retry snapshot allows overlapping membership",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "retry snapshot queue counts match activation snapshot",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Toronto remains verified active from 668E",
+      "pass": true,
+      "details": {
+        "cityId": "toronto-ca",
+        "displayName": "Toronto",
+        "country": "Canada",
+        "countryCode": "CA",
+        "selectionTier": "current-500",
+        "worldRegion": "Americas",
+        "providerLocationCode": "YTO",
+        "auditStatus": "verified-active",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": true,
+        "recommendationMode": "verified-live-provider-capability",
+        "classification": "live-both",
+        "activation": {
+          "eligible": true,
+          "mode": "direct-or-metro",
+          "reason": "providers-live-stay-quality-qualified-flight-comfort-qualified",
+          "policyVersion": "GV-CITY-668J",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "sourceAuditTaskId": "GV-CITY-668E",
+          "lastVerifiedAt": "2026-07-18T00:46:48.556Z",
+          "importedFromSnapshotTaskId": "GV-CITY-668H"
+        },
+        "evidenceAgeDays": 3,
+        "reviewRecommended": false,
+        "retryQueues": [],
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": true,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": true,
+          "reasons": []
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Osaka remains verified active from 668G",
+      "pass": true,
+      "details": {
+        "cityId": "osaka-jp",
+        "displayName": "Osaka",
+        "country": "Japan",
+        "countryCode": "JP",
+        "selectionTier": "current-500",
+        "worldRegion": "Asia",
+        "providerLocationCode": "OSA",
+        "auditStatus": "verified-active",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": true,
+        "recommendationMode": "verified-live-provider-capability",
+        "classification": "live-both",
+        "activation": {
+          "eligible": true,
+          "mode": "direct-or-metro",
+          "reason": "providers-live-stay-quality-qualified-flight-comfort-qualified",
+          "policyVersion": "GV-CITY-668J",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "sourceAuditTaskId": "GV-CITY-668G",
+          "lastVerifiedAt": "2026-07-18T03:18:27.771Z",
+          "importedFromSnapshotTaskId": "GV-CITY-668H"
+        },
+        "evidenceAgeDays": 2,
+        "reviewRecommended": false,
+        "retryQueues": [],
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": true,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": true,
+          "reasons": []
+        },
+        "evidence": {
+          "travelpayouts": {
+            "provider": "Travelpayouts/Aviasales",
+            "status": "live",
+            "evidenceMode": "production-provider-response",
+            "providerMappingVerified": true,
+            "inventoryObserved": true,
+            "productionEligible": true,
+            "comfortQualified": true,
+            "destinationCode": "OSA",
+            "destinationKind": "direct",
+            "mappingType": "metro-code",
+            "gatewayFallbackUsed": false,
+            "gatewayRequiredForDestination": false,
+            "gateway": null,
+            "verifiedOrigin": "SIN",
+            "verificationMonth": "2026-09",
+            "scannedMonths": [
+              "2026-09",
+              "2026-10",
+              "2026-11"
+            ],
+            "anchorOrigins": [
+              "SIN",
+              "BKK",
+              "DXB",
+              "DEL"
+            ],
+            "observationCount": 6,
+            "sample": {
+              "departureDate": "2026-09-20",
+              "amount": 298,
+              "currency": "CAD",
+              "transfers": 0,
+              "durationMinutes": 400,
+              "bookingLinkPresent": true
+            },
+            "comfort": {
+              "qualified": true,
+              "durationKnown": true,
+              "transfersKnown": true,
+              "durationMinutes": 400,
+              "transfers": 0,
+              "maxDurationMinutes": 1080,
+              "maxTransfers": 1,
+              "gatewayTransferMinutes": null,
+              "gatewayTransferQualified": true,
+              "reasons": []
+            },
+            "checkedAt": "2026-07-18T03:18:27.679Z"
+          },
+          "agoda": {
+            "provider": "Agoda",
+            "status": "live",
+            "evidenceMode": "production-provider-response",
+            "providerMappingVerified": true,
+            "inventoryObserved": true,
+            "productionEligible": true,
+            "qualityQualifiedRate": true,
+            "agodaCityId": 9590,
+            "mappingType": "inherited-exact",
+            "checkIn": "2026-09-01",
+            "checkOut": "2026-09-03",
+            "occupancy": {
+              "adults": 2,
+              "children": 0,
+              "rooms": 1,
+              "kind": "requested"
+            },
+            "occupancyFallbackUsed": false,
+            "rawHotelCount": 30,
+            "pricedHotelCount": 30,
+            "structuralQualityCount": 30,
+            "qualityQualifiedCount": 10,
+            "candidateRetrievalMode": "quality-diversified-668e",
+            "selectedStrategy": {
+              "strategyId": "recommended-quality",
+              "sortBy": "Recommended",
+              "maxResult": 30
+            },
+            "rejectionReasons": {},
+            "sample": {
+              "averageNightlyUsd": 50,
+              "totalStayUsd": 100,
+              "hotelName": "APA HOTEL＆RESORT OSAKA NAMBA EKIMAE TOWER ",
+              "hotelUrlPresent": true,
+              "rating": 8.7,
+              "stars": 3,
+              "reviewCount": 26770
+            },
+            "reason": null,
+            "checkedAt": "2026-07-18T03:18:27.771Z"
+          }
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Philadelphia is newly active from 668I",
+      "pass": true,
+      "details": {
+        "cityId": "philadelphia-us",
+        "displayName": "Philadelphia",
+        "country": "United States",
+        "countryCode": "US",
+        "selectionTier": "current-500",
+        "worldRegion": "Americas",
+        "providerLocationCode": "PHL",
+        "auditStatus": "verified-active",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": true,
+        "recommendationMode": "verified-live-provider-capability",
+        "classification": "live-both",
+        "activation": {
+          "eligible": true,
+          "mode": "direct-or-metro",
+          "reason": "providers-live-stay-quality-qualified-flight-comfort-qualified",
+          "policyVersion": "GV-CITY-668J",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "sourceAuditTaskId": "GV-CITY-668I",
+          "importedFromSnapshotTaskId": null,
+          "lastVerifiedAt": "2026-07-21T01:52:27.138Z"
+        },
+        "evidenceAgeDays": 0,
+        "reviewRecommended": false,
+        "retryQueues": [],
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": true,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": true,
+          "reasons": []
+        },
+        "evidence": {
+          "travelpayouts": {
+            "provider": "Travelpayouts/Aviasales",
+            "status": "live",
+            "evidenceMode": "production-provider-response",
+            "providerMappingVerified": true,
+            "inventoryObserved": true,
+            "productionEligible": true,
+            "comfortQualified": true,
+            "destinationCode": "PHL",
+            "destinationKind": "direct",
+            "mappingType": "direct-city-or-airport-code",
+            "gatewayFallbackUsed": false,
+            "gatewayRequiredForDestination": false,
+            "gateway": null,
+            "verifiedOrigin": "MIA",
+            "verificationMonth": "2026-10",
+            "scannedMonths": [
+              "2026-09",
+              "2026-10",
+              "2026-11"
+            ],
+            "anchorOrigins": [
+              "YTO",
+              "NYC",
+              "MIA",
+              "MEX"
+            ],
+            "observationCount": 1,
+            "sample": {
+              "departureDate": "2026-10-03",
+              "amount": 104,
+              "currency": "CAD",
+              "transfers": 1,
+              "durationMinutes": 387,
+              "bookingLinkPresent": true
+            },
+            "comfort": {
+              "qualified": true,
+              "durationKnown": true,
+              "transfersKnown": true,
+              "durationMinutes": 387,
+              "transfers": 1,
+              "maxDurationMinutes": 1080,
+              "maxTransfers": 1,
+              "gatewayTransferMinutes": null,
+              "gatewayTransferQualified": true,
+              "reasons": []
+            },
+            "checkedAt": "2026-07-21T01:52:26.744Z"
+          },
+          "agoda": {
+            "provider": "Agoda",
+            "status": "live",
+            "evidenceMode": "production-provider-response",
+            "providerMappingVerified": true,
+            "inventoryObserved": true,
+            "productionEligible": true,
+            "qualityQualifiedRate": true,
+            "agodaCityId": 12374,
+            "mappingType": "inherited-exact",
+            "checkIn": "2026-09-04",
+            "checkOut": "2026-09-06",
+            "occupancy": {
+              "adults": 2,
+              "children": 0,
+              "rooms": 1,
+              "kind": "requested"
+            },
+            "occupancyFallbackUsed": false,
+            "rawHotelCount": 30,
+            "pricedHotelCount": 30,
+            "structuralQualityCount": 24,
+            "qualityQualifiedCount": 10,
+            "candidateRetrievalMode": "quality-diversified-668e",
+            "selectedStrategy": {
+              "strategyId": "recommended-quality",
+              "sortBy": "Recommended",
+              "maxResult": 30
+            },
+            "rejectionReasons": {
+              "review-count-below-25": 6
+            },
+            "sample": {
+              "averageNightlyUsd": 182,
+              "totalStayUsd": 365,
+              "hotelName": "Wyndham Philadelphia Historic District",
+              "hotelUrlPresent": true,
+              "rating": 8.4,
+              "stars": 3.5,
+              "reviewCount": 649
+            },
+            "reason": null,
+            "checkedAt": "2026-07-21T01:52:27.138Z"
+          }
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Hoi An retains DAD gateway activation",
+      "pass": true,
+      "details": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "evidenceMode": "production-provider-response",
+        "providerMappingVerified": true,
+        "inventoryObserved": true,
+        "productionEligible": true,
+        "comfortQualified": true,
+        "destinationCode": "DAD",
+        "destinationKind": "gateway",
+        "mappingType": "gateway-airport",
+        "gatewayFallbackUsed": true,
+        "gatewayRequiredForDestination": true,
+        "gateway": {
+          "airportCode": "DAD",
+          "gatewayCity": "Da Nang",
+          "mode": "nearby-airport",
+          "distanceKm": 24.3,
+          "minutes": 26,
+          "preferGateway": true
+        },
+        "verifiedOrigin": "SIN",
+        "verificationMonth": "2026-09",
+        "scannedMonths": [
+          "2026-09",
+          "2026-10",
+          "2026-11"
+        ],
+        "anchorOrigins": [
+          "DXB",
+          "LON",
+          "NYC",
+          "SIN"
+        ],
+        "observationCount": 25,
+        "sample": {
+          "departureDate": "2026-09-13",
+          "amount": 148,
+          "currency": "CAD",
+          "transfers": 0,
+          "durationMinutes": 170,
+          "bookingLinkPresent": true
+        },
+        "comfort": {
+          "qualified": true,
+          "durationKnown": true,
+          "transfersKnown": true,
+          "durationMinutes": 170,
+          "transfers": 0,
+          "maxDurationMinutes": 1080,
+          "maxTransfers": 1,
+          "gatewayTransferMinutes": 26,
+          "gatewayTransferQualified": true,
+          "reasons": []
+        },
+        "checkedAt": "2026-07-21T01:54:48.058Z"
+      }
+    },
+    {
+      "name": "Hakone retains NRT gateway activation",
+      "pass": true,
+      "details": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "evidenceMode": "production-provider-response",
+        "providerMappingVerified": true,
+        "inventoryObserved": true,
+        "productionEligible": true,
+        "comfortQualified": true,
+        "destinationCode": "NRT",
+        "destinationKind": "gateway",
+        "mappingType": "gateway-airport",
+        "gatewayFallbackUsed": true,
+        "gatewayRequiredForDestination": true,
+        "gateway": {
+          "airportCode": "NRT",
+          "gatewayCity": "Tokyo",
+          "mode": "nearby-airport",
+          "distanceKm": 73.4,
+          "minutes": 80,
+          "preferGateway": true
+        },
+        "verifiedOrigin": "DXB",
+        "verificationMonth": "2026-10",
+        "scannedMonths": [
+          "2026-09",
+          "2026-10",
+          "2026-11"
+        ],
+        "anchorOrigins": [
+          "DXB",
+          "LON",
+          "NYC",
+          "SIN"
+        ],
+        "observationCount": 16,
+        "sample": {
+          "departureDate": "2026-10-12",
+          "amount": 606,
+          "currency": "CAD",
+          "transfers": 1,
+          "durationMinutes": 1025,
+          "bookingLinkPresent": true
+        },
+        "comfort": {
+          "qualified": true,
+          "durationKnown": true,
+          "transfersKnown": true,
+          "durationMinutes": 1025,
+          "transfers": 1,
+          "maxDurationMinutes": 1080,
+          "maxTransfers": 1,
+          "gatewayTransferMinutes": 80,
+          "gatewayTransferQualified": true,
+          "reasons": []
+        },
+        "checkedAt": "2026-07-21T01:54:47.942Z"
+      }
+    },
+    {
+      "name": "Como retains BGY gateway activation",
+      "pass": true,
+      "details": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "evidenceMode": "production-provider-response",
+        "providerMappingVerified": true,
+        "inventoryObserved": true,
+        "productionEligible": true,
+        "comfortQualified": true,
+        "destinationCode": "BGY",
+        "destinationKind": "gateway",
+        "mappingType": "gateway-airport",
+        "gatewayFallbackUsed": true,
+        "gatewayRequiredForDestination": true,
+        "gateway": {
+          "airportCode": "BGY",
+          "gatewayCity": "Milan",
+          "mode": "nearby-airport",
+          "distanceKm": 39.1,
+          "minutes": 43,
+          "preferGateway": true
+        },
+        "verifiedOrigin": "DXB",
+        "verificationMonth": "2026-10",
+        "scannedMonths": [
+          "2026-09",
+          "2026-10",
+          "2026-11"
+        ],
+        "anchorOrigins": [
+          "DXB",
+          "LON",
+          "NYC",
+          "SIN"
+        ],
+        "observationCount": 16,
+        "sample": {
+          "departureDate": "2026-10-01",
+          "amount": 377,
+          "currency": "CAD",
+          "transfers": 0,
+          "durationMinutes": 400,
+          "bookingLinkPresent": true
+        },
+        "comfort": {
+          "qualified": true,
+          "durationKnown": true,
+          "transfersKnown": true,
+          "durationMinutes": 400,
+          "transfers": 0,
+          "maxDurationMinutes": 1080,
+          "maxTransfers": 1,
+          "gatewayTransferMinutes": 43,
+          "gatewayTransferQualified": true,
+          "reasons": []
+        },
+        "checkedAt": "2026-07-21T01:54:49.761Z"
+      }
+    },
+    {
+      "name": "Puerto Vallarta remains estimate-only for missing flight observations",
+      "pass": true,
+      "details": {
+        "cityId": "puerto-vallarta-mx",
+        "displayName": "Puerto Vallarta",
+        "country": "Mexico",
+        "countryCode": "MX",
+        "selectionTier": "current-500",
+        "worldRegion": "Americas",
+        "providerLocationCode": "PVR",
+        "auditStatus": "reviewed-inactive",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "live-stays-only",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "flight-provider:no-live-observations",
+          "policyVersion": "GV-CITY-668J",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "sourceAuditTaskId": "GV-CITY-668I",
+          "importedFromSnapshotTaskId": null,
+          "lastVerifiedAt": "2026-07-21T01:52:29.433Z"
+        },
+        "evidenceAgeDays": 0,
+        "reviewRecommended": false,
+        "retryQueues": [
+          "missing-flight-observations"
+        ],
+        "providerCoverage": {
+          "eligible": false,
+          "classification": "live-stays-only",
+          "flightInventoryObserved": false,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": false,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "flight-provider:no-live-observations"
+          ]
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Durban remains estimate-only for flight comfort",
+      "pass": true,
+      "details": {
+        "cityId": "durban-za",
+        "displayName": "Durban",
+        "country": "South Africa",
+        "countryCode": "ZA",
+        "selectionTier": "current-500",
+        "worldRegion": "Africa",
+        "providerLocationCode": "DUR",
+        "auditStatus": "reviewed-inactive",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "live-both",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "flight-comfort:duration-too-long|too-many-transfers",
+          "policyVersion": "GV-CITY-668J",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "sourceAuditTaskId": "GV-CITY-668I",
+          "importedFromSnapshotTaskId": null,
+          "lastVerifiedAt": "2026-07-21T01:53:23.865Z"
+        },
+        "evidenceAgeDays": 0,
+        "reviewRecommended": false,
+        "retryQueues": [
+          "flight-comfort-failure"
+        ],
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "flight-comfort:duration-too-long|too-many-transfers"
+          ]
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Honolulu remains estimate-only from prior flight comfort review",
+      "pass": true,
+      "details": {
+        "cityId": "honolulu-us",
+        "displayName": "Honolulu",
+        "country": "United States",
+        "countryCode": "US",
+        "selectionTier": "current-500",
+        "worldRegion": "Oceania",
+        "providerLocationCode": "HNL",
+        "auditStatus": "reviewed-inactive",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "live-both",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "flight-comfort:duration-too-long",
+          "policyVersion": "GV-CITY-668J",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "sourceAuditTaskId": "GV-CITY-668G",
+          "lastVerifiedAt": "2026-07-18T03:18:41.150Z",
+          "importedFromSnapshotTaskId": "GV-CITY-668H"
+        },
+        "evidenceAgeDays": 2,
+        "reviewRecommended": false,
+        "retryQueues": [
+          "flight-comfort-failure"
+        ],
+        "providerCoverage": {
+          "eligible": true,
+          "classification": "live-both",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": true,
+          "flightMappingVerified": true,
+          "stayMappingVerified": true,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": true,
+          "comfortQualifiedFlightObserved": false,
+          "reasons": [
+            "flight-comfort:duration-too-long"
+          ]
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Tehran remains estimate-only for unresolved Agoda mapping",
+      "pass": true,
+      "details": {
+        "cityId": "tehran-ir",
+        "displayName": "Tehran",
+        "country": "Iran",
+        "countryCode": "IR",
+        "selectionTier": "expansion-500",
+        "worldRegion": "Asia",
+        "providerLocationCode": "THR",
+        "auditStatus": "reviewed-inactive",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "live-flights-only",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "stay-provider:unresolved-static-mapping",
+          "policyVersion": "GV-CITY-668J",
+          "sourcePolicyVersion": "GV-CITY-668E",
+          "sourceAuditTaskId": "GV-CITY-668E",
+          "lastVerifiedAt": "2026-07-18T00:47:07.121Z",
+          "importedFromSnapshotTaskId": "GV-CITY-668H"
+        },
+        "evidenceAgeDays": 3,
+        "reviewRecommended": false,
+        "retryQueues": [
+          "unresolved-agoda-mapping"
+        ],
+        "providerCoverage": {
+          "eligible": false,
+          "classification": "live-flights-only",
+          "flightInventoryObserved": true,
+          "stayInventoryObserved": false,
+          "flightMappingVerified": true,
+          "stayMappingVerified": false,
+          "gatewaySupported": false
+        },
+        "recommendationReadiness": {
+          "eligible": false,
+          "qualityQualifiedStayObserved": false,
+          "comfortQualifiedFlightObserved": true,
+          "reasons": [
+            "stay-provider:unresolved-static-mapping"
+          ]
+        },
+        "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+      }
+    },
+    {
+      "name": "Brighton remains unaudited and estimate-only",
+      "pass": true,
+      "details": {
+        "cityId": "brighton-gb",
+        "displayName": "Brighton",
+        "country": "United Kingdom",
+        "countryCode": "GB",
+        "selectionTier": "current-500",
+        "worldRegion": "Europe",
+        "providerLocationCode": "LHR",
+        "auditStatus": "unaudited",
+        "discoveryEligible": true,
+        "liveRecommendationEligible": false,
+        "recommendationMode": "estimate-only",
+        "classification": "unaudited",
+        "activation": {
+          "eligible": false,
+          "mode": "inactive",
+          "reason": "not-in-imported-668j-audit-snapshot",
+          "policyVersion": "GV-CITY-668J",
+          "sourcePolicyVersion": null,
+          "lastVerifiedAt": null
+        },
+        "evidenceAgeDays": null,
+        "reviewRecommended": true,
+        "retryQueues": [],
+        "providerCoverage": null,
+        "recommendationReadiness": null,
+        "evidence": null,
+        "disclaimer": "This city remains discoverable as an estimate-only candidate until a production-provider audit is imported."
+      }
+    },
+    {
+      "name": "live eligibility helper allows baseline active city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "live eligibility helper allows 668I active city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "live eligibility helper blocks reviewed inactive city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "live eligibility helper blocks unaudited city",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city can resolve from new provider code",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search counts 259 active cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search counts 141 reviewed inactive cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search counts 600 unaudited cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search exposes 112 missing-flight work items",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search exposes 23 flight-comfort work items",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search exposes nine gateway-supported cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation search can include evidence on demand",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "public summary reports 259 active and 741 estimate-only",
+      "pass": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCount": 400,
+        "productionActiveCount": 259,
+        "directOrMetroCount": 250,
+        "gatewaySupportedCount": 9,
+        "auditedInactiveCount": 141,
+        "unauditedCount": 600,
+        "estimateOnlyCount": 741,
+        "providerCoveredCount": 281,
+        "current500": {
+          "audited": 355,
+          "productionActive": 246,
+          "reviewedInactive": 109
+        },
+        "expansion500": {
+          "audited": 45,
+          "productionActive": 13,
+          "reviewedInactive": 32
+        },
+        "classificationCounts": {
+          "estimate-only": 4,
+          "gateway-supported": 9,
+          "live-both": 272,
+          "live-flights-only": 7,
+          "live-stays-only": 90,
+          "unresolved": 18
+        },
+        "activeModeCounts": {
+          "direct-or-metro": 250,
+          "gateway-supported": 9
+        },
+        "retryQueueCounts": {
+          "missing-flight-observations": 112,
+          "unresolved-agoda-mapping": 25,
+          "no-live-hotel-rate": 4,
+          "hotel-quality-failure": 2,
+          "flight-comfort-failure": 23
+        }
+      }
+    },
+    {
+      "name": "public summary exposes all three source audits",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "public summary preserves exact itinerary verification requirement",
+      "pass": true,
+      "details": {
+        "registryCityCount": 1000,
+        "auditedCityCount": 400,
+        "allRegistryCitiesRemainDiscoverable": true,
+        "verifiedLiveRecommendationRequiresImportedActivation": true,
+        "reviewedInactiveCitiesAreEstimateOnly": true,
+        "unauditedCitiesAreEstimateOnly": true,
+        "exactItineraryProviderVerificationStillRequired": true,
+        "exactItineraryVerificationLayers": [
+          "GV-LIVE-667A",
+          "GV-LIVE-667B"
+        ],
+        "activationDoesNotGuaranteeCurrentPriceOrBookability": true,
+        "gatewayLabelsMustRemainVisible": true,
+        "automaticDeactivationOnAge": false,
+        "reviewAfterDays": 30,
+        "staleCapabilityEvidenceStillRequiresExactItineraryRecheck": true
+      }
+    },
+    {
+      "name": "retry endpoint data exposes all five queues",
+      "pass": true,
+      "details": [
+        "missing-flight-observations",
+        "unresolved-agoda-mapping",
+        "no-live-hotel-rate",
+        "hotel-quality-failure",
+        "flight-comfort-failure"
+      ]
+    },
+    {
+      "name": "city registry summary embeds 668J activation summary",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry live filter counts 259 cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "city registry keeps Durban discoverable but estimate-only",
+      "pass": true,
+      "details": {
+        "cityId": "durban-za",
+        "displayName": "Durban",
+        "country": "South Africa",
+        "countryCode": "ZA",
+        "currency": "ZAR",
+        "latitude": -29.857876,
+        "longitude": 31.027581,
+        "timeZone": "Africa/Johannesburg",
+        "worldRegion": "Africa",
+        "aliases": [
+          "Durban",
+          "Durban, South Africa",
+          "Durban ZA",
+          "DUR"
+        ],
+        "selectionTier": "current-500",
+        "group": "GROUP_2",
+        "groupSubtype": "candidate",
+        "origin": {
+          "eligible": true,
+          "providerLocationCode": "DUR",
+          "preferredAirportCode": "DUR",
+          "airportCodes": [
+            "DUR"
+          ],
+          "airportNames": [
+            "King Shaka International Airport"
+          ],
+          "internationalAirportSignal": true,
+          "gateway": null,
+          "requiresGatewayTransfer": false
+        },
+        "destination": {
+          "eligible": true,
+          "minimumRecommendedNights": 3,
+          "maximumRecommendedNights": 6,
+          "activationStatus": "reviewed-foundation",
+          "deterministicFallbackEligible": true,
+          "providerDiscoveredEligible": true,
+          "routeNodeType": "discovery",
+          "regionCluster": "sub-saharan-africa",
+          "readinessScore": 97
+        },
+        "providers": {
+          "travelpayouts": {
+            "status": "mapped-static",
+            "mappingType": "direct-city-or-airport-code",
+            "locationCode": "DUR",
+            "preferredAirportCode": "DUR",
+            "airportCodes": [
+              "DUR"
+            ],
+            "staticFlightable": true,
+            "gateway": null,
+            "requiresLiveFareCheck": true
+          },
+          "agoda": {
+            "status": "reconfirmed-exact",
+            "mappingType": "inherited-exact",
+            "cityId": 7219,
+            "hotelCount": 402,
+            "feedNames": [
+              "Durban"
+            ],
+            "distanceKm": 4.746,
+            "confidence": 1,
+            "representativePartnerUrls": [
+              "https://www.agoda.com/partners/partnersearch.aspx?hid=1981",
+              "https://www.agoda.com/partners/partnersearch.aspx?hid=8201",
+              "https://www.agoda.com/partners/partnersearch.aspx?hid=43331"
+            ],
+            "requiresLiveRateCheck": true
+          }
+        },
+        "validation": {
+          "status": "provider-mapped-static-live-check-pending",
+          "bothProvidersMapped": true,
+          "staticAirportValidated": true,
+          "coordinatesValidated": true,
+          "requiresLiveProviderCheck": true,
+          "requiresProductReview": true,
+          "sourceConfidence": "verified",
+          "providerStrategyDocumented": true,
+          "travelpayoutsStaticMapped": true,
+          "agodaStaticMapped": true,
+          "liveProviderVerified": false
+        },
+        "verifiedActivation": {
+          "cityId": "durban-za",
+          "displayName": "Durban",
+          "country": "South Africa",
+          "countryCode": "ZA",
+          "selectionTier": "current-500",
+          "worldRegion": "Africa",
+          "providerLocationCode": "DUR",
+          "auditStatus": "reviewed-inactive",
+          "discoveryEligible": true,
+          "liveRecommendationEligible": false,
+          "recommendationMode": "estimate-only",
+          "classification": "live-both",
+          "activation": {
+            "eligible": false,
+            "mode": "inactive",
+            "reason": "flight-comfort:duration-too-long|too-many-transfers",
+            "policyVersion": "GV-CITY-668J",
+            "sourcePolicyVersion": "GV-CITY-668E",
+            "sourceAuditTaskId": "GV-CITY-668I",
+            "importedFromSnapshotTaskId": null,
+            "lastVerifiedAt": "2026-07-21T01:53:23.865Z"
+          },
+          "evidenceAgeDays": 0,
+          "reviewRecommended": false,
+          "retryQueues": [
+            "flight-comfort-failure"
+          ],
+          "providerCoverage": {
+            "eligible": true,
+            "classification": "live-both",
+            "flightInventoryObserved": true,
+            "stayInventoryObserved": true,
+            "flightMappingVerified": true,
+            "stayMappingVerified": true,
+            "gatewaySupported": false
+          },
+          "recommendationReadiness": {
+            "eligible": false,
+            "qualityQualifiedStayObserved": true,
+            "comfortQualifiedFlightObserved": false,
+            "reasons": [
+              "flight-comfort:duration-too-long|too-many-transfers"
+            ]
+          },
+          "disclaimer": "Activation proves sampled provider capability, not a current exact price or guaranteed bookability."
+        }
+      }
+    },
+    {
+      "name": "route graph selection still contains all 1000 discovery cities",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "route graph selection annotates 259 live-eligible rows",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Toronto row is marked verified live capability",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Philadelphia row is marked verified live capability",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Durban row is marked audited estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Brighton row is marked unaudited estimate-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-driven discovery accepts active Philadelphia observation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "provider-driven discovery blocks reviewed Puerto Vallarta observation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "destination records expose exact verification requirement",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "destination records expose inactive activation status",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda activation summary endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda activation search endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda retry-queue endpoint works",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "Lambda city-registry live filter uses activation",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "activation endpoint is read-only",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flag-off rollback disables enforcement",
+      "pass": true,
+      "details": {}
+    },
+    {
+      "name": "flag-off rollback restores provider observation behavior",
+      "pass": true,
+      "details": {}
+    }
+  ]
+}

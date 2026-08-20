@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Flexible-Date States | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#66f8ef",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-container": "#00a8a1",
+                        "surface-container-highest": "#d3e4fe",
+                        "primary-fixed": "#7af6ed",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#4d5f7a",
+                        "on-tertiary-fixed": "#00201e",
+                        "background": "#f8f9ff",
+                        "on-secondary-container": "#50627c",
+                        "on-primary-fixed-variant": "#00504c",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#5bdad1",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-low": "#eff4ff",
+                        "surface-tint": "#006a65",
+                        "surface-bright": "#f8f9ff",
+                        "on-surface-variant": "#3c4948",
+                        "primary-container": "#08a8a0",
+                        "on-secondary-fixed": "#071c33",
+                        "inverse-on-surface": "#eaf1ff",
+                        "error-container": "#ffdad6",
+                        "on-surface": "#0b1c30",
+                        "tertiary-fixed-dim": "#41dbd3",
+                        "on-tertiary-fixed-variant": "#00504c",
+                        "on-tertiary-container": "#003533",
+                        "secondary-fixed-dim": "#b5c8e6",
+                        "secondary-container": "#cbdefd",
+                        "on-primary-container": "#003532",
+                        "surface-container-high": "#dce9ff",
+                        "on-background": "#0b1c30",
+                        "on-primary-fixed": "#00201e",
+                        "inverse-surface": "#213145",
+                        "tertiary": "#006a65",
+                        "primary-fixed-dim": "#5bdad1",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "primary": "#006a65",
+                        "outline-variant": "#bbc9c7",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#6c7a78",
+                        "surface": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed": "#d3e3ff",
+                        "on-secondary-fixed-variant": "#364861"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "container-max": "1200px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="original-stitch-code-html" name="gv-source-status"/></head>
+<body class="bg-surface font-body-lg text-on-surface min-h-screen flex flex-col gv-canonical" data-depth="1" data-nav-active="Explore" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Flexible-Date States · Advanced supporting · not connected to production data.</div>
+<!-- Top Navigation (Shared Component) -->
+
+<!-- Main Content Canvas -->
+<main class="flex-grow max-w-container-max mx-auto w-full px-gutter py-xl flex flex-col gap-xl">
+<header class="mb-lg">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-sm">Flexible-Date Intelligence</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Reviewing UI states for date flexibility analysis.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+<!-- STATE 1: LOADING -->
+<section class="flex flex-col gap-md">
+<h2 class="font-label-md text-label-md text-secondary uppercase tracking-wider">1. Loading State</h2>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg relative overflow-hidden shadow-sm">
+<div class="flex items-center gap-md mb-lg border-b border-outline-variant pb-md">
+<span class="material-symbols-outlined text-primary animate-spin" style="font-variation-settings: 'FILL' 0;">sync</span>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Checking nearby travel dates...</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Analyzing pricing patterns for Tokyo, Japan around Oct 15-22.</p>
+</div>
+</div>
+<!-- Calendar Skeleton -->
+<div class="grid grid-cols-7 gap-xs mb-md text-center">
+<div class="font-label-sm text-label-sm text-on-surface-variant">S</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">M</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">T</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">W</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">T</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">F</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">S</div>
+<!-- Empty slots -->
+<div></div><div></div><div></div>
+<!-- Shimmer cells -->
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+<div class="aspect-square rounded-DEFAULT shimmer"></div>
+</div>
+</div>
+</section>
+<!-- STATE 2: NO DATA -->
+<section class="flex flex-col gap-md">
+<h2 class="font-label-md text-label-md text-secondary uppercase tracking-wider">2. No Data State</h2>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg flex flex-col items-center justify-center text-center shadow-sm min-h-[350px]">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-secondary text-[32px]" style="font-variation-settings: 'FILL' 0;">calendar_lock</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">We don’t have reliable dated observations for this month.</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-md mb-lg">Pricing data for this specific period is currently insufficient to provide accurate flexible estimates.</p>
+<div class="flex flex-col gap-sm w-full max-w-sm">
+<button class="w-full bg-primary-container text-on-primary text-label-md font-label-md py-sm px-md rounded-lg hover:brightness-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span> Choose another month
+                        </button>
+<button class="w-full bg-transparent border border-on-secondary-fixed text-on-secondary-fixed text-label-md font-label-md py-sm px-md rounded-lg hover:bg-surface-container transition-all">
+                            Widen flexibility
+                        </button>
+<button class="w-full bg-transparent text-secondary text-label-md font-label-md py-sm px-md rounded-lg hover:underline transition-all mt-sm">
+                            Continue with planning estimate
+                        </button>
+</div>
+</div>
+</section>
+<!-- STATE 3: PARTIAL DATA -->
+<section class="flex flex-col gap-md">
+<h2 class="font-label-md text-label-md text-secondary uppercase tracking-wider">3. Partial Data State</h2>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-lg shadow-sm">
+<div class="flex items-start gap-md mb-md bg-surface-container-low p-md rounded-lg">
+<span class="material-symbols-outlined text-tertiary-container mt-1" style="font-variation-settings: 'FILL' 1;">info</span>
+<div>
+<p class="font-body-sm text-body-sm text-on-surface">Some dates have no current pricing observation. Showing available estimates.</p>
+</div>
+</div>
+<!-- Calendar View -->
+<div class="border border-outline-variant rounded-lg overflow-hidden">
+<div class="bg-surface-container px-md py-sm flex justify-between items-center border-b border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface">October 2024</span>
+<div class="flex gap-2">
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[20px]">chevron_left</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[20px]">chevron_right</span></button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-px bg-outline-variant">
+<div class="bg-surface-container-lowest p-2 text-center font-label-sm text-label-sm text-on-surface-variant">S</div>
+<div class="bg-surface-container-lowest p-2 text-center font-label-sm text-label-sm text-on-surface-variant">M</div>
+<div class="bg-surface-container-lowest p-2 text-center font-label-sm text-label-sm text-on-surface-variant">T</div>
+<div class="bg-surface-container-lowest p-2 text-center font-label-sm text-label-sm text-on-surface-variant">W</div>
+<div class="bg-surface-container-lowest p-2 text-center font-label-sm text-label-sm text-on-surface-variant">T</div>
+<div class="bg-surface-container-lowest p-2 text-center font-label-sm text-label-sm text-on-surface-variant">F</div>
+<div class="bg-surface-container-lowest p-2 text-center font-label-sm text-label-sm text-on-surface-variant">S</div>
+<!-- Row 1 -->
+<div class="bg-surface-container-lowest p-2 aspect-square flex flex-col items-center justify-center"></div>
+<div class="bg-surface-container-lowest p-2 aspect-square flex flex-col items-center justify-center"></div>
+<div class="bg-surface-container-lowest p-2 aspect-square flex flex-col items-center justify-center">
+<span class="font-body-sm text-body-sm">1</span>
+<span class="font-label-sm text-label-sm text-secondary mt-1">C$120</span>
+</div>
+<div class="bg-surface-container-lowest p-2 aspect-square flex flex-col items-center justify-center">
+<span class="font-body-sm text-body-sm">2</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">-</span>
+</div>
+<div class="bg-surface-container-lowest p-2 aspect-square flex flex-col items-center justify-center bg-tertiary-container/10 border-2 border-tertiary-container rounded-DEFAULT">
+<span class="font-label-md text-label-md text-tertiary-container">3</span>
+<span class="font-label-sm text-label-sm text-tertiary-container mt-1">C$95</span>
+</div>
+<div class="bg-surface-container-lowest p-2 aspect-square flex flex-col items-center justify-center">
+<span class="font-body-sm text-body-sm">4</span>
+<span class="font-label-sm text-label-sm text-outline mt-1">-</span>
+</div>
+<div class="bg-surface-container-lowest p-2 aspect-square flex flex-col items-center justify-center">
+<span class="font-body-sm text-body-sm">5</span>
+<span class="font-label-sm text-label-sm text-secondary mt-1">C$140</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- STATE 4: OVER BUDGET -->
+<section class="flex flex-col gap-md">
+<h2 class="font-label-md text-label-md text-secondary uppercase tracking-wider">4. Over Budget State</h2>
+<div class="bg-surface-container-lowest border-2 border-error-container rounded-xl p-lg shadow-sm">
+<div class="flex items-start gap-md mb-md">
+<div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-xs">These dates no longer fit the current planning budget.</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Updated estimates for these specific dates exceed your C$900 planning limit (within a C$1,000 total budget).</p>
+</div>
+</div>
+<div class="bg-surface p-md rounded-lg mb-lg border border-outline-variant flex justify-between items-center">
+<div>
+<span class="font-label-sm text-label-sm text-secondary block mb-1">Estimated Cost</span>
+<span class="font-headline-md text-headline-md text-error">C$1,150</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-secondary block mb-1">Planning Limit</span>
+<span class="font-label-md text-label-md text-on-surface">C$900</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-sm">
+<button class="bg-primary-container text-on-primary text-label-md font-label-md py-sm px-md rounded-lg hover:brightness-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">calendar_view_week</span> Compare nearby dates
+                        </button>
+<button class="bg-transparent border border-outline-variant text-on-surface text-label-md font-label-md py-sm px-md rounded-lg hover:bg-surface-container transition-all">
+                            Increase budget
+                        </button>
+<button class="bg-transparent border border-outline-variant text-on-surface text-label-md font-label-md py-sm px-md rounded-lg hover:bg-surface-container transition-all">
+                            Shorten trip
+                        </button>
+<button class="bg-transparent border border-outline-variant text-on-surface text-label-md font-label-md py-sm px-md rounded-lg hover:bg-surface-container transition-all">
+                            Return to previous
+                        </button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

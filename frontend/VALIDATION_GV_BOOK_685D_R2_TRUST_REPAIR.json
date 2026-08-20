@@ -1,0 +1,80 @@
+{
+  "version": "GV-BOOK-685D-R2",
+  "generatedAt": "2026-08-19T02:19:52.671Z",
+  "passed": 18,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "1: R2 release version is explicit",
+      "passed": true
+    },
+    {
+      "name": "2: chronological journey remains flight stay ground stay flight",
+      "passed": true
+    },
+    {
+      "name": "3: ground leg never reuses an Aviasales URL",
+      "passed": true
+    },
+    {
+      "name": "4: ground card never labels Aviasales as fulfilment",
+      "passed": true
+    },
+    {
+      "name": "5: explicit non-flight ground partner link may be preserved without generation",
+      "passed": true
+    },
+    {
+      "name": "6: flight Aviasales handoff and tracking remain exact",
+      "passed": true
+    },
+    {
+      "name": "7: generated return flight handoff remains PIT to YYZ on the dated route",
+      "passed": true
+    },
+    {
+      "name": "8: live-looking Agoda property evidence is labelled as an estimate",
+      "passed": true
+    },
+    {
+      "name": "9: cached Agoda property evidence stays visibly cached and estimated",
+      "passed": true
+    },
+    {
+      "name": "10: stay card never claims price observed via Agoda",
+      "passed": true
+    },
+    {
+      "name": "11: partial evidence makes the whole-group total explicitly estimated",
+      "passed": true
+    },
+    {
+      "name": "12: over-budget state also describes the total as estimated",
+      "passed": true
+    },
+    {
+      "name": "13: provider-backed state retains its stronger but qualified total label",
+      "passed": true
+    },
+    {
+      "name": "14: booking progress uses Book with partners and no Partner checkout wording",
+      "passed": true
+    },
+    {
+      "name": "15: R2 release marker and cache busting are active",
+      "passed": true
+    },
+    {
+      "name": "16: R1 metro disclosure and resolved-airport Aviasales handoff survive",
+      "passed": true
+    },
+    {
+      "name": "17: no payment, order, provider call or backend expansion",
+      "passed": true
+    },
+    {
+      "name": "18: no fake completion or combined-booking claim is introduced",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Account | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary-container": "#50627c",
+                        "surface-dim": "#cbdbf5",
+                        "surface-tint": "#006a65",
+                        "outline": "#6c7a78",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-background": "#0b1c30",
+                        "background": "#f8f9ff",
+                        "on-secondary-fixed-variant": "#364861",
+                        "inverse-primary": "#5bdad1",
+                        "on-surface-variant": "#3c4948",
+                        "secondary-container": "#cbdefd",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#00504c",
+                        "tertiary-fixed": "#66f8ef",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#006a65",
+                        "surface-bright": "#f8f9ff",
+                        "primary": "#006a65",
+                        "on-secondary-fixed": "#071c33",
+                        "tertiary-container": "#00a8a1",
+                        "tertiary-fixed-dim": "#41dbd3",
+                        "surface-container-high": "#dce9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#003532",
+                        "outline-variant": "#bbc9c7",
+                        "primary-fixed-dim": "#5bdad1",
+                        "on-tertiary-container": "#003533",
+                        "inverse-surface": "#213145",
+                        "secondary-fixed-dim": "#b5c8e6",
+                        "secondary": "#4d5f7a",
+                        "secondary-fixed": "#d3e3ff",
+                        "surface": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                        "primary-container": "#08a8a0",
+                        "on-primary-fixed": "#00201e",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container": "#e5eeff",
+                        "primary-fixed": "#7af6ed",
+                        "on-primary-fixed-variant": "#00504c",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#00201e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "4px",
+                        "md": "16px",
+                        "container-max": "1200px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "gutter": "24px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Custom input styles matching design system */
+        .globevoy-input {
+            @apply w-full border border-outline px-md py-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-lg focus:outline-none focus:ring-2 focus:ring-primary/10 focus:border-primary transition-all duration-200;
+        }
+        
+        .globevoy-checkbox {
+            @apply w-5 h-5 rounded border-outline text-primary focus:ring-primary/20 bg-surface-container-lowest cursor-pointer;
+        }
+        
+        .globevoy-btn-primary {
+            @apply w-full bg-primary text-on-primary font-label-md py-md rounded-xl hover:bg-primary/90 transition-colors duration-200 flex justify-center items-center gap-sm;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="original-stitch-code-html" name="gv-source-status"/></head>
+<body class="bg-background min-h-screen text-on-background font-body-lg flex flex-col antialiased gv-canonical" data-depth="1" data-nav-active="" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> This older screen is superseded by the live <a href="../create-account.html">passport-aware profile flow</a>.</div>
+<!-- Global Header -->
+
+<main class="flex-grow flex items-center justify-center p-md md:p-gutter py-xl">
+<div class="w-full max-w-[500px] bg-surface-container-lowest border border-outline-variant rounded-xl p-lg md:p-xl shadow-lg relative overflow-hidden">
+<!-- Subtle atmospheric glow -->
+<div class="absolute top-[-50px] right-[-50px] w-32 h-32 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Header -->
+<div class="text-center mb-xl relative z-10">
+<!-- Brand Anchor -->
+<div class="inline-flex items-center justify-center w-12 h-12 bg-[#071c33] rounded-lg mb-md">
+<span class="material-symbols-outlined text-primary-container text-2xl" data-icon="public">public</span>
+</div>
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-on-background mb-sm">Create your Globevoy account</h1>
+<p class="font-body-lg text-on-surface-variant max-w-[400px] mx-auto">
+                    Save trip ideas, remember optional preferences and compare additional Multi-city routes.
+                </p>
+</div>
+<!-- Form -->
+<form action="#" class="space-y-md relative z-10" id="createAccountForm" method="POST" novalidate="">
+<!-- First Name (Optional) -->
+<div>
+<label class="block font-label-md text-on-surface mb-xs" for="firstName">First name or display name <span class="text-outline font-body-sm font-normal">(optional)</span></label>
+<input class="globevoy-input" id="firstName" name="firstName" placeholder="e.g. Alex" type="text"/>
+</div>
+<!-- Email -->
+<div>
+<label class="block font-label-md text-on-surface mb-xs" for="email">Email address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline" data-icon="mail">mail</span>
+<input class="globevoy-input pl-12" id="email" name="email" placeholder="name@example.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password -->
+<div>
+<label class="block font-label-md text-on-surface mb-xs" for="password">Password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline" data-icon="lock">lock</span>
+<input class="globevoy-input pl-12 pr-12" id="password" minlength="8" name="password" placeholder="••••••••" required="" type="password"/>
+<button aria-label="Toggle password visibility" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors" onclick="togglePassword('password', 'toggleIcon1')" type="button">
+<span class="material-symbols-outlined" data-icon="visibility_off" id="toggleIcon1">visibility_off</span>
+</button>
+</div>
+<p class="font-body-sm text-outline mt-xs text-xs">Password requirements will be shown here based on the selected authentication provider.</p>
+<div aria-hidden="true" class="sr-only">Final password rules must match the production authentication provider.</div>
+</div>
+<!-- Confirm Password -->
+<div>
+<label class="block font-label-md text-on-surface mb-xs" for="confirmPassword">Confirm password</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline" data-icon="lock_reset">lock_reset</span>
+<input class="globevoy-input pl-12 pr-12" id="confirmPassword" name="confirmPassword" placeholder="••••••••" required="" type="password"/>
+<button aria-label="Toggle password visibility" class="absolute right-md top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors" onclick="togglePassword('confirmPassword', 'toggleIcon2')" type="button">
+<span class="material-symbols-outlined" data-icon="visibility_off" id="toggleIcon2">visibility_off</span>
+</button>
+</div>
+<p class="hidden text-error font-body-sm mt-xs text-sm" id="password-match-error" role="alert">Passwords do not match.</p>
+</div>
+<!-- Terms -->
+<div class="pt-sm pb-sm">
+<label class="flex items-start gap-sm cursor-pointer group">
+<div class="flex items-center h-5 mt-0.5">
+<input class="globevoy-checkbox" required="" type="checkbox"/>
+</div>
+<span class="font-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">
+                            I accept the Globevoy 
+                            <a class="text-primary hover:underline font-medium" href="#">Terms of Service</a> and 
+                            <a class="text-primary hover:underline font-medium" href="#">Privacy Policy</a>.
+                        </span>
+</label>
+</div>
+<!-- Submit CTA -->
+<button class="globevoy-btn-primary mt-md" type="submit">
+<span>Create account</span>
+<span class="material-symbols-outlined text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<!-- Footer links -->
+<div class="mt-lg text-center space-y-md border-t border-outline-variant pt-lg relative z-10">
+<a class="font-label-md text-on-surface hover:text-primary transition-colors inline-block" href="#">
+                    Already have an account? Sign in
+                </a>
+<div class="bg-surface-container-low p-sm rounded-lg flex items-center justify-center gap-sm mt-md">
+<span class="material-symbols-outlined text-outline text-sm" data-icon="info">info</span>
+<p class="font-label-sm text-outline">Creating an account is optional for public trip discovery.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Global Footer -->
+
+<script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility';
+                icon.setAttribute('data-icon', 'visibility');
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility_off';
+                icon.setAttribute('data-icon', 'visibility_off');
+            }
+        }
+
+        // Inline validation for passwords matching
+        document.getElementById('createAccountForm').addEventListener('submit', function(e) {
+            const pwd = document.getElementById('password').value;
+            const confirmPwdInput = document.getElementById('confirmPassword');
+            const confirmPwd = confirmPwdInput.value;
+            const errorMsg = document.getElementById('password-match-error');
+            
+            // Basic check if they typed anything in both (real app would have more robust validation)
+            if(pwd !== '' && confirmPwd !== '' && pwd !== confirmPwd) {
+                e.preventDefault();
+                // Show inline error
+                errorMsg.classList.remove('hidden');
+                confirmPwdInput.classList.add('border-error', 'focus:border-error', 'focus:ring-error/10');
+                confirmPwdInput.classList.remove('focus:border-primary', 'focus:ring-primary/10');
+                confirmPwdInput.setAttribute('aria-invalid', 'true');
+            } else {
+                // Clear error
+                errorMsg.classList.add('hidden');
+                confirmPwdInput.classList.remove('border-error', 'focus:border-error', 'focus:ring-error/10');
+                confirmPwdInput.classList.add('focus:border-primary', 'focus:ring-primary/10');
+                confirmPwdInput.removeAttribute('aria-invalid');
+            }
+        });
+
+        // Clear error on typing
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const errorMsg = document.getElementById('password-match-error');
+            if(!errorMsg.classList.contains('hidden')) {
+                errorMsg.classList.add('hidden');
+                this.classList.remove('border-error', 'focus:border-error', 'focus:ring-error/10');
+                this.classList.add('focus:border-primary', 'focus:ring-primary/10');
+                this.removeAttribute('aria-invalid');
+            }
+        });
+    </script>
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

@@ -1,0 +1,491 @@
+{
+  "release": "GV-REC-677D",
+  "generatedAt": "2026-08-20T01:34:38.873Z",
+  "passed": false,
+  "checkCount": 13,
+  "passedCount": 12,
+  "failedCount": 1,
+  "checks": [
+    {
+      "name": "677D generated-tour version packaged",
+      "passed": false,
+      "details": "2.18.3-gv-rec-684b-r3-strict-currency-budget-fit"
+    },
+    {
+      "name": "677D version exported",
+      "passed": true,
+      "details": "GV-REC-677D"
+    },
+    {
+      "name": "677D flag active",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677D city foundation index loaded",
+      "passed": true,
+      "details": 500
+    },
+    {
+      "name": "Dubai -> Sharjah is detected as metro-adjacent",
+      "passed": true,
+      "details": [
+        {
+          "city": "Sharjah",
+          "cityId": "sharjah-ae",
+          "countryCode": "AE",
+          "distanceKm": 17,
+          "proximityClass": "metro-adjacent",
+          "sameCountry": true,
+          "nights": 3,
+          "dayTripCandidate": true,
+          "penalty": 321,
+          "reasons": [
+            "origin-metro-adjacent-overnight-stop"
+          ],
+          "usefulMinimumShortfallNights": 0,
+          "profileFound": true,
+          "group": "GROUP_2",
+          "groupSubtype": "candidate",
+          "readinessScore": 95,
+          "recommendedMinNights": 2,
+          "recommendedMaxNights": 5,
+          "initialCoreEligible": false,
+          "productionStatus": "live",
+          "discoverySignal": true,
+          "familiarAnchorSignal": false
+        },
+        {
+          "city": "Muscat",
+          "cityId": "muscat-om",
+          "countryCode": "OM",
+          "distanceKm": 348,
+          "proximityClass": "destination-trip-range",
+          "sameCountry": false,
+          "nights": 3,
+          "dayTripCandidate": false,
+          "penalty": 0,
+          "reasons": [],
+          "usefulMinimumShortfallNights": 0,
+          "profileFound": true,
+          "group": "GROUP_1",
+          "groupSubtype": "anchor",
+          "readinessScore": 98,
+          "recommendedMinNights": 3,
+          "recommendedMaxNights": 6,
+          "initialCoreEligible": false,
+          "productionStatus": "candidate",
+          "discoverySignal": false,
+          "familiarAnchorSignal": true
+        }
+      ]
+    },
+    {
+      "name": "origin-adjacent overnight stop is marked as a day-trip candidate",
+      "passed": true,
+      "details": [
+        {
+          "city": "Sharjah",
+          "cityId": "sharjah-ae",
+          "countryCode": "AE",
+          "distanceKm": 17,
+          "proximityClass": "metro-adjacent",
+          "sameCountry": true,
+          "nights": 3,
+          "dayTripCandidate": true,
+          "penalty": 321,
+          "reasons": [
+            "origin-metro-adjacent-overnight-stop"
+          ],
+          "usefulMinimumShortfallNights": 0,
+          "profileFound": true,
+          "group": "GROUP_2",
+          "groupSubtype": "candidate",
+          "readinessScore": 95,
+          "recommendedMinNights": 2,
+          "recommendedMaxNights": 5,
+          "initialCoreEligible": false,
+          "productionStatus": "live",
+          "discoverySignal": true,
+          "familiarAnchorSignal": false
+        },
+        {
+          "city": "Muscat",
+          "cityId": "muscat-om",
+          "countryCode": "OM",
+          "distanceKm": 348,
+          "proximityClass": "destination-trip-range",
+          "sameCountry": false,
+          "nights": 3,
+          "dayTripCandidate": false,
+          "penalty": 0,
+          "reasons": [],
+          "usefulMinimumShortfallNights": 0,
+          "profileFound": true,
+          "group": "GROUP_1",
+          "groupSubtype": "anchor",
+          "readinessScore": 98,
+          "recommendedMinNights": 3,
+          "recommendedMaxNights": 6,
+          "initialCoreEligible": false,
+          "productionStatus": "candidate",
+          "discoverySignal": false,
+          "familiarAnchorSignal": true
+        }
+      ]
+    },
+    {
+      "name": "weak multi-stop route receives structural wasted-slot penalty",
+      "passed": true,
+      "details": {
+        "adjustment": -412,
+        "metrics": {
+          "budgetUsd": 1000,
+          "totalNights": 6,
+          "stopCount": 2,
+          "originAdjacentStops": 1,
+          "dayTripRangeStops": 1,
+          "closePairCount": 0,
+          "group1Signals": 1,
+          "group2Signals": 1,
+          "mixedAnchorDiscovery": true,
+          "profileCoverage": 1,
+          "usefulMinimumShortfallNights": 0,
+          "stopSignals": [
+            {
+              "city": "Sharjah",
+              "cityId": "sharjah-ae",
+              "countryCode": "AE",
+              "distanceKm": 17,
+              "proximityClass": "metro-adjacent",
+              "sameCountry": true,
+              "nights": 3,
+              "dayTripCandidate": true,
+              "penalty": 321,
+              "reasons": [
+                "origin-metro-adjacent-overnight-stop"
+              ],
+              "usefulMinimumShortfallNights": 0,
+              "profileFound": true,
+              "group": "GROUP_2",
+              "groupSubtype": "candidate",
+              "readinessScore": 95,
+              "recommendedMinNights": 2,
+              "recommendedMaxNights": 5,
+              "initialCoreEligible": false,
+              "productionStatus": "live",
+              "discoverySignal": true,
+              "familiarAnchorSignal": false
+            },
+            {
+              "city": "Muscat",
+              "cityId": "muscat-om",
+              "countryCode": "OM",
+              "distanceKm": 348,
+              "proximityClass": "destination-trip-range",
+              "sameCountry": false,
+              "nights": 3,
+              "dayTripCandidate": false,
+              "penalty": 0,
+              "reasons": [],
+              "usefulMinimumShortfallNights": 0,
+              "profileFound": true,
+              "group": "GROUP_1",
+              "groupSubtype": "anchor",
+              "readinessScore": 98,
+              "recommendedMinNights": 3,
+              "recommendedMaxNights": 6,
+              "initialCoreEligible": false,
+              "productionStatus": "candidate",
+              "discoverySignal": false,
+              "familiarAnchorSignal": true
+            }
+          ],
+          "pairSignals": [
+            {
+              "from": "Sharjah",
+              "to": "Muscat",
+              "distanceKm": 340,
+              "sameCountry": false,
+              "themeSimilarity": 0.891,
+              "penalty": 0,
+              "reasons": []
+            }
+          ]
+        },
+        "reasons": [
+          "origin-metro-adjacent-overnight-stop",
+          "familiar-anchor-plus-discovery-mix",
+          "origin-adjacent-stop-wastes-multistop-slot"
+        ],
+        "qualityBand": "weak-destination-value"
+      }
+    },
+    {
+      "name": "coherent Cairo + Bodrum route materially outranks Sharjah + Muscat on destination value",
+      "passed": true,
+      "details": {
+        "weak": -412,
+        "coherent": -48
+      }
+    },
+    {
+      "name": "strong single destination receives anti-forced-multistop counterweight",
+      "passed": true,
+      "details": {
+        "adjustment": 42,
+        "metrics": {
+          "budgetUsd": 1000,
+          "totalNights": 5,
+          "stopCount": 1,
+          "originAdjacentStops": 0,
+          "dayTripRangeStops": 0,
+          "closePairCount": 0,
+          "group1Signals": 1,
+          "group2Signals": 0,
+          "mixedAnchorDiscovery": false,
+          "profileCoverage": 1,
+          "usefulMinimumShortfallNights": 0,
+          "stopSignals": [
+            {
+              "city": "Muscat",
+              "cityId": "muscat-om",
+              "countryCode": "OM",
+              "distanceKm": 348,
+              "proximityClass": "destination-trip-range",
+              "sameCountry": false,
+              "nights": 3,
+              "dayTripCandidate": false,
+              "penalty": 0,
+              "reasons": [],
+              "usefulMinimumShortfallNights": 0,
+              "profileFound": true,
+              "group": "GROUP_1",
+              "groupSubtype": "anchor",
+              "readinessScore": 98,
+              "recommendedMinNights": 3,
+              "recommendedMaxNights": 6,
+              "initialCoreEligible": false,
+              "productionStatus": "candidate",
+              "discoverySignal": false,
+              "familiarAnchorSignal": true
+            }
+          ],
+          "pairSignals": []
+        },
+        "reasons": [
+          "strong-single-destination-not-forced-multistop"
+        ],
+        "qualityBand": "strong-destination-value"
+      }
+    },
+    {
+      "name": "677D can let one stronger destination beat a forced weak two-stop route in Best balance scoring",
+      "passed": true,
+      "details": {
+        "weakBalanceScore": 347.8507462686566,
+        "singleBalanceScore": 441.9253731343283
+      }
+    },
+    {
+      "name": "low-budget regional route is not treated as weak merely because stops are relatively close",
+      "passed": true,
+      "details": {
+        "adjustment": -71.611,
+        "metrics": {
+          "budgetUsd": 730,
+          "totalNights": 4,
+          "stopCount": 2,
+          "originAdjacentStops": 0,
+          "dayTripRangeStops": 0,
+          "closePairCount": 1,
+          "group1Signals": 1,
+          "group2Signals": 1,
+          "mixedAnchorDiscovery": true,
+          "profileCoverage": 1,
+          "usefulMinimumShortfallNights": 3,
+          "stopSignals": [
+            {
+              "city": "Ottawa",
+              "cityId": "ottawa-ca",
+              "countryCode": "CA",
+              "distanceKm": 363,
+              "proximityClass": "destination-trip-range",
+              "sameCountry": true,
+              "nights": 2,
+              "dayTripCandidate": false,
+              "penalty": 13.556,
+              "reasons": [
+                "destination-stay-below-useful-minimum"
+              ],
+              "usefulMinimumShortfallNights": 1,
+              "profileFound": true,
+              "group": "GROUP_2",
+              "groupSubtype": "secondary",
+              "readinessScore": 97,
+              "recommendedMinNights": 3,
+              "recommendedMaxNights": 6,
+              "initialCoreEligible": true,
+              "productionStatus": "live",
+              "discoverySignal": true,
+              "familiarAnchorSignal": false
+            },
+            {
+              "city": "Montreal",
+              "cityId": "montreal-ca",
+              "countryCode": "CA",
+              "distanceKm": 507,
+              "proximityClass": "destination-trip-range",
+              "sameCountry": true,
+              "nights": 2,
+              "dayTripCandidate": false,
+              "penalty": 27.111,
+              "reasons": [
+                "destination-stay-below-useful-minimum"
+              ],
+              "usefulMinimumShortfallNights": 2,
+              "profileFound": true,
+              "group": "GROUP_1",
+              "groupSubtype": "famous-anchor",
+              "readinessScore": 100,
+              "recommendedMinNights": 4,
+              "recommendedMaxNights": 7,
+              "initialCoreEligible": true,
+              "productionStatus": "live",
+              "discoverySignal": false,
+              "familiarAnchorSignal": true
+            }
+          ],
+          "pairSignals": [
+            {
+              "from": "Ottawa",
+              "to": "Montreal",
+              "distanceKm": 151,
+              "sameCountry": true,
+              "themeSimilarity": 0.962,
+              "penalty": 64.944,
+              "reasons": [
+                "destination-pair-day-trip-range",
+                "nearby-pair-high-theme-overlap"
+              ]
+            }
+          ]
+        },
+        "reasons": [
+          "destination-stay-below-useful-minimum",
+          "destination-pair-day-trip-range",
+          "nearby-pair-high-theme-overlap",
+          "familiar-anchor-plus-discovery-mix"
+        ],
+        "qualityBand": "acceptable-with-value-tradeoff"
+      }
+    },
+    {
+      "name": "city taxonomy lookup resolves known destination intelligence",
+      "passed": true,
+      "details": {
+        "themeScores": {
+          "nature": 4,
+          "food": 4,
+          "culture": 2,
+          "beach": 5,
+          "nightlife": 5,
+          "relaxation": 5
+        },
+        "recommendedMinNights": 4,
+        "recommendedMaxNights": 7,
+        "publicTransitPracticality": 2,
+        "typicalTripPace": "relaxed"
+      }
+    },
+    {
+      "name": "tour annotation carries explicit 677D diagnostics without changing stop count",
+      "passed": true,
+      "details": {
+        "enabled": true,
+        "version": "GV-REC-677D",
+        "qualityBand": "acceptable-with-value-tradeoff",
+        "adjustment": -48,
+        "reasons": [
+          "destination-stay-below-useful-minimum",
+          "familiar-anchor-plus-discovery-mix"
+        ],
+        "metrics": {
+          "budgetUsd": 1000,
+          "totalNights": 6,
+          "stopCount": 2,
+          "originAdjacentStops": 0,
+          "dayTripRangeStops": 0,
+          "closePairCount": 0,
+          "group1Signals": 1,
+          "group2Signals": 1,
+          "mixedAnchorDiscovery": true,
+          "profileCoverage": 1,
+          "usefulMinimumShortfallNights": 1,
+          "stopSignals": [
+            {
+              "city": "Cairo",
+              "cityId": "cairo-eg",
+              "countryCode": "EG",
+              "distanceKm": 2416,
+              "proximityClass": "destination-trip-range",
+              "sameCountry": false,
+              "nights": 3,
+              "dayTripCandidate": false,
+              "penalty": 82,
+              "reasons": [
+                "destination-stay-below-useful-minimum"
+              ],
+              "usefulMinimumShortfallNights": 1,
+              "profileFound": true,
+              "group": "GROUP_1",
+              "groupSubtype": "famous-anchor",
+              "readinessScore": 100,
+              "recommendedMinNights": 4,
+              "recommendedMaxNights": 7,
+              "initialCoreEligible": true,
+              "productionStatus": "live",
+              "discoverySignal": false,
+              "familiarAnchorSignal": true
+            },
+            {
+              "city": "Bodrum",
+              "cityId": "bodrum-tr",
+              "countryCode": "TR",
+              "distanceKm": 2937,
+              "proximityClass": "destination-trip-range",
+              "sameCountry": false,
+              "nights": 3,
+              "dayTripCandidate": false,
+              "penalty": 0,
+              "reasons": [],
+              "usefulMinimumShortfallNights": 0,
+              "profileFound": true,
+              "group": "GROUP_2",
+              "groupSubtype": "candidate",
+              "readinessScore": 97,
+              "recommendedMinNights": 3,
+              "recommendedMaxNights": 6,
+              "initialCoreEligible": true,
+              "productionStatus": "live",
+              "discoverySignal": true,
+              "familiarAnchorSignal": false
+            }
+          ],
+          "pairSignals": [
+            {
+              "from": "Cairo",
+              "to": "Bodrum",
+              "distanceKm": 865,
+              "sameCountry": false,
+              "themeSimilarity": 0.829,
+              "penalty": 0,
+              "reasons": []
+            }
+          ]
+        },
+        "policy": "protect scarce overnight stops from origin-adjacent/day-trip-range redundancy; reward familiar-anchor + discovery mix modestly; allow a stronger single destination to beat a forced weak multi-stop route"
+      }
+    }
+  ]
+}

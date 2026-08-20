@@ -1,0 +1,28 @@
+GV-CITY-668H changed or added files
+
+Runtime modified:
+- services/verified-city-activation.js
+- services/city-registry.js
+- services/global-route-graph.js
+
+Source evidence added:
+- data/provider-live-priority-150-668g-source.json
+
+Generated activation data added:
+- data/verified-city-activation-250-668h.json
+- data/verified-city-retry-queues-668h.json
+- data/verified-city-production-active-176-668h.json
+- data/verified-city-production-active-176-668h.csv
+- data/verified-city-review-74-668h.json
+- data/verified-city-review-74-668h.csv
+
+Build, validation and operator artifacts added:
+- build-gv-city-668h-activation.js
+- validate-gv-city-668h.js
+- VALIDATION_GV_CITY_668H.json
+- Run-GV-CITY-668H-Activation-Smoke.ps1
+- GV-CITY-668H_REPORT.md
+- MANIFEST_GV_CITY_668H.txt
+
+No frontend files changed.
+No credentials included.

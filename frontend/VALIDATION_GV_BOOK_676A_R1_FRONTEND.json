@@ -1,0 +1,66 @@
+{
+  "release": "GV-BOOK-676A-R1",
+  "generatedAt": "2026-08-19T02:19:53.823Z",
+  "passed": true,
+  "checkCount": 14,
+  "passedCount": 14,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "R1 release marker is present",
+      "passed": true
+    },
+    {
+      "name": "native datalist trigger is removed",
+      "passed": true
+    },
+    {
+      "name": "origin input is an accessible combobox",
+      "passed": true
+    },
+    {
+      "name": "custom listbox is present",
+      "passed": true
+    },
+    {
+      "name": "menu is vertically scrollable",
+      "passed": true
+    },
+    {
+      "name": "mobile menu has bounded height",
+      "passed": true
+    },
+    {
+      "name": "native datalist creation is absent",
+      "passed": true
+    },
+    {
+      "name": "suggestions remain searchable",
+      "passed": true
+    },
+    {
+      "name": "mouse selection is supported",
+      "passed": true
+    },
+    {
+      "name": "keyboard arrow navigation is supported",
+      "passed": true
+    },
+    {
+      "name": "keyboard selection is supported",
+      "passed": true
+    },
+    {
+      "name": "active option scrolls into view",
+      "passed": true
+    },
+    {
+      "name": "escape and outside click close the menu",
+      "passed": true
+    },
+    {
+      "name": "R1 cache-busting references are active or superseded",
+      "passed": true
+    }
+  ]
+}

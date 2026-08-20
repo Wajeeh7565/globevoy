@@ -1,0 +1,84 @@
+GV-BOOK-686C VALIDATION RECORD
+Date: 2026-08-18
+Deployment: NOT PERFORMED
+Live provider calls: NONE
+
+BASELINE AUTHENTICATION
+- Source package: frontend-staging-gv-journey-686b-journey-experience-portable.zip
+- SHA-256: 0f4fde1ed34634f7ed0f58e1a1aa4423d53a1a1e997d86f765918150d8eec428
+- Sidecar match: PASS
+- Runtime delta comparison: 1 changed, 2 runtime additions, 0 removed
+
+GV-BOOK-686C AUTOMATED VALIDATOR
+- PASS 27/27
+- Five workflow steps: PASS
+- Chronological flight/stay/ground/stay/flight sequence: PASS
+- Whole-group budget and conservative estimate: PASS
+- Exact evidence classes: PASS
+- Cached Duffel label: PASS
+- Agoda estimated-price boundary: PASS
+- Separate external partner handoffs: PASS
+- No fake payment/transaction UI: PASS
+- Desktop 70/30 and sticky context: PASS
+- Mobile collapsible summary: PASS
+- Reduced-motion behavior: PASS
+- No workspace network/provider request: PASS
+- Protected 686B file hashes: PASS
+
+REGRESSION SUITES
+- GV-BOOK-685D-R2 immediate trust repair: PASS 18/18
+- GV-TRUST-685B frontend: PASS 12/12
+- GV-TRUST-681A-R1 frontend: PASS 7/7
+- GV-BOOK-676A frontend: PASS 24/24
+- GV-BOOK-676A-R1 frontend: PASS 14/14
+
+SYNTAX / MODULE CHECKS
+- scripts/booking-workspace-686c.js: PASS
+- scripts/booking-hub-685d.js: PASS
+- scripts/booking-live-673d.js: PASS
+- scripts/budget-confidence-685b.js: PASS
+- scripts/booking-entry-675a.js: PASS
+- scripts/booking-duffel-676a.js: PASS
+
+BROWSER QA — ISOLATED LOCAL FIXTURE
+- Fixture route: Toronto → Cleveland → Pittsburgh → Toronto
+- Workflow steps rendered: 5
+- Initially visible panel: Review trip only
+- Desktop layout: workflow left, sticky summary right
+- Whole-group budget: CAD C$1,500
+- Estimated trip total: CAD C$1,319
+- Remaining before extras: CAD C$181
+- Confidence: Planning estimate — verify price
+- Transport step: live flight, ground transfer and cached Duffel evidence retained
+- Stay step: two stays with room/tax/fee assumptions
+- Evidence counts: 1 provider-observed, 2 cached, 2 planning estimates, 0 unavailable
+- Final partner list: 5 chronological components
+- Exact Aviasales handoffs: PASS
+- Exact Agoda handoffs: PASS
+- Aviasales URL attached to ground fixture: correctly rejected
+- Reviewed interaction: local partner fixture changed status to Provider result reviewed
+- Fake Booked state: absent
+- Reviewed progress: 1 of 5 after isolated interaction
+- 375 × 812 viewport: document client width 360, scroll width 360
+- Horizontal overflow: NONE
+- Stepper scroll is contained inside the stepper
+- Mobile summary expands and collapses: PASS
+- Browser partner contact: local fixture only; no external provider request
+
+EXACT DELTA FROM 686B
+CHANGED
+- booking.html
+ADDED RUNTIME
+- scripts/booking-workspace-686c.js
+- styles/booking-workspace-686c.css
+ADDED VALIDATION
+- gv-book-686c-browser-fixture.html
+- gv-book-686c-partner-fixture.html
+- validation/validate-gv-book-686c.js
+REMOVED
+- none
+
+PACKAGE REOPEN / INTEGRITY
+- Completed after package creation; final package SHA-256 is in the adjacent .sha256 sidecar.
+- Internal artifact hashes are in GV-BOOK-686C-CHECKSUMS.sha256.
+

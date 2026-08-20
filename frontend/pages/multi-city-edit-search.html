@@ -1,0 +1,301 @@
+<!-- Globevoy - Multi-city Results (Edit Search Open) -->
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Multi-city Results — Edit Search Open | Globevoy</title>
+  <link rel="icon" href="../favicon.ico" sizes="any">
+<script src="../assets/vendor/tailwind.js"></script>
+
+
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#000000",
+                        "surface-container-high": "#d8ebfc",
+                        "teal-500": "#08A8A0",
+                        "surface": "#f6faff",
+                        "on-surface": "#0a1d2a",
+                        "on-secondary-container": "#006f69",
+                        "green-100": "#E4F5EC",
+                        "surface-tint": "#4d5f7a",
+                        "outline": "#74777e",
+                        "on-tertiary-container": "#af7a00",
+                        "surface-dim": "#c9dcee",
+                        "surface-container-low": "#ebf5ff",
+                        "primary-fixed": "#d3e3ff",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#071c33",
+                        "primary-fixed-dim": "#b5c8e6",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-soft": "#F4F7F9",
+                        "amber-500": "#FFB51B",
+                        "navy-900": "#0B2038",
+                        "surface-bright": "#f6faff",
+                        "amber-600": "#E99B00",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "secondary": "#006a65",
+                        "tertiary-fixed": "#ffdead",
+                        "on-tertiary-fixed-variant": "#604100",
+                        "background": "#f6faff",
+                        "surface-container-highest": "#d2e5f6",
+                        "secondary-fixed-dim": "#5bdad1",
+                        "on-tertiary-fixed": "#281900",
+                        "navy-950": "#071C33",
+                        "teal-600": "#008F89",
+                        "surface-variant": "#d2e5f6",
+                        "on-primary-container": "#7385a1",
+                        "on-secondary-fixed-variant": "#00504c",
+                        "on-error-container": "#93000a",
+                        "primary": "#000000",
+                        "on-surface-variant": "#44474d",
+                        "surface-warm": "#FFFAF0",
+                        "green-600": "#16885E",
+                        "tertiary-container": "#281900",
+                        "secondary-fixed": "#7af6ed",
+                        "on-primary-fixed-variant": "#364861",
+                        "ink": "#122232",
+                        "border": "#D7E0E7",
+                        "inverse-surface": "#21323f",
+                        "surface-container": "#e0f0ff",
+                        "inverse-primary": "#b5c8e6",
+                        "red-600": "#B93F45",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-fixed-dim": "#ffba39",
+                        "purple-100": "#EEE9FF",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#77f3ea",
+                        "teal-100": "#E5F7F5",
+                        "inverse-on-surface": "#e6f2ff",
+                        "amber-100": "#FFF2CF",
+                        "on-secondary-fixed": "#00201e",
+                        "purple-600": "#7357E6",
+                        "on-primary-fixed": "#071c33",
+                        "outline-variant": "#c4c6ce",
+                        "on-background": "#0a1d2a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "separation": "64px",
+                        "max-width": "1280px",
+                        "control": "16px",
+                        "section": "24px",
+                        "micro": "4px",
+                        "major": "32px",
+                        "compact": "8px"
+                    },
+                    "fontFamily": {
+                        "h3": ["Inter"],
+                        "display-mobile": ["Inter"],
+                        "small": ["Inter"],
+                        "h2": ["Inter"],
+                        "h1-mobile": ["Inter"],
+                        "caption": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "body": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "h1": ["Inter"],
+                        "display": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h3": ["24px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "display-mobile": ["36px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "small": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "h2": ["32px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "h1-mobile": ["30px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "caption": ["12px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "h1": ["40px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "display": ["56px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<link href="../assets/fonts/fonts.css" rel="stylesheet"/><link href="../styles/shell-670e.css" rel="stylesheet"/><meta content="exact-recovered-html" name="gv-source-status"/></head>
+<body class="bg-surface text-on-surface font-body antialiased selection:bg-teal-500 selection:text-white gv-canonical" data-depth="1" data-nav-active="Multi-city" data-signed-in="false"><div id="gv-header"></div><div class="gv-reference-banner"><strong>Design reference:</strong> Multi-city Results — Edit Search Open · MVP supporting · not connected to production data.</div>
+<!-- TopNavBar -->
+
+<!-- Main Content Canvas -->
+<main class="w-full max-w-max-width mx-auto px-16 md:px-major py-section flex flex-col gap-separation">
+<!-- Search Summary Bar (Collapsed state acting as header for edit) -->
+<section class="bg-surface-soft border border-border rounded-xl p-control flex flex-wrap md:flex-nowrap items-center justify-between gap-control relative z-20">
+<div class="flex flex-wrap items-center gap-x-6 gap-y-2 flex-grow">
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant">Leaving from</span>
+<span class="font-body text-body font-medium flex items-center gap-compact"><span class="material-symbols-outlined text-[18px]">flight_takeoff</span> Toronto (YTO)</span>
+</div>
+<div class="hidden md:block w-px h-8 bg-border"></div>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant">Budget &amp; Travellers</span>
+<span class="font-body text-body font-medium flex items-center gap-compact"><span class="material-symbols-outlined text-[18px]">payments</span> $1,500 CAD · <span class="material-symbols-outlined text-[18px]">person</span> 1</span>
+</div>
+<div class="hidden md:block w-px h-8 bg-border"></div>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-on-surface-variant">Dates &amp; Length</span>
+<span class="font-body text-body font-medium flex items-center gap-compact"><span class="material-symbols-outlined text-[18px]">calendar_month</span> Flexible · 6 Days</span>
+</div>
+</div>
+<!-- Toggle Button (Active State) -->
+<button class="flex items-center gap-compact px-4 py-2 bg-surface-variant text-primary-container font-small text-small rounded-lg hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[20px]">expand_less</span>
+                Close Edit
+            </button>
+</section>
+<!-- Inline Edit Panel -->
+<section class="bg-white border border-border rounded-xl p-section shadow-sm -mt-10 pt-14 relative z-10 animate-[slideDown_0.2s_ease-out]">
+<h2 class="font-h3 text-h3 mb-section border-b border-border pb-control">Modify Search Parameters</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-section gap-y-major">
+<!-- Group 1: Core Logistics -->
+<div class="flex flex-col gap-control">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase">Core Logistics</h3>
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Leaving from</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">flight_takeoff</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-soft border border-border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-body text-body text-navy-950 placeholder-outline-variant outline-none transition-shadow" type="text" value="Toronto"/>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-control">
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Total budget</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 font-small text-outline">$</span>
+<input class="w-full pl-8 pr-4 py-2 bg-surface-soft border border-border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-body text-body text-navy-950 outline-none transition-shadow" type="number" value="1500"/>
+</div>
+</div>
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Travellers</label>
+<select class="w-full px-4 py-2 bg-surface-soft border border-border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-body text-body text-navy-950 outline-none transition-shadow appearance-none">
+<option selected="">1 Adult</option>
+<option>2 Adults</option>
+<option>3 Adults</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-control">
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Dates</label>
+<select class="w-full px-4 py-2 bg-surface-soft border border-border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-body text-body text-navy-950 outline-none transition-shadow appearance-none">
+<option selected="">Flexible</option>
+<option>Specific Dates</option>
+</select>
+</div>
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Length (Days)</label>
+<input class="w-full px-4 py-2 bg-surface-soft border border-border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-body text-body text-navy-950 outline-none transition-shadow" type="number" value="6"/>
+</div>
+</div>
+</div>
+<!-- Group 2: Destinations -->
+<div class="flex flex-col gap-control">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase">Destination Strategy</h3>
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Continent Focus</label>
+<select class="w-full px-4 py-2 bg-surface-soft border border-border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-body text-body text-navy-950 outline-none transition-shadow appearance-none">
+<option>All Continents</option>
+<option selected="">North America</option>
+<option>Europe</option>
+<option>Asia</option>
+<option>Africa</option>
+<option>South America</option>
+<option>Oceania</option>
+</select>
+</div>
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Preferred Cities Count</label>
+<div class="flex gap-2 flex-wrap">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-full border border-border bg-surface-soft font-small text-small text-on-surface-variant peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 hover:bg-surface-variant transition-colors">2 cities</div>
+</label>
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-full border border-border bg-surface-soft font-small text-small text-on-surface-variant peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 hover:bg-surface-variant transition-colors">3 cities</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-full border border-border bg-surface-soft font-small text-small text-on-surface-variant peer-checked:bg-teal-50 peer-checked:border-teal-500 peer-checked:text-teal-700 hover:bg-surface-variant transition-colors">4+ cities</div>
+</label>
+</div>
+</div>
+</div>
+<!-- Group 3: Preferences -->
+<div class="flex flex-col gap-control">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase">Style &amp; Vibe</h3>
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Interests</label>
+<div class="flex gap-2 flex-wrap">
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-full border border-border bg-surface-soft font-small text-small text-on-surface-variant peer-checked:bg-navy-900 peer-checked:border-navy-900 peer-checked:text-white hover:bg-surface-variant transition-colors">Food</div>
+</label>
+<label class="cursor-pointer">
+<input checked="" class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-full border border-border bg-surface-soft font-small text-small text-on-surface-variant peer-checked:bg-navy-900 peer-checked:border-navy-900 peer-checked:text-white hover:bg-surface-variant transition-colors">Culture</div>
+</label>
+<label class="cursor-pointer">
+<input class="peer sr-only" type="checkbox"/>
+<div class="px-3 py-1.5 rounded-full border border-border bg-surface-soft font-small text-small text-on-surface-variant peer-checked:bg-navy-900 peer-checked:border-navy-900 peer-checked:text-white hover:bg-surface-variant transition-colors">Nature</div>
+</label>
+</div>
+</div>
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Hotel Style</label>
+<select class="w-full px-4 py-2 bg-surface-soft border border-border rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 font-body text-body text-navy-950 outline-none transition-shadow appearance-none">
+<option selected="">Best balance (Value &amp; Rating)</option>
+<option>Best location</option>
+<option>Best value</option>
+<option>Higher guest rating</option>
+</select>
+</div>
+<div class="flex flex-col gap-compact">
+<label class="font-small text-small text-on-surface">Travel Pace</label>
+<div class="flex bg-surface-soft border border-border rounded-lg overflow-hidden">
+<label class="flex-1 text-center cursor-pointer">
+<input class="peer sr-only" name="pace" type="radio"/>
+<div class="py-2 font-small text-small text-on-surface-variant peer-checked:bg-teal-50 peer-checked:text-teal-700 hover:bg-surface-variant transition-colors border-r border-border">Relaxed</div>
+</label>
+<label class="flex-1 text-center cursor-pointer">
+<input checked="" class="peer sr-only" name="pace" type="radio"/>
+<div class="py-2 font-small text-small text-on-surface-variant peer-checked:bg-teal-50 peer-checked:text-teal-700 hover:bg-surface-variant transition-colors border-r border-border">Balanced</div>
+</label>
+<label class="flex-1 text-center cursor-pointer">
+<input class="peer sr-only" name="pace" type="radio"/>
+<div class="py-2 font-small text-small text-on-surface-variant peer-checked:bg-teal-50 peer-checked:text-teal-700 hover:bg-surface-variant transition-colors">Faster</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="mt-major pt-section border-t border-border flex justify-end gap-control items-center">
+<button class="font-small text-small text-on-surface-variant hover:text-navy-950 px-4 py-2 transition-colors">Cancel</button>
+<button class="bg-teal-600 text-white font-small text-small font-bold px-6 py-2.5 rounded-lg hover:bg-teal-700 transition-colors shadow-sm hover:shadow-md flex items-center gap-compact">
+<span class="material-symbols-outlined text-[18px]">search</span>
+                    Update Results
+                </button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+
+<div id="gv-footer"></div><script src="../scripts/shell-670f.js"></script><script src="../scripts/clean-routing.js"></script></body></html>

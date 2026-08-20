@@ -1,0 +1,48 @@
+GV-BOOK-685D-R2 IMMEDIATE TRUST REPAIR — LOCAL VALIDATION
+Date: 2026-08-18 America/Toronto
+Baseline: GV-BOOK-685D-R1
+Baseline ZIP SHA-256: a01337ec4494a4a1bf907811b3f24da1fc2854f7b35cb3ca94a423b52b10736e
+Network policy: local fixtures only; no live provider calls
+Deployment: none
+
+AUTOMATED
+GV-BOOK-685D-R2: 18/18 PASS
+GV-BOOK-685D: 17/17 PASS
+GV-TRUST-685B: 12/12 PASS
+GV-TRUST-681A-R1: 7/7 PASS
+GV-QUALITY-680B-R1 inherited: PASS
+GV-BOOK-676A: 24/24 PASS
+GV-BOOK-676A-R1: 14/14 PASS
+GV-BOOK-676A browser fixture: 13/13 PASS
+JavaScript syntax/module checks: PASS
+
+MANDATORY TRUST CASES
+Ground Aviasales URL rejected: PASS
+Ground card contains no Aviasales label/link: PASS
+Ground card says transport partner pending: PASS
+Flight Aviasales tracking unchanged: PASS
+Resolved-airport metro handoff unchanged: PASS
+Agoda property amount labelled estimated: PASS
+Cached Agoda property amount labelled cached estimate: PASS
+Partial-evidence whole-trip total labelled estimated: PASS
+Over-budget total described as estimated: PASS
+Provider-backed confidence remains supported: PASS
+Partner checkout wording removed: PASS
+No fake booking/payment/ticket claim: PASS
+
+RENDERED BROWSER QA
+Desktop summary and journey cards: PASS
+Desktop ground-transfer card: PASS
+375 x 844 mobile: PASS
+Mobile inner width: 375
+Mobile document/body scroll width: 360
+Horizontal overflow: none
+Mobile ground card links: 0
+Mobile ground card contains Aviasales: false
+Browser console/dev errors: 0
+
+SCOPE
+Backend/provider/environment delta: none
+Payment/order/ticket delta: none
+Live provider calls: none
+Deployment: none

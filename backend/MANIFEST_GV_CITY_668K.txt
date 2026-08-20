@@ -1,0 +1,35 @@
+GV-CITY-668K — Complete Current-500 Audit
+
+MODIFIED INHERITED FILES
+lambda.js
+server.js
+
+ADDED FILES
+services/current-500-completion-audit.js
+data/current-500-completion-audit-145-668k.json
+data/current-500-completion-audit-145-668k.csv
+build-gv-city-668k-current500-completion-plan.js
+Run-GV-CITY-668K-Complete-Current500-Audit.ps1
+validate-gv-city-668k.js
+validate-gv-city-668k-results.js
+GV-CITY-668K_REPORT.md
+MANIFEST_GV_CITY_668K.txt
+VALIDATION_GV_CITY_668K.json
+
+FEATURE FLAG
+ENABLE_CURRENT_500_COMPLETION_AUDIT_668K=true
+
+READ-ONLY ENDPOINT
+GET /api/current-500-completion-audit
+
+CURRENT ACTIVATION BASELINE PRESERVED
+GV-CITY-668J
+400 audited
+259 production-active
+355 Current-500 audited
+
+668K COMPLETION PLAN
+145 Current-500 cities
+500/500 Current-500 audited after completed Final145 run
+545 total audited after completed Final145 run
+Activation import required before allowlist changes

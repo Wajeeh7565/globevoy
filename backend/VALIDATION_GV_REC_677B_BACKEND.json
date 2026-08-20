@@ -1,0 +1,212 @@
+{
+  "release": "GV-REC-677B",
+  "generatedAt": "2026-08-06T17:21:41.842Z",
+  "passed": true,
+  "checkCount": 14,
+  "passedCount": 14,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "677B generated-tour version is packaged",
+      "passed": true,
+      "details": "2.12.0-gv-rec-677d-destination-value-proximity"
+    },
+    {
+      "name": "677B version constant is exported",
+      "passed": true,
+      "details": "GV-REC-677B"
+    },
+    {
+      "name": "677B feature flag is enabled",
+      "passed": true,
+      "details": null
+    },
+    {
+      "name": "677B defaults automatic flight/date flexibility to three days",
+      "passed": true,
+      "details": 3
+    },
+    {
+      "name": "explicit narrower date alignment remains authoritative",
+      "passed": true,
+      "details": 1
+    },
+    {
+      "name": "677B route cadence window includes target through plus three days",
+      "passed": true,
+      "details": [
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-04"
+      ]
+    },
+    {
+      "name": "677B route cadence excludes plus-four-day fare even when cheaper",
+      "passed": true,
+      "details": [
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-04"
+      ]
+    },
+    {
+      "name": "677B pays a modest premium to remove two stops and save travel time",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-10-02",
+        "price": 115,
+        "durationMinutes": 420,
+        "transfers": 0,
+        "timingQuality": 0,
+        "departureTime": "10:00",
+        "arrivalTime": "17:00",
+        "cheapestPrice": 100,
+        "pricePremiumVsCheapest": 15,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 15.35,
+        "alternativesConsidered": 3,
+        "dateShiftDays": 1,
+        "durationMinutesSavedVsCheapest": 180,
+        "connectionsSavedVsCheapest": 2,
+        "usefulTimeWarnings": [],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 1,
+          "durationMinutesSavedVsCheapest": 180,
+          "connectionsSavedVsCheapest": 2,
+          "pricePremiumVsCheapest": 15,
+          "usefulTimeWarnings": [],
+          "targetDate": "2026-10-01"
+        },
+        "selectionReason": "smart-date-shift-improved-flight-quality-677b"
+      }
+    },
+    {
+      "name": "677B records date-shift and comfort tradeoff evidence",
+      "passed": true,
+      "details": {
+        "dateShiftDays": 1,
+        "durationMinutesSavedVsCheapest": 180,
+        "connectionsSavedVsCheapest": 2,
+        "pricePremiumVsCheapest": 15,
+        "usefulTimeWarnings": [],
+        "targetDate": "2026-10-01"
+      }
+    },
+    {
+      "name": "677B does not choose the expensive comfort option outside premium ceiling",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-10-02",
+        "price": 115,
+        "durationMinutes": 420,
+        "transfers": 0,
+        "timingQuality": 0,
+        "departureTime": "10:00",
+        "arrivalTime": "17:00",
+        "cheapestPrice": 100,
+        "pricePremiumVsCheapest": 15,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 15.35,
+        "alternativesConsidered": 3,
+        "dateShiftDays": 1,
+        "durationMinutesSavedVsCheapest": 180,
+        "connectionsSavedVsCheapest": 2,
+        "usefulTimeWarnings": [],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 1,
+          "durationMinutesSavedVsCheapest": 180,
+          "connectionsSavedVsCheapest": 2,
+          "pricePremiumVsCheapest": 15,
+          "usefulTimeWarnings": [],
+          "targetDate": "2026-10-01"
+        },
+        "selectionReason": "smart-date-shift-improved-flight-quality-677b"
+      }
+    },
+    {
+      "name": "677B selection reason is auditable",
+      "passed": true,
+      "details": "smart-date-shift-improved-flight-quality-677b"
+    },
+    {
+      "name": "677B avoids an overnight arrival for a small fare difference",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-11-10",
+        "price": 152,
+        "durationMinutes": 430,
+        "transfers": 0,
+        "timingQuality": 0,
+        "departureTime": "10:00",
+        "arrivalTime": "17:10",
+        "cheapestPrice": 145,
+        "pricePremiumVsCheapest": 7,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 3.674,
+        "alternativesConsidered": 2,
+        "dateShiftDays": 0,
+        "durationMinutesSavedVsCheapest": 0,
+        "connectionsSavedVsCheapest": 0,
+        "usefulTimeWarnings": [],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 0,
+          "durationMinutesSavedVsCheapest": 0,
+          "connectionsSavedVsCheapest": 0,
+          "pricePremiumVsCheapest": 7,
+          "usefulTimeWarnings": [],
+          "targetDate": "2026-11-10"
+        },
+        "selectionReason": "smart-flight-total-trip-value-677b"
+      }
+    },
+    {
+      "name": "677B can shift one day when the fare saving is meaningful",
+      "passed": true,
+      "details": {
+        "departureDate": "2026-12-02",
+        "price": 135,
+        "durationMinutes": 470,
+        "transfers": 1,
+        "timingQuality": 1,
+        "departureTime": "11:00",
+        "arrivalTime": "18:50",
+        "cheapestPrice": 135,
+        "pricePremiumVsCheapest": 0,
+        "timingLabel": "good-timing",
+        "smartFlightSelectionVersion": "GV-REC-677B",
+        "smartFlightDateSelectionVersion": "GV-REC-677B",
+        "smartFlightScore": 15.5,
+        "alternativesConsidered": 1,
+        "dateShiftDays": 1,
+        "durationMinutesSavedVsCheapest": 0,
+        "connectionsSavedVsCheapest": 0,
+        "usefulTimeWarnings": [],
+        "smartFlightTradeoff": {
+          "dateShiftDays": 1,
+          "durationMinutesSavedVsCheapest": 0,
+          "connectionsSavedVsCheapest": 0,
+          "pricePremiumVsCheapest": 0,
+          "usefulTimeWarnings": [],
+          "targetDate": "2026-12-01"
+        },
+        "selectionReason": "smart-flight-date-selection-kept-cheapest-677b"
+      }
+    },
+    {
+      "name": "exact user dates remain protected from smart date movement",
+      "passed": true,
+      "details": {
+        "version": "GV-UX-674A",
+        "mode": "exact-dates",
+        "nights": 7,
+        "reason": "The traveller selected the trip length or exact dates."
+      }
+    }
+  ]
+}

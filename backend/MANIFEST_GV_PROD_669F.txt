@@ -1,0 +1,20 @@
+GV-PROD-669F — Origin Display Integrity Repair
+
+Production code changed:
+- services/global-route-graph.js
+- generated-tour.js
+
+Validation compatibility updated:
+- validate-gv-prod-669c.js
+- validate-gv-prod-669d.js
+- validate-gv-prod-669e.js
+
+New release evidence:
+- validate-gv-prod-669f.js
+- VALIDATION_GV_PROD_669F.json
+- GV-PROD-669F_REPORT.md
+- MANIFEST_GV_PROD_669F.txt
+
+No frontend files changed.
+No city activation counts changed.
+No thresholds relaxed.

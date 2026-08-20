@@ -1,0 +1,30 @@
+GV-CITY-668N — Merge 393-City Activation Snapshot
+
+Baseline backend:
+- lambda-gv-city-668m-expansion500-priority-audit-wave1.zip
+
+Authoritative source:
+- data/provider-live-expansion150-668m-source.json
+
+Changed implementation:
+- services/verified-city-activation.js
+
+Added activation data:
+- data/verified-city-activation-695-668n.json
+- data/verified-city-retry-queues-668n.json
+- data/verified-city-production-active-393-668n.json
+- data/verified-city-production-active-393-668n.csv
+- data/verified-city-review-302-668n.json
+- data/verified-city-review-302-668n.csv
+
+Added build, validation, deployment and documentation:
+- build-gv-city-668n-activation.js
+- validate-gv-city-668n.js
+- VALIDATION_GV_CITY_668N.json
+- Run-GV-CITY-668N-Activation-Smoke.ps1
+- GV-CITY-668N_REPORT.md
+- MANIFEST_GV_CITY_668N.txt
+- GV-CITY-668N_SHA256.txt
+
+Frontend:
+- No changes. Continue using GV-CONTROL-667D.

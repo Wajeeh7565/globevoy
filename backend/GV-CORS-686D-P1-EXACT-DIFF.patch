@@ -1,0 +1,48 @@
+diff --git a/lambda.js b/lambda.js
+--- a/lambda.js
++++ b/lambda.js
+@@ -38,11 +38,33 @@ const FLEX_ROUTE_CONFIG = {
+   'paris-strasbourg': { originCode: 'NYC', destCode: 'PAR' }
+ };
+ 
+-function corsHeaders() {
+-  return {
++const CORS_ALLOWED_ORIGINS_686D_P1 = new Set([
++  'https://globevoy.com',
++  'https://686d-preview.dttux5e6ddtzb.amplifyapp.com'
++]);
++
++function resolveCorsOrigin686DP1(event = {}) {
++  const requestOrigin = headerValue683K(event.headers || {}, 'origin');
++  if (requestOrigin) {
++    return CORS_ALLOWED_ORIGINS_686D_P1.has(requestOrigin) ? requestOrigin : '';
++  }
++
++  // Preserve the existing production header for non-browser requests while
++  // refusing any configured value that is outside the explicit allowlist.
++  const configuredOrigin = String(process.env.CORS_ORIGIN || '').trim();
++  return CORS_ALLOWED_ORIGINS_686D_P1.has(configuredOrigin)
++    ? configuredOrigin
++    : 'https://globevoy.com';
++}
++
++function buildCorsHeaders686DP1(event = {}) {
++  const headers = {
+     'Content-Type': 'application/json; charset=utf-8',
+-    'Access-Control-Allow-Origin': process.env.CORS_ORIGIN || '*'
++    Vary: 'Origin'
+   };
++  const allowedOrigin = resolveCorsOrigin686DP1(event);
++  if (allowedOrigin) headers['Access-Control-Allow-Origin'] = allowedOrigin;
++  return headers;
+ }
+ 
+ function parseJsonBody(event = {}) {
+@@ -76,6 +98,7 @@ function generatedTourQuery683K(query = {}, headers = {}) {
+ }
+ 
+ exports.handler = async function handler(event) {
++  const corsHeaders = () => buildCorsHeaders686DP1(event);
+   const path = String(event.rawPath || event.path || '/api/recommendations').split('?')[0];
+   const method = String(
+     (event.requestContext && event.requestContext.http && event.requestContext.http.method) ||

@@ -1,0 +1,28 @@
+PRODUCTION FRONTEND
+booking.html
+scripts/booking-hub-685d.js
+styles/booking-hub-685d.css
+
+VALIDATION / DOCUMENTATION
+validate-gv-book-685d-frontend.js
+gv-book-685d-browser-fixture.html
+Run-GV-BOOK-685D-Validate.ps1
+VALIDATION_GV_BOOK_685D_FRONTEND.json
+validate-gv-book-676a.js
+validate-gv-book-676a-r1.js
+refreshed inherited validation JSON files
+GV-BOOK-685D-IMPLEMENTATION-NOTES.md
+GV-BOOK-685D-CHANGE-ROLLBACK-MANIFEST.md
+GV-BOOK-685D-LOCAL-VALIDATION.txt
+GV-BOOK-685D-FINAL-REPORT.md
+GV-BOOK-685D-INTERNAL-SHA256.txt
+
+UNCHANGED AREAS
+recommendation Lambda and backend code
+scripts/booking-live-673d.js data restoration and partner handoff source
+Duffel selection/ranking/provider adapters
+Agoda backend integration and affiliate configuration
+Stay22
+provider credentials and environment variables
+production deployment configuration
+

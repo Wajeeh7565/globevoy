@@ -1,0 +1,421 @@
+cityId,displayName,country,countryCode,selectionTier,sourceAuditTaskId,activationMode,classification,providerLocationCode,flightDestinationCode,flightDestinationKind,gatewayCity,gatewayAirportCode,gatewayTransferMode,gatewayTransferMinutes,agodaCityId,lastVerifiedAt
+toronto-ca,Toronto,Canada,CA,current-500,GV-CITY-668E,direct-or-metro,live-both,YTO,YTO,direct,,,,,4495,2026-07-18T00:46:48.556Z
+paris-fr,Paris,France,FR,current-500,GV-CITY-668E,direct-or-metro,live-both,PAR,PAR,direct,,,,,15470,2026-07-18T00:46:49.004Z
+london-gb,London,United Kingdom,GB,current-500,GV-CITY-668E,direct-or-metro,live-both,LON,LON,direct,,,,,233,2026-07-18T00:46:51.881Z
+lahore-pk,Lahore,Pakistan,PK,expansion-500,GV-CITY-668E,direct-or-metro,live-both,LHE,LHE,direct,,,,,2298,2026-07-18T00:46:51.147Z
+islamabad-pk,Islamabad,Pakistan,PK,expansion-500,GV-CITY-668E,direct-or-metro,live-both,ISB,ISB,direct,,,,,5058,2026-07-18T00:46:54.214Z
+cairo-eg,Cairo,Egypt,EG,current-500,GV-CITY-668E,direct-or-metro,live-both,CAI,CAI,direct,,,,,7923,2026-07-18T00:46:54.501Z
+istanbul-tr,Istanbul,Turkey,TR,current-500,GV-CITY-668E,direct-or-metro,live-both,IST,IST,direct,,,,,14932,2026-07-18T00:46:57.371Z
+tokyo-jp,Tokyo,Japan,JP,current-500,GV-CITY-668E,direct-or-metro,live-both,TYO,TYO,direct,,,,,5085,2026-07-18T00:46:57.524Z
+bangkok-th,Bangkok,Thailand,TH,current-500,GV-CITY-668E,direct-or-metro,live-both,BKK,BKK,direct,,,,,9395,2026-07-18T00:46:59.659Z
+rabat-ma,Rabat,Morocco,MA,expansion-500,GV-CITY-668E,direct-or-metro,live-both,RBA,RBA,direct,,,,,3147,2026-07-18T00:46:59.958Z
+algiers-dz,Algiers,Algeria,DZ,expansion-500,GV-CITY-668E,direct-or-metro,live-both,ALG,ALG,direct,,,,,1194,2026-07-18T00:47:02.440Z
+suwon-kr,Suwon,South Korea,KR,expansion-500,GV-CITY-668E,gateway-supported,gateway-supported,ICN,ICN,gateway,Seoul/Incheon,ICN,ground-transfer,90,3818,2026-07-18T00:47:02.419Z
+tulum-mx,Tulum,Mexico,MX,current-500,GV-CITY-668E,gateway-supported,gateway-supported,TQO,CUN,gateway,Cancun,CUN,ground-transfer,105,19741,2026-07-18T00:47:04.985Z
+faisalabad-pk,Faisalabad,Pakistan,PK,expansion-500,GV-CITY-668E,direct-or-metro,live-both,LYP,LYP,direct,,,,,110570,2026-07-18T00:47:07.468Z
+lucca-it,Lucca,Italy,IT,current-500,GV-CITY-668E,gateway-supported,gateway-supported,PSA,PSA,direct,Pisa,PSA,ground-transfer,45,6488,2026-07-18T00:47:09.984Z
+new-york-us,New York,United States,US,current-500,GV-CITY-668E,direct-or-metro,live-both,NYC,NYC,direct,,,,,318,2026-07-18T00:47:12.615Z
+singapore-sg,Singapore,Singapore,SG,current-500,GV-CITY-668E,direct-or-metro,live-both,SIN,SIN,direct,,,,,4064,2026-07-18T00:47:12.640Z
+sydney-au,Sydney,Australia,AU,current-500,GV-CITY-668E,direct-or-metro,live-both,SYD,SYD,direct,,,,,14370,2026-07-18T00:47:15.217Z
+dubai-ae,Dubai,United Arab Emirates,AE,current-500,GV-CITY-668E,direct-or-metro,live-both,DXB,DXB,direct,,,,,2994,2026-07-18T00:47:15.501Z
+mexico-city-mx,Mexico City,Mexico,MX,current-500,GV-CITY-668E,direct-or-metro,live-both,MEX,MEX,direct,,,,,2086,2026-07-18T00:47:18.010Z
+cancun-mx,Cancun,Mexico,MX,current-500,GV-CITY-668E,direct-or-metro,live-both,CUN,CUN,direct,,,,,5954,2026-07-18T00:47:18.009Z
+rome-it,Rome,Italy,IT,current-500,GV-CITY-668E,direct-or-metro,live-both,ROM,ROM,direct,,,,,16594,2026-07-18T00:47:21.110Z
+lisbon-pt,Lisbon,Portugal,PT,current-500,GV-CITY-668E,direct-or-metro,live-both,LIS,LIS,direct,,,,,16364,2026-07-18T00:47:20.594Z
+cape-town-za,Cape Town,South Africa,ZA,current-500,GV-CITY-668E,direct-or-metro,live-both,CPT,CPT,direct,,,,,1063,2026-07-18T00:47:23.652Z
+nairobi-ke,Nairobi,Kenya,KE,current-500,GV-CITY-668E,direct-or-metro,live-both,NBO,NBO,direct,,,,,8944,2026-07-18T00:47:23.271Z
+delhi-in,Delhi,India,IN,current-500,GV-CITY-668E,direct-or-metro,live-both,DEL,DEL,direct,,,,,14552,2026-07-18T00:47:25.809Z
+mumbai-in,Mumbai,India,IN,current-500,GV-CITY-668E,direct-or-metro,live-both,BOM,BOM,direct,,,,,16850,2026-07-18T00:47:25.813Z
+karachi-pk,Karachi,Pakistan,PK,expansion-500,GV-CITY-668E,direct-or-metro,live-both,KHI,KHI,direct,,,,,8571,2026-07-18T00:47:28.017Z
+seoul-kr,Seoul,South Korea,KR,current-500,GV-CITY-668E,direct-or-metro,live-both,SEL,SEL,direct,,,,,14690,2026-07-18T00:47:28.493Z
+accra-gh,Accra,Ghana,GH,current-500,GV-CITY-668E,direct-or-metro,live-both,ACC,ACC,direct,,,,,7100,2026-07-18T00:47:30.982Z
+auckland-nz,Auckland,New Zealand,NZ,current-500,GV-CITY-668E,direct-or-metro,live-both,AKL,AKL,direct,,,,,3750,2026-07-18T00:47:33.490Z
+buenos-aires-ar,Buenos Aires,Argentina,AR,current-500,GV-CITY-668E,direct-or-metro,live-both,BUE,BUE,direct,,,,,9294,2026-07-18T00:47:33.501Z
+casablanca-ma,Casablanca,Morocco,MA,current-500,GV-CITY-668E,direct-or-metro,live-both,CMN,CMN,direct,,,,,15368,2026-07-18T00:47:36.027Z
+colombo-lk,Colombo,Sri Lanka,LK,expansion-500,GV-CITY-668E,direct-or-metro,live-both,CMB,CMB,direct,,,,,7835,2026-07-18T00:47:35.725Z
+dublin-ie,Dublin,Ireland,IE,current-500,GV-CITY-668E,direct-or-metro,live-both,DUB,DUB,direct,,,,,1131,2026-07-18T00:47:38.568Z
+jakarta-id,Jakarta,Indonesia,ID,current-500,GV-CITY-668E,direct-or-metro,live-both,JKT,JKT,direct,,,,,8691,2026-07-18T00:47:38.250Z
+aberdeen-gb,Aberdeen,United Kingdom,GB,current-500,GV-CITY-668E,direct-or-metro,live-both,ABZ,ABZ,direct,,,,,18916,2026-07-18T00:47:41.019Z
+abu-dhabi-ae,Abu Dhabi,United Arab Emirates,AE,current-500,GV-CITY-668E,direct-or-metro,live-both,AUH,AUH,direct,,,,,10182,2026-07-18T00:47:46.102Z
+abha-sa,Abha,Saudi Arabia,SA,expansion-500,GV-CITY-668E,direct-or-metro,live-both,AHB,AHB,direct,,,,,9894,2026-07-18T00:47:46.160Z
+addis-ababa-et,Addis Ababa,Ethiopia,ET,current-500,GV-CITY-668E,direct-or-metro,live-both,ADD,ADD,direct,,,,,21035,2026-07-18T00:47:48.647Z
+abidjan-ci,Abidjan,Ivory Coast,CI,expansion-500,GV-CITY-668E,direct-or-metro,live-both,ABJ,ABJ,direct,,,,,9155,2026-07-18T00:47:51.134Z
+albuquerque-us,Albuquerque,United States,US,current-500,GV-CITY-668E,direct-or-metro,live-both,ABQ,ABQ,direct,,,,,2919,2026-07-18T00:47:53.587Z
+adelaide-au,Adelaide,Australia,AU,current-500,GV-CITY-668E,direct-or-metro,live-both,ADL,ADL,direct,,,,,11981,2026-07-18T00:47:59.023Z
+aktau-kz,Aktau,Kazakhstan,KZ,expansion-500,GV-CITY-668E,direct-or-metro,live-both,SCO,SCO,direct,,,,,78918,2026-07-18T00:48:16.328Z
+agadir-ma,Agadir,Morocco,MA,current-500,GV-CITY-668E,direct-or-metro,live-both,AGA,AGA,direct,,,,,10475,2026-07-18T00:48:18.966Z
+anchorage-us,Anchorage,United States,US,current-500,GV-CITY-668E,direct-or-metro,live-both,ANC,ANC,direct,,,,,11740,2026-07-18T00:48:21.443Z
+alice-springs-au,Alice Springs,Australia,AU,current-500,GV-CITY-668E,direct-or-metro,live-both,ASP,ASP,direct,,,,,5312,2026-07-18T00:48:26.522Z
+antigua-guatemala-gt,Antigua Guatemala,Guatemala,GT,current-500,GV-CITY-668E,gateway-supported,gateway-supported,GUA,GUA,gateway,Guatemala City,GUA,nearby-airport,25,18181,2026-07-18T00:48:31.761Z
+antananarivo-mg,Antananarivo,Madagascar,MG,expansion-500,GV-CITY-668E,direct-or-metro,live-both,TNR,TNR,direct,,,,,15295,2026-07-18T00:48:31.527Z
+alicante-es,Alicante,Spain,ES,current-500,GV-CITY-668E,direct-or-metro,live-both,ALC,ALC,direct,,,,,14186,2026-07-18T00:48:34.308Z
+amman-jo,Amman,Jordan,JO,current-500,GV-CITY-668E,direct-or-metro,live-both,AMM,AMM,direct,,,,,15806,2026-07-18T00:48:39.510Z
+aktobe-kz,Aktobe,Kazakhstan,KZ,expansion-500,GV-CITY-668E,direct-or-metro,live-both,AKX,AKX,direct,,,,,195829,2026-07-18T00:48:39.436Z
+alexandria-eg,Alexandria,Egypt,EG,current-500,GV-CITY-668E,direct-or-metro,live-both,HBE,HBE,direct,,,,,2199,2026-07-18T00:48:42.057Z
+brisbane-au,Brisbane,Australia,AU,current-500,GV-CITY-668E,direct-or-metro,live-both,BNE,BNE,direct,,,,,9466,2026-07-18T00:48:50.801Z
+ayutthaya-th,Ayutthaya,Thailand,TH,current-500,GV-CITY-668E,gateway-supported,gateway-supported,BKK,BKK,gateway,Bangkok,BKK,nearby-airport,77,17704,2026-07-18T00:48:56.293Z
+amsterdam-nl,Amsterdam,Netherlands,NL,current-500,GV-CITY-668E,direct-or-metro,live-both,AMS,AMS,direct,,,,,13868,2026-07-18T00:48:59.424Z
+osaka-jp,Osaka,Japan,JP,current-500,GV-CITY-668G,direct-or-metro,live-both,OSA,OSA,direct,,,,,9590,2026-07-18T03:18:27.771Z
+athens-gr,Athens,Greece,GR,current-500,GV-CITY-668G,direct-or-metro,live-both,ATH,ATH,direct,,,,,16571,2026-07-18T03:18:27.770Z
+taipei-tw,Taipei,Taiwan,TW,current-500,GV-CITY-668G,direct-or-metro,live-both,TPE,TPE,direct,,,,,4951,2026-07-18T03:18:29.343Z
+milan-it,Milan,Italy,IT,current-500,GV-CITY-668G,direct-or-metro,live-both,MIL,MIL,direct,,,,,16585,2026-07-18T03:18:29.594Z
+los-angeles-us,Los Angeles,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,LAX,LAX,direct,,,,,12772,2026-07-18T03:18:30.754Z
+dallas-us,Dallas,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,DFW,DFW,direct,,,,,8683,2026-07-18T03:18:31.130Z
+vienna-at,Vienna,Austria,AT,current-500,GV-CITY-668G,direct-or-metro,live-both,VIE,VIE,direct,,,,,16582,2026-07-18T03:18:32.806Z
+miami-us,Miami,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,MIA,MIA,direct,,,,,15289,2026-07-18T03:18:32.767Z
+chicago-us,Chicago,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,CHI,CHI,direct,,,,,13899,2026-07-18T03:18:34.813Z
+lima-pe,Lima,Peru,PE,current-500,GV-CITY-668G,direct-or-metro,live-both,LIM,LIM,direct,,,,,7082,2026-07-18T03:18:34.378Z
+las-vegas-us,Las Vegas,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,LAS,LAS,direct,,,,,17072,2026-07-18T03:18:36.406Z
+atlanta-us,Atlanta,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,ATL,ATL,direct,,,,,2045,2026-07-18T03:18:36.303Z
+montreal-ca,Montreal,Canada,CA,current-500,GV-CITY-668G,direct-or-metro,live-both,YUL,YUL,direct,,,,,9933,2026-07-18T03:18:37.941Z
+chengdu-cn,Chengdu,China,CN,current-500,GV-CITY-668G,direct-or-metro,live-both,TFU,TFU,direct,,,,,4729,2026-07-18T03:18:38.087Z
+denver-us,Denver,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,DEN,DEN,direct,,,,,2467,2026-07-18T03:18:39.604Z
+seattle-us,Seattle,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,SEA,SEA,direct,,,,,3687,2026-07-18T03:18:39.572Z
+shanghai-cn,Shanghai,China,CN,current-500,GV-CITY-668G,direct-or-metro,live-both,PVG,PVG,direct,,,,,3987,2026-07-18T03:18:41.388Z
+reykjavik-is,Reykjavik,Iceland,IS,current-500,GV-CITY-668G,direct-or-metro,live-both,KEF,KEF,direct,,,,,13864,2026-07-18T03:18:43.037Z
+beijing-cn,Beijing,China,CN,current-500,GV-CITY-668G,direct-or-metro,live-both,PEK,PEK,direct,,,,,1569,2026-07-18T03:18:43.243Z
+panama-city-pa,Panama City,Panama,PA,current-500,GV-CITY-668G,direct-or-metro,live-both,PTY,PTY,direct,,,,,3356,2026-07-18T03:18:44.765Z
+boston-us,Boston,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,BOS,BOS,direct,,,,,9254,2026-07-18T03:18:44.736Z
+vancouver-ca,Vancouver,Canada,CA,current-500,GV-CITY-668G,direct-or-metro,live-both,YVR,YVR,direct,,,,,9023,2026-07-18T03:18:46.795Z
+cebu-ph,Cebu,Philippines,PH,current-500,GV-CITY-668G,direct-or-metro,live-both,CEB,CEB,direct,,,,,4001,2026-07-18T03:18:46.494Z
+denpasar-id,Denpasar,Indonesia,ID,current-500,GV-CITY-668G,direct-or-metro,live-both,DPS,DPS,direct,,,,,17193,2026-07-18T03:18:49.262Z
+kunming-cn,Kunming,China,CN,current-500,GV-CITY-668G,direct-or-metro,live-both,KMG,KMG,direct,,,,,5445,2026-07-18T03:18:48.683Z
+xi-an-cn,Xi'an,China,CN,current-500,GV-CITY-668G,direct-or-metro,live-both,XIY,XIY,direct,,,,,15947,2026-07-18T03:18:50.971Z
+busan-kr,Busan,South Korea,KR,current-500,GV-CITY-668G,direct-or-metro,live-both,PUS,PUS,direct,,,,,17172,2026-07-18T03:18:50.807Z
+florence-it,Florence,Italy,IT,current-500,GV-CITY-668G,direct-or-metro,live-both,FLR,FLR,direct,,,,,16573,2026-07-18T03:18:52.593Z
+barcelona-es,Barcelona,Spain,ES,current-500,GV-CITY-668G,direct-or-metro,live-both,BCN,BCN,direct,,,,,2002,2026-07-18T03:18:52.614Z
+madrid-es,Madrid,Spain,ES,current-500,GV-CITY-668G,direct-or-metro,live-both,MAD,MAD,direct,,,,,5531,2026-07-18T03:18:54.267Z
+venice-it,Venice,Italy,IT,current-500,GV-CITY-668G,direct-or-metro,live-both,VCE,VCE,direct,,,,,17164,2026-07-18T03:18:54.257Z
+prague-cz,Prague,Czech Republic,CZ,current-500,GV-CITY-668G,direct-or-metro,live-both,PRG,PRG,direct,,,,,15977,2026-07-18T03:18:55.988Z
+houston-us,Houston,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,HOU,HOU,direct,,,,,1178,2026-07-18T03:18:55.908Z
+berlin-de,Berlin,Germany,DE,current-500,GV-CITY-668G,direct-or-metro,live-both,BER,BER,direct,,,,,2366,2026-07-18T03:18:57.655Z
+munich-de,Munich,Germany,DE,current-500,GV-CITY-668G,direct-or-metro,live-both,MUC,MUC,direct,,,,,16017,2026-07-18T03:18:57.544Z
+frankfurt-de,Frankfurt,Germany,DE,current-500,GV-CITY-668G,direct-or-metro,live-both,FRA,FRA,direct,,,,,15847,2026-07-18T03:18:59.193Z
+brussels-be,Brussels,Belgium,BE,current-500,GV-CITY-668G,direct-or-metro,live-both,BRU,BRU,direct,,,,,15904,2026-07-18T03:18:59.175Z
+kaohsiung-tw,Kaohsiung,Taiwan,TW,current-500,GV-CITY-668G,direct-or-metro,live-both,KHH,KHH,direct,,,,,756,2026-07-18T03:19:00.711Z
+christchurch-nz,Christchurch,New Zealand,NZ,current-500,GV-CITY-668G,direct-or-metro,live-both,CHC,CHC,direct,,,,,6167,2026-07-18T03:19:02.362Z
+doha-qa,Doha,Qatar,QA,current-500,GV-CITY-668G,direct-or-metro,live-both,DOH,DOH,direct,,,,,4472,2026-07-18T03:19:02.262Z
+mombasa-ke,Mombasa,Kenya,KE,current-500,GV-CITY-668G,direct-or-metro,live-both,MBA,MBA,direct,,,,,7081,2026-07-18T03:19:04.097Z
+muscat-om,Muscat,Oman,OM,current-500,GV-CITY-668G,direct-or-metro,live-both,MCT,MCT,direct,,,,,6445,2026-07-18T03:19:03.844Z
+washington-d-c-us,"Washington, D.C.",United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,DCA,DCA,direct,,,,,17753,2026-07-18T03:19:05.757Z
+wellington-nz,Wellington,New Zealand,NZ,current-500,GV-CITY-668G,direct-or-metro,live-both,WLG,WLG,direct,,,,,2704,2026-07-18T03:19:07.313Z
+dar-es-salaam-tz,Dar es Salaam,Tanzania,TZ,current-500,GV-CITY-668G,direct-or-metro,live-both,DAR,DAR,direct,,,,,18094,2026-07-18T03:19:08.930Z
+fukuoka-jp,Fukuoka,Japan,JP,current-500,GV-CITY-668G,direct-or-metro,live-both,FUK,FUK,direct,,,,,16527,2026-07-18T03:19:10.591Z
+sarajevo-ba,Sarajevo,Bosnia and Herzegovina,BA,current-500,GV-CITY-668G,direct-or-metro,live-both,SJJ,SJJ,direct,,,,,10703,2026-07-18T03:19:12.137Z
+guatemala-city-gt,Guatemala City,Guatemala,GT,current-500,GV-CITY-668G,direct-or-metro,live-both,GUA,GUA,direct,,,,,12939,2026-07-18T03:19:15.130Z
+newcastle-gb,Newcastle,United Kingdom,GB,current-500,GV-CITY-668G,direct-or-metro,live-both,NCL,NCL,direct,,,,,16164,2026-07-18T03:19:15.154Z
+perth-au,Perth,Australia,AU,current-500,GV-CITY-668G,direct-or-metro,live-both,PER,PER,direct,,,,,11980,2026-07-18T03:19:16.376Z
+buffalo-us,Buffalo,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,BUF,BUF,direct,,,,,15612,2026-07-18T03:19:18.251Z
+tunis-tn,Tunis,Tunisia,TN,current-500,GV-CITY-668G,direct-or-metro,live-both,TUN,TUN,direct,,,,,8152,2026-07-18T03:19:18.220Z
+dakar-sn,Dakar,Senegal,SN,current-500,GV-CITY-668G,direct-or-metro,live-both,DSS,DSS,direct,,,,,20637,2026-07-18T03:19:21.568Z
+funchal-pt,Funchal,Portugal,PT,current-500,GV-CITY-668G,direct-or-metro,live-both,FNC,FNC,direct,,,,,18013,2026-07-18T03:19:24.764Z
+cordoba-ar,Cordoba,Argentina,AR,current-500,GV-CITY-668G,direct-or-metro,live-both,COR,COR,direct,,,,,3167,2026-07-18T03:19:24.695Z
+leipzig-de,Leipzig,Germany,DE,current-500,GV-CITY-668G,direct-or-metro,live-both,LEJ,LEJ,direct,,,,,15578,2026-07-18T03:19:26.274Z
+cleveland-us,Cleveland,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,CLE,CLE,direct,,,,,5368,2026-07-18T03:19:27.960Z
+tangier-ma,Tangier,Morocco,MA,current-500,GV-CITY-668G,direct-or-metro,live-both,TNG,TNG,direct,,,,,85868,2026-07-18T03:19:31.151Z
+inverness-gb,Inverness,United Kingdom,GB,current-500,GV-CITY-668G,direct-or-metro,live-both,INV,INV,direct,,,,,3049,2026-07-18T03:19:31.152Z
+hangzhou-cn,Hangzhou,China,CN,current-500,GV-CITY-668G,direct-or-metro,live-both,HGH,HGH,direct,,,,,14892,2026-07-18T03:19:32.951Z
+goa-in,Goa,India,IN,current-500,GV-CITY-668G,direct-or-metro,live-both,GOI,GOI,direct,,,,,11304,2026-07-18T03:19:34.769Z
+jeju-kr,Jeju,South Korea,KR,current-500,GV-CITY-668G,direct-or-metro,live-both,CJU,CJU,direct,,,,,16901,2026-07-18T03:19:34.586Z
+nantes-fr,Nantes,France,FR,current-500,GV-CITY-668G,direct-or-metro,live-both,NTE,NTE,direct,,,,,983,2026-07-18T03:19:36.346Z
+faro-pt,Faro,Portugal,PT,current-500,GV-CITY-668G,direct-or-metro,live-both,FAO,FAO,direct,,,,,13711,2026-07-18T03:19:36.236Z
+naples-it,Naples,Italy,IT,current-500,GV-CITY-668G,direct-or-metro,live-both,NAP,NAP,direct,,,,,16572,2026-07-18T03:19:38.209Z
+lombok-id,Lombok,Indonesia,ID,current-500,GV-CITY-668G,direct-or-metro,live-both,LOP,LOP,direct,,,,,16842,2026-07-18T03:19:39.874Z
+guilin-cn,Guilin,China,CN,current-500,GV-CITY-668G,direct-or-metro,live-both,KWL,KWL,direct,,,,,15591,2026-07-18T03:19:39.758Z
+kochi-in,Kochi,India,IN,current-500,GV-CITY-668G,direct-or-metro,live-both,COK,COK,direct,,,,,12722,2026-07-18T03:19:41.493Z
+medan-id,Medan,Indonesia,ID,current-500,GV-CITY-668G,direct-or-metro,live-both,KNO,KNO,direct,,,,,21284,2026-07-18T03:19:41.424Z
+budapest-hu,Budapest,Hungary,HU,current-500,GV-CITY-668G,direct-or-metro,live-both,BUD,BUD,direct,,,,,10647,2026-07-18T03:19:43.247Z
+phoenix-us,Phoenix,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,PHX,PHX,direct,,,,,10461,2026-07-18T03:19:43.353Z
+krakow-pl,Krakow,Poland,PL,current-500,GV-CITY-668G,direct-or-metro,live-both,KRK,KRK,direct,,,,,15790,2026-07-18T03:19:45.032Z
+medellin-co,Medellin,Colombia,CO,current-500,GV-CITY-668G,direct-or-metro,live-both,MDE,MDE,direct,,,,,10309,2026-07-18T03:19:44.882Z
+cartagena-co,Cartagena,Colombia,CO,current-500,GV-CITY-668G,direct-or-metro,live-both,CTG,CTG,direct,,,,,10838,2026-07-18T03:19:46.616Z
+fort-lauderdale-us,Fort Lauderdale,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,FLL,FLL,direct,,,,,11579,2026-07-18T03:19:46.614Z
+san-diego-us,San Diego,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,SAN,SAN,direct,,,,,3068,2026-07-18T03:19:48.213Z
+nashville-us,Nashville,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,BNA,BNA,direct,,,,,2703,2026-07-18T03:19:48.180Z
+austin-us,Austin,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,AUS,AUS,direct,,,,,4542,2026-07-18T03:19:49.891Z
+new-orleans-us,New Orleans,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,MSY,MSY,direct,,,,,11531,2026-07-18T03:19:51.462Z
+langkawi-my,Langkawi,Malaysia,MY,current-500,GV-CITY-668G,direct-or-metro,live-both,LGK,LGK,direct,,,,,16928,2026-07-18T03:19:53.094Z
+dusseldorf-de,Dusseldorf,Germany,DE,current-500,GV-CITY-668G,direct-or-metro,live-both,DUS,DUS,direct,,,,,16448,2026-07-18T03:19:54.717Z
+lyon-fr,Lyon,France,FR,current-500,GV-CITY-668G,direct-or-metro,live-both,LYS,LYS,direct,,,,,11361,2026-07-18T03:19:56.388Z
+glasgow-gb,Glasgow,United Kingdom,GB,current-500,GV-CITY-668G,direct-or-metro,live-both,GLA,GLA,direct,,,,,18926,2026-07-18T03:19:56.354Z
+kuala-lumpur-my,Kuala Lumpur,Malaysia,MY,current-500,GV-CITY-668G,direct-or-metro,live-both,KUL,KUL,direct,,,,,14524,2026-07-18T03:19:58.500Z
+manila-ph,Manila,Philippines,PH,current-500,GV-CITY-668G,direct-or-metro,live-both,MNL,MNL,direct,,,,,1622,2026-07-18T03:19:58.256Z
+tampa-us,Tampa,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,TPA,TPA,direct,,,,,2374,2026-07-18T03:20:00.133Z
+ho-chi-minh-city-vn,Ho Chi Minh City,Vietnam,VN,current-500,GV-CITY-668G,direct-or-metro,live-both,SGN,SGN,direct,,,,,13170,2026-07-18T03:20:00.400Z
+charlotte-us,Charlotte,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,CLT,CLT,direct,,,,,12113,2026-07-18T03:20:01.959Z
+hanoi-vn,Hanoi,Vietnam,VN,current-500,GV-CITY-668G,direct-or-metro,live-both,HAN,HAN,direct,,,,,2758,2026-07-18T03:20:02.289Z
+phuket-th,Phuket,Thailand,TH,current-500,GV-CITY-668G,direct-or-metro,live-both,HKT,HKT,direct,,,,,16056,2026-07-18T03:20:04.282Z
+johor-bahru-my,Johor Bahru,Malaysia,MY,current-500,GV-CITY-668G,direct-or-metro,live-both,JHB,JHB,direct,,,,,1808,2026-07-18T03:20:04.013Z
+yogyakarta-id,Yogyakarta,Indonesia,ID,current-500,GV-CITY-668G,direct-or-metro,live-both,JOG,JOG,direct,,,,,14018,2026-07-18T03:20:05.994Z
+chiang-mai-th,Chiang Mai,Thailand,TH,current-500,GV-CITY-668G,direct-or-metro,live-both,CNX,CNX,direct,,,,,7401,2026-07-18T03:20:07.940Z
+zanzibar-city-tz,Zanzibar City,Tanzania,TZ,current-500,GV-CITY-668G,direct-or-metro,live-both,ZNZ,ZNZ,direct,,,,,9846,2026-07-18T03:20:07.653Z
+boracay-ph,Boracay,Philippines,PH,current-500,GV-CITY-668G,direct-or-metro,live-both,MPH,MPH,direct,,,,,15903,2026-07-18T03:20:09.549Z
+providence-us,Providence,United States,US,current-500,GV-CITY-668G,direct-or-metro,live-both,PVD,PVD,direct,,,,,11639,2026-07-18T03:20:09.414Z
+marrakech-ma,Marrakech,Morocco,MA,current-500,GV-CITY-668G,direct-or-metro,live-both,RAK,RAK,direct,,,,,11825,2026-07-18T03:20:10.835Z
+johannesburg-za,Johannesburg,South Africa,ZA,current-500,GV-CITY-668G,direct-or-metro,live-both,JNB,JNB,direct,,,,,5663,2026-07-18T03:20:11.197Z
+porto-pt,Porto,Portugal,PT,current-500,GV-CITY-668G,direct-or-metro,live-both,OPO,OPO,direct,,,,,8738,2026-07-18T03:20:12.924Z
+bergamo-it,Bergamo,Italy,IT,current-500,GV-CITY-668G,direct-or-metro,live-both,BGY,BGY,direct,,,,,13714,2026-07-18T03:20:12.767Z
+hobart-au,Hobart,Australia,AU,current-500,GV-CITY-668G,direct-or-metro,live-both,HBA,HBA,direct,,,,,14983,2026-07-18T03:20:14.504Z
+gold-coast-au,Gold Coast,Australia,AU,current-500,GV-CITY-668G,direct-or-metro,live-both,OOL,OOL,direct,,,,,16611,2026-07-18T03:20:16.223Z
+darwin-au,Darwin,Australia,AU,current-500,GV-CITY-668G,direct-or-metro,live-both,DRW,DRW,direct,,,,,7138,2026-07-18T03:20:16.136Z
+riga-lv,Riga,Latvia,LV,current-500,GV-CITY-668G,direct-or-metro,live-both,RIX,RIX,direct,,,,,3636,2026-07-18T03:20:17.809Z
+dubrovnik-hr,Dubrovnik,Croatia,HR,current-500,GV-CITY-668G,direct-or-metro,live-both,DBV,DBV,direct,,,,,4839,2026-07-18T03:20:17.881Z
+vilnius-lt,Vilnius,Lithuania,LT,current-500,GV-CITY-668G,direct-or-metro,live-both,VNO,VNO,direct,,,,,6960,2026-07-18T03:20:19.461Z
+entebbe-ug,Entebbe,Uganda,UG,current-500,GV-CITY-668G,direct-or-metro,live-both,EBB,EBB,direct,,,,,105411,2026-07-18T03:20:19.377Z
+palermo-it,Palermo,Italy,IT,current-500,GV-CITY-668G,direct-or-metro,live-both,PMO,PMO,direct,,,,,14810,2026-07-18T03:20:21.190Z
+manchester-gb,Manchester,United Kingdom,GB,current-500,GV-CITY-668G,direct-or-metro,live-both,MAN,MAN,direct,,,,,12349,2026-07-18T03:20:21.094Z
+edinburgh-gb,Edinburgh,United Kingdom,GB,current-500,GV-CITY-668G,direct-or-metro,live-both,EDI,EDI,direct,,,,,18924,2026-07-18T03:20:23.076Z
+seville-es,Seville,Spain,ES,current-500,GV-CITY-668G,direct-or-metro,live-both,SVQ,SVQ,direct,,,,,16577,2026-07-18T03:20:22.996Z
+malaga-es,Malaga,Spain,ES,current-500,GV-CITY-668G,direct-or-metro,live-both,AGP,AGP,direct,,,,,12521,2026-07-18T03:20:24.738Z
+catania-it,Catania,Italy,IT,current-500,GV-CITY-668G,direct-or-metro,live-both,CTA,CTA,direct,,,,,5596,2026-07-18T03:20:24.730Z
+hamburg-de,Hamburg,Germany,DE,current-500,GV-CITY-668G,direct-or-metro,live-both,HAM,HAM,direct,,,,,7169,2026-07-18T03:20:26.311Z
+valencia-es,Valencia,Spain,ES,current-500,GV-CITY-668G,direct-or-metro,live-both,VLC,VLC,direct,,,,,1623,2026-07-18T03:20:28.164Z
+hurghada-eg,Hurghada,Egypt,EG,current-500,GV-CITY-668G,direct-or-metro,live-both,HRG,HRG,direct,,,,,6700,2026-07-18T03:20:28.049Z
+fes-ma,Fes,Morocco,MA,current-500,GV-CITY-668G,direct-or-metro,live-both,FEZ,FEZ,direct,,,,,85860,2026-07-18T03:20:29.739Z
+cairns-au,Cairns,Australia,AU,current-500,GV-CITY-668G,direct-or-metro,live-both,CNS,CNS,direct,,,,,13550,2026-07-18T03:20:29.736Z
+tenerife-es,Tenerife,Spain,ES,current-500,GV-CITY-668G,direct-or-metro,live-both,TCI,TCI,direct,,,,,17379,2026-07-18T03:20:33.207Z
+kampala-ug,Kampala,Uganda,UG,current-500,GV-CITY-668G,gateway-supported,gateway-supported,EBB,EBB,gateway,Entebbe,EBB,nearby-airport,40,23023,2026-07-18T03:20:33.012Z
+philadelphia-us,Philadelphia,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,PHL,PHL,direct,,,,,12374,2026-07-21T01:52:27.138Z
+san-juan-pr,San Juan,Puerto Rico,PR,current-500,GV-CITY-668I,direct-or-metro,live-both,SJU,SJU,direct,,,,,17823,2026-07-21T01:52:27.727Z
+quebec-city-ca,Quebec City,Canada,CA,current-500,GV-CITY-668I,direct-or-metro,live-both,YQB,YQB,direct,,,,,16644,2026-07-21T01:52:29.678Z
+portland-us-pdx,Portland,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,PDX,PDX,direct,,,,,17095,2026-07-21T01:52:31.461Z
+minneapolis-us,Minneapolis,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,MSP,MSP,direct,,,,,10358,2026-07-21T01:52:31.464Z
+calgary-ca,Calgary,Canada,CA,current-500,GV-CITY-668I,direct-or-metro,live-both,YYC,YYC,direct,,,,,8913,2026-07-21T01:52:33.193Z
+salt-lake-city-us,Salt Lake City,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,SLC,SLC,direct,,,,,8052,2026-07-21T01:52:33.269Z
+san-jose-cr,San Jose,Costa Rica,CR,current-500,GV-CITY-668I,direct-or-metro,live-both,SJO,SJO,direct,,,,,6576,2026-07-21T01:52:35.012Z
+da-nang-vn,Da Nang,Vietnam,VN,current-500,GV-CITY-668I,direct-or-metro,live-both,DAD,DAD,direct,,,,,16440,2026-07-21T01:52:34.530Z
+penang-my,Penang,Malaysia,MY,current-500,GV-CITY-668I,direct-or-metro,live-both,PEN,PEN,direct,,,,,16087,2026-07-21T01:52:37.003Z
+malacca-my,Malacca,Malaysia,MY,current-500,GV-CITY-668I,direct-or-metro,live-both,MKZ,MKZ,direct,,,,,15121,2026-07-21T01:52:37.444Z
+jaipur-in,Jaipur,India,IN,current-500,GV-CITY-668I,direct-or-metro,live-both,JAI,JAI,direct,,,,,8845,2026-07-21T01:52:39.204Z
+surabaya-id,Surabaya,Indonesia,ID,current-500,GV-CITY-668I,direct-or-metro,live-both,SUB,SUB,direct,,,,,10779,2026-07-21T01:52:40.972Z
+kota-kinabalu-my,Kota Kinabalu,Malaysia,MY,current-500,GV-CITY-668I,direct-or-metro,live-both,BKI,BKI,direct,,,,,5070,2026-07-21T01:52:41.000Z
+nha-trang-vn,Nha Trang,Vietnam,VN,current-500,GV-CITY-668I,direct-or-metro,live-both,NHA,NHA,direct,,,,,2679,2026-07-21T01:52:42.738Z
+kuching-my,Kuching,Malaysia,MY,current-500,GV-CITY-668I,direct-or-metro,live-both,KCH,KCH,direct,,,,,14523,2026-07-21T01:52:42.847Z
+zhangjiajie-cn,Zhangjiajie,China,CN,current-500,GV-CITY-668I,direct-or-metro,live-both,DYG,DYG,direct,,,,,79797,2026-07-21T01:52:44.774Z
+sao-paulo-br,Sao Paulo,Brazil,BR,current-500,GV-CITY-668I,direct-or-metro,live-both,SAO,SAO,direct,,,,,16638,2026-07-21T01:52:44.901Z
+hua-hin-th,Hua Hin,Thailand,TH,current-500,GV-CITY-668I,direct-or-metro,live-both,HHQ,HHQ,direct,,,,,17019,2026-07-21T01:52:46.851Z
+ottawa-ca,Ottawa,Canada,CA,current-500,GV-CITY-668I,direct-or-metro,live-both,YOW,YOW,direct,,,,,6845,2026-07-21T01:52:48.537Z
+salalah-om,Salalah,Oman,OM,current-500,GV-CITY-668I,direct-or-metro,live-both,SLL,SLL,direct,,,,,11229,2026-07-21T01:52:50.413Z
+winnipeg-ca,Winnipeg,Canada,CA,current-500,GV-CITY-668I,direct-or-metro,live-both,YWG,YWG,direct,,,,,3564,2026-07-21T01:52:52.375Z
+okinawa-jp,Okinawa,Japan,JP,current-500,GV-CITY-668I,direct-or-metro,live-both,OKA,OKA,direct,,,,,717899,2026-07-21T01:52:54.358Z
+halifax-ca,Halifax,Canada,CA,current-500,GV-CITY-668I,direct-or-metro,live-both,YHZ,YHZ,direct,,,,,4216,2026-07-21T01:52:54.068Z
+phu-quoc-vn,Phu Quoc,Vietnam,VN,current-500,GV-CITY-668I,direct-or-metro,live-both,PQC,PQC,direct,,,,,17188,2026-07-21T01:52:58.197Z
+montego-bay-jm,Montego Bay,Jamaica,JM,current-500,GV-CITY-668I,direct-or-metro,live-both,MBJ,MBJ,direct,,,,,3561,2026-07-21T01:53:00.042Z
+bologna-it,Bologna,Italy,IT,current-500,GV-CITY-668I,direct-or-metro,live-both,BLQ,BLQ,direct,,,,,1002,2026-07-21T01:53:01.307Z
+nice-fr,Nice,France,FR,current-500,GV-CITY-668I,direct-or-metro,live-both,NCE,NCE,direct,,,,,5277,2026-07-21T01:53:03.736Z
+cologne-de,Cologne,Germany,DE,current-500,GV-CITY-668I,direct-or-metro,live-both,CGN,CGN,direct,,,,,16190,2026-07-21T01:53:05.395Z
+bristol-gb,Bristol,United Kingdom,GB,current-500,GV-CITY-668I,direct-or-metro,live-both,BRS,BRS,direct,,,,,6084,2026-07-21T01:53:07.231Z
+bordeaux-fr,Bordeaux,France,FR,current-500,GV-CITY-668I,direct-or-metro,live-both,BOD,BOD,direct,,,,,12838,2026-07-21T01:53:07.301Z
+marseille-fr,Marseille,France,FR,current-500,GV-CITY-668I,direct-or-metro,live-both,MRS,MRS,direct,,,,,1030,2026-07-21T01:53:09.058Z
+toulouse-fr,Toulouse,France,FR,current-500,GV-CITY-668I,direct-or-metro,live-both,TLS,TLS,direct,,,,,14562,2026-07-21T01:53:09.120Z
+stuttgart-de,Stuttgart,Germany,DE,current-500,GV-CITY-668I,direct-or-metro,live-both,STR,STR,direct,,,,,9527,2026-07-21T01:53:10.895Z
+ljubljana-si,Ljubljana,Slovenia,SI,current-500,GV-CITY-668I,direct-or-metro,live-both,LJU,LJU,direct,,,,,14313,2026-07-21T01:53:10.988Z
+batumi-ge,Batumi,Georgia,GE,current-500,GV-CITY-668I,direct-or-metro,live-both,BUS,BUS,direct,,,,,11350,2026-07-21T01:53:12.865Z
+bogota-co,Bogota,Colombia,CO,current-500,GV-CITY-668I,direct-or-metro,live-both,BOG,BOG,direct,,,,,4926,2026-07-21T01:53:15.080Z
+bilbao-es,Bilbao,Spain,ES,current-500,GV-CITY-668I,direct-or-metro,live-both,BIO,BIO,direct,,,,,7413,2026-07-21T01:53:14.947Z
+san-francisco-us,San Francisco,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,SFO,SFO,direct,,,,,13801,2026-07-21T01:53:16.883Z
+rio-de-janeiro-br,Rio De Janeiro,Brazil,BR,current-500,GV-CITY-668I,direct-or-metro,live-both,RIO,RIO,direct,,,,,7395,2026-07-21T01:53:18.700Z
+queenstown-nz,Queenstown,New Zealand,NZ,current-500,GV-CITY-668I,direct-or-metro,live-both,ZQN,ZQN,direct,,,,,2566,2026-07-21T01:53:20.701Z
+goreme-tr,Goreme,Turkey,TR,current-500,GV-CITY-668I,direct-or-metro,live-both,NAV,NAV,direct,,,,,21319,2026-07-21T01:53:22.581Z
+florianopolis-br,Florianopolis,Brazil,BR,current-500,GV-CITY-668I,direct-or-metro,live-both,FLN,FLN,direct,,,,,8734,2026-07-21T01:53:22.612Z
+durham-us,Durham,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,RDU,RDU,direct,,,,,2394,2026-07-21T01:53:26.111Z
+thessaloniki-gr,Thessaloniki,Greece,GR,current-500,GV-CITY-668I,direct-or-metro,live-both,SKG,SKG,direct,,,,,8711,2026-07-21T01:53:30.084Z
+guadalajara-mx,Guadalajara,Mexico,MX,current-500,GV-CITY-668I,direct-or-metro,live-both,GDL,GDL,direct,,,,,14757,2026-07-21T01:53:31.918Z
+ankara-tr,Ankara,Turkey,TR,current-500,GV-CITY-668I,direct-or-metro,live-both,ANK,ANK,direct,,,,,2423,2026-07-21T01:53:31.793Z
+myrtle-beach-us,Myrtle Beach,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,MYR,MYR,direct,,,,,9442,2026-07-21T01:53:33.964Z
+zagreb-hr,Zagreb,Croatia,HR,current-500,GV-CITY-668I,direct-or-metro,live-both,ZAG,ZAG,direct,,,,,6658,2026-07-21T01:53:35.837Z
+dalat-vn,Dalat,Vietnam,VN,current-500,GV-CITY-668I,direct-or-metro,live-both,DLI,DLI,direct,,,,,15932,2026-07-21T01:53:37.851Z
+malang-id,Malang,Indonesia,ID,current-500,GV-CITY-668I,direct-or-metro,live-both,MLG,MLG,direct,,,,,5414,2026-07-21T01:53:37.902Z
+koh-samui-th,Koh Samui,Thailand,TH,current-500,GV-CITY-668I,direct-or-metro,live-both,USM,USM,direct,,,,,17198,2026-07-21T01:53:39.864Z
+melbourne-au,Melbourne,Australia,AU,current-500,GV-CITY-668I,direct-or-metro,live-both,MEL,MEL,direct,,,,,10372,2026-07-21T01:53:39.198Z
+lecce-it,Lecce,Italy,IT,current-500,GV-CITY-668I,direct-or-metro,live-both,BDS,BDS,direct,,,,,3656,2026-07-21T01:53:44.344Z
+sousse-tn,Sousse,Tunisia,TN,current-500,GV-CITY-668I,direct-or-metro,live-both,MIR,MIR,direct,,,,,5979,2026-07-21T01:53:46.158Z
+bratislava-sk,Bratislava,Slovakia,SK,current-500,GV-CITY-668I,direct-or-metro,live-both,BTS,BTS,direct,,,,,4091,2026-07-21T01:53:50.103Z
+antalya-tr,Antalya,Turkey,TR,current-500,GV-CITY-668I,direct-or-metro,live-both,AYT,AYT,direct,,,,,7493,2026-07-21T01:53:52.212Z
+merida-mx,Merida,Mexico,MX,current-500,GV-CITY-668I,direct-or-metro,live-both,MID,MID,direct,,,,,15697,2026-07-21T01:53:59.466Z
+kotor-me,Kotor,Montenegro,ME,current-500,GV-CITY-668I,direct-or-metro,live-both,TIV,TIV,direct,,,,,79834,2026-07-21T01:53:59.638Z
+montpellier-fr,Montpellier,France,FR,current-500,GV-CITY-668I,direct-or-metro,live-both,MPL,MPL,direct,,,,,5320,2026-07-21T01:54:01.392Z
+tallinn-ee,Tallinn,Estonia,EE,current-500,GV-CITY-668I,direct-or-metro,live-both,TLL,TLL,direct,,,,,1460,2026-07-21T01:54:05.272Z
+cabo-san-lucas-mx,Cabo San Lucas,Mexico,MX,current-500,GV-CITY-668I,direct-or-metro,live-both,SJD,SJD,direct,,,,,9739,2026-07-21T01:54:11.012Z
+perugia-it,Perugia,Italy,IT,current-500,GV-CITY-668I,direct-or-metro,live-both,PEG,PEG,direct,,,,,9119,2026-07-21T01:54:12.779Z
+pisa-it,Pisa,Italy,IT,current-500,GV-CITY-668I,direct-or-metro,live-both,PSA,PSA,direct,,,,,13723,2026-07-21T01:54:16.018Z
+bruges-be,Bruges,Belgium,BE,current-500,GV-CITY-668I,direct-or-metro,live-both,OST,OST,direct,,,,,17729,2026-07-21T01:54:15.848Z
+cadiz-es,Cadiz,Spain,ES,current-500,GV-CITY-668I,direct-or-metro,live-both,XRY,XRY,direct,,,,,5270,2026-07-21T01:54:17.713Z
+pittsburgh-us,Pittsburgh,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,PIT,PIT,direct,,,,,11488,2026-07-21T01:54:19.864Z
+djerba-tn,Djerba,Tunisia,TN,current-500,GV-CITY-668I,direct-or-metro,live-both,DJE,DJE,direct,,,,,17042,2026-07-21T01:54:21.880Z
+belfast-gb,Belfast,United Kingdom,GB,current-500,GV-CITY-668I,direct-or-metro,live-both,BFS,BFS,direct,,,,,18934,2026-07-21T01:54:23.794Z
+dresden-de,Dresden,Germany,DE,current-500,GV-CITY-668I,direct-or-metro,live-both,DRS,DRS,direct,,,,,11323,2026-07-21T01:54:23.709Z
+charleston-us,Charleston,United States,US,current-500,GV-CITY-668I,direct-or-metro,live-both,CHS,CHS,direct,,,,,2217,2026-07-21T01:54:27.373Z
+rhodes-gr,Rhodes,Greece,GR,current-500,GV-CITY-668I,direct-or-metro,live-both,RHO,RHO,direct,,,,,16051,2026-07-21T01:54:31.597Z
+warsaw-pl,Warsaw,Poland,PL,current-500,GV-CITY-668I,direct-or-metro,live-both,WAW,WAW,direct,,,,,16587,2026-07-21T01:54:33.937Z
+bodrum-tr,Bodrum,Turkey,TR,current-500,GV-CITY-668I,direct-or-metro,live-both,BJV,BJV,direct,,,,,3253,2026-07-21T01:54:33.909Z
+mardin-tr,Mardin,Turkey,TR,current-500,GV-CITY-668I,direct-or-metro,live-both,MQM,MQM,direct,,,,,21279,2026-07-21T01:54:35.858Z
+split-hr,Split,Croatia,HR,current-500,GV-CITY-668I,direct-or-metro,live-both,SPU,SPU,direct,,,,,6325,2026-07-21T01:54:39.509Z
+bergen-no,Bergen,Norway,NO,current-500,GV-CITY-668I,direct-or-metro,live-both,BGO,BGO,direct,,,,,14414,2026-07-21T01:54:41.214Z
+verona-it,Verona,Italy,IT,current-500,GV-CITY-668I,direct-or-metro,live-both,VRN,VRN,direct,,,,,4257,2026-07-21T01:54:43.046Z
+ibiza-es,Ibiza,Spain,ES,current-500,GV-CITY-668I,direct-or-metro,live-both,IBZ,IBZ,direct,,,,,2976,2026-07-21T01:54:44.887Z
+ouarzazate-ma,Ouarzazate,Morocco,MA,current-500,GV-CITY-668I,direct-or-metro,live-both,OZZ,OZZ,direct,,,,,5284,2026-07-21T01:54:46.594Z
+hoi-an-vn,Hoi An,Vietnam,VN,current-500,GV-CITY-668I,gateway-supported,gateway-supported,DAD,DAD,gateway,Da Nang,DAD,nearby-airport,26,16552,2026-07-21T01:54:48.517Z
+hakone-jp,Hakone,Japan,JP,current-500,GV-CITY-668I,gateway-supported,gateway-supported,NRT,NRT,gateway,Tokyo,NRT,nearby-airport,80,79849,2026-07-21T01:54:48.485Z
+como-it,Como,Italy,IT,current-500,GV-CITY-668I,gateway-supported,gateway-supported,BGY,BGY,gateway,Milan,BGY,nearby-airport,43,12575,2026-07-21T01:54:50.339Z
+sapporo-jp,Sapporo,Japan,JP,current-500,GV-CITY-668K,direct-or-metro,live-both,SPK,SPK,direct,,,,,3435,2026-07-21T03:27:58.979Z
+krabi-th,Krabi,Thailand,TH,current-500,GV-CITY-668K,direct-or-metro,live-both,KBV,KBV,direct,,,,,14865,2026-07-21T03:27:59.362Z
+sharjah-ae,Sharjah,United Arab Emirates,AE,current-500,GV-CITY-668K,direct-or-metro,live-both,SHJ,SHJ,direct,,,,,8105,2026-07-21T03:28:02.817Z
+sacramento-us,Sacramento,United States,US,current-500,GV-CITY-668K,direct-or-metro,live-both,SAC,SAC,direct,,,,,8881,2026-07-21T03:28:04.495Z
+baltimore-us,Baltimore,United States,US,current-500,GV-CITY-668K,direct-or-metro,live-both,BWI,BWI,direct,,,,,7321,2026-07-21T03:28:04.543Z
+tulsa-us,Tulsa,United States,US,current-500,GV-CITY-668K,direct-or-metro,live-both,TUL,TUL,direct,,,,,12393,2026-07-21T03:28:05.990Z
+orlando-us,Orlando,United States,US,current-500,GV-CITY-668K,direct-or-metro,live-both,ORL,ORL,direct,,,,,10757,2026-07-21T03:28:09.208Z
+menorca-es,Menorca,Spain,ES,current-500,GV-CITY-668K,direct-or-metro,live-both,MAH,MAH,direct,,,,,17374,2026-07-21T03:28:13.095Z
+gdansk-pl,Gdansk,Poland,PL,current-500,GV-CITY-668K,direct-or-metro,live-both,GDN,GDN,direct,,,,,3935,2026-07-21T03:28:13.106Z
+liverpool-gb,Liverpool,United Kingdom,GB,current-500,GV-CITY-668K,direct-or-metro,live-both,LPL,LPL,direct,,,,,8248,2026-07-21T03:28:14.634Z
+bari-it,Bari,Italy,IT,current-500,GV-CITY-668K,direct-or-metro,live-both,BRI,BRI,direct,,,,,4094,2026-07-21T03:28:19.835Z
+santiago-cl,Santiago,Chile,CL,current-500,GV-CITY-668K,direct-or-metro,live-both,SCL,SCL,direct,,,,,86197,2026-07-21T03:28:25.251Z
+wroclaw-pl,Wroclaw,Poland,PL,current-500,GV-CITY-668K,direct-or-metro,live-both,WRO,WRO,direct,,,,,3339,2026-07-21T03:28:27.061Z
+turin-it,Turin,Italy,IT,current-500,GV-CITY-668K,direct-or-metro,live-both,TRN,TRN,direct,,,,,16404,2026-07-21T03:28:27.044Z
+copenhagen-dk,Copenhagen,Denmark,DK,current-500,GV-CITY-668K,direct-or-metro,live-both,CPH,CPH,direct,,,,,16480,2026-07-21T03:28:28.238Z
+marsa-alam-eg,Marsa Alam,Egypt,EG,current-500,GV-CITY-668K,direct-or-metro,live-both,RMF,RMF,direct,,,,,78545,2026-07-21T03:28:28.537Z
+zurich-ch,Zurich,Switzerland,CH,current-500,GV-CITY-668K,direct-or-metro,live-both,ZRH,ZRH,direct,,,,,16462,2026-07-21T03:28:30.024Z
+stockholm-se,Stockholm,Sweden,SE,current-500,GV-CITY-668K,direct-or-metro,live-both,STO,STO,direct,,,,,1618,2026-07-21T03:28:31.859Z
+izmir-tr,Izmir,Turkey,TR,current-500,GV-CITY-668K,direct-or-metro,live-both,IZM,IZM,direct,,,,,13183,2026-07-21T03:28:31.700Z
+sharm-el-sheikh-eg,Sharm el Sheikh,Egypt,EG,current-500,GV-CITY-668K,direct-or-metro,live-both,SSH,SSH,direct,,,,,15897,2026-07-21T03:28:33.056Z
+tromso-no,Tromso,Norway,NO,current-500,GV-CITY-668K,direct-or-metro,live-both,TOS,TOS,direct,,,,,15887,2026-07-21T03:28:35.171Z
+girona-es,Girona,Spain,ES,current-500,GV-CITY-668K,direct-or-metro,live-both,GRO,GRO,direct,,,,,1638,2026-07-21T03:28:37.038Z
+oaxaca-mx,Oaxaca,Mexico,MX,current-500,GV-CITY-668K,direct-or-metro,live-both,OAX,OAX,direct,,,,,79553,2026-07-21T03:28:38.777Z
+detroit-us,Detroit,United States,US,current-500,GV-CITY-668K,direct-or-metro,live-both,DTT,DTT,direct,,,,,3322,2026-07-21T03:28:40.461Z
+oslo-no,Oslo,Norway,NO,current-500,GV-CITY-668K,direct-or-metro,live-both,OSL,OSL,direct,,,,,12746,2026-07-21T03:28:41.959Z
+trabzon-tr,Trabzon,Turkey,TR,current-500,GV-CITY-668K,direct-or-metro,live-both,TZX,TZX,direct,,,,,19794,2026-07-21T03:28:43.647Z
+cagliari-it,Cagliari,Italy,IT,current-500,GV-CITY-668K,direct-or-metro,live-both,CAG,CAG,direct,,,,,106082,2026-07-21T03:28:43.636Z
+zadar-hr,Zadar,Croatia,HR,current-500,GV-CITY-668K,direct-or-metro,live-both,ZAD,ZAD,direct,,,,,72200,2026-07-21T03:28:45.209Z
+nuremberg-de,Nuremberg,Germany,DE,current-500,GV-CITY-668K,direct-or-metro,live-both,NUE,NUE,direct,,,,,16114,2026-07-21T03:28:52.098Z
+gothenburg-se,Gothenburg,Sweden,SE,current-500,GV-CITY-668K,direct-or-metro,live-both,GOT,GOT,direct,,,,,16062,2026-07-21T03:28:53.765Z
+savannah-us,Savannah,United States,US,current-500,GV-CITY-668K,direct-or-metro,live-both,SAV,SAV,direct,,,,,15032,2026-07-21T03:28:55.252Z
+poznan-pl,Poznan,Poland,PL,current-500,GV-CITY-668K,direct-or-metro,live-both,POZ,POZ,direct,,,,,664,2026-07-21T03:29:00.303Z
+trieste-it,Trieste,Italy,IT,current-500,GV-CITY-668K,direct-or-metro,live-both,TRS,TRS,direct,,,,,7760,2026-07-21T03:29:00.352Z
+cardiff-gb,Cardiff,United Kingdom,GB,current-500,GV-CITY-668K,direct-or-metro,live-both,CWL,CWL,direct,,,,,18929,2026-07-21T03:29:02.203Z
+helsinki-fi,Helsinki,Finland,FI,current-500,GV-CITY-668K,direct-or-metro,live-both,HEL,HEL,direct,,,,,11154,2026-07-21T03:29:03.693Z
+san-sebastian-es,San Sebastian,Spain,ES,current-500,GV-CITY-668K,direct-or-metro,live-both,EAS,EAS,direct,,,,,99398,2026-07-21T03:29:05.278Z
+geneva-ch,Geneva,Switzerland,CH,current-500,GV-CITY-668K,direct-or-metro,live-both,GVA,GVA,direct,,,,,16592,2026-07-21T03:29:07.033Z
+salzburg-at,Salzburg,Austria,AT,current-500,GV-CITY-668K,direct-or-metro,live-both,SZG,SZG,direct,,,,,11876,2026-07-21T03:29:08.635Z
+santiago-de-compostela-es,Santiago De Compostela,Spain,ES,current-500,GV-CITY-668K,direct-or-metro,live-both,SCQ,SCQ,direct,,,,,10932,2026-07-21T03:29:10.251Z
+rotterdam-nl,Rotterdam,Netherlands,NL,current-500,GV-CITY-668K,direct-or-metro,live-both,RTM,RTM,direct,,,,,2396,2026-07-21T03:29:11.853Z
+strasbourg-fr,Strasbourg,France,FR,current-500,GV-CITY-668K,direct-or-metro,live-both,SXB,SXB,direct,,,,,7254,2026-07-21T03:29:11.909Z
+southampton-gb,Southampton,United Kingdom,GB,current-500,GV-CITY-668K,direct-or-metro,live-both,SOU,SOU,direct,,,,,1209,2026-07-21T03:29:13.380Z
+olbia-it,Olbia,Italy,IT,current-500,GV-CITY-668K,direct-or-metro,live-both,OLB,OLB,direct,,,,,2253,2026-07-21T03:29:17.394Z
+tbilisi-ge,Tbilisi,Georgia,GE,current-500,GV-CITY-668K,direct-or-metro,live-both,TBS,TBS,direct,,,,,647,2026-07-21T03:29:23.314Z
+edmonton-ca,Edmonton,Canada,CA,current-500,GV-CITY-668K,direct-or-metro,live-both,YEA,YEA,direct,,,,,9212,2026-07-21T03:29:34.145Z
+kyoto-jp,Kyoto,Japan,JP,current-500,GV-CITY-668K,gateway-supported,gateway-supported,KIX,KIX,gateway,Osaka,KIX,nearby-airport,45,1784,2026-07-21T03:29:35.577Z
+niagara-falls-ca,Niagara Falls,Canada,CA,current-500,GV-CITY-668K,gateway-supported,gateway-supported,YYZ,YYZ,gateway,Toronto,YYZ,nearby-airport,25,17579,2026-07-21T03:29:39.054Z
+guanajuato-mx,Guanajuato,Mexico,MX,current-500,GV-CITY-668K,gateway-supported,gateway-supported,BJX,BJX,gateway,Leon/Guanajuato,BJX,nearby-airport,25,9620,2026-07-21T03:29:39.051Z
+koh-lanta-th,Koh Lanta,Thailand,TH,current-500,GV-CITY-668K,gateway-supported,gateway-supported,KBV,KBV,gateway,Krabi,KBV,nearby-airport,59,17026,2026-07-21T03:29:42.500Z
+naivasha-ke,Naivasha,Kenya,KE,current-500,GV-CITY-668K,gateway-supported,gateway-supported,NBO,NBO,gateway,Nairobi,NBO,nearby-airport,83,103842,2026-07-21T03:29:42.391Z
+whistler-ca,Whistler,Canada,CA,current-500,GV-CITY-668K,gateway-supported,gateway-supported,YVR,YVR,gateway,Vancouver,YVR,nearby-airport,108,15305,2026-07-21T03:29:44.171Z
+moshi-tz,Moshi,Tanzania,TZ,current-500,GV-CITY-668K,gateway-supported,gateway-supported,JRO,JRO,gateway,Kilimanjaro,JRO,nearby-airport,35,162510,2026-07-21T03:29:44.301Z
+matera-it,Matera,Italy,IT,current-500,GV-CITY-668K,gateway-supported,gateway-supported,BRI,BRI,gateway,Bari,BRI,nearby-airport,61,9104,2026-07-21T03:29:46.087Z
+siena-it,Siena,Italy,IT,current-500,GV-CITY-668K,gateway-supported,gateway-supported,FLR,FLR,gateway,Florence,FLR,nearby-airport,63,5906,2026-07-21T03:29:47.702Z
+banff-ca,Banff,Canada,CA,current-500,GV-CITY-668K,gateway-supported,gateway-supported,YYC,YYC,gateway,Calgary,YYC,nearby-airport,118,9957,2026-07-21T03:29:49.576Z
+bath-gb,Bath,United Kingdom,GB,current-500,GV-CITY-668K,gateway-supported,gateway-supported,BRS,BRS,gateway,Bristol,BRS,nearby-airport,27,1915,2026-07-21T03:29:51.240Z
+cesky-krumlov-cz,Cesky Krumlov,Czech Republic,CZ,current-500,GV-CITY-668K,gateway-supported,gateway-supported,PRG,PRG,gateway,Prague,PRG,nearby-airport,155,8927,2026-07-21T03:29:52.834Z
+toledo-es,Toledo,Spain,ES,current-500,GV-CITY-668K,gateway-supported,gateway-supported,MAD,MAD,gateway,Madrid,MAD,nearby-airport,73,3860,2026-07-21T03:29:54.735Z
+brighton-gb,Brighton,United Kingdom,GB,current-500,GV-CITY-668K,gateway-supported,gateway-supported,LHR,LHR,gateway,London,LHR,nearby-airport,85,4175,2026-07-21T03:29:54.800Z
+sintra-pt,Sintra,Portugal,PT,current-500,GV-CITY-668K,gateway-supported,gateway-supported,LIS,LIS,gateway,Lisbon,LIS,nearby-airport,26,15261,2026-07-21T03:29:56.448Z
+ronda-es,Ronda,Spain,ES,current-500,GV-CITY-668K,gateway-supported,gateway-supported,AGP,AGP,gateway,Malaga,AGP,nearby-airport,73,8969,2026-07-21T03:29:59.604Z
+braga-pt,Braga,Portugal,PT,current-500,GV-CITY-668K,gateway-supported,gateway-supported,OPO,OPO,gateway,Porto,OPO,nearby-airport,51,1105,2026-07-21T03:30:01.750Z
+segovia-es,Segovia,Spain,ES,current-500,GV-CITY-668K,gateway-supported,gateway-supported,MAD,MAD,gateway,Madrid,MAD,nearby-airport,70,5669,2026-07-21T03:30:09.196Z
+bucharest-ro,Bucharest,Romania,RO,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BUH,BUH,direct,,,,,16145,2026-07-22T01:59:36.966Z
+baku-az,Baku,Azerbaijan,AZ,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BAK,BAK,direct,,,,,13621,2026-07-22T01:59:36.984Z
+chongqing-cn,Chongqing,China,CN,expansion-500,GV-CITY-668M,direct-or-metro,live-both,CKG,CKG,direct,,,,,10084,2026-07-22T01:59:38.843Z
+santo-domingo-do,Santo Domingo,Dominican Republic,DO,expansion-500,GV-CITY-668M,direct-or-metro,live-both,SDQ,SDQ,direct,,,,,18340,2026-07-22T01:59:38.198Z
+riyadh-sa,Riyadh,Saudi Arabia,SA,expansion-500,GV-CITY-668M,direct-or-metro,live-both,RUH,RUH,direct,,,,,5349,2026-07-22T01:59:40.458Z
+kathmandu-np,Kathmandu,Nepal,NP,expansion-500,GV-CITY-668M,direct-or-metro,live-both,KTM,KTM,direct,,,,,2487,2026-07-22T01:59:41.974Z
+jeddah-sa,Jeddah,Saudi Arabia,SA,expansion-500,GV-CITY-668M,direct-or-metro,live-both,JED,JED,direct,,,,,9777,2026-07-22T01:59:42.036Z
+san-salvador-sv,San Salvador,El Salvador,SV,expansion-500,GV-CITY-668M,direct-or-metro,live-both,SAL,SAL,direct,,,,,10448,2026-07-22T01:59:43.662Z
+phnom-penh-kh,Phnom Penh (Ta Khmau),Cambodia,KH,expansion-500,GV-CITY-668M,direct-or-metro,live-both,KTI,KTI,direct,,,,,4816,2026-07-22T01:59:43.639Z
+siem-reap-kh,Siem Reap,Cambodia,KH,expansion-500,GV-CITY-668M,direct-or-metro,live-both,SAI,SAI,direct,,,,,16917,2026-07-22T01:59:45.345Z
+tirana-al,Tirana,Albania,AL,expansion-500,GV-CITY-668M,direct-or-metro,live-both,TIA,TIA,direct,,,,,9206,2026-07-22T01:59:46.930Z
+luang-prabang-la,Luang Prabang,Laos,LA,expansion-500,GV-CITY-668M,direct-or-metro,live-both,LPQ,LPQ,direct,,,,,16919,2026-07-22T01:59:48.579Z
+vientiane-la,Vientiane,Laos,LA,expansion-500,GV-CITY-668M,direct-or-metro,live-both,VTE,VTE,direct,,,,,10871,2026-07-22T01:59:48.605Z
+yerevan-am,Yerevan,Armenia,AM,expansion-500,GV-CITY-668M,direct-or-metro,live-both,EVN,EVN,direct,,,,,23554,2026-07-22T01:59:50.159Z
+dhaka-bd,Dhaka,Bangladesh,BD,expansion-500,GV-CITY-668M,direct-or-metro,live-both,DAC,DAC,direct,,,,,1390,2026-07-22T01:59:51.769Z
+punta-cana-do,Punta Cana,Dominican Republic,DO,expansion-500,GV-CITY-668M,direct-or-metro,live-both,PUJ,PUJ,direct,,,,,3332,2026-07-22T01:59:53.549Z
+hong-kong-hk,Hong Kong,Hong Kong,HK,expansion-500,GV-CITY-668M,direct-or-metro,live-both,HKG,HKG,direct,,,,,16808,2026-07-22T01:59:53.484Z
+quito-ec,Quito,Ecuador,EC,expansion-500,GV-CITY-668M,direct-or-metro,live-both,UIO,UIO,direct,,,,,9909,2026-07-22T01:59:55.151Z
+paphos-cy,Paphos,Cyprus,CY,expansion-500,GV-CITY-668M,direct-or-metro,live-both,PFO,PFO,direct,,,,,517,2026-07-22T01:59:55.267Z
+yangon-mm,Yangon,Myanmar,MM,expansion-500,GV-CITY-668M,direct-or-metro,live-both,RGN,RGN,direct,,,,,16599,2026-07-22T01:59:56.864Z
+dammam-sa,Dammam,Saudi Arabia,SA,expansion-500,GV-CITY-668M,direct-or-metro,live-both,DMM,DMM,direct,,,,,8449,2026-07-22T01:59:56.958Z
+beirut-lb,Beirut,Lebanon,LB,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BEY,BEY,direct,,,,,11680,2026-07-22T01:59:58.565Z
+bishkek-kg,Bishkek,Kyrgyzstan,KG,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BSZ,BSZ,direct,,,,,700999,2026-07-22T01:59:58.459Z
+nadi-fj,Nadi,Fiji,FJ,expansion-500,GV-CITY-668M,direct-or-metro,live-both,NAN,NAN,direct,,,,,5057,2026-07-22T01:59:59.741Z
+madinah-sa,Madinah,Saudi Arabia,SA,expansion-500,GV-CITY-668M,direct-or-metro,live-both,MED,MED,direct,,,,,23028,2026-07-22T02:00:00.085Z
+sihanoukville-kh,Sihanoukville,Cambodia,KH,expansion-500,GV-CITY-668M,direct-or-metro,live-both,KOS,KOS,direct,,,,,17331,2026-07-22T02:00:01.523Z
+tel-aviv-yafo-il,Tel Aviv-Yafo,Israel,IL,expansion-500,GV-CITY-668M,direct-or-metro,live-both,TLV,TLV,direct,,,,,1692,2026-07-22T02:00:03.163Z
+larnaca-cy,Larnaca,Cyprus,CY,expansion-500,GV-CITY-668M,direct-or-metro,live-both,LCA,LCA,direct,,,,,2993,2026-07-22T02:00:06.622Z
+guangzhou-cn,Guangzhou,China,CN,expansion-500,GV-CITY-668M,direct-or-metro,live-both,CAN,CAN,direct,,,,,10112,2026-07-22T02:00:12.152Z
+chisinau-md,Chisinau,Moldova,MD,expansion-500,GV-CITY-668M,direct-or-metro,live-both,RMO,RMO,direct,,,,,6599,2026-07-22T02:00:13.683Z
+la-paz-bo,La Paz,Bolivia,BO,expansion-500,GV-CITY-668M,direct-or-metro,live-both,LPB,LPB,direct,,,,,8061,2026-07-22T02:00:13.679Z
+montevideo-uy,Montevideo,Uruguay,UY,expansion-500,GV-CITY-668M,direct-or-metro,live-both,MVD,MVD,direct,,,,,5534,2026-07-22T02:00:15.281Z
+managua-ni,Managua,Nicaragua,NI,expansion-500,GV-CITY-668M,direct-or-metro,live-both,MGA,MGA,direct,,,,,11504,2026-07-22T02:00:18.427Z
+hyderabad-in,Hyderabad,India,IN,expansion-500,GV-CITY-668M,direct-or-metro,live-both,HYD,HYD,direct,,,,,8801,2026-07-22T02:00:18.573Z
+tabuk-sa,Tabuk,Saudi Arabia,SA,expansion-500,GV-CITY-668M,direct-or-metro,live-both,TUU,TUU,direct,,,,,665555,2026-07-22T02:00:20.080Z
+bandar-seri-begawan-bn,Bandar Seri Begawan,Brunei,BN,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BWN,BWN,direct,,,,,6691,2026-07-22T02:00:20.185Z
+nassau-bs,Nassau,Bahamas,BS,expansion-500,GV-CITY-668M,direct-or-metro,live-both,NAS,NAS,direct,,,,,10440,2026-07-22T02:00:21.800Z
+erbil-iq,Erbil,Iraq,IQ,expansion-500,GV-CITY-668M,direct-or-metro,live-both,EBL,EBL,direct,,,,,512852,2026-07-22T02:00:23.579Z
+san-pedro-sula-hn,San Pedro Sula,Honduras,HN,expansion-500,GV-CITY-668M,direct-or-metro,live-both,SAP,SAP,direct,,,,,7764,2026-07-22T02:00:23.630Z
+kuwait-kw,Kuwait,Kuwait,KW,expansion-500,GV-CITY-668M,direct-or-metro,live-both,KWI,KWI,direct,,,,,16918,2026-07-22T02:00:25.355Z
+astana-kz,Astana,Kazakhstan,KZ,expansion-500,GV-CITY-668M,direct-or-metro,live-both,NQZ,NQZ,direct,,,,,23684,2026-07-22T02:00:27.065Z
+mandalay-mm,Mandalay,Myanmar,MM,expansion-500,GV-CITY-668M,direct-or-metro,live-both,MDL,MDL,direct,,,,,9299,2026-07-22T02:00:28.569Z
+macau-mo,Macau,Macau,MO,expansion-500,GV-CITY-668M,direct-or-metro,live-both,MFM,MFM,direct,,,,,21397,2026-07-22T02:00:30.297Z
+peshawar-pk,Peshawar,Pakistan,PK,expansion-500,GV-CITY-668M,direct-or-metro,live-both,PEW,PEW,direct,,,,,3168,2026-07-22T02:00:30.161Z
+pristina-xk,Pristina,Kosovo,XK,expansion-500,GV-CITY-668M,direct-or-metro,live-both,PRN,PRN,direct,,,,,105442,2026-07-22T02:00:35.597Z
+cluj-ro,Cluj,Romania,RO,expansion-500,GV-CITY-668M,direct-or-metro,live-both,CLJ,CLJ,direct,,,,,12706,2026-07-22T02:00:35.578Z
+nouakchott-mr,Nouakchott,Mauritania,MR,expansion-500,GV-CITY-668M,direct-or-metro,live-both,NKC,NKC,direct,,,,,2183,2026-07-22T02:00:37.285Z
+baghdad-iq,Baghdad,Iraq,IQ,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BGW,BGW,direct,,,,,512684,2026-07-22T02:00:38.996Z
+bahrain-bh,Bahrain,Bahrain,BH,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BAH,BAH,direct,,,,,16630,2026-07-22T02:00:40.969Z
+georgetown-gy,Georgetown,Guyana,GY,expansion-500,GV-CITY-668M,direct-or-metro,live-both,GEO,GEO,direct,,,,,23021,2026-07-22T02:00:44.234Z
+praia-cv,Praia,Cape Verde,CV,expansion-500,GV-CITY-668M,direct-or-metro,live-both,RAI,RAI,direct,,,,,105423,2026-07-22T02:00:51.869Z
+bengaluru-in,Bengaluru,India,IN,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BLR,BLR,direct,,,,,4923,2026-07-22T02:00:53.669Z
+bujumbura-bi,Bujumbura,Burundi,BI,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BJM,BJM,direct,,,,,20634,2026-07-22T02:00:56.961Z
+nuku-alofa-to,Nuku'alofa,Tonga,TO,expansion-500,GV-CITY-668M,direct-or-metro,live-both,TBU,TBU,direct,,,,,105433,2026-07-22T02:00:56.803Z
+port-of-spain-tt,Port Of Spain,Trinidad and Tobago,TT,expansion-500,GV-CITY-668M,direct-or-metro,live-both,POS,POS,direct,,,,,5086,2026-07-22T02:00:58.481Z
+fuzhou-cn,Fuzhou,China,CN,expansion-500,GV-CITY-668M,direct-or-metro,live-both,FOC,FOC,direct,,,,,7900,2026-07-22T02:00:59.091Z
+freeport-bs,Freeport,Bahamas,BS,expansion-500,GV-CITY-668M,direct-or-metro,live-both,FPO,FPO,direct,,,,,17818,2026-07-22T02:01:00.662Z
+st-george-s-gd,St. George's,Grenada,GD,expansion-500,GV-CITY-668M,direct-or-metro,live-both,GND,GND,direct,,,,,16804,2026-07-22T02:01:06.444Z
+amritsar-in,Amritsar,India,IN,expansion-500,GV-CITY-668M,direct-or-metro,live-both,ATQ,ATQ,direct,,,,,7741,2026-07-22T02:01:06.590Z
+harare-zw,Harare,Zimbabwe,ZW,expansion-500,GV-CITY-668M,direct-or-metro,live-both,HRE,HRE,direct,,,,,6225,2026-07-22T02:01:15.540Z
+bridgetown-bb,Bridgetown,Barbados,BB,expansion-500,GV-CITY-668M,direct-or-metro,live-both,BGI,BGI,direct,,,,,98828,2026-07-22T02:01:24.970Z
+malta-mt,Malta,Malta,MT,expansion-500,GV-CITY-668M,direct-or-metro,live-both,MLA,MLA,direct,,,,,16935,2026-07-22T02:01:26.675Z
+palanga-lt,Palanga,Lithuania,LT,expansion-500,GV-CITY-668M,direct-or-metro,live-both,PLQ,PLQ,direct,,,,,10366,2026-07-22T02:01:28.321Z
+sao-vicente-cv,Sao Vicente,Cape Verde,CV,expansion-500,GV-CITY-668M,direct-or-metro,live-both,VXE,VXE,direct,,,,,105420,2026-07-22T02:01:38.938Z
+dunedin-nz,Dunedin,New Zealand,NZ,expansion-500,GV-CITY-668M,direct-or-metro,live-both,DUD,DUD,direct,,,,,2084,2026-07-22T02:01:39.086Z
+katowice-pl,Katowice,Poland,PL,expansion-500,GV-CITY-668M,direct-or-metro,live-both,KTW,KTW,direct,,,,,2210,2026-07-22T02:01:44.456Z
+sal-cv,Sal,Cape Verde,CV,expansion-500,GV-CITY-668M,direct-or-metro,live-both,SID,SID,direct,,,,,105425,2026-07-22T02:01:44.437Z
+rzeszow-pl,Rzeszow,Poland,PL,expansion-500,GV-CITY-668M,direct-or-metro,live-both,RZE,RZE,direct,,,,,19572,2026-07-22T02:01:46.168Z
+mersin-tr,Mersin,Turkey,TR,expansion-500,GV-CITY-668M,direct-or-metro,live-both,COV,COV,direct,,,,,19792,2026-07-22T02:01:48.017Z
+lamezia-terme-it,Lamezia-Terme,Italy,IT,expansion-500,GV-CITY-668M,direct-or-metro,live-both,SUF,SUF,direct,,,,,16816,2026-07-22T02:01:57.018Z
+apia-ws,Apia,Samoa,WS,expansion-500,GV-CITY-668M,direct-or-metro,live-both,APW,APW,direct,,,,,105623,2026-07-22T02:02:00.507Z
+hat-yai-th,Hat Yai,Thailand,TH,expansion-500,GV-CITY-668O,direct-or-metro,live-both,HDY,HDY,direct,,,,,9312,2026-07-22T03:48:45.815Z
+chiang-rai-th,Chiang Rai,Thailand,TH,expansion-500,GV-CITY-668O,direct-or-metro,live-both,CEI,CEI,direct,,,,,4234,2026-07-22T03:48:47.589Z
+djibouti-dj,Djibouti,Djibouti,DJ,expansion-500,GV-CITY-668O,direct-or-metro,live-both,JIB,JIB,direct,,,,,23022,2026-07-22T03:48:49.018Z
+udon-thani-th,Udon Thani,Thailand,TH,expansion-500,GV-CITY-668O,direct-or-metro,live-both,UTH,UTH,direct,,,,,10787,2026-07-22T03:48:52.621Z
+kannur-in,Kannur,India,IN,expansion-500,GV-CITY-668O,direct-or-metro,live-both,CNN,CNN,direct,,,,,114574,2026-07-22T03:48:55.702Z
+manado-id,Manado,Indonesia,ID,expansion-500,GV-CITY-668O,direct-or-metro,live-both,MDC,MDC,direct,,,,,19438,2026-07-22T03:48:58.825Z
+kalibo-ph,Kalibo,Philippines,PH,expansion-500,GV-CITY-668O,direct-or-metro,live-both,KLO,KLO,direct,,,,,174484,2026-07-22T03:49:12.863Z
+kozhikode-in,Kozhikode,India,IN,expansion-500,GV-CITY-668O,direct-or-metro,live-both,CCJ,CCJ,direct,,,,,16848,2026-07-22T03:49:16.381Z
+nador-ma,Nador,Morocco,MA,expansion-500,GV-CITY-668O,direct-or-metro,live-both,NDR,NDR,direct,,,,,19237,2026-07-22T03:49:40.071Z
+almaty-kz,Almaty,Kazakhstan,KZ,expansion-500,GV-CITY-668O,direct-or-metro,live-both,ALA,ALA,direct,,,,,5624,2026-07-22T03:49:54.246Z
+belgrade-rs,Belgrade,Serbia,RS,expansion-500,GV-CITY-668O,direct-or-metro,live-both,BEG,BEG,direct,,,,,79692,2026-07-22T03:49:55.600Z
+jaffna-lk,Jaffna,Sri Lanka,LK,expansion-500,GV-CITY-668O,direct-or-metro,live-both,JAF,JAF,direct,,,,,174278,2026-07-22T03:50:00.479Z
+guayaquil-ec,Guayaquil,Ecuador,EC,expansion-500,GV-CITY-668O,direct-or-metro,live-both,GYE,GYE,direct,,,,,6638,2026-07-22T03:50:01.973Z
+al-ula-sa,Al Ula,Saudi Arabia,SA,expansion-500,GV-CITY-668O,direct-or-metro,live-both,ULH,ULH,direct,,,,,244026,2026-07-22T03:50:01.941Z
+paro-bt,Paro,Bhutan,BT,expansion-500,GV-CITY-668O,direct-or-metro,live-both,PBH,PBH,direct,,,,,701397,2026-07-22T03:50:03.400Z
+atyrau-kz,Atyrau,Kazakhstan,KZ,expansion-500,GV-CITY-668O,direct-or-metro,live-both,GUW,GUW,direct,,,,,30333,2026-07-22T03:50:12.149Z
+dushanbe-tj,Dushanbe,Tajikistan,TJ,expansion-500,GV-CITY-668O,direct-or-metro,live-both,DYU,DYU,direct,,,,,512692,2026-07-22T03:50:12.129Z
+bourgas-bg,Bourgas,Bulgaria,BG,expansion-500,GV-CITY-668O,direct-or-metro,live-both,BOJ,BOJ,direct,,,,,16479,2026-07-22T03:50:23.445Z
+bacau-ro,Bacau,Romania,RO,expansion-500,GV-CITY-668O,direct-or-metro,live-both,BCM,BCM,direct,,,,,13488,2026-07-22T03:50:30.177Z
+dili-tl,Dili,East Timor,TL,expansion-500,GV-CITY-668O,direct-or-metro,live-both,DIL,DIL,direct,,,,,513073,2026-07-22T03:50:33.699Z
+podgorica-me,Podgorica,Montenegro,ME,expansion-500,GV-CITY-668O,direct-or-metro,live-both,TGD,TGD,direct,,,,,79836,2026-07-22T03:50:59.010Z
+ilulissat-gl,Ilulissat,Greenland,GL,expansion-500,GV-CITY-668O,direct-or-metro,live-both,JAV,JAV,direct,,,,,4868,2026-07-22T03:51:00.595Z
+bora-bora-pf,Bora Bora,French Polynesia,PF,expansion-500,GV-CITY-668O,direct-or-metro,live-both,BOB,BOB,direct,,,,,16974,2026-07-22T03:51:04.658Z
+bejaia-dz,Bejaia,Algeria,DZ,expansion-500,GV-CITY-668O,direct-or-metro,live-both,BJA,BJA,direct,,,,,700961,2026-07-22T03:51:06.284Z
+fergana-uz,Fergana,Uzbekistan,UZ,expansion-500,GV-CITY-668O,direct-or-metro,live-both,FEG,FEG,direct,,,,,200401,2026-07-22T03:51:09.976Z
+graz-at,Graz,Austria,AT,expansion-500,GV-CITY-668O,direct-or-metro,live-both,GRZ,GRZ,direct,,,,,11013,2026-07-22T03:51:11.524Z
+gibraltar-gi,Gibraltar,Gibraltar,GI,expansion-500,GV-CITY-668O,direct-or-metro,live-both,GIB,GIB,direct,,,,,2716,2026-07-22T03:51:14.615Z

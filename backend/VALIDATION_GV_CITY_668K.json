@@ -1,0 +1,240 @@
+{
+  "taskId": "GV-CITY-668K",
+  "generatedAt": "2026-07-21T03:12:19.414Z",
+  "passed": 56,
+  "failed": 0,
+  "total": 56,
+  "checks": [
+    {
+      "name": "plan identifies GV-CITY-668K",
+      "pass": true
+    },
+    {
+      "name": "plan status is Current-500 completion audit",
+      "pass": true
+    },
+    {
+      "name": "registry contains 1000 cities and 500 Current-500 cities",
+      "pass": true
+    },
+    {
+      "name": "668J source snapshot contains 400 unique audited cities",
+      "pass": true
+    },
+    {
+      "name": "668J baseline contains 355 audited Current-500 cities",
+      "pass": true
+    },
+    {
+      "name": "668J baseline contains 259 production-active cities",
+      "pass": true
+    },
+    {
+      "name": "exactly 145 Current-500 cities remain before 668K",
+      "pass": true
+    },
+    {
+      "name": "plan contains exactly 145 cities",
+      "pass": true
+    },
+    {
+      "name": "plan city IDs are unique",
+      "pass": true
+    },
+    {
+      "name": "all selected cities are Current-500",
+      "pass": true
+    },
+    {
+      "name": "no selected city was already audited in 668J",
+      "pass": true
+    },
+    {
+      "name": "all selected cities resolve in registry",
+      "pass": true
+    },
+    {
+      "name": "all selected cities have both static provider mappings",
+      "pass": true
+    },
+    {
+      "name": "plan includes every remaining Current-500 city in deterministic order",
+      "pass": true
+    },
+    {
+      "name": "all plan ranks are contiguous",
+      "pass": true
+    },
+    {
+      "name": "all priority scores match source calculations",
+      "pass": true
+    },
+    {
+      "name": "355 plus 145 completes 500/500",
+      "pass": true
+    },
+    {
+      "name": "post-audit total projection is 545",
+      "pass": true
+    },
+    {
+      "name": "plan includes 141 Group 2 records",
+      "pass": true
+    },
+    {
+      "name": "plan includes four REVIEW_REQUIRED records",
+      "pass": true
+    },
+    {
+      "name": "all four REVIEW_REQUIRED cities are present",
+      "pass": true
+    },
+    {
+      "name": "plan contains 42 approved gateway records",
+      "pass": true
+    },
+    {
+      "name": "all gateway records preserve airport data",
+      "pass": true
+    },
+    {
+      "name": "plan contains 25 international-airport signals",
+      "pass": true
+    },
+    {
+      "name": "plan contains 70 product-review-required records",
+      "pass": true
+    },
+    {
+      "name": "region counts are exact",
+      "pass": true,
+      "details": {
+        "Asia": 9,
+        "Americas": 54,
+        "Europe": 57,
+        "Africa": 9,
+        "Other": 16
+      }
+    },
+    {
+      "name": "smoke cities are in the completion list",
+      "pass": true
+    },
+    {
+      "name": "plan explicitly leaves 668J activation unchanged",
+      "pass": true
+    },
+    {
+      "name": "plan completion rule explicitly reaches 500/500",
+      "pass": true
+    },
+    {
+      "name": "668K service version and feature flag are active",
+      "pass": true
+    },
+    {
+      "name": "668K summary reports 145 selected",
+      "pass": true
+    },
+    {
+      "name": "668K summary preserves the 668J baseline",
+      "pass": true
+    },
+    {
+      "name": "668K summary projects 500 Current-500 and 545 total audited",
+      "pass": true
+    },
+    {
+      "name": "668K search returns all 145 records",
+      "pass": true
+    },
+    {
+      "name": "668K search filters 57 European cities",
+      "pass": true
+    },
+    {
+      "name": "668K search filters four REVIEW_REQUIRED cities",
+      "pass": true
+    },
+    {
+      "name": "668K search filters 70 product-review cities",
+      "pass": true
+    },
+    {
+      "name": "668K search filters 42 gateway candidates",
+      "pass": true
+    },
+    {
+      "name": "668K search resolves Sapporo",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668K summary endpoint works",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668K list endpoint returns 145",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668K region filter returns nine African cities",
+      "pass": true
+    },
+    {
+      "name": "Lambda 668K endpoint is read-only",
+      "pass": true
+    },
+    {
+      "name": "668J production activation remains at 259 before import",
+      "pass": true
+    },
+    {
+      "name": "Sapporo remains unaudited estimate-only before import",
+      "pass": true
+    },
+    {
+      "name": "existing verified Osaka remains active",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner supports Smoke5, Priority50, and Final145",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner uses the 668K endpoint and safe URL interpolation",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner supports checkpoint resume",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner never embeds the admin token",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner uses bounded two-city batches",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner keeps strict 668E audit policy",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner computes projected activation from deployed baseline",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner records Current-500 completion projection",
+      "pass": true
+    },
+    {
+      "name": "PowerShell runner marks activation import as required",
+      "pass": true
+    },
+    {
+      "name": "flag-off disables 668K plan status",
+      "pass": true
+    }
+  ]
+}

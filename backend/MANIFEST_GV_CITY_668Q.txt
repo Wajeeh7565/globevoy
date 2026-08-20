@@ -1,0 +1,29 @@
+GV-CITY-668Q — Final 155-City Coverage Audit
+
+Changed:
+- lambda.js
+- server.js
+
+Added:
+- build-gv-city-668q-final155-plan.js
+- services/final-expansion-city-audit.js
+- data/expansion-500-final-audit-155-668q.json
+- data/expansion-500-final-audit-155-668q.csv
+- validate-gv-city-668q.js
+- VALIDATION_GV_CITY_668Q.json
+- Run-GV-CITY-668Q-Final155-Coverage-Audit.ps1
+- GV-CITY-668Q_REPORT.md
+- MANIFEST_GV_CITY_668Q.txt
+
+Feature flag:
+- ENABLE_EXPANSION_500_FINAL_AUDIT_668Q=true
+
+Public read-only endpoint:
+- GET /api/expansion-500-final-audit
+
+Activation state:
+- remains GV-CITY-668P
+- audited baseline: 845
+- production-active baseline: 420
+- final audit target: 155
+- projected audited after run: 1000

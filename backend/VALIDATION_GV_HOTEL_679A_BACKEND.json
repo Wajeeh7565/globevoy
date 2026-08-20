@@ -1,0 +1,344 @@
+{
+  "release": "GV-HOTEL-679A",
+  "generatedAt": "2026-08-11T22:45:31.668Z",
+  "checkCount": 17,
+  "passedCount": 17,
+  "failedCount": 0,
+  "checks": [
+    {
+      "name": "679A flag active",
+      "pass": true,
+      "detail": null
+    },
+    {
+      "name": "679A version exported",
+      "pass": true,
+      "detail": "GV-HOTEL-679A"
+    },
+    {
+      "name": "Agoda provider response remains provider-backed",
+      "pass": true,
+      "detail": {
+        "source": "agoda",
+        "providerBacked": true
+      }
+    },
+    {
+      "name": "679A rich hotel object attached",
+      "pass": true,
+      "detail": {
+        "integrationVersion": "GV-HOTEL-679A",
+        "provider": "Agoda",
+        "hotelId": 896,
+        "hotelName": "The Shelburne Sonesta New York",
+        "imageUrl": "https://pix1.agoda.net/hotelimages/896/example.jpg?s=312x",
+        "bookingUrl": "https://www.agoda.com/partners/partnersearch.aspx?hid=896&cid=1953464",
+        "reviewScore": 8.4,
+        "reviewCount": 912,
+        "starRating": 4,
+        "accommodationType": null,
+        "providerCurrency": "CAD",
+        "nightlyRate": 220,
+        "crossedOutRate": 265,
+        "discountPercentage": 17,
+        "includeBreakfast": false,
+        "freeWifi": true,
+        "selectedForStayEstimate": true,
+        "bookingTrust": {
+          "version": "GV-QUALITY-680A",
+          "priceState": "provider-rate-observed",
+          "currentPriceConfirmed": false,
+          "availabilityConfirmed": false,
+          "baggageOrTaxBasis": "tax-basis-must-be-confirmed-on-agoda",
+          "handoffState": "provider-search-results",
+          "finalPriceRequiresPartnerConfirmation": true
+        }
+      }
+    },
+    {
+      "name": "679A carries provider hotel ID",
+      "pass": true,
+      "detail": 896
+    },
+    {
+      "name": "679A carries hotel name",
+      "pass": true,
+      "detail": "The Shelburne Sonesta New York"
+    },
+    {
+      "name": "679A upgrades Agoda image to HTTPS",
+      "pass": true,
+      "detail": "https://pix1.agoda.net/hotelimages/896/example.jpg?s=312x"
+    },
+    {
+      "name": "679A carries deep link",
+      "pass": true,
+      "detail": "https://www.agoda.com/partners/partnersearch.aspx?hid=896&cid=1953464"
+    },
+    {
+      "name": "679A carries review evidence",
+      "pass": true,
+      "detail": {
+        "integrationVersion": "GV-HOTEL-679A",
+        "provider": "Agoda",
+        "hotelId": 896,
+        "hotelName": "The Shelburne Sonesta New York",
+        "imageUrl": "https://pix1.agoda.net/hotelimages/896/example.jpg?s=312x",
+        "bookingUrl": "https://www.agoda.com/partners/partnersearch.aspx?hid=896&cid=1953464",
+        "reviewScore": 8.4,
+        "reviewCount": 912,
+        "starRating": 4,
+        "accommodationType": null,
+        "providerCurrency": "CAD",
+        "nightlyRate": 220,
+        "crossedOutRate": 265,
+        "discountPercentage": 17,
+        "includeBreakfast": false,
+        "freeWifi": true,
+        "selectedForStayEstimate": true,
+        "bookingTrust": {
+          "version": "GV-QUALITY-680A",
+          "priceState": "provider-rate-observed",
+          "currentPriceConfirmed": false,
+          "availabilityConfirmed": false,
+          "baggageOrTaxBasis": "tax-basis-must-be-confirmed-on-agoda",
+          "handoffState": "provider-search-results",
+          "finalPriceRequiresPartnerConfirmation": true
+        }
+      }
+    },
+    {
+      "name": "679A carries useful amenity evidence",
+      "pass": true,
+      "detail": {
+        "integrationVersion": "GV-HOTEL-679A",
+        "provider": "Agoda",
+        "hotelId": 896,
+        "hotelName": "The Shelburne Sonesta New York",
+        "imageUrl": "https://pix1.agoda.net/hotelimages/896/example.jpg?s=312x",
+        "bookingUrl": "https://www.agoda.com/partners/partnersearch.aspx?hid=896&cid=1953464",
+        "reviewScore": 8.4,
+        "reviewCount": 912,
+        "starRating": 4,
+        "accommodationType": null,
+        "providerCurrency": "CAD",
+        "nightlyRate": 220,
+        "crossedOutRate": 265,
+        "discountPercentage": 17,
+        "includeBreakfast": false,
+        "freeWifi": true,
+        "selectedForStayEstimate": true,
+        "bookingTrust": {
+          "version": "GV-QUALITY-680A",
+          "priceState": "provider-rate-observed",
+          "currentPriceConfirmed": false,
+          "availabilityConfirmed": false,
+          "baggageOrTaxBasis": "tax-basis-must-be-confirmed-on-agoda",
+          "handoffState": "provider-search-results",
+          "finalPriceRequiresPartnerConfirmation": true
+        }
+      }
+    },
+    {
+      "name": "679A keeps existing stay total semantics",
+      "pass": true,
+      "detail": {
+        "nightly": 162,
+        "total": 485
+      }
+    },
+    {
+      "name": "live verification propagates rich Agoda hotel",
+      "pass": true,
+      "detail": {
+        "source": "agoda",
+        "averageNightlyUsd": 162,
+        "totalStayUsd": 486,
+        "hotelName": "The Shelburne Sonesta New York",
+        "hotelUrl": "https://www.agoda.com/partners/partnersearch.aspx?hid=896&cid=1953464",
+        "sampleSize": 1,
+        "qualitySignals": {
+          "rating": 8.4,
+          "stars": 4,
+          "reviewCount": 912,
+          "sampleSize": 1,
+          "hotelName": "The Shelburne Sonesta New York"
+        },
+        "livePriceVerified": true,
+        "providerBacked": true,
+        "bookingTrustVersion": "GV-QUALITY-680A",
+        "availabilityStatus": "observed-not-guaranteed",
+        "providerHotel": {
+          "integrationVersion": "GV-HOTEL-679A",
+          "provider": "Agoda",
+          "hotelId": 896,
+          "hotelName": "The Shelburne Sonesta New York",
+          "imageUrl": "https://pix1.agoda.net/hotelimages/896/example.jpg?s=312x",
+          "bookingUrl": "https://www.agoda.com/partners/partnersearch.aspx?hid=896&cid=1953464",
+          "reviewScore": 8.4,
+          "reviewCount": 912,
+          "starRating": 4,
+          "accommodationType": null,
+          "providerCurrency": "CAD",
+          "nightlyRate": 220,
+          "crossedOutRate": 265,
+          "discountPercentage": 17,
+          "includeBreakfast": false,
+          "freeWifi": true,
+          "selectedForStayEstimate": true,
+          "bookingTrust": {
+            "version": "GV-QUALITY-680A",
+            "priceState": "provider-rate-observed",
+            "currentPriceConfirmed": false,
+            "availabilityConfirmed": false,
+            "baggageOrTaxBasis": "tax-basis-must-be-confirmed-on-agoda",
+            "handoffState": "provider-search-results",
+            "finalPriceRequiresPartnerConfirmation": true
+          }
+        },
+        "hotelId": 896,
+        "hotelImageUrl": "https://pix1.agoda.net/hotelimages/896/example.jpg?s=312x",
+        "reviewScore": 8.4,
+        "reviewCount": 912,
+        "starRating": 4,
+        "providerRateCurrency": "CAD",
+        "providerNightlyRate": 220,
+        "observedAt": "2026-08-11T22:45:31.668Z",
+        "requestEvidence": {
+          "checkIn": "2026-10-10",
+          "checkOut": "2026-10-13",
+          "currency": "CAD",
+          "adults": 2,
+          "children": 0,
+          "rooms": 1,
+          "exactStayDates": true
+        },
+        "providerResponseMode": "injected-provider-response",
+        "name": "The Shelburne Sonesta New York",
+        "estimatedNightlyUsd": 162,
+        "estimatedStayUsd": 486,
+        "agodaHotelId": 896,
+        "imageUrl": "https://pix1.agoda.net/hotelimages/896/example.jpg?s=312x",
+        "bookingUrl": "https://www.agoda.com/partners/partnersearch.aspx?hid=896&cid=1953464",
+        "providerUrl": "https://www.agoda.com/partners/partnersearch.aspx?hid=896&cid=1953464",
+        "rating": 8.4,
+        "providerVerification": {
+          "version": "GV-EVIDENCE-667E",
+          "status": "exact-stay-provider-rate-evidence",
+          "critical": true,
+          "verified": true,
+          "provider": "Agoda",
+          "integrationVersion": "GV-HOTEL-679A",
+          "hotelId": 896,
+          "checkIn": "2026-10-10",
+          "checkOut": "2026-10-13",
+          "exactStayDates": true,
+          "checkedAt": "2026-08-11T22:45:31.668Z",
+          "observedAt": "2026-08-11T22:45:31.668Z",
+          "observedAgeSeconds": 0,
+          "party": {
+            "adults": 2,
+            "children": 0,
+            "rooms": 1
+          },
+          "sampleSize": 1,
+          "productionEligible": true,
+          "providerResponseMode": "injected-provider-response"
+        },
+        "estimatedNightlyAllRoomsUsd": 162,
+        "rooms": 1,
+        "adults": 2,
+        "children": 0,
+        "infants": 0,
+        "pricingIntegrity": {
+          "version": "GV-CONTROL-667D",
+          "nightlyPerRoomUsd": 162,
+          "roomCount": 1,
+          "nights": 3,
+          "partyStayTotalUsd": 486,
+          "adults": 2,
+          "children": 0,
+          "infants": 0,
+          "rateBasis": "per-room-per-night"
+        }
+      }
+    },
+    {
+      "name": "live verification exposes rating fields for frontend",
+      "pass": true,
+      "detail": {
+        "reviewScore": 8.4,
+        "reviewCount": 912,
+        "starRating": 4
+      }
+    },
+    {
+      "name": "live verification preserves exact-stay evidence",
+      "pass": true,
+      "detail": {
+        "version": "GV-EVIDENCE-667E",
+        "status": "exact-stay-provider-rate-evidence",
+        "critical": true,
+        "verified": true,
+        "provider": "Agoda",
+        "integrationVersion": "GV-HOTEL-679A",
+        "hotelId": 896,
+        "checkIn": "2026-10-10",
+        "checkOut": "2026-10-13",
+        "exactStayDates": true,
+        "checkedAt": "2026-08-11T22:45:31.668Z",
+        "observedAt": "2026-08-11T22:45:31.668Z",
+        "observedAgeSeconds": 0,
+        "party": {
+          "adults": 2,
+          "children": 0,
+          "rooms": 1
+        },
+        "sampleSize": 1,
+        "productionEligible": true,
+        "providerResponseMode": "injected-provider-response"
+      }
+    },
+    {
+      "name": "summary advertises 679A integration",
+      "pass": true,
+      "detail": {
+        "enabled": true,
+        "version": "GV-HOTEL-679A",
+        "priceLinkIntegrityEnabled": false,
+        "priceLinkIntegrityVersion": null,
+        "handoffIntegrityEnabled": false,
+        "handoffIntegrityVersion": null,
+        "enrichedStayCount": 1,
+        "verifiedStayCount": 1,
+        "priceParityVerifiedStayCount": 0,
+        "landingPriceParityComplete": true,
+        "finalAvailabilityRequiresPartnerConfirmation": true,
+        "finalPriceRequiresPartnerConfirmation": true
+      }
+    },
+    {
+      "name": "summary counts enriched stay",
+      "pass": true,
+      "detail": {
+        "enabled": true,
+        "version": "GV-HOTEL-679A",
+        "priceLinkIntegrityEnabled": false,
+        "priceLinkIntegrityVersion": null,
+        "handoffIntegrityEnabled": false,
+        "handoffIntegrityVersion": null,
+        "enrichedStayCount": 1,
+        "verifiedStayCount": 1,
+        "priceParityVerifiedStayCount": 0,
+        "landingPriceParityComplete": true,
+        "finalAvailabilityRequiresPartnerConfirmation": true,
+        "finalPriceRequiresPartnerConfirmation": true
+      }
+    },
+    {
+      "name": "flag-off preserves legacy response shape",
+      "pass": true,
+      "detail": {}
+    }
+  ]
+}

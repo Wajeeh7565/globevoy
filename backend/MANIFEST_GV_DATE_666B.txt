@@ -1,0 +1,8 @@
+GV-DATE-666B backend delta from GV-MVP-666A:
+- generated-tour.js
+- generated-tour-controls.js
+- generated-tour-dates.js (new)
+- lambda.js
+- validate-gv-date-666b.js (new)
+- GV-DATE-666B_REPORT.md (new)
+- VALIDATION_GV_DATE_666B.json (new)

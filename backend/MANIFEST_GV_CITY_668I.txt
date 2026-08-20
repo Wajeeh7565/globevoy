@@ -1,0 +1,26 @@
+GV-CITY-668I — Remaining Current-500 Priority Audit
+
+BASE
+- lambda-gv-city-668h-merged-176-activation-snapshot.zip
+
+MODIFIED
+- lambda.js
+- server.js
+
+ADDED
+- services/remaining-current-city-audit.js
+- data/remaining-current-500-audit-150-668i.json
+- data/remaining-current-500-audit-150-668i.csv
+- build-gv-city-668i-priority-plan.js
+- validate-gv-city-668i.js
+- VALIDATION_GV_CITY_668I.json
+- Run-GV-CITY-668I-Remaining-Current500-Audit.ps1
+- GV-CITY-668I_REPORT.md
+- MANIFEST_GV_CITY_668I.txt
+
+UNCHANGED PRODUCT BEHAVIOR
+- 668H verified activation remains 176 cities.
+- Provider verification policy remains GV-CITY-668E.
+- Exact itinerary validation remains mandatory.
+- No frontend files changed.
+- No credentials bundled.

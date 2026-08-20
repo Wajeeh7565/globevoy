@@ -1,0 +1,24 @@
+GV-PROD-669D - Exact-Date and Family-Occupancy Integrity
+
+Modified:
+- generated-tour.js
+- services/traveller-pricing.js
+- validate-gv-prod-669c.js (regression assertion accepts superseding 669D version label)
+
+Added:
+- validate-gv-prod-669d.js
+- VALIDATION_GV_PROD_669D.json
+- Run-GV-PROD-669D-Exact-Date-Family-Smoke.ps1
+- GV-PROD-669D_REPORT.md
+- MANIFEST_GV_PROD_669D.txt
+
+Required new environment flag:
+- ENABLE_EXACT_DATE_FAMILY_OCCUPANCY_669D=true
+
+Optional environment setting:
+- GV_MAX_GUESTS_PER_ROOM_669D=2
+
+Required retained flags:
+- ENABLE_BUDGET_SAFE_ROUTE_RECOVERY_669C=true
+- ENABLE_MVP_VALIDATION_REPAIRS_669B=true
+- ENABLE_VERIFIED_CITY_ACTIVATION_668T=true
