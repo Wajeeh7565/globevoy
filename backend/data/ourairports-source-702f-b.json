@@ -1,0 +1,30 @@
+{
+  "version": "GV-REC-702F-B-SOURCE-R1",
+  "provider": "OurAirports",
+  "repository": "davidmegginson/ourairports-data",
+  "commit": "55fd4071c99668a29f9d3625d72405c44074ef2f",
+  "commitDate": "2026-08-20T01:53:15Z",
+  "path": "airports.csv",
+  "gitBlobSha": "b95a254e2d970ecb37320d645abced90c6d1a95f",
+  "byteSize": 12703718,
+  "license": "Public Domain / Unlicense",
+  "sourceUrl": "https://github.com/davidmegginson/ourairports-data",
+  "rawUrl": "https://raw.githubusercontent.com/davidmegginson/ourairports-data/55fd4071c99668a29f9d3625d72405c44074ef2f/airports.csv",
+  "fieldsUsed": [
+    "type",
+    "name",
+    "latitude_deg",
+    "longitude_deg",
+    "iso_country",
+    "municipality",
+    "scheduled_service",
+    "iata_code"
+  ],
+  "policy": {
+    "rawSnapshotCommittedToGlobevoy": false,
+    "runtimeDependency": false,
+    "routingChanged": false,
+    "providerCallsRequired": false,
+    "reviewBeforeIntegration": true
+  }
+}
