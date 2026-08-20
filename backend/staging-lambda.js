@@ -8,10 +8,11 @@
 // - make the isolated staging Lambda exercise the same 687B origin-gated path as
 //   production without adding a second feature-flag environment variable.
 //
-// GV-DATA-701B adds one bounded read-only staging endpoint for the 701A
-// worldwide-registry overlay. GV-REC-702A adds a second read-only endpoint for
-// deterministic global recommendation coverage auditing. Neither endpoint
-// changes the production handler or generated-tour recommendation path.
+// GV-DATA-701B adds a bounded read-only worldwide-registry endpoint.
+// GV-REC-702A adds deterministic global recommendation coverage auditing.
+// GV-REC-702B adds a freshness-aware recovery-priority endpoint that uses old
+// reviewed evidence to avoid blindly repeating the July 668-series audits.
+// None of these endpoints changes the production handler or generated-tour path.
 //
 // IMPORTANT: configure the staging Lambda handler as `staging-lambda.handler`.
 // Do not use this entrypoint for the production function.
@@ -31,10 +32,18 @@ const {
   resolve: resolveGlobalCoverage,
   search: searchGlobalCoverage
 } = require('./services/global-recommendation-coverage-702a');
+const {
+  VERSION: GLOBAL_RECOVERY_VERSION,
+  enabled: globalRecoveryEnabled,
+  summary: globalRecoverySummary,
+  resolve: resolveGlobalRecovery,
+  search: searchGlobalRecovery
+} = require('./services/global-recovery-priority-702b');
 
 const VERSION = 'GV-PLATFORM-700A-STAGING-API-R1';
 const WORLDWIDE_API_VERSION = 'GV-DATA-701B';
 const GLOBAL_COVERAGE_API_VERSION = 'GV-REC-702A';
+const GLOBAL_RECOVERY_API_VERSION = 'GV-REC-702B';
 const PRODUCTION_ORIGIN = 'https://globevoy.com';
 
 function headerValue(headers = {}, name = '') {
@@ -61,8 +70,6 @@ function normalizeHttpsOrigin(value = '') {
 
 function configuredStagingOrigin(env = process.env) {
   const configured = normalizeHttpsOrigin(env.CORS_ORIGIN || '');
-  // Fail closed if this staging-only entrypoint is accidentally pointed at the
-  // real production browser origin.
   if (!configured || configured === PRODUCTION_ORIGIN) return '';
   return configured;
 }
@@ -101,11 +108,7 @@ function eventPath(event = {}) {
 }
 
 function eventMethod(event = {}) {
-  return String(
-    event.requestContext?.http?.method
-      || event.httpMethod
-      || 'GET'
-  ).toUpperCase();
+  return String(event.requestContext?.http?.method || event.httpMethod || 'GET').toUpperCase();
 }
 
 function worldwideApiResponse(statusCode, payload, requestOrigin) {
@@ -131,11 +134,7 @@ function handleWorldwideRegistryApi(event = {}, requestOrigin = '') {
   const resolveInput = String(query.resolve || query.city || '').trim();
   const hasSearch = Boolean(
     String(query.q || query.query || '').trim()
-    || query.scope
-    || query.mode
-    || query.countryCode
-    || query.country
-    || query.limit
+    || query.scope || query.mode || query.countryCode || query.country || query.limit
   );
 
   if (!resolveInput && !hasSearch) {
@@ -194,24 +193,11 @@ function handleGlobalCoverageApi(event = {}, requestOrigin = '') {
   const resolveInput = String(query.resolve || query.city || '').trim();
   const hasSearch = Boolean(
     String(query.q || query.query || '').trim()
-    || query.countryCode
-    || query.country
-    || query.region
-    || query.worldRegion
-    || query.tier
-    || query.selectionTier
-    || query.readiness
-    || query.readinessTier
-    || query.gap
-    || query.primaryGap
-    || query.active
-    || query.productionActive
-    || query.mapped
-    || query.bothProvidersMapped
-    || query.gateway
-    || query.requiresGatewayTransfer
-    || query.offset
-    || query.limit
+    || query.countryCode || query.country || query.region || query.worldRegion
+    || query.tier || query.selectionTier || query.readiness || query.readinessTier
+    || query.gap || query.primaryGap || query.active || query.productionActive
+    || query.mapped || query.bothProvidersMapped || query.gateway
+    || query.requiresGatewayTransfer || query.offset || query.limit
   );
 
   if (!resolveInput && !hasSearch) {
@@ -246,53 +232,101 @@ function handleGlobalCoverageApi(event = {}, requestOrigin = '') {
   return globalCoverageApiResponse(200, { ...result, status: 'search' }, requestOrigin);
 }
 
+function globalRecoveryApiResponse(statusCode, payload, requestOrigin) {
+  return {
+    statusCode,
+    headers: stagingHeaders(requestOrigin, { 'X-Globevoy-Recovery': GLOBAL_RECOVERY_API_VERSION }),
+    body: JSON.stringify({
+      apiVersion: GLOBAL_RECOVERY_API_VERSION,
+      priorityVersion: GLOBAL_RECOVERY_VERSION,
+      staging: true,
+      ...payload
+    })
+  };
+}
+
+function handleGlobalRecoveryApi(event = {}, requestOrigin = '') {
+  if (eventMethod(event) !== 'GET') {
+    return globalRecoveryApiResponse(405, { ok: false, error: 'GET required' }, requestOrigin);
+  }
+
+  const query = event.queryStringParameters || {};
+  const prioritySummary = globalRecoverySummary({ asOf: query.asOf });
+  const resolveInput = String(query.resolve || query.city || '').trim();
+  const hasSearch = Boolean(
+    query.lane || query.region || query.worldRegion || query.gap || query.primaryGap
+    || query.previousRecovery || query.recovery668s || query.due || query.reviewDue
+    || query.tier || query.selectionTier || query.asOf || query.offset || query.limit
+  );
+
+  if (!resolveInput && !hasSearch) {
+    return globalRecoveryApiResponse(200, prioritySummary, requestOrigin);
+  }
+
+  if (!globalRecoveryEnabled()) {
+    return globalRecoveryApiResponse(200, {
+      ok: true,
+      enabled: false,
+      status: 'feature-disabled',
+      counts: prioritySummary.counts,
+      records: [],
+      disclaimer: prioritySummary.disclaimer
+    }, requestOrigin);
+  }
+
+  if (resolveInput) {
+    const record = resolveGlobalRecovery(resolveInput, {
+      countryCode: query.countryCode || query.country,
+      asOf: query.asOf
+    });
+    return globalRecoveryApiResponse(200, {
+      ok: true,
+      enabled: true,
+      status: record ? 'resolved' : 'not-found',
+      mode: 'resolve',
+      found: Boolean(record),
+      record,
+      disclaimer: '702B resolution reports re-check priority only; it never activates a city.'
+    }, requestOrigin);
+  }
+
+  const result = searchGlobalRecovery(query);
+  return globalRecoveryApiResponse(200, { ...result, status: 'search' }, requestOrigin);
+}
+
 async function handler(event = {}) {
   const configuredOrigin = configuredStagingOrigin(process.env);
   const requestOrigin = normalizeHttpsOrigin(headerValue(event.headers || {}, 'origin'));
 
-  if (!configuredOrigin) {
-    return stagingError(500, 'staging-origin-not-configured');
-  }
-
-  // The staging Function URL is browser-only. Missing or unknown origins fail
-  // before either read-only staging endpoint or verified production handler executes.
-  if (!requestOrigin) {
-    return stagingError(403, 'staging-origin-required');
-  }
-  if (requestOrigin !== configuredOrigin) {
-    return stagingError(403, 'staging-origin-not-allowed');
-  }
+  if (!configuredOrigin) return stagingError(500, 'staging-origin-not-configured');
+  if (!requestOrigin) return stagingError(403, 'staging-origin-required');
+  if (requestOrigin !== configuredOrigin) return stagingError(403, 'staging-origin-not-allowed');
 
   if (eventPath(event) === '/api/worldwide-city-registry') {
     return handleWorldwideRegistryApi(event, configuredOrigin);
   }
-
   if (eventPath(event) === '/api/global-recommendation-coverage') {
     return handleGlobalCoverageApi(event, configuredOrigin);
   }
+  if (eventPath(event) === '/api/global-recovery-priority') {
+    return handleGlobalRecoveryApi(event, configuredOrigin);
+  }
 
-  // The verified 687B production runtime uses a trusted browser-origin marker
-  // as its activation gate. This wrapper is deployed only to an isolated
-  // staging Lambda, so we intentionally map the already-validated staging
-  // origin to the production-origin marker for internal execution.
   const forwardedHeaders = replaceHeader(event.headers || {}, 'Origin', PRODUCTION_ORIGIN);
   const forwardedEvent = { ...event, headers: forwardedHeaders };
-
   const response = await productionHandler(forwardedEvent);
   const responseHeaders = replaceHeader(response && response.headers ? response.headers : {}, 'Access-Control-Allow-Origin', configuredOrigin);
   responseHeaders.Vary = 'Origin';
   responseHeaders['X-Globevoy-Staging'] = VERSION;
 
-  return {
-    ...response,
-    headers: responseHeaders
-  };
+  return { ...response, headers: responseHeaders };
 }
 
 module.exports = {
   VERSION,
   WORLDWIDE_API_VERSION,
   GLOBAL_COVERAGE_API_VERSION,
+  GLOBAL_RECOVERY_API_VERSION,
   PRODUCTION_ORIGIN,
   handler,
   _internal: {
@@ -307,6 +341,8 @@ module.exports = {
     worldwideApiResponse,
     handleWorldwideRegistryApi,
     globalCoverageApiResponse,
-    handleGlobalCoverageApi
+    handleGlobalCoverageApi,
+    globalRecoveryApiResponse,
+    handleGlobalRecoveryApi
   }
 };
