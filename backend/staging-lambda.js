@@ -8,12 +8,24 @@
 // - make the isolated staging Lambda exercise the same 687B origin-gated path as
 //   production without adding a second feature-flag environment variable.
 //
+// GV-DATA-701B adds one bounded read-only staging endpoint for the 701A
+// worldwide-registry overlay. It does not change the production handler or
+// generated-tour recommendation path.
+//
 // IMPORTANT: configure the staging Lambda handler as `staging-lambda.handler`.
 // Do not use this entrypoint for the production function.
 
 const { handler: productionHandler } = require('./lambda');
+const {
+  VERSION: WORLDWIDE_REGISTRY_VERSION,
+  worldwideRegistryEnabled,
+  worldwideRegistrySummary,
+  resolveWorldwideCity,
+  searchWorldwideRegistry
+} = require('./services/worldwide-city-registry-701a');
 
 const VERSION = 'GV-PLATFORM-700A-STAGING-API-R1';
+const WORLDWIDE_API_VERSION = 'GV-DATA-701B';
 const PRODUCTION_ORIGIN = 'https://globevoy.com';
 
 function headerValue(headers = {}, name = '') {
@@ -56,17 +68,98 @@ function replaceHeader(headers = {}, name = '', value = '') {
   return next;
 }
 
-function stagingError(statusCode, message, requestOrigin = '') {
+function stagingHeaders(requestOrigin = '', extra = {}) {
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
-    Vary: 'Origin'
+    Vary: 'Origin',
+    'X-Globevoy-Staging': VERSION,
+    ...extra
   };
   if (requestOrigin) headers['Access-Control-Allow-Origin'] = requestOrigin;
+  return headers;
+}
+
+function stagingError(statusCode, message, requestOrigin = '') {
   return {
     statusCode,
-    headers,
+    headers: stagingHeaders(requestOrigin),
     body: JSON.stringify({ ok: false, staging: true, version: VERSION, error: message })
   };
+}
+
+function eventPath(event = {}) {
+  return String(event.rawPath || event.path || '').split('?')[0];
+}
+
+function eventMethod(event = {}) {
+  return String(
+    event.requestContext?.http?.method
+      || event.httpMethod
+      || 'GET'
+  ).toUpperCase();
+}
+
+function worldwideApiResponse(statusCode, payload, requestOrigin) {
+  return {
+    statusCode,
+    headers: stagingHeaders(requestOrigin, { 'X-Globevoy-Data': WORLDWIDE_API_VERSION }),
+    body: JSON.stringify({
+      apiVersion: WORLDWIDE_API_VERSION,
+      registryVersion: WORLDWIDE_REGISTRY_VERSION,
+      staging: true,
+      ...payload
+    })
+  };
+}
+
+function handleWorldwideRegistryApi(event = {}, requestOrigin = '') {
+  if (eventMethod(event) !== 'GET') {
+    return worldwideApiResponse(405, { ok: false, error: 'GET required' }, requestOrigin);
+  }
+
+  const query = event.queryStringParameters || {};
+  const summary = worldwideRegistrySummary();
+  const resolveInput = String(query.resolve || query.city || '').trim();
+  const hasSearch = Boolean(
+    String(query.q || query.query || '').trim()
+    || query.scope
+    || query.mode
+    || query.countryCode
+    || query.country
+    || query.limit
+  );
+
+  if (!resolveInput && !hasSearch) {
+    return worldwideApiResponse(200, { ...summary, status: worldwideRegistryEnabled() ? 'ready' : 'feature-disabled' }, requestOrigin);
+  }
+
+  if (!worldwideRegistryEnabled()) {
+    return worldwideApiResponse(200, {
+      ok: true,
+      enabled: false,
+      status: 'feature-disabled',
+      counts: summary.counts,
+      layers: summary.layers,
+      records: [],
+      disclaimer: summary.disclaimer
+    }, requestOrigin);
+  }
+
+  if (resolveInput) {
+    const record = resolveWorldwideCity(resolveInput, { countryCode: query.countryCode || query.country });
+    return worldwideApiResponse(200, {
+      ok: true,
+      enabled: true,
+      status: record ? 'resolved' : 'not-found',
+      mode: 'resolve',
+      found: Boolean(record),
+      record,
+      disclaimer: 'Worldwide resolution does not promote an origin-only city into the curated destination or production-active layers.'
+    }, requestOrigin);
+  }
+
+  const result = searchWorldwideRegistry(query);
+  return worldwideApiResponse(200, { ...result, status: 'search' }, requestOrigin);
 }
 
 async function handler(event = {}) {
@@ -78,12 +171,16 @@ async function handler(event = {}) {
   }
 
   // The staging Function URL is browser-only. Missing or unknown origins fail
-  // before the verified production handler executes.
+  // before either the read-only staging endpoint or verified production handler executes.
   if (!requestOrigin) {
     return stagingError(403, 'staging-origin-required');
   }
   if (requestOrigin !== configuredOrigin) {
     return stagingError(403, 'staging-origin-not-allowed');
+  }
+
+  if (eventPath(event) === '/api/worldwide-city-registry') {
+    return handleWorldwideRegistryApi(event, configuredOrigin);
   }
 
   // The verified 687B production runtime uses a trusted browser-origin marker
@@ -106,6 +203,7 @@ async function handler(event = {}) {
 
 module.exports = {
   VERSION,
+  WORLDWIDE_API_VERSION,
   PRODUCTION_ORIGIN,
   handler,
   _internal: {
@@ -113,6 +211,11 @@ module.exports = {
     normalizeHttpsOrigin,
     configuredStagingOrigin,
     replaceHeader,
-    stagingError
+    stagingHeaders,
+    stagingError,
+    eventPath,
+    eventMethod,
+    worldwideApiResponse,
+    handleWorldwideRegistryApi
   }
 };
