@@ -77,9 +77,12 @@ async function handler(event = {}) {
     return stagingError(500, 'staging-origin-not-configured');
   }
 
-  // Browser calls must come from the one Amplify staging origin configured in
-  // CORS_ORIGIN. Unknown origins fail before the production handler executes.
-  if (requestOrigin && requestOrigin !== configuredOrigin) {
+  // The staging Function URL is browser-only. Missing or unknown origins fail
+  // before the verified production handler executes.
+  if (!requestOrigin) {
+    return stagingError(403, 'staging-origin-required');
+  }
+  if (requestOrigin !== configuredOrigin) {
     return stagingError(403, 'staging-origin-not-allowed');
   }
 

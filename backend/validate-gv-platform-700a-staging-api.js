@@ -26,7 +26,9 @@ check('Configured Amplify origin is accepted', configuredStagingOrigin({ CORS_OR
 const replaced = replaceHeader({ origin: 'https://old.example', Other: 'ok' }, 'Origin', 'https://globevoy.com');
 check('Forwarded origin is replaced, not duplicated', replaced.Origin === 'https://globevoy.com' && !Object.prototype.hasOwnProperty.call(replaced, 'origin') && replaced.Other === 'ok');
 
-check('Unknown browser origin fails before production handler', source.indexOf("requestOrigin !== configuredOrigin") < source.indexOf('productionHandler(forwardedEvent)'));
+const invokeIndex = source.indexOf('productionHandler(forwardedEvent)');
+check('Missing browser origin fails before production handler', source.indexOf("if (!requestOrigin)") >= 0 && source.indexOf("if (!requestOrigin)") < invokeIndex && source.includes("staging-origin-required"));
+check('Unknown browser origin fails before production handler', source.indexOf("requestOrigin !== configuredOrigin") >= 0 && source.indexOf("requestOrigin !== configuredOrigin") < invokeIndex);
 check('Validated staging origin maps only inside isolated wrapper', source.includes("replaceHeader(event.headers || {}, 'Origin', PRODUCTION_ORIGIN)"));
 check('Browser CORS is rewritten back to configured staging origin', source.includes("'Access-Control-Allow-Origin', configuredOrigin"));
 check('Response is visibly marked as staging', source.includes("responseHeaders['X-Globevoy-Staging'] = VERSION"));
