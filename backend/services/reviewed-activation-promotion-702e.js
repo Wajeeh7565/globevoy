@@ -23,14 +23,7 @@ const promotionById = new Map((manifest.cities || []).map(row => [row.cityId, ro
 
 function projectionForRecord(record = {}) {
   const promotion = promotionById.get(record.cityId) || null;
-  if (!promotion) {
-    return {
-      ...clone(record),
-      promotionCandidate: false,
-      candidateVersion: VERSION,
-      actualProductionActivationWritten: false
-    };
-  }
+  if (!promotion) return clone(record);
 
   const reviewed = reviewedRecovery.resolve(record.cityId);
   const qualifies = reviewed?.reviewedRecoveryCandidate === true
