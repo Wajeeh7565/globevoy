@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('assert');
+const { execFileSync } = require('child_process');
 
 const STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
 process.env.CORS_ORIGIN = `${STAGING_ORIGIN}/`;
@@ -129,14 +130,53 @@ function event(path, method = 'GET', origin = STAGING_ORIGIN) {
     assert.strictEqual(status.thresholdsRelaxed, false);
   });
 
-  const wrapper = require('./staging-lambda-702d');
+  // Run the wrapper smoke in a clean Node process. The in-process tests above
+  // intentionally load generated-tour first; staging cold starts load the wrapper
+  // first, which is required by later pre-load QA overlays such as GV-FLIGHT-703C.
+  const wrapperSmokeRaw = execFileSync(process.execPath, ['-e', `
+    const origin = ${JSON.stringify(STAGING_ORIGIN)};
+    const wrapper = require('./staging-lambda-702d');
+    const event = {
+      rawPath: '/api/current-500-completion-audit',
+      headers: { Origin: origin },
+      queryStringParameters: {},
+      requestContext: { http: { method: 'GET' } }
+    };
+    wrapper.handler(event).then(response => {
+      console.log(JSON.stringify({
+        version: wrapper.VERSION,
+        statusCode: response.statusCode,
+        cors: response.headers['Access-Control-Allow-Origin'],
+        qa: response.headers['X-Globevoy-Staging-QA'],
+        recovery: response.headers['X-Globevoy-Staging-Recovery'],
+        duffelBudget: response.headers['X-Globevoy-Staging-Duffel-Budget'],
+        duffelBudgetCap: response.headers['X-Globevoy-Staging-Duffel-Budget-Cap']
+      }));
+    }).catch(error => { console.error(error); process.exit(1); });
+  `], {
+    cwd: __dirname,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      CORS_ORIGIN: `${STAGING_ORIGIN}/`,
+      ENABLE_VERIFIED_CITY_ACTIVATION_668T: 'true',
+      ENABLE_MVP_VALIDATION_REPAIRS_669B: 'true',
+      ENABLE_STAGING_REVIEWED_RECOVERY_702D: 'true',
+      ENABLE_GENERATED_TOUR_651A: 'true',
+      ENABLE_PROVIDER_CHEAP_DATE_SCANNER_650B: 'true',
+      ENABLE_AUTOMATIC_CHEAP_DATE_TOUR_BUILDER_657B: 'true'
+    }
+  }).trim();
+  const wrapperSmoke = JSON.parse(wrapperSmokeRaw.split(/\r?\n/).filter(Boolean).pop());
+
   await check('702D Lambda wrapper is explicit and reports QA headers', async () => {
-    assert.strictEqual(wrapper.VERSION, 'GV-REC-702D-STAGING-QA-R1');
-    const response = await wrapper.handler(event('/api/current-500-completion-audit'));
-    assert.strictEqual(response.statusCode, 200);
-    assert.strictEqual(response.headers['Access-Control-Allow-Origin'], STAGING_ORIGIN);
-    assert.strictEqual(response.headers['X-Globevoy-Staging-QA'], 'GV-REC-702D-STAGING-QA-R1');
-    assert.strictEqual(response.headers['X-Globevoy-Staging-Recovery'], 'GV-REC-702D');
+    assert.strictEqual(wrapperSmoke.version, 'GV-REC-702D-STAGING-QA-R1');
+    assert.strictEqual(wrapperSmoke.statusCode, 200);
+    assert.strictEqual(wrapperSmoke.cors, STAGING_ORIGIN);
+    assert.strictEqual(wrapperSmoke.qa, 'GV-REC-702D-STAGING-QA-R1');
+    assert.strictEqual(wrapperSmoke.recovery, 'GV-REC-702D');
+    assert.strictEqual(wrapperSmoke.duffelBudget, 'GV-FLIGHT-703C');
+    assert.strictEqual(wrapperSmoke.duffelBudgetCap, '8');
   });
 
   console.log(`GV-REC-702D validation passed (${passed}/${passed}).`);
