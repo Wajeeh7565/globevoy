@@ -1,0 +1,101 @@
+{
+  "taskId": "GV-REC-702F-C",
+  "version": "1.0.0",
+  "asOf": "2026-08-20",
+  "reviewOnly": true,
+  "routingChanged": false,
+  "automaticOverrideAllowed": false,
+  "notes": "Reviewed context for special cases in the corrected GV-REC-702F-B-R1 50-city queue. These entries classify evidence problems; they do not change routes or assert exact-itinerary availability.",
+  "records": [
+    {
+      "cityId": "saint-martin-mf",
+      "bucket": "registry-integrity-hold",
+      "issueType": "registry-coordinate-integrity",
+      "recommendedAction": "correct-city-coordinates-before-airport-review",
+      "reason": "Globevoy stores Saint Martin near -26.234987,28.200738, while SFG is a scheduled-service Saint Martin airport at 18.100057,-63.047444. The apparent Johannesburg gateway is therefore a coordinate artifact.",
+      "observedRegistryCoordinates": {"latitude": -26.234987, "longitude": 28.200738},
+      "referenceFacility": {"code": "SFG", "latitude": 18.100057, "longitude": -63.047444},
+      "evidence": [
+        {"type": "ourairports", "url": "https://ourairports.com/airports/TFFG/", "claim": "SFG is in Saint Martin, airline service yes, coordinates 18.100057,-63.047444."}
+      ]
+    },
+    {
+      "cityId": "umueri-ng",
+      "bucket": "registry-integrity-hold",
+      "issueType": "registry-coordinate-and-code-integrity",
+      "recommendedAction": "correct-city-coordinates-and-provider-code-strategy-before-airport-review",
+      "reason": "Globevoy stores Umueri at longitude -6.87761 and preferred code ANA, which resolves to an unrelated Kenyan airport in the pinned source. The official Umueri airport uses ICAO DNAN, has scheduled commercial operations, and OurAirports places it at 6.267167,6.871333 without an IATA code.",
+      "observedRegistryCoordinates": {"latitude": 6.27026, "longitude": -6.87761},
+      "referenceFacility": {"icao": "DNAN", "latitude": 6.267167, "longitude": 6.871333},
+      "evidence": [
+        {"type": "official-airport", "url": "https://caica.anambrastate.gov.ng/about-us/", "claim": "Chinua Achebe International Cargo Airport is in Umueri, uses ICAO DNAN, and scheduled commercial operations have commenced."},
+        {"type": "official-airport", "url": "https://caica.anambrastate.gov.ng/flights/", "claim": "Air Peace and United Nigeria operate scheduled passenger services."},
+        {"type": "ourairports", "url": "https://ourairports.com/airports/DNAN/", "claim": "DNAN has airline service and coordinates 6.267167,6.871333; no IATA code is listed."}
+      ]
+    },
+    {
+      "cityId": "sun-city-za",
+      "bucket": "registry-integrity-hold",
+      "issueType": "registry-coordinate-integrity",
+      "recommendedAction": "correct-destination-coordinates-before-airport-review",
+      "reason": "Globevoy's stored Sun City coordinates make Pilanesberg Airport appear 107.7 km away, while Sun International states Pilanesberg International Airport is 8 km from Sun City. This is a destination-coordinate problem before it is a gateway-selection problem.",
+      "observedRegistryCoordinates": {"latitude": -26.033333, "longitude": 27.916668},
+      "referenceFacility": {"code": "NTY", "officialDistanceFromDestinationKm": 8},
+      "evidence": [
+        {"type": "official-destination", "url": "https://www.suninternational.com/content/dam/approved/customer-zone/fact-sheets/sun-city-fact-finder.pdf", "claim": "Sun International lists Pilanesberg International Airport as 8 km from Sun City."}
+      ]
+    },
+    {
+      "cityId": "khost-af",
+      "bucket": "registry-integrity-hold",
+      "issueType": "registry-coordinate-integrity",
+      "recommendedAction": "correct-city-coordinates-before-airport-review",
+      "reason": "Globevoy stores Khost near 35,72, making KHT appear 277.7 km away. OurAirports places Khost International Airport at 33.284605,69.807340 and reports airline service, consistent with Khost being local to the airport.",
+      "observedRegistryCoordinates": {"latitude": 35, "longitude": 72},
+      "referenceFacility": {"code": "KHT", "latitude": 33.284605, "longitude": 69.80734},
+      "evidence": [
+        {"type": "ourairports", "url": "https://ourairports.com/airports/OAKS/", "claim": "KHT is Khost International Airport, airline service yes, coordinates 33.284605,69.807340."}
+      ]
+    },
+    {
+      "cityId": "kharkov-ua",
+      "bucket": "operational-airspace-hold",
+      "issueType": "current-civil-airspace-closure",
+      "recommendedAction": "preserve-city-identity-and-do-not-substitute-neighboring-airport",
+      "reason": "Ukraine's civil airspace remains closed. A nearby airport surfaced by geographic ranking must not be treated as a replacement for current Ukrainian airport service.",
+      "evidence": [
+        {"type": "official-government", "url": "https://www.kmu.gov.ua/en/news/uriad-ukhvalyv-stratehichni-rishennia-dlia-rozvytku-tsyvilnoi-aviatsii-ukrainy", "claim": "Ukraine's airspace remains closed to civil aviation and the July 2026 decisions are preparation for future reopening, not near-term flight reopening."}
+      ]
+    },
+    {
+      "cityId": "kyiv-ua",
+      "bucket": "operational-airspace-hold",
+      "issueType": "current-civil-airspace-closure",
+      "recommendedAction": "preserve-city-identity-and-do-not-substitute-neighboring-airport",
+      "reason": "Ukraine's civil airspace remains closed. Geographic alternatives are not evidence of a valid substitute route.",
+      "evidence": [
+        {"type": "official-government", "url": "https://www.kmu.gov.ua/en/news/uriad-ukhvalyv-stratehichni-rishennia-dlia-rozvytku-tsyvilnoi-aviatsii-ukrainy", "claim": "Ukraine's airspace remains closed to civil aviation."}
+      ]
+    },
+    {
+      "cityId": "odessa-ua",
+      "bucket": "operational-airspace-hold",
+      "issueType": "current-civil-airspace-closure",
+      "recommendedAction": "preserve-city-identity-and-do-not-substitute-neighboring-airport",
+      "reason": "Ukraine's civil airspace remains closed. ODS source representation differences must be reviewed separately from current operational availability.",
+      "evidence": [
+        {"type": "official-government", "url": "https://www.kmu.gov.ua/en/news/uriad-ukhvalyv-stratehichni-rishennia-dlia-rozvytku-tsyvilnoi-aviatsii-ukrainy", "claim": "Ukraine's airspace remains closed to civil aviation."}
+      ]
+    },
+    {
+      "cityId": "vinnytsia-ua",
+      "bucket": "operational-airspace-hold",
+      "issueType": "current-civil-airspace-closure",
+      "recommendedAction": "preserve-city-identity-and-do-not-substitute-neighboring-airport",
+      "reason": "Ukraine's civil airspace remains closed. Geographic alternatives must not auto-replace VIN.",
+      "evidence": [
+        {"type": "official-government", "url": "https://www.kmu.gov.ua/en/news/uriad-ukhvalyv-stratehichni-rishennia-dlia-rozvytku-tsyvilnoi-aviatsii-ukrainy", "claim": "Ukraine's airspace remains closed to civil aviation."}
+      ]
+    }
+  ]
+}
