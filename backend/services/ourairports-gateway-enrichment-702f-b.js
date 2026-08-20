@@ -6,8 +6,8 @@ const registry = require('../data/unified-city-registry-1000-668b.json');
 const source = require('../data/ourairports-source-702f-b.json');
 
 const VERSION = 'GV-REC-702F-B';
-const ALLOWED_TYPES = new Set(['large_airport', 'medium_airport', 'small_airport', 'seaplane_base']);
-const TYPE_PENALTY = Object.freeze({ large_airport: 0, medium_airport: 20, small_airport: 60, seaplane_base: 90 });
+const ALLOWED_TYPES = new Set(['large_airport', 'medium_airport', 'small_airport', 'seaplane_base', 'heliport']);
+const TYPE_PENALTY = Object.freeze({ large_airport: 0, medium_airport: 20, small_airport: 60, seaplane_base: 90, heliport: 100 });
 const REVIEW_PRIORITY = Object.freeze({ high: 0, medium: 1, none: 9 });
 
 function clean(v) { return String(v == null ? '' : v).trim(); }
@@ -135,11 +135,21 @@ function airportEvidence(code, city, byIata) {
   };
 }
 
+function localScheduledServiceStrong(city, preferredEvidence) {
+  if (!preferredEvidence?.scheduledService) return false;
+  const distanceKm = Number(preferredEvidence.distanceKm);
+  if (!Number.isFinite(distanceKm) || distanceKm > 25) return false;
+  const cityName = lower(city.displayName);
+  const municipality = lower(preferredEvidence.municipality);
+  return Boolean(cityName && municipality && (municipality.includes(cityName) || cityName.includes(municipality)));
+}
+
 function classify(city, preferredEvidence, gatewayEvidence, candidates) {
   const best = candidates[0] || null;
   if (!preferredEvidence?.iata) return best ? 'review-missing-preferred-airport' : 'no-nearby-scheduled-service-candidate';
   if (!preferredEvidence.scheduledService) return best ? 'review-current-preferred-not-confirmed' : 'no-nearby-scheduled-service-candidate';
   if (gatewayEvidence?.iata && !gatewayEvidence.scheduledService) return 'review-existing-gateway-not-confirmed';
+  if (localScheduledServiceStrong(city, preferredEvidence)) return 'current-mapping-confirmed';
   if (best && best.iata !== preferredEvidence.iata) {
     const preferredPenalty = TYPE_PENALTY[preferredEvidence.type] ?? 120;
     const bestPenalty = TYPE_PENALTY[best.type] ?? 120;
@@ -211,6 +221,7 @@ function buildReport(csvText, options = {}) {
     source,
     policy: {
       scheduledServiceRequiredForGeneratedCandidates: true,
+      scheduledPassengerHeliportsSupported: true,
       validIataRequired: true,
       sameCountryRadiusKm: 400,
       crossBorderRadiusKm: 200,
@@ -272,6 +283,7 @@ module.exports = {
   currentCodes,
   nearbyCandidates,
   airportEvidence,
+  localScheduledServiceStrong,
   classify,
   enrichCity,
   buildReport

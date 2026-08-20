@@ -38,9 +38,11 @@ A generated gateway candidate must:
 
 1. have a valid three-letter IATA code;
 2. have coordinates;
-3. be one of `large_airport`, `medium_airport`, `small_airport`, or `seaplane_base`;
+3. be one of `large_airport`, `medium_airport`, `small_airport`, `seaplane_base`, or `heliport`;
 4. have `scheduled_service=yes` in the pinned snapshot;
 5. be within 400 km when in the same country, or 200 km when cross-border.
+
+Scheduled passenger heliports are included because some destinations, notably in Greenland, legitimately use them as airline-service facilities. A local scheduled-service facility within 25 km whose municipality matches the destination is treated as a strong local match and is not downgraded merely because a larger airport exists nearby.
 
 Candidates are ranked only for **human review** using straight-line distance, airport type, same-country preference, and municipality affinity.
 
@@ -59,7 +61,7 @@ For each curated city the report records:
 
 The important distinction is preserved:
 
-- `scheduled_service=yes` means the source reports scheduled airline service at that airport;
+- `scheduled_service=yes` means the source reports scheduled airline service at that facility;
 - it does **not** prove a route exists for the user's requested origin/date;
 - it does **not** prove a fare is available;
 - Duffel remains the preferred exact-date live verification layer.
@@ -75,11 +77,17 @@ The important distinction is preserved:
 
 High-priority rows are foundation inconsistencies or missing confirmations. Medium-priority rows are alternative candidates worth human review. No row is automatically promoted.
 
+## 702F-B-R1 audit correction
+
+The first 702F-B report excluded `heliport` records. That incorrectly flagged destinations such as Tasiilaq even though its IATA-coded heliport has scheduled passenger airline service. R1 adds scheduled-service heliports to the passenger-relevant facility set and protects strong local scheduled-service matches from being displaced automatically by a larger but less local airport.
+
+This is an **audit correction only**. It does not modify any Globevoy route mapping.
+
 ## CI output
 
 The dedicated `validate-702f-b.yml` workflow:
 
-1. validates the pure algorithm against a deterministic fixture;
+1. validates the pure algorithm against deterministic fixtures, including a scheduled passenger heliport case;
 2. downloads the exact pinned OurAirports CSV;
 3. verifies `git hash-object` equals the pinned blob SHA;
 4. builds a report for all 1,000 curated destinations;
@@ -99,4 +107,4 @@ The dedicated `validate-702f-b.yml` workflow:
 
 ## Follow-up
 
-After reviewing the generated queue, a later task may create a **small, explicit staging-only gateway proposal** for selected cities. Any such proposal must preserve exact-itinerary verification and must not treat airport proximity or scheduled-service metadata as proof of current flight availability.
+After reviewing the corrected generated queue, a later task may create a **small, explicit staging-only gateway proposal** for selected cities. Any such proposal must preserve exact-itinerary verification and must not treat airport proximity or scheduled-service metadata as proof of current flight availability.
