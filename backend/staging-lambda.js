@@ -256,7 +256,7 @@ function handleGlobalRecoveryApi(event = {}, requestOrigin = '') {
   const hasSearch = Boolean(
     query.lane || query.region || query.worldRegion || query.gap || query.primaryGap
     || query.previousRecovery || query.recovery668s || query.due || query.reviewDue
-    || query.tier || query.selectionTier || query.asOf || query.offset || query.limit
+    || query.tier || query.selectionTier || query.offset || query.limit
   );
 
   if (!resolveInput && !hasSearch) {
