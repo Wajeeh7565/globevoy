@@ -1,4 +1,4 @@
-﻿# Current baseline â€” 2026-08-19
+# Current baseline - 2026-08-19
 
 Branch: `sync/current-2026-08-19`
 
