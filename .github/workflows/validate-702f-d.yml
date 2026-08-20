@@ -1,0 +1,125 @@
+name: GV-REC-702F-D High-Confidence Airport Overlay
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/data/gateway-foundation-corrections-702f-d.json'
+      - 'backend/services/staging-gateway-foundation-702f-d.js'
+      - 'backend/validate-gv-rec-702f-d.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/data/unified-city-registry-1000-668b.json'
+      - 'backend/services/city-registry.js'
+      - 'backend/services/ourairports-gateway-enrichment-702f-b.js'
+      - 'docs/GV-REC-702F-D.md'
+      - '.github/workflows/validate-702f-d.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate nine-city staging preferred-airport overlay
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Syntax and deterministic overlay validation
+        run: |
+          node --check backend/services/staging-gateway-foundation-702f-d.js
+          node --check backend/validate-gv-rec-702f-d.js
+          node --check backend/staging-lambda-702d.js
+          node backend/validate-gv-rec-702f-d.js
+
+      - name: Download exact pinned OurAirports snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/gv702fd
+          url="https://raw.githubusercontent.com/davidmegginson/ourairports-data/55fd4071c99668a29f9d3625d72405c44074ef2f/airports.csv"
+          curl -fsSL --retry 3 --retry-delay 2 "$url" -o /tmp/gv702fd/airports.csv
+          test "$(stat -c%s /tmp/gv702fd/airports.csv)" -eq 12703718
+          actual_blob=$(git hash-object /tmp/gv702fd/airports.csv)
+          test "$actual_blob" = "b95a254e2d970ecb37320d645abced90c6d1a95f"
+          echo "Pinned OurAirports blob verified: $actual_blob"
+
+      - name: Verify all nine replacement airports against pinned source
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const assert = require('assert');
+          const audit = require('./backend/services/ourairports-gateway-enrichment-702f-b');
+          const manifest = require('./backend/data/gateway-foundation-corrections-702f-d.json');
+          const registry = require('./backend/data/unified-city-registry-1000-668b.json');
+          const csv = fs.readFileSync('/tmp/gv702fd/airports.csv', 'utf8');
+          const airports = audit.parseAirportsCsv(csv);
+          const byIata = new Map(airports.map(row => [row.iata, row]));
+          const byCityId = new Map(registry.records.map(row => [row.cityId, row]));
+          assert.strictEqual(manifest.corrections.length, 9);
+          const reviewed = [];
+          for (const change of manifest.corrections) {
+            const city = byCityId.get(change.cityId);
+            assert(city, `${change.cityId}: missing registry city`);
+            const oldAirport = byIata.get(change.fromPreferredAirportCode);
+            const target = byIata.get(change.toPreferredAirportCode);
+            assert(oldAirport, `${change.cityId}: old airport missing from pinned source`);
+            assert(target, `${change.cityId}: target airport missing from pinned source`);
+            assert.strictEqual(oldAirport.scheduledService, false, `${change.cityId}: old airport unexpectedly has scheduled service`);
+            assert.strictEqual(target.scheduledService, true, `${change.cityId}: target airport must have scheduled service`);
+            assert(['large_airport','medium_airport'].includes(target.type), `${change.cityId}: target airport type not strong enough`);
+            assert.strictEqual(target.countryCode, change.countryCode, `${change.cityId}: target airport country mismatch`);
+            const km = audit.haversineKm(city, target);
+            assert(km <= 40.5, `${change.cityId}: target airport exceeds 40 km review boundary (${km})`);
+            assert(Math.abs(km - Number(change.distanceKm)) <= 1.0, `${change.cityId}: manifest distance drift`);
+            reviewed.push({
+              cityId: change.cityId,
+              from: change.fromPreferredAirportCode,
+              to: change.toPreferredAirportCode,
+              distanceKm: Math.round(km * 10) / 10,
+              targetType: target.type,
+              scheduledService: target.scheduledService
+            });
+          }
+          fs.mkdirSync('dist/gv-rec-702f-d', { recursive: true });
+          fs.writeFileSync('dist/gv-rec-702f-d/SUMMARY.json', JSON.stringify({
+            version: 'GV-REC-702F-D',
+            sourceCommit: manifest.sourceOurAirports.commit,
+            sourceBlob: manifest.sourceOurAirports.gitBlobSha,
+            correctionCount: reviewed.length,
+            providerMappingsChanged: false,
+            coordinatesChanged: false,
+            activationChanged: false,
+            stagingQaOnly: true,
+            requiresExactItineraryVerification: true,
+            corrections: reviewed
+          }, null, 2));
+          console.log(JSON.stringify(reviewed, null, 2));
+          NODE
+
+      - name: Upload validation summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: gv-rec-702f-d-high-confidence-airport-overlay
+          path: dist/gv-rec-702f-d/SUMMARY.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Confirm workflow is deployment-free
+        shell: bash
+        run: |
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-702f-d.yml; then
+            echo "Deployment command found in 702F-D workflow."
+            exit 1
+          fi
+          echo "PASS - 702F-D workflow is deployment-free."
