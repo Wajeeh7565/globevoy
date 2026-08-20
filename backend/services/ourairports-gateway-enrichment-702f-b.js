@@ -8,6 +8,7 @@ const source = require('../data/ourairports-source-702f-b.json');
 const VERSION = 'GV-REC-702F-B';
 const ALLOWED_TYPES = new Set(['large_airport', 'medium_airport', 'small_airport', 'seaplane_base']);
 const TYPE_PENALTY = Object.freeze({ large_airport: 0, medium_airport: 20, small_airport: 60, seaplane_base: 90 });
+const REVIEW_PRIORITY = Object.freeze({ high: 0, medium: 1, none: 9 });
 
 function clean(v) { return String(v == null ? '' : v).trim(); }
 function upper(v) { return clean(v).toUpperCase(); }
@@ -200,7 +201,7 @@ function buildReport(csvText, options = {}) {
   const counts = {};
   for (const row of records) counts[row.review.classification] = (counts[row.review.classification] || 0) + 1;
   const reviewQueue = records.filter(row => row.review.priority !== 'none')
-    .sort((a, b) => ({ high: 0, medium: 1 }[a.review.priority] - ({ high: 0, medium: 1 }[b.review.priority])
+    .sort((a, b) => (REVIEW_PRIORITY[a.review.priority] ?? 9) - (REVIEW_PRIORITY[b.review.priority] ?? 9)
       || a.displayName.localeCompare(b.displayName));
 
   return {
