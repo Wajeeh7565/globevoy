@@ -1,0 +1,113 @@
+{
+  "version": "GV-REC-702F-D-CORRECTIONS",
+  "sourceTriageVersion": "GV-REC-702F-C",
+  "sourceGatewayAuditVersion": "GV-REC-702F-B",
+  "sourceOurAirports": {
+    "repository": "davidmegginson/ourairports-data",
+    "commit": "55fd4071c99668a29f9d3625d72405c44074ef2f",
+    "gitBlobSha": "b95a254e2d970ecb37320d645abced90c6d1a95f",
+    "file": "airports.csv"
+  },
+  "policy": {
+    "stagingQaOnly": true,
+    "routingChangedByManifest": false,
+    "activationChanged": false,
+    "providerMappingsChanged": false,
+    "coordinatesChanged": false,
+    "preserveExistingAirportCodes": true,
+    "automaticProductionPromotionAllowed": false,
+    "requiresExactItineraryVerification": true
+  },
+  "corrections": [
+    {
+      "cityId": "beijing-cn",
+      "displayName": "Beijing",
+      "countryCode": "CN",
+      "fromPreferredAirportCode": "NAY",
+      "toPreferredAirportCode": "PEK",
+      "toAirportName": "Beijing Capital International Airport",
+      "distanceKm": 25.2,
+      "triageBucket": "strong-replacement-candidate"
+    },
+    {
+      "cityId": "cambridge-gb",
+      "displayName": "Cambridge",
+      "countryCode": "GB",
+      "fromPreferredAirportCode": "CBG",
+      "toPreferredAirportCode": "STN",
+      "toAirportName": "London Stansted Airport",
+      "distanceKm": 35.2,
+      "triageBucket": "strong-replacement-candidate"
+    },
+    {
+      "cityId": "detroit-us",
+      "displayName": "Detroit",
+      "countryCode": "US",
+      "fromPreferredAirportCode": "DET",
+      "toPreferredAirportCode": "DTW",
+      "toAirportName": "Detroit Metropolitan Wayne County Airport",
+      "distanceKm": 28.5,
+      "triageBucket": "strong-replacement-candidate"
+    },
+    {
+      "cityId": "diani-beach-ke",
+      "displayName": "Diani Beach",
+      "countryCode": "KE",
+      "fromPreferredAirportCode": "UKA",
+      "toPreferredAirportCode": "MBA",
+      "toAirportName": "Moi International Airport",
+      "distanceKm": 27.2,
+      "triageBucket": "strong-replacement-candidate"
+    },
+    {
+      "cityId": "kansas-city-us",
+      "displayName": "Kansas City",
+      "countryCode": "US",
+      "fromPreferredAirportCode": "MKC",
+      "toPreferredAirportCode": "MCI",
+      "toAirportName": "Kansas City International Airport",
+      "distanceKm": 30.2,
+      "triageBucket": "strong-replacement-candidate"
+    },
+    {
+      "cityId": "orlando-us",
+      "displayName": "Orlando",
+      "countryCode": "US",
+      "fromPreferredAirportCode": "ORL",
+      "toPreferredAirportCode": "MCO",
+      "toAirportName": "Orlando International Airport",
+      "distanceKm": 14.1,
+      "triageBucket": "strong-replacement-candidate"
+    },
+    {
+      "cityId": "pretoria-za",
+      "displayName": "Pretoria",
+      "countryCode": "ZA",
+      "fromPreferredAirportCode": "PRY",
+      "toPreferredAirportCode": "HLA",
+      "toAirportName": "Lanseria International Airport",
+      "distanceKm": 37.2,
+      "triageBucket": "strong-replacement-candidate"
+    },
+    {
+      "cityId": "sacramento-us",
+      "displayName": "Sacramento",
+      "countryCode": "US",
+      "fromPreferredAirportCode": "SAC",
+      "toPreferredAirportCode": "SMF",
+      "toAirportName": "Sacramento International Airport",
+      "distanceKm": 16.2,
+      "triageBucket": "strong-replacement-candidate"
+    },
+    {
+      "cityId": "sedona-us",
+      "displayName": "Sedona",
+      "countryCode": "US",
+      "fromPreferredAirportCode": "SDX",
+      "toPreferredAirportCode": "FLG",
+      "toAirportName": "Flagstaff Pulliam Airport",
+      "distanceKm": 31.1,
+      "triageBucket": "strong-replacement-candidate"
+    }
+  ]
+}
