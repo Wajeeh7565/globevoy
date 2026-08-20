@@ -55,7 +55,9 @@ jobs:
         run: node backend/validate-gv-rec-702a.js
 
       - name: Validate freshness-aware global recovery priority
-        run: node backend/validate-gv-rec-702b.js
+        run: |
+          node backend/validate-gv-rec-702b.js
+          node backend/validate-gv-rec-702b-r1.js
 
       - name: Syntax checks
         run: |
@@ -69,6 +71,7 @@ jobs:
           node --check backend/validate-gv-data-701b.js
           node --check backend/validate-gv-rec-702a.js
           node --check backend/validate-gv-rec-702b.js
+          node --check backend/validate-gv-rec-702b-r1.js
 
       - name: Build Lambda ZIP
         shell: bash
