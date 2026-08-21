@@ -223,12 +223,14 @@ async function main() {
   const operator = fs.readFileSync(path.join(ROOT, 'ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh'), 'utf8');
   assert.match(operator, /globevoy-staging-saved-trips/);
   assert.match(operator, /PAY_PER_REQUEST/);
+  assert.match(operator, /--sse-specification Enabled=true,SSEType=KMS/);
+  assert.doesNotMatch(operator, /SSEType=AES256/);
   assert.match(operator, /PointInTimeRecoveryEnabled=true/);
   assert.match(operator, /dynamodb:Query/);
   assert.doesNotMatch(operator, /dynamodb:\*/);
   assert.match(operator, /GLOBEVOY_SAVED_TRIPS_TABLE/);
   assert.match(operator, /preserving every existing Lambda environment variable/);
-  pass('operator creates bounded staging storage with PITR and least privilege');
+  pass('operator creates bounded KMS-encrypted staging storage with PITR and least privilege');
 
   console.log(`\nGV-ACCOUNT-705C validation PASS (${checks.length}/${checks.length})`);
 }
