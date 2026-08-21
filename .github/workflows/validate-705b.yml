@@ -1,4 +1,4 @@
-name: GV-ACCOUNT-705B Staging Cognito Bootstrap
+name: GV-ACCOUNT-705B Cognito Infrastructure Safety
 
 on:
   pull_request:
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   validate:
-    name: Validate staging Cognito bootstrap without AWS changes
+    name: Validate Cognito infrastructure contract without AWS changes
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -55,15 +55,19 @@ jobs:
           fi
           echo 'PASS - 705B CI validates/packages only; it creates no AWS resources.'
 
-      - name: Confirm runtime remains untouched
+      - name: Confirm production and unrelated runtime remain untouched
         shell: bash
         run: |
           set -euo pipefail
-          if grep -Eq 'GV-ACCOUNT-705B|globevoy-staging-users|globevoy-staging-web' backend/lambda.js backend/generated-tour.js frontend/runtime/config.js frontend/scripts/shell-670f.js frontend/scripts/travel-profile-675a.js; then
-            echo '705B bootstrap wiring appeared in an active runtime file.'
+          if grep -Eq 'GV-ACCOUNT-705B|globevoy-staging-users|globevoy-staging-web|/api/account/session' backend/lambda.js backend/generated-tour.js; then
+            echo '705B staging account wiring appeared in the shared production backend path.'
             exit 1
           fi
-          echo 'PASS - frontend/backend runtime remains unchanged until bootstrap output is validated.'
+          if grep -Eq 'globevoy-staging-users|globevoy-staging-web' frontend/runtime/config.js frontend/scripts/travel-profile-675a.js; then
+            echo 'Staging Cognito identifiers leaked into unrelated legacy runtime configuration.'
+            exit 1
+          fi
+          echo 'PASS - staging auth wiring stays outside production and unrelated runtime surfaces.'
 
       - name: Confirm no destructive or unrelated AWS command
         shell: bash
