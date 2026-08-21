@@ -1,0 +1,41 @@
+name: GV-ACCOUNT-705B-R1 Cognito list-pools compatibility
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh'
+      - '.github/workflows/validate-705b-r1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: bash -n ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh
+
+      - name: Require Cognito ListUserPools service page size
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh').read_text()
+          expected = 'aws cognito-idp list-user-pools --max-results 60 --max-items 200 --region "$REGION" --output json'
+          assert expected in text, 'ListUserPools must include required --max-results 60 plus bounded --max-items 200'
+          assert 'list-user-pools --max-items 200 --region' not in text, 'old incompatible ListUserPools call is still present'
+          print('GV-ACCOUNT-705B-R1 ListUserPools compatibility PASS')
+          PY
+
+      - name: Preserve 705B staging-only safety boundary
+        shell: bash
+        run: |
+          node backend/validate-gv-account-705b.js
+          ! grep -Eq 'aws[[:space:]]+(lambda|amplify|dynamodb|iam|cloudformation)' ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh
+          ! grep -Eq 'aws[[:space:]]+cognito-idp[[:space:]]+(delete-|update-)' ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh
