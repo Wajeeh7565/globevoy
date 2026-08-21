@@ -1,0 +1,81 @@
+name: GV-FLIGHT-703D Affordable Discovery Expansion
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/affordable-flight-discovery-684b.js'
+      - 'backend/services/staging-affordable-flight-five-origin-703d.js'
+      - 'backend/services/staging-duffel-five-origin-703b.js'
+      - 'backend/services/staging-duffel-shared-budget-703c.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validate-gv-flight-703b.js'
+      - 'backend/validate-gv-flight-703c.js'
+      - 'backend/validate-gv-flight-703d.js'
+      - '.github/workflows/validate-703d.yml'
+      - 'docs/GV-FLIGHT-703D.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate bounded five-origin 684B staging policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate repository and prior flight safeguards
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validate-gv-flight-703b.js
+          node backend/validate-gv-flight-703c.js
+          node backend/validate-gv-flight-703d.js
+
+      - name: Syntax checks
+        run: |
+          node --check backend/services/affordable-flight-discovery-684b.js
+          node --check backend/services/staging-affordable-flight-five-origin-703d.js
+          node --check backend/services/staging-duffel-five-origin-703b.js
+          node --check backend/services/staging-duffel-shared-budget-703c.js
+          node --check backend/staging-lambda-702d.js
+          node --check backend/validate-gv-flight-703d.js
+
+      - name: Confirm production runtime has no 703D wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Eq 'GV-FLIGHT-703D|staging-affordable-flight-five-origin-703d|GV_DUFFEL_AFFORDABLE_DISCOVERY_ORIGINS_684B' backend/lambda.js; then
+            echo '703D production runtime wiring found.'
+            exit 1
+          fi
+          echo 'PASS - production handler has no 703D runtime wiring.'
+
+      - name: Confirm default 684B boundary and 703C cap remain unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "Object.freeze(['YYZ'])" backend/services/affordable-flight-discovery-684b.js
+          grep -Fq "Object.freeze(['YYZ', 'JFK', 'LAX', 'DUB', 'DXB'])" backend/services/affordable-flight-discovery-684b.js
+          grep -Fq 'const SHARED_PHYSICAL_REQUEST_CAP = 8;' backend/services/staging-duffel-shared-budget-703c.js
+          echo 'PASS - YYZ default, bounded five-origin staging maximum, and 703C cap=8 preserved.'
+
+      - name: Confirm workflow is deployment-free and provider-call-free
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+api\.duffel\.com" .github/workflows/validate-703d.yml; then
+            echo 'Deployment/provider-call command found in 703D validation workflow.'
+            exit 1
+          fi
+          echo 'PASS - 703D validation workflow is deployment-free and provider-call-free.'
