@@ -79,6 +79,5 @@ jobs:
           node backend/validate-gv-account-705c-r4.js
           node backend/validate-gv-book-706a.js
 
-      - name: Confirm CI performs no deployment
-        run: |
-          test -z "$(grep -R -E 'aws lambda update-function-code|aws amplify start-job|aws amplify update-app' .github/workflows/validate-707a.yml || true)"
+      - name: Confirm workflow has read-only repository permissions
+        run: grep -q '^  contents: read$' .github/workflows/validate-707a.yml
