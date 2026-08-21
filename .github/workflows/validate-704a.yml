@@ -1,0 +1,82 @@
+name: GV-HOTEL-704A Agoda Demand Readiness
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/agoda-demand-readiness-704a.js'
+      - 'backend/validate-gv-hotel-704a.js'
+      - 'docs/GV-HOTEL-704A.md'
+      - '.github/workflows/validate-704a.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate modern Agoda Demand contract without provider calls
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate repository and current flight baseline
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validate-gv-flight-703b.js
+          node backend/validate-gv-flight-703c.js
+          node backend/validate-gv-flight-703d.js
+          node backend/validate-gv-flight-703e.js
+          node backend/validate-gv-hotel-704a.js
+
+      - name: Syntax checks
+        run: |
+          node --check backend/services/agoda-demand-readiness-704a.js
+          node --check backend/validate-gv-hotel-704a.js
+          node --check backend/services/agoda.js
+          node --check backend/recommendations.js
+          node --check backend/generated-tour.js
+          node --check backend/lambda.js
+
+      - name: Confirm 704A does not wire production or live Agoda traffic
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Eq 'agoda-demand-readiness-704a|GV-HOTEL-704A' backend/lambda.js backend/generated-tour.js backend/recommendations.js; then
+            echo '704A readiness code was wired into a runtime path.'
+            exit 1
+          fi
+          if grep -E 'globalThis\.fetch\(|[^A-Za-z]fetch\(|AGODA_API_KEY|AGODA_SITE_ID|Authorization:' backend/services/agoda-demand-readiness-704a.js; then
+            echo '704A readiness module contains provider-call or credential wiring.'
+            exit 1
+          fi
+          echo 'PASS - 704A is audit/contract only; no production or provider call wiring.'
+
+      - name: Confirm existing legacy adapter remains identifiable
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'https://affiliateapi7643.agoda.com/affiliateservice/lt_v1' backend/services/agoda.js
+          grep -Fq 'destination.agodaCityId' backend/services/agoda.js
+          grep -Fq 'AGODA_SITE_ID' backend/services/agoda.js
+          grep -Fq 'AGODA_API_KEY' backend/services/agoda.js
+          echo 'PASS - current legacy Agoda boundary is unchanged and explicitly audited.'
+
+      - name: Confirm validation is deployment-free
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E 'aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+agoda' .github/workflows/validate-704a.yml; then
+            echo 'Deployment/provider-call command found in 704A validation workflow.'
+            exit 1
+          fi
+          echo 'PASS - 704A CI performs no AWS deployment or Agoda network call.'
