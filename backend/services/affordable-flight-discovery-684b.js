@@ -11,7 +11,9 @@
 //
 // Safety posture:
 //   * R3 activation is code-only and still depends on the existing 684A public pilot;
-//   * origin hard-allowlisted to YYZ only;
+//   * default origin remains hard-allowlisted to YYZ only;
+//   * an exact staging-origin runtime overlay may narrow/expand only within the
+//     separately reviewed five-origin 703B cohort;
 //   * single-adult pilot, matching 684A;
 //   * at most two candidate routes checked per request;
 //   * candidates may be at most 15% over the planning budget, but NOTHING over the
@@ -27,10 +29,15 @@ const { normalizeParty } = require('./traveller-pricing');
 const VERSION_684B = 'GV-REC-684B-R3';
 // R3 is code-gated because the Lambda environment is already at the AWS 4KB
 // aggregate environment-variable ceiling. No new Lambda environment keys are
-// introduced. Activation is still bounded by the existing 684A public pilot
-// and by this hard YYZ-only allowlist. Rollback is the independent kill switch.
+// introduced. Activation is still bounded by the existing 684A public pilot.
+// The default remains YYZ-only. GV-FLIGHT-703D may inject an in-process staging
+// override before generated-tour loads; that override is accepted only for the
+// exact staging CORS origin and only inside the already-proven five-origin cohort.
 const CODE_ENABLED_684B_R3 = true;
 const DEFAULT_ORIGINS_684B = Object.freeze(['YYZ']);
+const STAGING_ORIGIN_684B = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
+const STAGING_ORIGIN_ENV_684B = 'GV_DUFFEL_AFFORDABLE_DISCOVERY_ORIGINS_684B';
+const STAGING_MAX_ORIGINS_684B = Object.freeze(['YYZ', 'JFK', 'LAX', 'DUB', 'DXB']);
 const MAX_CANDIDATE_CHECKS_684B = 2;
 const MAX_FLIGHT_LEGS_684B = 3;
 const PLANNING_OVERAGE_RATIO_684B = 1.15;
@@ -44,8 +51,36 @@ function safeIata(value) {
   return /^[A-Z]{3}$/.test(code) ? code : null;
 }
 
-function configuredOrigins684B() {
-  return DEFAULT_ORIGINS_684B.slice();
+function normalizeWebOrigin684B(value = '') {
+  const raw = String(value == null ? '' : value).trim();
+  if (!raw) return '';
+  try {
+    const parsed = new URL(raw);
+    if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.search || parsed.hash) return '';
+    if (parsed.pathname && parsed.pathname !== '/') return '';
+    return parsed.origin;
+  } catch (_) {
+    return '';
+  }
+}
+
+function parsedOriginAllowlist684B(value = '') {
+  return [...new Set(String(value == null ? '' : value)
+    .split(',')
+    .map(code => safeIata(code))
+    .filter(Boolean))];
+}
+
+function configuredOrigins684B(env = process.env) {
+  if (normalizeWebOrigin684B(env?.CORS_ORIGIN) !== STAGING_ORIGIN_684B) {
+    return DEFAULT_ORIGINS_684B.slice();
+  }
+
+  const staged = parsedOriginAllowlist684B(env?.[STAGING_ORIGIN_ENV_684B]);
+  if (!staged.length || staged.some(code => !STAGING_MAX_ORIGINS_684B.includes(code))) {
+    return DEFAULT_ORIGINS_684B.slice();
+  }
+  return staged;
 }
 
 function enabled684BR1(env = process.env) {
@@ -309,9 +344,9 @@ function status684B(env = process.env) {
   return {
     version: VERSION_684B,
     enabled: enabled684BR1(env),
-    activationMode: 'code-only-yyz-reuses-684a-gate-with-strict-currency-safe-budget-fit',
+    activationMode: 'code-only-default-yyz-with-bounded-staging-origin-override',
     environmentVariablesAdded: 0,
-    originAllowlist: configuredOrigins684B(),
+    originAllowlist: configuredOrigins684B(env),
     candidateCap: MAX_CANDIDATE_CHECKS_684B,
     maxFlightLegs: MAX_FLIGHT_LEGS_684B,
     planningOverageRatio: PLANNING_OVERAGE_RATIO_684B,
@@ -332,6 +367,9 @@ module.exports = {
   VERSION_684B,
   CODE_ENABLED_684B_R3,
   DEFAULT_ORIGINS_684B,
+  STAGING_ORIGIN_684B,
+  STAGING_ORIGIN_ENV_684B,
+  STAGING_MAX_ORIGINS_684B,
   MAX_CANDIDATE_CHECKS_684B,
   MAX_FLIGHT_LEGS_684B,
   PLANNING_OVERAGE_RATIO_684B,
@@ -343,6 +381,8 @@ module.exports = {
   status684B,
   _internal: {
     safeIata,
+    normalizeWebOrigin684B,
+    parsedOriginAllowlist684B,
     endpointCode,
     legHasFlight684B,
     flightLegs684B,
