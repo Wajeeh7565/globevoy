@@ -7,7 +7,7 @@
 // budget decision. This is deliberately narrower than 683H P2 ranking:
 //   * exact airport/date first, with one registry-approved same-city alternate
 //     only when valid exact offers all fail the unchanged 685C quality policy;
-//   * one adult only during the pilot;
+//   * one adult by default; staging GV-FLIGHT-703E may allow exactly two adults;
 //   * at most three flight legs;
 //   * all flight legs must resolve LIVE or none of the Duffel prices are applied;
 //   * R4 quota reservation, dedupe, bounded concurrency and 429 recovery are reused;
@@ -33,6 +33,7 @@ const {
   reconcileWholeTripFares685CR1
 } = require('./whole-trip-fare-reconciliation-685c-r1');
 const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('./traveller-pricing');
+const adultScope703E = require('./duffel-adult-scope-703e');
 const { currencyToUsdRate, normalizeCurrency } = require('../budget-presentation');
 
 const VERSION_684A = 'GV-FLIGHT-684A';
@@ -142,8 +143,14 @@ function eligibility684A(tour = {}, query = {}, env = process.env) {
   if (!simulationAvailable683H(env)) return { eligible: false, reason: '684a-live-provider-dependencies-not-ready' };
 
   const party = normalizeParty(query);
-  if (party.adults !== 1 || party.children !== 0 || party.infants !== 0 || party.travellers !== 1) {
-    return { eligible: false, reason: '684a-single-adult-pilot-only', party };
+  const adultScope = adultScope703E.adultPartyEligibility703E(party, env);
+  if (!adultScope.eligible) {
+    return {
+      eligible: false,
+      reason: adultScope.maxAdults === 1 ? '684a-single-adult-pilot-only' : '684a-one-or-two-adults-staging-pilot-only',
+      party,
+      maxAdults: adultScope.maxAdults
+    };
   }
 
   const tasks = buildTasks684A(tour);
@@ -159,7 +166,7 @@ function eligibility684A(tour = {}, query = {}, env = process.env) {
     return { eligible: false, reason: '684a-origin-outside-pilot-allowlist', party, tasks, firstOrigin, allowedOrigins };
   }
 
-  return { eligible: true, reason: null, party, tasks, firstOrigin, allowedOrigins };
+  return { eligible: true, reason: null, party, tasks, firstOrigin, allowedOrigins, maxAdults: adultScope.maxAdults };
 }
 
 function completeAppliedEvidence684A(tour = {}) {
@@ -283,6 +290,8 @@ function promotedEvidence684A(observation = {}, task = {}) {
       finalSelectedScheduleOnly: true,
       allFlightLegsAtomic: true,
       providerSearchOnly: true,
+      providerFareAmountBasis: 'party-total',
+      providerPassengerCount: Number(observation.providerPassengerCount || observation.passengers || 1),
       orderCapability: false,
       paymentCapability: false,
       bookingCapability: false,
@@ -326,7 +335,12 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
         allFlightLegsAtomic: true,
         maxFlightLegs: MAX_FLIGHT_LEGS_684A,
         originAllowlist: configuredOrigins684A(env),
-        singleAdultOnly: true,
+        singleAdultOnly: adultScope703E.configuredMaxAdults703E(env) === 1,
+        maxAdults: adultScope703E.configuredMaxAdults703E(env),
+        twoAdultStagingPilot: adultScope703E.configuredMaxAdults703E(env) === 2,
+        childrenAllowed: false,
+        infantsAllowed: false,
+        providerFareAmountBasis: 'party-total',
         requiredFlightLegCount: reused.tasks.length,
         liveFlightLegCount: reused.liveCount,
         allFlightLegsLive: true,
@@ -362,7 +376,12 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
     allFlightLegsAtomic: true,
     maxFlightLegs: MAX_FLIGHT_LEGS_684A,
     originAllowlist: eligibility.allowedOrigins || configuredOrigins684A(env),
-    singleAdultOnly: true,
+    singleAdultOnly: adultScope703E.configuredMaxAdults703E(env) === 1,
+    maxAdults: adultScope703E.configuredMaxAdults703E(env),
+    twoAdultStagingPilot: adultScope703E.configuredMaxAdults703E(env) === 2,
+    childrenAllowed: false,
+    infantsAllowed: false,
+    providerFareAmountBasis: 'party-total',
     orderCapability: false,
     paymentCapability: false,
     bookingCapability: false,
@@ -397,7 +416,7 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
         destination: task.destination,
         departureDate: task.departureDate,
         currency: displayCurrency,
-        passengers: 1
+        passengers: eligibility.party.adults
       }, state, {
         ...options,
         env,
@@ -465,7 +484,7 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
         destination: candidate.destination,
         departureDate: candidate.departureDate,
         currency: displayCurrency,
-        passengers: 1
+        passengers: eligibility.party.adults
       }, state, {
         ...options,
         env,
@@ -628,6 +647,8 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
     metroProviderRequests: row?.metroProviderRequests ?? 0,
     providerAmount: row?.observation?.providerAmount ?? null,
     providerCurrency: row?.observation?.providerCurrency || null,
+    fareAmountBasis: row?.observation?.fareAmountBasis || null,
+    providerPassengerCount: Number(row?.observation?.providerPassengerCount || row?.observation?.passengers || 0) || null,
     displayPrice: row?.observation?.displayPrice ?? null,
     displayCurrency: row?.observation?.displayCurrency || null,
     rankingPriceUsd: row?.observation?.rankingPriceUsd ?? null,
@@ -706,7 +727,11 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
       cheapestOneWay: observation,
       estimateSource: 'duffel-public-live-fare-evidence-pilot-684a',
       publicLiveFarePilot684A: observation.publicLiveFareEvidence684A
-    }, query, { party, unitAmountUsd: Number(observation.rankingPriceUsd) });
+    }, query, {
+      party,
+      amountBasis: 'party-total',
+      partyTotalAmountUsd: Number(observation.rankingPriceUsd)
+    });
   }
 
   const patched = applyTravellerPricingToTour({ ...tour, legs }, query);
@@ -773,7 +798,12 @@ function status684A(env = process.env) {
     providerDependenciesReady: simulationAvailable683H(env),
     originAllowlist: configuredOrigins684A(env),
     maxFlightLegs: MAX_FLIGHT_LEGS_684A,
-    singleAdultOnly: true,
+    singleAdultOnly: adultScope703E.configuredMaxAdults703E(env) === 1,
+    maxAdults: adultScope703E.configuredMaxAdults703E(env),
+    twoAdultStagingPilot: adultScope703E.configuredMaxAdults703E(env) === 2,
+    childrenAllowed: false,
+    infantsAllowed: false,
+    providerFareAmountBasis: 'party-total',
     exactAirportOnly: false,
     exactAirportFirst: true,
     sameCityMetroFallback: true,
@@ -800,6 +830,7 @@ module.exports = {
   MAX_FLIGHT_LEGS_684A,
   DEFAULT_ORIGINS_684A,
   configuredOrigins684A,
+  configuredMaxAdults684A: adultScope703E.configuredMaxAdults703E,
   eligibility684A,
   applyPublicLiveFarePilot684A,
   status684A,
