@@ -32,6 +32,9 @@ jobs:
       - name: Install pinned framework dependencies
         run: npm install --no-audit --no-fund
 
+      - name: Verify dependency graph lock
+        run: echo '12f0fe80be5db2d1a7e18784eaf7a5e7f04ade17cf84b91c78a2dde5ec20f2c0  package-lock.json' | sha256sum -c -
+
       - name: TypeScript strict validation
         run: npm run typecheck
 
@@ -45,6 +48,10 @@ jobs:
           grep -q "output: 'export'" next.config.ts
           grep -q '15.5.21' package.json
           grep -q '19.2.7' package.json
+          grep -q '22.20.1' package.json
+          grep -q '19.2.18' package.json
+          grep -q '19.2.4' package.json
+          grep -q '5.9.3' package.json
           ! grep -R -E 'DUFFEL_ACCESS_TOKEN|AWS_SECRET_ACCESS_KEY|client_secret|Cognito.*secret' app components lib package.json next.config.ts
 
       - name: Capture generated dependency lock
