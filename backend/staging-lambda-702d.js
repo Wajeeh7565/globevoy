@@ -60,6 +60,7 @@ const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
 const staging = require('./staging-lambda');
 
 const VERSION = 'GV-REC-702D-STAGING-QA-R1';
+const SAVED_TRIPS_CORS_VERSION = 'GV-ACCOUNT-705C-R4';
 
 function eventPath(event = {}) {
   return String(event.rawPath || event.path || '').split('?')[0];
@@ -67,6 +68,43 @@ function eventPath(event = {}) {
 
 function eventMethod(event = {}) {
   return String(event?.requestContext?.http?.method || event?.httpMethod || 'GET').toUpperCase();
+}
+
+function requestOrigin(event = {}) {
+  for (const [key, value] of Object.entries(event.headers || {})) {
+    if (String(key || '').trim().toLowerCase() === 'origin') return String(value || '').trim();
+  }
+  return '';
+}
+
+function savedTripsPreflight705CR4(event = {}) {
+  const origin = requestOrigin(event);
+  const fixedOrigin = stagingSavedTrips705C.STAGING_ORIGIN;
+  const baseHeaders = {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+    Vary: 'Origin',
+    'X-Globevoy-Saved-Trips': stagingSavedTrips705C.VERSION,
+    'X-Globevoy-Saved-Trips-Cors': SAVED_TRIPS_CORS_VERSION
+  };
+  if (origin !== fixedOrigin) {
+    return {
+      statusCode: 403,
+      headers: baseHeaders,
+      body: JSON.stringify({ ok: false, error: 'staging-origin-not-allowed' })
+    };
+  }
+  return {
+    statusCode: 204,
+    headers: {
+      ...baseHeaders,
+      'Access-Control-Allow-Origin': fixedOrigin,
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+      'Access-Control-Max-Age': '600'
+    },
+    body: ''
+  };
 }
 
 async function handler(event = {}) {
@@ -77,7 +115,11 @@ async function handler(event = {}) {
     const isAccountRoute = eventPath(event) === '/api/account/session';
     const isSavedTripsRoute = path === stagingSavedTrips705C.ROUTE_PATH;
     let response;
-    if (method !== 'OPTIONS' && isAccountRoute) {
+    if (method === 'OPTIONS' && isSavedTripsRoute) {
+      // 705C CRUD needs PUT/DELETE in addition to the production GET/POST CORS
+      // baseline. Keep this expansion isolated to the exact staging route.
+      response = savedTripsPreflight705CR4(event);
+    } else if (method !== 'OPTIONS' && isAccountRoute) {
       response = await stagingAccount705B.handleAccountSession705B(event);
     } else if (method !== 'OPTIONS' && isSavedTripsRoute) {
       response = await stagingSavedTrips705C.handleSavedTrips705C(event);
@@ -108,6 +150,7 @@ async function handler(event = {}) {
 
 module.exports = {
   VERSION,
+  SAVED_TRIPS_CORS_VERSION,
   INSTALLATION,
   GATEWAY_INSTALLATION,
   DUFFEL_703B_INSTALLATION,
@@ -122,5 +165,11 @@ module.exports = {
   duffel703DStatus: stagingAffordable703D.status,
   duffel703EStatus: stagingAdults703E.status,
   account705BStatus: stagingAccount705B.status705B,
-  savedTrips705CStatus: stagingSavedTrips705C.status705C
+  savedTrips705CStatus: stagingSavedTrips705C.status705C,
+  _internal: {
+    eventPath,
+    eventMethod,
+    requestOrigin,
+    savedTripsPreflight705CR4
+  }
 };
