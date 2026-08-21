@@ -40,10 +40,11 @@
   const footerRoot = document.getElementById('gv-footer');
   if (headerRoot) {
     headerRoot.className = 'gv-header';
-    // Preserve the approved visual-shell baseline marker and expose account
-    // successors separately so historical shell diagnostics remain meaningful.
+    // Preserve the approved visual-shell and 705B-R3 auth baselines. Saved
+    // trips are a separate 705C capability, not a replacement auth runtime.
     headerRoot.dataset.gvShellVersion = '686d-r1';
-    headerRoot.dataset.gvAccountVersion = '705c';
+    headerRoot.dataset.gvAccountVersion = '705b-r3';
+    headerRoot.dataset.gvSavedTripsVersion = '705c';
     headerRoot.innerHTML = header;
   }
   if (footerRoot) {
