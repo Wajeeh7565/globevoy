@@ -1,0 +1,99 @@
+name: GV-FLIGHT-703D Staging Backend Package
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/affordable-flight-discovery-684b.js'
+      - 'backend/services/staging-affordable-flight-five-origin-703d.js'
+      - 'backend/services/staging-duffel-five-origin-703b.js'
+      - 'backend/services/staging-duffel-shared-budget-703c.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validate-gv-flight-703b.js'
+      - 'backend/validate-gv-flight-703c.js'
+      - 'backend/validate-gv-flight-703d.js'
+      - '.github/workflows/build-703d-staging-backend.yml'
+      - 'docs/GV-FLIGHT-703D.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Validate and package 703D staging Lambda
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate production baseline and 703 flight gates
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validate-gv-rec-687b-p3.js
+          node backend/validate-gv-flight-703b.js
+          node backend/validate-gv-flight-703c.js
+          node backend/validate-gv-flight-703d.js
+
+      - name: Syntax checks
+        run: |
+          node --check backend/lambda.js
+          node --check backend/staging-lambda.js
+          node --check backend/staging-lambda-702d.js
+          node --check backend/services/affordable-flight-discovery-684b.js
+          node --check backend/services/staging-duffel-five-origin-703b.js
+          node --check backend/services/staging-duffel-shared-budget-703c.js
+          node --check backend/services/staging-affordable-flight-five-origin-703d.js
+          node --check backend/validate-gv-flight-703d.js
+
+      - name: Build 703D staging ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          artifact="globevoy-staging-backend-703d-${GITHUB_SHA::12}.zip"
+          (
+            cd backend
+            zip -q -r "../dist/${artifact}" .
+          )
+          test -f "dist/${artifact}"
+          unzip -l "dist/${artifact}" | grep -q 'staging-lambda-702d.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/affordable-flight-discovery-684b.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-five-origin-703b.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/staging-affordable-flight-five-origin-703d.js'
+          unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703d.js'
+          sha256sum "dist/${artifact}" > "dist/${artifact}.sha256.txt"
+          cat > dist/DEPLOYMENT-703D.txt <<EOF
+          Globevoy GV-FLIGHT-703D staging backend artifact
+          Commit: ${GITHUB_SHA}
+          Handler: staging-lambda-702d.handler
+          Required origin: CORS_ORIGIN=https://staging.dy4fw8gx1ccie.amplifyapp.com/
+          703B final-schedule origins: YYZ,JFK,LAX,DUB,DXB
+          703D affordable-flight discovery origins: YYZ,JFK,LAX,DUB,DXB
+          703C shared physical Duffel request cap per staging HTTP request: 8
+          684B candidate cap remains 2 and max flight legs remains 3.
+          Single-adult guard, complete-live-evidence requirement, lowest-cost ground preservation, and no-booking/payment/order/ticketing safeguards remain unchanged.
+          No new AWS environment variable is required for 703D.
+          703D does not enable Duffel or add/copy DUFFEL_ACCESS_TOKEN.
+          Public staging Duffel traffic remains off unless the pre-existing live provider gates are separately enabled for operator QA.
+          Production/main is not changed by this staging artifact.
+          Rollback: restore the prior 703C staging backend ZIP. No 703D AWS environment variable needs removal.
+          Do not deploy this staging QA handler to production.
+          EOF
+
+      - name: Upload 703D staging artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: globevoy-staging-backend-703d
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14
