@@ -14,7 +14,7 @@
 //   * default origin remains hard-allowlisted to YYZ only;
 //   * an exact staging-origin runtime overlay may narrow/expand only within the
 //     separately reviewed five-origin 703B cohort;
-//   * single-adult pilot, matching 684A;
+//   * one adult by default; staging GV-FLIGHT-703E may allow exactly two adults, matching 684A;
 //   * at most two candidate routes checked per request;
 //   * candidates may be at most 15% over the planning budget, but NOTHING over the
 //     actual user budget is selected unless complete exact-date 684A LIVE evidence
@@ -25,6 +25,7 @@
 //   * no order, payment, booking or ticketing capability.
 
 const { normalizeParty } = require('./traveller-pricing');
+const adultScope703E = require('./duffel-adult-scope-703e');
 
 const VERSION_684B = 'GV-REC-684B-R3';
 // R3 is code-gated because the Lambda environment is already at the AWS 4KB
@@ -162,8 +163,15 @@ function eligibility684B(tours = [], currentTour = null, query = {}, env = proce
   if (currentTour && hasFlight684B(currentTour) && !selectedFlightFallback) return { eligible: false, reason: '684b-selected-route-already-has-flight', role };
 
   const party = normalizeParty(query);
-  if (party.adults !== 1 || party.children !== 0 || party.infants !== 0 || party.travellers !== 1) {
-    return { eligible: false, reason: '684b-single-adult-pilot-only', role, party };
+  const adultScope = adultScope703E.adultPartyEligibility703E(party, env);
+  if (!adultScope.eligible) {
+    return {
+      eligible: false,
+      reason: adultScope.maxAdults === 1 ? '684b-single-adult-pilot-only' : '684b-one-or-two-adults-staging-pilot-only',
+      role,
+      party,
+      maxAdults: adultScope.maxAdults
+    };
   }
 
   const origin = tourOrigin684B(currentTour || list[0] || {}, query);
@@ -172,7 +180,7 @@ function eligibility684B(tours = [], currentTour = null, query = {}, env = proce
     return { eligible: false, reason: '684b-origin-outside-pilot-allowlist', role, origin, allowedOrigins, party };
   }
   if (!list.length) return { eligible: false, reason: '684b-no-candidate-routes', role, origin, allowedOrigins, party, selectedFlightFallback };
-  return { eligible: true, reason: null, role, origin, allowedOrigins, party, selectedFlightFallback };
+  return { eligible: true, reason: null, role, origin, allowedOrigins, party, maxAdults: adultScope.maxAdults, selectedFlightFallback };
 }
 
 function buildShortlist684B(tours = [], currentTour = null, query = {}, options = {}) {
@@ -241,7 +249,12 @@ async function discoverAffordableFlightTour684B(tours = [], currentTour = null, 
     selectedPlanningTotalUsd: null,
     selectedLiveTotalUsd: null,
     livePriceDeltaUsd: null,
-    singleAdultOnly: true,
+    singleAdultOnly: adultScope703E.configuredMaxAdults703E(env) === 1,
+    maxAdults: adultScope703E.configuredMaxAdults703E(env),
+    twoAdultStagingPilot: adultScope703E.configuredMaxAdults703E(env) === 2,
+    childrenAllowed: false,
+    infantsAllowed: false,
+    providerFareAmountBasis: 'party-total',
     completeLiveEvidenceRequired: true,
     selectedFlightFallbackMode: eligibility.selectedFlightFallback === true,
     orderCapability: false,
@@ -350,7 +363,12 @@ function status684B(env = process.env) {
     candidateCap: MAX_CANDIDATE_CHECKS_684B,
     maxFlightLegs: MAX_FLIGHT_LEGS_684B,
     planningOverageRatio: PLANNING_OVERAGE_RATIO_684B,
-    singleAdultOnly: true,
+    singleAdultOnly: adultScope703E.configuredMaxAdults703E(env) === 1,
+    maxAdults: adultScope703E.configuredMaxAdults703E(env),
+    twoAdultStagingPilot: adultScope703E.configuredMaxAdults703E(env) === 2,
+    childrenAllowed: false,
+    infantsAllowed: false,
+    providerFareAmountBasis: 'party-total',
     preservesLowestCostGroundOption: true,
     completeLiveEvidenceRequired: true,
     overBudgetSelectedFlightRescue: true,
@@ -374,6 +392,7 @@ module.exports = {
   MAX_FLIGHT_LEGS_684B,
   PLANNING_OVERAGE_RATIO_684B,
   configuredOrigins684B,
+  configuredMaxAdults684B: adultScope703E.configuredMaxAdults703E,
   enabled684BR1,
   eligibility684B,
   buildShortlist684B,
