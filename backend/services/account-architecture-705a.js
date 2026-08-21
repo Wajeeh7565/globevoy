@@ -45,6 +45,18 @@ function safeHttpsOrigin(value) {
   }
 }
 
+function safeHttpsUrl(value) {
+  const raw = clean(value);
+  if (!raw || raw.includes('*')) return null;
+  try {
+    const parsed = new URL(raw);
+    if (parsed.protocol !== 'https:' || parsed.username || parsed.password || parsed.search || parsed.hash) return null;
+    return parsed.href;
+  } catch (_) {
+    return null;
+  }
+}
+
 function appUrls705A(environment = 'staging') {
   const env = safeEnvironment(environment);
   if (!env) return null;
@@ -98,13 +110,8 @@ function publicClientPlan705A(environment = 'staging') {
 function validatePublicClientConfig705A(input = {}) {
   const env = safeEnvironment(input.environment);
   const expected = env ? publicClientPlan705A(env) : null;
-  const callbacks = Array.isArray(input.callbackUrls) ? input.callbackUrls.map(safeHttpsOrigin).filter(Boolean) : [];
-  const logoutUrls = Array.isArray(input.logoutUrls) ? input.logoutUrls.map(value => {
-    try {
-      const url = new URL(clean(value));
-      return url.protocol === 'https:' ? url.href : null;
-    } catch (_) { return null; }
-  }).filter(Boolean) : [];
+  const callbacks = Array.isArray(input.callbackUrls) ? input.callbackUrls.map(safeHttpsUrl).filter(Boolean) : [];
+  const logoutUrls = Array.isArray(input.logoutUrls) ? input.logoutUrls.map(safeHttpsUrl).filter(Boolean) : [];
   const flows = Array.isArray(input.allowedOAuthFlows) ? input.allowedOAuthFlows.map(value => clean(value).toLowerCase()) : [];
   const errors = [];
 
@@ -116,7 +123,6 @@ function validatePublicClientConfig705A(input = {}) {
   if (input.pkceRequired !== true) errors.push('pkce-required');
   if (clean(input.pkceMethod || 'S256').toUpperCase() !== 'S256') errors.push('pkce-s256-required');
   if (!callbacks.length) errors.push('callback-required');
-  if (callbacks.some(url => url.includes('*'))) errors.push('wildcard-callback-forbidden');
   if (expected && JSON.stringify(callbacks) !== JSON.stringify(expected.callbackUrls)) errors.push('callback-allowlist-mismatch');
   if (expected && JSON.stringify(logoutUrls) !== JSON.stringify(expected.logoutUrls)) errors.push('logout-allowlist-mismatch');
 
@@ -353,5 +359,5 @@ module.exports = {
   migrationPlan705A,
   storagePlan705A,
   architectureStatus705A,
-  _internal: { clean, safeEnvironment, safeHttpsOrigin, safeTripId, safeText, safeIata, safeIsoDate, safeMoney, normalizeStops705A }
+  _internal: { clean, safeEnvironment, safeHttpsOrigin, safeHttpsUrl, safeTripId, safeText, safeIata, safeIsoDate, safeMoney, normalizeStops705A }
 };
