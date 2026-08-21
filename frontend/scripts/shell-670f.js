@@ -1,4 +1,4 @@
-/* GV-SHELL-686D-R1 + GV-ACCOUNT-705B-R3 secure staging auth entry */
+/* GV-SHELL-686D-R1 + GV-ACCOUNT-705B-R3 auth + GV-ACCOUNT-705C saved trips */
 (function () {
   'use strict';
 
@@ -7,6 +7,7 @@
   const root = (path) => depth === 0 ? path : `../${path}`;
   const profileHref = root('create-account.html');
   const accountHref = root('account.html');
+  const myTripsHref = root('my-trips.html');
 
   const header = `<div class="gv-header__inner">
     <a class="gv-brand" href="${root('index.html')}" aria-label="Globevoy home">
@@ -25,7 +26,7 @@
         <a class="gv-footer__brand-link" href="${root('index.html')}" aria-label="Globevoy home"><img class="gv-footer__logo" src="${root('assets/images/globevoy-logo.png')}" alt="Globevoy"></a>
         <p class="gv-footer__tag">Plan a complete trip around your total group budget, then confirm live prices and availability with booking partners.</p>
       </div>
-      <div><h2>Plan</h2><a href="${root('index.html')}">Start a trip</a><a href="${root('explore.html')}">Explore destinations</a><a href="${root('create-account.html')}">Travel profile</a><a href="${accountHref}">Account</a></div>
+      <div><h2>Plan</h2><a href="${root('index.html')}">Start a trip</a><a href="${root('explore.html')}">Explore destinations</a><a href="${root('create-account.html')}">Travel profile</a><a href="${myTripsHref}">My Trips</a><a href="${accountHref}">Account</a></div>
       <div><h2>Learn</h2><a href="${root('how-it-works.html')}">How it works</a><a href="${root('trust.html')}">Trust and pricing</a><a href="${root('about.html')}">About Globevoy</a></div>
       <div><h2>Legal</h2><a href="${root('privacy.html')}">Privacy</a><a href="${root('terms.html')}">Terms</a><a href="${root('affiliate.html')}">Affiliate disclosure</a></div>
     </div>
@@ -39,10 +40,10 @@
   const footerRoot = document.getElementById('gv-footer');
   if (headerRoot) {
     headerRoot.className = 'gv-header';
-    // Preserve the approved visual-shell baseline marker and expose the auth
-    // successor separately so historical shell diagnostics remain meaningful.
+    // Preserve the approved visual-shell baseline marker and expose account
+    // successors separately so historical shell diagnostics remain meaningful.
     headerRoot.dataset.gvShellVersion = '686d-r1';
-    headerRoot.dataset.gvAccountVersion = '705b-r3';
+    headerRoot.dataset.gvAccountVersion = '705c';
     headerRoot.innerHTML = header;
   }
   if (footerRoot) {
@@ -50,20 +51,36 @@
     footerRoot.innerHTML = footer;
   }
 
-  // Load the staging-safe public auth config and browser PKCE session code on
-  // every canonical page. The page-level shell URL is cache-busted by 705B-R3.
+  function loadSavedTrips705C() {
+    if (window.GLOBEVOY_SAVED_TRIPS_LOADER_705C || window.GlobevoySavedTrips705C) return;
+    window.GLOBEVOY_SAVED_TRIPS_LOADER_705C = true;
+    const script = document.createElement('script');
+    script.src = root('scripts/saved-trips-705c.js');
+    script.dataset.gvSavedTripsLoader = '705c';
+    document.head.appendChild(script);
+  }
+
+  // Load staging-safe public auth first. Saved trips are loaded only after the
+  // auth runtime is present, so secure API calls can use the already verified
+  // session access token and never duplicate password/token handling.
   if (!window.GLOBEVOY_AUTH_LOADER_705B_R3) {
     window.GLOBEVOY_AUTH_LOADER_705B_R3 = true;
     const configScript = document.createElement('script');
     configScript.src = root('runtime/auth-config-705b-r3.js');
     configScript.dataset.gvAuthLoader = 'config';
     configScript.onload = function () {
-      if (window.GlobevoyAuth705B) return;
+      if (window.GlobevoyAuth705B) {
+        loadSavedTrips705C();
+        return;
+      }
       const sessionScript = document.createElement('script');
       sessionScript.src = root('scripts/auth-session-705b-r3.js');
       sessionScript.dataset.gvAuthLoader = 'session';
+      sessionScript.onload = loadSavedTrips705C;
       document.head.appendChild(sessionScript);
     };
     document.head.appendChild(configScript);
+  } else if (window.GlobevoyAuth705B) {
+    loadSavedTrips705C();
   }
 })();
