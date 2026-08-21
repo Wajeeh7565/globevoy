@@ -86,7 +86,7 @@ printf 'Domain prefix: %s\n\n' "$DOMAIN_PREFIX"
 # ---------------------------------------------------------------------------
 # 1. User pool: public email self-sign-up, email verification, Essentials tier.
 # ---------------------------------------------------------------------------
-POOLS_JSON="$(aws cognito-idp list-user-pools --max-items 200 --region "$REGION" --output json)"
+POOLS_JSON="$(aws cognito-idp list-user-pools --max-results 60 --max-items 200 --region "$REGION" --output json)"
 POOL_MATCH_COUNT="$(jq --arg name "$POOL_NAME" '[.UserPools[]? | select(.Name == $name)] | length' <<<"$POOLS_JSON")"
 [[ "$POOL_MATCH_COUNT" -le 1 ]] || fail "More than one Cognito user pool is named '$POOL_NAME'. Refusing ambiguous reuse."
 
