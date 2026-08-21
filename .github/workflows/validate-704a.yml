@@ -71,12 +71,12 @@ jobs:
           grep -Fq 'AGODA_API_KEY' backend/services/agoda.js
           echo 'PASS - current legacy Agoda boundary is unchanged and explicitly audited.'
 
-      - name: Confirm validation is deployment-free
+      - name: Confirm 704A implementation is deployment-free
         shell: bash
         run: |
           set -euo pipefail
-          if grep -E 'aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+agoda' .github/workflows/validate-704a.yml; then
-            echo 'Deployment/provider-call command found in 704A validation workflow.'
+          if grep -E 'aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+agoda' backend/services/agoda-demand-readiness-704a.js backend/validate-gv-hotel-704a.js; then
+            echo 'Deployment/provider-call command found in 704A implementation.'
             exit 1
           fi
-          echo 'PASS - 704A CI performs no AWS deployment or Agoda network call.'
+          echo 'PASS - 704A implementation performs no AWS deployment or Agoda network call.'
