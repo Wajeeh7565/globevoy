@@ -45,7 +45,7 @@
     headerRoot.dataset.gvShellVersion = '686d-r1';
     headerRoot.dataset.gvAccountVersion = '705b-r3';
     headerRoot.dataset.gvSavedTripsVersion = '705c';
-    if (body.classList.contains('gv-multi-trip-page')) headerRoot.dataset.gvSavedTripsRouteDetails = '705c-r2';
+    if (body.classList.contains('gv-multi-trip-page')) headerRoot.dataset.gvSavedTripsRouteDetails = '705c-r3';
     headerRoot.innerHTML = header;
   }
   if (footerRoot) {
@@ -53,19 +53,19 @@
     footerRoot.innerHTML = footer;
   }
 
-  function loadRouteDetailsSavedTrips705CR2() {
+  function loadRouteDetailsSavedTrips705CR3() {
     if (!body.classList.contains('gv-multi-trip-page') && !document.getElementById('gv-mtd-save')) return;
-    if (window.GLOBEVOY_SAVED_TRIPS_ROUTE_DETAILS_LOADER_705C_R2 || window.GlobevoySavedTripsRouteDetails705CR2) return;
-    window.GLOBEVOY_SAVED_TRIPS_ROUTE_DETAILS_LOADER_705C_R2 = true;
+    if (window.GLOBEVOY_SAVED_TRIPS_ROUTE_DETAILS_LOADER_705C_R3 || window.GlobevoySavedTripsRouteDetails705CR3) return;
+    window.GLOBEVOY_SAVED_TRIPS_ROUTE_DETAILS_LOADER_705C_R3 = true;
     const script = document.createElement('script');
-    script.src = root('scripts/saved-trips-705c-r2-route-details.js');
-    script.dataset.gvSavedTripsRouteDetailsLoader = '705c-r2';
+    script.src = root('scripts/saved-trips-705c-r3-route-details.js');
+    script.dataset.gvSavedTripsRouteDetailsLoader = '705c-r3';
     document.head.appendChild(script);
   }
 
   function loadSavedTrips705C() {
     if (window.GlobevoySavedTrips705C) {
-      loadRouteDetailsSavedTrips705CR2();
+      loadRouteDetailsSavedTrips705CR3();
       return;
     }
     if (window.GLOBEVOY_SAVED_TRIPS_LOADER_705C) return;
@@ -73,7 +73,7 @@
     const script = document.createElement('script');
     script.src = root('scripts/saved-trips-705c.js');
     script.dataset.gvSavedTripsLoader = '705c';
-    script.onload = loadRouteDetailsSavedTrips705CR2;
+    script.onload = loadRouteDetailsSavedTrips705CR3;
     document.head.appendChild(script);
   }
 

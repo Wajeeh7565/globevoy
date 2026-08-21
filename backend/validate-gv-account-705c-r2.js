@@ -32,26 +32,29 @@ function main() {
   assert.match(bridge, /runtime\(\)\.api\.list\(\)/);
   assert.match(bridge, /runtime\(\)\.api\.create\(currentSnapshot\.body\)/);
   assert.match(bridge, /runtime\(\)\.api\.remove\(match\.tripId\)/);
-  pass('route-details save bridge uses the existing owner-private 705C API');
+  pass('route-details R2 bridge remains intact as the historical owner-private API baseline');
 
   assert.match(bridge, /event\.preventDefault\(\)/);
   assert.match(bridge, /event\.stopImmediatePropagation\(\)/);
   assert.match(bridge, /Saved to account ✓/);
   assert.match(bridge, /Saved privately to your Globevoy account/);
   assert.match(bridge, /browser-only handler/);
-  pass('signed-in save cannot falsely report browser-only Saved as account persistence');
+  pass('R2 signed-in save baseline cannot falsely report browser-only Saved as account persistence');
 
   assert.match(bridge, /function session\(\).*GlobevoyAuth705B/s);
   assert.doesNotMatch(bridge, /localStorage\.setItem\([^\n]*(accessToken|refreshToken|idToken)/i);
   assert.doesNotMatch(bridge, /sessionStorage\.setItem\([^\n]*(accessToken|refreshToken|idToken)/i);
   assert.doesNotMatch(bridge, /password|clientSecret|DUFFEL_ACCESS_TOKEN/);
-  pass('bridge reuses verified auth session without new token or credential persistence');
+  pass('R2 bridge reuses verified auth session without new token or credential persistence');
 
-  assert.match(shell, /saved-trips-705c-r2-route-details\.js/);
-  assert.match(shell, /script\.onload = loadRouteDetailsSavedTrips705CR2/);
+  // R3 is an intentional successor to R2. Keep validating that the historical
+  // R2 bridge exists, while allowing the shell to select the current R2/R3
+  // route-details implementation instead of freezing the loader forever at R2.
+  assert.match(shell, /saved-trips-705c-r(?:2|3)-route-details\.js/);
+  assert.match(shell, /script\.onload = loadRouteDetailsSavedTrips705CR[23]/);
   assert.match(shell, /gv-multi-trip-page/);
-  assert.match(shell, /gvSavedTripsRouteDetails = '705c-r2'/);
-  pass('shell loads R2 only for the multi-city route-details surface');
+  assert.match(shell, /gvSavedTripsRouteDetails = '705c-r[23]'/);
+  pass('shell loads an approved 705C route-details successor only on the multi-city route-details surface');
 
   assert.match(savedTrips, /multi-city-trip\.html/);
   assert.match(savedTrips, /_internal: Object\.freeze\(\{ singleSnapshot, multiSnapshot, sameOriginTripPath \}\)/);
