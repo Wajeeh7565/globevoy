@@ -56,6 +56,7 @@ trap on_error EXIT
 
 command -v aws >/dev/null 2>&1 || fail 'AWS CLI is required.'
 command -v jq >/dev/null 2>&1 || fail 'jq is required (AWS CloudShell includes it).'
+command -v sha256sum >/dev/null 2>&1 || fail 'sha256sum is required.'
 
 # Managed Login v2 branding commands are required. --generate-cli-skeleton is
 # local validation only and sends no AWS request.
@@ -64,17 +65,18 @@ aws cognito-idp create-managed-login-branding --generate-cli-skeleton input >/de
 aws cognito-idp describe-managed-login-branding-by-client --generate-cli-skeleton input >/dev/null 2>&1 \
   || fail 'AWS CLI is too old for DescribeManagedLoginBrandingByClient. Update AWS CLI v2 and retry.'
 
+# The AWS account number is used only inside this process to derive a globally
+# unique, non-identifying domain suffix. It is never printed or written to the
+# public config returned for frontend wiring.
 ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-[[ "$ACCOUNT_ID" =~ ^[0-9]{12}$ ]] || fail 'Could not resolve a 12-digit AWS account ID.'
-
-CALLER_ARN="$(aws sts get-caller-identity --query Arn --output text)"
-DOMAIN_PREFIX="globevoy-stg-${ACCOUNT_ID: -8}"
+[[ "$ACCOUNT_ID" =~ ^[0-9]{12}$ ]] || fail 'Could not resolve the AWS account context.'
+DOMAIN_SUFFIX="$(printf '%s:%s' "$ACCOUNT_ID" "$REGION" | sha256sum | awk '{print substr($1,1,10)}')"
+[[ "$DOMAIN_SUFFIX" =~ ^[0-9a-f]{10}$ ]] || fail 'Could not derive a safe staging domain suffix.'
+DOMAIN_PREFIX="globevoy-stg-${DOMAIN_SUFFIX}"
 DOMAIN_BASE="https://${DOMAIN_PREFIX}.auth.${REGION}.amazoncognito.com"
 ISSUER_BASE="https://cognito-idp.${REGION}.amazonaws.com"
 
 printf '\n%s staging bootstrap\n' "$VERSION"
-printf 'AWS account: %s\n' "$ACCOUNT_ID"
-printf 'Caller: %s\n' "$CALLER_ARN"
 printf 'Region: %s\n' "$REGION"
 printf 'Pool name: %s\n' "$POOL_NAME"
 printf 'Client name: %s\n' "$CLIENT_NAME"
@@ -273,6 +275,8 @@ fi
 
 # Prefix domains can take about a minute to propagate; configuration metadata is
 # normally available immediately. Retry description briefly without browsing it.
+DOMAIN_OWNER=""
+DOMAIN_VERSION=""
 for _ in {1..12}; do
   DOMAIN_DESC="$(aws cognito-idp describe-user-pool-domain --domain "$DOMAIN_PREFIX" --region "$REGION" --output json)"
   DOMAIN_OWNER="$(jq -r '.DomainDescription.UserPoolId // empty' <<<"$DOMAIN_DESC")"
@@ -326,7 +330,6 @@ LOGOUT_ENDPOINT="${DOMAIN_BASE}/logout"
 
 jq -n \
   --arg version "$VERSION" \
-  --arg accountId "$ACCOUNT_ID" \
   --arg region "$REGION" \
   --arg userPoolId "$POOL_ID" \
   --arg clientId "$CLIENT_ID" \
@@ -348,7 +351,6 @@ jq -n \
   '{
     version: $version,
     environment: "staging",
-    accountId: $accountId,
     region: $region,
     userPoolId: $userPoolId,
     clientId: $clientId,
@@ -394,6 +396,6 @@ printf '\n===== %s PUBLIC CONFIG =====\n' "$VERSION"
 cat "$OUTPUT_FILE"
 printf '\n'
 pass "Public staging config written to $OUTPUT_FILE"
-printf '[NEXT] Return this PUBLIC JSON to ChatGPT. It intentionally contains no client secret. Do not paste any AWS access keys, session tokens, passwords or unrelated credentials.\n'
+printf '[NEXT] Return this PUBLIC JSON to ChatGPT. It intentionally contains no client secret and no AWS account number. Do not paste AWS access keys, session tokens, passwords or unrelated credentials.\n'
 
 trap - EXIT
