@@ -1,0 +1,47 @@
+name: GV-ACCOUNT-705C-R3 Compact Route Snapshot
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'frontend/scripts/saved-trips-705c-r3-route-details.js'
+      - 'frontend/scripts/shell-670f.js'
+      - 'backend/validate-gv-account-705c-r3.js'
+      - '.github/workflows/validate-705c-r3.yml'
+  push:
+    branches: [staging]
+    paths:
+      - 'frontend/scripts/saved-trips-705c-r3-route-details.js'
+      - 'frontend/scripts/shell-670f.js'
+      - 'backend/validate-gv-account-705c-r3.js'
+      - '.github/workflows/validate-705c-r3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gv-account-705c-r3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax checks
+        run: |
+          node --check frontend/scripts/saved-trips-705c-r3-route-details.js
+          node --check frontend/scripts/shell-670f.js
+          node --check backend/validate-gv-account-705c-r3.js
+      - name: Validate compact route account save
+        run: node backend/validate-gv-account-705c-r3.js
+      - name: Preserve saved-trip and auth regressions
+        run: |
+          node backend/validate-gv-account-705b-r3.js
+          node backend/validate-gv-account-705c.js
+          node backend/validate-gv-account-705c-r2.js
