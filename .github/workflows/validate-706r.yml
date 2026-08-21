@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Use Node.js 22
         uses: actions/setup-node@v4
@@ -29,6 +31,22 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: web/package.json
+
+      - name: Enforce approved React migration boundary
+        if: github.event_name == 'pull_request'
+        working-directory: .
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+            printf '%s\n' "$changed"
+            if printf '%s\n' "$changed" | grep -Eq '^(frontend|backend)/'; then
+              echo 'React migration must not modify the proven frontend or backend.' >&2
+              exit 1
+            fi
+          fi
 
       - name: Install pinned framework dependencies
         run: npm install --no-audit --no-fund
@@ -66,6 +84,16 @@ jobs:
             grep -q "basePath: '/react'" next.config.ts
             grep -q '/react/_next/' out/account/index.html
             grep -q '/react/_next/' out/my-trips/index.html
+          fi
+
+      - name: Preserve account and booking regressions for React successors
+        working-directory: .
+        run: |
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            node backend/validate-gv-account-705b-r3.js
+            node backend/validate-gv-account-705c.js
+            node backend/validate-gv-account-705c-r4.js
+            node backend/validate-gv-book-706a.js
           fi
 
       - name: Capture generated dependency lock
