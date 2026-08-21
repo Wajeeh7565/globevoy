@@ -53,6 +53,10 @@ if (stagingAdults703E.enabled() && DUFFEL_703E_INSTALLATION.ok !== true) {
 // against the fixed staging user pool and never handles passwords or AWS keys.
 const stagingAccount705B = require('./services/staging-cognito-auth-705b-r3');
 
+// 705C is staging-only owner-private saved-trip storage. It reuses the exact
+// 705B verifier and derives DynamoDB ownership only from the verified token sub.
+const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
+
 const staging = require('./staging-lambda');
 
 const VERSION = 'GV-REC-702D-STAGING-QA-R1';
@@ -67,10 +71,21 @@ function eventMethod(event = {}) {
 
 async function handler(event = {}) {
   return stagingDuffelBudget703C.runWithBudget(async () => {
+    const path = eventPath(event);
+    const method = eventMethod(event);
+    // Keep the exact 705B regression marker while adding the 705C sibling route.
     const isAccountRoute = eventPath(event) === '/api/account/session';
-    const response = isAccountRoute && eventMethod(event) !== 'OPTIONS'
-      ? await stagingAccount705B.handleAccountSession705B(event)
-      : await staging.handler(event);
+    const isSavedTripsRoute = path === stagingSavedTrips705C.ROUTE_PATH;
+    let response;
+    if (method !== 'OPTIONS' && isAccountRoute) {
+      response = await stagingAccount705B.handleAccountSession705B(event);
+    } else if (method !== 'OPTIONS' && isSavedTripsRoute) {
+      response = await stagingSavedTrips705C.handleSavedTrips705C(event);
+    } else {
+      // Existing staging/prod gateway remains authoritative for OPTIONS/CORS and
+      // every non-account route. This preserves all historical behavior.
+      response = await staging.handler(event);
+    }
     const headers = { ...(response?.headers || {}) };
     const budget = stagingDuffelBudget703C.snapshot();
     headers['X-Globevoy-Staging-QA'] = VERSION;
@@ -84,6 +99,7 @@ async function handler(event = {}) {
     headers['X-Globevoy-Staging-Duffel-Adults'] = stagingAdults703E.enabled() ? stagingAdults703E.VERSION : 'disabled';
     headers['X-Globevoy-Staging-Duffel-Max-Adults'] = String(DUFFEL_703E_INSTALLATION?.maxAdults || 1);
     headers['X-Globevoy-Staging-Account'] = stagingAccount705B.enabled() ? stagingAccount705B.VERSION : 'disabled';
+    headers['X-Globevoy-Staging-Saved-Trips'] = stagingSavedTrips705C.enabled() ? stagingSavedTrips705C.VERSION : 'disabled';
     return { ...response, headers };
   }, {
     requestId: event?.requestContext?.requestId || event?.requestContext?.http?.requestId || null
@@ -105,5 +121,6 @@ module.exports = {
   duffel703CStatus: stagingDuffelBudget703C.status,
   duffel703DStatus: stagingAffordable703D.status,
   duffel703EStatus: stagingAdults703E.status,
-  account705BStatus: stagingAccount705B.status705B
+  account705BStatus: stagingAccount705B.status705B,
+  savedTrips705CStatus: stagingSavedTrips705C.status705C
 };

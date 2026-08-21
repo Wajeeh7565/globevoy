@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Account | Globevoy</title>
-  <meta name="gv-release" content="GV-ACCOUNT-705B-R3">
+  <meta name="gv-release" content="GV-ACCOUNT-705C">
   <link rel="icon" href="./favicon.ico" sizes="any">
   <link rel="stylesheet" href="./assets/fonts/fonts.css">
   <link rel="stylesheet" href="./styles/shell.css?v=686d-r1">
@@ -17,8 +17,8 @@
     <section class="gv-account-card" aria-labelledby="gv-account-title">
       <p class="gv-account-kicker">Secure staging account</p>
       <h1 id="gv-account-title">Your Globevoy account</h1>
-      <p class="gv-account-lead">Sign in or create an account with Amazon Cognito. Trip discovery still works as a guest; secure accounts are being added so saved trips can come next.</p>
-      <div class="gv-account-notice"><strong>What changes now:</strong> Cognito handles passwords and email verification. Globevoy receives a short-lived access token after a PKCE sign-in and verifies that token on the staging API. This page does not store passwords, payment details or passport numbers.</div>
+      <p class="gv-account-lead">Sign in securely with Amazon Cognito, then keep the trips you deliberately save available under your account.</p>
+      <div class="gv-account-notice"><strong>Privacy boundary:</strong> Cognito handles passwords and email verification. Saved-trip ownership comes from your verified account identity. Browser-only travel profile data is not silently uploaded.</div>
 
       <section id="gv-account-signed-out" class="gv-account-state">
         <h2>Not signed in</h2>
@@ -32,13 +32,14 @@
 
       <section id="gv-account-signed-in" class="gv-account-state" hidden>
         <h2>Signed in</h2>
-        <p>Your browser session has been checked against the Globevoy staging API. Saved trips are not enabled yet; they are the next account milestone.</p>
+        <p>Your browser session has been checked against the Globevoy staging API. Trips you explicitly save while signed in are private to this Cognito account.</p>
         <div class="gv-account-details">
           <div class="gv-account-detail"><span>Email</span><strong id="gv-account-email">—</strong></div>
           <div class="gv-account-detail"><span>Cognito user</span><strong id="gv-account-username">—</strong></div>
         </div>
         <div class="gv-account-actions">
-          <a class="gv-account-primary" href="index.html">Plan a trip</a>
+          <a class="gv-account-primary" href="my-trips.html">My Trips</a>
+          <a class="gv-account-secondary" href="index.html">Plan a trip</a>
           <a class="gv-account-secondary" href="create-account.html">Travel profile</a>
           <button class="gv-account-secondary" type="button" data-gv-auth-signout>Sign out</button>
         </div>
@@ -49,6 +50,6 @@
   </main>
 
   <div id="gv-footer"></div>
-  <script src="./scripts/shell-670f.js?v=705b-r3"></script>
+  <script src="./scripts/shell-670f.js?v=705c"></script>
 </body>
 </html>
