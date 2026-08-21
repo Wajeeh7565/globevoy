@@ -1,0 +1,63 @@
+name: GV-WEB-706R React Next Foundation
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'web/**'
+      - 'docs/GV-WEB-706R-MIGRATION-PLAN.md'
+      - '.github/workflows/validate-706r.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package.json
+
+      - name: Install pinned framework dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Verify dependency graph lock
+        run: echo '12f0fe80be5db2d1a7e18784eaf7a5e7f04ade17cf84b91c78a2dde5ec20f2c0  package-lock.json' | sha256sum -c -
+
+      - name: TypeScript strict validation
+        run: npm run typecheck
+
+      - name: Build static Next.js application
+        run: npm run build
+
+      - name: Verify static export and migration boundary
+        run: |
+          test -f out/index.html
+          grep -q 'GV-WEB-706R' app/page.tsx
+          grep -q "output: 'export'" next.config.ts
+          grep -q '15.5.21' package.json
+          grep -q '19.2.7' package.json
+          grep -q '22.20.1' package.json
+          grep -q '19.2.18' package.json
+          grep -q '19.2.4' package.json
+          grep -q '5.9.3' package.json
+          ! grep -R -E 'DUFFEL_ACCESS_TOKEN|AWS_SECRET_ACCESS_KEY|client_secret|Cognito.*secret' app components lib package.json next.config.ts
+
+      - name: Capture generated dependency lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: gv-web-706r-package-lock
+          path: web/package-lock.json
+          if-no-files-found: error
+          retention-days: 7
