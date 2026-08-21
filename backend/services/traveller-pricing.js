@@ -111,12 +111,87 @@ function unitTransportUsd(leg = {}) {
   return finite(leg.estimatedTransportUsd || leg.estimatedFlightUsd || leg.amountUsd, 0);
 }
 
+function samePartySnapshot(pricing = {}, party = {}) {
+  return Number(pricing.adults) === Number(party.adults)
+    && Number(pricing.children) === Number(party.children)
+    && Number(pricing.infants) === Number(party.infants)
+    && Number(pricing.travellers) === Number(party.travellers);
+}
+
+function livePartyTotalUsd(leg = {}, options = {}, party = {}) {
+  if (isGroundTransfer(leg)) return null;
+
+  const explicitBasis = String(options.amountBasis || '').trim().toLowerCase();
+  if (explicitBasis === 'party-total') {
+    const explicit = finite(options.partyTotalAmountUsd ?? options.unitAmountUsd, 0);
+    if (explicit > 0) return { amountUsd: explicit, source: 'explicit-party-total-option' };
+  }
+
+  const pricing = leg?.pricingIntegrity || {};
+  if (String(pricing.amountBasis || '').toLowerCase() === 'party-total'
+      && samePartySnapshot(pricing, party)) {
+    const preserved = finite(pricing.partyTotalUsd, 0);
+    if (preserved > 0) return { amountUsd: preserved, source: 'preserved-pricing-integrity-party-total' };
+  }
+
+  const evidenceRows = [leg?.providerDateEvidence, leg?.cheapestOneWay, leg?.providerObservation]
+    .filter(row => row && typeof row === 'object');
+  for (const evidence of evidenceRows) {
+    if (String(evidence.fareAmountBasis || '').trim().toLowerCase() !== 'party-total') continue;
+    const evidencePassengers = integer(
+      evidence.providerPassengerCount ?? evidence.passengers,
+      party.travellers,
+      1,
+      18
+    );
+    if (evidencePassengers !== party.travellers) continue;
+    const amount = finite(
+      evidence.rankingPriceUsd
+        ?? evidence.partyTotalAmountUsd
+        ?? evidence.providerPartyTotalAmountUsd
+        ?? evidence.providerPartyTotalAmount,
+      0
+    );
+    if (amount > 0) return { amountUsd: amount, source: 'live-provider-party-total-evidence' };
+  }
+  return null;
+}
+
+function annotateTransportEvidence(evidence, { partyTotalMode, base, total, party }) {
+  if (!evidence || typeof evidence !== 'object') return evidence;
+  if (partyTotalMode) {
+    return {
+      ...evidence,
+      fareAmountBasis: 'party-total',
+      providerPassengerCount: integer(evidence.providerPassengerCount ?? evidence.passengers, party.travellers, 1, 18),
+      partyTotalAmountUsd: total,
+      derivedAveragePerFareUnitUsd: party.flightFareUnits > 0
+        ? Number((total / party.flightFareUnits).toFixed(2))
+        : null,
+      passengerPricingApplied: false,
+      passengerMultiplierApplied: false,
+      providerPartyTotalPreserved: true
+    };
+  }
+  return {
+    ...evidence,
+    perPassengerAmountUsd: finite(evidence.perPassengerAmountUsd, base),
+    partyTotalAmountUsd: total,
+    passengerPricingApplied: true,
+    passengerMultiplierApplied: true
+  };
+}
+
 function priceTransportLeg(leg = {}, query = {}, options = {}) {
   const party = options.party || normalizeParty(query);
-  const base = finite(options.unitAmountUsd, 0) || unitTransportUsd(leg);
-  const multiplier = transportMultiplier(leg, party);
-  const total = Math.round(base * multiplier);
   const ground = isGroundTransfer(leg);
+  const multiplier = transportMultiplier(leg, party);
+  const partyTotalEvidence = ground ? null : livePartyTotalUsd(leg, options, party);
+  const partyTotalMode = Boolean(partyTotalEvidence && partyTotalEvidence.amountUsd > 0);
+  const base = partyTotalMode
+    ? partyTotalEvidence.amountUsd / Math.max(0.000001, party.flightFareUnits)
+    : (finite(options.unitAmountUsd, 0) || unitTransportUsd(leg));
+  const total = Math.round(partyTotalMode ? partyTotalEvidence.amountUsd : base * multiplier);
   const next = {
     ...leg,
     estimatedTransportUsd: total,
@@ -128,9 +203,16 @@ function priceTransportLeg(leg = {}, query = {}, options = {}) {
       unitAmountUsd: Number(base.toFixed(2)),
       unitBasis: ground
         ? (isPrivateTransfer(leg) ? 'per-party-transfer' : 'per-traveller-transfer')
-        : 'per-passenger-flight-fare',
-      multiplier,
+        : (partyTotalMode ? 'provider-party-total-flight-fare' : 'per-passenger-flight-fare'),
+      amountBasis: partyTotalMode ? 'party-total' : 'per-unit',
+      sourceAmountUsd: Number((partyTotalMode ? partyTotalEvidence.amountUsd : base).toFixed(2)),
+      sourceAmountBasis: partyTotalMode ? 'provider-party-total' : 'unit-amount',
+      multiplier: partyTotalMode ? 1 : multiplier,
+      partyFareUnits: party.flightFareUnits,
       partyTotalUsd: total,
+      providerPartyTotalPreserved: partyTotalMode,
+      providerPassengerCount: partyTotalMode ? party.travellers : null,
+      partyTotalSource: partyTotalMode ? partyTotalEvidence.source : null,
       adults: party.adults,
       children: party.children,
       infants: party.infants,
@@ -139,26 +221,13 @@ function priceTransportLeg(leg = {}, query = {}, options = {}) {
     }
   };
   if (next.providerObservation && typeof next.providerObservation === 'object') {
-    next.providerObservation = {
-      ...next.providerObservation,
-      perPassengerAmountUsd: finite(next.providerObservation.perPassengerAmountUsd, base),
-      partyTotalAmountUsd: total,
-      passengerPricingApplied: true
-    };
+    next.providerObservation = annotateTransportEvidence(next.providerObservation, { partyTotalMode, base, total, party });
   }
   if (next.cheapestOneWay && typeof next.cheapestOneWay === 'object') {
-    next.cheapestOneWay = {
-      ...next.cheapestOneWay,
-      perPassengerAmountUsd: finite(next.cheapestOneWay.perPassengerAmountUsd, base),
-      partyTotalAmountUsd: total
-    };
+    next.cheapestOneWay = annotateTransportEvidence(next.cheapestOneWay, { partyTotalMode, base, total, party });
   }
   if (next.providerDateEvidence && typeof next.providerDateEvidence === 'object') {
-    next.providerDateEvidence = {
-      ...next.providerDateEvidence,
-      perPassengerAmountUsd: finite(next.providerDateEvidence.perPassengerAmountUsd, base),
-      partyTotalAmountUsd: total
-    };
+    next.providerDateEvidence = annotateTransportEvidence(next.providerDateEvidence, { partyTotalMode, base, total, party });
   }
   return next;
 }
@@ -326,5 +395,5 @@ module.exports = {
   priceTransportLeg,
   priceStopStay,
   applyTravellerPricingToTour,
-  _internal: { destinationGatewayAccessPricing, isGroundTransfer, isPrivateTransfer, transportMultiplier, baseNightlyPerRoom, gatewayAccessPricing, familyOccupancy669dEnabled }
+  _internal: { destinationGatewayAccessPricing, isGroundTransfer, isPrivateTransfer, transportMultiplier, baseNightlyPerRoom, gatewayAccessPricing, familyOccupancy669dEnabled, samePartySnapshot, livePartyTotalUsd, annotateTransportEvidence }
 };
