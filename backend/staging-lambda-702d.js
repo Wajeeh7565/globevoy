@@ -31,6 +31,15 @@ if (stagingDuffelBudget703C.enabled() && DUFFEL_703C_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703C staging shared Duffel budget failed closed: ${DUFFEL_703C_INSTALLATION.reason || 'unknown'}`);
 }
 
+// 703D must install after the 703B five-origin final-schedule policy is present,
+// but before generated-tour loads 684B. It only injects the bounded staging
+// affordable-discovery allowlist; it does not enable Duffel or add credentials.
+const stagingAffordable703D = require('./services/staging-affordable-flight-five-origin-703d');
+const DUFFEL_703D_INSTALLATION = stagingAffordable703D.install();
+if (stagingAffordable703D.enabled() && DUFFEL_703D_INSTALLATION.ok !== true) {
+  throw new Error(`GV-FLIGHT-703D staging affordable-flight origin policy failed closed: ${DUFFEL_703D_INSTALLATION.reason || 'unknown'}`);
+}
+
 const staging = require('./staging-lambda');
 
 const VERSION = 'GV-REC-702D-STAGING-QA-R1';
@@ -47,6 +56,7 @@ async function handler(event = {}) {
     headers['X-Globevoy-Staging-Duffel-Budget'] = stagingDuffelBudget703C.enabled() ? stagingDuffelBudget703C.VERSION : 'disabled';
     headers['X-Globevoy-Staging-Duffel-Budget-Cap'] = String(budget.cap);
     headers['X-Globevoy-Staging-Duffel-Budget-Used'] = String(budget.used);
+    headers['X-Globevoy-Staging-Duffel-Discovery'] = stagingAffordable703D.enabled() ? stagingAffordable703D.VERSION : 'disabled';
     return { ...response, headers };
   }, {
     requestId: event?.requestContext?.requestId || event?.requestContext?.http?.requestId || null
@@ -59,9 +69,11 @@ module.exports = {
   GATEWAY_INSTALLATION,
   DUFFEL_703B_INSTALLATION,
   DUFFEL_703C_INSTALLATION,
+  DUFFEL_703D_INSTALLATION,
   handler,
   status: stagingRecovery.status,
   gatewayStatus: stagingGateway.status,
   duffel703BStatus: stagingDuffel703B.status,
-  duffel703CStatus: stagingDuffelBudget703C.status
+  duffel703CStatus: stagingDuffelBudget703C.status,
+  duffel703DStatus: stagingAffordable703D.status
 };
