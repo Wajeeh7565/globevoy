@@ -14,7 +14,7 @@
       <span>Globevoy</span>
     </a>
     <div class="gv-utils">
-      <a class="gv-auth gv-auth--quiet" href="${profileHref}" aria-label="Travel profile"><span class="gv-auth__full">Travel profile</span><span class="gv-auth__short" aria-hidden="true">Profile</span></a>
+      <a class="gv-auth" href="${profileHref}" aria-label="Travel profile"><span class="gv-auth__full">Travel profile</span><span class="gv-auth__short" aria-hidden="true">Profile</span></a>
       <a class="gv-auth gv-auth--account" href="${accountHref}" data-gv-auth-entry aria-label="Sign in or create an account"><span class="gv-auth__full">Sign in</span><span class="gv-auth__short" aria-hidden="true">Sign in</span></a>
     </div>
   </div>`;
@@ -39,7 +39,10 @@
   const footerRoot = document.getElementById('gv-footer');
   if (headerRoot) {
     headerRoot.className = 'gv-header';
-    headerRoot.dataset.gvShellVersion = '686d-r1+705b-r3';
+    // Preserve the approved visual-shell baseline marker and expose the auth
+    // successor separately so historical shell diagnostics remain meaningful.
+    headerRoot.dataset.gvShellVersion = '686d-r1';
+    headerRoot.dataset.gvAccountVersion = '705b-r3';
     headerRoot.innerHTML = header;
   }
   if (footerRoot) {
@@ -48,7 +51,7 @@
   }
 
   // Load the staging-safe public auth config and browser PKCE session code on
-  // every canonical page without requiring dozens of page-by-page script edits.
+  // every canonical page. The page-level shell URL is cache-busted by 705B-R3.
   if (!window.GLOBEVOY_AUTH_LOADER_705B_R3) {
     window.GLOBEVOY_AUTH_LOADER_705B_R3 = true;
     const configScript = document.createElement('script');
