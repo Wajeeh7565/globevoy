@@ -16,7 +16,7 @@ export default function HomePage() {
   return (
     <div className="gv-foundation-page">
       <section className="gv-hero">
-        <p className="gv-kicker">GV-WEB-707A</p>
+        <p className="gv-kicker">GV-WEB-707A · built on GV-WEB-706R</p>
         <h1>The first real Globevoy account surface is now in React.</h1>
         <p>
           The parallel Next.js + React + TypeScript app now implements Account and My Trips
