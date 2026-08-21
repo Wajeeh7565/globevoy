@@ -1,0 +1,106 @@
+name: GV-FLIGHT-703E Two-Adult Live Fare Integrity
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/duffel-adult-scope-703e.js'
+      - 'backend/services/staging-duffel-two-adult-703e.js'
+      - 'backend/services/duffel-live-adapter-683d.js'
+      - 'backend/services/flight-provider-contract-683c.js'
+      - 'backend/services/traveller-pricing.js'
+      - 'backend/services/public-live-fare-pilot-684a.js'
+      - 'backend/services/affordable-flight-discovery-684b.js'
+      - 'backend/services/live-fare-selection-685c.js'
+      - 'backend/services/whole-trip-fare-reconciliation-685c-r1.js'
+      - 'backend/services/staging-duffel-five-origin-703b.js'
+      - 'backend/services/staging-duffel-shared-budget-703c.js'
+      - 'backend/services/staging-affordable-flight-five-origin-703d.js'
+      - 'backend/generated-tour.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validate-gv-flight-703b.js'
+      - 'backend/validate-gv-flight-703c.js'
+      - 'backend/validate-gv-flight-703d.js'
+      - 'backend/validate-gv-flight-703e.js'
+      - '.github/workflows/validate-703e.yml'
+      - 'docs/GV-FLIGHT-703E.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate two-adult party-total fare integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate repository and prior flight safeguards
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validate-gv-rec-687b-p3.js
+          node backend/validate-gv-flight-703b.js
+          node backend/validate-gv-flight-703c.js
+          node backend/validate-gv-flight-703d.js
+          node backend/validate-gv-flight-703e.js
+
+      - name: Syntax checks
+        run: |
+          node --check backend/lambda.js
+          node --check backend/generated-tour.js
+          node --check backend/staging-lambda-702d.js
+          node --check backend/services/duffel-adult-scope-703e.js
+          node --check backend/services/staging-duffel-two-adult-703e.js
+          node --check backend/services/duffel-live-adapter-683d.js
+          node --check backend/services/flight-provider-contract-683c.js
+          node --check backend/services/traveller-pricing.js
+          node --check backend/services/public-live-fare-pilot-684a.js
+          node --check backend/services/affordable-flight-discovery-684b.js
+          node --check backend/validate-gv-flight-703e.js
+
+      - name: Confirm production runtime has no 703E staging wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Eq 'GV-FLIGHT-703E|staging-duffel-two-adult-703e|GV_DUFFEL_MAX_ADULTS_703E' backend/lambda.js; then
+            echo '703E staging runtime wiring found in production handler.'
+            exit 1
+          fi
+          echo 'PASS - production handler has no 703E staging runtime wiring.'
+
+      - name: Confirm bounded scope remains unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "Object.freeze(['YYZ', 'JFK', 'LAX', 'DUB', 'DXB'])" backend/services/staging-duffel-five-origin-703b.js
+          grep -Fq 'const SHARED_PHYSICAL_REQUEST_CAP = 8;' backend/services/staging-duffel-shared-budget-703c.js
+          grep -Fq 'const MAX_CANDIDATE_CHECKS_684B = 2;' backend/services/affordable-flight-discovery-684b.js
+          grep -Fq 'const MAX_FLIGHT_LEGS_684A = 3;' backend/services/public-live-fare-pilot-684a.js
+          grep -Fq 'const MAX_FLIGHT_LEGS_684B = 3;' backend/services/affordable-flight-discovery-684b.js
+          grep -Fq 'const DEFAULT_MAX_ADULTS = 1;' backend/services/duffel-adult-scope-703e.js
+          grep -Fq 'const STAGING_MAX_ADULTS = 2;' backend/services/duffel-adult-scope-703e.js
+          echo 'PASS - origins/call/candidate/leg caps and default/staging adult ceilings are bounded.'
+
+      - name: Confirm validation is deployment-free and provider-call-free
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+api\.duffel\.com" .github/workflows/validate-703e.yml; then
+            echo 'Deployment/provider-call command found in 703E validation workflow.'
+            exit 1
+          fi
+          if grep -E "https://api\.duffel\.com" backend/validate-gv-flight-703e.js; then
+            echo 'Real Duffel endpoint reference found in deterministic 703E validator.'
+            exit 1
+          fi
+          echo 'PASS - 703E validation performs no AWS deployment or provider network call.'

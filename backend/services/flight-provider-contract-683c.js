@@ -158,6 +158,16 @@ function normalizeObservation683C(raw = {}, context = {}, provider = {}) {
     currency,
     totalPrice,
     passengerCount: passengers,
+    // Preserve explicit provider amount semantics when an adapter can prove them.
+    // Duffel offer.total_amount is a party total for all passengers. Other
+    // providers remain unmarked and keep the existing provider-neutral behavior.
+    fareAmountBasis: raw.fareAmountBasis === 'party-total' ? 'party-total' : null,
+    providerPartyTotalAmount: raw.fareAmountBasis === 'party-total'
+      ? finitePositive(raw.providerPartyTotalAmount ?? totalPrice)
+      : null,
+    providerPassengerCount: raw.fareAmountBasis === 'party-total'
+      ? positiveInteger(raw.providerPassengerCount || raw.passengers || context.passengers || passengers, passengers)
+      : null,
     airline: raw.airline || null,
     stops,
     durationMinutes,

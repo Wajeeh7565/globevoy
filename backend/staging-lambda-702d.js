@@ -40,6 +40,15 @@ if (stagingAffordable703D.enabled() && DUFFEL_703D_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703D staging affordable-flight origin policy failed closed: ${DUFFEL_703D_INSTALLATION.reason || 'unknown'}`);
 }
 
+// 703E installs after 703B/703C/703D so the origin cohort and shared cap are
+// already proven. It only raises the in-process adult ceiling from one to two
+// for this exact staging origin; it does not enable Duffel or add credentials.
+const stagingAdults703E = require('./services/staging-duffel-two-adult-703e');
+const DUFFEL_703E_INSTALLATION = stagingAdults703E.install();
+if (stagingAdults703E.enabled() && DUFFEL_703E_INSTALLATION.ok !== true) {
+  throw new Error(`GV-FLIGHT-703E staging two-adult policy failed closed: ${DUFFEL_703E_INSTALLATION.reason || 'unknown'}`);
+}
+
 const staging = require('./staging-lambda');
 
 const VERSION = 'GV-REC-702D-STAGING-QA-R1';
@@ -57,6 +66,8 @@ async function handler(event = {}) {
     headers['X-Globevoy-Staging-Duffel-Budget-Cap'] = String(budget.cap);
     headers['X-Globevoy-Staging-Duffel-Budget-Used'] = String(budget.used);
     headers['X-Globevoy-Staging-Duffel-Discovery'] = stagingAffordable703D.enabled() ? stagingAffordable703D.VERSION : 'disabled';
+    headers['X-Globevoy-Staging-Duffel-Adults'] = stagingAdults703E.enabled() ? stagingAdults703E.VERSION : 'disabled';
+    headers['X-Globevoy-Staging-Duffel-Max-Adults'] = String(DUFFEL_703E_INSTALLATION?.maxAdults || 1);
     return { ...response, headers };
   }, {
     requestId: event?.requestContext?.requestId || event?.requestContext?.http?.requestId || null
@@ -70,10 +81,12 @@ module.exports = {
   DUFFEL_703B_INSTALLATION,
   DUFFEL_703C_INSTALLATION,
   DUFFEL_703D_INSTALLATION,
+  DUFFEL_703E_INSTALLATION,
   handler,
   status: stagingRecovery.status,
   gatewayStatus: stagingGateway.status,
   duffel703BStatus: stagingDuffel703B.status,
   duffel703CStatus: stagingDuffelBudget703C.status,
-  duffel703DStatus: stagingAffordable703D.status
+  duffel703DStatus: stagingAffordable703D.status,
+  duffel703EStatus: stagingAdults703E.status
 };
