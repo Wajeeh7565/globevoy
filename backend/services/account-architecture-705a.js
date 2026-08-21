@@ -208,8 +208,8 @@ function savedTripKeys705A(ownerSub, tripId) {
   const id = safeTripId(tripId);
   if (!sub || !id) return null;
   return {
-    pk: `USER#${sub}`,
-    sk: `TRIP#${id}`
+    PK: `USER#${sub}`,
+    SK: `TRIP#${id}`
   };
 }
 
