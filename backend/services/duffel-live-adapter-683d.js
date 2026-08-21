@@ -196,8 +196,14 @@ function normalizeLiveOffer683D(offer = {}, request = {}, context = {}) {
     destination: request.destination,
     departureDate: request.departureDate,
     currency,
+    // Duffel documents offer.total_amount as the total price for ALL passengers.
+    // Preserve that semantic explicitly so downstream traveller-pricing never
+    // applies a second passenger multiplier to live Duffel evidence.
     totalPrice: amount,
+    fareAmountBasis: 'party-total',
+    providerPartyTotalAmount: amount,
     passengers: request.passengers,
+    providerPassengerCount: request.passengers,
     airline: offer?.owner?.name || endpoint.first?.operating_carrier?.name || endpoint.first?.marketing_carrier?.name || null,
     stops: offerStops683D(offer),
     durationMinutes: offerDurationMinutes683D(offer),
@@ -217,7 +223,9 @@ function normalizeLiveOffer683D(offer = {}, request = {}, context = {}) {
       ownerIata: offer?.owner?.iata_code || null,
       sliceCount: slices.length,
       responseTimeMs: context.responseTimeMs,
-      resultCount: context.resultCount
+      resultCount: context.resultCount,
+      fareAmountBasis: 'party-total',
+      providerPassengerCount: request.passengers
     }
   };
 }
