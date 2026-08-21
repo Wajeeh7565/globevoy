@@ -1,0 +1,55 @@
+name: GV-BOOK-706A Saved Trip Booking Workspace
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'frontend/my-trips.html'
+      - 'frontend/booking.html'
+      - 'frontend/scripts/my-trips-booking-706a.js'
+      - 'frontend/scripts/booking-account-bridge-706a.js'
+      - 'frontend/scripts/booking-account-snapshot-706a.js'
+      - 'backend/validate-gv-book-706a.js'
+      - '.github/workflows/validate-706a.yml'
+  push:
+    branches: [staging]
+    paths:
+      - 'frontend/my-trips.html'
+      - 'frontend/booking.html'
+      - 'frontend/scripts/my-trips-booking-706a.js'
+      - 'frontend/scripts/booking-account-bridge-706a.js'
+      - 'frontend/scripts/booking-account-snapshot-706a.js'
+      - 'backend/validate-gv-book-706a.js'
+      - '.github/workflows/validate-706a.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gv-book-706a-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax checks
+        run: |
+          node --check frontend/scripts/my-trips-booking-706a.js
+          node --check frontend/scripts/booking-account-bridge-706a.js
+          node --check frontend/scripts/booking-account-snapshot-706a.js
+          node --check backend/validate-gv-book-706a.js
+      - name: Validate saved trip booking workspace
+        run: node backend/validate-gv-book-706a.js
+      - name: Preserve account and repository regressions
+        run: |
+          node backend/validate-gv-account-705b-r3.js
+          node backend/validate-gv-account-705c.js
+          node backend/validate-gv-account-705c-r3.js
+          node .github/scripts/validate-repo.mjs
