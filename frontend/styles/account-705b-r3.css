@@ -1,0 +1,21 @@
+/* GV-ACCOUNT-705B-R3 staging account surfaces */
+.gv-account-page{margin:0;background:var(--gv-canvas);color:var(--gv-ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;display:flex;flex-direction:column}
+.gv-account-main{width:min(920px,calc(100% - 40px));margin:0 auto;padding:72px 0 88px;flex:1}
+.gv-account-card{background:#fff;border:1px solid var(--gv-border);border-radius:24px;box-shadow:var(--gv-shadow);padding:clamp(28px,5vw,54px)}
+.gv-account-kicker{margin:0 0 10px;color:var(--gv-teal-dark);font-size:12px;font-weight:850;letter-spacing:.11em;text-transform:uppercase}
+.gv-account-card h1{margin:0;color:var(--gv-navy);font-size:clamp(30px,5vw,48px);line-height:1.08;letter-spacing:-.035em}
+.gv-account-lead{max-width:700px;margin:16px 0 0;color:var(--gv-muted);font-size:16px;line-height:1.7}
+.gv-account-notice{margin:26px 0 0;padding:16px 18px;border-radius:14px;background:var(--gv-soft);color:#164a49;font-size:13px;line-height:1.6}
+.gv-account-state{margin-top:30px;padding-top:28px;border-top:1px solid var(--gv-border)}
+.gv-account-state h2{margin:0 0 9px;color:var(--gv-navy);font-size:22px}
+.gv-account-state p{margin:0;color:var(--gv-muted);line-height:1.65}
+.gv-account-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.gv-account-primary,.gv-account-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 18px;border-radius:11px;font:inherit;font-size:14px;font-weight:800;text-decoration:none;cursor:pointer;box-sizing:border-box}
+.gv-account-primary{border:1px solid var(--gv-teal);background:var(--gv-teal);color:#fff}.gv-account-primary:hover{background:var(--gv-teal-dark)}
+.gv-account-secondary{border:1px solid var(--gv-border);background:#fff;color:var(--gv-navy)}.gv-account-secondary:hover{background:#f6f9fb}
+.gv-account-primary:focus-visible,.gv-account-secondary:focus-visible{outline:3px solid var(--gv-amber);outline-offset:2px}
+.gv-account-details{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.gv-account-detail{padding:15px 16px;border:1px solid var(--gv-border);border-radius:12px;background:#fbfdfe}.gv-account-detail span{display:block;color:var(--gv-muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}.gv-account-detail strong{display:block;margin-top:5px;color:var(--gv-navy);font-size:14px;word-break:break-word}
+.gv-account-status{margin-top:22px;min-height:22px;color:var(--gv-muted);font-size:13px;line-height:1.55}.gv-account-status[data-kind="error"]{color:#9b2c2c}.gv-account-status[data-kind="success"]{color:#17614f}.gv-account-status[data-kind="working"]{color:var(--gv-teal-dark)}
+.gv-auth-callback-page{margin:0;min-height:100vh;background:linear-gradient(145deg,#f5f8fb,#e8f5f4);display:grid;place-items:center;padding:24px;box-sizing:border-box;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--gv-ink)}
+.gv-auth-callback-card{width:min(560px,100%);background:#fff;border:1px solid var(--gv-border);border-radius:24px;box-shadow:var(--gv-shadow);padding:40px;box-sizing:border-box;text-align:center}.gv-auth-callback-card img{width:46px;height:46px}.gv-auth-callback-card h1{margin:18px 0 10px;color:var(--gv-navy);font-size:30px}.gv-auth-callback-card p{margin:0;color:var(--gv-muted);line-height:1.6}.gv-auth-callback-card .gv-account-status{margin-top:18px}.gv-auth-callback-card a{display:inline-block;margin-top:20px;color:var(--gv-teal-dark);font-weight:750}
+@media(max-width:640px){.gv-account-main{width:min(100% - 24px,920px);padding:34px 0 54px}.gv-account-card{padding:26px 20px}.gv-account-details{grid-template-columns:1fr}.gv-auth-callback-card{padding:30px 22px}}
