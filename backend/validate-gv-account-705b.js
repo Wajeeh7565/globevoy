@@ -22,8 +22,12 @@ assert(script.includes('TRIPS_SCOPE="${RESOURCE_SERVER_IDENTIFIER}/${TRIPS_SCOPE
 assert(script.includes('CALLBACK_URL="https://staging.dy4fw8gx1ccie.amplifyapp.com/auth-callback.html"'));
 assert(script.includes('LOGOUT_URL="https://staging.dy4fw8gx1ccie.amplifyapp.com/index.html"'));
 
-// Public browser client: code grant only, PKCE will be implemented by frontend,
-// and there must never be a generated client secret.
+// CloudShell compatibility proved by the real operator run.
+assert(script.includes('aws cognito-idp list-user-pools --max-results 60 --region "$REGION" --output json'));
+const listPoolsLine = script.split('\n').find(line => line.includes('aws cognito-idp list-user-pools')) || '';
+assert.equal(listPoolsLine.includes('--max-items'), false);
+
+// Public browser client: code grant only, with no generated client secret.
 assert(script.includes('GenerateSecret: false'));
 assert.equal(script.includes('GenerateSecret: true'), false);
 assert.equal(script.includes('--generate-secret'), false);
@@ -43,8 +47,7 @@ assert(script.includes('Name: "verified_email"'));
 assert(script.includes('UserPoolTier: "ESSENTIALS"'));
 assert(script.includes('DeletionProtection: "INACTIVE"'));
 
-// Managed Login v2 requires a domain plus a branding style for programmatically
-// created clients. Both commands must be present and validated.
+// Managed Login v2 domain + branding.
 assert(script.includes('create-user-pool-domain'));
 assert(script.includes('--managed-login-version 2'));
 assert(script.includes('describe-user-pool-domain'));
@@ -58,8 +61,7 @@ assert(script.includes('create-resource-server'));
 assert(script.includes('describe-resource-server'));
 assert(script.includes('ScopeName: $scope'));
 
-// Idempotence/fail-closed behavior: matching named resources are reused, while
-// duplicate names or conflicting security-critical settings stop the operator.
+// Idempotence/fail-closed behavior.
 assert(script.includes('POOL_MATCH_COUNT'));
 assert(script.includes('CLIENT_MATCH_COUNT'));
 assert(script.includes('Refusing ambiguous reuse'));
@@ -69,7 +71,7 @@ assert(script.includes('Refusing silent mutation'));
 assert(script.includes('Re-run the same script'));
 
 // The account number is used only to make the domain prefix unique and must not
-// be printed or written to the public JSON that the user will paste back.
+// be printed or written to the public JSON.
 assert(script.includes('ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"'));
 assert(script.includes('DOMAIN_SUFFIX="$(printf \'%s:%s\' "$ACCOUNT_ID" "$REGION" | sha256sum'));
 assert.equal(script.includes("printf 'AWS account:"), false);
@@ -78,8 +80,7 @@ assert.equal(script.includes('accountId: $accountId'), false);
 assert.equal(script.includes('--arg accountId'), false);
 assert(script.includes('no AWS account number'));
 
-// Public operator output is deliberately non-secret and narrowly useful for
-// the next frontend/JWT-verifier implementation step.
+// Public operator output is deliberately non-secret.
 for (const marker of [
   'userPoolId: $userPoolId',
   'clientId: $clientId',
@@ -96,9 +97,7 @@ for (const marker of [
   'awsCredentialsExposedToBrowser: false'
 ]) assert(script.includes(marker), `missing public-config safety marker: ${marker}`);
 
-// 705B bootstrap is allowed to create Cognito staging resources only. No
-// Lambda, Amplify, DynamoDB, IAM, production resource, destructive mutation or
-// provider credential operation belongs in this script.
+// 705B bootstrap is allowed to create Cognito staging resources only.
 const forbiddenAwsCommands = [
   /aws\s+lambda\b/,
   /aws\s+amplify\b/,
@@ -124,21 +123,19 @@ for (const forbidden of [
   assert.equal(script.includes(forbidden), false, `bootstrap contains forbidden secret/production marker: ${forbidden}`);
 }
 
-// Existing runtime must remain untouched by the bootstrap branch. 705B does not
-// yet wire a real frontend login flow or backend JWT verification.
-for (const file of [
-  path.join(ROOT, 'backend', 'lambda.js'),
-  path.join(ROOT, 'backend', 'generated-tour.js'),
-  path.join(ROOT, 'frontend', 'scripts', 'shell-670f.js'),
-  path.join(ROOT, 'frontend', 'scripts', 'travel-profile-675a.js'),
-  path.join(ROOT, 'frontend', 'runtime', 'config.js')
-]) {
-  const text = fs.readFileSync(file, 'utf8');
-  assert.equal(/GV-ACCOUNT-705B|globevoy-staging-users|globevoy-staging-web/.test(text), false, `${file} contains premature 705B runtime wiring`);
-}
+// 705B-R3 is now allowed to wire the verified staging resources into the
+// staging wrapper and frontend. The shared production handler must remain free
+// of account runtime changes, and unrelated provider/runtime surfaces stay clean.
+const productionLambda = fs.readFileSync(path.join(ROOT, 'backend', 'lambda.js'), 'utf8');
+const generatedTour = fs.readFileSync(path.join(ROOT, 'backend', 'generated-tour.js'), 'utf8');
+const runtimeConfig = fs.readFileSync(path.join(ROOT, 'frontend', 'runtime', 'config.js'), 'utf8');
+const travelProfileScript = fs.readFileSync(path.join(ROOT, 'frontend', 'scripts', 'travel-profile-675a.js'), 'utf8');
+assert.equal(/GV-ACCOUNT-705B|globevoy-staging-users|globevoy-staging-web|\/api\/account\/session/.test(productionLambda), false);
+assert.equal(/GV-ACCOUNT-705B|globevoy-staging-users|globevoy-staging-web/.test(generatedTour), false);
+assert.equal(/globevoy-staging-users|globevoy-staging-web/.test(runtimeConfig), false);
+assert.equal(/globevoy-staging-users|globevoy-staging-web/.test(travelProfileScript), false);
 
-// Current guest/local-profile UX remains unchanged until secure staging auth
-// exists and is browser-tested.
+// Guest/local travel profile remains a separate, explicitly non-secure surface.
 const indexHtml = fs.readFileSync(path.join(ROOT, 'frontend', 'index.html'), 'utf8');
 const profileHtml = fs.readFileSync(path.join(ROOT, 'frontend', 'create-account.html'), 'utf8');
 assert(indexHtml.includes('You can continue as a guest.'));
@@ -147,17 +144,15 @@ assert(profileHtml.includes('It is not a secure Globevoy account'));
 console.log('GV-ACCOUNT-705B validation PASS');
 console.log(JSON.stringify({
   version: 'GV-ACCOUNT-705B',
-  phase: 'staging-cognito-bootstrap-operator-only',
+  phase: 'staging-cognito-infrastructure-provisioned',
   region: 'us-east-2',
   auth: 'Cognito-Managed-Login-v2',
   oauthFlow: 'authorization-code-pkce',
   clientSecret: false,
   callback: 'staging-only-exact-url',
   customScope: 'globevoy/trips.write',
-  resourcesMayBeCreatedByOperator: ['user-pool', 'resource-server', 'public-app-client', 'prefix-domain', 'managed-login-branding'],
-  lambdaChanged: false,
-  amplifyChanged: false,
+  cloudShellListUserPoolsCompatibility: true,
+  productionHandlerChanged: false,
   dynamodbChanged: false,
-  frontendRuntimeChanged: false,
   productionChanged: false
 }, null, 2));

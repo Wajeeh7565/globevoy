@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Create travel profile | Globevoy</title>
-  <meta name="gv-release" content="GV-ENTRY-675A">
+  <meta name="gv-release" content="GV-ENTRY-675A+GV-ACCOUNT-705B-R3">
   <link rel="icon" href="./favicon.ico" sizes="any">
   <link rel="stylesheet" href="./assets/fonts/fonts.css">
   <link rel="stylesheet" href="./styles/shell.css?v=686d-r1">
@@ -33,13 +33,13 @@
         <span class="gv-profile-kicker">PASSPORT-AWARE PROFILE</span>
         <h2>Create your travel profile</h2>
         <p class="gv-profile-intro">Tell us who is travelling and which passport will be used. Partner websites will collect any legal document details later during an actual booking.</p>
-        <div class="gv-profile-note"><strong>MVP notice:</strong> this creates a travel profile stored only in this browser. It is not a secure Globevoy account, so this page does not ask for or store a password.</div>
+        <div class="gv-profile-note"><strong>MVP notice:</strong> this creates a travel profile stored only in this browser. It is not a secure Globevoy account, so this page does not ask for or store a password. <a href="account.html">Secure staging sign-in is separate.</a></div>
         <div class="gv-profile-progress"><div class="gv-profile-step is-active">1 · Profile basics</div><div class="gv-profile-step is-active">2 · Travel preferences</div></div>
 
         <form id="gv-profile-form" novalidate>
           <section class="gv-profile-section">
             <h3>Profile basics</h3>
-            <p>Used only to personalize this browser-based travel profile. Secure sign-in will be connected separately.</p>
+            <p>Used only to personalize this browser-based travel profile. Secure account sign-in is handled separately by Amazon Cognito.</p>
             <div class="gv-profile-grid">
               <label class="gv-profile-field"><span>Display name</span><input id="gv-profile-name" type="text" autocomplete="name" placeholder="e.g. Wajeeh"></label>
               <label class="gv-profile-field"><span>Email address</span><input id="gv-profile-email" type="email" autocomplete="email" placeholder="name@example.com" required><small>Saved locally with this profile; no verification email is sent.</small></label>
@@ -85,7 +85,7 @@
     </div>
   </main>
   <div id="gv-footer"></div>
-  <script src="./scripts/shell-670f.js?v=686d-r1"></script>
+  <script src="./scripts/shell-670f.js?v=705b-r3"></script>
   <script src="./scripts/travel-profile-675a.js?v=675a"></script>
 </body>
 </html>
