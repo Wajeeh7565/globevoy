@@ -24,7 +24,7 @@ New migration target:
 ## Migration sequence
 
 ### Phase R0 — foundation — GV-WEB-706R
-Status: implemented by this milestone.
+Status: implemented.
 
 Deliverables:
 - Next.js/React/TypeScript app builds independently.
@@ -36,8 +36,18 @@ Deliverables:
 - deterministic CI.
 - zero routing replacement.
 
-### Phase R1 — account shell + My Trips
-Migrate account navigation and My Trips first because 705B/705C have explicit API and privacy contracts. Keep the existing page as rollback until browser acceptance passes.
+### Phase R1 — account shell + My Trips — GV-WEB-707A
+Status: implemented as parallel React routes; route cutover remains blocked until same-origin staging deployment and browser acceptance pass.
+
+Deliverables:
+- React account navigation and `/react/account/` route.
+- React `/react/my-trips/` route backed by the existing owner-private 705C Saved Trips API.
+- exact compatibility with the 705B-R3 Cognito sessionStorage and PKCE contract; the existing `/auth-callback.html` remains authoritative.
+- signed-out privacy, authenticated list/delete, legacy-safe Open Trip, and 401 fail-closed behavior.
+- exact 706A fresh owner-private trip GET before Continue booking.
+- saved provider evidence downgraded to historical snapshot state before legacy booking handoff.
+- existing `frontend/my-trips.html` and account pages remain the rollback path.
+- no Lambda, Cognito pool/client, DynamoDB, provider, or production-route replacement.
 
 ### Phase R2 — Booking Workspace
 Migrate 706A/706B booking state into React. Preserve snapshot-vs-current-price boundaries, external partner separation, and fail-closed revalidation.
@@ -57,11 +67,11 @@ Only after equivalent tests and staging browser acceptance:
 - preserve rollback to the old page during the stabilization window;
 - remove legacy page code only after production evidence shows the replacement is stable.
 
-## Non-goals for 706R
+## Non-goals during migration
 
 - no full rewrite;
-- no production cutover;
-- no change to `main`;
+- no production cutover before staging acceptance;
+- no change to `main` during ordinary staging work;
 - no replacement of Lambda with Next.js API routes;
 - no new payment implementation;
 - no changes to provider credentials or provider eligibility;

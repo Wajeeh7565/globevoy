@@ -1,4 +1,5 @@
 export type PriceEvidenceState = 'provider' | 'cached' | 'estimate' | 'unavailable';
+export type JsonObject = Record<string, unknown>;
 
 export interface PriceEvidence {
   state: PriceEvidenceState;
@@ -36,8 +37,14 @@ export interface SavedTripSnapshot {
   country?: string;
   code?: string;
   nights?: number;
+  travellers?: number;
+  currency?: string;
+  label?: string;
   cities?: SavedTripCity[];
-  tour?: unknown;
+  offer?: JsonObject;
+  tour?: JsonObject;
+  snapshotId?: string | null;
+  routeId?: string | null;
   snapshotMode?: string;
   savedByVersion?: string;
 }
@@ -59,4 +66,20 @@ export interface SavedTripsListResponse {
 
 export interface SavedTripResponse {
   trip: SavedTrip;
+}
+
+export interface AuthUser {
+  sub: string;
+  username?: string | null;
+  email?: string | null;
+  emailVerified?: boolean;
+}
+
+export interface AuthSession {
+  version: 'GV-ACCOUNT-705B-R3';
+  accessToken: string;
+  expiresAt: number;
+  verifiedAt: number;
+  user: AuthUser;
+  scopes: string[];
 }

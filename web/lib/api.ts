@@ -1,6 +1,5 @@
 import type { SavedTrip, SavedTripResponse, SavedTripsListResponse } from '@/lib/contracts';
-
-const API_BASE = (process.env.NEXT_PUBLIC_GLOBEVOY_API_BASE_URL || '').replace(/\/$/, '');
+import { browserApiBaseUrl } from '@/lib/public-config';
 
 export class GlobevoyApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -9,15 +8,16 @@ export class GlobevoyApiError extends Error {
   }
 }
 
-function requireBaseUrl() {
-  if (!API_BASE) throw new GlobevoyApiError(503, 'Globevoy API is not configured.');
-  return API_BASE;
+function requireBaseUrl(): string {
+  const base = browserApiBaseUrl();
+  if (!base) throw new GlobevoyApiError(503, 'Globevoy API is not configured for this origin.');
+  return base;
 }
 
-async function request<T>(path: string, accessToken: string): Promise<T> {
+async function request<T>(method: 'GET' | 'DELETE', path: string, accessToken: string): Promise<T> {
   if (!accessToken) throw new GlobevoyApiError(401, 'Sign in required.');
   const response = await fetch(`${requireBaseUrl()}${path}`, {
-    method: 'GET',
+    method,
     headers: { Authorization: `Bearer ${accessToken}` },
     cache: 'no-store',
     credentials: 'omit'
@@ -33,12 +33,22 @@ async function request<T>(path: string, accessToken: string): Promise<T> {
   return body as T;
 }
 
+function normalizedTripId(tripId: string): string {
+  const id = String(tripId || '').trim();
+  if (!/^[A-Za-z0-9_-]{8,80}$/.test(id)) throw new GlobevoyApiError(400, 'Valid trip ID required.');
+  return id;
+}
+
 export async function listSavedTrips(accessToken: string): Promise<SavedTrip[]> {
-  return (await request<SavedTripsListResponse>('/api/saved-trips', accessToken)).trips || [];
+  return (await request<SavedTripsListResponse>('GET', '/api/saved-trips', accessToken)).trips || [];
 }
 
 export async function getSavedTrip(accessToken: string, tripId: string): Promise<SavedTrip> {
-  const id = String(tripId || '').trim();
-  if (!id) throw new GlobevoyApiError(400, 'Trip ID required.');
-  return (await request<SavedTripResponse>(`/api/saved-trips?tripId=${encodeURIComponent(id)}`, accessToken)).trip;
+  const id = normalizedTripId(tripId);
+  return (await request<SavedTripResponse>('GET', `/api/saved-trips?tripId=${encodeURIComponent(id)}`, accessToken)).trip;
+}
+
+export async function deleteSavedTrip(accessToken: string, tripId: string): Promise<void> {
+  const id = normalizedTripId(tripId);
+  await request<unknown>('DELETE', `/api/saved-trips?tripId=${encodeURIComponent(id)}`, accessToken);
 }
