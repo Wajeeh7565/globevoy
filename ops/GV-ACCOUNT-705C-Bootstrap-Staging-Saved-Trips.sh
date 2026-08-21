@@ -46,7 +46,7 @@ else
     --attribute-definitions AttributeName=PK,AttributeType=S AttributeName=SK,AttributeType=S \
     --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
     --billing-mode PAY_PER_REQUEST \
-    --sse-specification Enabled=true,SSEType=AES256 \
+    --sse-specification Enabled=true,SSEType=KMS \
     --tags Key=Project,Value=Globevoy Key=Environment,Value=staging Key=Release,Value="$VERSION" \
     --region "$REGION" \
     --output json >/dev/null
