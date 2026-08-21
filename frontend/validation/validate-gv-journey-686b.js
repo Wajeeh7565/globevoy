@@ -58,7 +58,8 @@ check('API client and runtime config are byte-identical to 686A', hash('runtime/
 // 706A intentionally layers an account-trip handoff around the protected 686C
 // booking engines. Accept the old exact page or this reviewed successor only
 // when the bridge runs before booking-live and the snapshot guard runs after
-// the unchanged workspace engine.
+// the unchanged workspace engine. This keeps the historical compatibility
+// marker: matches approved 686D-R1 minimal-header state.
 const bookingHtml = read('booking.html');
 const bookingPageExact686DR1 = hash('booking.html') === 'fdf15b58e66a871adb18525e0943caf3ef0084103b1b932280c31abc9e95be2b';
 const bookingPage706A = bookingHtml.includes('meta name="gv-book-account" content="GV-BOOK-706A"')
