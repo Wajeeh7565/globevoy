@@ -49,13 +49,28 @@ if (stagingAdults703E.enabled() && DUFFEL_703E_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703E staging two-adult policy failed closed: ${DUFFEL_703E_INSTALLATION.reason || 'unknown'}`);
 }
 
+// 705B-R3 is code-only and staging-only. It verifies Cognito access tokens
+// against the fixed staging user pool and never handles passwords or AWS keys.
+const stagingAccount705B = require('./services/staging-cognito-auth-705b-r3');
+
 const staging = require('./staging-lambda');
 
 const VERSION = 'GV-REC-702D-STAGING-QA-R1';
 
+function eventPath(event = {}) {
+  return String(event.rawPath || event.path || '').split('?')[0];
+}
+
+function eventMethod(event = {}) {
+  return String(event?.requestContext?.http?.method || event?.httpMethod || 'GET').toUpperCase();
+}
+
 async function handler(event = {}) {
   return stagingDuffelBudget703C.runWithBudget(async () => {
-    const response = await staging.handler(event);
+    const isAccountRoute = eventPath(event) === '/api/account/session';
+    const response = isAccountRoute && eventMethod(event) !== 'OPTIONS'
+      ? await stagingAccount705B.handleAccountSession705B(event)
+      : await staging.handler(event);
     const headers = { ...(response?.headers || {}) };
     const budget = stagingDuffelBudget703C.snapshot();
     headers['X-Globevoy-Staging-QA'] = VERSION;
@@ -68,6 +83,7 @@ async function handler(event = {}) {
     headers['X-Globevoy-Staging-Duffel-Discovery'] = stagingAffordable703D.enabled() ? stagingAffordable703D.VERSION : 'disabled';
     headers['X-Globevoy-Staging-Duffel-Adults'] = stagingAdults703E.enabled() ? stagingAdults703E.VERSION : 'disabled';
     headers['X-Globevoy-Staging-Duffel-Max-Adults'] = String(DUFFEL_703E_INSTALLATION?.maxAdults || 1);
+    headers['X-Globevoy-Staging-Account'] = stagingAccount705B.enabled() ? stagingAccount705B.VERSION : 'disabled';
     return { ...response, headers };
   }, {
     requestId: event?.requestContext?.requestId || event?.requestContext?.http?.requestId || null
@@ -88,5 +104,6 @@ module.exports = {
   duffel703BStatus: stagingDuffel703B.status,
   duffel703CStatus: stagingDuffelBudget703C.status,
   duffel703DStatus: stagingAffordable703D.status,
-  duffel703EStatus: stagingAdults703E.status
+  duffel703EStatus: stagingAdults703E.status,
+  account705BStatus: stagingAccount705B.status705B
 };
