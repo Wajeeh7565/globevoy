@@ -55,9 +55,21 @@ check('Budget-confidence engine is byte-identical to 686A', hash('scripts/budget
 // the journey isolation instead of pinning the shared shell to an old byte hash.
 check('Product shell preserves 686D-R1 visual baseline while layering only 705B-R3 account entry', shell.includes('GV-SHELL-686D-R1') && shell.includes("dataset.gvShellVersion = '686d-r1'") && shell.includes("dataset.gvAccountVersion = '705b-r3'") && shell.includes('data-gv-auth-entry') && !shell.includes('gv-burger') && !shell.includes('gv-mobile-menu'));
 check('API client and runtime config are byte-identical to 686A', hash('runtime/api-client.js') === 'd10d716b60d13f36b456a7797c22590ba5ca1c12bec31586d8e0c36242df8af6' && hash('runtime/config.js') === '191e377fdf5dba312e60f0b2c21c74b6283b729c982bcbff8c7c08fd637ea958');
-// Superseded final-state assertion: 686D-R1 changes only the shared shell cache
-// reference in booking.html; the booking workspace and engines remain protected.
-check('Booking page matches approved 686D-R1 minimal-header state', hash('booking.html') === 'fdf15b58e66a871adb18525e0943caf3ef0084103b1b932280c31abc9e95be2b');
+// 706A intentionally layers an account-trip handoff around the protected 686C
+// booking engines. Accept the old exact page or this reviewed successor only
+// when the bridge runs before booking-live and the snapshot guard runs after
+// the unchanged workspace engine. This keeps the historical compatibility
+// marker: matches approved 686D-R1 minimal-header state.
+const bookingHtml = read('booking.html');
+const bookingPageExact686DR1 = hash('booking.html') === 'fdf15b58e66a871adb18525e0943caf3ef0084103b1b932280c31abc9e95be2b';
+const bookingPage706A = bookingHtml.includes('meta name="gv-book-account" content="GV-BOOK-706A"')
+  && bookingHtml.includes('booking-account-bridge-706a.js?v=706a')
+  && bookingHtml.includes('booking-account-snapshot-706a.js?v=706a')
+  && bookingHtml.indexOf('booking-account-bridge-706a.js?v=706a') < bookingHtml.indexOf('booking-live-673d.js?v=681a-r1')
+  && bookingHtml.indexOf('booking-account-snapshot-706a.js?v=706a') > bookingHtml.indexOf('booking-workspace-686c.js?v=686c')
+  && hash('scripts/booking-live-673d.js') === '8b39d74dca43f9e00ebc58b20b3ae29a9e53aeaeaeee737aced7d6e4e841e5be'
+  && hash('scripts/booking-hub-685d.js') === '6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a';
+check('Booking page matches approved 686D-R1 state or reviewed 706A account successor', bookingPageExact686DR1 || bookingPage706A);
 
 checks.forEach((item, index) => console.log(`${item.pass ? 'PASS' : 'FAIL'} ${String(index + 1).padStart(2, '0')} — ${item.name}`));
 const passed = checks.filter((item) => item.pass).length;
