@@ -24,7 +24,7 @@ New migration target:
 ## Migration sequence
 
 ### Phase R0 — foundation — GV-WEB-706R
-Status: implemented.
+Status: complete.
 
 Deliverables:
 - Next.js/React/TypeScript app builds independently.
@@ -37,20 +37,32 @@ Deliverables:
 - zero routing replacement.
 
 ### Phase R1 — account shell + My Trips — GV-WEB-707A
-Status: implemented as parallel React routes; route cutover remains blocked until same-origin staging deployment and browser acceptance pass.
+Status: complete after same-origin staging deployment, browser acceptance, composite Amplify packaging, and R2 saved-origin preservation.
 
 Deliverables:
 - React account navigation and `/react/account/` route.
 - React `/react/my-trips/` route backed by the existing owner-private 705C Saved Trips API.
 - exact compatibility with the 705B-R3 Cognito sessionStorage and PKCE contract; the existing `/auth-callback.html` remains authoritative.
 - signed-out privacy, authenticated list/delete, legacy-safe Open Trip, and 401 fail-closed behavior.
-- exact 706A fresh owner-private trip GET before Continue booking.
-- saved provider evidence downgraded to historical snapshot state before legacy booking handoff.
+- saved multi-city Open Trip preserves the owner-private saved origin even when an older source URL contains a stale origin query parameter.
 - existing `frontend/my-trips.html` and account pages remain the rollback path.
-- no Lambda, Cognito pool/client, DynamoDB, provider, or production-route replacement.
+- no Cognito pool/client, DynamoDB, provider credential, or production-route replacement.
 
-### Phase R2 — Booking Workspace
-Migrate 706A/706B booking state into React. Preserve snapshot-vs-current-price boundaries, external partner separation, and fail-closed revalidation.
+### Phase R2 — Booking Workspace — GV-WEB-707B
+Status: implementation in progress; staging deployment and browser acceptance required before completion.
+
+Scope:
+- React `/react/booking/` owner-private Saved Trip workspace.
+- Continue booking from React My Trips carries only a Saved Trip ID; no route/provider payload is trusted from the browser.
+- staging-only authenticated Lambda route verifies Cognito, derives owner from token `sub`, reads the exact 705C DynamoDB record, and reconstructs the compact saved tour server-side.
+- reuse the existing 684A/685C Duffel LIVE exact-date search, quality selection, whole-trip reconciliation, quota controls, metro fallback and 703 staging limits; do not create a second flight engine.
+- live revalidation is explicit user action rather than an automatic page-load provider call.
+- compare fresh flight evidence with the saved flight snapshot and show verified/changed/unavailable states.
+- require complete LIVE coverage for every saved flight leg before enabling generated Aviasales comparison handoffs.
+- hotel rows remain planning estimates; modern Agoda live availability is not claimed. Generated Agoda search handoffs may be shown with final partner confirmation required.
+- fail closed on unsupported cohort, missing exact route/date, provider failure, quota protection, partial coverage, invalid session, wrong origin, or missing owner-private trip.
+- no Duffel order, payment, booking, ticketing, or combined checkout capability.
+- legacy `frontend/booking.html` and 706A remain rollback paths during stabilization.
 
 ### Phase R3 — recommendation results
 Migrate recommendation cards, evidence badges, loading/error states, and portfolio roles. Preserve deterministic recommendation and diversity behavior in the existing Lambda backend.
