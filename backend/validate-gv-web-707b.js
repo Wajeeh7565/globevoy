@@ -16,6 +16,7 @@ async function check(name, fn) {
 const ORIGIN = service.STAGING_ORIGIN;
 const TRIP_ID = 'trip707b01';
 const baseEnv = {
+  CORS_ORIGIN: ORIGIN,
   GLOBEVOY_COGNITO_USER_POOL_ID: 'us-east-2_MSd9RRHD8',
   GLOBEVOY_COGNITO_APP_CLIENT_ID: 'o2ohbv50253hjli5s34rbvv79',
   GLOBEVOY_SAVED_TRIPS_TABLE: 'globevoy-staging-saved-trips'
