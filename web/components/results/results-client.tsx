@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PriceEvidenceBadge } from '@/components/price-evidence-badge';
 import { getPublicMultiCityTours, getPublicRecommendations, GlobevoyApiError } from '@/lib/api';
+import { legacyMultiSelectionPayload } from '@/lib/multi-selection-708a';
 import {
   adaptMultiCityTours,
   adaptRecommendations,
@@ -68,7 +69,7 @@ function persistAndOpen(item: RecommendationCardModel, search: ResultsSearch, pa
     if (item.kind === 'single') {
       sessionStorage.setItem('gv-selected-offer', JSON.stringify({ ...item.selectionPayload, _label: item.label }));
     } else {
-      sessionStorage.setItem('globevoy.multi.selected.v1', JSON.stringify(item.selectionPayload));
+      sessionStorage.setItem('globevoy.multi.selected.v1', JSON.stringify(legacyMultiSelectionPayload(item, search, params)));
     }
   } catch {}
   window.location.assign(item.kind === 'single' ? singleHref(item, search, params) : multiHref(item, search, params));
@@ -90,10 +91,10 @@ function ResultVisual({ item }: { item: RecommendationCardModel }) {
   return <div className="gv-results-visual gv-results-visual--fallback"><span>{item.city?.slice(0, 1) || 'G'}</span><strong>{item.city || item.title}</strong></div>;
 }
 
-function ResultCard({ item, search, params, compact = false }: { item: RecommendationCardModel; search: ResultsSearch; params: URLSearchParams; compact?: boolean }) {
+function ResultCard({ item, search, params }: { item: RecommendationCardModel; search: ResultsSearch; params: URLSearchParams; compact?: boolean }) {
   const type = item.kind === 'single' ? 'Single destination' : `${item.cities?.length || 0}-city route`;
   return (
-    <article className={`gv-results-card${item.featured ? ' is-featured' : ''}${compact ? ' is-compact' : ''}`}>
+    <article className={`gv-results-card${item.featured ? ' is-featured' : ''}`}>
       {item.featured ? <span className="gv-results-pick">Globevoy Pick</span> : null}
       <div className="gv-results-label">{item.label}</div>
       <ResultVisual item={item} />
