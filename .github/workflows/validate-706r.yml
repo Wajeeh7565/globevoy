@@ -8,7 +8,9 @@ on:
       - 'amplify.yml'
       - 'backend/staging-lambda-702d.js'
       - 'backend/services/staging-booking-revalidation-707b.js'
+      - 'backend/services/staging-booking-revalidation-707b-r1.js'
       - 'backend/validate-gv-web-707b.js'
+      - 'backend/validate-gv-web-707b-r1.js'
       - 'docs/GV-WEB-706R-MIGRATION-PLAN.md'
       - '.github/workflows/validate-706r.yml'
       - '.github/workflows/validate-707a.yml'
@@ -50,7 +52,7 @@ jobs:
               echo '707B must not modify the proven legacy frontend.' >&2
               exit 1
             fi
-            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/validate-gv-web-707b\.js)$' || true)"
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/services/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
             if [ -n "$unexpected_backend" ]; then
               echo '707B may change only its staging wrapper/service/validator backend files:' >&2
               printf '%s\n' "$unexpected_backend" >&2
@@ -80,6 +82,9 @@ jobs:
           fi
           if [ -f backend/validate-gv-web-707b.js ]; then
             node backend/validate-gv-web-707b.js
+          fi
+          if [ -f backend/validate-gv-web-707b-r1.js ]; then
+            node backend/validate-gv-web-707b-r1.js
           fi
 
       - name: Build static Next.js application

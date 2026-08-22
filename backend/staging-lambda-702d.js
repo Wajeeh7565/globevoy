@@ -57,9 +57,9 @@ const stagingAccount705B = require('./services/staging-cognito-auth-705b-r3');
 // 705B verifier and derives DynamoDB ownership only from the verified token sub.
 const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
 
-// 707B is an authenticated, tripId-only booking-time revalidation route. It
-// loads the owner-private 705C record server-side and reuses 684A LIVE search.
-const stagingBooking707B = require('./services/staging-booking-revalidation-707b');
+// 707B-R1 preserves the owner-private 707B provider flow and repairs only the
+// compact-snapshot saved-flight baseline used for price-change arithmetic.
+const stagingBooking707B = require('./services/staging-booking-revalidation-707b-r1');
 
 const staging = require('./staging-lambda');
 
