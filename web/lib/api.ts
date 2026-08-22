@@ -14,6 +14,25 @@ function requireBaseUrl(): string {
   return base;
 }
 
+async function parseBody(response: Response): Promise<unknown> {
+  try { return await response.json(); } catch { return null; }
+}
+
+function errorMessage(body: unknown, status: number): string {
+  if (typeof body === 'object' && body) {
+    const row = body as { error?: unknown; message?: unknown; reason?: unknown };
+    if (typeof row.error === 'string' && row.error) return row.error;
+    if (row.error && typeof row.error === 'object') {
+      const detail = row.error as { message?: unknown; code?: unknown };
+      if (detail.message) return String(detail.message);
+      if (detail.code) return String(detail.code);
+    }
+    if (row.message) return String(row.message);
+    if (row.reason) return String(row.reason);
+  }
+  return `HTTP ${status}`;
+}
+
 async function request<T>(method: 'GET' | 'POST' | 'DELETE', path: string, accessToken: string, payload?: unknown): Promise<T> {
   if (!accessToken) throw new GlobevoyApiError(401, 'Sign in required.');
   const response = await fetch(`${requireBaseUrl()}${path}`, {
@@ -26,13 +45,25 @@ async function request<T>(method: 'GET' | 'POST' | 'DELETE', path: string, acces
     cache: 'no-store',
     credentials: 'omit'
   });
-  let body: unknown = null;
-  try { body = await response.json(); } catch {}
-  if (!response.ok) {
-    const message = typeof body === 'object' && body && 'error' in body
-      ? String((body as { error?: unknown }).error || `HTTP ${response.status}`)
-      : `HTTP ${response.status}`;
-    throw new GlobevoyApiError(response.status, message);
+  const body = await parseBody(response);
+  if (!response.ok) throw new GlobevoyApiError(response.status, errorMessage(body, response.status));
+  return body as T;
+}
+
+async function publicGet<T>(path: string, params: Record<string, string | number | undefined>): Promise<T> {
+  const url = new URL(`${requireBaseUrl()}${path}`);
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== '') url.searchParams.set(key, String(value));
+  });
+  const response = await fetch(url.toString(), {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+    cache: 'no-store',
+    credentials: 'omit'
+  });
+  const body = await parseBody(response);
+  if (!response.ok || (typeof body === 'object' && body && (body as { ok?: unknown }).ok === false)) {
+    throw new GlobevoyApiError(response.status, errorMessage(body, response.status));
   }
   return body as T;
 }
@@ -60,4 +91,16 @@ export async function deleteSavedTrip(accessToken: string, tripId: string): Prom
 export async function revalidateSavedTripForBooking(accessToken: string, tripId: string): Promise<BookingRevalidationResponse> {
   const id = normalizedTripId(tripId);
   return request<BookingRevalidationResponse>('POST', '/api/account/booking-revalidate', accessToken, { tripId: id });
+}
+
+// GV-WEB-708A — public recommendation adapters reuse the same backend surfaces
+// as the proven mixed-results page. No provider credential is exposed to React.
+export async function getPublicRecommendations(params: Record<string, string | number | undefined>): Promise<unknown> {
+  return publicGet<unknown>('/api/recommendations', params);
+}
+
+export async function getPublicMultiCityTours(params: Record<string, string | number | undefined>): Promise<unknown> {
+  if (params.disabled === '1') return { supported: false, tours: [] };
+  const { disabled: _disabled, ...query } = params;
+  return publicGet<unknown>('/api/multicity-tours', query);
 }
