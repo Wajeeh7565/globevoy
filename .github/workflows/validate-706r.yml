@@ -5,6 +5,7 @@ on:
     branches: [staging]
     paths:
       - 'web/**'
+      - 'amplify.yml'
       - 'docs/GV-WEB-706R-MIGRATION-PLAN.md'
       - '.github/workflows/validate-706r.yml'
       - '.github/workflows/validate-707a.yml'
@@ -85,6 +86,26 @@ jobs:
             grep -q '/react/_next/' out/account/index.html
             grep -q '/react/_next/' out/my-trips/index.html
           fi
+
+      - name: Verify versioned Amplify composite artifact
+        working-directory: .
+        run: |
+          test -f amplify.yml
+          grep -q 'GV-WEB-707A-R1 composite staging build' amplify.yml
+          grep -q 'baseDirectory: amplify-publish' amplify.yml
+          grep -q 'cp -a frontend/. amplify-publish/' amplify.yml
+          grep -q 'cp -a web/out/. amplify-publish/react/' amplify.yml
+          rm -rf amplify-publish
+          mkdir -p amplify-publish/react
+          cp -a frontend/. amplify-publish/
+          cp -a web/out/. amplify-publish/react/
+          test -f amplify-publish/index.html
+          test -f amplify-publish/react/index.html
+          test -f amplify-publish/react/account/index.html
+          test -f amplify-publish/react/my-trips/index.html
+          grep -q '/react/_next/' amplify-publish/react/index.html
+          grep -q '/react/_next/' amplify-publish/react/account/index.html
+          grep -q '/react/_next/' amplify-publish/react/my-trips/index.html
 
       - name: Preserve account and booking regressions for React successors
         working-directory: .
