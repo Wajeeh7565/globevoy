@@ -1,0 +1,42 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "GV-WEB-707A-R1 composite staging build"
+        - nvm install 22
+        - nvm use 22
+        - node --version
+        - npm --prefix web install --no-audit --no-fund
+        - echo "12f0fe80be5db2d1a7e18784eaf7a5e7f04ade17cf84b91c78a2dde5ec20f2c0  web/package-lock.json" | sha256sum -c -
+    build:
+      commands:
+        - echo "Validating existing Globevoy frontend"
+        - test -f frontend/index.html
+        - echo "Validating and building React frontend"
+        - npm --prefix web run typecheck
+        - npm --prefix web run build
+        - test -f web/out/index.html
+        - test -f web/out/account/index.html
+        - test -f web/out/my-trips/index.html
+        - echo "Composing legacy frontend plus React under /react"
+        - rm -rf amplify-publish
+        - mkdir -p amplify-publish
+        - cp -a frontend/. amplify-publish/
+        - rm -rf amplify-publish/react
+        - mkdir -p amplify-publish/react
+        - cp -a web/out/. amplify-publish/react/
+        - echo "Validating composite artifact"
+        - test -f amplify-publish/index.html
+        - test -f amplify-publish/react/index.html
+        - test -f amplify-publish/react/account/index.html
+        - test -f amplify-publish/react/my-trips/index.html
+        - grep -q '/react/_next/' amplify-publish/react/index.html
+        - grep -q '/react/_next/' amplify-publish/react/account/index.html
+        - grep -q '/react/_next/' amplify-publish/react/my-trips/index.html
+  artifacts:
+    baseDirectory: amplify-publish
+    files:
+      - "**/*"
+  cache:
+    paths: []
