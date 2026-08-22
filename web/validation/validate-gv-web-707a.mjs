@@ -14,6 +14,7 @@ const auth = readWeb('lib/auth.ts');
 const config = readWeb('lib/public-config.ts');
 const api = readWeb('lib/api.ts');
 const handoff = readWeb('lib/saved-trip-handoff.ts');
+const openR2 = readWeb('lib/saved-trip-open-707a-r2.ts');
 const provider = readWeb('components/account/auth-provider.tsx');
 const trips = readWeb('components/account/my-trips-client.tsx');
 const account = readWeb('components/account/account-page-client.tsx');
@@ -35,6 +36,12 @@ check('Signed-out My Trips clears private rows before any load', trips.includes(
 check('401 clears the React account session', trips.includes('error.status === 401') && trips.includes('clear()'));
 check('My Trips keeps snapshot trust language', trips.includes('Saved snapshot — verification required') && trips.includes('fresh provider verification'));
 check('Open Trip allow-lists only proven legacy trip pages', handoff.includes("['trip.html', 'multicity-visualizer.html', 'multi-city-trip.html'].includes(name)"));
+check('707A R2 origin-preservation marker is exact', openR2.includes("GV_WEB_707A_R2_VERSION = 'GV-WEB-707A-R2'"));
+check('707A R2 prefers the saved account snapshot origin', openR2.includes('const snapshotOrigin = clean(trip.tripSnapshot.origin)') && openR2.includes('if (snapshotOrigin) return snapshotOrigin'));
+check('707A R2 overwrites stale sourceUrl origin before legacy navigation', openR2.includes("url.searchParams.set('origin', savedOrigin)") && openR2.includes('window.location.assign(`/${name}${url.search}`)'));
+check('707A R2 preserves the exact saved multi-city tour storage handoff', openR2.includes("MULTI_STORAGE = 'globevoy.multi.selected.v1'") && openR2.includes('JSON.stringify(snapshot.tour)'));
+check('707A R2 keeps multi-city navigation on approved legacy routes', openR2.includes("new Set(['multicity-visualizer.html', 'multi-city-trip.html'])") && openR2.includes('url.origin !== window.location.origin'));
+check('React My Trips uses the R2 origin-preserving Open Trip bridge', trips.includes("openSavedTripPreservingOrigin") && trips.includes("@/lib/saved-trip-open-707a-r2"));
 check('Continue booking performs fresh owner-private GET', handoff.includes('const trip = await getSavedTrip(accessToken, id)') && handoff.includes('freshOwnerPrivateGetRequired: true'));
 check('706A handoff prefix remains exact', handoff.includes("HANDOFF_PREFIX = 'gv.account.booking.handoff.706a.'") && legacyBooking.includes("HANDOFF_PREFIX = 'gv.account.booking.handoff.706a.'"));
 check('Saved handoff is snapshot-only and requires revalidation', handoff.includes('snapshotOnly: true') && handoff.includes('requiresRevalidation: true'));
@@ -43,7 +50,7 @@ check('Provider verification is downgraded before booking', handoff.includes('pr
 check('React account exposes sign-out without password UI', account.includes('Sign out') && !/type=["']password/i.test(account));
 check('Auth provider reverifies existing access-token session', provider.includes('reverifyAuthSession(current)'));
 
-for (const [name, source] of [['auth', auth], ['api', api], ['handoff', handoff], ['trips', trips], ['account', account]]) {
+for (const [name, source] of [['auth', auth], ['api', api], ['handoff', handoff], ['open-r2', openR2], ['trips', trips], ['account', account]]) {
   check(`${name} source contains no obvious secret literal`, !/DUFFEL_ACCESS_TOKEN|AWS_SECRET_ACCESS_KEY|client_secret|BEGIN PRIVATE KEY|sk_live_/i.test(source));
 }
 
