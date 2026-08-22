@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 
-const ROOT = path.resolve(process.cwd());
+const ROOT = path.resolve(process.cwd(), 'web');
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const checks = [];
 function check(name, fn) {
