@@ -4,10 +4,11 @@ import { AppShell } from '@/components/app-shell';
 import './globals.css';
 import './account-707a.css';
 import './booking-707b.css';
+import './results-708a.css';
 
 export const metadata: Metadata = {
   title: 'Globevoy React Migration',
-  description: 'GV-WEB-707B React account, Saved Trips and booking revalidation migration target.'
+  description: 'GV-WEB-708A React account, Saved Trips, booking revalidation and recommendation results migration target.'
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
