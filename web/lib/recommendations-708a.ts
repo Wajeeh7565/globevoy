@@ -79,11 +79,6 @@ function nestedNumber(obj: JsonObject, path: string[]): number | undefined {
   for (const key of path) value = record(value)[key];
   return positive(value);
 }
-function nestedString(obj: JsonObject, path: string[]): string {
-  let value: unknown = obj;
-  for (const key of path) value = record(value)[key];
-  return clean(value);
-}
 function point(obj: JsonObject): { lat: number; lng: number } | null {
   const lat = finite(obj.lat ?? obj.latitude, NaN);
   const lng = finite(obj.lng ?? obj.longitude, NaN);
@@ -293,22 +288,24 @@ function itemPoint(item: RecommendationCardModel): { lat?: number; lng?: number 
   return item.cities?.find((city) => Number.isFinite(city.lat) && Number.isFinite(city.lng)) || null;
 }
 
+type ScoredCard = RecommendationCardModel & { valueScore?: number };
+
 export function pickPortfolio(singles: RecommendationCardModel[], multis: RecommendationCardModel[], search: ResultsSearch): RecommendationCardModel[] {
-  const all = unique([...singles, ...multis]).filter((item) => item.total <= search.budget * 1.08)
+  const all: ScoredCard[] = unique([...singles, ...multis]).filter((item) => item.total <= search.budget * 1.08)
     .map((item) => ({ ...item, valueScore: Math.max(0, search.budget - item.total) / Math.max(1, search.budget) }));
   if (!all.length) return [];
-  const chosen: Array<RecommendationCardModel & { valueScore?: number }> = [];
-  const take = (candidate: (RecommendationCardModel & { valueScore?: number }) | undefined, label: string, featured = false) => {
+  const chosen: ScoredCard[] = [];
+  const take = (candidate: ScoredCard | undefined, label: string, featured = false) => {
     if (!candidate || chosen.some((item) => item.id === candidate.id)) return;
     chosen.push({ ...candidate, label, featured });
   };
   const cheapest = [...all].sort((a, b) => a.total - b.total || b.score - a.score)[0];
   take(cheapest, 'Lowest cost');
   const target = search.budget * 0.78;
-  let balance = [...all].filter((item) => item.id !== cheapest?.id)
+  let balance: ScoredCard | undefined = [...all].filter((item) => item.id !== cheapest?.id)
     .sort((a, b) => Math.abs(a.total - target) - Math.abs(b.total - target) || b.score - a.score)[0];
   if (multis.length && cheapest?.kind === 'single') {
-    const multiBalance = [...multis].filter((item) => item.id !== cheapest?.id && item.total <= search.budget * 1.08)
+    const multiBalance: ScoredCard | undefined = [...multis].filter((item) => item.id !== cheapest?.id && item.total <= search.budget * 1.08)
       .sort((a, b) => Math.abs(a.total - target) - Math.abs(b.total - target) || b.score - a.score)[0];
     if (multiBalance && Math.abs(multiBalance.total - target) <= Math.abs((balance?.total || 0) - target) + search.budget * 0.15) balance = multiBalance;
   }
@@ -324,7 +321,7 @@ export function pickPortfolio(singles: RecommendationCardModel[], multis: Recomm
   })[0];
   take(memorable, 'Most memorable');
   const extras = all.filter((item) => !chosen.some((selected) => selected.id === item.id));
-  take([...extras].filter((item) => item.kind === 'single').sort((a, b) => (b.valueScore + b.score / 150) - (a.valueScore + a.score / 150))[0], 'Hidden-value discovery');
+  take([...extras].filter((item) => item.kind === 'single').sort((a, b) => (finite(b.valueScore, 0) + b.score / 150) - (finite(a.valueScore, 0) + a.score / 150))[0], 'Hidden-value discovery');
   take([...extras].filter((item) => item.kind === 'multi' && !chosen.some((selected) => selected.id === item.id)).sort((a, b) => b.score - a.score)[0], 'Connected city route');
   take([...extras].filter((item) => !chosen.some((selected) => selected.id === item.id)).sort((a, b) => b.score - a.score || a.total - b.total)[0], 'Familiar favourite');
   return chosen.slice(0, 6).map(({ valueScore: _unused, ...item }) => item);
