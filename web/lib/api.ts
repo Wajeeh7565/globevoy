@@ -1,4 +1,4 @@
-import type { SavedTrip, SavedTripResponse, SavedTripsListResponse } from '@/lib/contracts';
+import type { BookingRevalidationResponse, SavedTrip, SavedTripResponse, SavedTripsListResponse } from '@/lib/contracts';
 import { browserApiBaseUrl } from '@/lib/public-config';
 
 export class GlobevoyApiError extends Error {
@@ -14,11 +14,15 @@ function requireBaseUrl(): string {
   return base;
 }
 
-async function request<T>(method: 'GET' | 'DELETE', path: string, accessToken: string): Promise<T> {
+async function request<T>(method: 'GET' | 'POST' | 'DELETE', path: string, accessToken: string, payload?: unknown): Promise<T> {
   if (!accessToken) throw new GlobevoyApiError(401, 'Sign in required.');
   const response = await fetch(`${requireBaseUrl()}${path}`, {
     method,
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      ...(payload === undefined ? {} : { 'Content-Type': 'application/json' })
+    },
+    ...(payload === undefined ? {} : { body: JSON.stringify(payload) }),
     cache: 'no-store',
     credentials: 'omit'
   });
@@ -51,4 +55,9 @@ export async function getSavedTrip(accessToken: string, tripId: string): Promise
 export async function deleteSavedTrip(accessToken: string, tripId: string): Promise<void> {
   const id = normalizedTripId(tripId);
   await request<unknown>('DELETE', `/api/saved-trips?tripId=${encodeURIComponent(id)}`, accessToken);
+}
+
+export async function revalidateSavedTripForBooking(accessToken: string, tripId: string): Promise<BookingRevalidationResponse> {
+  const id = normalizedTripId(tripId);
+  return request<BookingRevalidationResponse>('POST', '/api/account/booking-revalidate', accessToken, { tripId: id });
 }
