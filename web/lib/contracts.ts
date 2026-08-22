@@ -83,3 +83,90 @@ export interface AuthSession {
   user: AuthUser;
   scopes: string[];
 }
+
+export type BookingRevalidationState = 'verified' | 'changed' | 'unavailable';
+
+export interface BookingRevalidationFlight {
+  index: number;
+  origin: string;
+  destination: string;
+  resolvedOrigin?: string;
+  resolvedDestination?: string;
+  departureDate: string;
+  savedAmount?: number;
+  freshAmount?: number;
+  currency: string;
+  providerReference?: string | null;
+  observedAt?: string | null;
+  expiresAt?: string | null;
+  airportMode?: string;
+  sourceType?: string;
+  productionEligible?: boolean;
+  handoffEnabled: boolean;
+  handoffLabel?: string | null;
+  handoffUrl?: string | null;
+  finalPriceRequiresPartnerConfirmation: true;
+}
+
+export interface BookingRevalidationHotel {
+  index: number;
+  city: string;
+  country?: string;
+  nights: number;
+  savedEstimate: number;
+  currency: string;
+  state: 'estimate';
+  availabilityVerified: false;
+  handoffLabel?: string | null;
+  handoffUrl?: string | null;
+  finalPriceRequiresPartnerConfirmation: true;
+}
+
+export interface BookingRevalidationResponse {
+  ok: true;
+  version: 'GV-WEB-707B';
+  trip: {
+    tripId: string;
+    name: string;
+    kind: 'single' | 'multi' | null;
+    updatedAt?: string | null;
+  };
+  snapshot: {
+    capturedAt?: string | null;
+    currency: string;
+    savedFlightTotal?: number;
+    savedTripTotal?: number;
+  };
+  revalidation: {
+    state: BookingRevalidationState;
+    attempted: boolean;
+    applied: boolean;
+    reason?: string | null;
+    provider: 'Duffel';
+    allFlightLegsLive: boolean;
+    requiredFlightLegCount?: number;
+    liveFlightLegCount?: number;
+    freshFlightTotal?: number;
+    flightDelta?: number;
+    freshTripEstimate?: number;
+    overBudget?: boolean;
+    observedAt?: string | null;
+    handoffEnabled: boolean;
+    providerRequests?: number;
+    exactRequests?: number;
+    metroRequests?: number;
+    orderCapability: false;
+    paymentCapability: false;
+    bookingCapability: false;
+    ticketingCapability: false;
+  };
+  flights: BookingRevalidationFlight[];
+  hotels: BookingRevalidationHotel[];
+  trust: {
+    savedPricesAreSnapshots: true;
+    flightEvidenceFreshlyChecked?: boolean;
+    hotelAvailabilityVerified: false;
+    partnerHandoffIsComparisonOnly?: boolean;
+    finalPartnerConfirmationRequired: true;
+  };
+}
