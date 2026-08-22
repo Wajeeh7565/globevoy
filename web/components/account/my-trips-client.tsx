@@ -7,7 +7,8 @@ import { TripCard } from '@/components/trip-card';
 import { Button } from '@/components/ui/button';
 import { deleteSavedTrip, GlobevoyApiError, listSavedTrips } from '@/lib/api';
 import type { SavedTrip } from '@/lib/contracts';
-import { continueSavedTripToBooking, openSavedTrip } from '@/lib/saved-trip-handoff';
+import { continueSavedTripToBooking } from '@/lib/saved-trip-handoff';
+import { openSavedTripPreservingOrigin } from '@/lib/saved-trip-open-707a-r2';
 
 function tripRoute(trip: SavedTrip): string {
   const snapshot = trip.tripSnapshot;
@@ -167,7 +168,7 @@ export function MyTripsClient() {
                       variant="secondary"
                       disabled={Boolean(busyId)}
                       onClick={() => {
-                        if (!openSavedTrip(trip)) {
+                        if (!openSavedTripPreservingOrigin(trip)) {
                           setNotice('This saved trip cannot be reopened safely from this page.');
                           setNoticeKind('error');
                         }
