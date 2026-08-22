@@ -7,7 +7,6 @@ import { TripCard } from '@/components/trip-card';
 import { Button } from '@/components/ui/button';
 import { deleteSavedTrip, GlobevoyApiError, listSavedTrips } from '@/lib/api';
 import type { SavedTrip } from '@/lib/contracts';
-import { continueSavedTripToBooking } from '@/lib/saved-trip-handoff';
 import { openSavedTripPreservingOrigin } from '@/lib/saved-trip-open-707a-r2';
 
 function tripRoute(trip: SavedTrip): string {
@@ -84,19 +83,15 @@ export function MyTripsClient() {
     }
   }
 
-  async function continueBooking(tripId: string) {
+  function continueBooking(tripId: string) {
     if (!session || busyId) return;
-    setBusyId(tripId);
-    setNotice('Preparing your private saved trip for booking…');
-    setNoticeKind('');
-    try {
-      await continueSavedTripToBooking(session.accessToken, tripId);
-    } catch (error) {
-      setNotice(errorMessage(error, 'This saved trip could not be prepared for booking. Your account data is unchanged.'));
+    const id = String(tripId || '').trim();
+    if (!/^[A-Za-z0-9_-]{8,80}$/.test(id)) {
+      setNotice('This saved trip cannot be opened in the booking workspace.');
       setNoticeKind('error');
-      if (error instanceof GlobevoyApiError && error.status === 401) clear();
-      setBusyId('');
+      return;
     }
+    window.location.assign(`/react/booking/?tripId=${encodeURIComponent(id)}`);
   }
 
   if (authLoading) {
@@ -146,43 +141,40 @@ export function MyTripsClient() {
 
       {!loading && trips.length > 0 ? (
         <div className="gv-my-trips-grid">
-          {trips.map((trip) => {
-            const isBusy = busyId === trip.tripId;
-            return (
-              <TripCard
-                key={trip.tripId}
-                title={trip.name || 'Saved trip'}
-                route={tripRoute(trip)}
-                amount={trip.priceSnapshot?.tripEstimate}
-                currency={trip.priceSnapshot?.currency || 'CAD'}
-                typeLabel={trip.tripSnapshot.kind === 'multi' ? 'Multi-city trip' : 'Single destination'}
-                updatedLabel={updatedLabel(trip.updatedAt)}
-                evidence={{
-                  state: 'estimate',
-                  label: 'Saved snapshot — verification required',
-                  note: 'Globevoy requires fresh provider verification before a saved price can be treated as current.'
-                }}
-                actions={(
-                  <>
-                    <Button
-                      variant="secondary"
-                      disabled={Boolean(busyId)}
-                      onClick={() => {
-                        if (!openSavedTripPreservingOrigin(trip)) {
-                          setNotice('This saved trip cannot be reopened safely from this page.');
-                          setNoticeKind('error');
-                        }
-                      }}
-                    >Open trip</Button>
-                    <Button disabled={Boolean(busyId)} aria-busy={isBusy} onClick={() => { void continueBooking(trip.tripId); }}>
-                      {isBusy ? 'Working…' : 'Continue booking'}
-                    </Button>
-                    <Button variant="ghost" disabled={Boolean(busyId)} onClick={() => { void removeTrip(trip.tripId); }}>Delete</Button>
-                  </>
-                )}
-              />
-            );
-          })}
+          {trips.map((trip) => (
+            <TripCard
+              key={trip.tripId}
+              title={trip.name || 'Saved trip'}
+              route={tripRoute(trip)}
+              amount={trip.priceSnapshot?.tripEstimate}
+              currency={trip.priceSnapshot?.currency || 'CAD'}
+              typeLabel={trip.tripSnapshot.kind === 'multi' ? 'Multi-city trip' : 'Single destination'}
+              updatedLabel={updatedLabel(trip.updatedAt)}
+              evidence={{
+                state: 'estimate',
+                label: 'Saved snapshot — verification required',
+                note: 'Globevoy requires fresh provider verification before a saved price can be treated as current.'
+              }}
+              actions={(
+                <>
+                  <Button
+                    variant="secondary"
+                    disabled={Boolean(busyId)}
+                    onClick={() => {
+                      if (!openSavedTripPreservingOrigin(trip)) {
+                        setNotice('This saved trip cannot be reopened safely from this page.');
+                        setNoticeKind('error');
+                      }
+                    }}
+                  >Open trip</Button>
+                  <Button disabled={Boolean(busyId)} onClick={() => { continueBooking(trip.tripId); }}>
+                    Continue booking
+                  </Button>
+                  <Button variant="ghost" disabled={Boolean(busyId)} onClick={() => { void removeTrip(trip.tripId); }}>Delete</Button>
+                </>
+              )}
+            />
+          ))}
         </div>
       ) : null}
     </div>

@@ -6,6 +6,9 @@ on:
     paths:
       - 'web/**'
       - 'amplify.yml'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/services/staging-booking-revalidation-707b.js'
+      - 'backend/validate-gv-web-707b.js'
       - 'docs/GV-WEB-706R-MIGRATION-PLAN.md'
       - '.github/workflows/validate-706r.yml'
       - '.github/workflows/validate-707a.yml'
@@ -40,9 +43,20 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
-            changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
-            printf '%s\n' "$changed"
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed"
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+              echo '707B must not modify the proven legacy frontend.' >&2
+              exit 1
+            fi
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/validate-gv-web-707b\.js)$' || true)"
+            if [ -n "$unexpected_backend" ]; then
+              echo '707B may change only its staging wrapper/service/validator backend files:' >&2
+              printf '%s\n' "$unexpected_backend" >&2
+              exit 1
+            fi
+          elif [ -f web/validation/validate-gv-web-707a.mjs ]; then
             if printf '%s\n' "$changed" | grep -Eq '^(frontend|backend)/'; then
               echo 'React migration must not modify the proven frontend or backend.' >&2
               exit 1
@@ -59,9 +73,13 @@ jobs:
         run: npm run typecheck
 
       - name: Validate approved React successor contracts
+        working-directory: .
         run: |
-          if [ -f validation/validate-gv-web-707a.mjs ]; then
-            node validation/validate-gv-web-707a.mjs
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            node web/validation/validate-gv-web-707a.mjs
+          fi
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            node backend/validate-gv-web-707b.js
           fi
 
       - name: Build static Next.js application
@@ -86,6 +104,10 @@ jobs:
             grep -q '/react/_next/' out/account/index.html
             grep -q '/react/_next/' out/my-trips/index.html
           fi
+          if [ -f app/booking/page.tsx ]; then
+            test -f out/booking/index.html
+            grep -q '/react/_next/' out/booking/index.html
+          fi
 
       - name: Verify versioned Amplify composite artifact
         working-directory: .
@@ -106,8 +128,12 @@ jobs:
           grep -q '/react/_next/' amplify-publish/react/index.html
           grep -q '/react/_next/' amplify-publish/react/account/index.html
           grep -q '/react/_next/' amplify-publish/react/my-trips/index.html
+          if [ -f web/app/booking/page.tsx ]; then
+            test -f amplify-publish/react/booking/index.html
+            grep -q '/react/_next/' amplify-publish/react/booking/index.html
+          fi
 
-      - name: Preserve account and booking regressions for React successors
+      - name: Preserve account, booking and Duffel regressions for React successors
         working-directory: .
         run: |
           if [ -f web/validation/validate-gv-web-707a.mjs ]; then
@@ -115,6 +141,10 @@ jobs:
             node backend/validate-gv-account-705c.js
             node backend/validate-gv-account-705c-r4.js
             node backend/validate-gv-book-706a.js
+          fi
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            node backend/validate-gv-flight-703c.js
+            node backend/validate-gv-flight-703e.js
           fi
 
       - name: Capture generated dependency lock
