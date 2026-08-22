@@ -115,8 +115,8 @@ async function handler(event = {}) {
   return stagingDuffelBudget703C.runWithBudget(async () => {
     const path = eventPath(event);
     const method = eventMethod(event);
-    // Keep the exact 705B regression marker while adding isolated sibling routes.
-    const isAccountRoute = path === '/api/account/session';
+    // Keep the exact historical 705B route expression while adding sibling routes.
+    const isAccountRoute = eventPath(event) === '/api/account/session';
     const isSavedTripsRoute = path === stagingSavedTrips705C.ROUTE_PATH;
     const isBookingRevalidationRoute = path === stagingBooking707B.ROUTE_PATH;
     let response;
