@@ -47,7 +47,12 @@ jobs:
         run: |
           changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           printf '%s\n' "$changed"
-          if [ -f backend/validate-gv-web-707b.js ]; then
+          if [ -f web/validation/validate-gv-web-708a.mjs ]; then
+            if printf '%s\n' "$changed" | grep -Eq '^(frontend|backend)/'; then
+              echo '708A must not modify the proven legacy frontend or backend.' >&2
+              exit 1
+            fi
+          elif [ -f backend/validate-gv-web-707b.js ]; then
             if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
               echo '707B must not modify the proven legacy frontend.' >&2
               exit 1
@@ -86,6 +91,9 @@ jobs:
           if [ -f backend/validate-gv-web-707b-r1.js ]; then
             node backend/validate-gv-web-707b-r1.js
           fi
+          if [ -f web/validation/validate-gv-web-708a.mjs ]; then
+            node web/validation/validate-gv-web-708a.mjs
+          fi
 
       - name: Build static Next.js application
         run: npm run build
@@ -113,6 +121,10 @@ jobs:
             test -f out/booking/index.html
             grep -q '/react/_next/' out/booking/index.html
           fi
+          if [ -f app/results/page.tsx ]; then
+            test -f out/results/index.html
+            grep -q '/react/_next/' out/results/index.html
+          fi
 
       - name: Verify versioned Amplify composite artifact
         working-directory: .
@@ -136,6 +148,10 @@ jobs:
           if [ -f web/app/booking/page.tsx ]; then
             test -f amplify-publish/react/booking/index.html
             grep -q '/react/_next/' amplify-publish/react/booking/index.html
+          fi
+          if [ -f web/app/results/page.tsx ]; then
+            test -f amplify-publish/react/results/index.html
+            grep -q '/react/_next/' amplify-publish/react/results/index.html
           fi
 
       - name: Preserve account, booking and Duffel regressions for React successors
