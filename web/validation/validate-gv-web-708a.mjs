@@ -73,7 +73,7 @@ check('R4 map migration boundary is preserved', () => {
 
 check('708A does not edit the legacy frontend or backend runtime', () => {
   const migration = read('../docs/GV-WEB-706R-MIGRATION-PLAN.md');
-  assert.match(migration, /Phase R3 — Recommendations/);
+  assert.match(migration, /Phase R3 — recommendation results/i);
   assert.ok(fs.existsSync(path.join(ROOT, '../frontend/mixed-results.html')));
   assert.ok(fs.existsSync(path.join(ROOT, '../backend/lambda.js')));
 });
