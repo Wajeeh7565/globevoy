@@ -84,8 +84,48 @@ jobs:
       - name: Install pinned framework dependencies
         run: npm install --no-audit --no-fund
 
-      - name: Verify dependency graph lock
-        run: echo '12f0fe80be5db2d1a7e18784eaf7a5e7f04ade17cf84b91c78a2dde5ec20f2c0  package-lock.json' | sha256sum -c -
+      - name: Verify pinned dependency contract
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          const expected = {
+            dependencies: {
+              next: '15.5.21',
+              react: '19.2.7',
+              'react-dom': '19.2.7'
+            },
+            devDependencies: {
+              '@types/node': '22.20.1',
+              '@types/react': '19.2.18',
+              '@types/react-dom': '19.2.4',
+              typescript: '5.9.3'
+            }
+          };
+          if (Number(lock.lockfileVersion) < 3) {
+            throw new Error(`Unexpected npm lockfileVersion: ${lock.lockfileVersion}`);
+          }
+          const root = lock.packages && lock.packages[''];
+          if (!root) throw new Error('Generated package-lock is missing the root package contract.');
+          for (const [group, entries] of Object.entries(expected)) {
+            for (const [name, version] of Object.entries(entries)) {
+              if (pkg[group]?.[name] !== version) {
+                throw new Error(`package.json ${group}.${name} changed: ${pkg[group]?.[name]} !== ${version}`);
+              }
+              if (root[group]?.[name] !== version) {
+                throw new Error(`package-lock root ${group}.${name} changed: ${root[group]?.[name]} !== ${version}`);
+              }
+              const installed = JSON.parse(fs.readFileSync(path.join('node_modules', name, 'package.json'), 'utf8'));
+              if (installed.version !== version) {
+                throw new Error(`Installed ${name} changed: ${installed.version} !== ${version}`);
+              }
+            }
+          }
+          console.log('Pinned React dependency contract verified.');
+          NODE
+          npm ls --depth=0
 
       - name: TypeScript strict validation
         run: npm run typecheck
