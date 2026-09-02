@@ -50,6 +50,16 @@ check('rate request asks for bounded content and evidence', () => {
   assert.match(script, /timeout: 10/);
 });
 
+check('R1 joins rate hotels to returned hotel content and keeps visual identity evidence', () => {
+  assert.match(script, /result\.payload\?\.hotels/);
+  assert.match(script, /const contentById = new Map/);
+  assert.match(script, /contentById\.get\(providerHotelId\(rateHotel\)\)/);
+  assert.match(script, /main_photo/);
+  assert.match(script, /address: selected\.address/);
+  assert.match(script, /rating: selected\.rating/);
+  assert.match(script, /photoPresent: selected\.photoPresent/);
+});
+
 check('prebook is explicit opt-in and payment SDK is disabled', () => {
   assert.match(script, /hasFlag\('prebook'\)/);
   assert.match(script, /usePaymentSdk: false/);
@@ -87,5 +97,5 @@ checks.forEach((item, index) => {
   console.log(`${item.pass ? 'PASS' : 'FAIL'} ${String(index + 1).padStart(2, '0')} — ${item.name}${item.error ? `: ${item.error}` : ''}`);
 });
 const passed = checks.filter((item) => item.pass).length;
-console.log(`GV-HOTEL-708B: ${passed}/${checks.length} PASS`);
+console.log(`GV-HOTEL-708B-R1: ${passed}/${checks.length} PASS`);
 if (passed !== checks.length) process.exitCode = 1;
