@@ -115,11 +115,51 @@ export interface BookingRevalidationHotel {
   nights: number;
   savedEstimate: number;
   currency: string;
-  state: 'estimate';
-  availabilityVerified: false;
+  state: 'estimate' | 'provider' | 'verified';
+  providerState?: 'unavailable' | 'provider' | 'verified';
+  provider?: 'Nuitee' | null;
+  providerReason?: string | null;
+  availabilityVerified: boolean;
+  hotelName?: string | null;
+  address?: string | null;
+  rating?: number | null;
+  photoUrl?: string | null;
+  roomName?: string | null;
+  boardName?: string | null;
+  freshAmount?: number | null;
+  checkin?: string | null;
+  checkout?: string | null;
+  dateBasis?: string | null;
+  refundableTag?: string | null;
+  cancellationDetailsPresent?: boolean;
+  taxesAndFeesPresent?: boolean;
+  excludedFeesPresent?: boolean;
+  evidence?: string | null;
+  observedAt?: string | null;
   handoffLabel?: string | null;
   handoffUrl?: string | null;
   finalPriceRequiresPartnerConfirmation: true;
+}
+
+export interface BookingHotelRevalidationSummary {
+  version: 'GV-HOTEL-708C';
+  enabled: boolean;
+  attempted: boolean;
+  provider: 'Nuitee';
+  reason?: string | null;
+  totalCount: number;
+  providerBackedCount: number;
+  verifiedCount: number;
+  allVerified: boolean;
+  providerRequests: number;
+  savedHotelEstimate: number;
+  freshHotelTotal?: number | null;
+  hotelDelta?: number | null;
+  hotelAdjustedTripEstimate?: number | null;
+  observedAt?: string | null;
+  bookingCapability: false;
+  paymentCapability: false;
+  reservationCapability: false;
 }
 
 export interface BookingRevalidationResponse {
@@ -160,13 +200,24 @@ export interface BookingRevalidationResponse {
     bookingCapability: false;
     ticketingCapability: false;
   };
+  hotelRevalidation?: BookingHotelRevalidationSummary;
   flights: BookingRevalidationFlight[];
   hotels: BookingRevalidationHotel[];
   trust: {
     savedPricesAreSnapshots: true;
     flightEvidenceFreshlyChecked?: boolean;
-    hotelAvailabilityVerified: false;
+    hotelEvidenceFreshlyChecked?: boolean;
+    hotelAvailabilityVerified: boolean;
+    hotelEvidenceProvider?: 'Nuitee';
+    hotelEvidenceVersion?: 'GV-HOTEL-708C';
+    bookingRevalidationCalculationVersion?: string;
     partnerHandoffIsComparisonOnly?: boolean;
     finalPartnerConfirmationRequired: true;
+  };
+  bookingBoundary?: {
+    noBooking: true;
+    noPayment: true;
+    noOrderCreation: true;
+    noReservation: true;
   };
 }
