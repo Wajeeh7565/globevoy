@@ -2,7 +2,7 @@
 
 import fs from 'node:fs';
 
-const VERSION = 'GV-HOTEL-708B';
+const VERSION = 'GV-HOTEL-708B-R1';
 const RATE_URL = 'https://api.liteapi.travel/v3.0/hotels/rates';
 const PREBOOK_URL = 'https://book.liteapi.travel/v3.0/rates/prebook';
 const KEY_ENV = 'NUITEE_SANDBOX_API_KEY';
@@ -89,8 +89,48 @@ async function postJson(url, body, apiKey) {
   }
 }
 
+function providerHotelId(hotel) {
+  return String(hotel?.hotelId || hotel?.id || '').trim();
+}
+
 function hotelName(hotel) {
   return String(hotel?.name || hotel?.hotelName || hotel?.hotel?.name || hotel?.hotel?.hotelName || '').trim();
+}
+
+function hotelAddress(hotel) {
+  const value = hotel?.address || hotel?.hotel?.address;
+  if (typeof value === 'string') return value.trim();
+  if (!value || typeof value !== 'object') return '';
+  const parts = [
+    value.address,
+    value.addressLine,
+    value.line1,
+    value.line2,
+    value.city,
+    value.cityName,
+    value.state,
+    value.stateCode,
+    value.postalCode,
+    value.countryCode
+  ].map((item) => String(item || '').trim()).filter(Boolean);
+  return [...new Set(parts)].join(', ');
+}
+
+function mainPhoto(hotel) {
+  const candidates = [
+    hotel?.main_photo,
+    hotel?.mainPhoto,
+    hotel?.thumbnail,
+    hotel?.image,
+    hotel?.hotel?.main_photo,
+    hotel?.hotel?.mainPhoto
+  ];
+  const direct = candidates.find((item) => typeof item === 'string' && /^https?:\/\//i.test(item));
+  return String(direct || '').trim();
+}
+
+function hotelRating(hotel) {
+  return finite(hotel?.rating ?? hotel?.reviewScore ?? hotel?.hotel?.rating);
 }
 
 function hasVisualContent(value, depth = 0) {
@@ -99,23 +139,31 @@ function hasVisualContent(value, depth = 0) {
   if (Array.isArray(value)) return value.some((item) => hasVisualContent(item, depth + 1));
   if (typeof value !== 'object') return false;
   return Object.entries(value).some(([key, item]) => {
+    if (/(photo|image|thumbnail)/i.test(key) && typeof item === 'string' && /^https?:\/\//i.test(item)) return true;
     if (/(photo|image|thumbnail)/i.test(key) && hasVisualContent(item, depth + 1)) return true;
     return depth < 2 && hasVisualContent(item, depth + 1);
   });
 }
 
-function offerFromRoomType(hotel, roomType) {
+function offerFromRoomType(rateHotel, roomType, contentHotel = null) {
   const rate = Array.isArray(roomType?.rates) ? roomType.rates[0] : null;
   const offerRetail = roomType?.offerRetailRate || {};
   const rateTotal = rate?.retailRate?.total?.[0] || {};
   const amount = finite(offerRetail.amount) ?? finite(rateTotal.amount);
   const currency = String(offerRetail.currency || rateTotal.currency || '').trim();
   const taxes = Array.isArray(rate?.retailRate?.taxesAndFees) ? rate.retailRate.taxesAndFees : [];
+  const identity = contentHotel || rateHotel;
+  const photo = mainPhoto(identity);
+  const address = hotelAddress(identity);
   return {
-    hotelName: hotelName(hotel),
-    hotelIdPresent: Boolean(hotel?.hotelId || hotel?.id),
-    hotelContentPresent: Boolean(hotelName(hotel) || hotel?.address || hotel?.hotel?.address),
-    photoPresent: hasVisualContent(hotel),
+    hotelName: hotelName(identity),
+    hotelIdPresent: Boolean(providerHotelId(rateHotel)),
+    hotelContentPresent: Boolean(hotelName(identity) || address),
+    contentMatched: Boolean(contentHotel),
+    photoPresent: Boolean(photo || hasVisualContent(identity)),
+    mainPhoto: photo,
+    address,
+    rating: hotelRating(identity),
     offerId: typeof roomType?.offerId === 'string' ? roomType.offerId : '',
     amount,
     currency,
@@ -129,28 +177,46 @@ function offerFromRoomType(hotel, roomType) {
 }
 
 function summarizeSearch(city, result) {
-  const hotels = Array.isArray(result.payload?.data) ? result.payload.data : [];
+  const rateHotels = Array.isArray(result.payload?.data) ? result.payload.data : [];
+  const contentHotels = Array.isArray(result.payload?.hotels) ? result.payload.hotels : [];
+  const contentById = new Map(
+    contentHotels
+      .map((hotel) => [providerHotelId(hotel), hotel])
+      .filter(([id]) => Boolean(id))
+  );
+
   const offers = [];
-  for (const hotel of hotels) {
-    const roomTypes = Array.isArray(hotel?.roomTypes) ? hotel.roomTypes : [];
-    for (const roomType of roomTypes) offers.push(offerFromRoomType(hotel, roomType));
+  const matchedContent = [];
+  for (const rateHotel of rateHotels) {
+    const contentHotel = contentById.get(providerHotelId(rateHotel)) || null;
+    if (contentHotel) matchedContent.push(contentHotel);
+    const roomTypes = Array.isArray(rateHotel?.roomTypes) ? rateHotel.roomTypes : [];
+    for (const roomType of roomTypes) offers.push(offerFromRoomType(rateHotel, roomType, contentHotel));
   }
+
   const priced = offers.filter((offer) => offer.amount !== null && offer.amount > 0 && offer.offerId);
   priced.sort((a, b) => a.amount - b.amount);
   const refundable = priced.filter((offer) => offer.refundableTag === 'RFN');
   const selected = refundable[0] || priced[0] || null;
+
   return {
     city: city.cityName,
     countryCode: city.countryCode,
     status: result.status,
     latencyMs: result.latencyMs,
-    hotelCount: hotels.length,
+    hotelCount: rateHotels.length,
+    providerContentCount: contentHotels.length,
     offerCount: offers.length,
     pricedOfferCount: priced.length,
-    contentHotelCount: hotels.filter((hotel) => Boolean(hotelName(hotel) || hotel?.address || hotel?.hotel?.address)).length,
-    photoHotelCount: hotels.filter((hotel) => hasVisualContent(hotel)).length,
+    contentHotelCount: matchedContent.filter((hotel) => Boolean(hotelName(hotel) || hotelAddress(hotel))).length,
+    photoHotelCount: matchedContent.filter((hotel) => Boolean(mainPhoto(hotel) || hasVisualContent(hotel))).length,
     cheapest: selected ? {
       hotelName: selected.hotelName || '(hotel name not returned)',
+      address: selected.address || '(address not returned)',
+      rating: selected.rating,
+      photoPresent: selected.photoPresent,
+      mainPhoto: selected.mainPhoto,
+      contentMatched: selected.contentMatched,
       amount: selected.amount,
       currency: selected.currency,
       refundableTag: selected.refundableTag || 'UNKNOWN',
@@ -235,10 +301,11 @@ async function main() {
     const summary = summarizeSearch(city, search);
     summaries.push(summary);
     console.log(`\n[${city.cityName}] SEARCH HTTP ${summary.status}; ${summary.latencyMs} ms; hotels=${summary.hotelCount}; offers=${summary.offerCount}; priced=${summary.pricedOfferCount}`);
-    console.log(`  content hotels=${summary.contentHotelCount}; photo hotels=${summary.photoHotelCount}`);
+    console.log(`  provider content=${summary.providerContentCount}; matched content hotels=${summary.contentHotelCount}; photo hotels=${summary.photoHotelCount}`);
     if (summary.cheapest) {
       const c = summary.cheapest;
       console.log(`  selected=${c.hotelName}; ${c.amount} ${c.currency}; ${c.refundableTag}; room=${c.roomName}; board=${c.boardName}`);
+      console.log(`  address=${c.address}; rating=${c.rating ?? 'n/a'}; photo=${c.photoPresent}; content-matched=${c.contentMatched}`);
       console.log(`  cancellation-details=${c.cancellationDetailsPresent}; taxes-fees-field=${c.taxesAndFeesPresent}; excluded-fees=${c.excludedFeesPresent}`);
     } else {
       console.log('  no priced offer selected');
