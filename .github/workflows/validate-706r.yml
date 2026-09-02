@@ -47,7 +47,18 @@ jobs:
         run: |
           changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           printf '%s\n' "$changed"
-          if [ -f web/validation/validate-gv-web-708a.mjs ]; then
+          if printf '%s\n' "$changed" | grep -Eq '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$'; then
+            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+              echo '708C must not modify the proven legacy frontend.' >&2
+              exit 1
+            fi
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+            if [ -n "$unexpected_backend" ]; then
+              echo '708C may change only its bounded staging hotel adapter/wrapper/validator backend files:' >&2
+              printf '%s\n' "$unexpected_backend" >&2
+              exit 1
+            fi
+          elif [ -f web/validation/validate-gv-web-708a.mjs ]; then
             if printf '%s\n' "$changed" | grep -Eq '^(frontend|backend)/'; then
               echo '708A must not modify the proven legacy frontend or backend.' >&2
               exit 1
