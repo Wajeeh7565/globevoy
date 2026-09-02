@@ -1,0 +1,67 @@
+name: GV-HOTEL-708C Staging Hotel Evidence
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'backend/services/nuitee-hotel-708c.js'
+      - 'backend/services/staging-booking-revalidation-708c.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validate-gv-hotel-708c.js'
+      - 'web/lib/contracts.ts'
+      - 'web/components/booking/booking-workspace-client.tsx'
+      - 'docs/GV-HOTEL-708C-STAGING-LIVE-HOTEL-EVIDENCE.md'
+      - '.github/workflows/validate-708c.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Enforce exact 708C staging boundary
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed"
+          unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validate-gv-hotel-708c\.js|web/lib/contracts\.ts|web/components/booking/booking-workspace-client\.tsx|docs/GV-HOTEL-708C-STAGING-LIVE-HOTEL-EVIDENCE\.md|\.github/workflows/validate-708c\.yml)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo '708C may change only its bounded staging backend, additive React evidence surface, validator, documentation and CI workflow.' >&2
+            printf '%s\n' "$unexpected" >&2
+            exit 1
+          fi
+
+      - name: Validate 708C with mocked secret and provider responses
+        run: node backend/validate-gv-hotel-708c.js
+
+      - name: Preserve 707B provider and safety regressions
+        run: node backend/validate-gv-web-707b.js
+
+      - name: Preserve 707B-R1 arithmetic regression
+        run: node backend/validate-gv-web-707b-r1.js
+
+      - name: Install React dependencies
+        run: npm ci --prefix web
+
+      - name: Strict TypeScript
+        run: npm run typecheck --prefix web
+
+      - name: Static React build
+        run: npm run build --prefix web
