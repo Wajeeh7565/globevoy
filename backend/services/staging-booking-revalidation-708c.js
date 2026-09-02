@@ -75,9 +75,14 @@ function mergeHotelRows(existingRows = [], hotelResult = {}) {
   });
 }
 
-function hotelSummary(payload = {}, hotelResult = {}) {
+function hotelSummary(payload = {}, hotelResult = {}, trip = null) {
   const existing = Array.isArray(payload.hotels) ? payload.hotels : [];
-  const savedHotelEstimate = existing.reduce((sum, row) => sum + finite(row.savedEstimate, 0), 0);
+  const rowBaseline = existing.reduce((sum, row) => sum + finite(row.savedEstimate, 0), 0);
+  // Prefer the exact saved stay snapshot when available. The compact per-stop
+  // rows can be rounded/reconstructed from canonical USD values and must not
+  // become a second arithmetic baseline (the same class of issue fixed in R1).
+  const snapshotBaseline = finite(trip?.priceSnapshot?.stayEstimate, 0);
+  const savedHotelEstimate = snapshotBaseline > 0 ? snapshotBaseline : rowBaseline;
   const freshHotelTotal = hotelResult.allVerified === true ? finite(hotelResult.freshHotelTotal, 0) : 0;
   const hotelDelta = hotelResult.allVerified === true ? freshHotelTotal - savedHotelEstimate : null;
   const freshTripEstimate = finite(payload?.revalidation?.freshTripEstimate, 0);
@@ -106,9 +111,9 @@ function hotelSummary(payload = {}, hotelResult = {}) {
   };
 }
 
-function applyHotelEvidence(payload = {}, hotelResult = {}) {
+function applyHotelEvidence(payload = {}, hotelResult = {}, trip = null) {
   if (!payload || payload.ok !== true || !Array.isArray(payload.hotels) || !payload.hotels.length) return payload;
-  const summary = hotelSummary(payload, hotelResult);
+  const summary = hotelSummary(payload, hotelResult, trip);
   return {
     ...payload,
     hotels: mergeHotelRows(payload.hotels, hotelResult),
@@ -183,7 +188,7 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
     };
   }
 
-  const augmented = applyHotelEvidence(payload, hotelResult);
+  const augmented = applyHotelEvidence(payload, hotelResult, capturedTrip);
   return withHeader({ ...response, body: JSON.stringify(augmented) });
 }
 
