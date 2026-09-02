@@ -9,6 +9,7 @@ import type { BookingRevalidationResponse, SavedTrip } from '@/lib/contracts';
 
 export const GV_WEB_707B_VERSION = 'GV-WEB-707B';
 export const GV_HOTEL_708C_VERSION = 'GV-HOTEL-708C';
+// GV-WEB-707B regression marker: Check current flight prices remains an explicit user-triggered provider action.
 
 function clean(value: unknown): string { return String(value == null ? '' : value).trim(); }
 function validTripId(value: string): boolean { return /^[A-Za-z0-9_-]{8,80}$/.test(value); }
