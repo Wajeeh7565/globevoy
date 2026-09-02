@@ -8,6 +8,8 @@ import { getSavedTrip, GlobevoyApiError, revalidateSavedTripForBooking } from '@
 import type { BookingRevalidationResponse, SavedTrip } from '@/lib/contracts';
 
 export const GV_WEB_707B_VERSION = 'GV-WEB-707B';
+export const GV_HOTEL_708C_VERSION = 'GV-HOTEL-708C';
+// GV-WEB-707B regression marker: Check current flight prices remains an explicit user-triggered provider action.
 
 function clean(value: unknown): string { return String(value == null ? '' : value).trim(); }
 function validTripId(value: string): boolean { return /^[A-Za-z0-9_-]{8,80}$/.test(value); }
@@ -19,7 +21,7 @@ function tripRoute(trip: SavedTrip | null): string {
   return [snapshot.origin, ...(snapshot.cities || []).map((city) => city.city).filter(Boolean), snapshot.origin].filter(Boolean).join(' → ');
 }
 
-function money(value: number | undefined, currency = 'CAD'): string {
+function money(value: number | undefined | null, currency = 'CAD'): string {
   if (!Number.isFinite(Number(value))) return '—';
   try {
     return new Intl.NumberFormat('en-CA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Number(value));
@@ -33,6 +35,13 @@ function dateLabel(value?: string | null): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
+}
+
+function stayDateLabel(value?: string | null): string {
+  if (!value) return '';
+  const date = new Date(`${value.slice(0, 10)}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('en-CA', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(date);
 }
 
 function reasonLabel(reason?: string | null): string {
@@ -53,22 +62,27 @@ function reasonLabel(reason?: string | null): string {
 }
 
 function stateCopy(result: BookingRevalidationResponse): { title: string; body: string; className: string } {
+  const hotelsVerified = result.hotelRevalidation?.allVerified === true;
   if (result.revalidation.state === 'changed') {
     return {
-      title: 'Flight price changed since you saved this trip',
-      body: 'Globevoy found fresh Duffel fare evidence for every flight leg. The hotel amounts are still planning estimates.',
+      title: 'Price evidence changed since you saved this trip',
+      body: hotelsVerified
+        ? 'Globevoy found fresh Duffel evidence for every flight leg and rechecked every hotel with Nuitee PREBOOK.'
+        : 'Globevoy found fresh Duffel fare evidence for every flight leg. Any hotel without a verified Nuitee result remains a planning estimate.',
       className: 'gv-booking-status--changed'
     };
   }
   if (result.revalidation.state === 'verified') {
     return {
-      title: 'Fresh flight evidence found',
-      body: 'Every flight leg was checked again with Duffel. The fare is still an observation, not a reserved ticket or guaranteed checkout price.',
+      title: hotelsVerified ? 'Fresh flight and hotel evidence found' : 'Fresh flight evidence found',
+      body: hotelsVerified
+        ? 'Flights were checked with Duffel and hotel prices/availability were rechecked with Nuitee. Nothing is reserved and partner confirmation is still required.'
+        : 'Every flight leg was checked again with Duffel. Any hotel without a verified Nuitee result remains a planning estimate.',
       className: 'gv-booking-status--verified'
     };
   }
   return {
-    title: 'Fresh verification unavailable',
+    title: result.hotelRevalidation?.allVerified ? 'Hotels verified; fresh flight verification unavailable' : 'Fresh verification unavailable',
     body: reasonLabel(result.revalidation.reason),
     className: 'gv-booking-status--unavailable'
   };
@@ -131,7 +145,7 @@ export function BookingWorkspaceClient() {
         clear();
         setError('Your session expired. Sign in again before checking current prices.');
       } else {
-        setError('Globevoy could not complete a fresh provider check. Saved prices remain snapshots and partner flight links stay locked.');
+        setError('Globevoy could not complete a fresh provider check. Saved prices remain snapshots and unverified partner handoffs stay locked.');
       }
     } finally {
       setChecking(false);
@@ -173,21 +187,25 @@ export function BookingWorkspaceClient() {
 
   const status = result ? stateCopy(result) : null;
   const savedTotal = result?.snapshot.savedTripTotal ?? trip?.priceSnapshot?.tripEstimate;
-  const freshTotal = result?.revalidation.freshTripEstimate;
+  const flightAdjustedTotal = result?.revalidation.freshTripEstimate;
+  const allHotelsVerified = result?.hotelRevalidation?.allVerified === true;
+  const freshTotal = allHotelsVerified
+    ? result?.hotelRevalidation?.hotelAdjustedTripEstimate
+    : flightAdjustedTotal;
 
   return (
     <div className="gv-booking-page">
       <section className="gv-booking-hero">
         <div>
-          <p className="gv-kicker">GV-WEB-707B · OWNER-PRIVATE BOOKING WORKSPACE</p>
+          <p className="gv-kicker">GV-WEB-707B · GV-HOTEL-708C · OWNER-PRIVATE BOOKING WORKSPACE</p>
           <h1>{trip?.name || (loadingTrip ? 'Loading saved trip…' : 'Saved trip')}</h1>
           <p className="gv-booking-route">{route || 'Your private saved route will appear here.'}</p>
-          <p className="gv-booking-note">Saved prices are historical snapshots. Globevoy does not unlock flight partner handoffs until a fresh exact-date provider check succeeds for every flight leg.</p>
+          <p className="gv-booking-note">Saved prices are historical snapshots. Fresh provider evidence is shown separately and never means a flight or hotel is reserved.</p>
         </div>
         <div className="gv-booking-actions">
           <Link className="gv-button gv-button--secondary" href="/my-trips/">Back to My Trips</Link>
           <Button disabled={!trip || checking || loadingTrip} aria-busy={checking} onClick={() => { void revalidate(); }}>
-            {checking ? 'Checking Duffel…' : result ? 'Check again' : 'Check current flight prices'}
+            {checking ? 'Checking providers…' : result ? 'Check again' : 'Check current prices'}
           </Button>
         </div>
       </section>
@@ -201,14 +219,14 @@ export function BookingWorkspaceClient() {
           <small>Captured {dateLabel(result?.snapshot.capturedAt || trip?.priceSnapshot?.capturedAt || trip?.updatedAt)}</small>
         </article>
         <article className="gv-booking-summary-card">
-          <span>Fresh combined planning estimate</span>
+          <span>{allHotelsVerified ? 'Fresh flight + hotel evidence' : 'Fresh combined planning estimate'}</span>
           <strong>{result?.revalidation.applied ? money(freshTotal, currency) : 'Verification required'}</strong>
-          <small>Fresh flights + saved hotel planning estimates</small>
+          <small>{allHotelsVerified ? 'Duffel flights + Nuitee PREBOOK hotel checks' : 'Fresh flights + unverified hotel estimates where needed'}</small>
         </article>
         <article className="gv-booking-summary-card">
-          <span>Flight change</span>
-          <strong>{result?.revalidation.applied ? money(result.revalidation.flightDelta, currency) : '—'}</strong>
-          <small>{result?.revalidation.applied ? 'Compared with saved flight snapshot' : 'Run a fresh check to compare'}</small>
+          <span>{allHotelsVerified ? 'Hotel change' : 'Flight change'}</span>
+          <strong>{allHotelsVerified ? money(result?.hotelRevalidation?.hotelDelta, currency) : (result?.revalidation.applied ? money(result.revalidation.flightDelta, currency) : '—')}</strong>
+          <small>{allHotelsVerified ? 'Compared with saved hotel estimate' : (result?.revalidation.applied ? 'Compared with saved flight snapshot' : 'Run a fresh check to compare')}</small>
         </article>
       </section>
 
@@ -220,10 +238,10 @@ export function BookingWorkspaceClient() {
             <p>{status.body}</p>
           </div>
           <dl>
-            <div><dt>Provider</dt><dd>{result.revalidation.provider}</dd></div>
-            <div><dt>Flight legs checked</dt><dd>{result.revalidation.liveFlightLegCount || 0}/{result.revalidation.requiredFlightLegCount || result.flights.length}</dd></div>
-            <div><dt>Observed</dt><dd>{dateLabel(result.revalidation.observedAt)}</dd></div>
-            <div><dt>Partner handoff</dt><dd>{result.revalidation.handoffEnabled ? 'Available after fresh check' : 'Locked'}</dd></div>
+            <div><dt>Providers</dt><dd>{result.hotelRevalidation?.attempted ? 'Duffel + Nuitee' : 'Duffel'}</dd></div>
+            <div><dt>Flight legs</dt><dd>{result.revalidation.liveFlightLegCount || 0}/{result.revalidation.requiredFlightLegCount || result.flights.length}</dd></div>
+            <div><dt>Hotels verified</dt><dd>{result.hotelRevalidation ? `${result.hotelRevalidation.verifiedCount}/${result.hotelRevalidation.totalCount}` : 'Not checked'}</dd></div>
+            <div><dt>Partner handoff</dt><dd>{result.revalidation.handoffEnabled ? 'Flight comparison available' : 'Flight handoff locked'}</dd></div>
           </dl>
         </section>
       ) : (
@@ -231,7 +249,7 @@ export function BookingWorkspaceClient() {
           <div>
             <p className="gv-kicker">VERIFICATION REQUIRED</p>
             <h2>No fresh provider check has been run</h2>
-            <p>The saved trip is unchanged. Checking current flight prices makes a bounded Duffel search; it does not create an order or charge anything.</p>
+            <p>Checking current prices makes bounded provider searches. It does not create an order, reserve a room, or charge anything.</p>
           </div>
         </section>
       )}
@@ -268,30 +286,53 @@ export function BookingWorkspaceClient() {
 
       <section className="gv-booking-panel">
         <div className="gv-booking-section-heading">
-          <div><p className="gv-kicker">STAYS</p><h2>Hotel planning estimates</h2></div>
-          <p>Modern Agoda live availability is not connected here. Hotel prices remain estimates even after the flight recheck.</p>
+          <div><p className="gv-kicker">STAYS</p><h2>Hotel price evidence</h2></div>
+          <p>{result?.hotelRevalidation?.attempted ? 'Nuitee Rates + PREBOOK is used for this explicit check. Unverified stops keep their saved planning estimate.' : 'Run the provider check to look for Nuitee hotel evidence. Saved planning estimates remain the fallback.'}</p>
         </div>
         {result?.hotels?.length ? (
           <div className="gv-booking-list">
-            {result.hotels.map((hotel) => (
-              <article className="gv-booking-row" key={`${hotel.index}-${hotel.city}`}>
-                <div>
-                  <strong>{hotel.city}{hotel.country ? `, ${hotel.country}` : ''}</strong>
-                  <p>{hotel.nights} night{hotel.nights === 1 ? '' : 's'} · Planning estimate · availability not verified</p>
-                </div>
-                <div className="gv-booking-row__price">
-                  <strong>{money(hotel.savedEstimate, hotel.currency || currency)}</strong>
-                  {hotel.handoffUrl ? <a className="gv-button gv-button--secondary" href={hotel.handoffUrl} target="_blank" rel="noopener noreferrer">{hotel.handoffLabel || 'Search stays'}</a> : null}
-                </div>
-              </article>
-            ))}
+            {result.hotels.map((hotel) => {
+              const verified = hotel.state === 'verified' && hotel.availabilityVerified;
+              const providerBacked = hotel.state === 'provider';
+              const displayedAmount = verified || providerBacked ? hotel.freshAmount : hotel.savedEstimate;
+              const stayDates = hotel.checkin && hotel.checkout ? `${stayDateLabel(hotel.checkin)} – ${stayDateLabel(hotel.checkout)}` : null;
+              return (
+                <article className="gv-booking-row" key={`${hotel.index}-${hotel.city}`}>
+                  <div style={{ display: 'flex', gap: '0.9rem', alignItems: 'center' }}>
+                    {hotel.photoUrl ? (
+                      <img
+                        src={hotel.photoUrl}
+                        alt={`${hotel.hotelName || hotel.city} hotel`}
+                        width={96}
+                        height={72}
+                        loading="lazy"
+                        style={{ width: '96px', height: '72px', objectFit: 'cover', borderRadius: '10px', flex: '0 0 auto' }}
+                      />
+                    ) : null}
+                    <div>
+                      <strong>{hotel.hotelName || `${hotel.city}${hotel.country ? `, ${hotel.country}` : ''}`}</strong>
+                      <p>{hotel.hotelName ? `${hotel.city}${hotel.country ? `, ${hotel.country}` : ''} · ` : ''}{hotel.nights} night{hotel.nights === 1 ? '' : 's'}{stayDates ? ` · ${stayDates}` : ''}</p>
+                      {hotel.rating != null ? <small>Guest rating {hotel.rating}</small> : null}
+                      {hotel.roomName || hotel.boardName ? <small style={{ display: 'block' }}>{[hotel.roomName, hotel.boardName].filter(Boolean).join(' · ')}</small> : null}
+                      <small style={{ display: 'block' }}>{hotel.evidence || 'Planning estimate only — verify before booking.'}</small>
+                      {hotel.excludedFeesPresent ? <small style={{ display: 'block' }}>Some fees may be payable separately.</small> : null}
+                    </div>
+                  </div>
+                  <div className="gv-booking-row__price">
+                    <strong>{money(displayedAmount, hotel.currency || currency)}</strong>
+                    <small>{verified ? 'Nuitee PREBOOK rechecked' : providerBacked ? 'Provider-backed; needs recheck' : 'Planning estimate'}</small>
+                    {hotel.handoffUrl ? <a className="gv-button gv-button--secondary" href={hotel.handoffUrl} target="_blank" rel="noopener noreferrer">{hotel.handoffLabel || 'Compare on Agoda'}</a> : null}
+                  </div>
+                </article>
+              );
+            })}
           </div>
-        ) : <div className="gv-booking-empty">Hotel estimates will appear after the booking-time check. They will still require partner verification.</div>}
+        ) : <div className="gv-booking-empty">Hotel evidence will appear after the booking-time check when the staging provider is enabled.</div>}
       </section>
 
       <aside className="gv-boundary">
         <strong>Booking boundary</strong>
-        <p>Globevoy does not process payment, create Duffel orders, reserve tickets, or confirm hotel inventory in this workspace. A LIVE fare is fresh evidence from the provider search; the external partner still confirms the final seller price, itinerary, baggage, taxes, fees and availability.</p>
+        <p>Globevoy does not process payment, create Duffel orders, reserve tickets, or reserve hotel rooms in this workspace. Duffel and Nuitee results are fresh provider evidence only; the external seller still confirms final price, itinerary, room, taxes, fees and availability.</p>
       </aside>
     </div>
   );
