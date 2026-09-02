@@ -57,9 +57,10 @@ const stagingAccount705B = require('./services/staging-cognito-auth-705b-r3');
 // 705B verifier and derives DynamoDB ownership only from the verified token sub.
 const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
 
-// 707B-R1 preserves the owner-private 707B provider flow and repairs only the
-// compact-snapshot saved-flight baseline used for price-change arithmetic.
-const stagingBooking707B = require('./services/staging-booking-revalidation-707b-r1');
+// GV-HOTEL-708C wraps staging-booking-revalidation-707b-r1 additively. The
+// existing 707B-R1 owner-private Duffel flow/arithmetic stays authoritative;
+// Nuitee hotel Rates -> PREBOOK runs only when its staging feature flag is on.
+const stagingBooking707B = require('./services/staging-booking-revalidation-708c');
 
 const staging = require('./staging-lambda');
 
