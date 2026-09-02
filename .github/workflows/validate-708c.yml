@@ -30,8 +30,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-          cache-dependency-path: web/package-lock.json
 
       - name: Enforce exact 708C staging boundary
         if: github.event_name == 'pull_request'
@@ -58,7 +56,7 @@ jobs:
         run: node backend/validate-gv-web-707b-r1.js
 
       - name: Install React dependencies
-        run: npm ci --prefix web
+        run: npm install --prefix web --no-audit --no-fund --no-package-lock
 
       - name: Strict TypeScript
         run: npm run typecheck --prefix web
