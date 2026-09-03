@@ -2,7 +2,7 @@ import { McpServer } from '@modelcontextprotocol/server';
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import * as z from 'zod/v4';
 
-const VERSION = 'GV-DIST-709A-MCP-R1';
+const VERSION = 'GV-DIST-709A-MCP-R2';
 const DEFAULT_API_BASE = 'https://mirksnjcjim4iowstuda4lesrm0ghmfw.lambda-url.us-east-2.on.aws';
 const DEFAULT_STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
 
@@ -16,7 +16,9 @@ function record(value: unknown): JsonObject {
 }
 
 function rows(value: unknown): JsonObject[] {
-  return Array.isArray(value) ? value.filter((item) => item && typeof item === 'object') as JsonObject[] : [];
+  return Array.isArray(value)
+    ? value.filter((item) => item && typeof item === 'object') as JsonObject[]
+    : [];
 }
 
 function clean(value: unknown): string {
@@ -28,17 +30,17 @@ function finite(value: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function positive(value: unknown): number | null {
+function positive(value: unknown): number | undefined {
   const n = finite(value, 0);
-  return n > 0 ? n : null;
+  return n > 0 ? n : undefined;
 }
 
-function numberField(obj: JsonObject, ...keys: string[]): number | null {
+function numberField(obj: JsonObject, ...keys: string[]): number | undefined {
   for (const key of keys) {
     const n = positive(obj[key]);
-    if (n !== null) return n;
+    if (n !== undefined) return n;
   }
-  return null;
+  return undefined;
 }
 
 function stringField(obj: JsonObject, ...keys: string[]): string {
@@ -60,38 +62,107 @@ function evidenceFor(raw: JsonObject) {
 
   if (evidenceClass === 'LIVE' || evidenceClass.includes('LIVE_PROVIDER')) {
     return {
-      state: 'provider_backed',
+      state: 'provider_backed' as const,
       label: 'Provider-backed price evidence',
       note: 'Provider evidence is present, but final price and availability are confirmed by the partner.'
-    } as const;
+    };
   }
 
   if (evidenceClass === 'CACHED' || evidenceClass.includes('CACHE')) {
     return {
-      state: 'cached',
+      state: 'cached' as const,
       label: 'Cached price evidence',
       note: 'Provider evidence may have changed. Recheck before booking.'
-    } as const;
+    };
   }
 
   if (evidenceClass === 'UNAVAILABLE') {
     return {
-      state: 'needs_verification',
+      state: 'needs_verification' as const,
       label: 'Price needs verification',
       note: 'Current provider evidence is unavailable.'
-    } as const;
+    };
   }
 
   return {
-    state: 'estimate',
+    state: 'estimate' as const,
     label: 'Planning estimate',
     note: 'This is planning evidence, not a guaranteed quote. Recheck before booking.'
-  } as const;
+  };
 }
 
-function price(amount: number | null, currency: string, basis: string) {
-  return amount && amount > 0 ? { amount, currency, basis } : null;
+function price(amount: number, currency: string, basis: string) {
+  return { amount, currency, basis };
 }
+
+function optionalPrice(amount: number | undefined, currency: string, basis: string) {
+  return amount && amount > 0 ? price(amount, currency, basis) : undefined;
+}
+
+const SearchInputSchema = z.object({
+  origin: z.string().min(2).max(80).describe('Origin city or airport code, for example Toronto or YYZ.'),
+  budgetAmount: z.number().positive().max(100000).describe('Total trip budget.'),
+  currency: z.enum(['CAD', 'USD', 'EUR', 'GBP', 'AUD']).default('CAD').describe('Currency of the requested total trip budget.'),
+  nights: z.number().int().min(2).max(21).default(5).describe('Desired trip length in nights.'),
+  month: z.string().regex(/^\d{4}-\d{2}$/).optional().describe('Optional preferred month in YYYY-MM format.'),
+  interests: z.array(z.string().min(1).max(50)).max(6).optional().describe('Optional travel interests, for example food, nature, beaches.'),
+  region: z.string().min(2).max(80).optional().describe('Optional region preference.'),
+  maxResults: z.number().int().min(1).max(6).default(3).describe('Maximum recommendations to return.')
+});
+
+type SearchInput = z.infer<typeof SearchInputSchema>;
+
+const PriceSchema = z.object({
+  amount: z.number(),
+  currency: z.string(),
+  basis: z.string()
+});
+
+const RecommendationSchema = z.object({
+  tripId: z.string(),
+  kind: z.enum(['single_city', 'multi_city']),
+  title: z.string(),
+  route: z.string(),
+  destinationCodes: z.array(z.string()),
+  nights: z.number(),
+  pricing: z.object({
+    total: PriceSchema,
+    flightEstimate: PriceSchema.optional(),
+    hotelEstimate: PriceSchema.optional(),
+    evidence: z.object({
+      state: z.enum(['provider_backed', 'cached', 'estimate', 'needs_verification']),
+      label: z.string(),
+      note: z.string()
+    })
+  }),
+  budget: z.object({
+    requested: z.object({ amount: z.number(), currency: z.string(), basis: z.string() }),
+    withinRequestedBudget: z.boolean()
+  }),
+  why: z.string().optional(),
+  booking: z.object({
+    mode: z.literal('external_handoff'),
+    reservationCreated: z.literal(false),
+    paymentTaken: z.literal(false)
+  })
+});
+
+const SearchOutputSchema = z.object({
+  version: z.literal(VERSION),
+  query: z.object({
+    origin: z.string(),
+    budget: z.object({ amount: z.number(), currency: z.string(), basis: z.literal('total_trip_budget') }),
+    nights: z.number(),
+    month: z.string().optional(),
+    assumedDates: z.boolean()
+  }),
+  recommendationCount: z.number(),
+  recommendations: z.array(RecommendationSchema),
+  trust: z.object({
+    bookingBoundary: z.literal('external_handoff_only'),
+    reminder: z.string()
+  })
+});
 
 function adaptSingle(raw: JsonObject, input: SearchInput) {
   const city = stringField(raw, 'city');
@@ -101,15 +172,14 @@ function adaptSingle(raw: JsonObject, input: SearchInput) {
   const code = stringField(raw, 'code', 'airportCode').toUpperCase();
   const displayBudget = record(raw.displayBudget);
 
-  // Trust boundary: MCP only exposes totals already normalized by Globevoy into
-  // the user's requested display currency. It never silently relabels raw USD
-  // fallback fields as CAD/EUR/etc.
+  // Trust boundary: only expose amounts already normalized by Globevoy into
+  // the requested display currency. Never relabel raw USD fallback values.
   const total = numberField(displayBudget, 'tripEstimate');
   if (!total) return null;
 
   const flight = numberField(displayBudget, 'flightEstimate');
   const stay = numberField(displayBudget, 'accommodationEstimate');
-  const evidence = evidenceFor(raw);
+  const why = stringField(raw, 'displayWhyItFits', 'whyItFits', 'explanation');
   const nights = Math.max(2, Math.round(finite(raw.nights, input.nights)));
 
   return {
@@ -121,19 +191,23 @@ function adaptSingle(raw: JsonObject, input: SearchInput) {
     nights,
     pricing: {
       total: price(total, input.currency, 'total_trip'),
-      flightEstimate: price(flight, input.currency, 'route_total_estimate'),
-      hotelEstimate: price(stay, input.currency, 'total_stay_estimate'),
-      evidence
+      ...(optionalPrice(flight, input.currency, 'route_total_estimate')
+        ? { flightEstimate: optionalPrice(flight, input.currency, 'route_total_estimate') }
+        : {}),
+      ...(optionalPrice(stay, input.currency, 'total_stay_estimate')
+        ? { hotelEstimate: optionalPrice(stay, input.currency, 'total_stay_estimate') }
+        : {}),
+      evidence: evidenceFor(raw)
     },
     budget: {
       requested: { amount: input.budgetAmount, currency: input.currency, basis: 'total_trip_budget' },
       withinRequestedBudget: total <= input.budgetAmount
     },
-    why: stringField(raw, 'displayWhyItFits', 'whyItFits', 'explanation') || null,
+    ...(why ? { why } : {}),
     booking: {
       mode: 'external_handoff' as const,
-      reservationCreated: false,
-      paymentTaken: false
+      reservationCreated: false as const,
+      paymentTaken: false as const
     }
   };
 }
@@ -151,11 +225,11 @@ function adaptMulti(raw: JsonObject, input: SearchInput) {
   const total = numberField(displayBudget, 'tripEstimate');
   if (!total) return null;
 
-  const evidence = evidenceFor(raw);
   const origin = record(raw.origin);
   const originCity = stringField(origin, 'city') || input.origin;
   const title = stringField(raw, 'title') || cities.map((city) => city.city).join(' + ');
   const route = [originCity, ...cities.map((city) => city.city), originCity].join(' → ');
+  const why = stringField(raw, 'displayWhyItFits', 'recommendationExplanation', 'whyCitiesWork');
 
   return {
     tripId: `multi-${clean(raw.tourId || raw.routeId || title).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
@@ -166,19 +240,17 @@ function adaptMulti(raw: JsonObject, input: SearchInput) {
     nights: Math.max(1, Math.round(finite(raw.totalNights, input.nights))),
     pricing: {
       total: price(total, input.currency, 'total_trip'),
-      flightEstimate: null,
-      hotelEstimate: null,
-      evidence
+      evidence: evidenceFor(raw)
     },
     budget: {
       requested: { amount: input.budgetAmount, currency: input.currency, basis: 'total_trip_budget' },
       withinRequestedBudget: total <= input.budgetAmount
     },
-    why: stringField(raw, 'displayWhyItFits', 'recommendationExplanation', 'whyCitiesWork') || null,
+    ...(why ? { why } : {}),
     booking: {
       mode: 'external_handoff' as const,
-      reservationCreated: false,
-      paymentTaken: false
+      reservationCreated: false as const,
+      paymentTaken: false as const
     }
   };
 }
@@ -216,71 +288,6 @@ async function publicGet(path: string, params: Record<string, string | number | 
     clearTimeout(timeout);
   }
 }
-
-const SearchInputSchema = z.object({
-  origin: z.string().min(2).max(80).describe('Origin city or airport code, for example Toronto or YYZ.'),
-  budgetAmount: z.number().positive().max(100000).describe('Total trip budget.'),
-  currency: z.enum(['CAD', 'USD', 'EUR', 'GBP', 'AUD']).default('CAD').describe('Currency of the requested total trip budget.'),
-  nights: z.number().int().min(2).max(21).default(5).describe('Desired trip length in nights.'),
-  month: z.string().regex(/^\d{4}-\d{2}$/).optional().describe('Optional preferred month in YYYY-MM format.'),
-  interests: z.array(z.string().min(1).max(50)).max(6).optional().describe('Optional travel interests, for example food, nature, beaches.'),
-  region: z.string().min(2).max(80).optional().describe('Optional region preference.'),
-  maxResults: z.number().int().min(1).max(6).default(3).describe('Maximum recommendations to return.')
-});
-
-type SearchInput = z.infer<typeof SearchInputSchema>;
-
-const PriceSchema = z.object({
-  amount: z.number(),
-  currency: z.string(),
-  basis: z.string()
-}).nullable();
-
-const RecommendationSchema = z.object({
-  tripId: z.string(),
-  kind: z.enum(['single_city', 'multi_city']),
-  title: z.string(),
-  route: z.string(),
-  destinationCodes: z.array(z.string()),
-  nights: z.number(),
-  pricing: z.object({
-    total: PriceSchema,
-    flightEstimate: PriceSchema,
-    hotelEstimate: PriceSchema,
-    evidence: z.object({
-      state: z.enum(['provider_backed', 'cached', 'estimate', 'needs_verification']),
-      label: z.string(),
-      note: z.string()
-    })
-  }),
-  budget: z.object({
-    requested: z.object({ amount: z.number(), currency: z.string(), basis: z.string() }),
-    withinRequestedBudget: z.boolean()
-  }),
-  why: z.string().nullable(),
-  booking: z.object({
-    mode: z.literal('external_handoff'),
-    reservationCreated: z.literal(false),
-    paymentTaken: z.literal(false)
-  })
-});
-
-const SearchOutputSchema = z.object({
-  version: z.literal(VERSION),
-  query: z.object({
-    origin: z.string(),
-    budget: z.object({ amount: z.number(), currency: z.string(), basis: z.literal('total_trip_budget') }),
-    nights: z.number(),
-    month: z.string().nullable(),
-    assumedDates: z.boolean()
-  }),
-  recommendationCount: z.number(),
-  recommendations: z.array(RecommendationSchema),
-  trust: z.object({
-    bookingBoundary: z.literal('external_handoff_only'),
-    reminder: z.string()
-  })
-});
 
 function createServer() {
   const server = new McpServer({
@@ -332,19 +339,18 @@ function createServer() {
 
         const singles = rows(record(singlePayload).recommendations)
           .map((row) => adaptSingle(row, input))
-          .filter(Boolean);
+          .filter((item): item is NonNullable<typeof item> => Boolean(item));
         const multis = rows(record(multiPayload).tours)
           .map((row) => adaptMulti(row, input))
-          .filter(Boolean);
+          .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
         const combined = [...singles, ...multis]
-          .filter((item): item is NonNullable<typeof item> => Boolean(item))
-          .filter((item) => (item.pricing.total?.amount ?? Infinity) <= input.budgetAmount * 1.08)
+          .filter((item) => item.pricing.total.amount <= input.budgetAmount * 1.08)
           .sort((a, b) => {
             const aFits = a.budget.withinRequestedBudget ? 0 : 1;
             const bFits = b.budget.withinRequestedBudget ? 0 : 1;
             if (aFits !== bFits) return aFits - bFits;
-            return (a.pricing.total?.amount ?? Infinity) - (b.pricing.total?.amount ?? Infinity);
+            return a.pricing.total.amount - b.pricing.total.amount;
           })
           .slice(0, input.maxResults);
 
@@ -354,7 +360,7 @@ function createServer() {
             origin: input.origin,
             budget: { amount: input.budgetAmount, currency: input.currency, basis: 'total_trip_budget' as const },
             nights: input.nights,
-            month: input.month ?? null,
+            ...(input.month ? { month: input.month } : {}),
             assumedDates: !input.month
           },
           recommendationCount: combined.length,
