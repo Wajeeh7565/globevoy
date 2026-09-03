@@ -8,10 +8,12 @@
   },
   "scripts": {
     "start": "tsx src/server.ts",
-    "inspect": "npx @modelcontextprotocol/inspector npm run start"
+    "inspect": "npx @modelcontextprotocol/inspector npm run start",
+    "test:openai": "tsx openai/test-agent.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "2.0.0",
+    "@openai/agents": "0.17.0",
     "zod": "4.5.4"
   },
   "devDependencies": {
