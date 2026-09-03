@@ -1,10 +1,10 @@
 // GV-DIST-709A MCPB launcher — Claude Desktop compatibility shim.
 //
 // The core MCP tool returns both `content` and `structuredContent`. MCP Inspector
-// exposes both, but Claude Desktop currently surfaces only the text `content`
-// to the model for this local extension flow. Preserve the reviewed tool logic
-// in src/server.ts and augment only outbound tool-call results here so Claude
-// receives the same price/evidence semantics that Inspector already sees.
+// exposes both, but this Claude Desktop local-extension flow has only surfaced
+// the first text content block to the model in our tests. Preserve the reviewed
+// tool logic in src/server.ts and augment only outbound tool-call results here so
+// that the PRIMARY text block contains the same price/evidence semantics.
 
 const originalWrite = process.stdout.write.bind(process.stdout);
 let pending = '';
@@ -57,12 +57,15 @@ function augmentLine(line) {
     const summary = structuredSummary(result?.structuredContent);
 
     if (summary && Array.isArray(result.content)) {
-      const alreadyPresent = result.content.some(
-        (item) => item?.type === 'text' && String(item.text || '').includes('Globevoy structured trip details')
-      );
+      const firstText = result.content.find((item) => item?.type === 'text');
 
-      if (!alreadyPresent) {
-        result.content.push({ type: 'text', text: summary });
+      if (firstText) {
+        const existing = String(firstText.text || '');
+        if (!existing.includes('Globevoy structured trip details')) {
+          firstText.text = `${existing}\n\n${summary}`.trim();
+        }
+      } else {
+        result.content.unshift({ type: 'text', text: summary });
       }
     }
 
@@ -73,7 +76,9 @@ function augmentLine(line) {
 }
 
 process.stdout.write = function patchedWrite(chunk, encoding, callback) {
-  const text = Buffer.isBuffer(chunk) ? chunk.toString(typeof encoding === 'string' ? encoding : 'utf8') : String(chunk);
+  const text = Buffer.isBuffer(chunk)
+    ? chunk.toString(typeof encoding === 'string' ? encoding : 'utf8')
+    : String(chunk);
   pending += text;
 
   let newlineIndex;
