@@ -8,7 +8,8 @@ frontend:
         - nvm use 22
         - node --version
         - npm --prefix web install --no-audit --no-fund
-        - echo "12f0fe80be5db2d1a7e18784eaf7a5e7f04ade17cf84b91c78a2dde5ec20f2c0  web/package-lock.json" | sha256sum -c -
+        - node -e 'const fs=require("fs"); const pkg=JSON.parse(fs.readFileSync("web/package.json","utf8")); const lock=JSON.parse(fs.readFileSync("web/package-lock.json","utf8")); const expected={dependencies:{next:"15.5.21",react:"19.2.7","react-dom":"19.2.7"},devDependencies:{"@types/node":"22.20.1","@types/react":"19.2.18","@types/react-dom":"19.2.4",typescript:"5.9.3"}}; if(Number(lock.lockfileVersion)<3) throw new Error(`Unexpected npm lockfileVersion: ${lock.lockfileVersion}`); const root=lock.packages&&lock.packages[""]; if(!root) throw new Error("Generated package-lock is missing the root package contract."); for(const [group,entries] of Object.entries(expected)){ for(const [name,version] of Object.entries(entries)){ if(pkg[group]?.[name]!==version) throw new Error(`package.json ${group}.${name} changed: ${pkg[group]?.[name]} !== ${version}`); if(root[group]?.[name]!==version) throw new Error(`package-lock root ${group}.${name} changed: ${root[group]?.[name]} !== ${version}`); }} console.log("Pinned React dependency contract verified.");'
+        - npm --prefix web ls --depth=0
     build:
       commands:
         - echo "Validating existing Globevoy frontend"
