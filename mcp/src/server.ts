@@ -49,12 +49,6 @@ function stringField(obj: JsonObject, ...keys: string[]): string {
   return '';
 }
 
-function nestedNumber(obj: JsonObject, path: string[]): number | null {
-  let current: unknown = obj;
-  for (const key of path) current = record(current)[key];
-  return positive(current);
-}
-
 function evidenceFor(raw: JsonObject) {
   const explicit = record(raw.priceEvidence ?? raw.overallPriceEvidence);
   const evidenceClass = clean(
@@ -107,18 +101,14 @@ function adaptSingle(raw: JsonObject, input: SearchInput) {
   const code = stringField(raw, 'code', 'airportCode').toUpperCase();
   const displayBudget = record(raw.displayBudget);
 
-  const total = numberField(displayBudget, 'tripEstimate')
-    ?? numberField(raw, 'estimatedFlightAndStayTotal', 'total');
+  // Trust boundary: MCP only exposes totals already normalized by Globevoy into
+  // the user's requested display currency. It never silently relabels raw USD
+  // fallback fields as CAD/EUR/etc.
+  const total = numberField(displayBudget, 'tripEstimate');
   if (!total) return null;
 
-  const flight = numberField(displayBudget, 'flightEstimate')
-    ?? numberField(raw, 'flight', 'flightUsd', 'flightEstimateUsd')
-    ?? nestedNumber(raw, ['costs', 'flightUsd']);
-
-  const stay = numberField(displayBudget, 'accommodationEstimate')
-    ?? numberField(raw, 'lodging', 'stay', 'stayUsd', 'stayEstimateUsd')
-    ?? nestedNumber(raw, ['costs', 'stayUsd']);
-
+  const flight = numberField(displayBudget, 'flightEstimate');
+  const stay = numberField(displayBudget, 'accommodationEstimate');
   const evidence = evidenceFor(raw);
   const nights = Math.max(2, Math.round(finite(raw.nights, input.nights)));
 
@@ -158,10 +148,7 @@ function adaptMulti(raw: JsonObject, input: SearchInput) {
   if (!cities.length) return null;
 
   const displayBudget = record(raw.displayBudget);
-  const legacyBudget = record(raw.budget);
-  const total = numberField(displayBudget, 'tripEstimate')
-    ?? nestedNumber(legacyBudget, ['estimatedCoreTotal', 'amount'])
-    ?? positive(raw.estimatedTotalUsd);
+  const total = numberField(displayBudget, 'tripEstimate');
   if (!total) return null;
 
   const evidence = evidenceFor(raw);
@@ -232,7 +219,7 @@ async function publicGet(path: string, params: Record<string, string | number | 
 
 const SearchInputSchema = z.object({
   origin: z.string().min(2).max(80).describe('Origin city or airport code, for example Toronto or YYZ.'),
-  budgetAmount: z.number().positive().max(100000).describe('Total trip budget for all requested travelers.'),
+  budgetAmount: z.number().positive().max(100000).describe('Total trip budget.'),
   currency: z.enum(['CAD', 'USD', 'EUR', 'GBP', 'AUD']).default('CAD').describe('Currency of the requested total trip budget.'),
   nights: z.number().int().min(2).max(21).default(5).describe('Desired trip length in nights.'),
   month: z.string().regex(/^\d{4}-\d{2}$/).optional().describe('Optional preferred month in YYYY-MM format.'),
