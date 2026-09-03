@@ -1,0 +1,50 @@
+{
+  "manifest_version": "0.3",
+  "name": "globevoy-budget-travel-709a",
+  "display_name": "Globevoy Travel Discovery",
+  "version": "0.1.0",
+  "description": "Read-only budget-first trip discovery from Globevoy with explicit price basis and evidence labels.",
+  "long_description": "Private GV-DIST-709A prototype for testing Globevoy as an AI distribution connector. It searches the existing Globevoy staging recommendation surfaces and returns a small set of single-city and multi-city options with explicit total-trip budget semantics, evidence labels, and an external-handoff-only booking boundary. It does not book, pay, reserve, sign in, or modify accounts.",
+  "author": {
+    "name": "Globevoy"
+  },
+  "homepage": "https://www.globevoy.com/",
+  "documentation": "https://www.globevoy.com/how-it-works.html",
+  "privacy_policies": [
+    "https://www.globevoy.com/pages/privacy.html"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "search_trips",
+      "description": "Search Globevoy for a small budget-first set of trip recommendations. Prices state their basis and evidence status; no booking, payment, reservation, or account mutation occurs."
+    }
+  ],
+  "tools_generated": false,
+  "keywords": [
+    "travel",
+    "budget",
+    "trip discovery",
+    "flights",
+    "hotels",
+    "multi-city"
+  ],
+  "compatibility": {
+    "platforms": [
+      "win32"
+    ],
+    "runtimes": {
+      "node": ">=24.0.0"
+    }
+  }
+}
