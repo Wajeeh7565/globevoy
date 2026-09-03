@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "globevoy-budget-travel-709a",
   "display_name": "Globevoy Travel Discovery",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Read-only budget-first trip discovery from Globevoy with explicit price basis and evidence labels.",
   "long_description": "Private GV-DIST-709A prototype for testing Globevoy as an AI distribution connector. It searches the existing Globevoy staging recommendation surfaces and returns a small set of single-city and multi-city options with explicit total-trip budget semantics, evidence labels, and an external-handoff-only booking boundary. It does not book, pay, reserve, sign in, or modify accounts.",
   "author": {
