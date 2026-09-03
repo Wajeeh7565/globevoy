@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const mcpDir = path.resolve(here, '..');
 const serverEntry = path.join(mcpDir, 'server', 'index.js');
-const model = String(process.env.OPENAI_MODEL || 'gpt-5.4-mini').trim();
+const model = String(process.env.OPENAI_MODEL || 'gpt-5.6-luna').trim();
 
 if (!process.env.OPENAI_API_KEY) {
   console.error('OPENAI_API_KEY is not set. Set it in this PowerShell session, then rerun npm run test:openai.');
