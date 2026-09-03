@@ -15,15 +15,19 @@ From `mcp/`:
 
 ```powershell
 npm install
-$env:OPENAI_API_KEY = Read-Host "Paste OpenAI API key"
+$secure = Read-Host "Paste OpenAI API key" -AsSecureString
+$ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
+$env:OPENAI_API_KEY = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr)
+[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr)
+Remove-Variable secure, ptr
 npm run test:openai
 Remove-Item Env:OPENAI_API_KEY
 ```
 
-The default model is `gpt-5.4-mini`. Override only for testing:
+The default model is `gpt-5.6-luna` for a low-cost MCP proof. Override only for testing, for example:
 
 ```powershell
-$env:OPENAI_MODEL = "gpt-5.4"
+$env:OPENAI_MODEL = "gpt-5.6"
 ```
 
 ## Acceptance
