@@ -1,0 +1,3 @@
+# GV-DIST-709A private prototype packaging exclusions
+*.mcpb
+*.log
