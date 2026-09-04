@@ -14,31 +14,43 @@ export function AccountPageClient() {
   if (!session) {
     return (
       <section className="gv-account-panel" aria-labelledby="account-sign-in-title">
-        <p className="gv-kicker">PRIVATE ACCOUNT</p>
-        <h1 id="account-sign-in-title">Sign in to your Globevoy account</h1>
-        <p className="gv-muted">Guest trip planning still works without an account. Signing in is only needed for private Saved Trips and account features.</p>
+        <p className="gv-kicker">YOUR GLOBEVOY ACCOUNT</p>
+        <h1 id="account-sign-in-title">Plan freely. Sign in when you want Globevoy to remember.</h1>
+        <p className="gv-muted">Guest discovery stays available. A private account unlocks Saved Trips, Travel Profile and cross-session continuation without turning sign-in into a gate before you can explore.</p>
+        <div className="gv-account-dashboard__cards" aria-label="Account benefits">
+          <div className="gv-account-dashboard__card"><span>01</span><strong>Saved Trips</strong><small>Keep private trip snapshots and return to them later.</small></div>
+          <div className="gv-account-dashboard__card"><span>02</span><strong>Travel Profile</strong><small>Remember your home airport, interests, travel style and destination history.</small></div>
+        </div>
         <div className="gv-account-actions">
           <Button onClick={() => { void signIn('/react/account/'); }}>Sign in or create account</Button>
-          <a className="gv-button gv-button--secondary" href="/index.html">Continue as guest</a>
+          <Link className="gv-button gv-button--secondary" href="/">Continue as guest</Link>
         </div>
+        <p className="gv-muted">Account creation and password recovery are handled by Globevoy&apos;s secure Amazon Cognito managed sign-in rather than by a custom password form on this page.</p>
         {status ? <p className="gv-account-status" role="status">{status}</p> : null}
       </section>
     );
   }
 
   return (
-    <section className="gv-account-panel" aria-labelledby="account-title">
-      <p className="gv-kicker">GV-WEB-707A · COGNITO ACCOUNT</p>
-      <h1 id="account-title">Your account</h1>
-      <p className="gv-account-success">Signed in securely with Amazon Cognito.</p>
+    <section className="gv-account-panel gv-account-dashboard" aria-labelledby="account-title">
+      <div>
+        <p className="gv-kicker">SIGNED-IN ACCOUNT</p>
+        <h1 id="account-title">Welcome back.</h1>
+        <p className="gv-account-success">Your Globevoy account session is active.</p>
+      </div>
+
+      <div className="gv-account-dashboard__cards">
+        <Link className="gv-account-dashboard__card" href="/my-trips/"><span>MY TRIPS</span><strong>Saved Trips</strong><small>Open private saved journeys, recheck current prices and continue planning.</small></Link>
+        <Link className="gv-account-dashboard__card" href="/travel-profile/"><span>PERSONALIZATION</span><strong>Travel Profile</strong><small>Set your home base, country context, interests, hotel style and travel history.</small></Link>
+      </div>
+
       <dl className="gv-account-details">
         <div><dt>Email</dt><dd>{session.user.email || 'Email available after Cognito profile lookup'}</dd></div>
-        <div><dt>Account ID</dt><dd>{session.user.username || session.user.sub}</dd></div>
         <div><dt>Email verified</dt><dd>{session.user.emailVerified ? 'Yes' : 'Not confirmed in this session'}</dd></div>
       </dl>
-      <p className="gv-muted">Globevoy keeps the access token only in sessionStorage for this browser tab/session. No refresh token or ID token is persisted by this React account flow.</p>
-      <div className="gv-account-actions">
-        <Link className="gv-button gv-button--primary" href="/my-trips/">View My Trips</Link>
+
+      <div className="gv-account-dashboard__footer">
+        <p>Globevoy keeps the access token only in sessionStorage for this browser session. No refresh token or ID token is persisted by this React account flow.</p>
         <Button variant="secondary" onClick={signOut}>Sign out</Button>
       </div>
     </section>
