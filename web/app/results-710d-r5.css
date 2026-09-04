@@ -10,13 +10,10 @@
 .gv-story-page--r4 .gv-story-section-heading>span{display:none}
 .gv-story-page--r4 .gv-story-section-heading h2{font-size:1.18rem}
 
-/* Keep search context, but make it a quiet utility row instead of another hero. */
-.gv-story-page--r4 .gv-story-searchbar{padding:8px 10px;box-shadow:none;background:#fbfdfd}
-.gv-story-page--r4 .gv-story-searchbar span{min-height:24px;padding:4px 8px;font-size:.62rem}
-.gv-story-page--r4 .gv-story-searchbar button{min-height:31px;padding:5px 10px;font-size:.68rem}
-.gv-story-page--r4 .gv-story-edit{margin-top:7px;padding:10px;gap:8px}
-.gv-story-page--r4 .gv-story-edit label{font-size:.61rem}
-.gv-story-page--r4 .gv-story-edit input,.gv-story-page--r4 .gv-story-edit button{min-height:36px}
+/* Results should start with route choices, not another editable search form. */
+.gv-story-page--r4 .gv-story-searchbar,
+.gv-story-page--r4 .gv-story-edit{display:none!important}
+.gv-story-page--r4 .gv-story-route-section{margin-top:2px}
 
 /* Generated-tour card: retain the established layout, remove duplicate copy. */
 .gv-story-summary--r4{align-self:start;min-height:0;height:auto}
@@ -26,6 +23,8 @@
 .gv-story-summary--r4 dl>div:last-child{display:none}
 .gv-story-summary--r4>span{margin-top:6px}
 .gv-story-summary--r4 .gv-story-summary__buttons{margin-top:4px}
+/* The page-level edit-search UI is intentionally gone. Keep Adjust trip focused on route composition. */
+.gv-story-adjust-panel button:first-child{display:none}
 
 /* Map story teaser: a compact arrival card, never a tall white panel. */
 .gv-story-map-shell--r4 .gv-story-arrival-card{
@@ -102,7 +101,6 @@
 }
 @media(max-width:700px){
   .gv-story-page--r4{padding-top:10px}
-  .gv-story-page--r4 .gv-story-searchbar{align-items:flex-start}
   .gv-story-map-shell--r4 .gv-story-arrival-card{right:9px!important;top:9px!important;width:min(220px,calc(100% - 18px))!important}
   .gv-story-detail-panel{grid-template-columns:28px minmax(0,1fr);}
   .gv-story-detail-panel>b{grid-column:2;justify-self:start}
