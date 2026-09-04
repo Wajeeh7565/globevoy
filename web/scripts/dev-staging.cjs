@@ -8,6 +8,8 @@ const STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
 const LOCAL_API = 'http://127.0.0.1:8787';
 const LOCAL_ASSET_BASE = `${LOCAL_API}/assets`;
 const LEGACY_IMAGE_DIR = path.resolve(process.cwd(), '..', 'frontend', 'assets', 'images');
+const MAX_API_BODY_BYTES = 128 * 1024;
+const API_METHODS = new Set(['GET', 'POST', 'PUT', 'DELETE']);
 const allowedLocalOrigins = new Set([
   'http://localhost:3000',
   'http://localhost:3001',
@@ -74,13 +76,33 @@ async function serveLegacyImage(req, res) {
   return true;
 }
 
+function readRequestBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on('data', (chunk) => {
+      size += chunk.length;
+      if (size > MAX_API_BODY_BYTES) {
+        const error = new Error('local-api-request-body-too-large');
+        error.statusCode = 413;
+        reject(error);
+        req.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on('end', () => resolve(chunks.length ? Buffer.concat(chunks) : null));
+    req.on('error', reject);
+  });
+}
+
 const server = http.createServer(async (req, res) => {
   const localOrigin = req.headers.origin;
   if (allowedLocalOrigins.has(localOrigin)) {
     res.setHeader('Access-Control-Allow-Origin', localOrigin);
     res.setHeader('Vary', 'Origin');
   }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Accept, Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
@@ -90,24 +112,39 @@ const server = http.createServer(async (req, res) => {
 
   if (await serveLegacyImage(req, res)) return;
 
-  if (req.method !== 'GET' || !req.url?.startsWith('/api/')) {
+  if (!API_METHODS.has(req.method || '') || !req.url?.startsWith('/api/')) {
     res.writeHead(405, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ error: 'GET API requests only' }));
+    return res.end(JSON.stringify({ error: 'Unsupported local staging API request' }));
   }
 
   try {
+    const requestBody = req.method === 'GET' ? null : await readRequestBody(req);
+    const upstreamHeaders = {
+      Accept: 'application/json',
+      Origin: STAGING_ORIGIN
+    };
+    if (typeof req.headers.authorization === 'string' && req.headers.authorization) {
+      upstreamHeaders.Authorization = req.headers.authorization;
+    }
+    if (requestBody && typeof req.headers['content-type'] === 'string') {
+      upstreamHeaders['Content-Type'] = req.headers['content-type'];
+    }
+
     const upstream = await fetch(`${TARGET}${req.url}`, {
-      method: 'GET',
-      headers: { Accept: 'application/json', Origin: STAGING_ORIGIN },
+      method: req.method,
+      headers: upstreamHeaders,
+      ...(requestBody ? { body: requestBody } : {}),
       cache: 'no-store'
     });
     const body = Buffer.from(await upstream.arrayBuffer());
     res.statusCode = upstream.status;
     res.setHeader('Content-Type', upstream.headers.get('content-type') || 'application/json');
+    res.setHeader('Cache-Control', 'no-store');
     res.end(body);
   } catch (error) {
-    res.writeHead(502, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'local-staging-proxy-failed', message: String(error) }));
+    const statusCode = Number(error?.statusCode) || 502;
+    if (!res.headersSent) res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+    if (!res.writableEnded) res.end(JSON.stringify({ error: statusCode === 413 ? 'local-api-request-body-too-large' : 'local-staging-proxy-failed', message: String(error?.message || error) }));
   }
 });
 
