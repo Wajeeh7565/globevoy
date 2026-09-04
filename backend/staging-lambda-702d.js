@@ -57,6 +57,11 @@ const stagingAccount705B = require('./services/staging-cognito-auth-705b-r3');
 // 705B verifier and derives DynamoDB ownership only from the verified token sub.
 const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
 
+// 710F-R1 adds an owner-private Travel Profile in the same account table. It
+// stores preference/context fields only and explicitly rejects passport/document
+// numbers, payment data and credentials.
+const stagingTravelProfile710F = require('./services/staging-travel-profile-710f-r1');
+
 // GV-HOTEL-708C wraps staging-booking-revalidation-707b-r1 additively. The
 // existing 707B-R1 owner-private Duffel flow/arithmetic stays authoritative;
 // Nuitee hotel Rates -> PREBOOK runs only when its staging feature flag is on.
@@ -124,6 +129,7 @@ async function handler(event = {}) {
     // Keep the exact historical 705B route expression while adding sibling routes.
     const isAccountRoute = path === '/api/account/session';
     const isSavedTripsRoute = path === stagingSavedTrips705C.ROUTE_PATH;
+    const isTravelProfileRoute = path === stagingTravelProfile710F.ROUTE_PATH;
     const isBookingRevalidationRoute = path === stagingBooking707B.ROUTE_PATH;
     const isAutoDatesRoute = path === stagingAutoDates710ER3A.ROUTE_PATH;
     let response;
@@ -131,6 +137,8 @@ async function handler(event = {}) {
       // 705C CRUD needs PUT/DELETE in addition to the production GET/POST CORS
       // baseline. Keep this expansion isolated to the exact staging route.
       response = savedTripsPreflight705CR4(event);
+    } else if (method === 'OPTIONS' && isTravelProfileRoute) {
+      response = stagingTravelProfile710F.preflight(event);
     } else if (method === 'OPTIONS' && isBookingRevalidationRoute) {
       response = stagingBooking707B.preflight(event);
     } else if (method === 'OPTIONS' && isAutoDatesRoute) {
@@ -139,6 +147,8 @@ async function handler(event = {}) {
       response = await stagingAccount705B.handleAccountSession705B(event);
     } else if (method !== 'OPTIONS' && isSavedTripsRoute) {
       response = await stagingSavedTrips705C.handleSavedTrips705C(event);
+    } else if (method !== 'OPTIONS' && isTravelProfileRoute) {
+      response = await stagingTravelProfile710F.handle(event);
     } else if (method !== 'OPTIONS' && isBookingRevalidationRoute) {
       response = await stagingBooking707B.handleBookingRevalidation707B(event);
     } else if (method !== 'OPTIONS' && isAutoDatesRoute) {
@@ -162,6 +172,7 @@ async function handler(event = {}) {
     headers['X-Globevoy-Staging-Duffel-Max-Adults'] = String(DUFFEL_703E_INSTALLATION?.maxAdults || 1);
     headers['X-Globevoy-Staging-Account'] = stagingAccount705B.enabled() ? stagingAccount705B.VERSION : 'disabled';
     headers['X-Globevoy-Staging-Saved-Trips'] = stagingSavedTrips705C.enabled() ? stagingSavedTrips705C.VERSION : 'disabled';
+    headers['X-Globevoy-Staging-Travel-Profile'] = stagingTravelProfile710F.enabled() ? stagingTravelProfile710F.VERSION : 'disabled';
     headers['X-Globevoy-Staging-Booking-Revalidation'] = stagingBooking707B.VERSION;
     headers['X-Globevoy-Staging-Automatic-Dates'] = stagingAutoDates710ER3A.enabled() ? stagingAutoDates710ER3A.VERSION : 'disabled';
     return { ...response, headers };
@@ -188,6 +199,7 @@ module.exports = {
   duffel703EStatus: stagingAdults703E.status,
   account705BStatus: stagingAccount705B.status705B,
   savedTrips705CStatus: stagingSavedTrips705C.status705C,
+  travelProfile710FStatus: stagingTravelProfile710F.status,
   booking707BStatus: stagingBooking707B.status707B,
   automaticDates710ER3AStatus: () => ({
     version: stagingAutoDates710ER3A.VERSION,
