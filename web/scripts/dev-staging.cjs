@@ -1,10 +1,13 @@
 const http = require('http');
+const fs = require('fs/promises');
 const path = require('path');
 const { spawn } = require('child_process');
 
 const TARGET = 'https://mirksnjcjim4iowstuda4lesrm0ghmfw.lambda-url.us-east-2.on.aws';
 const STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
 const LOCAL_API = 'http://127.0.0.1:8787';
+const LOCAL_ASSET_BASE = `${LOCAL_API}/assets`;
+const LEGACY_IMAGE_DIR = path.resolve(process.cwd(), '..', 'frontend', 'assets', 'images');
 const allowedLocalOrigins = new Set([
   'http://localhost:3000',
   'http://localhost:3001',
@@ -21,18 +24,54 @@ function startNext() {
   nextStarted = true;
   const nextBin = path.join(process.cwd(), 'node_modules', 'next', 'dist', 'bin', 'next');
   console.log(`Globevoy React API base: ${LOCAL_API}`);
+  console.log(`Globevoy legacy asset base: ${LOCAL_ASSET_BASE}`);
   nextProcess = spawn(process.execPath, [nextBin, 'dev'], {
     cwd: process.cwd(),
     stdio: 'inherit',
     env: {
       ...process.env,
-      NEXT_PUBLIC_GLOBEVOY_API_BASE_URL: LOCAL_API
+      NEXT_PUBLIC_GLOBEVOY_API_BASE_URL: LOCAL_API,
+      NEXT_PUBLIC_GLOBEVOY_LEGACY_ASSET_BASE_URL: LOCAL_ASSET_BASE
     }
   });
   nextProcess.on('exit', (code) => {
     if (ownsProxy) server.close();
     process.exit(code ?? 0);
   });
+}
+
+function imageContentType(fileName) {
+  const ext = path.extname(fileName).toLowerCase();
+  if (ext === '.png') return 'image/png';
+  if (ext === '.webp') return 'image/webp';
+  if (ext === '.jpeg' || ext === '.jpg') return 'image/jpeg';
+  return '';
+}
+
+async function serveLegacyImage(req, res) {
+  const prefix = '/assets/images/';
+  if (req.method !== 'GET' || !req.url?.startsWith(prefix)) return false;
+  const requestPath = req.url.split('?')[0];
+  let fileName;
+  try { fileName = decodeURIComponent(requestPath.slice(prefix.length)); }
+  catch { res.writeHead(400); res.end(); return true; }
+  if (!fileName || path.basename(fileName) !== fileName || !imageContentType(fileName)) {
+    res.writeHead(404);
+    res.end();
+    return true;
+  }
+  try {
+    const body = await fs.readFile(path.join(LEGACY_IMAGE_DIR, fileName));
+    res.writeHead(200, {
+      'Content-Type': imageContentType(fileName),
+      'Cache-Control': 'no-store'
+    });
+    res.end(body);
+  } catch {
+    res.writeHead(404);
+    res.end();
+  }
+  return true;
 }
 
 const server = http.createServer(async (req, res) => {
@@ -48,6 +87,9 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(204);
     return res.end();
   }
+
+  if (await serveLegacyImage(req, res)) return;
+
   if (req.method !== 'GET' || !req.url?.startsWith('/api/')) {
     res.writeHead(405, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ error: 'GET API requests only' }));
