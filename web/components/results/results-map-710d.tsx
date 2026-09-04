@@ -52,6 +52,8 @@ declare global {
 
 const LEAFLET_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
 const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+const MAP_TILE_URL = String(process.env.NEXT_PUBLIC_GLOBEVOY_MAP_TILE_URL || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png').trim();
+const MAP_TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const LEGACY_ASSET_BASE = String(process.env.NEXT_PUBLIC_GLOBEVOY_LEGACY_ASSET_BASE_URL || '/assets').replace(/\/+$/, '');
 const LEGACY_CITY_IMAGES: Record<string, string> = {
   cairo: 'cairo.jpg',
@@ -243,9 +245,8 @@ export function ResultsMap710D({
         minZoom: 2,
         worldCopyJump: true
       });
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-        subdomains: 'abcd',
+      L.tileLayer(MAP_TILE_URL, {
+        attribution: MAP_TILE_ATTRIBUTION,
         maxZoom: 19
       }).addTo(map);
       L.control.zoom({ position: 'bottomright' }).addTo(map);
