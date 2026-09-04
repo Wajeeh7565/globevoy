@@ -1,10 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { PriceEvidenceBadge } from '@/components/price-evidence-badge';
 import { JourneyStoryDeck710DR4 } from '@/components/results/journey-story-deck-710d-r4';
 import { ResultsMap710D } from '@/components/results/results-map-710d';
-import { getPublicMultiCityTours, GlobevoyApiError } from '@/lib/api';
+import {
+  getPublicMultiCityAutomaticDates,
+  getPublicMultiCityTours,
+  GlobevoyApiError,
+  type AutomaticDatesResponse
+} from '@/lib/api';
 import {
   adaptMultiCityTours,
   multiCityApiParams,
@@ -13,8 +17,6 @@ import {
   type ResultsCity,
   type ResultsSearch
 } from '@/lib/recommendations-708a';
-
-const GV_WEB_710D_VERSION = 'GV-WEB-710D-R4';
 
 type NoFeasibleTour = {
   reason?: string;
@@ -88,16 +90,11 @@ function RouteChoice({ item, search, active, onSelect }: {
 }
 
 export function ResultsClient() {
-  const [params, setParams] = useState<URLSearchParams>(() => new URLSearchParams());
   const [search, setSearch] = useState<ResultsSearch | null>(null);
   const [routes, setRoutes] = useState<RecommendationCardModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [noFeasible, setNoFeasible] = useState<NoFeasibleTour | null>(null);
-  const [editOpen, setEditOpen] = useState(false);
-  const [formOrigin, setFormOrigin] = useState('');
-  const [formBudget, setFormBudget] = useState('');
-  const [formNights, setFormNights] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [storyStop, setStoryStop] = useState<number | null>(null);
   const [revealedStops, setRevealedStops] = useState<number[]>([]);
@@ -106,17 +103,12 @@ export function ResultsClient() {
   const [routeActionBusy, setRouteActionBusy] = useState(false);
   const [routeActionMessage, setRouteActionMessage] = useState('');
   const [shuffleCursor, setShuffleCursor] = useState(0);
-  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [automaticDates, setAutomaticDates] = useState<AutomaticDatesResponse | null>(null);
+  const [automaticDatesLoading, setAutomaticDatesLoading] = useState(false);
   const revealTimers = useRef<number[]>([]);
 
   useEffect(() => {
-    const nextParams = currentSearch();
-    const nextSearch = parseResultsSearch(nextParams);
-    setParams(nextParams);
-    setSearch(nextSearch);
-    setFormOrigin(nextSearch.rawOrigin || nextSearch.originCode);
-    setFormBudget(String(nextSearch.budget));
-    setFormNights(String(nextSearch.nights));
+    setSearch(parseResultsSearch(currentSearch()));
   }, []);
 
   useEffect(() => () => {
@@ -142,6 +134,7 @@ export function ResultsClient() {
     setLatestRevealed(null);
     setNoFeasible(null);
     setRouteActionMessage('');
+    setAutomaticDates(null);
     if (!search.rawOrigin && !search.originCode) {
       setLoading(false);
       setError('Choose a starting city before asking Globevoy for multi-city routes.');
@@ -185,11 +178,45 @@ export function ResultsClient() {
     return [...unique.values()];
   }, [routes, selected]);
 
+  useEffect(() => {
+    let cancelled = false;
+    if (!search || !selected?.routeId) {
+      setAutomaticDates(null);
+      setAutomaticDatesLoading(false);
+      return;
+    }
+
+    setAutomaticDates(null);
+    setAutomaticDatesLoading(true);
+    const query = {
+      ...multiCityApiParams(search),
+      routeId: selected.routeId,
+      totalNights: selected.nights,
+      maxStops: (selected.cities || []).length || 3
+    };
+
+    void getPublicMultiCityAutomaticDates(query)
+      .then((payload) => {
+        if (cancelled) return;
+        setAutomaticDates(payload.complete ? payload : null);
+      })
+      .catch(() => {
+        // Automatic dates are an additive evidence layer. Discovery remains
+        // usable when the staging feature is disabled or provider coverage is incomplete.
+        if (!cancelled) setAutomaticDates(null);
+      })
+      .finally(() => {
+        if (!cancelled) setAutomaticDatesLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [search, selected?.id, selected?.routeId, selected?.nights]);
+
   function chooseRoute(id: string) {
     setSelectedId(id);
     resetStory();
     setRouteActionMessage('');
-    setAdjustOpen(false);
+    setAutomaticDates(null);
     setReplaySignal((value) => value + 1);
   }
 
@@ -204,17 +231,6 @@ export function ResultsClient() {
     }, index === -1 ? 280 : 520);
     revealTimers.current.push(revealTimer);
   }, []);
-
-  function applyEdit() {
-    const budget = Number(formBudget);
-    const nights = Number(formNights);
-    if (!formOrigin.trim() || !Number.isFinite(budget) || budget < 300 || !Number.isFinite(nights) || nights < 2 || nights > 21) return;
-    const next = new URLSearchParams(params);
-    next.set('origin', formOrigin.trim());
-    next.set('budget', String(Math.round(budget)));
-    next.set('nights', String(Math.round(nights)));
-    window.location.assign(`/react/results/?${next.toString()}`);
-  }
 
   function scrollToTrip() {
     document.getElementById('gv-story-trip')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -238,6 +254,7 @@ export function ResultsClient() {
       }
       setRoutes(next);
       setSelectedId(exact.id);
+      setAutomaticDates(null);
       resetStory();
       setReplaySignal((value) => value + 1);
       setRouteActionMessage(`${routeTitle(exact)} rebuilt within the route engine.`);
@@ -294,23 +311,7 @@ export function ResultsClient() {
           <span>{search.adults} adult{search.adults === 1 ? '' : 's'}{search.children ? `, ${search.children} child${search.children === 1 ? '' : 'ren'}` : ''}</span>
           <span>{search.tripLength === 'auto' ? 'Flexible length' : `${search.nights} nights`}</span>
         </div>
-        <button type="button" onClick={() => setEditOpen((value) => !value)}>Edit search</button>
       </section>
-
-      {editOpen ? (
-        <section className="gv-story-edit" aria-label="Edit route search">
-          <label>Leaving from<input value={formOrigin} onChange={(event) => setFormOrigin(event.target.value)} /></label>
-          <label>Total budget<input type="number" min="300" step="50" value={formBudget} onChange={(event) => setFormBudget(event.target.value)} /></label>
-          <label>Nights<input type="number" min="2" max="21" value={formNights} onChange={(event) => setFormNights(event.target.value)} /></label>
-          <button type="button" onClick={applyEdit}>Apply changes</button>
-        </section>
-      ) : null}
-
-      <header className="gv-story-intro gv-story-intro--r4">
-        <p>{GV_WEB_710D_VERSION} · BUDGET-FIRST MULTI-CITY</p>
-        <h1>Choose a route. Watch it become your trip.</h1>
-        <span>Three connected ideas. One animated journey. Globevoy keeps the route, budget and stop logic behind the scenes.</span>
-      </header>
 
       {loading ? (
         <section className="gv-story-state" role="status"><div className="gv-story-spinner" /><h2>Building connected journeys…</h2><p>Comparing route shape, stop combinations and the planning evidence available to Globevoy.</p></section>
@@ -320,14 +321,14 @@ export function ResultsClient() {
         <section className="gv-story-state gv-story-state--error" role="alert">
           <p>ROUTE STATUS</p><h2>We could not build a multi-city journey yet</h2><span>{error}</span>
           {noFeasible?.cheapestPlanningEstimateDisplay ? <small>Cheapest planning estimate found: {money(noFeasible.cheapestPlanningEstimateDisplay, noFeasible.displayCurrency || search.currency)}</small> : null}
-          <div><button type="button" onClick={() => void load()}>Retry</button><button type="button" onClick={() => setEditOpen(true)}>Edit search</button></div>
+          <div><button type="button" onClick={() => void load()}>Retry</button></div>
         </section>
       ) : null}
 
       {!loading && !error && selected ? (
         <>
           <section className="gv-story-route-section" aria-label="Choose a connected route">
-            <div className="gv-story-section-heading"><div><p>ROUTES</p><h2>Your trip options</h2></div><span>Pick one. The story restarts automatically.</span></div>
+            <div className="gv-story-section-heading"><div><h2>Your trip options</h2></div></div>
             <div className="gv-story-route-choices">
               {routes.map((item) => <RouteChoice key={item.id} item={item} search={search} active={item.id === selected.id} onSelect={() => chooseRoute(item.id)} />)}
             </div>
@@ -348,22 +349,18 @@ export function ResultsClient() {
             <aside className="gv-story-summary gv-story-summary--r4">
               <p>YOUR GENERATED TOUR</p>
               <h2>{routeTitle(selected)}</h2>
-              <span>{selected.label || 'Curated route'} · {search.rawOrigin || search.originCode} loop · {selected.nights} nights · {selectedStops.length} stops</span>
-              <div className="gv-story-summary__chips"><b>GENERATED ROUTE</b><i>ESTIMATED VALUE ROUTE</i></div>
-              <div className="gv-story-summary__evidence"><PriceEvidenceBadge evidence={selected.evidence} /></div>
+              <span>{search.rawOrigin || search.originCode} loop · {selected.nights} nights · {selectedStops.length} stops</span>
               <dl>
                 <div><dt>Origin</dt><dd>{search.rawOrigin || search.originCode}</dd></div>
                 <div><dt>Budget</dt><dd>{money(search.budget, search.currency)}</dd></div>
                 <div className="is-total"><dt>Estimated total</dt><dd>{money(selected.total, search.currency)}</dd></div>
                 <div><dt>Nights</dt><dd>{selected.nights}</dd></div>
                 <div><dt>Stops</dt><dd>{selectedStops.length}</dd></div>
-                <div><dt>Planning room</dt><dd>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</dd></div>
               </dl>
               <div className="gv-story-summary__buttons">
                 <button type="button" onClick={scrollToTrip}>View trip</button>
-                <button type="button" className="is-secondary" onClick={() => setAdjustOpen((value) => !value)}>Adjust trip</button>
+                <button type="button" className="is-secondary" onClick={scrollToTrip}>Adjust trip</button>
               </div>
-              {adjustOpen ? <div className="gv-story-adjust-panel"><button type="button" onClick={() => setEditOpen(true)}>Edit budget / length</button><button type="button" onClick={scrollToTrip}>Swap or add stops</button></div> : null}
             </aside>
           </section>
 
@@ -376,6 +373,8 @@ export function ResultsClient() {
             candidateCities={candidateCities}
             busy={routeActionBusy}
             actionMessage={routeActionMessage}
+            automaticDates={automaticDates}
+            automaticDatesLoading={automaticDatesLoading}
             onShuffleStop={shuffleStop}
             onAddDestination={addDestination}
           />
