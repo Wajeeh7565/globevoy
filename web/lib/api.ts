@@ -102,5 +102,14 @@ export async function getPublicRecommendations(params: Record<string, string | n
 export async function getPublicMultiCityTours(params: Record<string, string | number | undefined>): Promise<unknown> {
   if (params.disabled === '1') return { supported: false, tours: [] };
   const { disabled: _disabled, ...query } = params;
+
+  // GV-WEB-710C-R4: the legacy route engine defaults an omitted flexible duration
+  // to 12 nights. The discovery UI carries a shorter single-trip planning value,
+  // so give flexible multi-city discovery the tested seven-night baseline instead
+  // of silently falling back to 12. Explicit fixed durations are left untouched.
+  if (query.adaptiveDuration === 'true' && query.totalNights === undefined) {
+    query.totalNights = 7;
+  }
+
   return publicGet<unknown>('/api/multicity-tours', query);
 }
