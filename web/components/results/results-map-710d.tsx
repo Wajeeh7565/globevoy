@@ -106,8 +106,7 @@ function routePoints(item: RecommendationCardModel, search: ResultsSearch): LatL
 }
 
 function markerHtml(item: RecommendationCardModel, active: boolean, index: number): string {
-  const label = item.kind === 'multi' ? `${item.cities?.length || 0}` : `${index + 1}`;
-  return `<span class="gv-results-map-pin${active ? ' is-active' : ''}${item.kind === 'multi' ? ' is-multi' : ''}"><strong>${label}</strong></span>`;
+  return `<span class="gv-results-map-pin${active ? ' is-active' : ''}${item.kind === 'multi' ? ' is-multi' : ''}"><strong>${index + 1}</strong></span>`;
 }
 
 function destinationLabel(item: RecommendationCardModel): string {
@@ -131,7 +130,6 @@ export function ResultsMap710D({
   const layerRef = useRef<LeafletLayerGroup | null>(null);
   const leafletRef = useRef<LeafletNamespace | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [fitNonce, setFitNonce] = useState(0);
 
   const plottedItems = useMemo(() => items.filter((item) => routePoints(item, search).length > 0), [items, search]);
 
@@ -177,6 +175,7 @@ export function ResultsMap710D({
     layer.clearLayers();
 
     const allPoints: LatLng[] = [];
+    const hasOrigin = Boolean(originPoint(search));
 
     plottedItems.forEach((item, index) => {
       const points = routePoints(item, search);
@@ -193,7 +192,10 @@ export function ResultsMap710D({
         }).addTo(layer);
       }
 
-      const destinations = item.kind === 'single' ? points.slice(-1) : points.slice(originPoint(search) ? 1 : 0, originPoint(search) ? -1 : undefined);
+      const destinations = item.kind === 'single'
+        ? points.slice(-1)
+        : points.slice(hasOrigin ? 1 : 0, hasOrigin ? -1 : undefined);
+
       destinations.forEach((point, stopIndex) => {
         const icon = L.divIcon({
           className: 'gv-results-map-pin-wrap',
@@ -212,7 +214,16 @@ export function ResultsMap710D({
     const target = focusPoints.length ? focusPoints : allPoints;
     if (target.length === 1) map.setView(target[0], 6, { animate: true });
     else if (target.length > 1) map.fitBounds(L.latLngBounds(target), { padding: [48, 48], maxZoom: active ? 7 : 5, animate: true });
-  }, [status, plottedItems, search, activeId, onSelect, fitNonce]);
+  }, [status, plottedItems, search, activeId, onSelect]);
+
+  function fitAll() {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map) return;
+    const points = plottedItems.flatMap((item) => routePoints(item, search));
+    if (points.length === 1) map.setView(points[0], 5, { animate: true });
+    else if (points.length > 1) map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 5, animate: true });
+  }
 
   return (
     <section className="gv-results-map-shell" aria-label="Trip results map">
@@ -221,7 +232,7 @@ export function ResultsMap710D({
           <p>MAP VIEW</p>
           <h2>{activeId ? 'Explore the selected trip' : 'See your options geographically'}</h2>
         </div>
-        <button type="button" onClick={() => setFitNonce((value) => value + 1)}>Fit all</button>
+        <button type="button" onClick={fitAll}>Fit all</button>
       </div>
       <div className="gv-results-map-wrap">
         <div ref={containerRef} className="gv-results-map-canvas" />
