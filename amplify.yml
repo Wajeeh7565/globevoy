@@ -56,6 +56,7 @@ frontend:
         - test -f web/out/index.html
         - test -f web/out/account/index.html
         - test -f web/out/my-trips/index.html
+        - test -f web/out/journey/index.html
         - echo "Composing legacy frontend plus React under /react"
         - rm -rf amplify-publish
         - mkdir -p amplify-publish
@@ -68,9 +69,11 @@ frontend:
         - test -f amplify-publish/react/index.html
         - test -f amplify-publish/react/account/index.html
         - test -f amplify-publish/react/my-trips/index.html
+        - test -f amplify-publish/react/journey/index.html
         - grep -q '/react/_next/' amplify-publish/react/index.html
         - grep -q '/react/_next/' amplify-publish/react/account/index.html
         - grep -q '/react/_next/' amplify-publish/react/my-trips/index.html
+        - grep -q '/react/_next/' amplify-publish/react/journey/index.html
   artifacts:
     baseDirectory: amplify-publish
     files:
