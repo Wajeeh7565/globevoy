@@ -84,6 +84,33 @@ export interface AuthSession {
   scopes: string[];
 }
 
+export interface TravelProfile {
+  schemaVersion: 'GV-TRAVEL-PROFILE-V1';
+  homeAirport: string;
+  homeCity: string;
+  residenceCountry: string;
+  citizenshipCountries: string[];
+  interests: string[];
+  hotelStyle: 'Best balance' | 'Budget' | 'Comfort' | 'Boutique' | 'Luxury';
+  pace: 'Relaxed' | 'Balanced' | 'Fast';
+  defaultCurrency: 'CAD' | 'USD' | 'EUR' | 'GBP' | 'AUD';
+  visitedPlaces: string[];
+  wishListPlaces: string[];
+  updatedAt?: string | null;
+}
+
+export interface TravelProfileResponse {
+  ok: true;
+  version: 'GV-WEB-710F-R1';
+  exists: boolean;
+  profile: TravelProfile;
+  privacy: {
+    ownerPrivate: true;
+    passportNumbersStored: false;
+    paymentDataStored: false;
+  };
+}
+
 export type BookingRevalidationState = 'verified' | 'changed' | 'unavailable';
 
 export interface BookingRevalidationFlight {
