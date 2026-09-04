@@ -5,6 +5,7 @@ import { resolveOrigin } from '@/lib/origin-options-710c';
 import type { RecommendationCardModel, ResultsSearch } from '@/lib/recommendations-708a';
 
 type LatLng = [number, number];
+type PlayerState = 'idle' | 'playing' | 'paused' | 'complete';
 
 type LeafletMap = {
   remove: () => void;
@@ -20,7 +21,13 @@ type LeafletLayerGroup = {
 type LeafletLayer = {
   addTo: (target: LeafletLayerGroup | LeafletMap) => LeafletLayer;
   bindTooltip?: (content: string, options?: Record<string, unknown>) => LeafletLayer;
-  on?: (event: string, handler: () => void) => LeafletLayer;
+};
+
+type LeafletMarker = {
+  addTo: (target: LeafletLayerGroup | LeafletMap) => LeafletMarker;
+  setLatLng: (position: LatLng) => LeafletMarker;
+  remove: () => void;
+  bindTooltip?: (content: string, options?: Record<string, unknown>) => LeafletMarker;
 };
 
 type LeafletNamespace = {
@@ -28,7 +35,7 @@ type LeafletNamespace = {
   tileLayer: (url: string, options?: Record<string, unknown>) => LeafletLayer;
   layerGroup: () => LeafletLayerGroup;
   polyline: (positions: LatLng[], options?: Record<string, unknown>) => LeafletLayer;
-  marker: (position: LatLng, options?: Record<string, unknown>) => LeafletLayer;
+  marker: (position: LatLng, options?: Record<string, unknown>) => LeafletMarker;
   divIcon: (options: Record<string, unknown>) => unknown;
   latLngBounds: (positions: LatLng[]) => unknown;
   control: { zoom: (options?: Record<string, unknown>) => { addTo: (map: LeafletMap) => unknown } };
@@ -75,17 +82,6 @@ function loadLeaflet(): Promise<LeafletNamespace> {
   return window.__gvLeafletPromise;
 }
 
-function finite(value: unknown): number | null {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
-
-function pointFromRaw(raw: RecommendationCardModel['raw']): LatLng | null {
-  const lat = finite(raw.lat ?? raw.latitude);
-  const lng = finite(raw.lng ?? raw.longitude);
-  return lat == null || lng == null ? null : [lat, lng];
-}
-
 function originPoint(search: ResultsSearch): LatLng | null {
   const origin = resolveOrigin(search.originCode || search.rawOrigin);
   return origin ? [origin.latitude, origin.longitude] : null;
@@ -93,45 +89,71 @@ function originPoint(search: ResultsSearch): LatLng | null {
 
 function routePoints(item: RecommendationCardModel, search: ResultsSearch): LatLng[] {
   const origin = originPoint(search);
-  if (item.kind === 'single') {
-    const destination = pointFromRaw(item.raw);
-    return [origin, destination].filter(Boolean) as LatLng[];
-  }
-
   const stops = (item.cities || [])
-    .map((city) => Number.isFinite(city.lat) && Number.isFinite(city.lng) ? [Number(city.lat), Number(city.lng)] as LatLng : null)
+    .map((city) => Number.isFinite(city.lat) && Number.isFinite(city.lng)
+      ? [Number(city.lat), Number(city.lng)] as LatLng
+      : null)
     .filter(Boolean) as LatLng[];
-
   return origin ? [origin, ...stops, origin] : stops;
 }
 
-function markerHtml(item: RecommendationCardModel, active: boolean, index: number): string {
-  return `<span class="gv-results-map-pin${active ? ' is-active' : ''}${item.kind === 'multi' ? ' is-multi' : ''}"><strong>${index + 1}</strong></span>`;
+function routeNames(item: RecommendationCardModel, search: ResultsSearch): string[] {
+  const origin = resolveOrigin(search.originCode || search.rawOrigin)?.city || search.rawOrigin || search.originCode || 'Origin';
+  return [origin, ...(item.cities || []).map((city) => city.city), origin];
 }
 
-function destinationLabel(item: RecommendationCardModel): string {
-  if (item.kind === 'single') return item.city || item.title;
-  return (item.cities || []).map((city) => city.city).filter(Boolean).join(' → ') || item.title;
+function markerIcon(L: LeafletNamespace, label: string, active = false): unknown {
+  return L.divIcon({
+    className: 'gv-story-map-pin-wrap',
+    html: `<span class="gv-story-map-pin${active ? ' is-active' : ''}"><strong>${label}</strong></span>`,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17]
+  });
+}
+
+function interpolate(a: LatLng, b: LatLng, progress: number): LatLng {
+  return [
+    a[0] + (b[0] - a[0]) * progress,
+    a[1] + (b[1] - a[1]) * progress
+  ];
 }
 
 export function ResultsMap710D({
-  items,
+  item,
   search,
-  activeId,
-  onSelect
+  focusStopIndex,
+  onStoryStop
 }: {
-  items: RecommendationCardModel[];
+  item: RecommendationCardModel;
   search: ResultsSearch;
-  activeId: string | null;
-  onSelect: (id: string) => void;
+  focusStopIndex: number | null;
+  onStoryStop: (index: number | null) => void;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
-  const layerRef = useRef<LeafletLayerGroup | null>(null);
+  const routeLayerRef = useRef<LeafletLayerGroup | null>(null);
   const leafletRef = useRef<LeafletNamespace | null>(null);
+  const planeRef = useRef<LeafletMarker | null>(null);
+  const animationRef = useRef<number | null>(null);
+  const waitRef = useRef<number | null>(null);
+  const progressRef = useRef(0);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
+  const [playerState, setPlayerState] = useState<PlayerState>('idle');
+  const [legIndex, setLegIndex] = useState(0);
+  const [arrivalIndex, setArrivalIndex] = useState<number | null>(null);
+  const [fitNonce, setFitNonce] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
-  const plottedItems = useMemo(() => items.filter((item) => routePoints(item, search).length > 0), [items, search]);
+  const points = useMemo(() => routePoints(item, search), [item, search]);
+  const names = useMemo(() => routeNames(item, search), [item, search]);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setReduceMotion(media.matches);
+    sync();
+    media.addEventListener?.('change', sync);
+    return () => media.removeEventListener?.('change', sync);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -142,17 +164,21 @@ export function ResultsMap710D({
       if (cancelled || !containerRef.current) return;
       leafletRef.current = L;
       const initial = originPoint(search) || [30, 0] as LatLng;
-      const map = L.map(containerRef.current, { zoomControl: false, scrollWheelZoom: true, minZoom: 2, worldCopyJump: true });
+      const map = L.map(containerRef.current, {
+        zoomControl: false,
+        scrollWheelZoom: true,
+        minZoom: 2,
+        worldCopyJump: true
+      });
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
         subdomains: 'abcd',
         maxZoom: 19
       }).addTo(map);
       L.control.zoom({ position: 'bottomright' }).addTo(map);
-      const layers = L.layerGroup().addTo(map);
+      routeLayerRef.current = L.layerGroup().addTo(map);
       map.setView(initial, 3);
       mapRef.current = map;
-      layerRef.current = layers;
       setStatus('ready');
     }).catch(() => {
       if (!cancelled) setStatus('error');
@@ -160,7 +186,11 @@ export function ResultsMap710D({
 
     return () => {
       cancelled = true;
-      layerRef.current = null;
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (waitRef.current) window.clearTimeout(waitRef.current);
+      planeRef.current?.remove();
+      planeRef.current = null;
+      routeLayerRef.current = null;
       leafletRef.current = null;
       mapRef.current?.remove();
       mapRef.current = null;
@@ -168,84 +198,183 @@ export function ResultsMap710D({
   }, [search]);
 
   useEffect(() => {
-    if (status !== 'ready' || !mapRef.current || !layerRef.current || !leafletRef.current) return;
-    const map = mapRef.current;
-    const layer = layerRef.current;
+    setPlayerState('idle');
+    setLegIndex(0);
+    setArrivalIndex(null);
+    progressRef.current = 0;
+    onStoryStop(null);
+    if (status === 'ready' && points[0] && leafletRef.current && mapRef.current) {
+      planeRef.current?.remove();
+      planeRef.current = leafletRef.current.marker(points[0], {
+        icon: leafletRef.current.divIcon({
+          className: 'gv-story-plane-wrap',
+          html: '<span class="gv-story-plane" aria-hidden="true">✈</span>',
+          iconSize: [42, 42],
+          iconAnchor: [21, 21]
+        }),
+        interactive: false
+      }).addTo(mapRef.current);
+    }
+  }, [item.id, status]);
+
+  useEffect(() => {
+    if (status !== 'ready' || !mapRef.current || !routeLayerRef.current || !leafletRef.current || !points.length) return;
     const L = leafletRef.current;
+    const map = mapRef.current;
+    const layer = routeLayerRef.current;
     layer.clearLayers();
 
-    const allPoints: LatLng[] = [];
-    const hasOrigin = Boolean(originPoint(search));
+    for (let index = 0; index < points.length - 1; index += 1) {
+      L.polyline([points[index], points[index + 1]], {
+        color: index === legIndex && playerState === 'playing' ? '#08a99d' : '#1d6e84',
+        weight: index === legIndex && playerState === 'playing' ? 5 : 3,
+        opacity: index === legIndex && playerState === 'playing' ? 0.98 : 0.58,
+        dashArray: index === legIndex && playerState === 'playing' ? null : '9 7'
+      }).addTo(layer);
+    }
 
-    plottedItems.forEach((item, index) => {
-      const points = routePoints(item, search);
-      if (!points.length) return;
-      allPoints.push(...points);
-      const active = item.id === activeId;
-
-      if (points.length > 1) {
-        L.polyline(points, {
-          color: active ? '#089f93' : '#31556e',
-          weight: active ? 5 : 3,
-          opacity: active ? 0.92 : 0.35,
-          dashArray: item.kind === 'multi' ? null : '7 8'
-        }).addTo(layer);
-      }
-
-      const destinations = item.kind === 'single'
-        ? points.slice(-1)
-        : points.slice(hasOrigin ? 1 : 0, hasOrigin ? -1 : undefined);
-
-      destinations.forEach((point, stopIndex) => {
-        const icon = L.divIcon({
-          className: 'gv-results-map-pin-wrap',
-          html: markerHtml(item, active, item.kind === 'multi' ? stopIndex : index),
-          iconSize: [36, 36],
-          iconAnchor: [18, 18]
-        });
-        const marker = L.marker(point, { icon }).addTo(layer);
-        marker.bindTooltip?.(destinationLabel(item), { direction: 'top', offset: [0, -14], opacity: 0.96 });
-        marker.on?.('click', () => onSelect(item.id));
-      });
+    points.forEach((point, index) => {
+      const isOrigin = index === 0 || index === points.length - 1;
+      if (index === points.length - 1) return;
+      const label = isOrigin ? '⌂' : String(index);
+      const marker = L.marker(point, { icon: markerIcon(L, label, arrivalIndex === index - 1) }).addTo(layer);
+      marker.bindTooltip?.(names[index] || `Stop ${index}`, { direction: 'top', offset: [0, -12], opacity: 0.96 });
     });
 
-    const active = plottedItems.find((item) => item.id === activeId);
-    const focusPoints = active ? routePoints(active, search) : [];
-    const target = focusPoints.length ? focusPoints : allPoints;
-    if (target.length === 1) map.setView(target[0], 6, { animate: true });
-    else if (target.length > 1) map.fitBounds(L.latLngBounds(target), { padding: [48, 48], maxZoom: active ? 7 : 5, animate: true });
-  }, [status, plottedItems, search, activeId, onSelect]);
+    if (focusStopIndex != null && playerState !== 'playing') {
+      const pointIndex = focusStopIndex < 0 ? 0 : focusStopIndex >= (item.cities || []).length ? points.length - 1 : focusStopIndex + 1;
+      const target = points[pointIndex];
+      if (target) map.setView(target, pointIndex === 0 || pointIndex === points.length - 1 ? 5 : 6, { animate: true });
+    } else if (fitNonce > 0 || playerState === 'idle') {
+      map.fitBounds(L.latLngBounds(points), { padding: [46, 46], maxZoom: 5, animate: true });
+    }
+  }, [status, item, points, names, legIndex, playerState, arrivalIndex, focusStopIndex, fitNonce]);
 
-  function fitAll() {
-    const L = leafletRef.current;
-    const map = mapRef.current;
-    if (!L || !map) return;
-    const points = plottedItems.flatMap((item) => routePoints(item, search));
-    if (points.length === 1) map.setView(points[0], 5, { animate: true });
-    else if (points.length > 1) map.fitBounds(L.latLngBounds(points), { padding: [48, 48], maxZoom: 5, animate: true });
+  useEffect(() => {
+    if (playerState !== 'playing' || status !== 'ready' || !planeRef.current || points.length < 2) return;
+    if (legIndex >= points.length - 1) {
+      setPlayerState('complete');
+      return;
+    }
+
+    const from = points[legIndex];
+    const to = points[legIndex + 1];
+    const startProgress = progressRef.current;
+    const duration = reduceMotion ? 1 : 1750;
+    const startedAt = performance.now();
+    let cancelled = false;
+
+    const tick = (now: number) => {
+      if (cancelled || !planeRef.current) return;
+      const elapsed = Math.min(1, (now - startedAt) / duration);
+      const progress = startProgress + (1 - startProgress) * elapsed;
+      progressRef.current = progress;
+      planeRef.current.setLatLng(interpolate(from, to, progress));
+
+      if (elapsed < 1) {
+        animationRef.current = requestAnimationFrame(tick);
+        return;
+      }
+
+      progressRef.current = 0;
+      const reachedFinalOrigin = legIndex + 1 === points.length - 1;
+      const reachedStop = reachedFinalOrigin ? (item.cities || []).length : legIndex;
+      setArrivalIndex(reachedStop);
+      onStoryStop(reachedStop);
+
+      if (reachedFinalOrigin) {
+        setPlayerState('complete');
+        return;
+      }
+
+      waitRef.current = window.setTimeout(() => {
+        if (!cancelled) setLegIndex((value) => value + 1);
+      }, reduceMotion ? 320 : 720);
+    };
+
+    animationRef.current = requestAnimationFrame(tick);
+    return () => {
+      cancelled = true;
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+      if (waitRef.current) window.clearTimeout(waitRef.current);
+    };
+  }, [playerState, status, legIndex, points, item.cities, reduceMotion, onStoryStop]);
+
+  useEffect(() => {
+    if (playerState !== 'playing') return;
+    if (legIndex > 0 && arrivalIndex != null) setArrivalIndex(null);
+  }, [legIndex, playerState]);
+
+  function startOrResume() {
+    if (!points.length || status !== 'ready') return;
+    if (playerState === 'complete') {
+      replay();
+      return;
+    }
+    setPlayerState('playing');
   }
 
+  function pause() {
+    setPlayerState('paused');
+  }
+
+  function replay() {
+    if (!points.length || !leafletRef.current || !mapRef.current) return;
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    if (waitRef.current) window.clearTimeout(waitRef.current);
+    setLegIndex(0);
+    setArrivalIndex(null);
+    progressRef.current = 0;
+    onStoryStop(null);
+    planeRef.current?.setLatLng(points[0]);
+    setPlayerState('playing');
+  }
+
+  const arrivalName = arrivalIndex == null
+    ? ''
+    : arrivalIndex >= (item.cities || []).length
+      ? names[names.length - 1]
+      : names[arrivalIndex + 1];
+
   return (
-    <section className="gv-results-map-shell" aria-label="Trip results map">
-      <div className="gv-results-map-head">
+    <section className="gv-story-map-shell" aria-label="Animated multi-city route map">
+      <div className="gv-story-map-head">
         <div>
-          <p>MAP VIEW</p>
-          <h2>{activeId ? 'Explore the selected trip' : 'See your options geographically'}</h2>
+          <p>JOURNEY MAP</p>
+          <h2>{routeNames(item, search).join(' → ')}</h2>
         </div>
-        <button type="button" onClick={fitAll}>Fit all</button>
+        <div className="gv-story-map-controls">
+          {playerState === 'playing' ? (
+            <button type="button" onClick={pause}>Pause</button>
+          ) : (
+            <button type="button" className="is-primary" onClick={startOrResume}>{playerState === 'complete' ? 'Play again' : playerState === 'paused' ? 'Resume' : '▶ Play journey'}</button>
+          )}
+          {playerState !== 'idle' ? <button type="button" onClick={replay}>Replay</button> : null}
+          <button type="button" onClick={() => setFitNonce((value) => value + 1)}>Fit route</button>
+        </div>
       </div>
-      <div className="gv-results-map-wrap">
-        <div ref={containerRef} className="gv-results-map-canvas" />
-        {status === 'loading' ? <div className="gv-results-map-status">Loading map…</div> : null}
+
+      <div className="gv-story-map-wrap">
+        <div ref={containerRef} className="gv-story-map-canvas" />
+        {status === 'loading' ? <div className="gv-story-map-status">Loading journey map…</div> : null}
         {status === 'error' ? (
-          <div className="gv-results-map-status gv-results-map-status--error">
+          <div className="gv-story-map-status gv-story-map-status--error">
             <strong>Map unavailable</strong>
-            <span>Your trip cards still contain the full recommendation data.</span>
+            <span>The route summary and journey cards still contain the recommendation.</span>
           </div>
         ) : null}
-        <div className="gv-results-map-legend" aria-hidden="true">
-          <span><i className="is-selected" />Selected trip</span>
-          <span><i />Other options</span>
+
+        {arrivalIndex != null ? (
+          <div className="gv-story-arrival" role="status" aria-live="polite">
+            <small>{arrivalIndex >= (item.cities || []).length ? 'JOURNEY COMPLETE' : `ARRIVING · STOP ${arrivalIndex + 1}`}</small>
+            <strong>{arrivalName}</strong>
+            <span>{arrivalIndex >= (item.cities || []).length ? 'Back where the journey began.' : 'This stop is now highlighted in your complete journey below.'}</span>
+          </div>
+        ) : null}
+
+        <div className="gv-story-map-key" aria-hidden="true">
+          <span><i />Route</span>
+          <span><b>✈</b>Journey player</span>
         </div>
       </div>
     </section>
