@@ -52,6 +52,23 @@ declare global {
 
 const LEAFLET_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
 const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+const LEGACY_ASSET_BASE = String(process.env.NEXT_PUBLIC_GLOBEVOY_LEGACY_ASSET_BASE_URL || '/assets').replace(/\/+$/, '');
+const LEGACY_CITY_IMAGES: Record<string, string> = {
+  cairo: 'cairo.jpg',
+  cancun: 'cancun.jpg',
+  'cancún': 'cancun.jpg',
+  dubai: 'dubai.jpg',
+  'fort lauderdale': 'fort-lauderdale.jpg',
+  'mexico city': 'mexico-city.jpg',
+  miami: 'miami.jpg',
+  'montego bay': 'montego-bay.jpg',
+  montreal: 'montreal.jpg',
+  'montréal': 'montreal.jpg',
+  'new york': 'new-york-city.jpg',
+  'new york city': 'new-york-city.jpg',
+  ottawa: 'ottawa.jpg',
+  toronto: 'toronto.jpg'
+};
 
 function loadLeaflet(): Promise<LeafletNamespace> {
   if (window.L) return Promise.resolve(window.L);
@@ -102,6 +119,11 @@ function routePoints(item: RecommendationCardModel, search: ResultsSearch): LatL
 function routeNames(item: RecommendationCardModel, search: ResultsSearch): string[] {
   const origin = resolveOrigin(search.originCode || search.rawOrigin)?.city || search.rawOrigin || search.originCode || 'Origin';
   return [origin, ...(item.cities || []).map((city) => city.city), origin];
+}
+
+function curatedImage(city: string): string | null {
+  const file = LEGACY_CITY_IMAGES[String(city || '').trim().toLowerCase()];
+  return file ? `${LEGACY_ASSET_BASE}/images/${file}` : null;
 }
 
 function markerIcon(L: LeafletNamespace, label: string, active = false): unknown {
@@ -158,11 +180,12 @@ function destinationMeta(item: RecommendationCardModel, index: number): {
 } {
   const city = (item.cities || [])[index];
   const raw = rawStops(item)[index];
-  const image = normalizeLegacyImage(firstString(raw, ['image', 'img', 'imageUrl', 'heroImage', 'photo', 'photoUrl']));
+  const providerImage = normalizeLegacyImage(firstString(raw, ['image', 'img', 'imageUrl', 'heroImage', 'photo', 'photoUrl']));
+  const cityName = city?.city || firstString(raw, ['city', 'name']) || `Stop ${index + 1}`;
   return {
-    city: city?.city || firstString(raw, ['city', 'name']) || `Stop ${index + 1}`,
+    city: cityName,
     country: city?.country || firstString(raw, ['country', 'countryName']),
-    image,
+    image: providerImage || curatedImage(cityName),
     nights: positiveNumber(raw, ['nights', 'nightCount', 'stayNights'])
   };
 }
@@ -254,13 +277,13 @@ export function ResultsMap710D({
     waitRef.current = null;
   }
 
-  function resetPlane(startPlaying: boolean) {
+  function resetPlane(autoPlay: boolean) {
     if (!points.length || !leafletRef.current || !mapRef.current) return;
     cancelMotion();
     setLegIndex(0);
-    setArrivalIndex(null);
+    setArrivalIndex(-1);
     progressRef.current = 0;
-    onStoryStop(null);
+    onStoryStop(-1);
     planeRef.current?.remove();
     planeRef.current = leafletRef.current.marker(points[0], {
       icon: leafletRef.current.divIcon({
@@ -272,15 +295,19 @@ export function ResultsMap710D({
       interactive: false
     }).addTo(mapRef.current);
     mapRef.current.fitBounds(leafletRef.current.latLngBounds(points), { padding: [46, 46], maxZoom: 5, animate: true });
-    setPlayerState(startPlaying ? 'playing' : 'idle');
+    setPlayerState('idle');
+    if (autoPlay) {
+      waitRef.current = window.setTimeout(() => {
+        setArrivalIndex(null);
+        onStoryStop(null);
+        setPlayerState('playing');
+      }, reduceMotion ? 850 : 1550);
+    }
   }
 
   useEffect(() => {
     if (status !== 'ready' || !points.length) return;
-    resetPlane(false);
-    waitRef.current = window.setTimeout(() => {
-      setPlayerState('playing');
-    }, reduceMotion ? 450 : 850);
+    resetPlane(true);
     return () => cancelMotion();
   }, [item.id, status, replaySignal, reduceMotion]);
 
@@ -304,15 +331,17 @@ export function ResultsMap710D({
       if (index === points.length - 1) return;
       const isOrigin = index === 0;
       const label = isOrigin ? '⌂' : String(index);
-      const marker = L.marker(point, { icon: markerIcon(L, label, arrivalIndex === index - 1) }).addTo(layer);
+      const active = isOrigin ? arrivalIndex === -1 : arrivalIndex === index - 1;
+      const marker = L.marker(point, { icon: markerIcon(L, label, active) }).addTo(layer);
       marker.bindTooltip?.(names[index] || `Stop ${index}`, { direction: 'top', offset: [0, -12], opacity: 0.96 });
       marker.on?.('click', () => {
         cancelMotion();
         setPlayerState('paused');
         planeRef.current?.setLatLng(point);
         if (index === 0) {
-          setArrivalIndex(null);
-          onStoryStop(null);
+          setLegIndex(0);
+          setArrivalIndex(-1);
+          onStoryStop(-1);
         } else {
           setArrivalIndex(index - 1);
           onStoryStop(index - 1);
@@ -329,9 +358,9 @@ export function ResultsMap710D({
 
   useEffect(() => {
     if (arrivalIndex == null || !mapRef.current) return;
-    const pointIndex = arrivalIndex >= cityCount ? points.length - 1 : arrivalIndex + 1;
+    const pointIndex = arrivalIndex === -1 ? 0 : arrivalIndex >= cityCount ? points.length - 1 : arrivalIndex + 1;
     const target = points[pointIndex];
-    if (target) mapRef.current.setView(target, arrivalIndex >= cityCount ? 5 : 6, { animate: true });
+    if (target) mapRef.current.setView(target, arrivalIndex === -1 || arrivalIndex >= cityCount ? 5 : 6, { animate: true });
   }, [arrivalIndex, cityCount, points]);
 
   useEffect(() => {
@@ -412,6 +441,7 @@ export function ResultsMap710D({
   }
 
   function pointIndexFromArrival(): number {
+    if (arrivalIndex === -1) return 0;
     if (arrivalIndex == null) return Math.max(0, Math.min(legIndex, points.length - 1));
     return arrivalIndex >= cityCount ? points.length - 1 : arrivalIndex + 1;
   }
@@ -427,8 +457,8 @@ export function ResultsMap710D({
 
     if (safeIndex === 0) {
       setLegIndex(0);
-      setArrivalIndex(null);
-      onStoryStop(null);
+      setArrivalIndex(-1);
+      onStoryStop(-1);
     } else if (safeIndex === points.length - 1) {
       setLegIndex(points.length - 1);
       setArrivalIndex(cityCount);
@@ -444,16 +474,18 @@ export function ResultsMap710D({
   const currentPoint = pointIndexFromArrival();
   const canGoPrevious = currentPoint > 0;
   const canGoNext = currentPoint < points.length - 1;
+  const isStart = arrivalIndex === -1;
   const isReturn = arrivalIndex != null && arrivalIndex >= cityCount;
-  const arrivalMeta = arrivalIndex == null || isReturn ? null : destinationMeta(item, arrivalIndex);
+  const arrivalMeta = arrivalIndex == null || isStart || isReturn ? null : destinationMeta(item, arrivalIndex);
   const arrivalName = arrivalIndex == null
     ? ''
-    : isReturn
-      ? names[names.length - 1]
+    : isStart || isReturn
+      ? names[0]
       : arrivalMeta?.city || names[arrivalIndex + 1];
+  const storyImage = isStart || isReturn ? curatedImage(names[0]) : arrivalMeta?.image || null;
 
   return (
-    <section className="gv-story-map-shell gv-story-map-shell--r3" aria-label="Animated multi-city route map">
+    <section className="gv-story-map-shell gv-story-map-shell--r4" aria-label="Animated multi-city route map">
       <div className="gv-story-map-head">
         <div>
           <p>JOURNEY MAP</p>
@@ -483,16 +515,16 @@ export function ResultsMap710D({
         ) : null}
 
         {arrivalIndex != null ? (
-          <article className={`gv-story-arrival-card${isReturn ? ' is-return' : ''}`} role="status" aria-live="polite">
-            <div className={`gv-story-arrival-card__media${arrivalMeta?.image ? '' : ' is-fallback'}`}>
-              {arrivalMeta?.image ? <img src={arrivalMeta.image} alt={`${arrivalName} destination`} /> : <span>{arrivalName.slice(0, 1)}</span>}
-              <small>{isReturn ? 'JOURNEY COMPLETE' : `ARRIVED · STOP ${arrivalIndex + 1}`}</small>
+          <article className={`gv-story-arrival-card${isStart ? ' is-start' : ''}${isReturn ? ' is-return' : ''}`} role="status" aria-live="polite">
+            <div className={`gv-story-arrival-card__media${storyImage ? '' : ' is-fallback'}`}>
+              {storyImage ? <img src={storyImage} alt={`${arrivalName} destination`} /> : <span>{arrivalName.slice(0, 1)}</span>}
+              <small>{isStart ? 'STARTING POINT' : isReturn ? 'JOURNEY COMPLETE' : `ARRIVED · STOP ${arrivalIndex + 1}`}</small>
             </div>
             <div className="gv-story-arrival-card__body">
-              <p>{isReturn ? 'RETURN HOME' : arrivalMeta?.country || 'DESTINATION'}</p>
+              <p>{isStart ? 'YOUR JOURNEY BEGINS' : isReturn ? 'RETURN HOME' : arrivalMeta?.country || 'DESTINATION'}</p>
               <h3>{arrivalName}</h3>
-              {!isReturn && arrivalMeta?.nights ? <strong>{arrivalMeta.nights} night{arrivalMeta.nights === 1 ? '' : 's'}</strong> : null}
-              <span>{isReturn ? 'You are back where the journey began.' : item.evidence.label}</span>
+              {!isStart && !isReturn && arrivalMeta?.nights ? <strong>{arrivalMeta.nights} night{arrivalMeta.nights === 1 ? '' : 's'}</strong> : null}
+              <span>{isStart ? 'Globevoy has your route ready.' : isReturn ? 'You are back where the journey began.' : item.evidence.label}</span>
             </div>
           </article>
         ) : null}
