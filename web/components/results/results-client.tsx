@@ -7,13 +7,12 @@ import { getPublicMultiCityTours, GlobevoyApiError } from '@/lib/api';
 import {
   adaptMultiCityTours,
   multiCityApiParams,
-  normalizeLegacyImage,
   parseResultsSearch,
   type RecommendationCardModel,
   type ResultsSearch
 } from '@/lib/recommendations-708a';
 
-const GV_WEB_710D_VERSION = 'GV-WEB-710D-R2';
+const GV_WEB_710D_VERSION = 'GV-WEB-710D-R3';
 
 type NoFeasibleTour = {
   reason?: string;
@@ -86,47 +85,6 @@ function RouteChoice({
   );
 }
 
-function JourneyCard({
-  label,
-  city,
-  country,
-  nights,
-  image,
-  active,
-  returning,
-  onFocus
-}: {
-  label: string;
-  city: string;
-  country?: string;
-  nights?: number;
-  image?: string | null;
-  active: boolean;
-  returning?: boolean;
-  onFocus: () => void;
-}) {
-  const normalizedImage = normalizeLegacyImage(image);
-  return (
-    <article
-      className={`gv-story-stop-card${active ? ' is-active' : ''}${returning ? ' is-return' : ''}`}
-      tabIndex={0}
-      onMouseEnter={onFocus}
-      onFocus={onFocus}
-    >
-      <div className={`gv-story-stop-card__image${normalizedImage ? '' : ' is-fallback'}`}>
-        {normalizedImage ? <img src={normalizedImage} alt={`${city} destination`} /> : <span>{city.slice(0, 1)}</span>}
-        <small>{label}</small>
-      </div>
-      <div className="gv-story-stop-card__body">
-        <p>{country || (returning ? 'Return home' : 'Starting point')}</p>
-        <h3>{city}</h3>
-        {typeof nights === 'number' && nights > 0 ? <strong>{nights} night{nights === 1 ? '' : 's'}</strong> : null}
-        <span>{returning ? 'Journey complete' : label === 'Origin' ? 'Your journey starts here' : 'Destination stop'}</span>
-      </div>
-    </article>
-  );
-}
-
 export function ResultsClient() {
   const [params, setParams] = useState<URLSearchParams>(() => new URLSearchParams());
   const [search, setSearch] = useState<ResultsSearch | null>(null);
@@ -140,7 +98,7 @@ export function ResultsClient() {
   const [formNights, setFormNights] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [storyStop, setStoryStop] = useState<number | null>(null);
-  const [focusStop, setFocusStop] = useState<number | null>(null);
+  const [replaySignal, setReplaySignal] = useState(0);
 
   useEffect(() => {
     const nextParams = currentSearch();
@@ -203,7 +161,7 @@ export function ResultsClient() {
   function chooseRoute(id: string) {
     setSelectedId(id);
     setStoryStop(null);
-    setFocusStop(null);
+    setReplaySignal((value) => value + 1);
   }
 
   function applyEdit() {
@@ -226,7 +184,7 @@ export function ResultsClient() {
   const selectedRouteLine = selected ? routeLine(selected, search) : [];
 
   return (
-    <main className="gv-story-page">
+    <main className="gv-story-page gv-story-page--r3">
       <section className="gv-story-searchbar" aria-label="Current search">
         <div>
           <span>{search.rawOrigin || search.originCode}</span>
@@ -249,7 +207,7 @@ export function ResultsClient() {
       <header className="gv-story-intro">
         <p>{GV_WEB_710D_VERSION} · MULTI-CITY DISCOVERY</p>
         <h1>Choose a route. Then experience the story.</h1>
-        <span>Globevoy builds a small set of connected journeys that fit your starting city and budget, then lets you play the route before deciding what to explore next.</span>
+        <span>Globevoy builds a small set of connected journeys that fit your starting city and budget, then plays the route so you can experience each stop before exploring the full trip.</span>
       </header>
 
       {loading ? (
@@ -275,7 +233,7 @@ export function ResultsClient() {
           <section className="gv-story-route-section" aria-label="Choose a connected route">
             <div className="gv-story-section-heading">
               <div><p>ROUTES</p><h2>Your trip options</h2></div>
-              <span>Choose one route to update the map, story and complete journey below.</span>
+              <span>Choose a route and the journey story restarts automatically.</span>
             </div>
             <div className="gv-story-route-choices">
               {routes.map((item) => (
@@ -293,8 +251,8 @@ export function ResultsClient() {
           <section className="gv-story-player" aria-label="Journey player">
             <div className="gv-story-player__copy">
               <p>YOUR ROUTE, IN MOTION</p>
-              <h2>Play your journey.</h2>
-              <span>Follow each flight leg and watch the story move from {origin} through your selected stops and home again.</span>
+              <h2>Watch your journey unfold.</h2>
+              <span>The plane departs automatically. Each destination appears as a story card when you arrive, then clears as the next flight begins.</span>
             </div>
             <ol className="gv-story-timeline">
               {selectedRouteLine.map((city, index) => {
@@ -314,8 +272,8 @@ export function ResultsClient() {
             <ResultsMap710D
               item={selected}
               search={search}
-              focusStopIndex={focusStop}
               onStoryStop={setStoryStop}
+              replaySignal={replaySignal}
             />
 
             <aside className="gv-story-summary">
@@ -331,8 +289,8 @@ export function ResultsClient() {
                 <div><dt>Stops</dt><dd>{selectedStops.length}</dd></div>
                 <div><dt>Planning room</dt><dd>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</dd></div>
               </dl>
-              <button type="button" onClick={() => document.getElementById('gv-complete-journey')?.scrollIntoView({ behavior: 'smooth' })}>Explore complete journey</button>
-              <small>Prices remain planning evidence until fresh verification. Full flight and hotel detail is reconstructed in the next phase.</small>
+              <button type="button" onClick={() => setReplaySignal((value) => value + 1)}>Replay this journey</button>
+              <small>Full flight, hotel and stop details come in the next trip-detail phase. Prices remain planning evidence until fresh verification.</small>
             </aside>
           </section>
 
@@ -341,45 +299,6 @@ export function ResultsClient() {
             <span><small>Protected trip estimate</small><strong>{money(selected.total, search.currency)}</strong></span>
             <span><small>Planning room</small><strong>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</strong></span>
             <span><small>Evidence</small><strong>{selected.evidence.label}</strong></span>
-          </section>
-
-          <section className="gv-story-complete" id="gv-complete-journey">
-            <div className="gv-story-section-heading">
-              <div><p>YOUR JOURNEY, DAY BY DAY</p><h2>Your complete journey</h2></div>
-              <span>Move across the cards to focus each stop on the map. Flight and hotel specifics remain behind the next verification/detail step.</span>
-            </div>
-            <div className="gv-story-stop-track">
-              <JourneyCard
-                label="Origin"
-                city={origin}
-                active={storyStop === null && focusStop === -1}
-                onFocus={() => setFocusStop(-1)}
-              />
-              {selectedStops.map((city, index) => (
-                <div className="gv-story-stop-track__segment" key={`${city.city}-${index}`}>
-                  <span className="gv-story-stop-track__arrow" aria-hidden="true">✈</span>
-                  <JourneyCard
-                    label={`Stop ${index + 1}`}
-                    city={city.city}
-                    country={city.country}
-                    nights={city.nights}
-                    image={city.image}
-                    active={storyStop === index || focusStop === index}
-                    onFocus={() => setFocusStop(index)}
-                  />
-                </div>
-              ))}
-              <div className="gv-story-stop-track__segment">
-                <span className="gv-story-stop-track__arrow" aria-hidden="true">✈</span>
-                <JourneyCard
-                  label="Return"
-                  city={origin}
-                  returning
-                  active={storyStop === selectedStops.length || focusStop === selectedStops.length}
-                  onFocus={() => setFocusStop(selectedStops.length)}
-                />
-              </div>
-            </div>
           </section>
 
           <aside className="gv-story-boundary">
