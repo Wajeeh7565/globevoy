@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { resolveOrigin } from '@/lib/origin-options-710c';
-import type { RecommendationCardModel, ResultsSearch } from '@/lib/recommendations-708a';
+import { normalizeLegacyImage, type RecommendationCardModel, type ResultsSearch } from '@/lib/recommendations-708a';
 
 type LatLng = [number, number];
 type PlayerState = 'idle' | 'playing' | 'paused' | 'complete';
+type RawRow = Record<string, unknown>;
 
 type LeafletMap = {
   remove: () => void;
@@ -28,6 +29,7 @@ type LeafletMarker = {
   setLatLng: (position: LatLng) => LeafletMarker;
   remove: () => void;
   bindTooltip?: (content: string, options?: Record<string, unknown>) => LeafletMarker;
+  on?: (event: string, handler: () => void) => LeafletMarker;
 };
 
 type LeafletNamespace = {
@@ -118,16 +120,63 @@ function interpolate(a: LatLng, b: LatLng, progress: number): LatLng {
   ];
 }
 
+function rawRows(value: unknown): RawRow[] {
+  return Array.isArray(value)
+    ? value.filter((row): row is RawRow => Boolean(row) && typeof row === 'object' && !Array.isArray(row))
+    : [];
+}
+
+function rawStops(item: RecommendationCardModel): RawRow[] {
+  const raw = item.raw as RawRow;
+  const stops = rawRows(raw.stops);
+  return stops.length ? stops : rawRows(raw.cities);
+}
+
+function firstString(row: RawRow | undefined, keys: string[]): string {
+  if (!row) return '';
+  for (const key of keys) {
+    const value = row[key];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+  }
+  return '';
+}
+
+function positiveNumber(row: RawRow | undefined, keys: string[]): number | undefined {
+  if (!row) return undefined;
+  for (const key of keys) {
+    const value = Number(row[key]);
+    if (Number.isFinite(value) && value > 0) return value;
+  }
+  return undefined;
+}
+
+function destinationMeta(item: RecommendationCardModel, index: number): {
+  city: string;
+  country: string;
+  image: string | null;
+  nights?: number;
+} {
+  const city = (item.cities || [])[index];
+  const raw = rawStops(item)[index];
+  const image = normalizeLegacyImage(firstString(raw, ['image', 'img', 'imageUrl', 'heroImage', 'photo', 'photoUrl']));
+  return {
+    city: city?.city || firstString(raw, ['city', 'name']) || `Stop ${index + 1}`,
+    country: city?.country || firstString(raw, ['country', 'countryName']),
+    image,
+    nights: positiveNumber(raw, ['nights', 'nightCount', 'stayNights'])
+  };
+}
+
 export function ResultsMap710D({
   item,
   search,
-  focusStopIndex,
-  onStoryStop
+  onStoryStop,
+  replaySignal
 }: {
   item: RecommendationCardModel;
   search: ResultsSearch;
-  focusStopIndex: number | null;
   onStoryStop: (index: number | null) => void;
+  replaySignal: number;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<LeafletMap | null>(null);
@@ -146,6 +195,7 @@ export function ResultsMap710D({
 
   const points = useMemo(() => routePoints(item, search), [item, search]);
   const names = useMemo(() => routeNames(item, search), [item, search]);
+  const cityCount = (item.cities || []).length;
 
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -197,25 +247,42 @@ export function ResultsMap710D({
     };
   }, [search]);
 
-  useEffect(() => {
-    setPlayerState('idle');
+  function cancelMotion() {
+    if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    if (waitRef.current) window.clearTimeout(waitRef.current);
+    animationRef.current = null;
+    waitRef.current = null;
+  }
+
+  function resetPlane(startPlaying: boolean) {
+    if (!points.length || !leafletRef.current || !mapRef.current) return;
+    cancelMotion();
     setLegIndex(0);
     setArrivalIndex(null);
     progressRef.current = 0;
     onStoryStop(null);
-    if (status === 'ready' && points[0] && leafletRef.current && mapRef.current) {
-      planeRef.current?.remove();
-      planeRef.current = leafletRef.current.marker(points[0], {
-        icon: leafletRef.current.divIcon({
-          className: 'gv-story-plane-wrap',
-          html: '<span class="gv-story-plane" aria-hidden="true">✈</span>',
-          iconSize: [42, 42],
-          iconAnchor: [21, 21]
-        }),
-        interactive: false
-      }).addTo(mapRef.current);
-    }
-  }, [item.id, status]);
+    planeRef.current?.remove();
+    planeRef.current = leafletRef.current.marker(points[0], {
+      icon: leafletRef.current.divIcon({
+        className: 'gv-story-plane-wrap',
+        html: '<span class="gv-story-plane" aria-hidden="true">✈</span>',
+        iconSize: [42, 42],
+        iconAnchor: [21, 21]
+      }),
+      interactive: false
+    }).addTo(mapRef.current);
+    mapRef.current.fitBounds(leafletRef.current.latLngBounds(points), { padding: [46, 46], maxZoom: 5, animate: true });
+    setPlayerState(startPlaying ? 'playing' : 'idle');
+  }
+
+  useEffect(() => {
+    if (status !== 'ready' || !points.length) return;
+    resetPlane(false);
+    waitRef.current = window.setTimeout(() => {
+      setPlayerState('playing');
+    }, reduceMotion ? 450 : 850);
+    return () => cancelMotion();
+  }, [item.id, status, replaySignal, reduceMotion]);
 
   useEffect(() => {
     if (status !== 'ready' || !mapRef.current || !routeLayerRef.current || !leafletRef.current || !points.length) return;
@@ -234,21 +301,38 @@ export function ResultsMap710D({
     }
 
     points.forEach((point, index) => {
-      const isOrigin = index === 0 || index === points.length - 1;
       if (index === points.length - 1) return;
+      const isOrigin = index === 0;
       const label = isOrigin ? '⌂' : String(index);
       const marker = L.marker(point, { icon: markerIcon(L, label, arrivalIndex === index - 1) }).addTo(layer);
       marker.bindTooltip?.(names[index] || `Stop ${index}`, { direction: 'top', offset: [0, -12], opacity: 0.96 });
+      marker.on?.('click', () => {
+        cancelMotion();
+        setPlayerState('paused');
+        planeRef.current?.setLatLng(point);
+        if (index === 0) {
+          setArrivalIndex(null);
+          onStoryStop(null);
+        } else {
+          setArrivalIndex(index - 1);
+          onStoryStop(index - 1);
+          setLegIndex(index);
+        }
+        map.setView(point, index === 0 ? 5 : 6, { animate: true });
+      });
     });
 
-    if (focusStopIndex != null && playerState !== 'playing') {
-      const pointIndex = focusStopIndex < 0 ? 0 : focusStopIndex >= (item.cities || []).length ? points.length - 1 : focusStopIndex + 1;
-      const target = points[pointIndex];
-      if (target) map.setView(target, pointIndex === 0 || pointIndex === points.length - 1 ? 5 : 6, { animate: true });
-    } else if (fitNonce > 0 || playerState === 'idle') {
+    if (fitNonce > 0 || playerState === 'idle') {
       map.fitBounds(L.latLngBounds(points), { padding: [46, 46], maxZoom: 5, animate: true });
     }
-  }, [status, item, points, names, legIndex, playerState, arrivalIndex, focusStopIndex, fitNonce]);
+  }, [status, item, points, names, legIndex, playerState, arrivalIndex, fitNonce, onStoryStop]);
+
+  useEffect(() => {
+    if (arrivalIndex == null || !mapRef.current) return;
+    const pointIndex = arrivalIndex >= cityCount ? points.length - 1 : arrivalIndex + 1;
+    const target = points[pointIndex];
+    if (target) mapRef.current.setView(target, arrivalIndex >= cityCount ? 5 : 6, { animate: true });
+  }, [arrivalIndex, cityCount, points]);
 
   useEffect(() => {
     if (playerState !== 'playing' || status !== 'ready' || !planeRef.current || points.length < 2) return;
@@ -257,17 +341,21 @@ export function ResultsMap710D({
       return;
     }
 
+    setArrivalIndex(null);
+    onStoryStop(null);
+
     const from = points[legIndex];
     const to = points[legIndex + 1];
     const startProgress = progressRef.current;
-    const duration = reduceMotion ? 1 : 1750;
+    const duration = reduceMotion ? 1 : 3100;
     const startedAt = performance.now();
     let cancelled = false;
 
     const tick = (now: number) => {
       if (cancelled || !planeRef.current) return;
       const elapsed = Math.min(1, (now - startedAt) / duration);
-      const progress = startProgress + (1 - startProgress) * elapsed;
+      const eased = reduceMotion ? 1 : 0.5 - Math.cos(elapsed * Math.PI) / 2;
+      const progress = startProgress + (1 - startProgress) * eased;
       progressRef.current = progress;
       planeRef.current.setLatLng(interpolate(from, to, progress));
 
@@ -278,7 +366,7 @@ export function ResultsMap710D({
 
       progressRef.current = 0;
       const reachedFinalOrigin = legIndex + 1 === points.length - 1;
-      const reachedStop = reachedFinalOrigin ? (item.cities || []).length : legIndex;
+      const reachedStop = reachedFinalOrigin ? cityCount : legIndex;
       setArrivalIndex(reachedStop);
       onStoryStop(reachedStop);
 
@@ -288,8 +376,11 @@ export function ResultsMap710D({
       }
 
       waitRef.current = window.setTimeout(() => {
-        if (!cancelled) setLegIndex((value) => value + 1);
-      }, reduceMotion ? 320 : 720);
+        if (cancelled) return;
+        setArrivalIndex(null);
+        onStoryStop(null);
+        setLegIndex((value) => value + 1);
+      }, reduceMotion ? 900 : 2300);
     };
 
     animationRef.current = requestAnimationFrame(tick);
@@ -298,58 +389,85 @@ export function ResultsMap710D({
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       if (waitRef.current) window.clearTimeout(waitRef.current);
     };
-  }, [playerState, status, legIndex, points, item.cities, reduceMotion, onStoryStop]);
-
-  useEffect(() => {
-    if (playerState !== 'playing') return;
-    if (legIndex > 0 && arrivalIndex != null) setArrivalIndex(null);
-  }, [legIndex, playerState]);
+  }, [playerState, status, legIndex, points, cityCount, reduceMotion, onStoryStop]);
 
   function startOrResume() {
     if (!points.length || status !== 'ready') return;
     if (playerState === 'complete') {
-      replay();
+      resetPlane(true);
       return;
     }
+    setArrivalIndex(null);
+    onStoryStop(null);
     setPlayerState('playing');
   }
 
   function pause() {
+    cancelMotion();
     setPlayerState('paused');
   }
 
   function replay() {
-    if (!points.length || !leafletRef.current || !mapRef.current) return;
-    if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    if (waitRef.current) window.clearTimeout(waitRef.current);
-    setLegIndex(0);
-    setArrivalIndex(null);
-    progressRef.current = 0;
-    onStoryStop(null);
-    planeRef.current?.setLatLng(points[0]);
-    setPlayerState('playing');
+    resetPlane(true);
   }
 
+  function pointIndexFromArrival(): number {
+    if (arrivalIndex == null) return Math.max(0, Math.min(legIndex, points.length - 1));
+    return arrivalIndex >= cityCount ? points.length - 1 : arrivalIndex + 1;
+  }
+
+  function moveToPoint(pointIndex: number) {
+    if (!points.length || !mapRef.current) return;
+    cancelMotion();
+    const safeIndex = Math.max(0, Math.min(pointIndex, points.length - 1));
+    const target = points[safeIndex];
+    planeRef.current?.setLatLng(target);
+    progressRef.current = 0;
+    setPlayerState(safeIndex === points.length - 1 ? 'complete' : 'paused');
+
+    if (safeIndex === 0) {
+      setLegIndex(0);
+      setArrivalIndex(null);
+      onStoryStop(null);
+    } else if (safeIndex === points.length - 1) {
+      setLegIndex(points.length - 1);
+      setArrivalIndex(cityCount);
+      onStoryStop(cityCount);
+    } else {
+      setLegIndex(safeIndex);
+      setArrivalIndex(safeIndex - 1);
+      onStoryStop(safeIndex - 1);
+    }
+    mapRef.current.setView(target, safeIndex === 0 || safeIndex === points.length - 1 ? 5 : 6, { animate: true });
+  }
+
+  const currentPoint = pointIndexFromArrival();
+  const canGoPrevious = currentPoint > 0;
+  const canGoNext = currentPoint < points.length - 1;
+  const isReturn = arrivalIndex != null && arrivalIndex >= cityCount;
+  const arrivalMeta = arrivalIndex == null || isReturn ? null : destinationMeta(item, arrivalIndex);
   const arrivalName = arrivalIndex == null
     ? ''
-    : arrivalIndex >= (item.cities || []).length
+    : isReturn
       ? names[names.length - 1]
-      : names[arrivalIndex + 1];
+      : arrivalMeta?.city || names[arrivalIndex + 1];
 
   return (
-    <section className="gv-story-map-shell" aria-label="Animated multi-city route map">
+    <section className="gv-story-map-shell gv-story-map-shell--r3" aria-label="Animated multi-city route map">
       <div className="gv-story-map-head">
         <div>
           <p>JOURNEY MAP</p>
-          <h2>{routeNames(item, search).join(' → ')}</h2>
+          <h2>{names.join(' → ')}</h2>
         </div>
         <div className="gv-story-map-controls">
+          <button type="button" onClick={() => moveToPoint(currentPoint - 1)} disabled={!canGoPrevious}>← Previous</button>
           {playerState === 'playing' ? (
-            <button type="button" onClick={pause}>Pause</button>
+            <button type="button" className="is-primary" onClick={pause}>Pause</button>
           ) : (
-            <button type="button" className="is-primary" onClick={startOrResume}>{playerState === 'complete' ? 'Play again' : playerState === 'paused' ? 'Resume' : '▶ Play journey'}</button>
+            <button type="button" className="is-primary" onClick={startOrResume}>{playerState === 'complete' ? 'Play again' : 'Resume'}</button>
           )}
-          {playerState !== 'idle' ? <button type="button" onClick={replay}>Replay</button> : null}
+          <button type="button" onClick={() => moveToPoint(currentPoint + 1)} disabled={!canGoNext}>Next →</button>
+          <button type="button" onClick={replay}>Replay</button>
           <button type="button" onClick={() => setFitNonce((value) => value + 1)}>Fit route</button>
         </div>
       </div>
@@ -360,21 +478,28 @@ export function ResultsMap710D({
         {status === 'error' ? (
           <div className="gv-story-map-status gv-story-map-status--error">
             <strong>Map unavailable</strong>
-            <span>The route summary and journey cards still contain the recommendation.</span>
+            <span>The selected route and budget summary are still available.</span>
           </div>
         ) : null}
 
         {arrivalIndex != null ? (
-          <div className="gv-story-arrival" role="status" aria-live="polite">
-            <small>{arrivalIndex >= (item.cities || []).length ? 'JOURNEY COMPLETE' : `ARRIVING · STOP ${arrivalIndex + 1}`}</small>
-            <strong>{arrivalName}</strong>
-            <span>{arrivalIndex >= (item.cities || []).length ? 'Back where the journey began.' : 'This stop is now highlighted in your complete journey below.'}</span>
-          </div>
+          <article className={`gv-story-arrival-card${isReturn ? ' is-return' : ''}`} role="status" aria-live="polite">
+            <div className={`gv-story-arrival-card__media${arrivalMeta?.image ? '' : ' is-fallback'}`}>
+              {arrivalMeta?.image ? <img src={arrivalMeta.image} alt={`${arrivalName} destination`} /> : <span>{arrivalName.slice(0, 1)}</span>}
+              <small>{isReturn ? 'JOURNEY COMPLETE' : `ARRIVED · STOP ${arrivalIndex + 1}`}</small>
+            </div>
+            <div className="gv-story-arrival-card__body">
+              <p>{isReturn ? 'RETURN HOME' : arrivalMeta?.country || 'DESTINATION'}</p>
+              <h3>{arrivalName}</h3>
+              {!isReturn && arrivalMeta?.nights ? <strong>{arrivalMeta.nights} night{arrivalMeta.nights === 1 ? '' : 's'}</strong> : null}
+              <span>{isReturn ? 'You are back where the journey began.' : item.evidence.label}</span>
+            </div>
+          </article>
         ) : null}
 
         <div className="gv-story-map-key" aria-hidden="true">
           <span><i />Route</span>
-          <span><b>✈</b>Journey player</span>
+          <span><b>✈</b>{playerState === 'playing' ? 'Flying' : playerState === 'paused' ? 'Paused' : playerState === 'complete' ? 'Journey complete' : 'Starting shortly'}</span>
         </div>
       </div>
     </section>
