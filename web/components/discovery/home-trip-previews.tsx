@@ -56,8 +56,6 @@ function previewSelection(portfolio: RecommendationCardModel[]): RecommendationC
     if (item && !selected.some((chosen) => chosen.id === item.id)) selected.push(item);
   };
 
-  // Homepage storytelling target: show familiar single-destination discovery first,
-  // while still proving that Globevoy can create a connected route when one qualifies.
   add(singles[0]);
   add(singles[1]);
   add(multis[0]);
@@ -154,27 +152,28 @@ export function HomeTripPreviews(props: HomeTripPreviewsProps) {
     const timer = window.setTimeout(async () => {
       const nextSearch = parseResultsSearch(query);
       setState('loading');
-      try {
-        const [singleResult, multiResult] = await Promise.allSettled([
-          getPublicRecommendations(recommendationApiParams(nextSearch)),
-          getPublicMultiCityTours(multiCityApiParams(nextSearch))
-        ]);
-        if (!active) return;
 
-        const singles = singleResult.status === 'fulfilled' ? adaptRecommendations(singleResult.value, nextSearch) : [];
-        const multis = multiResult.status === 'fulfilled' ? adaptMultiCityTours(multiResult.value, nextSearch) : [];
-        const portfolio = pickPortfolio(singles, multis, nextSearch);
-        const previews = previewSelection(portfolio);
+      const [singleResult, multiResult] = await Promise.allSettled([
+        getPublicRecommendations(recommendationApiParams(nextSearch)),
+        getPublicMultiCityTours(multiCityApiParams(nextSearch))
+      ]);
+      if (!active) return;
 
-        setSearch(nextSearch);
-        setItems(previews);
-        setState(previews.length ? 'ready' : 'empty');
-      } catch {
-        if (!active) return;
+      if (singleResult.status === 'rejected' && multiResult.status === 'rejected') {
         setItems([]);
         setSearch(nextSearch);
         setState('error');
+        return;
       }
+
+      const singles = singleResult.status === 'fulfilled' ? adaptRecommendations(singleResult.value, nextSearch) : [];
+      const multis = multiResult.status === 'fulfilled' ? adaptMultiCityTours(multiResult.value, nextSearch) : [];
+      const portfolio = pickPortfolio(singles, multis, nextSearch);
+      const previews = previewSelection(portfolio);
+
+      setSearch(nextSearch);
+      setItems(previews);
+      setState(previews.length ? 'ready' : 'empty');
     }, 700);
 
     return () => {
@@ -196,7 +195,7 @@ export function HomeTripPreviews(props: HomeTripPreviewsProps) {
       {state === 'idle' ? (
         <div className="gv-home-previews__prompt">
           <strong>Start with your city.</strong>
-          <span>Enter a starting city or airport above and Globevoy will load real planning ideas here — without inventing prices.</span>
+          <span>Choose a starting city or airport above and Globevoy will load real planning ideas here — without inventing prices.</span>
         </div>
       ) : null}
 
@@ -222,8 +221,8 @@ export function HomeTripPreviews(props: HomeTripPreviewsProps) {
 
       {state === 'error' ? (
         <div className="gv-home-previews__prompt">
-          <strong>Trip previews are temporarily unavailable.</strong>
-          <span>The main search still works — previews never block discovery.</span>
+          <strong>We couldn’t load trip ideas right now.</strong>
+          <span>This is a request problem, not proof that your budget has no matches. Try again after the connection is restored.</span>
         </div>
       ) : null}
     </section>
