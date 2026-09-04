@@ -289,22 +289,9 @@ export function ResultsClient() {
                 <div><dt>Stops</dt><dd>{selectedStops.length}</dd></div>
                 <div><dt>Planning room</dt><dd>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</dd></div>
               </dl>
-              <button type="button" onClick={() => setReplaySignal((value) => value + 1)}>Replay this journey</button>
               <small>Full flight, hotel and stop details come in the next trip-detail phase. Prices remain planning evidence until fresh verification.</small>
             </aside>
           </section>
-
-          <section className="gv-story-budget-strip" aria-label="Selected route budget summary">
-            <span><small>Selected route</small><strong>{selectedRouteLine.join(' → ')}</strong></span>
-            <span><small>Protected trip estimate</small><strong>{money(selected.total, search.currency)}</strong></span>
-            <span><small>Planning room</small><strong>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</strong></span>
-            <span><small>Evidence</small><strong>{selected.evidence.label}</strong></span>
-          </section>
-
-          <aside className="gv-story-boundary">
-            <strong>Planning evidence, not a checkout quote.</strong>
-            <p>Globevoy is helping you choose the route first. Fresh flight schedules, hotel availability and final partner prices are verified later in the journey.</p>
-          </aside>
         </>
       ) : null}
     </main>
