@@ -6,6 +6,7 @@ import './account-707a.css';
 import './booking-707b.css';
 import './results-708a.css';
 import './reconstruction-710b.css';
+import './home-710c.css';
 
 export const metadata: Metadata = {
   title: {
