@@ -15,7 +15,24 @@ import {
   type ResultsSearch
 } from '@/lib/recommendations-708a';
 
-const GV_WEB_710E_VERSION = 'GV-WEB-710E-R1';
+const GV_WEB_710E_VERSION = 'GV-WEB-710E-R2';
+const LEGACY_ASSET_BASE = String(process.env.NEXT_PUBLIC_GLOBEVOY_LEGACY_ASSET_BASE_URL || '/assets').replace(/\/+$/, '');
+const LEGACY_CITY_IMAGES: Record<string, string> = {
+  cairo: 'cairo.jpg',
+  cancun: 'cancun.jpg',
+  'cancún': 'cancun.jpg',
+  dubai: 'dubai.jpg',
+  'fort lauderdale': 'fort-lauderdale.jpg',
+  'mexico city': 'mexico-city.jpg',
+  miami: 'miami.jpg',
+  'montego bay': 'montego-bay.jpg',
+  montreal: 'montreal.jpg',
+  'montréal': 'montreal.jpg',
+  'new york': 'new-york-city.jpg',
+  'new york city': 'new-york-city.jpg',
+  ottawa: 'ottawa.jpg',
+  toronto: 'toronto.jpg'
+};
 
 function clean(value: unknown): string { return String(value == null ? '' : value).trim(); }
 function record(value: unknown): JsonObject { return value && typeof value === 'object' && !Array.isArray(value) ? value as JsonObject : {}; }
@@ -46,9 +63,15 @@ function stopRaw(item: RecommendationCardModel, index: number): JsonObject {
   return source[index] || {};
 }
 
-function stopImage(item: RecommendationCardModel, index: number): string {
+function curatedCityImage(city: ResultsCity): string {
+  const file = LEGACY_CITY_IMAGES[clean(city.city).toLowerCase()];
+  return file ? `${LEGACY_ASSET_BASE}/images/${file}` : '';
+}
+
+function stopImage(item: RecommendationCardModel, index: number, city: ResultsCity): string {
   const raw = stopRaw(item, index);
-  return normalizeLegacyImage(textField(raw, 'img', 'image', 'imageUrl', 'photoUrl', 'heroImage'));
+  const providerOrRouteImage = normalizeLegacyImage(textField(raw, 'img', 'image', 'imageUrl', 'photoUrl', 'heroImage'));
+  return providerOrRouteImage || curatedCityImage(city);
 }
 
 function stopNights(item: RecommendationCardModel, index: number): number | null {
@@ -62,10 +85,6 @@ function stopDescription(item: RecommendationCardModel, index: number): string {
   return textField(raw, 'whyItFits', 'description', 'summary', 'reason', 'why') || 'This stop is part of the selected connected route. Detailed city recommendations are added only when Globevoy has evidence to support them.';
 }
 
-function cityLabel(city: ResultsCity): string {
-  return [city.city, city.country].filter(Boolean).join(', ');
-}
-
 function flightLabel(fromName: string, fromCode: string, toName: string, toCode: string): string {
   const from = fromCode ? `${fromName} (${fromCode})` : fromName;
   const to = toCode ? `${toName} (${toCode})` : toName;
@@ -74,6 +93,25 @@ function flightLabel(fromName: string, fromCode: string, toName: string, toCode:
 
 function currentParams(): URLSearchParams {
   return typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
+}
+
+function JourneyStopMedia({ image, city, index }: { image: string; city: ResultsCity; index: number }) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(image) && !failed;
+  return (
+    <div className={`gv-journey-stop__image${showImage ? ' has-image' : ' is-fallback'}`}>
+      {showImage ? (
+        <img src={image} alt={`${city.city} destination`} loading="lazy" onError={() => setFailed(true)} />
+      ) : (
+        <div className="gv-journey-stop__fallback" aria-label={`${city.city} destination image unavailable`}>
+          <strong>{city.code || city.city.slice(0, 3).toUpperCase()}</strong>
+          <span>{city.city}</span>
+          <small>{city.country || 'Destination'}</small>
+        </div>
+      )}
+      <b>STOP {index + 1}</b>
+    </div>
+  );
 }
 
 export function JourneyClient710E() {
@@ -172,7 +210,7 @@ export function JourneyClient710E() {
           {stops.map((city, index) => {
             const previousName = index === 0 ? origin : stops[index - 1].city;
             const previousCode = index === 0 ? originCode : stops[index - 1].code;
-            const image = stopImage(route, index);
+            const image = stopImage(route, index, city);
             const nights = stopNights(route, index);
             return (
               <div className="gv-journey-segment" key={`${city.city}-${index}`}>
@@ -181,16 +219,13 @@ export function JourneyClient710E() {
                   <div>
                     <p>FLIGHT LEG {index + 1}</p>
                     <h2>{flightLabel(previousName, previousCode, city.city, city.code)}</h2>
-                    <span>Exact carrier, schedule and current fare are not verified in public route discovery.</span>
+                    <span>Carrier, schedule and current fare stay unclaimed until Globevoy has fresh flight evidence.</span>
                   </div>
-                  <small>Needs current-price verification</small>
+                  <small>Flight details to verify</small>
                 </article>
 
                 <article className={`gv-journey-stop${activeStop === index ? ' is-active' : ''}`} data-gv-journey-stop={index}>
-                  <div className={`gv-journey-stop__image${image ? '' : ' is-fallback'}`}>
-                    {image ? <img src={image} alt={`${city.city} destination`} loading="lazy" /> : <span>{city.city.slice(0, 1)}</span>}
-                    <b>STOP {index + 1}</b>
-                  </div>
+                  <JourneyStopMedia image={image} city={city} index={index} />
                   <div className="gv-journey-stop__body">
                     <div className="gv-journey-stop__title">
                       <div><p>{city.country || 'DESTINATION'}</p><h2>{city.city}</h2><span>{city.code || 'Airport to verify'}</span></div>
@@ -201,7 +236,7 @@ export function JourneyClient710E() {
                       <section>
                         <p>STAY</p>
                         <h3>Hotel details need current verification</h3>
-                        <span>Globevoy does not invent a hotel from the route estimate. Verified hotel name, room, availability, fees and price appear only after the existing provider-check flow has evidence.</span>
+                        <span>Hotel name, room, availability, fees and current price appear only when the existing provider-check flow has evidence. Globevoy does not turn a planning estimate into a fake hotel.</span>
                       </section>
                       <section>
                         <p>PRICE EVIDENCE</p>
@@ -225,9 +260,9 @@ export function JourneyClient710E() {
             <div>
               <p>RETURN FLIGHT</p>
               <h2>{flightLabel(stops[stops.length - 1]?.city || 'Last stop', stops[stops.length - 1]?.code || '', origin, originCode)}</h2>
-              <span>Exact return schedule and fare remain unverified until the current-price step.</span>
+              <span>Carrier, schedule and current fare stay unclaimed until the current-price step.</span>
             </div>
-            <small>Needs current-price verification</small>
+            <small>Flight details to verify</small>
           </article>
 
           <article className="gv-journey-origin gv-journey-origin--return"><span>RETURN HOME</span><strong>{origin}</strong><small>Journey loop complete</small></article>
@@ -245,7 +280,7 @@ export function JourneyClient710E() {
               <div><dt>Nights</dt><dd>{route.nights}</dd></div>
               <div><dt>Stops</dt><dd>{stops.length}</dd></div>
             </dl>
-            <div className="gv-journey-budget__evidence"><PriceEvidenceBadge evidence={route.evidence} /><small>Flight and hotel provider details are deliberately kept separate until current evidence exists.</small></div>
+            <div className="gv-journey-budget__evidence"><PriceEvidenceBadge evidence={route.evidence} /><small>Flight and hotel provider details stay separate until current evidence exists.</small></div>
           </section>
         </aside>
       </section>
