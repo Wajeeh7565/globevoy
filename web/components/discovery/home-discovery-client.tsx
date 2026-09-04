@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { HomeTripPreviews } from '@/components/discovery/home-trip-previews';
-import { filterOrigins, originDisplay, resolveOrigin, type OriginOption } from '@/lib/origin-options-710c';
+import { filterOrigins, nearestOrigin, originDisplay, resolveOrigin, type OriginOption } from '@/lib/origin-options-710c';
 
 const HERO_SLIDES = [
   {
@@ -48,6 +48,8 @@ export function HomeDiscoveryClient() {
   const [hotelStyle, setHotelStyle] = useState('Best balance');
   const [region, setRegion] = useState('All continents');
   const [status, setStatus] = useState('');
+  const [locating, setLocating] = useState(false);
+  const [locationNote, setLocationNote] = useState('');
 
   const months = useMemo(() => nextSixMonths(), []);
   const originOptions = useMemo(() => filterOrigins(origin).slice(0, 12), [origin]);
@@ -91,6 +93,37 @@ export function HomeDiscoveryClient() {
     setOrigin(originDisplay(option));
     setOriginOpen(false);
     setStatus('');
+    setLocationNote('');
+  }
+
+  function useCurrentLocation() {
+    setOriginOpen(false);
+    setStatus('');
+
+    if (!navigator.geolocation) {
+      setLocationNote('Location is not available in this browser. Choose your city or airport instead.');
+      return;
+    }
+
+    setLocating(true);
+    setLocationNote('Finding your nearest supported airport…');
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const option = nearestOrigin(coords.latitude, coords.longitude);
+        setOrigin(originDisplay(option));
+        setOriginOpen(false);
+        setLocationNote(`Nearest supported origin: ${originDisplay(option)}.`);
+        setLocating(false);
+      },
+      (error) => {
+        const denied = error.code === error.PERMISSION_DENIED;
+        setLocationNote(denied
+          ? 'Location permission was not granted. You can still choose your city or airport manually.'
+          : 'We could not detect your location. Choose your city or airport manually.');
+        setLocating(false);
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 600000 }
+    );
   }
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -161,27 +194,42 @@ export function HomeDiscoveryClient() {
             </div>
 
             <div className="gv-home-next__origin-wrap">
-              <label className="gv-home-next__field gv-home-next__field--full">
-                <span>Leaving from</span>
+              <div className="gv-home-next__field gv-home-next__field--full">
+                <label className="gv-home-next__field-label" htmlFor="gv-origin-input">Leaving from</label>
                 <input
+                  id="gv-origin-input"
                   value={origin}
                   onChange={(event) => {
                     setOrigin(event.target.value);
                     setOriginOpen(true);
                     setStatus('');
+                    setLocationNote('');
                   }}
                   onFocus={() => setOriginOpen(true)}
                   onBlur={() => window.setTimeout(() => setOriginOpen(false), 120)}
                   placeholder="City or airport"
                   autoComplete="off"
-                  aria-describedby="gv-origin-help"
+                  aria-describedby={locationNote ? 'gv-origin-help gv-origin-location-note' : 'gv-origin-help'}
                   aria-expanded={originOpen}
                   aria-controls="gv-origin-options"
                 />
-                <small id="gv-origin-help">
-                  {resolvedOrigin ? `${resolvedOrigin.city}, ${resolvedOrigin.country} · ${resolvedOrigin.code}` : 'No destination needed — Globevoy finds the possibilities.'}
-                </small>
-              </label>
+                <div className="gv-home-next__origin-support">
+                  <small id="gv-origin-help">
+                    {resolvedOrigin ? `${resolvedOrigin.city}, ${resolvedOrigin.country} · ${resolvedOrigin.code}` : 'No destination needed — Globevoy finds the possibilities.'}
+                  </small>
+                  <button
+                    type="button"
+                    className="gv-home-next__location-button"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={useCurrentLocation}
+                    disabled={locating}
+                  >
+                    <span aria-hidden="true">⌖</span>
+                    {locating ? 'Locating…' : 'Use my location'}
+                  </button>
+                </div>
+                {locationNote ? <small className="gv-home-next__location-note" id="gv-origin-location-note" role="status">{locationNote}</small> : null}
+              </div>
 
               {originOpen && originOptions.length ? (
                 <div className="gv-home-next__origin-menu" id="gv-origin-options" role="listbox" aria-label="Starting city suggestions">
@@ -219,33 +267,33 @@ export function HomeDiscoveryClient() {
                 </div>
               </label>
 
-              <details className="gv-home-next__travellers">
-                <summary>
-                  <span>
-                    <small>Travellers</small>
+              <div className="gv-home-next__field gv-home-next__traveller-field">
+                <span>Travellers</span>
+                <details className="gv-home-next__travellers">
+                  <summary>
                     <strong>{travellerSummary}</strong>
-                  </span>
-                  <span aria-hidden="true">⌄</span>
-                </summary>
-                <div className="gv-home-next__traveller-panel">
-                  <div className="gv-home-next__counter-row">
-                    <div><strong>Adults</strong><small>Ages 18+</small></div>
-                    <div className="gv-home-next__counter">
-                      <button type="button" aria-label="Remove adult" onClick={() => setAdults((value) => Math.max(1, value - 1))}>−</button>
-                      <output>{adults}</output>
-                      <button type="button" aria-label="Add adult" onClick={() => setAdults((value) => Math.min(9, value + 1))}>+</button>
+                    <span aria-hidden="true">⌄</span>
+                  </summary>
+                  <div className="gv-home-next__traveller-panel">
+                    <div className="gv-home-next__counter-row">
+                      <div><strong>Adults</strong><small>Ages 18+</small></div>
+                      <div className="gv-home-next__counter">
+                        <button type="button" aria-label="Remove adult" onClick={() => setAdults((value) => Math.max(1, value - 1))}>−</button>
+                        <output>{adults}</output>
+                        <button type="button" aria-label="Add adult" onClick={() => setAdults((value) => Math.min(9, value + 1))}>+</button>
+                      </div>
+                    </div>
+                    <div className="gv-home-next__counter-row">
+                      <div><strong>Children</strong><small>Ages 0–17</small></div>
+                      <div className="gv-home-next__counter">
+                        <button type="button" aria-label="Remove child" onClick={() => setChildren((value) => Math.max(0, value - 1))}>−</button>
+                        <output>{children}</output>
+                        <button type="button" aria-label="Add child" onClick={() => setChildren((value) => Math.min(9, value + 1))}>+</button>
+                      </div>
                     </div>
                   </div>
-                  <div className="gv-home-next__counter-row">
-                    <div><strong>Children</strong><small>Ages 0–17</small></div>
-                    <div className="gv-home-next__counter">
-                      <button type="button" aria-label="Remove child" onClick={() => setChildren((value) => Math.max(0, value - 1))}>−</button>
-                      <output>{children}</output>
-                      <button type="button" aria-label="Add child" onClick={() => setChildren((value) => Math.min(9, value + 1))}>+</button>
-                    </div>
-                  </div>
-                </div>
-              </details>
+                </details>
+              </div>
             </div>
 
             <details className="gv-home-next__advanced">
