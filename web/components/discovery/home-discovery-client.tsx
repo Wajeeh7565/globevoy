@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { HomeTripPreviews } from '@/components/discovery/home-trip-previews';
 
 const HERO_SLIDES = [
   {
@@ -263,11 +264,17 @@ export function HomeDiscoveryClient() {
         </div>
       </section>
 
-      <section className="gv-home-next__steps" aria-label="How Globevoy works">
-        <div><strong>1</strong><span>Set your origin and budget</span></div>
-        <div><strong>2</strong><span>Globevoy compares the possibilities</span></div>
-        <div><strong>3</strong><span>Explore a short list of trips</span></div>
-      </section>
+      <HomeTripPreviews
+        origin={origin}
+        budget={budget}
+        adults={adults}
+        children={children}
+        tripLength={tripLength}
+        month={month}
+        interest={interest}
+        hotelStyle={hotelStyle}
+        region={region}
+      />
     </main>
   );
 }
