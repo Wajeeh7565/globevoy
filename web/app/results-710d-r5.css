@@ -1,0 +1,114 @@
+/* GV-WEB-710D-R5 — visual-first cleanup after product review.
+   Keeps the route-choice/map architecture, removes redundant copy, compacts
+   the map teaser card, and gives docked flight/stay facts stronger hierarchy. */
+
+.gv-story-page--r4{padding-top:18px}
+.gv-story-page--r4 .gv-story-intro--r4{display:none}
+.gv-story-page--r4 .gv-story-route-section{margin-top:14px}
+.gv-story-page--r4 .gv-story-section-heading{margin-bottom:9px}
+.gv-story-page--r4 .gv-story-section-heading p{display:none}
+.gv-story-page--r4 .gv-story-section-heading>span{display:none}
+.gv-story-page--r4 .gv-story-section-heading h2{font-size:1.18rem}
+
+/* Keep search context, but make it a quiet utility row instead of another hero. */
+.gv-story-page--r4 .gv-story-searchbar{padding:8px 10px;box-shadow:none;background:#fbfdfd}
+.gv-story-page--r4 .gv-story-searchbar span{min-height:24px;padding:4px 8px;font-size:.62rem}
+.gv-story-page--r4 .gv-story-searchbar button{min-height:31px;padding:5px 10px;font-size:.68rem}
+.gv-story-page--r4 .gv-story-edit{margin-top:7px;padding:10px;gap:8px}
+.gv-story-page--r4 .gv-story-edit label{font-size:.61rem}
+.gv-story-page--r4 .gv-story-edit input,.gv-story-page--r4 .gv-story-edit button{min-height:36px}
+
+/* Generated-tour card: retain the established layout, remove duplicate copy. */
+.gv-story-summary--r4{align-self:start;min-height:0;height:auto}
+.gv-story-summary--r4 .gv-story-summary__chips,
+.gv-story-summary--r4 .gv-story-summary__evidence{display:none}
+.gv-story-summary--r4 dl{margin:14px 0 18px}
+.gv-story-summary--r4 dl>div:last-child{display:none}
+.gv-story-summary--r4>span{margin-top:6px}
+.gv-story-summary--r4 .gv-story-summary__buttons{margin-top:4px}
+
+/* Map story teaser: a compact arrival card, never a tall white panel. */
+.gv-story-map-shell--r4 .gv-story-arrival-card{
+  left:auto!important;right:14px!important;top:14px!important;bottom:auto!important;
+  width:min(238px,calc(100% - 28px))!important;height:auto!important;min-height:0!important;max-height:none!important;
+  display:block!important;overflow:hidden!important;align-content:start!important;grid-template-rows:none!important;
+  pointer-events:none;
+  animation:gv-story-r5-arrive-dock 2.15s cubic-bezier(.18,.78,.2,1) both!important
+}
+.gv-story-map-shell--r4 .gv-story-arrival-card.is-return{display:none!important}
+.gv-story-map-shell--r4 .gv-story-arrival-card__media{height:88px!important;min-height:0!important}
+.gv-story-map-shell--r4 .gv-story-arrival-card__media small{left:8px;top:8px;padding:4px 7px;font-size:.47rem}
+.gv-story-map-shell--r4 .gv-story-arrival-card__body{padding:9px 11px 10px!important;gap:1px!important;min-height:0!important}
+.gv-story-map-shell--r4 .gv-story-arrival-card__body p{font-size:.48rem}
+.gv-story-map-shell--r4 .gv-story-arrival-card__body h3{font-size:1.04rem}
+.gv-story-map-shell--r4 .gv-story-arrival-card__body strong{font-size:.61rem}
+.gv-story-map-shell--r4 .gv-story-arrival-card__body span{font-size:.57rem;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@keyframes gv-story-r5-arrive-dock{
+  0%{opacity:0;transform:translateY(-10px) scale(.96)}
+  14%{opacity:1;transform:translateY(0) scale(1)}
+  64%{opacity:1;transform:translateY(0) scale(1)}
+  100%{opacity:0;transform:translateY(78px) scale(.94)}
+}
+
+/* The persistent card lands beneath the map as the teaser leaves it. */
+.gv-story-docked-card.is-new{animation:gv-story-r5-card-land .72s cubic-bezier(.16,.8,.25,1) both!important}
+@keyframes gv-story-r5-card-land{
+  0%{opacity:0;transform:translateY(-72px) scale(.93)}
+  62%{opacity:1;transform:translateY(6px) scale(1.01)}
+  100%{opacity:1;transform:none}
+}
+
+/* Less framing text; more visual travel-card hierarchy. */
+.gv-story-deck{padding-top:20px}
+.gv-story-deck__head p{display:none}
+.gv-story-deck__head{margin-bottom:13px}
+.gv-story-deck__head h2{font-size:1.55rem}
+.gv-story-docked-card__body{padding:12px}
+.gv-story-docked-title>span{display:block;margin-top:3px;color:#78868d;font-size:.57rem}
+
+/* Flight and stay sections borrow the stronger visual hierarchy of the legacy
+   journey cards without copying provider links or claiming verification. */
+.gv-story-detail-stack{display:grid;gap:7px;margin-top:11px}
+.gv-story-detail-panel{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px 10px;border:1px solid;border-radius:10px}
+.gv-story-detail-panel.is-flight{background:#eaf8fb;border-color:#9edbe1;color:#10495a}
+.gv-story-detail-panel.is-hotel{background:#edf9f4;border-color:#a9ddc5;color:#155843}
+.gv-story-detail-icon{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;background:rgba(255,255,255,.86);font-size:.8rem;font-weight:900}
+.gv-story-detail-panel>div{min-width:0;display:grid;gap:1px}
+.gv-story-detail-panel small{font-size:.47rem;font-weight:950;letter-spacing:.09em;color:inherit}
+.gv-story-detail-panel strong{min-width:0;font-size:.62rem;line-height:1.18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#102238}
+.gv-story-detail-panel em{font-size:.51rem;font-style:normal;line-height:1.2;color:#657781}
+.gv-story-detail-panel>b{font-size:.65rem;white-space:nowrap;color:#102238}
+.gv-story-docked-evidence{margin-top:7px}
+.gv-story-docked-evidence .gv-evidence{font-size:.48rem!important;padding:3px 6px!important}
+
+/* Start/return cards retain their simpler two-fact treatment. */
+.gv-story-docked-facts--simple{grid-template-columns:repeat(2,1fr)!important}
+
+/* Add-destination becomes a real journey tile at the end of the deck. */
+.gv-story-add-card{position:relative;min-height:100%;border:1px dashed #92bdc6;border-radius:16px;background:#fbfefe;display:grid;place-items:center;overflow:visible}
+.gv-story-add-card>summary{list-style:none;cursor:pointer;min-height:100%;width:100%;padding:24px 18px;display:grid;place-items:center;align-content:center;gap:7px;text-align:center;color:#102238}
+.gv-story-add-card>summary::-webkit-details-marker{display:none}
+.gv-story-add-card>summary>span{display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#e7f8f6;border:1px solid #8fd2ca;color:#078f87;font-size:1.5rem;font-weight:900}
+.gv-story-add-card>summary strong{font-size:.82rem}
+.gv-story-add-card>summary small{max-width:170px;color:#6f7d84;font-size:.57rem;line-height:1.35}
+.gv-story-add-card__menu{position:absolute;z-index:80;left:10px;right:10px;top:calc(100% + 7px);padding:7px;border:1px solid #d7e3e7;border-radius:12px;background:#fff;box-shadow:0 18px 40px rgba(2,20,38,.16);display:grid;gap:5px}
+.gv-story-add-card__menu button{display:grid;gap:2px;width:100%;padding:8px 9px;border:0;border-radius:8px;background:#f5f9fa;text-align:left;color:#102238;cursor:pointer}
+.gv-story-add-card__menu button:hover{background:#e9f8f6}
+.gv-story-add-card__menu button:disabled{opacity:.45;cursor:not-allowed}
+.gv-story-add-card__menu button strong{font-size:.68rem}.gv-story-add-card__menu button span{font-size:.54rem;color:#718089}
+
+@media(max-width:1000px){
+  .gv-story-summary--r4{align-self:stretch}
+  .gv-story-add-card{min-height:250px}
+}
+@media(max-width:700px){
+  .gv-story-page--r4{padding-top:10px}
+  .gv-story-page--r4 .gv-story-searchbar{align-items:flex-start}
+  .gv-story-map-shell--r4 .gv-story-arrival-card{right:9px!important;top:9px!important;width:min(220px,calc(100% - 18px))!important}
+  .gv-story-detail-panel{grid-template-columns:28px minmax(0,1fr);}
+  .gv-story-detail-panel>b{grid-column:2;justify-self:start}
+  .gv-story-add-card{min-height:210px}
+}
+@media(prefers-reduced-motion:reduce){
+  .gv-story-map-shell--r4 .gv-story-arrival-card,.gv-story-docked-card.is-new{animation:none!important}
+}
