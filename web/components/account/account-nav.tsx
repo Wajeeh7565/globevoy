@@ -18,7 +18,7 @@ export function AccountNav() {
       {session ? (
         <>
           <Link href="/my-trips/">My Trips</Link>
-          <Link href="/account/" aria-label={`Account for ${session.user.email || session.user.username || 'signed-in user'}`}>Travel profile</Link>
+          <Link href="/travel-profile/" aria-label={`Travel Profile for ${session.user.email || session.user.username || 'signed-in user'}`}>Travel Profile</Link>
         </>
       ) : (
         <button
@@ -26,7 +26,7 @@ export function AccountNav() {
           className="gv-account-nav__signin"
           disabled={loading || !stagingOrigin}
           title={!stagingOrigin ? 'Secure sign-in is tested on the Globevoy staging site, not localhost.' : undefined}
-          onClick={() => { if (stagingOrigin) void signIn('/react/my-trips/'); }}
+          onClick={() => { if (stagingOrigin) void signIn('/react/account/'); }}
         >
           {loading ? 'Checking…' : 'Sign in'}
         </button>
