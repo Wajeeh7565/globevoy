@@ -8,6 +8,48 @@ export class GlobevoyApiError extends Error {
   }
 }
 
+export type AutomaticDateLeg = {
+  legNumber: number | null;
+  from: { city?: string; code?: string } | null;
+  to: { city?: string; code?: string } | null;
+  departureDate: string | null;
+  departureTime: string | null;
+  arrivalTime: string | null;
+  price: number | null;
+  currency: string | null;
+  airline: string | null;
+  flightNumber: string | null;
+  transfers: number | null;
+  durationMinutes: number | null;
+  durationLabel: string | null;
+  selectionReason: string | null;
+  timingLabel: string | null;
+  pricePremiumVsCheapest: number | null;
+  targetDate: string | null;
+  evidence: unknown;
+  evidenceId: string | null;
+  sourceType: string;
+  availabilityVerified: false;
+  bookingCreated: false;
+};
+
+export type AutomaticDatesResponse = {
+  ok: boolean;
+  supported: boolean;
+  version?: string;
+  routeId?: string;
+  complete?: boolean;
+  reason?: string | null;
+  departureDate?: string | null;
+  returnDate?: string | null;
+  currency?: string;
+  selectedLegs?: AutomaticDateLeg[];
+  totalObservedFlightPrice?: number | null;
+  sourceType?: string;
+  sourceWording?: string;
+  currentAvailabilityVerified?: boolean;
+};
+
 function requireBaseUrl(): string {
   const base = browserApiBaseUrl();
   if (!base) throw new GlobevoyApiError(503, 'Globevoy API is not configured for this origin.');
@@ -116,4 +158,15 @@ export async function getPublicMultiCityTours(params: Record<string, string | nu
   }
 
   return publicGet<unknown>('/api/multicity-tours', query);
+}
+
+// GV-FLIGHT-710E-R3A — the browser requests the date materialization result only.
+// Fare-provider orchestration and credentials remain behind the staging Lambda.
+export async function getPublicMultiCityAutomaticDates(
+  params: Record<string, string | number | undefined>
+): Promise<AutomaticDatesResponse> {
+  if (!params.routeId) {
+    return { ok: true, supported: false, complete: false, reason: 'routeId-required' };
+  }
+  return publicGet<AutomaticDatesResponse>('/api/staging/multicity-auto-dates', params);
 }
