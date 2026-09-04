@@ -126,13 +126,8 @@ export function JourneyStoryDeck710DR4({
   return (
     <section className="gv-story-deck" id="gv-story-trip" aria-labelledby="gv-story-deck-title">
       <div className="gv-story-deck__head">
-        <div><p>YOUR TRIP · BUILT AS YOU WATCH</p><h2 id="gv-story-deck-title">Your journey story</h2></div>
-        <div className="gv-story-deck__actions">
-          {canAdd ? <details><summary>+ Add destination</summary><div className="gv-story-add-menu">
-            {candidateCities.slice(0, 4).map((city) => <button key={city.id || city.city} type="button" disabled={busy || !city.id} onClick={() => onAddDestination(city)}><strong>{city.city}</strong><span>{city.country || 'Suggested stop'}</span></button>)}
-          </div></details> : null}
-          <span>{stops.length} stop{stops.length === 1 ? '' : 's'} · {item.nights} nights</span>
-        </div>
+        <div><p>YOUR TRIP</p><h2 id="gv-story-deck-title">Your journey story</h2></div>
+        <div className="gv-story-deck__actions"><span>{stops.length} stop{stops.length === 1 ? '' : 's'} · {item.nights} nights</span></div>
       </div>
 
       {actionMessage ? <div className="gv-story-action-message" role="status">{actionMessage}</div> : null}
@@ -141,7 +136,10 @@ export function JourneyStoryDeck710DR4({
         {revealSet.has(-1) ? (
           <article className={`gv-story-docked-card is-origin${latestRevealed === -1 ? ' is-new' : ''}${activeStop === -1 ? ' is-active' : ''}`}>
             <StopMedia image={originImage} city={origin} code={originCode} badge="START" />
-            <div className="gv-story-docked-card__body"><div><p>STARTING POINT</p><h3>{origin}</h3><span>{originCode}</span></div><div className="gv-story-docked-facts"><span><b>Route</b>Journey begins</span><span><b>Dates</b>Chosen automatically</span></div></div>
+            <div className="gv-story-docked-card__body">
+              <div className="gv-story-docked-title"><p>STARTING POINT</p><h3>{origin}</h3><span>{originCode}</span></div>
+              <div className="gv-story-docked-facts gv-story-docked-facts--simple"><span><b>Route</b>Journey begins</span><span><b>Dates</b>Chosen automatically</span></div>
+            </div>
           </article>
         ) : null}
 
@@ -150,17 +148,28 @@ export function JourneyStoryDeck710DR4({
           const nights = stopNights(item, index);
           const flightEstimate = incomingFlightEstimate(item, index);
           const hotelEstimate = stayEstimate(item, index);
+          const previous = index === 0 ? { city: origin, code: originCode } : stops[index - 1];
+          const routeLabel = `${previous.city}${previous.code ? ` (${previous.code})` : ''} → ${city.city}${city.code ? ` (${city.code})` : ''}`;
           return (
             <article key={`${city.id || city.city}-${index}`} className={`gv-story-docked-card${latestRevealed === index ? ' is-new' : ''}${activeStop === index ? ' is-active' : ''}`}>
               <StopMedia image={stopImage(item, index, city)} city={city.city} code={city.code} badge={`STOP ${index + 1}`} />
               <button type="button" className="gv-story-card-shuffle" disabled={busy || !city.id || candidateCities.length === 0} onClick={() => onShuffleStop(index)} aria-label={`Shuffle ${city.city}`}>↻ <span>Shuffle</span></button>
               <div className="gv-story-docked-card__body">
-                <div><p>{city.country || 'DESTINATION'}</p><h3>{city.city}</h3><span>{city.code || 'Airport'}</span></div>
-                <div className="gv-story-docked-facts">
-                  <span><b>Stay</b>{nights ? `${Math.round(nights)} night${Math.round(nights) === 1 ? '' : 's'}` : 'Allocated by Globevoy'}</span>
-                  <span><b>Flight</b>{flightEstimate ? `${money(flightEstimate, search.currency)} planning` : 'Automatic fare date'}</span>
-                  <span><b>Hotel</b>{hotelEstimate ? `${money(hotelEstimate, search.currency)} planning` : 'Stay evidence later'}</span>
+                <div className="gv-story-docked-title"><p>{city.country || 'DESTINATION'}</p><h3>{city.city}</h3><span>{city.code || 'Airport'}{nights ? ` · ${Math.round(nights)} night${Math.round(nights) === 1 ? '' : 's'}` : ''}</span></div>
+
+                <div className="gv-story-detail-stack">
+                  <section className="gv-story-detail-panel is-flight" aria-label={`Flight into ${city.city}`}>
+                    <span className="gv-story-detail-icon" aria-hidden="true">✈</span>
+                    <div><small>FLIGHT</small><strong>{routeLabel}</strong><em>Dates chosen automatically</em></div>
+                    <b>{flightEstimate ? money(flightEstimate, search.currency) : 'Planning'}</b>
+                  </section>
+                  <section className="gv-story-detail-panel is-hotel" aria-label={`Stay in ${city.city}`}>
+                    <span className="gv-story-detail-icon" aria-hidden="true">▣</span>
+                    <div><small>STAY</small><strong>{nights ? `${Math.round(nights)} night${Math.round(nights) === 1 ? '' : 's'} in ${city.city}` : `Stay in ${city.city}`}</strong><em>Hotel details after current-price check</em></div>
+                    <b>{hotelEstimate ? money(hotelEstimate, search.currency) : 'Planning'}</b>
+                  </section>
                 </div>
+
                 <div className="gv-story-docked-evidence"><PriceEvidenceBadge evidence={item.evidence} /></div>
               </div>
             </article>
@@ -170,12 +179,28 @@ export function JourneyStoryDeck710DR4({
         {revealSet.has(stops.length) ? (
           <article className={`gv-story-docked-card is-return${latestRevealed === stops.length ? ' is-new' : ''}${activeStop === stops.length ? ' is-active' : ''}`}>
             <StopMedia image={originImage} city={origin} code={originCode} badge="RETURN" />
-            <div className="gv-story-docked-card__body"><div><p>RETURN HOME</p><h3>{origin}</h3><span>{originCode}</span></div><div className="gv-story-docked-facts"><span><b>Journey</b>Complete</span><span><b>Total</b>{money(item.total, search.currency)}</span></div></div>
+            <div className="gv-story-docked-card__body">
+              <div className="gv-story-docked-title"><p>RETURN HOME</p><h3>{origin}</h3><span>{originCode}</span></div>
+              <div className="gv-story-docked-facts gv-story-docked-facts--simple"><span><b>Journey</b>Complete</span><span><b>Total</b>{money(item.total, search.currency)}</span></div>
+            </div>
           </article>
+        ) : null}
+
+        {canAdd ? (
+          <details className="gv-story-add-card">
+            <summary><span>+</span><strong>Add destination</strong><small>Recalculate this route with one more feasible stop.</small></summary>
+            <div className="gv-story-add-card__menu">
+              {candidateCities.slice(0, 4).map((city) => (
+                <button key={city.id || city.city} type="button" disabled={busy || !city.id} onClick={() => onAddDestination(city)}>
+                  <strong>{city.city}</strong><span>{city.country || 'Suggested stop'}</span>
+                </button>
+              ))}
+            </div>
+          </details>
         ) : null}
       </div>
 
-      {!revealed.length ? <div className="gv-story-deck__waiting"><span>✈</span><strong>Your trip cards will land here.</strong><small>Watch the map. Each stop docks into the journey as the plane arrives.</small></div> : null}
+      {!revealed.length ? <div className="gv-story-deck__waiting"><span>✈</span><strong>Your trip cards will land here.</strong><small>Each stop docks into the journey as the plane arrives.</small></div> : null}
     </section>
   );
 }
