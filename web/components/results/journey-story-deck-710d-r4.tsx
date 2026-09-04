@@ -170,7 +170,7 @@ export function JourneyStoryDeck710DR4({
               <div className="gv-story-docked-title"><p>STARTING POINT</p><h3>{origin}</h3><span>{originCode}</span></div>
               <div className="gv-story-docked-facts gv-story-docked-facts--simple">
                 <span><b>Route</b>Journey begins</span>
-                <span><b>Dates</b>{tripStart || (automaticDatesLoading ? 'Finding best date…' : 'Chosen automatically')}</span>
+                <span><b>Dates</b>{tripStart || (automaticDatesLoading ? 'Checking provider-backed dates…' : 'Dates not yet verified')}</span>
               </div>
             </div>
           </article>
@@ -202,7 +202,7 @@ export function JourneyStoryDeck710DR4({
                     <div>
                       <small>FLIGHT</small>
                       <strong>{routeLabel}</strong>
-                      <em>{fareMeta || (automaticDatesLoading ? 'Finding cheapest practical date…' : 'Dates chosen automatically')}</em>
+                      <em>{fareMeta || (automaticDatesLoading ? 'Checking provider-backed dates…' : 'Planning estimate · dates not yet verified')}</em>
                     </div>
                     <b>{fareAmount ? money(fareAmount, fareCurrency) : planningFlight ? money(planningFlight, search.currency) : 'Planning'}</b>
                   </section>
