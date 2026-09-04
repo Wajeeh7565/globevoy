@@ -5,40 +5,39 @@
   --gv-brand-700:#0a7d78;
   --gv-brand-600:#0d9488;
   --gv-brand-500:#13aa9d;
-  --gv-brand-100:#e3f7f3;
-  --gv-navy-950:#061a2b;
-  --gv-navy-900:#08253a;
+  --gv-brand-100:#e8f7f4;
+  --gv-navy-950:#020c1d;
+  --gv-navy-900:#071a31;
   --gv-orange:#f59a2f;
-  --gv-sand-50:#faf9f6;
-  --gv-sand-100:#f3f0e9;
-  --gv-text:#15211f;
-  --gv-text-muted:#64716e;
-  --gv-line:#dfe6e2;
+  --gv-sand-50:#ffffff;
+  --gv-sand-100:#f5f7f9;
+  --gv-text:#12202b;
+  --gv-text-muted:#66727a;
+  --gv-line:#dce4e8;
   --gv-focus:#15a89a;
   --gv-shell-width:1440px;
 }
 
-html{background:var(--gv-sand-50)}
-body{background:var(--gv-sand-50);color:var(--gv-text)}
-
-.gv-app-shell{min-height:100vh;background:var(--gv-sand-50)}
+html{background:#fff}
+body{background:#fff;color:var(--gv-text)}
+.gv-app-shell{min-height:100vh;background:#fff}
 
 .gv-header{
   position:sticky;
   top:0;
   z-index:50;
-  background:rgba(6,26,43,.97);
-  border-bottom:1px solid rgba(255,255,255,.09);
-  box-shadow:0 8px 24px rgba(2,14,24,.16);
-  -webkit-backdrop-filter:blur(18px);
-  backdrop-filter:blur(18px);
+  background:rgba(2,12,29,.985);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  box-shadow:0 7px 22px rgba(1,9,20,.16);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
 }
 
 .gv-header__inner{
   width:min(100%,var(--gv-shell-width));
-  height:68px;
+  height:66px;
   margin:0 auto;
-  padding:0 32px;
+  padding:0 30px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -48,38 +47,26 @@ body{background:var(--gv-sand-50);color:var(--gv-text)}
 .gv-brand{
   display:inline-flex;
   align-items:center;
-  gap:11px;
+  gap:8px;
+  min-height:44px;
   color:#fff;
   text-decoration:none;
-  font-weight:850;
-  letter-spacing:-.035em;
-  font-size:1.08rem;
 }
 
-.gv-brand__mark{
-  position:relative;
-  display:grid;
-  place-items:center;
-  width:36px;
-  height:36px;
-  border-radius:999px;
-  border:1px solid rgba(111,225,215,.48);
-  background:radial-gradient(circle at 36% 30%,#1bc7b7 0 20%,#0c7778 44%,#073747 72%,#061a2b 100%);
-  color:#fff;
-  font-weight:900;
-  box-shadow:0 7px 22px rgba(2,12,20,.28),inset 0 0 0 2px rgba(255,255,255,.04);
+.gv-brand__mark-image{
+  display:block;
+  width:34px;
+  height:33px;
+  object-fit:cover;
+  border-radius:9px;
 }
 
-.gv-brand__mark::after{
-  content:"";
-  position:absolute;
-  width:9px;
-  height:9px;
-  right:-2px;
-  top:4px;
-  background:var(--gv-orange);
-  clip-path:polygon(0 0,100% 50%,0 100%,24% 50%);
-  transform:rotate(-20deg);
+.gv-brand__wordmark{
+  display:block;
+  width:auto;
+  height:24px;
+  max-width:120px;
+  object-fit:contain;
 }
 
 .gv-header__actions{display:flex;align-items:center;gap:18px}
@@ -87,34 +74,28 @@ body{background:var(--gv-sand-50);color:var(--gv-text)}
 .gv-primary-nav a,
 .gv-account-nav a,
 .gv-account-nav__signin{
-  min-height:40px;
+  min-height:38px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  padding:8px 12px;
+  padding:8px 13px;
   border:0;
-  border-radius:999px;
+  border-radius:10px;
   background:transparent;
-  color:rgba(255,255,255,.88);
+  color:rgba(255,255,255,.9);
   text-decoration:none;
   font:inherit;
-  font-size:.9rem;
-  font-weight:720;
+  font-size:.86rem;
+  font-weight:760;
   cursor:pointer;
 }
 
 .gv-primary-nav a:hover,
 .gv-account-nav a:hover,
-.gv-account-nav__signin:hover{background:rgba(55,201,188,.13);color:#fff}
-
+.gv-account-nav__signin:hover{background:rgba(255,255,255,.08);color:#fff}
 .gv-account-nav{display:flex;align-items:center;gap:4px}
-.gv-account-nav__signin{
-  border:1px solid rgba(116,226,216,.52);
-  background:rgba(255,255,255,.06);
-  color:#fff;
-  padding-inline:16px;
-}
-.gv-account-nav__signin:disabled{cursor:default;opacity:.65}
+.gv-account-nav__signin{border:1px solid rgba(255,255,255,.38);background:rgba(255,255,255,.035);color:#fff;padding-inline:15px}
+.gv-account-nav__signin:disabled{cursor:default;opacity:.58}
 
 .gv-brand:focus-visible,
 .gv-primary-nav a:focus-visible,
@@ -135,7 +116,7 @@ body{background:var(--gv-sand-50);color:var(--gv-text)}
 .gv-footer__inner{
   width:min(100%,var(--gv-shell-width));
   margin:0 auto;
-  padding:30px 32px 34px;
+  padding:28px 30px 31px;
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
@@ -143,22 +124,23 @@ body{background:var(--gv-sand-50);color:var(--gv-text)}
 }
 
 .gv-footer__brand{display:grid;gap:5px}
-.gv-footer__brand strong{color:#fff;font-size:.98rem;letter-spacing:-.02em}
-.gv-footer__brand strong::after{content:"";display:inline-block;width:6px;height:6px;margin-left:4px;background:var(--gv-orange);clip-path:polygon(0 0,100% 50%,0 100%)}
-.gv-footer__brand span{font-size:.82rem}
-.gv-footer__trust{max-width:540px;margin:0;text-align:right;color:rgba(255,255,255,.62);font-size:.78rem;line-height:1.55}
+.gv-footer__brand strong{color:#fff;font-size:.96rem;letter-spacing:-.02em}
+.gv-footer__brand span{font-size:.8rem}
+.gv-footer__trust{max-width:540px;margin:0;text-align:right;color:rgba(255,255,255,.6);font-size:.76rem;line-height:1.55}
 
 @media(max-width:760px){
-  .gv-header__inner{height:62px;padding:0 18px;gap:10px}
+  .gv-header__inner{height:60px;padding:0 16px;gap:10px}
   .gv-header__actions{gap:4px}
   .gv-primary-nav{display:none}
   .gv-account-nav{gap:1px}
-  .gv-account-nav a,.gv-account-nav__signin{min-height:38px;padding:7px 10px;font-size:.82rem}
-  .gv-brand__mark{width:34px;height:34px}
-  .gv-footer__inner{padding:24px 18px 28px;flex-direction:column;gap:12px}
+  .gv-account-nav a,.gv-account-nav__signin{min-height:36px;padding:7px 10px;font-size:.8rem}
+  .gv-brand{gap:6px}
+  .gv-brand__mark-image{width:31px;height:30px;border-radius:8px}
+  .gv-brand__wordmark{height:21px;max-width:105px}
+  .gv-footer__inner{padding:23px 18px 27px;flex-direction:column;gap:12px}
   .gv-footer__trust{text-align:left}
 }
 
 @media(prefers-reduced-motion:reduce){
-  .gv-brand__mark,.gv-primary-nav a,.gv-account-nav a,.gv-account-nav__signin{transition:none!important}
+  .gv-primary-nav a,.gv-account-nav a,.gv-account-nav__signin{transition:none!important}
 }
