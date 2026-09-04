@@ -62,6 +62,11 @@ const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
 // Nuitee hotel Rates -> PREBOOK runs only when its staging feature flag is on.
 const stagingBooking707B = require('./services/staging-booking-revalidation-708c');
 
+// GV-FLIGHT-710E-R3A is staging-only and read-only. It materializes the
+// automatic cheapest-practical date chain for one selected multi-city route
+// using existing provider fare observations. It never books or reserves.
+const stagingAutoDates710ER3A = require('./services/staging-multicity-auto-dates-710e-r3a');
+
 const staging = require('./staging-lambda');
 
 const VERSION = 'GV-REC-702D-STAGING-QA-R1';
@@ -117,9 +122,10 @@ async function handler(event = {}) {
     const path = eventPath(event);
     const method = eventMethod(event);
     // Keep the exact historical 705B route expression while adding sibling routes.
-    const isAccountRoute = eventPath(event) === '/api/account/session';
+    const isAccountRoute = path === '/api/account/session';
     const isSavedTripsRoute = path === stagingSavedTrips705C.ROUTE_PATH;
     const isBookingRevalidationRoute = path === stagingBooking707B.ROUTE_PATH;
+    const isAutoDatesRoute = path === stagingAutoDates710ER3A.ROUTE_PATH;
     let response;
     if (method === 'OPTIONS' && isSavedTripsRoute) {
       // 705C CRUD needs PUT/DELETE in addition to the production GET/POST CORS
@@ -127,12 +133,16 @@ async function handler(event = {}) {
       response = savedTripsPreflight705CR4(event);
     } else if (method === 'OPTIONS' && isBookingRevalidationRoute) {
       response = stagingBooking707B.preflight(event);
+    } else if (method === 'OPTIONS' && isAutoDatesRoute) {
+      response = stagingAutoDates710ER3A.preflight(event);
     } else if (method !== 'OPTIONS' && isAccountRoute) {
       response = await stagingAccount705B.handleAccountSession705B(event);
     } else if (method !== 'OPTIONS' && isSavedTripsRoute) {
       response = await stagingSavedTrips705C.handleSavedTrips705C(event);
     } else if (method !== 'OPTIONS' && isBookingRevalidationRoute) {
       response = await stagingBooking707B.handleBookingRevalidation707B(event);
+    } else if (method !== 'OPTIONS' && isAutoDatesRoute) {
+      response = await stagingAutoDates710ER3A.handle(event);
     } else {
       // Existing staging/prod gateway remains authoritative for OPTIONS/CORS and
       // every non-account route. This preserves all historical behavior.
@@ -153,6 +163,7 @@ async function handler(event = {}) {
     headers['X-Globevoy-Staging-Account'] = stagingAccount705B.enabled() ? stagingAccount705B.VERSION : 'disabled';
     headers['X-Globevoy-Staging-Saved-Trips'] = stagingSavedTrips705C.enabled() ? stagingSavedTrips705C.VERSION : 'disabled';
     headers['X-Globevoy-Staging-Booking-Revalidation'] = stagingBooking707B.VERSION;
+    headers['X-Globevoy-Staging-Automatic-Dates'] = stagingAutoDates710ER3A.enabled() ? stagingAutoDates710ER3A.VERSION : 'disabled';
     return { ...response, headers };
   }, {
     requestId: event?.requestContext?.requestId || event?.requestContext?.http?.requestId || null
@@ -178,6 +189,11 @@ module.exports = {
   account705BStatus: stagingAccount705B.status705B,
   savedTrips705CStatus: stagingSavedTrips705C.status705C,
   booking707BStatus: stagingBooking707B.status707B,
+  automaticDates710ER3AStatus: () => ({
+    version: stagingAutoDates710ER3A.VERSION,
+    enabled: stagingAutoDates710ER3A.enabled(),
+    routePath: stagingAutoDates710ER3A.ROUTE_PATH
+  }),
   _internal: {
     eventPath,
     eventMethod,
