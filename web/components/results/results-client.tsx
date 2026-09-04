@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PriceEvidenceBadge } from '@/components/price-evidence-badge';
+import { JourneyStoryDeck710DR4 } from '@/components/results/journey-story-deck-710d-r4';
 import { ResultsMap710D } from '@/components/results/results-map-710d';
 import { getPublicMultiCityTours, GlobevoyApiError } from '@/lib/api';
 import {
@@ -9,10 +10,11 @@ import {
   multiCityApiParams,
   parseResultsSearch,
   type RecommendationCardModel,
+  type ResultsCity,
   type ResultsSearch
 } from '@/lib/recommendations-708a';
 
-const GV_WEB_710D_VERSION = 'GV-WEB-710D-R3';
+const GV_WEB_710D_VERSION = 'GV-WEB-710D-R4';
 
 type NoFeasibleTour = {
   reason?: string;
@@ -56,6 +58,20 @@ function routeLine(item: RecommendationCardModel, search: ResultsSearch): string
   return [origin, ...(item.cities || []).map((city) => city.city), origin];
 }
 
+function cityKey(city: ResultsCity): string {
+  return String(city.id || city.code || `${city.city}|${city.country}`).trim().toLowerCase();
+}
+
+function cityIds(item: RecommendationCardModel): string[] {
+  return (item.cities || []).map((city) => String(city.id || '').trim().toLowerCase()).filter(Boolean);
+}
+
+function samePreferredStops(item: RecommendationCardModel, preferredIds: string[]): boolean {
+  const current = cityIds(item).slice().sort();
+  const wanted = preferredIds.map((id) => id.toLowerCase()).slice().sort();
+  return current.length === wanted.length && current.every((id, index) => id === wanted[index]);
+}
+
 function RouteChoice({ item, search, active, onSelect }: {
   item: RecommendationCardModel;
   search: ResultsSearch;
@@ -84,7 +100,14 @@ export function ResultsClient() {
   const [formNights, setFormNights] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [storyStop, setStoryStop] = useState<number | null>(null);
+  const [revealedStops, setRevealedStops] = useState<number[]>([]);
+  const [latestRevealed, setLatestRevealed] = useState<number | null>(null);
   const [replaySignal, setReplaySignal] = useState(0);
+  const [routeActionBusy, setRouteActionBusy] = useState(false);
+  const [routeActionMessage, setRouteActionMessage] = useState('');
+  const [shuffleCursor, setShuffleCursor] = useState(0);
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const revealTimers = useRef<number[]>([]);
 
   useEffect(() => {
     const nextParams = currentSearch();
@@ -96,6 +119,18 @@ export function ResultsClient() {
     setFormNights(String(nextSearch.nights));
   }, []);
 
+  useEffect(() => () => {
+    revealTimers.current.forEach((timer) => window.clearTimeout(timer));
+  }, []);
+
+  function resetStory() {
+    revealTimers.current.forEach((timer) => window.clearTimeout(timer));
+    revealTimers.current = [];
+    setStoryStop(null);
+    setRevealedStops([]);
+    setLatestRevealed(null);
+  }
+
   const load = useCallback(async () => {
     if (!search) return;
     setLoading(true);
@@ -103,7 +138,10 @@ export function ResultsClient() {
     setRoutes([]);
     setSelectedId(null);
     setStoryStop(null);
+    setRevealedStops([]);
+    setLatestRevealed(null);
     setNoFeasible(null);
+    setRouteActionMessage('');
     if (!search.rawOrigin && !search.originCode) {
       setLoading(false);
       setError('Choose a starting city before asking Globevoy for multi-city routes.');
@@ -136,11 +174,36 @@ export function ResultsClient() {
 
   const selected = useMemo(() => routes.find((item) => item.id === selectedId) || routes[0] || null, [routes, selectedId]);
 
+  const candidateCities = useMemo(() => {
+    if (!selected) return [];
+    const selectedKeys = new Set((selected.cities || []).map(cityKey));
+    const unique = new Map<string, ResultsCity>();
+    routes.forEach((route) => (route.cities || []).forEach((city) => {
+      const key = cityKey(city);
+      if (!selectedKeys.has(key) && !unique.has(key)) unique.set(key, city);
+    }));
+    return [...unique.values()];
+  }, [routes, selected]);
+
   function chooseRoute(id: string) {
     setSelectedId(id);
-    setStoryStop(null);
+    resetStory();
+    setRouteActionMessage('');
+    setAdjustOpen(false);
     setReplaySignal((value) => value + 1);
   }
+
+  const handleStoryStop = useCallback((index: number | null) => {
+    setStoryStop(index);
+    if (index == null) return;
+    const revealTimer = window.setTimeout(() => {
+      setRevealedStops((current) => current.includes(index) ? current : [...current, index]);
+      setLatestRevealed(index);
+      const clearTimer = window.setTimeout(() => setLatestRevealed((current) => current === index ? null : current), 950);
+      revealTimers.current.push(clearTimer);
+    }, index === -1 ? 280 : 520);
+    revealTimers.current.push(revealTimer);
+  }, []);
 
   function applyEdit() {
     const budget = Number(formBudget);
@@ -153,21 +216,77 @@ export function ResultsClient() {
     window.location.assign(`/react/results/?${next.toString()}`);
   }
 
-  function openJourney(item: RecommendationCardModel) {
-    if (!item.routeId) return;
-    const next = new URLSearchParams(params);
-    next.set('routeId', item.routeId);
-    window.location.assign(`/react/journey/?${next.toString()}`);
+  function scrollToTrip() {
+    document.getElementById('gv-story-trip')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function recalculatePreferred(preferredIds: string[], actionLabel: string) {
+    if (!search || routeActionBusy || preferredIds.length < 2) return;
+    setRouteActionBusy(true);
+    setRouteActionMessage(`${actionLabel}…`);
+    try {
+      const payload = await getPublicMultiCityTours({
+        ...multiCityApiParams(search),
+        preferredStops: preferredIds.join(','),
+        maxStops: preferredIds.length
+      });
+      const next = adaptMultiCityTours(payload, search).filter((item) => item.kind === 'multi').slice(0, 3);
+      const exact = next.find((item) => samePreferredStops(item, preferredIds));
+      if (!exact) {
+        setRouteActionMessage('That change did not produce a feasible protected-budget route. Your current trip is unchanged.');
+        return;
+      }
+      setRoutes(next);
+      setSelectedId(exact.id);
+      resetStory();
+      setReplaySignal((value) => value + 1);
+      setRouteActionMessage(`${routeTitle(exact)} rebuilt within the route engine.`);
+    } catch (err) {
+      setRouteActionMessage(err instanceof GlobevoyApiError ? err.message : 'Globevoy could not recalculate that route right now.');
+    } finally {
+      setRouteActionBusy(false);
+    }
+  }
+
+  function shuffleStop(index: number) {
+    if (!selected) return;
+    const currentIds = cityIds(selected);
+    if (currentIds.length !== (selected.cities || []).length || !candidateCities.length) {
+      setRouteActionMessage('No alternate supported stop is available for this card yet.');
+      return;
+    }
+    const otherIds = new Set(currentIds.filter((_, currentIndex) => currentIndex !== index));
+    const candidates = candidateCities.filter((city) => city.id && !otherIds.has(String(city.id).toLowerCase()));
+    if (!candidates.length) {
+      setRouteActionMessage('No different feasible stop is available from the current recommendation portfolio.');
+      return;
+    }
+    const candidate = candidates[(shuffleCursor + index) % candidates.length];
+    const replacementId = String(candidate.id || '').toLowerCase();
+    const preferred = currentIds.map((id, currentIndex) => currentIndex === index ? replacementId : id);
+    setShuffleCursor((value) => value + 1);
+    void recalculatePreferred(preferred, `Trying ${candidate.city} instead`);
+  }
+
+  function addDestination(city: ResultsCity) {
+    if (!selected || !city.id) return;
+    const currentIds = cityIds(selected);
+    if (currentIds.length !== (selected.cities || []).length || currentIds.length >= 3) {
+      setRouteActionMessage('This route cannot add another supported destination in the current three-stop discovery scope.');
+      return;
+    }
+    const nextId = String(city.id).toLowerCase();
+    if (currentIds.includes(nextId)) return;
+    void recalculatePreferred([...currentIds, nextId], `Checking ${city.city} as an extra stop`);
   }
 
   if (!search) return <main className="gv-story-page"><section className="gv-story-state"><p>Preparing your route search…</p></section></main>;
 
-  const origin = originName(search);
   const selectedStops = selected?.cities || [];
   const selectedRouteLine = selected ? routeLine(selected, search) : [];
 
   return (
-    <main className="gv-story-page gv-story-page--r3">
+    <main className="gv-story-page gv-story-page--r4">
       <section className="gv-story-searchbar" aria-label="Current search">
         <div>
           <span>{search.rawOrigin || search.originCode}</span>
@@ -187,10 +306,10 @@ export function ResultsClient() {
         </section>
       ) : null}
 
-      <header className="gv-story-intro">
-        <p>{GV_WEB_710D_VERSION} · MULTI-CITY DISCOVERY</p>
-        <h1>Choose a route. Then experience the story.</h1>
-        <span>Globevoy builds a small set of connected journeys that fit your starting city and budget, then plays the route so you can experience each stop before exploring the full trip.</span>
+      <header className="gv-story-intro gv-story-intro--r4">
+        <p>{GV_WEB_710D_VERSION} · BUDGET-FIRST MULTI-CITY</p>
+        <h1>Choose a route. Watch it become your trip.</h1>
+        <span>Three connected ideas. One animated journey. Globevoy keeps the route, budget and stop logic behind the scenes.</span>
       </header>
 
       {loading ? (
@@ -208,14 +327,14 @@ export function ResultsClient() {
       {!loading && !error && selected ? (
         <>
           <section className="gv-story-route-section" aria-label="Choose a connected route">
-            <div className="gv-story-section-heading"><div><p>ROUTES</p><h2>Your trip options</h2></div><span>Choose a route and the journey story restarts automatically.</span></div>
+            <div className="gv-story-section-heading"><div><p>ROUTES</p><h2>Your trip options</h2></div><span>Pick one. The story restarts automatically.</span></div>
             <div className="gv-story-route-choices">
               {routes.map((item) => <RouteChoice key={item.id} item={item} search={search} active={item.id === selected.id} onSelect={() => chooseRoute(item.id)} />)}
             </div>
           </section>
 
           <section className="gv-story-player" aria-label="Journey player">
-            <div className="gv-story-player__copy"><p>YOUR ROUTE, IN MOTION</p><h2>Watch your journey unfold.</h2><span>The plane departs automatically. Each destination appears as a story card when you arrive, then clears as the next flight begins.</span></div>
+            <div className="gv-story-player__copy"><p>YOUR ROUTE, IN MOTION</p><h2>Watch your journey unfold.</h2><span>Each stop appears on the map, then lands in your trip deck below.</span></div>
             <ol className="gv-story-timeline">
               {selectedRouteLine.map((city, index) => {
                 const isStopActive = storyStop === (index === selectedRouteLine.length - 1 ? selectedStops.length : index - 1);
@@ -225,24 +344,41 @@ export function ResultsClient() {
           </section>
 
           <section className="gv-story-map-grid">
-            <ResultsMap710D item={selected} search={search} onStoryStop={setStoryStop} replaySignal={replaySignal} />
-            <aside className="gv-story-summary">
+            <ResultsMap710D item={selected} search={search} onStoryStop={handleStoryStop} replaySignal={replaySignal} />
+            <aside className="gv-story-summary gv-story-summary--r4">
               <p>YOUR GENERATED TOUR</p>
               <h2>{routeTitle(selected)}</h2>
-              <span>{selectedRouteLine.join(' → ')}</span>
+              <span>{selected.label || 'Curated route'} · {search.rawOrigin || search.originCode} loop · {selected.nights} nights · {selectedStops.length} stops</span>
+              <div className="gv-story-summary__chips"><b>GENERATED ROUTE</b><i>ESTIMATED VALUE ROUTE</i></div>
               <div className="gv-story-summary__evidence"><PriceEvidenceBadge evidence={selected.evidence} /></div>
               <dl>
                 <div><dt>Origin</dt><dd>{search.rawOrigin || search.originCode}</dd></div>
                 <div><dt>Budget</dt><dd>{money(search.budget, search.currency)}</dd></div>
-                <div><dt>Estimated total</dt><dd>{money(selected.total, search.currency)}</dd></div>
+                <div className="is-total"><dt>Estimated total</dt><dd>{money(selected.total, search.currency)}</dd></div>
                 <div><dt>Nights</dt><dd>{selected.nights}</dd></div>
                 <div><dt>Stops</dt><dd>{selectedStops.length}</dd></div>
                 <div><dt>Planning room</dt><dd>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</dd></div>
               </dl>
-              <button type="button" className="gv-story-details-link" onClick={() => openJourney(selected)}>Explore flight & hotel details →</button>
-              <small>Full provider details appear only when Globevoy has current evidence. The next page never invents flight or hotel specifics.</small>
+              <div className="gv-story-summary__buttons">
+                <button type="button" onClick={scrollToTrip}>View trip</button>
+                <button type="button" className="is-secondary" onClick={() => setAdjustOpen((value) => !value)}>Adjust trip</button>
+              </div>
+              {adjustOpen ? <div className="gv-story-adjust-panel"><button type="button" onClick={() => setEditOpen(true)}>Edit budget / length</button><button type="button" onClick={scrollToTrip}>Swap or add stops</button></div> : null}
             </aside>
           </section>
+
+          <JourneyStoryDeck710DR4
+            item={selected}
+            search={search}
+            revealed={revealedStops}
+            activeStop={storyStop}
+            latestRevealed={latestRevealed}
+            candidateCities={candidateCities}
+            busy={routeActionBusy}
+            actionMessage={routeActionMessage}
+            onShuffleStop={shuffleStop}
+            onAddDestination={addDestination}
+          />
         </>
       ) : null}
     </main>
