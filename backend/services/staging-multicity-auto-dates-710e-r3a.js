@@ -7,6 +7,12 @@
 // This endpoint does NOT book, reserve, order or ticket anything. It uses
 // cached/provider fare observations to choose dates, and fails closed when a
 // complete exact-date chain cannot be supported by provider evidence.
+//
+// R1 chain-search correction: a greedy first-leg choice can strand a later
+// exact-date leg even when another cheap provider-observed start date produces
+// a complete chain. We now try a bounded set of cheap/practical first-leg dates,
+// preserve every saved stop-night allocation exactly, and choose the cheapest
+// complete provider-backed chain. No dates are invented or shifted silently.
 
 const { getMultiCityTours } = require('../multicity-routes');
 const {
@@ -16,11 +22,13 @@ const {
 const { automaticDateFloor } = require('./price-evidence-integrity');
 
 const VERSION = 'GV-FLIGHT-710E-R3A';
+const REVISION = 'GV-FLIGHT-710E-R3A-R1';
 const ROUTE_PATH = '/api/staging/multicity-auto-dates';
 const STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
 const MINIMUM_LEAD_DAYS = 14;
 const MAX_PROVIDER_CALL_MONTHS_FIRST_LEG = 6;
-const MAX_PROVIDER_CALL_MONTHS_FOLLOWING_LEG = 2;
+const MAX_CHAIN_START_CANDIDATES = 18;
+const MAX_PROVIDER_OBSERVATIONS_PER_MONTH = 31;
 
 function enabled(env = process.env) {
   return String(env.ENABLE_STAGING_MULTICITY_AUTO_DATES_710E_R3A || '').trim().toLowerCase() === 'true';
@@ -49,7 +57,8 @@ function json(statusCode, body, origin = '') {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
     Vary: 'Origin',
-    'X-Globevoy-Automatic-Dates': VERSION
+    'X-Globevoy-Automatic-Dates': VERSION,
+    'X-Globevoy-Automatic-Dates-Revision': REVISION
   };
   if (origin === STAGING_ORIGIN) headers['Access-Control-Allow-Origin'] = STAGING_ORIGIN;
   return { statusCode, headers, body: JSON.stringify(body) };
@@ -68,7 +77,8 @@ function preflight(event = {}) {
       'Access-Control-Allow-Methods': 'GET,OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '600',
-      'X-Globevoy-Automatic-Dates': VERSION
+      'X-Globevoy-Automatic-Dates': VERSION,
+      'X-Globevoy-Automatic-Dates-Revision': REVISION
     },
     body: ''
   };
@@ -114,6 +124,34 @@ function routeBudgetPressure(tour = {}) {
   return total > 0 && usable > 0 ? Math.max(0, Math.min(1.25, total / usable)) : 0;
 }
 
+function routeCodes(leg = {}) {
+  return {
+    origin: String(leg?.from?.code || '').trim().toUpperCase(),
+    destination: String(leg?.to?.code || '').trim().toUpperCase()
+  };
+}
+
+function sameObservation(a = {}, b = {}) {
+  if (a?.evidenceId && b?.evidenceId) return a.evidenceId === b.evidenceId;
+  return safeDate(a?.departureDate) === safeDate(b?.departureDate)
+    && Number(a?.price || 0) === Number(b?.price || 0)
+    && String(a?.flightNumber || '') === String(b?.flightNumber || '');
+}
+
+function orderedStartCandidates(observations = [], context = {}) {
+  const rows = Array.isArray(observations)
+    ? observations.filter((row) => safeDate(row?.departureDate) && Number(row?.price) > 0)
+    : [];
+  const sorted = rows.slice().sort((a, b) => Number(a.price) - Number(b.price)
+    || Number(a.timingQuality || 0) - Number(b.timingQuality || 0)
+    || String(a.departureDate).localeCompare(String(b.departureDate)));
+  const preferred = selectBestUsableObservation(sorted, context);
+  const ordered = preferred
+    ? [preferred, ...sorted.filter((row) => !sameObservation(row, preferred))]
+    : sorted;
+  return ordered.slice(0, MAX_CHAIN_START_CANDIDATES);
+}
+
 function publicSelection(row = {}, leg = {}, targetDate = null) {
   return {
     legNumber: leg.legNumber || null,
@@ -132,6 +170,8 @@ function publicSelection(row = {}, leg = {}, targetDate = null) {
     selectionReason: row.selectionReason || null,
     timingLabel: row.timingLabel || null,
     pricePremiumVsCheapest: Number.isFinite(Number(row.pricePremiumVsCheapest)) ? Number(row.pricePremiumVsCheapest) : null,
+    flightQualityStatus: row.flightQualityStatus || null,
+    flightQualityWarnings: Array.isArray(row.flightQualityWarnings) ? row.flightQualityWarnings : [],
     targetDate,
     evidence: row.priceEvidence || null,
     evidenceId: row.evidenceId || row.priceEvidence?.evidenceId || null,
@@ -141,11 +181,37 @@ function publicSelection(row = {}, leg = {}, targetDate = null) {
   };
 }
 
+function totalObservedPrice(selectedLegs = []) {
+  return Number(selectedLegs.reduce((sum, leg) => sum + (Number(leg?.price) || 0), 0).toFixed(2));
+}
+
+function chainQualityPenalty(selectedLegs = []) {
+  return selectedLegs.reduce((sum, leg) => {
+    const status = String(leg?.flightQualityStatus || '').toLowerCase();
+    if (status === 'limited-provider-options' || status === 'severe') return sum + 250;
+    if (status === 'caution') return sum + 60;
+    return sum;
+  }, 0);
+}
+
 async function materializeRouteDates({ tour, query = {}, now = new Date() } = {}) {
   const legs = Array.isArray(tour?.legs) ? tour.legs : [];
   const stops = Array.isArray(tour?.stops) ? tour.stops : [];
   if (!legs.length || legs.length !== stops.length + 1) {
     return { complete: false, reason: 'route-structure-incomplete', selectedLegs: [] };
+  }
+
+  for (let index = 0; index < legs.length; index += 1) {
+    const { origin, destination } = routeCodes(legs[index]);
+    if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(destination)) {
+      return {
+        complete: false,
+        reason: 'provider-route-code-missing',
+        failedLegNumber: index + 1,
+        selectedLegs: [],
+        diagnostics: []
+      };
+    }
   }
 
   const currency = String(query.currency || tour?.displayBudget?.currency || 'CAD').trim().toUpperCase();
@@ -156,96 +222,208 @@ async function materializeRouteDates({ tour, query = {}, now = new Date() } = {}
   const horizonEnd = addMonths(firstMonth, 6);
   if (!horizonEnd) return { complete: false, reason: 'invalid-planning-horizon', selectedLegs: [] };
 
-  const selectedLegs = [];
-  const diagnostics = [];
   const budgetPressure = routeBudgetPressure(tour);
-  let targetDate = null;
+  const firstLeg = legs[0];
+  const firstCodes = routeCodes(firstLeg);
+  const firstProvider = await fetchCheapestOneWayAcrossMonths({
+    origin: firstCodes.origin,
+    destination: firstCodes.destination,
+    currency,
+    startMonth: firstMonth,
+    months: MAX_PROVIDER_CALL_MONTHS_FIRST_LEG,
+    limitPerMonth: MAX_PROVIDER_OBSERVATIONS_PER_MONTH,
+    limit: MAX_PROVIDER_OBSERVATIONS_PER_MONTH
+  });
 
-  for (let index = 0; index < legs.length; index += 1) {
-    const leg = legs[index] || {};
-    const origin = String(leg?.from?.code || '').trim().toUpperCase();
-    const destination = String(leg?.to?.code || '').trim().toUpperCase();
-    if (!/^[A-Z]{3}$/.test(origin) || !/^[A-Z]{3}$/.test(destination)) {
-      return {
-        complete: false,
-        reason: 'provider-route-code-missing',
-        failedLegNumber: index + 1,
-        selectedLegs,
-        diagnostics
-      };
-    }
+  const firstObservations = (Array.isArray(firstProvider?.observations) ? firstProvider.observations : [])
+    .filter((row) => dateWithinHorizon(row?.departureDate, automaticFloor, horizonEnd));
 
-    const scanStartMonth = targetDate ? targetDate.slice(0, 7) : firstMonth;
-    const months = targetDate ? MAX_PROVIDER_CALL_MONTHS_FOLLOWING_LEG : MAX_PROVIDER_CALL_MONTHS_FIRST_LEG;
-    const provider = await fetchCheapestOneWayAcrossMonths({
+  const firstDiagnostic = {
+    legNumber: 1,
+    origin: firstCodes.origin,
+    destination: firstCodes.destination,
+    targetDate: null,
+    providerSupported: Boolean(firstProvider?.supported),
+    providerReason: firstProvider?.reason || null,
+    scannedMonths: firstProvider?.scannedMonths || [],
+    eligibleObservationCount: firstObservations.length,
+    cacheHit: Boolean(firstProvider?.cacheHit)
+  };
+
+  if (!firstObservations.length) {
+    return {
+      complete: false,
+      reason: 'no-automatic-date-observation',
+      failedLegNumber: 1,
+      automaticFloor,
+      horizonStartMonth: firstMonth,
+      horizonMonths: 6,
+      selectedLegs: [],
+      diagnostics: [firstDiagnostic],
+      chainSearch: { strategy: 'bounded-exact-chain-search', attemptedStartDates: 0, viableChains: 0 }
+    };
+  }
+
+  const startCandidates = orderedStartCandidates(firstObservations, {
+    pickRole: tour.tourRole,
+    targetDate: null,
+    budgetPressure,
+    distanceKm: Number(firstLeg.distanceKm || 0)
+  });
+
+  // Cache one-month provider scans across candidate attempts. A failed greedy
+  // start date should not multiply provider traffic for the same route/month.
+  const monthlyProviderCache = new Map();
+  async function fetchFollowingMonth(leg, month) {
+    const { origin, destination } = routeCodes(leg);
+    const key = `${origin}:${destination}:${currency}:${month}`;
+    if (monthlyProviderCache.has(key)) return monthlyProviderCache.get(key);
+    const pending = fetchCheapestOneWayAcrossMonths({
       origin,
       destination,
       currency,
-      startMonth: scanStartMonth,
-      months,
-      limitPerMonth: 10,
-      limit: 24
+      startMonth: month,
+      months: 1,
+      limitPerMonth: MAX_PROVIDER_OBSERVATIONS_PER_MONTH,
+      limit: MAX_PROVIDER_OBSERVATIONS_PER_MONTH
     });
+    monthlyProviderCache.set(key, pending);
+    return pending;
+  }
 
-    let observations = Array.isArray(provider?.observations) ? provider.observations : [];
-    observations = observations.filter((row) => dateWithinHorizon(row?.departureDate, automaticFloor, horizonEnd));
-    if (targetDate) observations = exactDateRows(observations, targetDate);
+  const completeChains = [];
+  const attempts = [];
+  let bestPartial = null;
 
-    diagnostics.push({
-      legNumber: index + 1,
-      origin,
-      destination,
-      targetDate,
-      providerSupported: Boolean(provider?.supported),
-      providerReason: provider?.reason || null,
-      scannedMonths: provider?.scannedMonths || [],
-      eligibleObservationCount: observations.length,
-      cacheHit: Boolean(provider?.cacheHit)
-    });
-
-    if (!observations.length) {
-      return {
-        complete: false,
-        reason: targetDate ? 'no-provider-observation-for-required-date' : 'no-automatic-date-observation',
-        failedLegNumber: index + 1,
-        targetDate,
-        automaticFloor,
-        horizonStartMonth: firstMonth,
-        horizonMonths: 6,
-        selectedLegs,
-        diagnostics
-      };
-    }
-
-    const selected = selectBestUsableObservation(observations, {
+  for (const candidate of startCandidates) {
+    const selectedLegs = [];
+    const diagnostics = [{ ...firstDiagnostic, candidateDepartureDate: safeDate(candidate.departureDate) }];
+    const firstSelected = selectBestUsableObservation([candidate], {
       pickRole: tour.tourRole,
-      targetDate,
+      targetDate: null,
       maxDateShiftDays: 0,
       budgetPressure,
-      distanceKm: Number(leg.distanceKm || 0)
-    });
-    if (!selected?.departureDate) {
-      return {
-        complete: false,
-        reason: 'no-acceptable-provider-observation',
-        failedLegNumber: index + 1,
-        selectedLegs,
-        diagnostics
-      };
+      distanceKm: Number(firstLeg.distanceKm || 0)
+    }) || candidate;
+    selectedLegs.push(publicSelection(firstSelected, firstLeg, null));
+
+    let targetDate = addDays(firstSelected.departureDate, Math.max(1, Math.round(Number(stops[0]?.nights || 0))));
+    let failure = null;
+
+    if (!targetDate) {
+      failure = { reason: 'night-allocation-date-error', failedLegNumber: 1, targetDate: null };
     }
 
-    selectedLegs.push(publicSelection(selected, leg, targetDate));
-
-    if (index < stops.length) {
-      const nights = Math.max(1, Math.round(Number(stops[index]?.nights || 0)));
-      targetDate = addDays(selected.departureDate, nights);
-      if (!targetDate) {
-        return { complete: false, reason: 'night-allocation-date-error', failedLegNumber: index + 1, selectedLegs, diagnostics };
+    for (let index = 1; !failure && index < legs.length; index += 1) {
+      const leg = legs[index];
+      const { origin, destination } = routeCodes(leg);
+      const month = safeMonth(targetDate);
+      if (!month) {
+        failure = { reason: 'night-allocation-date-error', failedLegNumber: index, targetDate };
+        break;
       }
+
+      const provider = await fetchFollowingMonth(leg, month);
+      const monthObservations = (Array.isArray(provider?.observations) ? provider.observations : [])
+        .filter((row) => dateWithinHorizon(row?.departureDate, automaticFloor, horizonEnd));
+      const observations = exactDateRows(monthObservations, targetDate);
+
+      diagnostics.push({
+        legNumber: index + 1,
+        origin,
+        destination,
+        targetDate,
+        providerSupported: Boolean(provider?.supported),
+        providerReason: provider?.reason || null,
+        scannedMonths: provider?.scannedMonths || [],
+        eligibleObservationCount: observations.length,
+        monthObservationCount: monthObservations.length,
+        cacheHit: Boolean(provider?.cacheHit)
+      });
+
+      if (!observations.length) {
+        failure = {
+          reason: 'no-provider-observation-for-required-date',
+          failedLegNumber: index + 1,
+          targetDate
+        };
+        break;
+      }
+
+      const selected = selectBestUsableObservation(observations, {
+        pickRole: tour.tourRole,
+        targetDate,
+        maxDateShiftDays: 0,
+        budgetPressure,
+        distanceKm: Number(leg.distanceKm || 0)
+      });
+      if (!selected?.departureDate) {
+        failure = { reason: 'no-acceptable-provider-observation', failedLegNumber: index + 1, targetDate };
+        break;
+      }
+
+      selectedLegs.push(publicSelection(selected, leg, targetDate));
+
+      if (index < stops.length) {
+        const nights = Math.max(1, Math.round(Number(stops[index]?.nights || 0)));
+        targetDate = addDays(selected.departureDate, nights);
+        if (!targetDate) {
+          failure = { reason: 'night-allocation-date-error', failedLegNumber: index + 1, targetDate: null };
+          break;
+        }
+      }
+    }
+
+    const attempt = {
+      startDate: safeDate(firstSelected.departureDate),
+      complete: !failure && selectedLegs.length === legs.length,
+      observedLegs: selectedLegs.length,
+      reason: failure?.reason || null,
+      failedLegNumber: failure?.failedLegNumber || null,
+      targetDate: failure?.targetDate || null
+    };
+    attempts.push(attempt);
+
+    if (attempt.complete) {
+      const observedPrice = totalObservedPrice(selectedLegs);
+      completeChains.push({
+        selectedLegs,
+        diagnostics,
+        totalObservedFlightPrice: observedPrice,
+        rankScore: observedPrice + chainQualityPenalty(selectedLegs)
+      });
+    } else if (!bestPartial || selectedLegs.length > bestPartial.selectedLegs.length) {
+      bestPartial = { selectedLegs, diagnostics, failure };
     }
   }
 
-  const totalObservedFlightPrice = selectedLegs.reduce((sum, leg) => sum + (Number(leg.price) || 0), 0);
+  if (!completeChains.length) {
+    const partial = bestPartial || { selectedLegs: [], diagnostics: [firstDiagnostic], failure: null };
+    return {
+      complete: false,
+      reason: 'no-complete-provider-date-chain',
+      failedLegNumber: partial.failure?.failedLegNumber || null,
+      targetDate: partial.failure?.targetDate || null,
+      automaticFloor,
+      horizonStartMonth: firstMonth,
+      horizonMonths: 6,
+      selectedLegs: partial.selectedLegs,
+      diagnostics: partial.diagnostics,
+      chainSearch: {
+        strategy: 'bounded-exact-chain-search',
+        preservedStopNights: true,
+        attemptedStartDates: attempts.length,
+        viableChains: 0,
+        attempts: attempts.slice(0, MAX_CHAIN_START_CANDIDATES)
+      }
+    };
+  }
+
+  completeChains.sort((a, b) => a.rankScore - b.rankScore
+    || a.totalObservedFlightPrice - b.totalObservedFlightPrice
+    || String(a.selectedLegs[0]?.departureDate || '').localeCompare(String(b.selectedLegs[0]?.departureDate || '')));
+  const chosen = completeChains[0];
+
   return {
     complete: true,
     reason: null,
@@ -253,14 +431,21 @@ async function materializeRouteDates({ tour, query = {}, now = new Date() } = {}
     horizonStartMonth: firstMonth,
     horizonMonths: 6,
     currency,
-    departureDate: selectedLegs[0]?.departureDate || null,
-    returnDate: selectedLegs[selectedLegs.length - 1]?.departureDate || null,
-    selectedLegs,
-    totalObservedFlightPrice: Number(totalObservedFlightPrice.toFixed(2)),
+    departureDate: chosen.selectedLegs[0]?.departureDate || null,
+    returnDate: chosen.selectedLegs[chosen.selectedLegs.length - 1]?.departureDate || null,
+    selectedLegs: chosen.selectedLegs,
+    totalObservedFlightPrice: chosen.totalObservedFlightPrice,
     sourceType: 'CACHED',
     sourceWording: 'Provider-observed fare dates — current availability still requires revalidation',
     currentAvailabilityVerified: false,
-    diagnostics
+    diagnostics: chosen.diagnostics,
+    chainSearch: {
+      strategy: 'bounded-exact-chain-search',
+      preservedStopNights: true,
+      attemptedStartDates: attempts.length,
+      viableChains: completeChains.length,
+      selectedRankScore: Number(chosen.rankScore.toFixed(2))
+    }
   };
 }
 
@@ -268,11 +453,11 @@ async function handle(event = {}) {
   const origin = headerValue(event.headers || {}, 'origin');
   if (origin !== STAGING_ORIGIN) return json(403, { ok: false, error: 'staging-origin-not-allowed' }, origin);
   if (eventMethod(event) !== 'GET') return json(405, { ok: false, error: 'GET required' }, origin);
-  if (!enabled()) return json(200, { ok: true, supported: false, version: VERSION, reason: 'feature-disabled' }, origin);
+  if (!enabled()) return json(200, { ok: true, supported: false, version: VERSION, revision: REVISION, reason: 'feature-disabled' }, origin);
 
   const query = queryParams(event);
   const routeId = String(query.routeId || '').trim();
-  if (!routeId) return json(400, { ok: false, supported: true, version: VERSION, error: 'routeId-required' }, origin);
+  if (!routeId) return json(400, { ok: false, supported: true, version: VERSION, revision: REVISION, error: 'routeId-required' }, origin);
 
   try {
     const routePayload = await getMultiCityTours(query);
@@ -283,6 +468,7 @@ async function handle(event = {}) {
         ok: true,
         supported: true,
         version: VERSION,
+        revision: REVISION,
         complete: false,
         reason: 'route-not-in-current-recommendation-set',
         routeId
@@ -294,6 +480,7 @@ async function handle(event = {}) {
       ok: true,
       supported: true,
       version: VERSION,
+      revision: REVISION,
       routeId,
       tourRole: tour.tourRole || null,
       route: [tour.origin?.city, ...tour.stops.map((stop) => stop.city), tour.origin?.city].filter(Boolean),
@@ -308,6 +495,7 @@ async function handle(event = {}) {
       ok: true,
       supported: true,
       version: VERSION,
+      revision: REVISION,
       complete: false,
       reason: 'automatic-date-provider-error',
       message: String(error?.message || error),
@@ -321,6 +509,7 @@ async function handle(event = {}) {
 
 module.exports = {
   VERSION,
+  REVISION,
   ROUTE_PATH,
   STAGING_ORIGIN,
   MINIMUM_LEAD_DAYS,
@@ -328,5 +517,18 @@ module.exports = {
   preflight,
   handle,
   materializeRouteDates,
-  _internal: { safeDate, safeMonth, addDays, addMonths, dateWithinHorizon, exactDateRows, routeBudgetPressure }
+  _internal: {
+    safeDate,
+    safeMonth,
+    addDays,
+    addMonths,
+    dateWithinHorizon,
+    exactDateRows,
+    routeBudgetPressure,
+    routeCodes,
+    sameObservation,
+    orderedStartCandidates,
+    totalObservedPrice,
+    chainQualityPenalty
+  }
 };
