@@ -14,9 +14,9 @@
 .gv-home-next__card{background:#fff;border:1px solid rgba(255,255,255,.78);border-radius:22px;padding:27px;box-shadow:0 28px 70px rgba(0,0,0,.28);display:grid;gap:17px;color:var(--gv-text)}
 .gv-home-next__card-head p{color:var(--gv-brand-700);margin-bottom:6px}
 .gv-home-next__card-head h2{margin:0;color:#102238;font-size:1.46rem;line-height:1.14;letter-spacing:-.03em}
-.gv-home-next__row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.gv-home-next__field{display:grid;gap:7px;min-width:0}
-.gv-home-next__field>span,.gv-home-next__travellers summary small{font-size:.74rem;font-weight:850;color:#53616a}
+.gv-home-next__row{display:grid;grid-template-columns:1fr 1fr;gap:13px;align-items:start}
+.gv-home-next__field{display:grid;gap:7px;min-width:0;align-content:start}
+.gv-home-next__field>span,.gv-home-next__field-label{display:block;font-size:.74rem;font-weight:850;color:#53616a}
 .gv-home-next__field input,.gv-home-next__field select,.gv-home-next__money,.gv-home-next__travellers summary{width:100%;min-height:50px;border:1px solid #c9d5dc;border-radius:11px;background:#fff;color:var(--gv-text);font:inherit;box-shadow:0 1px 0 rgba(4,38,42,.03)}
 .gv-home-next__field input,.gv-home-next__field select{padding:12px 14px}
 .gv-home-next__field input:hover,.gv-home-next__field select:hover,.gv-home-next__money:hover,.gv-home-next__travellers summary:hover{border-color:#9fb8bf}
@@ -25,11 +25,11 @@
 .gv-home-next__money{display:flex;align-items:center;overflow:hidden}
 .gv-home-next__money>span{padding-left:14px;color:#64736f;font-weight:850}
 .gv-home-next__money input{border:0!important;outline:0!important;box-shadow:none!important;padding-left:8px}
-.gv-home-next__travellers{position:relative}
+.gv-home-next__traveller-field{min-width:0}
+.gv-home-next__travellers{position:relative;min-width:0}
 .gv-home-next__travellers summary{list-style:none;cursor:pointer;padding:9px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .gv-home-next__travellers summary::-webkit-details-marker,.gv-home-next__advanced summary::-webkit-details-marker{display:none}
-.gv-home-next__travellers summary>span:first-child{display:grid;gap:3px}
-.gv-home-next__travellers summary strong{font-size:.94rem;color:#102238}
+.gv-home-next__travellers summary strong{font-size:.94rem;color:#102238;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gv-home-next__traveller-panel{position:absolute;z-index:8;top:calc(100% + 8px);right:0;width:min(330px,88vw);padding:14px;background:#fff;border:1px solid var(--gv-line);border-radius:14px;box-shadow:0 20px 48px rgba(10,35,31,.2)}
 .gv-home-next__counter-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:10px 4px}
 .gv-home-next__counter-row+ .gv-home-next__counter-row{border-top:1px solid #edf1ef}
