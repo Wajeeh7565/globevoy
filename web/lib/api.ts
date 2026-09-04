@@ -1,4 +1,11 @@
-import type { BookingRevalidationResponse, SavedTrip, SavedTripResponse, SavedTripsListResponse } from '@/lib/contracts';
+import type {
+  BookingRevalidationResponse,
+  SavedTrip,
+  SavedTripResponse,
+  SavedTripsListResponse,
+  TravelProfile,
+  TravelProfileResponse
+} from '@/lib/contracts';
 import { browserApiBaseUrl } from '@/lib/public-config';
 
 export class GlobevoyApiError extends Error {
@@ -75,7 +82,7 @@ function errorMessage(body: unknown, status: number): string {
   return `HTTP ${status}`;
 }
 
-async function request<T>(method: 'GET' | 'POST' | 'DELETE', path: string, accessToken: string, payload?: unknown): Promise<T> {
+async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, accessToken: string, payload?: unknown): Promise<T> {
   if (!accessToken) throw new GlobevoyApiError(401, 'Sign in required.');
   const response = await fetch(`${requireBaseUrl()}${path}`, {
     method,
@@ -132,6 +139,15 @@ export async function getSavedTrip(accessToken: string, tripId: string): Promise
 export async function deleteSavedTrip(accessToken: string, tripId: string): Promise<void> {
   const id = normalizedTripId(tripId);
   await request<unknown>('DELETE', `/api/saved-trips?tripId=${encodeURIComponent(id)}`, accessToken);
+}
+
+export async function getTravelProfile(accessToken: string): Promise<TravelProfileResponse> {
+  return request<TravelProfileResponse>('GET', '/api/account/travel-profile', accessToken);
+}
+
+export async function saveTravelProfile(accessToken: string, profile: TravelProfile): Promise<TravelProfileResponse> {
+  const { updatedAt: _updatedAt, ...payload } = profile;
+  return request<TravelProfileResponse>('PUT', '/api/account/travel-profile', accessToken, payload);
 }
 
 export async function revalidateSavedTripForBooking(accessToken: string, tripId: string): Promise<BookingRevalidationResponse> {
