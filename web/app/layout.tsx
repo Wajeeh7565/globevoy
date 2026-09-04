@@ -5,10 +5,14 @@ import './globals.css';
 import './account-707a.css';
 import './booking-707b.css';
 import './results-708a.css';
+import './reconstruction-710b.css';
 
 export const metadata: Metadata = {
-  title: 'Globevoy React Migration',
-  description: 'GV-WEB-708A React account, Saved Trips, booking revalidation and recommendation results migration target.'
+  title: {
+    default: 'Globevoy',
+    template: '%s · Globevoy'
+  },
+  description: 'Budget-first travel discovery with transparent price evidence.'
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
