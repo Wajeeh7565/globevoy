@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { HomeTripPreviews } from '@/components/discovery/home-trip-previews';
+import { filterOrigins, originDisplay, resolveOrigin, type OriginOption } from '@/lib/origin-options-710c';
 
 const HERO_SLIDES = [
   {
@@ -37,6 +38,7 @@ function nextSixMonths(): Array<{ value: string; label: string }> {
 export function HomeDiscoveryClient() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [origin, setOrigin] = useState('');
+  const [originOpen, setOriginOpen] = useState(false);
   const [budget, setBudget] = useState('1000');
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
@@ -48,6 +50,9 @@ export function HomeDiscoveryClient() {
   const [status, setStatus] = useState('');
 
   const months = useMemo(() => nextSixMonths(), []);
+  const originOptions = useMemo(() => filterOrigins(origin).slice(0, 12), [origin]);
+  const resolvedOrigin = useMemo(() => resolveOrigin(origin), [origin]);
+  const requestOrigin = resolvedOrigin?.code || origin.trim();
   const travellerSummary = `${adults} adult${adults === 1 ? '' : 's'}${children ? `, ${children} child${children === 1 ? '' : 'ren'}` : ''}`;
 
   useEffect(() => {
@@ -82,13 +87,24 @@ export function HomeDiscoveryClient() {
     };
   }, []);
 
+  function chooseOrigin(option: OriginOption) {
+    setOrigin(originDisplay(option));
+    setOriginOpen(false);
+    setStatus('');
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const cleanOrigin = origin.trim();
+    const cleanOrigin = requestOrigin;
     const numericBudget = Number(budget);
 
     if (!cleanOrigin) {
-      setStatus('Enter your starting city or airport.');
+      setStatus('Choose your starting city or airport.');
+      return;
+    }
+    if (!resolvedOrigin && cleanOrigin.length !== 3) {
+      setStatus('Choose a city or airport from the suggestions so Globevoy can identify the correct airport.');
+      setOriginOpen(true);
       return;
     }
     if (!Number.isFinite(numericBudget) || numericBudget < 300) {
@@ -98,7 +114,7 @@ export function HomeDiscoveryClient() {
 
     const fixedNights = tripLength === 'auto' ? 5 : Number(tripLength);
     const params = new URLSearchParams({
-      origin: cleanOrigin,
+      origin: cleanOrigin.toUpperCase(),
       budget: String(Math.round(numericBudget)),
       currency: 'CAD',
       adults: String(adults),
@@ -144,17 +160,48 @@ export function HomeDiscoveryClient() {
               <h2>Discover trips within your budget</h2>
             </div>
 
-            <label className="gv-home-next__field gv-home-next__field--full">
-              <span>Leaving from</span>
-              <input
-                value={origin}
-                onChange={(event) => setOrigin(event.target.value)}
-                placeholder="City or airport, e.g. Toronto (YYZ)"
-                autoComplete="off"
-                aria-describedby="gv-origin-help"
-              />
-              <small id="gv-origin-help">No destination needed — Globevoy finds the possibilities.</small>
-            </label>
+            <div className="gv-home-next__origin-wrap">
+              <label className="gv-home-next__field gv-home-next__field--full">
+                <span>Leaving from</span>
+                <input
+                  value={origin}
+                  onChange={(event) => {
+                    setOrigin(event.target.value);
+                    setOriginOpen(true);
+                    setStatus('');
+                  }}
+                  onFocus={() => setOriginOpen(true)}
+                  onBlur={() => window.setTimeout(() => setOriginOpen(false), 120)}
+                  placeholder="City or airport"
+                  autoComplete="off"
+                  aria-describedby="gv-origin-help"
+                  aria-expanded={originOpen}
+                  aria-controls="gv-origin-options"
+                />
+                <small id="gv-origin-help">
+                  {resolvedOrigin ? `${resolvedOrigin.city}, ${resolvedOrigin.country} · ${resolvedOrigin.code}` : 'No destination needed — Globevoy finds the possibilities.'}
+                </small>
+              </label>
+
+              {originOpen && originOptions.length ? (
+                <div className="gv-home-next__origin-menu" id="gv-origin-options" role="listbox" aria-label="Starting city suggestions">
+                  {originOptions.map((option) => (
+                    <button
+                      key={option.code}
+                      type="button"
+                      role="option"
+                      aria-selected={resolvedOrigin?.code === option.code}
+                      className={resolvedOrigin?.code === option.code ? 'is-selected' : ''}
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => chooseOrigin(option)}
+                    >
+                      <strong>{originDisplay(option)}</strong>
+                      <span>{option.city}, {option.country} · {option.code}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
 
             <div className="gv-home-next__row">
               <label className="gv-home-next__field">
@@ -265,7 +312,7 @@ export function HomeDiscoveryClient() {
       </section>
 
       <HomeTripPreviews
-        origin={origin}
+        origin={requestOrigin}
         budget={budget}
         adults={adults}
         children={children}
