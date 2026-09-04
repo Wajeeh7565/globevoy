@@ -9,6 +9,7 @@ import './reconstruction-710b.css';
 import './home-710c.css';
 import './home-previews-710c-r2.css';
 import './origin-autocomplete-710c-r3.css';
+import './results-710d.css';
 
 export const metadata: Metadata = {
   title: {
