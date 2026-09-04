@@ -14,9 +14,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               <span>Globevoy</span>
             </Link>
             <div className="gv-header__actions">
-              <nav className="gv-primary-nav" aria-label="Primary navigation">
-                <Link href="/">Discover</Link>
-              </nav>
               <AccountNav />
             </div>
           </div>
