@@ -50,32 +50,20 @@ function stopSource(route: RecommendationCardModel): JsonObject[] {
 function stopNights(row: JsonObject): number | null {
   return positiveInteger(row.nights ?? row.stayNights ?? row.allocatedNights);
 }
-function placeKey(value: unknown): string { return clean(value).toLowerCase().replace(/[^a-z0-9]/g, ''); }
-function legDestination(leg: JsonObject): string[] {
-  const to = record(leg.to);
-  return [leg.destination, leg.destinationCode, to.airportCode, to.code, to.city, to.name].map(placeKey).filter(Boolean);
-}
-function stopKeys(stop: JsonObject): string[] {
-  return [stop.code, stop.airportCode, stop.city, stop.name].map(placeKey).filter(Boolean);
-}
-function datedLegs(sourceLegs: JsonObject[], stops: JsonObject[], nights: number[], departureDate: string): { legs: JsonObject[]; finalDate: string } {
+function datedLegs(sourceLegs: JsonObject[], nights: number[], departureDate: string): JsonObject[] {
   let cursor = departureDate;
-  const usedStops = new Set<number>();
-  const legs = sourceLegs.map((sourceLeg) => {
+  return sourceLegs.map((sourceLeg, index) => {
     const leg = cloneJson(sourceLeg);
     leg.departureDate = cursor;
     leg.dateLabel = cursor;
     leg.dateBasis710E = 'user-selected-exact-date';
 
-    const destinations = legDestination(sourceLeg);
-    const stopIndex = stops.findIndex((stop, index) => !usedStops.has(index) && stopKeys(stop).some((key) => destinations.includes(key)));
-    if (stopIndex >= 0) {
-      usedStops.add(stopIndex);
-      cursor = addDays(cursor, nights[stopIndex]);
-    }
+    // The existing 707B/708C booking contract treats leg N+1 as the flight
+    // leaving stop N. Keep that exact ordering instead of trying to infer dates
+    // from city names, which could silently shift a hotel window.
+    if (index < nights.length) cursor = addDays(cursor, nights[index]);
     return leg;
   });
-  return { legs, finalDate: cursor };
 }
 
 interface ExactDatePlan {
@@ -98,31 +86,34 @@ function buildExactDatePlan(route: RecommendationCardModel, departureDateInput: 
   if (nights.some((value) => !value)) {
     return { ok: false, reason: 'One or more stops has no exact night allocation. Globevoy will not guess hotel dates.' };
   }
+  if ((route.cities || []).length !== stops.length) {
+    return { ok: false, reason: 'The route stop structure does not match the current journey cards, so Globevoy will not create a mismatched Saved Trip.' };
+  }
 
   const raw = cloneJson(route.raw);
   const backendLegs = rows(raw.backendLegs);
   const ordinaryLegs = rows(raw.legs);
-  if (!backendLegs.length && !ordinaryLegs.length) {
+  const preferredLegs = backendLegs.length ? backendLegs : ordinaryLegs;
+  if (!preferredLegs.length) {
     return { ok: false, reason: 'This route has no saved transport legs, so it cannot enter exact-date provider verification safely.' };
+  }
+  if (preferredLegs.length < stops.length + 1) {
+    return { ok: false, reason: 'This route is missing a complete outbound/return leg sequence, so Globevoy will not present it as ready for exact-date verification.' };
   }
 
   const exactNights = nights as number[];
-  let returnDate = addDays(departureDate, exactNights.reduce((sum, value) => sum + value, 0));
+  const returnDate = addDays(departureDate, exactNights.reduce((sum, value) => sum + value, 0));
   let legDates: string[] = [];
 
   if (backendLegs.length) {
-    const dated = datedLegs(backendLegs, stops, exactNights, departureDate);
-    raw.backendLegs = dated.legs;
-    returnDate = dated.finalDate || returnDate;
-    legDates = dated.legs.map((leg) => validIsoDate(leg.departureDate)).filter(Boolean);
+    const dated = datedLegs(backendLegs, exactNights, departureDate);
+    raw.backendLegs = dated;
+    legDates = dated.map((leg) => validIsoDate(leg.departureDate)).filter(Boolean);
   }
   if (ordinaryLegs.length) {
-    const dated = datedLegs(ordinaryLegs, stops, exactNights, departureDate);
-    raw.legs = dated.legs;
-    if (!backendLegs.length) {
-      returnDate = dated.finalDate || returnDate;
-      legDates = dated.legs.map((leg) => validIsoDate(leg.departureDate)).filter(Boolean);
-    }
+    const dated = datedLegs(ordinaryLegs, exactNights, departureDate);
+    raw.legs = dated;
+    if (!backendLegs.length) legDates = dated.map((leg) => validIsoDate(leg.departureDate)).filter(Boolean);
   }
 
   raw.departureDate = departureDate;
@@ -135,7 +126,7 @@ function buildExactDatePlan(route: RecommendationCardModel, departureDateInput: 
     city: city.city,
     ...(city.country ? { country: city.country } : {}),
     ...(city.code ? { code: city.code } : {}),
-    nights: exactNights[index] || 1
+    nights: exactNights[index]
   }));
 
   return { ok: true, plan: { tour: raw, cities, departureDate, returnDate, legDates } };
@@ -280,10 +271,11 @@ export function JourneySavePanel710ER3() {
       const payload = savePayload(search, route, result.plan);
       const existing = await listSavedTrips(session.accessToken);
       let saved: SavedTrip | undefined = existing.find((trip) => trip.tripSnapshot?.clientSaveKey === payload.clientSaveKey);
+      const alreadySaved = Boolean(saved);
       if (!saved) saved = await createSavedTrip(session.accessToken, payload.body);
       if (!saved?.tripId) throw new Error('saved-trip-id-missing');
       setSavedTripId(saved.tripId);
-      setNotice(existing.includes(saved)
+      setNotice(alreadySaved
         ? 'This exact-date trip was already saved privately to your account.'
         : 'Trip saved privately to your account. No flight or hotel provider check ran during saving.');
     } catch (err) {
