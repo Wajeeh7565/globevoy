@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PriceEvidenceBadge } from '@/components/price-evidence-badge';
+import { ResultsMap710D } from '@/components/results/results-map-710d';
 import { getPublicMultiCityTours, getPublicRecommendations, GlobevoyApiError } from '@/lib/api';
 import { legacyMultiSelectionPayload } from '@/lib/multi-selection-708a';
 import {
   adaptMultiCityTours,
   adaptRecommendations,
-  GV_WEB_708A_VERSION,
   multiCityApiParams,
   normalizeLegacyImage,
   parseResultsSearch,
@@ -16,6 +16,9 @@ import {
   type RecommendationCardModel,
   type ResultsSearch
 } from '@/lib/recommendations-708a';
+
+const GV_WEB_710D_VERSION = 'GV-WEB-710D-R1';
+type ResultFilter = 'all' | 'single' | 'multi';
 
 function money(value: number, currency: string): string {
   try { return new Intl.NumberFormat('en-CA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value); }
@@ -78,41 +81,90 @@ function persistAndOpen(item: RecommendationCardModel, search: ResultsSearch, pa
 function ResultVisual({ item }: { item: RecommendationCardModel }) {
   const image = normalizeLegacyImage(item.image);
   if (item.kind === 'single' && image) {
-    return <div className="gv-results-visual"><img src={image} alt={`${item.city || item.title} destination`} /></div>;
+    return <div className="gv-results-next-card__visual"><img src={image} alt={`${item.city || item.title} destination`} /></div>;
   }
   if (item.kind === 'multi') {
-    const cities = (item.cities || []).slice(0, 2);
+    const cities = (item.cities || []).slice(0, 3);
     return (
-      <div className="gv-results-visual gv-results-visual--route" aria-label={`${item.title} route preview`}>
-        {cities.map((city, index) => <div key={`${city.city}-${index}`}><span>{city.city}</span><small>{city.country}</small></div>)}
+      <div className="gv-results-next-card__visual gv-results-next-card__visual--route" aria-label={`${item.title} route preview`}>
+        {cities.map((city, index) => (
+          <div key={`${city.city}-${index}`}>
+            <small>STOP {index + 1}</small>
+            <strong>{city.city}</strong>
+            <span>{city.country}</span>
+          </div>
+        ))}
       </div>
     );
   }
-  return <div className="gv-results-visual gv-results-visual--fallback"><span>{item.city?.slice(0, 1) || 'G'}</span><strong>{item.city || item.title}</strong></div>;
+  return (
+    <div className="gv-results-next-card__visual gv-results-next-card__visual--fallback">
+      <span>{item.city?.slice(0, 1) || 'G'}</span>
+      <strong>{item.city || item.title}</strong>
+    </div>
+  );
 }
 
-function ResultCard({ item, search, params }: { item: RecommendationCardModel; search: ResultsSearch; params: URLSearchParams; compact?: boolean }) {
+function ResultCard({
+  item,
+  search,
+  params,
+  active,
+  onSelect
+}: {
+  item: RecommendationCardModel;
+  search: ResultsSearch;
+  params: URLSearchParams;
+  active: boolean;
+  onSelect: (id: string) => void;
+}) {
   const type = item.kind === 'single' ? 'Single destination' : `${item.cities?.length || 0}-city route`;
+  const planningRoom = item.remaining >= 0 ? `${money(item.remaining, search.currency)} room after estimate` : 'Near the selected budget';
+
+  function select() { onSelect(item.id); }
+
   return (
-    <article className={`gv-results-card${item.featured ? ' is-featured' : ''}`}>
-      {item.featured ? <span className="gv-results-pick">Globevoy Pick</span> : null}
-      <div className="gv-results-label">{item.label}</div>
+    <article
+      id={`gv-result-${item.id}`}
+      className={`gv-results-next-card${active ? ' is-active' : ''}${item.featured ? ' is-featured' : ''}`}
+      tabIndex={0}
+      aria-current={active ? 'true' : undefined}
+      onMouseEnter={select}
+      onFocus={select}
+      onClick={select}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          select();
+        }
+      }}
+    >
       <ResultVisual item={item} />
-      <div className="gv-results-card__body">
-        <div className="gv-results-card__heading">
+      <div className="gv-results-next-card__content">
+        <div className="gv-results-next-card__topline">
+          <span className="gv-results-next-card__role">{item.label || 'Trip idea'}</span>
+          {item.featured ? <span className="gv-results-next-card__pick">Globevoy pick</span> : null}
+        </div>
+        <div className="gv-results-next-card__heading">
           <div>
             <p>{type} · {item.nights} nights</p>
             <h3>{item.title}</h3>
-            <span>{item.route}</span>
           </div>
-          <div className="gv-results-price"><small>Estimated trip</small><strong>{money(item.total, search.currency)}</strong></div>
+          <strong>{money(item.total, search.currency)}</strong>
         </div>
-        <div className="gv-results-trust"><PriceEvidenceBadge evidence={item.evidence} /></div>
-        {item.themes.length ? <div className="gv-results-chips">{item.themes.slice(0, 3).map((theme) => <span key={theme}>{theme}</span>)}</div> : null}
-        <p className="gv-results-why">{item.why}</p>
-        <div className="gv-results-card__footer">
-          <span>{item.remaining >= 0 ? `${money(item.remaining, search.currency)} planning room after estimate` : 'Near the selected budget'}</span>
-          <button className="gv-button gv-button--primary" type="button" onClick={() => persistAndOpen(item, search, params)}>
+        <p className="gv-results-next-card__route">{item.route}</p>
+        <div className="gv-results-next-card__evidence"><PriceEvidenceBadge evidence={item.evidence} /></div>
+        <p className="gv-results-next-card__why">{item.why}</p>
+        <div className="gv-results-next-card__footer">
+          <span>{planningRoom}</span>
+          <button
+            type="button"
+            className="gv-results-next-card__details"
+            onClick={(event) => {
+              event.stopPropagation();
+              persistAndOpen(item, search, params);
+            }}
+          >
             {item.kind === 'single' ? 'View trip details' : 'View route details'}
           </button>
         </div>
@@ -131,101 +183,179 @@ export function ResultsClient() {
   const [formOrigin, setFormOrigin] = useState('');
   const [formBudget, setFormBudget] = useState('');
   const [formNights, setFormNights] = useState('');
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<ResultFilter>('all');
 
   useEffect(() => {
     const nextParams = currentSearch();
     const nextSearch = parseResultsSearch(nextParams);
     setParams(nextParams);
     setSearch(nextSearch);
-    setFormOrigin(nextSearch.rawOrigin);
+    setFormOrigin(nextSearch.rawOrigin || nextSearch.originCode);
     setFormBudget(String(nextSearch.budget));
     setFormNights(String(nextSearch.nights));
   }, []);
 
   const load = useCallback(async () => {
     if (!search) return;
-    setLoading(true); setError(''); setItems([]);
+    setLoading(true);
+    setError('');
+    setItems([]);
+    setActiveId(null);
+
     if (!search.rawOrigin && !search.originCode) {
-      setLoading(false); setError('Choose a starting city before asking Globevoy for recommendations.'); return;
+      setLoading(false);
+      setError('Choose a starting city before asking Globevoy for recommendations.');
+      return;
     }
+
     try {
-      const singlesPayload = await getPublicRecommendations(recommendationApiParams(search));
-      const singles = adaptRecommendations(singlesPayload, search);
-      let multis: RecommendationCardModel[] = [];
-      try {
-        const multiPayload = await getPublicMultiCityTours(multiCityApiParams(search));
-        multis = adaptMultiCityTours(multiPayload, search);
-      } catch (multiError) {
-        console.warn('GV-WEB-708A multi-city recommendations unavailable; preserving single results.', multiError);
+      const [singleResult, multiResult] = await Promise.allSettled([
+        getPublicRecommendations(recommendationApiParams(search)),
+        getPublicMultiCityTours(multiCityApiParams(search))
+      ]);
+
+      if (singleResult.status === 'rejected' && multiResult.status === 'rejected') {
+        throw singleResult.reason;
       }
+
+      const singles = singleResult.status === 'fulfilled' ? adaptRecommendations(singleResult.value, search) : [];
+      const multis = multiResult.status === 'fulfilled' ? adaptMultiCityTours(multiResult.value, search) : [];
       const next = pickPortfolio(singles, multis, search);
-      if (!next.length) setError('No single-destination or connected route met the current budget and evidence rules. Try a higher budget, broader region or flexible timing.');
-      setItems(next);
+
+      if (!next.length) {
+        setError('No single-destination or connected route met the current budget and evidence rules. Try a higher budget, broader region or flexible timing.');
+      } else {
+        setItems(next);
+        setActiveId(next[0].id);
+      }
     } catch (err) {
       const message = err instanceof GlobevoyApiError ? err.message : 'The recommendation request failed.';
       setError(message || 'The recommendation request failed.');
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }, [search]);
 
   useEffect(() => { if (search) void load(); }, [search, load]);
 
-  const primary = useMemo(() => items.slice(0, 3), [items]);
-  const alternatives = useMemo(() => items.slice(3, 6), [items]);
+  const hasSingles = useMemo(() => items.some((item) => item.kind === 'single'), [items]);
+  const hasMultis = useMemo(() => items.some((item) => item.kind === 'multi'), [items]);
+  const visibleItems = useMemo(() => items.filter((item) => filter === 'all' || item.kind === filter), [items, filter]);
+
+  useEffect(() => {
+    if (!visibleItems.length) return;
+    if (!activeId || !visibleItems.some((item) => item.id === activeId)) setActiveId(visibleItems[0].id);
+  }, [visibleItems, activeId]);
+
+  const handleMapSelect = useCallback((id: string) => {
+    setActiveId(id);
+    window.requestAnimationFrame(() => {
+      document.getElementById(`gv-result-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }, []);
 
   function applyEdit() {
-    const budget = Number(formBudget); const nights = Number(formNights);
+    const budget = Number(formBudget);
+    const nights = Number(formNights);
     if (!formOrigin.trim() || !Number.isFinite(budget) || budget < 300 || !Number.isFinite(nights) || nights < 2 || nights > 21) return;
     const next = new URLSearchParams(params);
-    next.set('origin', formOrigin.trim()); next.set('budget', String(Math.round(budget))); next.set('nights', String(Math.round(nights)));
+    next.set('origin', formOrigin.trim());
+    next.set('budget', String(Math.round(budget)));
+    next.set('nights', String(Math.round(nights)));
     window.location.assign(`/react/results/?${next.toString()}`);
   }
 
-  if (!search) return <main className="gv-results-page"><section className="gv-results-state"><p>Preparing your search…</p></section></main>;
+  if (!search) {
+    return <main className="gv-results-next"><section className="gv-results-next-state"><p>Preparing your search…</p></section></main>;
+  }
 
   return (
-    <main className="gv-results-page">
-      <section className="gv-results-searchbar" aria-label="Current search">
-        <div className="gv-results-pills">
-          <span>{search.rawOrigin || search.originCode}</span><span>{money(search.budget, search.currency)}</span>
+    <main className="gv-results-next">
+      <section className="gv-results-next-searchbar" aria-label="Current search">
+        <div className="gv-results-next-searchbar__pills">
+          <span>{search.rawOrigin || search.originCode}</span>
+          <span>{money(search.budget, search.currency)}</span>
           <span>{search.adults} adult{search.adults === 1 ? '' : 's'}{search.children ? `, ${search.children} child${search.children === 1 ? '' : 'ren'}` : ''}</span>
           <span>{search.tripLength === 'auto' ? 'Flexible length' : `${search.nights} nights`}</span>
         </div>
-        <button className="gv-button gv-button--secondary" type="button" onClick={() => setEditOpen((value) => !value)}>Edit search</button>
+        <button type="button" onClick={() => setEditOpen((value) => !value)}>Edit search</button>
       </section>
 
       {editOpen ? (
-        <section className="gv-results-edit" aria-label="Edit recommendation search">
+        <section className="gv-results-next-edit" aria-label="Edit recommendation search">
           <label>Leaving from<input value={formOrigin} onChange={(event) => setFormOrigin(event.target.value)} /></label>
           <label>Total budget<input type="number" min="300" step="50" value={formBudget} onChange={(event) => setFormBudget(event.target.value)} /></label>
           <label>Nights<input type="number" min="2" max="21" value={formNights} onChange={(event) => setFormNights(event.target.value)} /></label>
-          <div><button className="gv-button gv-button--primary" type="button" onClick={applyEdit}>Apply changes</button></div>
+          <div><button type="button" onClick={applyEdit}>Apply changes</button></div>
         </section>
       ) : null}
 
-      <section className="gv-results-intro">
-        <p className="gv-kicker">{GV_WEB_708A_VERSION} · RECOMMENDED FOR YOUR BUDGET</p>
-        <h1>Your strongest trip possibilities</h1>
-        <p>Compare a deliberately small portfolio of single-destination and connected-route ideas. Map-first route interaction stays on the proven legacy pages until the R4 map migration.</p>
+      <section className="gv-results-next-intro">
+        <div>
+          <p>{GV_WEB_710D_VERSION} · CURATED FOR YOUR BUDGET</p>
+          <h1>Choose the trip that feels right.</h1>
+          <span>Globevoy keeps the list small, then puts every option on the map so you can compare distance, route shape and budget at a glance.</span>
+        </div>
+        {!loading && !error && items.length ? (
+          <div className="gv-results-next-summary">
+            <strong>{items.length}</strong>
+            <span>strong possibilities</span>
+          </div>
+        ) : null}
       </section>
 
       {loading ? (
-        <section className="gv-results-state" role="status"><div className="gv-results-spinner" /><h2>Comparing trip possibilities…</h2><p>Checking destination fit, route quality and your current budget.</p></section>
+        <section className="gv-results-next-state" role="status">
+          <div className="gv-results-next-spinner" />
+          <h2>Comparing trip possibilities…</h2>
+          <p>Checking destination fit, connected routes and the budget evidence already available to Globevoy.</p>
+        </section>
       ) : null}
 
       {!loading && error ? (
-        <section className="gv-results-state gv-results-state--error" role="alert"><p className="gv-kicker">SEARCH STATUS</p><h2>We could not build the recommendation set yet</h2><p>{error}</p><div><button className="gv-button gv-button--primary" type="button" onClick={() => void load()}>Retry</button> <button className="gv-button gv-button--secondary" type="button" onClick={() => setEditOpen(true)}>Edit search</button></div></section>
+        <section className="gv-results-next-state gv-results-next-state--error" role="alert">
+          <p>SEARCH STATUS</p>
+          <h2>We could not build the recommendation set yet</h2>
+          <span>{error}</span>
+          <div><button type="button" onClick={() => void load()}>Retry</button><button type="button" onClick={() => setEditOpen(true)}>Edit search</button></div>
+        </section>
       ) : null}
 
       {!loading && !error && items.length ? (
         <>
-          <section className="gv-results-section">
-            <div className="gv-results-section__head"><div><p className="gv-kicker">TOP MATCHES</p><h2>Three easy choices</h2><p>{primary.length} distinct options for this search.</p></div></div>
-            <div className="gv-results-grid">{primary.map((item) => <ResultCard key={item.id} item={item} search={search} params={params} />)}</div>
+          <section className="gv-results-next-toolbar" aria-label="Filter trip results">
+            <div>
+              <strong>Your best options</strong>
+              <span>Select a card to focus its route on the map.</span>
+            </div>
+            <div className="gv-results-next-filters" role="group" aria-label="Trip type">
+              <button type="button" className={filter === 'all' ? 'is-active' : ''} onClick={() => setFilter('all')}>All</button>
+              {hasSingles ? <button type="button" className={filter === 'single' ? 'is-active' : ''} onClick={() => setFilter('single')}>Single city</button> : null}
+              {hasMultis ? <button type="button" className={filter === 'multi' ? 'is-active' : ''} onClick={() => setFilter('multi')}>Multi-city</button> : null}
+            </div>
           </section>
-          {alternatives.length ? (
-            <section className="gv-results-section"><div className="gv-results-section__head"><div><p className="gv-kicker">ALTERNATIVE DISCOVERIES</p><h2>Other possibilities worth considering</h2></div></div><div className="gv-results-grid gv-results-grid--alternatives">{alternatives.map((item) => <ResultCard key={item.id} item={item} search={search} params={params} compact />)}</div></section>
-          ) : null}
-          <aside className="gv-boundary"><strong>Before booking</strong><p>Recommendation prices are planning evidence, not guaranteed quotes. Final schedules, inventory and prices are confirmed during fresh verification or on partner websites.</p></aside>
+
+          <section className="gv-results-next-workspace">
+            <div className="gv-results-next-list" aria-label="Trip recommendations">
+              {visibleItems.map((item) => (
+                <ResultCard
+                  key={item.id}
+                  item={item}
+                  search={search}
+                  params={params}
+                  active={item.id === activeId}
+                  onSelect={setActiveId}
+                />
+              ))}
+            </div>
+            <ResultsMap710D items={visibleItems} search={search} activeId={activeId} onSelect={handleMapSelect} />
+          </section>
+
+          <aside className="gv-results-next-boundary">
+            <strong>Planning evidence, not a checkout quote.</strong>
+            <p>Final schedules, inventory and prices are confirmed during fresh verification or on partner websites. Globevoy does not create a reservation or take payment on this page.</p>
+          </aside>
         </>
       ) : null}
     </main>
