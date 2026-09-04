@@ -7,6 +7,7 @@ import './booking-707b.css';
 import './results-708a.css';
 import './reconstruction-710b.css';
 import './home-710c.css';
+import './home-previews-710c-r2.css';
 
 export const metadata: Metadata = {
   title: {
