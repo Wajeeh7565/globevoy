@@ -12,6 +12,7 @@ import './origin-autocomplete-710c-r3.css';
 import './results-710d.css';
 import './results-710d-r3.css';
 import './journey-710e.css';
+import './results-710e-link.css';
 
 export const metadata: Metadata = {
   title: {
