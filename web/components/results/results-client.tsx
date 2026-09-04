@@ -3,171 +3,125 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PriceEvidenceBadge } from '@/components/price-evidence-badge';
 import { ResultsMap710D } from '@/components/results/results-map-710d';
-import { getPublicMultiCityTours, getPublicRecommendations, GlobevoyApiError } from '@/lib/api';
-import { legacyMultiSelectionPayload } from '@/lib/multi-selection-708a';
+import { getPublicMultiCityTours, GlobevoyApiError } from '@/lib/api';
 import {
   adaptMultiCityTours,
-  adaptRecommendations,
   multiCityApiParams,
   normalizeLegacyImage,
   parseResultsSearch,
-  pickPortfolio,
-  recommendationApiParams,
   type RecommendationCardModel,
   type ResultsSearch
 } from '@/lib/recommendations-708a';
 
-const GV_WEB_710D_VERSION = 'GV-WEB-710D-R1';
-type ResultFilter = 'all' | 'single' | 'multi';
+const GV_WEB_710D_VERSION = 'GV-WEB-710D-R2';
+
+type NoFeasibleTour = {
+  reason?: string;
+  suggestedMinimumBudgetDisplay?: number;
+  cheapestPlanningEstimateDisplay?: number;
+  displayCurrency?: string;
+};
 
 function money(value: number, currency: string): string {
-  try { return new Intl.NumberFormat('en-CA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value); }
-  catch { return `${currency} ${Math.round(value).toLocaleString()}`; }
+  try {
+    return new Intl.NumberFormat('en-CA', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 0
+    }).format(value);
+  } catch {
+    return `${currency} ${Math.round(value).toLocaleString()}`;
+  }
 }
 
 function currentSearch(): URLSearchParams {
   return typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
 }
 
-function legacyReturnTo(params: URLSearchParams): string {
-  return `/react/results/?${params.toString()}`;
+function originName(search: ResultsSearch): string {
+  const raw = search.rawOrigin || search.originCode;
+  if (raw.toUpperCase() === 'YYZ') return 'Toronto';
+  return raw || 'Origin';
 }
 
-function singleHref(item: RecommendationCardModel, search: ResultsSearch, params: URLSearchParams): string {
-  const next = new URLSearchParams(params);
-  next.set('mode', 'single');
-  next.set('origin', search.rawOrigin || search.originCode);
-  next.set('city', item.city || '');
-  next.set('country', item.country || '');
-  next.set('code', item.code || '');
-  next.set('budget', String(Math.round(item.sourceBudgetTotal || search.budget)));
-  next.set('currency', search.currency);
-  next.set('reserve', String(Math.round(item.reserveAmount || 0)));
-  next.set('nights', String(item.nights));
-  next.set('passengers', String(search.passengers));
-  next.set('total', String(Math.round(item.total)));
-  next.set('flight', String(Math.round(item.flight || 0)));
-  next.set('stay', String(Math.round(item.stay || 0)));
-  next.set('remaining', String(Math.round(Math.max(0, item.remaining))));
-  next.set('label', item.label);
-  next.set('returnTo', legacyReturnTo(params));
-  return `/trip.html?${next.toString()}`;
+function noFeasibleFromPayload(payload: unknown): NoFeasibleTour | null {
+  if (!payload || typeof payload !== 'object') return null;
+  const row = payload as { noFeasibleTour?: unknown };
+  if (!row.noFeasibleTour || typeof row.noFeasibleTour !== 'object') return null;
+  return row.noFeasibleTour as NoFeasibleTour;
 }
 
-function multiHref(item: RecommendationCardModel, search: ResultsSearch, params: URLSearchParams): string {
-  const next = new URLSearchParams(params);
-  next.set('mode', 'multi');
-  next.set('origin', search.rawOrigin || search.originCode);
-  next.set('budget', String(Math.round(search.budget)));
-  next.set('currency', search.currency);
-  next.set('nights', String(item.nights));
-  next.set('cities', String(item.cities?.length || 0));
-  next.set('routeId', item.routeId || '');
-  next.set('returnTo', legacyReturnTo(params));
-  return `/multicity-visualizer.html?${next.toString()}`;
+function routeTitle(item: RecommendationCardModel): string {
+  const cities = item.cities || [];
+  return cities.map((city) => city.city).filter(Boolean).join(' + ') || item.title;
 }
 
-function persistAndOpen(item: RecommendationCardModel, search: ResultsSearch, params: URLSearchParams): void {
-  try {
-    if (item.kind === 'single') {
-      sessionStorage.setItem('gv-selected-offer', JSON.stringify({ ...item.selectionPayload, _label: item.label }));
-    } else {
-      sessionStorage.setItem('globevoy.multi.selected.v1', JSON.stringify(legacyMultiSelectionPayload(item, search, params)));
-    }
-  } catch {}
-  window.location.assign(item.kind === 'single' ? singleHref(item, search, params) : multiHref(item, search, params));
+function routeLine(item: RecommendationCardModel, search: ResultsSearch): string[] {
+  const origin = originName(search);
+  return [origin, ...(item.cities || []).map((city) => city.city), origin];
 }
 
-function ResultVisual({ item }: { item: RecommendationCardModel }) {
-  const image = normalizeLegacyImage(item.image);
-  if (item.kind === 'single' && image) {
-    return <div className="gv-results-next-card__visual"><img src={image} alt={`${item.city || item.title} destination`} /></div>;
-  }
-  if (item.kind === 'multi') {
-    const cities = (item.cities || []).slice(0, 3);
-    return (
-      <div className="gv-results-next-card__visual gv-results-next-card__visual--route" aria-label={`${item.title} route preview`}>
-        {cities.map((city, index) => (
-          <div key={`${city.city}-${index}`}>
-            <small>STOP {index + 1}</small>
-            <strong>{city.city}</strong>
-            <span>{city.country}</span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-  return (
-    <div className="gv-results-next-card__visual gv-results-next-card__visual--fallback">
-      <span>{item.city?.slice(0, 1) || 'G'}</span>
-      <strong>{item.city || item.title}</strong>
-    </div>
-  );
-}
-
-function ResultCard({
+function RouteChoice({
   item,
   search,
-  params,
   active,
   onSelect
 }: {
   item: RecommendationCardModel;
   search: ResultsSearch;
-  params: URLSearchParams;
   active: boolean;
-  onSelect: (id: string) => void;
+  onSelect: () => void;
 }) {
-  const type = item.kind === 'single' ? 'Single destination' : `${item.cities?.length || 0}-city route`;
-  const planningRoom = item.remaining >= 0 ? `${money(item.remaining, search.currency)} room after estimate` : 'Near the selected budget';
+  return (
+    <button
+      type="button"
+      className={`gv-story-route-choice${active ? ' is-active' : ''}`}
+      aria-pressed={active}
+      onClick={onSelect}
+    >
+      <span>{item.label || 'Curated route'}</span>
+      <strong>{routeTitle(item)}</strong>
+      <b>{money(item.total, search.currency)}</b>
+    </button>
+  );
+}
 
-  function select() { onSelect(item.id); }
-
+function JourneyCard({
+  label,
+  city,
+  country,
+  nights,
+  image,
+  active,
+  returning,
+  onFocus
+}: {
+  label: string;
+  city: string;
+  country?: string;
+  nights?: number;
+  image?: string | null;
+  active: boolean;
+  returning?: boolean;
+  onFocus: () => void;
+}) {
+  const normalizedImage = normalizeLegacyImage(image);
   return (
     <article
-      id={`gv-result-${item.id}`}
-      className={`gv-results-next-card${active ? ' is-active' : ''}${item.featured ? ' is-featured' : ''}`}
+      className={`gv-story-stop-card${active ? ' is-active' : ''}${returning ? ' is-return' : ''}`}
       tabIndex={0}
-      aria-current={active ? 'true' : undefined}
-      onMouseEnter={select}
-      onFocus={select}
-      onClick={select}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          select();
-        }
-      }}
+      onMouseEnter={onFocus}
+      onFocus={onFocus}
     >
-      <ResultVisual item={item} />
-      <div className="gv-results-next-card__content">
-        <div className="gv-results-next-card__topline">
-          <span className="gv-results-next-card__role">{item.label || 'Trip idea'}</span>
-          {item.featured ? <span className="gv-results-next-card__pick">Globevoy pick</span> : null}
-        </div>
-        <div className="gv-results-next-card__heading">
-          <div>
-            <p>{type} · {item.nights} nights</p>
-            <h3>{item.title}</h3>
-          </div>
-          <strong>{money(item.total, search.currency)}</strong>
-        </div>
-        <p className="gv-results-next-card__route">{item.route}</p>
-        <div className="gv-results-next-card__evidence"><PriceEvidenceBadge evidence={item.evidence} /></div>
-        <p className="gv-results-next-card__why">{item.why}</p>
-        <div className="gv-results-next-card__footer">
-          <span>{planningRoom}</span>
-          <button
-            type="button"
-            className="gv-results-next-card__details"
-            onClick={(event) => {
-              event.stopPropagation();
-              persistAndOpen(item, search, params);
-            }}
-          >
-            {item.kind === 'single' ? 'View trip details' : 'View route details'}
-          </button>
-        </div>
+      <div className={`gv-story-stop-card__image${normalizedImage ? '' : ' is-fallback'}`}>
+        {normalizedImage ? <img src={normalizedImage} alt={`${city} destination`} /> : <span>{city.slice(0, 1)}</span>}
+        <small>{label}</small>
+      </div>
+      <div className="gv-story-stop-card__body">
+        <p>{country || (returning ? 'Return home' : 'Starting point')}</p>
+        <h3>{city}</h3>
+        {typeof nights === 'number' && nights > 0 ? <strong>{nights} night{nights === 1 ? '' : 's'}</strong> : null}
+        <span>{returning ? 'Journey complete' : label === 'Origin' ? 'Your journey starts here' : 'Destination stop'}</span>
       </div>
     </article>
   );
@@ -176,15 +130,17 @@ function ResultCard({
 export function ResultsClient() {
   const [params, setParams] = useState<URLSearchParams>(() => new URLSearchParams());
   const [search, setSearch] = useState<ResultsSearch | null>(null);
-  const [items, setItems] = useState<RecommendationCardModel[]>([]);
+  const [routes, setRoutes] = useState<RecommendationCardModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [noFeasible, setNoFeasible] = useState<NoFeasibleTour | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [formOrigin, setFormOrigin] = useState('');
   const [formBudget, setFormBudget] = useState('');
   const [formNights, setFormNights] = useState('');
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<ResultFilter>('all');
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [storyStop, setStoryStop] = useState<number | null>(null);
+  const [focusStop, setFocusStop] = useState<number | null>(null);
 
   useEffect(() => {
     const nextParams = currentSearch();
@@ -200,60 +156,55 @@ export function ResultsClient() {
     if (!search) return;
     setLoading(true);
     setError('');
-    setItems([]);
-    setActiveId(null);
+    setRoutes([]);
+    setSelectedId(null);
+    setStoryStop(null);
+    setNoFeasible(null);
 
     if (!search.rawOrigin && !search.originCode) {
       setLoading(false);
-      setError('Choose a starting city before asking Globevoy for recommendations.');
+      setError('Choose a starting city before asking Globevoy for multi-city routes.');
       return;
     }
 
     try {
-      const [singleResult, multiResult] = await Promise.allSettled([
-        getPublicRecommendations(recommendationApiParams(search)),
-        getPublicMultiCityTours(multiCityApiParams(search))
-      ]);
-
-      if (singleResult.status === 'rejected' && multiResult.status === 'rejected') {
-        throw singleResult.reason;
-      }
-
-      const singles = singleResult.status === 'fulfilled' ? adaptRecommendations(singleResult.value, search) : [];
-      const multis = multiResult.status === 'fulfilled' ? adaptMultiCityTours(multiResult.value, search) : [];
-      const next = pickPortfolio(singles, multis, search);
+      const payload = await getPublicMultiCityTours(multiCityApiParams(search));
+      const next = adaptMultiCityTours(payload, search).filter((item) => item.kind === 'multi').slice(0, 3);
+      const noRoute = noFeasibleFromPayload(payload);
+      setNoFeasible(noRoute);
 
       if (!next.length) {
-        setError('No single-destination or connected route met the current budget and evidence rules. Try a higher budget, broader region or flexible timing.');
+        if (noRoute?.reason === 'no-route-within-protected-budget' && noRoute.suggestedMinimumBudgetDisplay) {
+          setError(`No connected route currently fits the protected budget. Routes begin around ${money(noRoute.suggestedMinimumBudgetDisplay, noRoute.displayCurrency || search.currency)}.`);
+        } else {
+          setError('No connected multi-city route met the current budget and evidence rules. Try a higher budget or flexible timing.');
+        }
       } else {
-        setItems(next);
-        setActiveId(next[0].id);
+        setRoutes(next);
+        setSelectedId(next[0].id);
       }
     } catch (err) {
-      const message = err instanceof GlobevoyApiError ? err.message : 'The recommendation request failed.';
-      setError(message || 'The recommendation request failed.');
+      const message = err instanceof GlobevoyApiError ? err.message : 'The multi-city recommendation request failed.';
+      setError(message || 'The multi-city recommendation request failed.');
     } finally {
       setLoading(false);
     }
   }, [search]);
 
-  useEffect(() => { if (search) void load(); }, [search, load]);
-
-  const hasSingles = useMemo(() => items.some((item) => item.kind === 'single'), [items]);
-  const hasMultis = useMemo(() => items.some((item) => item.kind === 'multi'), [items]);
-  const visibleItems = useMemo(() => items.filter((item) => filter === 'all' || item.kind === filter), [items, filter]);
-
   useEffect(() => {
-    if (!visibleItems.length) return;
-    if (!activeId || !visibleItems.some((item) => item.id === activeId)) setActiveId(visibleItems[0].id);
-  }, [visibleItems, activeId]);
+    if (search) void load();
+  }, [search, load]);
 
-  const handleMapSelect = useCallback((id: string) => {
-    setActiveId(id);
-    window.requestAnimationFrame(() => {
-      document.getElementById(`gv-result-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
-  }, []);
+  const selected = useMemo(
+    () => routes.find((item) => item.id === selectedId) || routes[0] || null,
+    [routes, selectedId]
+  );
+
+  function chooseRoute(id: string) {
+    setSelectedId(id);
+    setStoryStop(null);
+    setFocusStop(null);
+  }
 
   function applyEdit() {
     const budget = Number(formBudget);
@@ -267,13 +218,17 @@ export function ResultsClient() {
   }
 
   if (!search) {
-    return <main className="gv-results-next"><section className="gv-results-next-state"><p>Preparing your search…</p></section></main>;
+    return <main className="gv-story-page"><section className="gv-story-state"><p>Preparing your route search…</p></section></main>;
   }
 
+  const origin = originName(search);
+  const selectedStops = selected?.cities || [];
+  const selectedRouteLine = selected ? routeLine(selected, search) : [];
+
   return (
-    <main className="gv-results-next">
-      <section className="gv-results-next-searchbar" aria-label="Current search">
-        <div className="gv-results-next-searchbar__pills">
+    <main className="gv-story-page">
+      <section className="gv-story-searchbar" aria-label="Current search">
+        <div>
           <span>{search.rawOrigin || search.originCode}</span>
           <span>{money(search.budget, search.currency)}</span>
           <span>{search.adults} adult{search.adults === 1 ? '' : 's'}{search.children ? `, ${search.children} child${search.children === 1 ? '' : 'ren'}` : ''}</span>
@@ -283,78 +238,153 @@ export function ResultsClient() {
       </section>
 
       {editOpen ? (
-        <section className="gv-results-next-edit" aria-label="Edit recommendation search">
+        <section className="gv-story-edit" aria-label="Edit route search">
           <label>Leaving from<input value={formOrigin} onChange={(event) => setFormOrigin(event.target.value)} /></label>
           <label>Total budget<input type="number" min="300" step="50" value={formBudget} onChange={(event) => setFormBudget(event.target.value)} /></label>
           <label>Nights<input type="number" min="2" max="21" value={formNights} onChange={(event) => setFormNights(event.target.value)} /></label>
-          <div><button type="button" onClick={applyEdit}>Apply changes</button></div>
+          <button type="button" onClick={applyEdit}>Apply changes</button>
         </section>
       ) : null}
 
-      <section className="gv-results-next-intro">
-        <div>
-          <p>{GV_WEB_710D_VERSION} · CURATED FOR YOUR BUDGET</p>
-          <h1>Choose the trip that feels right.</h1>
-          <span>Globevoy keeps the list small, then puts every option on the map so you can compare distance, route shape and budget at a glance.</span>
-        </div>
-        {!loading && !error && items.length ? (
-          <div className="gv-results-next-summary">
-            <strong>{items.length}</strong>
-            <span>strong possibilities</span>
-          </div>
-        ) : null}
-      </section>
+      <header className="gv-story-intro">
+        <p>{GV_WEB_710D_VERSION} · MULTI-CITY DISCOVERY</p>
+        <h1>Choose a route. Then experience the story.</h1>
+        <span>Globevoy builds a small set of connected journeys that fit your starting city and budget, then lets you play the route before deciding what to explore next.</span>
+      </header>
 
       {loading ? (
-        <section className="gv-results-next-state" role="status">
-          <div className="gv-results-next-spinner" />
-          <h2>Comparing trip possibilities…</h2>
-          <p>Checking destination fit, connected routes and the budget evidence already available to Globevoy.</p>
+        <section className="gv-story-state" role="status">
+          <div className="gv-story-spinner" />
+          <h2>Building connected journeys…</h2>
+          <p>Comparing route shape, stop combinations and the planning evidence available to Globevoy.</p>
         </section>
       ) : null}
 
       {!loading && error ? (
-        <section className="gv-results-next-state gv-results-next-state--error" role="alert">
-          <p>SEARCH STATUS</p>
-          <h2>We could not build the recommendation set yet</h2>
+        <section className="gv-story-state gv-story-state--error" role="alert">
+          <p>ROUTE STATUS</p>
+          <h2>We could not build a multi-city journey yet</h2>
           <span>{error}</span>
+          {noFeasible?.cheapestPlanningEstimateDisplay ? <small>Cheapest planning estimate found: {money(noFeasible.cheapestPlanningEstimateDisplay, noFeasible.displayCurrency || search.currency)}</small> : null}
           <div><button type="button" onClick={() => void load()}>Retry</button><button type="button" onClick={() => setEditOpen(true)}>Edit search</button></div>
         </section>
       ) : null}
 
-      {!loading && !error && items.length ? (
+      {!loading && !error && selected ? (
         <>
-          <section className="gv-results-next-toolbar" aria-label="Filter trip results">
-            <div>
-              <strong>Your best options</strong>
-              <span>Select a card to focus its route on the map.</span>
+          <section className="gv-story-route-section" aria-label="Choose a connected route">
+            <div className="gv-story-section-heading">
+              <div><p>ROUTES</p><h2>Your trip options</h2></div>
+              <span>Choose one route to update the map, story and complete journey below.</span>
             </div>
-            <div className="gv-results-next-filters" role="group" aria-label="Trip type">
-              <button type="button" className={filter === 'all' ? 'is-active' : ''} onClick={() => setFilter('all')}>All</button>
-              {hasSingles ? <button type="button" className={filter === 'single' ? 'is-active' : ''} onClick={() => setFilter('single')}>Single city</button> : null}
-              {hasMultis ? <button type="button" className={filter === 'multi' ? 'is-active' : ''} onClick={() => setFilter('multi')}>Multi-city</button> : null}
-            </div>
-          </section>
-
-          <section className="gv-results-next-workspace">
-            <div className="gv-results-next-list" aria-label="Trip recommendations">
-              {visibleItems.map((item) => (
-                <ResultCard
+            <div className="gv-story-route-choices">
+              {routes.map((item) => (
+                <RouteChoice
                   key={item.id}
                   item={item}
                   search={search}
-                  params={params}
-                  active={item.id === activeId}
-                  onSelect={setActiveId}
+                  active={item.id === selected.id}
+                  onSelect={() => chooseRoute(item.id)}
                 />
               ))}
             </div>
-            <ResultsMap710D items={visibleItems} search={search} activeId={activeId} onSelect={handleMapSelect} />
           </section>
 
-          <aside className="gv-results-next-boundary">
+          <section className="gv-story-player" aria-label="Journey player">
+            <div className="gv-story-player__copy">
+              <p>YOUR ROUTE, IN MOTION</p>
+              <h2>Play your journey.</h2>
+              <span>Follow each flight leg and watch the story move from {origin} through your selected stops and home again.</span>
+            </div>
+            <ol className="gv-story-timeline">
+              {selectedRouteLine.map((city, index) => {
+                const isStopActive = storyStop === (index === selectedRouteLine.length - 1 ? selectedStops.length : index - 1);
+                return (
+                  <li key={`${city}-${index}`} className={isStopActive ? 'is-active' : ''}>
+                    <i>{index === 0 || index === selectedRouteLine.length - 1 ? '⌂' : index}</i>
+                    <span>{city}</span>
+                    {index < selectedRouteLine.length - 1 ? <b aria-hidden="true">✈</b> : null}
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+
+          <section className="gv-story-map-grid">
+            <ResultsMap710D
+              item={selected}
+              search={search}
+              focusStopIndex={focusStop}
+              onStoryStop={setStoryStop}
+            />
+
+            <aside className="gv-story-summary">
+              <p>YOUR GENERATED TOUR</p>
+              <h2>{routeTitle(selected)}</h2>
+              <span>{selectedRouteLine.join(' → ')}</span>
+              <div className="gv-story-summary__evidence"><PriceEvidenceBadge evidence={selected.evidence} /></div>
+              <dl>
+                <div><dt>Origin</dt><dd>{search.rawOrigin || search.originCode}</dd></div>
+                <div><dt>Budget</dt><dd>{money(search.budget, search.currency)}</dd></div>
+                <div><dt>Estimated total</dt><dd>{money(selected.total, search.currency)}</dd></div>
+                <div><dt>Nights</dt><dd>{selected.nights}</dd></div>
+                <div><dt>Stops</dt><dd>{selectedStops.length}</dd></div>
+                <div><dt>Planning room</dt><dd>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</dd></div>
+              </dl>
+              <button type="button" onClick={() => document.getElementById('gv-complete-journey')?.scrollIntoView({ behavior: 'smooth' })}>Explore complete journey</button>
+              <small>Prices remain planning evidence until fresh verification. Full flight and hotel detail is reconstructed in the next phase.</small>
+            </aside>
+          </section>
+
+          <section className="gv-story-budget-strip" aria-label="Selected route budget summary">
+            <span><small>Selected route</small><strong>{selectedRouteLine.join(' → ')}</strong></span>
+            <span><small>Protected trip estimate</small><strong>{money(selected.total, search.currency)}</strong></span>
+            <span><small>Planning room</small><strong>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</strong></span>
+            <span><small>Evidence</small><strong>{selected.evidence.label}</strong></span>
+          </section>
+
+          <section className="gv-story-complete" id="gv-complete-journey">
+            <div className="gv-story-section-heading">
+              <div><p>YOUR JOURNEY, DAY BY DAY</p><h2>Your complete journey</h2></div>
+              <span>Move across the cards to focus each stop on the map. Flight and hotel specifics remain behind the next verification/detail step.</span>
+            </div>
+            <div className="gv-story-stop-track">
+              <JourneyCard
+                label="Origin"
+                city={origin}
+                active={storyStop === null && focusStop === -1}
+                onFocus={() => setFocusStop(-1)}
+              />
+              {selectedStops.map((city, index) => (
+                <div className="gv-story-stop-track__segment" key={`${city.city}-${index}`}>
+                  <span className="gv-story-stop-track__arrow" aria-hidden="true">✈</span>
+                  <JourneyCard
+                    label={`Stop ${index + 1}`}
+                    city={city.city}
+                    country={city.country}
+                    nights={city.nights}
+                    image={city.image}
+                    active={storyStop === index || focusStop === index}
+                    onFocus={() => setFocusStop(index)}
+                  />
+                </div>
+              ))}
+              <div className="gv-story-stop-track__segment">
+                <span className="gv-story-stop-track__arrow" aria-hidden="true">✈</span>
+                <JourneyCard
+                  label="Return"
+                  city={origin}
+                  returning
+                  active={storyStop === selectedStops.length || focusStop === selectedStops.length}
+                  onFocus={() => setFocusStop(selectedStops.length)}
+                />
+              </div>
+            </div>
+          </section>
+
+          <aside className="gv-story-boundary">
             <strong>Planning evidence, not a checkout quote.</strong>
-            <p>Final schedules, inventory and prices are confirmed during fresh verification or on partner websites. Globevoy does not create a reservation or take payment on this page.</p>
+            <p>Globevoy is helping you choose the route first. Fresh flight schedules, hotel availability and final partner prices are verified later in the journey.</p>
           </aside>
         </>
       ) : null}
