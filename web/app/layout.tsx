@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { AppShell } from '@/components/app-shell';
 import './globals.css';
 import './account-707a.css';
+import './account-710f.css';
 import './booking-707b.css';
 import './results-708a.css';
 import './reconstruction-710b.css';
