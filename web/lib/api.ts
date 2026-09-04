@@ -78,6 +78,10 @@ export async function listSavedTrips(accessToken: string): Promise<SavedTrip[]> 
   return (await request<SavedTripsListResponse>('GET', '/api/saved-trips', accessToken)).trips || [];
 }
 
+export async function createSavedTrip(accessToken: string, payload: Record<string, unknown>): Promise<SavedTrip> {
+  return (await request<SavedTripResponse>('POST', '/api/saved-trips', accessToken, payload)).trip;
+}
+
 export async function getSavedTrip(accessToken: string, tripId: string): Promise<SavedTrip> {
   const id = normalizedTripId(tripId);
   return (await request<SavedTripResponse>('GET', `/api/saved-trips?tripId=${encodeURIComponent(id)}`, accessToken)).trip;
