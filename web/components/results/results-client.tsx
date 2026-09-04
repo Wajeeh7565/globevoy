@@ -23,11 +23,7 @@ type NoFeasibleTour = {
 
 function money(value: number, currency: string): string {
   try {
-    return new Intl.NumberFormat('en-CA', {
-      style: 'currency',
-      currency,
-      maximumFractionDigits: 0
-    }).format(value);
+    return new Intl.NumberFormat('en-CA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value);
   } catch {
     return `${currency} ${Math.round(value).toLocaleString()}`;
   }
@@ -60,24 +56,14 @@ function routeLine(item: RecommendationCardModel, search: ResultsSearch): string
   return [origin, ...(item.cities || []).map((city) => city.city), origin];
 }
 
-function RouteChoice({
-  item,
-  search,
-  active,
-  onSelect
-}: {
+function RouteChoice({ item, search, active, onSelect }: {
   item: RecommendationCardModel;
   search: ResultsSearch;
   active: boolean;
   onSelect: () => void;
 }) {
   return (
-    <button
-      type="button"
-      className={`gv-story-route-choice${active ? ' is-active' : ''}`}
-      aria-pressed={active}
-      onClick={onSelect}
-    >
+    <button type="button" className={`gv-story-route-choice${active ? ' is-active' : ''}`} aria-pressed={active} onClick={onSelect}>
       <span>{item.label || 'Curated route'}</span>
       <strong>{routeTitle(item)}</strong>
       <b>{money(item.total, search.currency)}</b>
@@ -118,19 +104,16 @@ export function ResultsClient() {
     setSelectedId(null);
     setStoryStop(null);
     setNoFeasible(null);
-
     if (!search.rawOrigin && !search.originCode) {
       setLoading(false);
       setError('Choose a starting city before asking Globevoy for multi-city routes.');
       return;
     }
-
     try {
       const payload = await getPublicMultiCityTours(multiCityApiParams(search));
       const next = adaptMultiCityTours(payload, search).filter((item) => item.kind === 'multi').slice(0, 3);
       const noRoute = noFeasibleFromPayload(payload);
       setNoFeasible(noRoute);
-
       if (!next.length) {
         if (noRoute?.reason === 'no-route-within-protected-budget' && noRoute.suggestedMinimumBudgetDisplay) {
           setError(`No connected route currently fits the protected budget. Routes begin around ${money(noRoute.suggestedMinimumBudgetDisplay, noRoute.displayCurrency || search.currency)}.`);
@@ -149,14 +132,9 @@ export function ResultsClient() {
     }
   }, [search]);
 
-  useEffect(() => {
-    if (search) void load();
-  }, [search, load]);
+  useEffect(() => { if (search) void load(); }, [search, load]);
 
-  const selected = useMemo(
-    () => routes.find((item) => item.id === selectedId) || routes[0] || null,
-    [routes, selectedId]
-  );
+  const selected = useMemo(() => routes.find((item) => item.id === selectedId) || routes[0] || null, [routes, selectedId]);
 
   function chooseRoute(id: string) {
     setSelectedId(id);
@@ -175,9 +153,14 @@ export function ResultsClient() {
     window.location.assign(`/react/results/?${next.toString()}`);
   }
 
-  if (!search) {
-    return <main className="gv-story-page"><section className="gv-story-state"><p>Preparing your route search…</p></section></main>;
+  function openJourney(item: RecommendationCardModel) {
+    if (!item.routeId) return;
+    const next = new URLSearchParams(params);
+    next.set('routeId', item.routeId);
+    window.location.assign(`/react/journey/?${next.toString()}`);
   }
+
+  if (!search) return <main className="gv-story-page"><section className="gv-story-state"><p>Preparing your route search…</p></section></main>;
 
   const origin = originName(search);
   const selectedStops = selected?.cities || [];
@@ -211,18 +194,12 @@ export function ResultsClient() {
       </header>
 
       {loading ? (
-        <section className="gv-story-state" role="status">
-          <div className="gv-story-spinner" />
-          <h2>Building connected journeys…</h2>
-          <p>Comparing route shape, stop combinations and the planning evidence available to Globevoy.</p>
-        </section>
+        <section className="gv-story-state" role="status"><div className="gv-story-spinner" /><h2>Building connected journeys…</h2><p>Comparing route shape, stop combinations and the planning evidence available to Globevoy.</p></section>
       ) : null}
 
       {!loading && error ? (
         <section className="gv-story-state gv-story-state--error" role="alert">
-          <p>ROUTE STATUS</p>
-          <h2>We could not build a multi-city journey yet</h2>
-          <span>{error}</span>
+          <p>ROUTE STATUS</p><h2>We could not build a multi-city journey yet</h2><span>{error}</span>
           {noFeasible?.cheapestPlanningEstimateDisplay ? <small>Cheapest planning estimate found: {money(noFeasible.cheapestPlanningEstimateDisplay, noFeasible.displayCurrency || search.currency)}</small> : null}
           <div><button type="button" onClick={() => void load()}>Retry</button><button type="button" onClick={() => setEditOpen(true)}>Edit search</button></div>
         </section>
@@ -231,51 +208,24 @@ export function ResultsClient() {
       {!loading && !error && selected ? (
         <>
           <section className="gv-story-route-section" aria-label="Choose a connected route">
-            <div className="gv-story-section-heading">
-              <div><p>ROUTES</p><h2>Your trip options</h2></div>
-              <span>Choose a route and the journey story restarts automatically.</span>
-            </div>
+            <div className="gv-story-section-heading"><div><p>ROUTES</p><h2>Your trip options</h2></div><span>Choose a route and the journey story restarts automatically.</span></div>
             <div className="gv-story-route-choices">
-              {routes.map((item) => (
-                <RouteChoice
-                  key={item.id}
-                  item={item}
-                  search={search}
-                  active={item.id === selected.id}
-                  onSelect={() => chooseRoute(item.id)}
-                />
-              ))}
+              {routes.map((item) => <RouteChoice key={item.id} item={item} search={search} active={item.id === selected.id} onSelect={() => chooseRoute(item.id)} />)}
             </div>
           </section>
 
           <section className="gv-story-player" aria-label="Journey player">
-            <div className="gv-story-player__copy">
-              <p>YOUR ROUTE, IN MOTION</p>
-              <h2>Watch your journey unfold.</h2>
-              <span>The plane departs automatically. Each destination appears as a story card when you arrive, then clears as the next flight begins.</span>
-            </div>
+            <div className="gv-story-player__copy"><p>YOUR ROUTE, IN MOTION</p><h2>Watch your journey unfold.</h2><span>The plane departs automatically. Each destination appears as a story card when you arrive, then clears as the next flight begins.</span></div>
             <ol className="gv-story-timeline">
               {selectedRouteLine.map((city, index) => {
                 const isStopActive = storyStop === (index === selectedRouteLine.length - 1 ? selectedStops.length : index - 1);
-                return (
-                  <li key={`${city}-${index}`} className={isStopActive ? 'is-active' : ''}>
-                    <i>{index === 0 || index === selectedRouteLine.length - 1 ? '⌂' : index}</i>
-                    <span>{city}</span>
-                    {index < selectedRouteLine.length - 1 ? <b aria-hidden="true">✈</b> : null}
-                  </li>
-                );
+                return <li key={`${city}-${index}`} className={isStopActive ? 'is-active' : ''}><i>{index === 0 || index === selectedRouteLine.length - 1 ? '⌂' : index}</i><span>{city}</span>{index < selectedRouteLine.length - 1 ? <b aria-hidden="true">✈</b> : null}</li>;
               })}
             </ol>
           </section>
 
           <section className="gv-story-map-grid">
-            <ResultsMap710D
-              item={selected}
-              search={search}
-              onStoryStop={setStoryStop}
-              replaySignal={replaySignal}
-            />
-
+            <ResultsMap710D item={selected} search={search} onStoryStop={setStoryStop} replaySignal={replaySignal} />
             <aside className="gv-story-summary">
               <p>YOUR GENERATED TOUR</p>
               <h2>{routeTitle(selected)}</h2>
@@ -289,7 +239,8 @@ export function ResultsClient() {
                 <div><dt>Stops</dt><dd>{selectedStops.length}</dd></div>
                 <div><dt>Planning room</dt><dd>{selected.remaining >= 0 ? money(selected.remaining, search.currency) : 'Tight fit'}</dd></div>
               </dl>
-              <small>Full flight, hotel and stop details come in the next trip-detail phase. Prices remain planning evidence until fresh verification.</small>
+              <button type="button" className="gv-story-details-link" onClick={() => openJourney(selected)}>Explore flight & hotel details →</button>
+              <small>Full provider details appear only when Globevoy has current evidence. The next page never invents flight or hotel specifics.</small>
             </aside>
           </section>
         </>
