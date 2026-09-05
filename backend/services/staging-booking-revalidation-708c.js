@@ -6,6 +6,13 @@
 // flight evidence, flight handoff safety and corrected arithmetic. This wrapper
 // adds bounded Nuitee Rates -> PREBOOK hotel evidence only when its feature flag
 // is enabled. Hotel failure never removes the existing planning estimate.
+//
+// GV-WEB-710G-R3 compatibility: Results-saved multi-city snapshots can contain
+// route-engine flight legs without an explicit mode/transportType marker. The
+// booking revalidator intentionally recognises only declared flight semantics,
+// so normalize only route-engine legs that already carry flight-specific
+// evidence/estimates. This happens in-memory at read time and does not rewrite
+// the owner's Saved Trip record.
 
 const booking707BR1 = require('./staging-booking-revalidation-707b-r1');
 const booking707BBase = require('./staging-booking-revalidation-707b');
@@ -13,18 +20,62 @@ const savedTrips705C = require('./staging-saved-trips-705c');
 const nuitee708C = require('./nuitee-hotel-708c');
 
 const VERSION = 'GV-HOTEL-708C';
+const FLIGHT_NORMALIZATION_VERSION = 'GV-WEB-710G-R3';
 const ROUTE_PATH = booking707BR1.ROUTE_PATH;
 const STAGING_ORIGIN = booking707BR1.STAGING_ORIGIN;
 
 function clean(value) { return String(value == null ? '' : value).trim(); }
 function finite(value, fallback = 0) { const n = Number(value); return Number.isFinite(n) ? n : fallback; }
+function isRecord(value) { return Boolean(value) && typeof value === 'object' && !Array.isArray(value); }
+function clone(value, fallback = null) { try { return JSON.parse(JSON.stringify(value)); } catch (_) { return fallback; } }
+
+function routeLegHasFlightSemantics(leg = {}) {
+  if (!isRecord(leg)) return false;
+  const declared = `${clean(leg.mode)} ${clean(leg.transportType)}`.toLowerCase();
+  if (declared.includes('flight')) return true;
+  if (/\b(train|rail|bus|coach|ferry|car|drive|ship)\b/.test(declared)) return false;
+
+  const estimateSource = clean(leg.estimateSource).toLowerCase();
+  const evidence = isRecord(leg.providerDateEvidence) ? leg.providerDateEvidence : {};
+  return finite(leg.estimatedFlightUsd, 0) > 0
+    || estimateSource.includes('flight')
+    || /\b(air|plane|aviation)\b/.test(declared)
+    || Boolean(clean(evidence.flightNumber))
+    || (Boolean(clean(evidence.requestedOrigin)) && Boolean(clean(evidence.requestedDestination)));
+}
+
+function normalizeRouteFlightLeg(leg = {}) {
+  if (!isRecord(leg) || !routeLegHasFlightSemantics(leg)) return leg;
+  const declared = `${clean(leg.mode)} ${clean(leg.transportType)}`.toLowerCase();
+  if (declared.includes('flight')) return leg;
+  return {
+    ...leg,
+    mode: clean(leg.mode) || 'flight',
+    transportType: 'flight'
+  };
+}
+
+function normalizeSavedTripFlightLegs(trip = null) {
+  if (!isRecord(trip)) return trip;
+  const next = clone(trip, null);
+  if (!isRecord(next) || clean(next?.tripSnapshot?.kind).toLowerCase() !== 'multi') return next || trip;
+  const tour = next?.tripSnapshot?.tour;
+  if (!isRecord(tour)) return next;
+
+  for (const key of ['backendLegs', 'legs']) {
+    if (!Array.isArray(tour[key])) continue;
+    tour[key] = tour[key].map((leg) => normalizeRouteFlightLeg(leg));
+  }
+  return next;
+}
 
 function withHeader(response = {}, value = VERSION) {
   return {
     ...response,
     headers: {
       ...(response.headers || {}),
-      'X-Globevoy-Hotel-Revalidation': value
+      'X-Globevoy-Hotel-Revalidation': value,
+      'X-Globevoy-Trip-Leg-Normalization': FLIGHT_NORMALIZATION_VERSION
     }
   };
 }
@@ -141,9 +192,10 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
   let capturedTrip = null;
   const upstreamGetTrip = options.getTrip;
   const getTrip = async (sub, tripId) => {
-    capturedTrip = upstreamGetTrip
+    const loadedTrip = upstreamGetTrip
       ? await upstreamGetTrip(sub, tripId)
       : await savedTrips705C._internal.getTrip(sub, tripId, { ...options, env });
+    capturedTrip = normalizeSavedTripFlightLegs(loadedTrip);
     return capturedTrip;
   };
 
@@ -199,18 +251,23 @@ function preflight(event = {}) {
 function status707B(env = process.env) {
   return {
     ...booking707BR1.status707B(env),
-    hotelEvidence: nuitee708C.status708C(env)
+    hotelEvidence: nuitee708C.status708C(env),
+    tripLegNormalization: FLIGHT_NORMALIZATION_VERSION
   };
 }
 
 module.exports = {
   VERSION,
+  FLIGHT_NORMALIZATION_VERSION,
   ROUTE_PATH,
   STAGING_ORIGIN,
   handleBookingRevalidation707B,
   preflight,
   status707B,
   _internal: {
+    routeLegHasFlightSemantics,
+    normalizeRouteFlightLeg,
+    normalizeSavedTripFlightLegs,
     mergeHotelRows,
     hotelSummary,
     applyHotelEvidence
