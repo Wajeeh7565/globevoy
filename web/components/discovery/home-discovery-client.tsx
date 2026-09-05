@@ -20,7 +20,7 @@ const HERO_SLIDES = [
     label: 'Tropical beach at sunrise'
   },
   {
-    url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1dfc?auto=format&fit=crop&w=2200&q=84',
+    url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2200&q=84',
     label: 'City skyline at dusk'
   },
   {
@@ -124,7 +124,7 @@ export function HomeDiscoveryClient() {
 
         setOrigin((current) => {
           if (current.trim()) return current;
-          const preferred = resolveOrigin(profile.homeAirport || profile.homeCity);
+          const preferred = resolveOrigin(profile.homeAirport) || resolveOrigin(profile.homeCity);
           if (preferred) return originDisplay(preferred);
           return profile.homeAirport || profile.homeCity || current;
         });
