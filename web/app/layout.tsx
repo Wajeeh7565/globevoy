@@ -4,6 +4,7 @@ import { AppShell } from '@/components/app-shell';
 import './globals.css';
 import './account-707a.css';
 import './account-710f.css';
+import './account-menu-710f-r2w.css';
 import './my-trips-710f-r2v.css';
 import './booking-707b.css';
 import './results-708a.css';
