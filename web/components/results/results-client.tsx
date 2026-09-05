@@ -5,11 +5,14 @@ import { useAuth } from '@/components/account/auth-provider';
 import { JourneyStoryDeck710DR4 } from '@/components/results/journey-story-deck-710d-r4';
 import { ResultsMap710D } from '@/components/results/results-map-710d';
 import {
+  createSavedTrip,
   getPublicMultiCityAutomaticDates,
   getPublicMultiCityTours,
   GlobevoyApiError,
+  type AutomaticDateLeg,
   type AutomaticDatesResponse
 } from '@/lib/api';
+import type { JsonObject } from '@/lib/contracts';
 import {
   adaptMultiCityTours,
   multiCityApiParams,
@@ -81,6 +84,130 @@ function samePreferredStops(item: RecommendationCardModel, preferredIds: string[
   return current.length === wanted.length && current.every((id, index) => id === wanted[index]);
 }
 
+function record(value: unknown): JsonObject {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as JsonObject : {};
+}
+
+function objectRows(value: unknown): JsonObject[] {
+  return Array.isArray(value) ? value.filter((row) => row && typeof row === 'object') as JsonObject[] : [];
+}
+
+function positive(value: unknown): number | undefined {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : undefined;
+}
+
+function saveKeyFor(item: RecommendationCardModel, dates: AutomaticDatesResponse | null): string {
+  return [item.routeId || item.id, dates?.departureDate || 'flex', dates?.returnDate || 'flex', Math.round(item.total)].join('|');
+}
+
+function savedCities(item: RecommendationCardModel) {
+  const stopRows = objectRows(item.raw.stops).length
+    ? objectRows(item.raw.stops)
+    : objectRows(item.raw.stays).length
+      ? objectRows(item.raw.stays)
+      : objectRows(item.raw.cities);
+  return (item.cities || []).map((city, index) => {
+    const source = stopRows[index] || {};
+    const nights = positive(source.nights ?? source.stayNights ?? source.allocatedNights);
+    return {
+      id: city.id,
+      city: city.city,
+      country: city.country,
+      code: city.code,
+      ...(nights ? { nights: Math.round(nights) } : {})
+    };
+  });
+}
+
+function materializedTour(item: RecommendationCardModel, dates: AutomaticDatesResponse | null): JsonObject {
+  let tour: JsonObject;
+  try { tour = JSON.parse(JSON.stringify(item.raw)) as JsonObject; } catch { tour = { ...item.raw }; }
+  const sourceLegs = objectRows(tour.backendLegs).length ? objectRows(tour.backendLegs) : objectRows(tour.legs);
+  const selectedLegs = dates?.complete && Array.isArray(dates.selectedLegs) ? dates.selectedLegs : [];
+  if (!sourceLegs.length || selectedLegs.length !== sourceLegs.length) return tour;
+
+  const materialized = sourceLegs.map((source, index) => {
+    const selected = selectedLegs[index] as AutomaticDateLeg | undefined;
+    if (!selected) return source;
+    const from = record(source.from);
+    const to = record(source.to);
+    const evidence = record(selected.evidence);
+    return {
+      ...source,
+      from: {
+        ...from,
+        city: selected.from?.city || from.city,
+        code: selected.from?.code || from.code || from.airportCode,
+        airportCode: selected.from?.code || from.airportCode || from.code
+      },
+      to: {
+        ...to,
+        city: selected.to?.city || to.city,
+        code: selected.to?.code || to.code || to.airportCode,
+        airportCode: selected.to?.code || to.airportCode || to.code
+      },
+      departureDate: selected.departureDate || source.departureDate,
+      dateLabel: selected.departureDate || source.dateLabel,
+      providerDateEvidence: {
+        ...evidence,
+        departureDate: selected.departureDate,
+        departureTime: selected.departureTime,
+        arrivalTime: selected.arrivalTime,
+        displayPrice: selected.price,
+        displayCurrency: selected.currency,
+        airline: selected.airline,
+        flightNumber: selected.flightNumber,
+        sourceType: selected.sourceType || evidence.sourceType,
+        requestedOrigin: selected.from?.code || evidence.requestedOrigin,
+        requestedDestination: selected.to?.code || evidence.requestedDestination,
+        availabilityVerified: false
+      }
+    };
+  });
+
+  if (objectRows(tour.backendLegs).length) tour.backendLegs = materialized;
+  if (objectRows(tour.legs).length) tour.legs = materialized;
+  tour.automaticDates = dates;
+  return tour;
+}
+
+function savedTripPayload(item: RecommendationCardModel, search: ResultsSearch, dates: AutomaticDatesResponse | null): Record<string, unknown> {
+  const now = new Date().toISOString();
+  const displayBudget = record(item.raw.displayBudget);
+  return {
+    name: routeTitle(item),
+    status: 'planned',
+    tripSnapshot: {
+      schemaVersion: 1,
+      kind: 'multi',
+      clientSaveKey: `gv710g-r2:${saveKeyFor(item, dates)}`,
+      sourceUrl: currentReturnTo(),
+      origin: search.originCode || search.rawOrigin,
+      nights: item.nights,
+      travellers: search.passengers,
+      currency: search.currency,
+      label: item.label || 'Curated route',
+      cities: savedCities(item),
+      tour: materializedTour(item, dates),
+      routeId: item.routeId || null,
+      snapshotMode: dates?.complete ? 'auto-dates-materialized' : 'planning-estimate',
+      savedByVersion: 'GV-WEB-710G-R2'
+    },
+    priceSnapshot: {
+      currency: search.currency,
+      totalBudget: search.budget,
+      reserve: item.reserveAmount,
+      flightEstimate: positive(displayBudget.flightEstimate ?? displayBudget.transportEstimate),
+      stayEstimate: positive(displayBudget.accommodationEstimate ?? displayBudget.stayEstimate),
+      tripEstimate: item.total,
+      remaining: item.remaining,
+      capturedAt: now
+    },
+    providerRefs: item.routeId ? { routeId: item.routeId } : {}
+  };
+}
+
 function RouteChoice({ item, search, active, onSelect }: {
   item: RecommendationCardModel;
   search: ResultsSearch;
@@ -114,6 +241,9 @@ export function ResultsClient() {
   const [shuffleCursor, setShuffleCursor] = useState(0);
   const [automaticDates, setAutomaticDates] = useState<AutomaticDatesResponse | null>(null);
   const [automaticDatesLoading, setAutomaticDatesLoading] = useState(false);
+  const [savingTrip, setSavingTrip] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
+  const [savedTripIds, setSavedTripIds] = useState<Record<string, string>>({});
   const revealTimers = useRef<number[]>([]);
 
   useEffect(() => {
@@ -143,6 +273,7 @@ export function ResultsClient() {
     setLatestRevealed(null);
     setNoFeasible(null);
     setRouteActionMessage('');
+    setSaveMessage('');
     setAutomaticDates(null);
     if (!search.rawOrigin && !search.originCode) {
       setLoading(false);
@@ -223,6 +354,7 @@ export function ResultsClient() {
     setSelectedId(id);
     resetStory();
     setRouteActionMessage('');
+    setSaveMessage('');
     setAutomaticDates(null);
     setReplaySignal((value) => value + 1);
   }
@@ -243,6 +375,45 @@ export function ResultsClient() {
     document.getElementById('gv-story-trip')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  async function ensureSavedTrip(): Promise<string | null> {
+    if (!session) {
+      void signIn(currentReturnTo());
+      return null;
+    }
+    if (!search || !selected) return null;
+    if (automaticDatesLoading) {
+      setSaveMessage('Preparing the trip dates before saving…');
+      return null;
+    }
+    const key = saveKeyFor(selected, automaticDates);
+    const existing = savedTripIds[key];
+    if (existing) return existing;
+
+    setSavingTrip(true);
+    setSaveMessage('Saving this trip to My Trips…');
+    try {
+      const saved = await createSavedTrip(session.accessToken, savedTripPayload(selected, search, automaticDates));
+      setSavedTripIds((current) => ({ ...current, [key]: saved.tripId }));
+      setSaveMessage('Saved to My Trips.');
+      return saved.tripId;
+    } catch (err) {
+      if (err instanceof GlobevoyApiError && err.status === 401) {
+        setSaveMessage('Your session expired. Sign in again to save this trip.');
+      } else {
+        setSaveMessage('Globevoy could not save this trip yet. Your current route is unchanged.');
+      }
+      return null;
+    } finally {
+      setSavingTrip(false);
+    }
+  }
+
+  async function openTripReview() {
+    const tripId = await ensureSavedTrip();
+    if (!tripId) return;
+    window.location.assign(`/react/booking/?tripId=${encodeURIComponent(tripId)}`);
+  }
+
   async function recalculatePreferred(preferredIds: string[], actionLabel: string) {
     if (!session) {
       setRouteActionMessage('Sign in to reshape routes, shuffle stops and add destinations.');
@@ -251,6 +422,7 @@ export function ResultsClient() {
     if (!search || routeActionBusy || preferredIds.length < 2) return;
     setRouteActionBusy(true);
     setRouteActionMessage(`${actionLabel}…`);
+    setSaveMessage('');
     try {
       const payload = await getPublicMultiCityTours({
         ...multiCityApiParams(search),
@@ -313,6 +485,8 @@ export function ResultsClient() {
   const selectedStops = selected?.cities || [];
   const selectedRouteLine = selected ? routeLine(selected, search) : [];
   const accessLabel = session ? 'Signed-in discovery' : 'Guest discovery';
+  const selectedSaveKey = selected ? saveKeyFor(selected, automaticDates) : '';
+  const selectedSaved = Boolean(selectedSaveKey && savedTripIds[selectedSaveKey]);
 
   return (
     <main className={`gv-story-page gv-story-page--r4 ${session ? 'gv-story-page--member' : 'gv-story-page--guest'}`}>
@@ -392,13 +566,23 @@ export function ResultsClient() {
                 <div><dt>Stops</dt><dd>{selectedStops.length}</dd></div>
               </dl>
               <div className="gv-story-summary__buttons">
-                <button type="button" onClick={scrollToTrip}>View trip</button>
                 {session ? (
-                  <button type="button" className="is-secondary" onClick={scrollToTrip}>Adjust trip</button>
+                  <>
+                    <button type="button" disabled={savingTrip || automaticDatesLoading} onClick={() => { void openTripReview(); }}>
+                      {savingTrip ? 'Saving…' : automaticDatesLoading ? 'Preparing trip…' : 'Trip review'}
+                    </button>
+                    <button type="button" className="is-secondary" disabled={savingTrip || automaticDatesLoading || selectedSaved} onClick={() => { void ensureSavedTrip(); }}>
+                      {selectedSaved ? 'Saved ✓' : savingTrip ? 'Saving…' : 'Save trip'}
+                    </button>
+                  </>
                 ) : (
-                  <button type="button" className="is-secondary" onClick={() => { void signIn(currentReturnTo()); }}>Sign in to adjust</button>
+                  <>
+                    <button type="button" onClick={scrollToTrip}>View trip details</button>
+                    <button type="button" className="is-secondary" onClick={() => { void signIn(currentReturnTo()); }}>Sign in to save</button>
+                  </>
                 )}
               </div>
+              {session && saveMessage ? <span role="status">{saveMessage}</span> : null}
             </aside>
           </section>
 
