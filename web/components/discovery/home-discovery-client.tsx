@@ -1,8 +1,18 @@
 'use client';
 
+import Link from 'next/link';
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/components/account/auth-provider';
 import { HomeTripPreviews } from '@/components/discovery/home-trip-previews';
+import { getTravelProfile } from '@/lib/api';
+import type { TravelProfile } from '@/lib/contracts';
 import { filterOrigins, nearestOrigin, originDisplay, resolveOrigin, type OriginOption } from '@/lib/origin-options-710c';
+import {
+  currencyPrefix,
+  profileHotelStyleForSearch,
+  profilePrimaryInterest,
+  profileSummary
+} from '@/lib/profile-discovery-710f-r2';
 
 const HERO_SLIDES = [
   {
@@ -10,7 +20,7 @@ const HERO_SLIDES = [
     label: 'Tropical beach at sunrise'
   },
   {
-    url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2200&q=84',
+    url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1dfc?auto=format&fit=crop&w=2200&q=84',
     label: 'City skyline at dusk'
   },
   {
@@ -36,10 +46,12 @@ function nextSixMonths(): Array<{ value: string; label: string }> {
 }
 
 export function HomeDiscoveryClient() {
+  const { session, loading: authLoading } = useAuth();
   const [activeSlide, setActiveSlide] = useState(0);
   const [origin, setOrigin] = useState('');
   const [originOpen, setOriginOpen] = useState(false);
   const [budget, setBudget] = useState('1000');
+  const [currency, setCurrency] = useState('CAD');
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [tripLength, setTripLength] = useState('auto');
@@ -50,12 +62,15 @@ export function HomeDiscoveryClient() {
   const [status, setStatus] = useState('');
   const [locating, setLocating] = useState(false);
   const [locationNote, setLocationNote] = useState('');
+  const [accountProfile, setAccountProfile] = useState<TravelProfile | null>(null);
+  const [profileState, setProfileState] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
 
   const months = useMemo(() => nextSixMonths(), []);
   const originOptions = useMemo(() => filterOrigins(origin).slice(0, 12), [origin]);
   const resolvedOrigin = useMemo(() => resolveOrigin(origin), [origin]);
   const requestOrigin = resolvedOrigin?.code || origin.trim();
   const travellerSummary = `${adults} adult${adults === 1 ? '' : 's'}${children ? `, ${children} child${children === 1 ? '' : 'ren'}` : ''}`;
+  const connectedProfileSummary = useMemo(() => accountProfile ? profileSummary(accountProfile) : [], [accountProfile]);
 
   useEffect(() => {
     HERO_SLIDES.forEach((slide) => {
@@ -88,6 +103,46 @@ export function HomeDiscoveryClient() {
       else reduceMotion.removeListener(restart);
     };
   }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!session?.accessToken) {
+      setAccountProfile(null);
+      setProfileState('idle');
+      return;
+    }
+
+    let active = true;
+    setProfileState('loading');
+    void getTravelProfile(session.accessToken)
+      .then((payload) => {
+        if (!active) return;
+        const profile = payload.exists ? payload.profile : null;
+        setAccountProfile(profile);
+        setProfileState('ready');
+        if (!profile) return;
+
+        setOrigin((current) => {
+          if (current.trim()) return current;
+          const preferred = resolveOrigin(profile.homeAirport || profile.homeCity);
+          if (preferred) return originDisplay(preferred);
+          return profile.homeAirport || profile.homeCity || current;
+        });
+        setCurrency((current) => current === 'CAD' && profile.defaultCurrency ? profile.defaultCurrency : current);
+        setInterest((current) => current === 'No preference' ? profilePrimaryInterest(profile) : current);
+        setHotelStyle((current) => {
+          if (current !== 'Best balance') return current;
+          return profileHotelStyleForSearch(profile) || current;
+        });
+      })
+      .catch(() => {
+        if (!active) return;
+        setAccountProfile(null);
+        setProfileState('error');
+      });
+
+    return () => { active = false; };
+  }, [authLoading, session?.accessToken]);
 
   function chooseOrigin(option: OriginOption) {
     setOrigin(originDisplay(option));
@@ -141,7 +196,7 @@ export function HomeDiscoveryClient() {
       return;
     }
     if (!Number.isFinite(numericBudget) || numericBudget < 300) {
-      setStatus('Enter a total trip budget of at least C$300.');
+      setStatus(`Enter a total trip budget of at least ${currencyPrefix(currency)}300.`);
       return;
     }
 
@@ -149,7 +204,7 @@ export function HomeDiscoveryClient() {
     const params = new URLSearchParams({
       origin: cleanOrigin.toUpperCase(),
       budget: String(Math.round(numericBudget)),
-      currency: 'CAD',
+      currency,
       adults: String(adults),
       children: String(children),
       passengers: String(adults + children),
@@ -255,7 +310,7 @@ export function HomeDiscoveryClient() {
               <label className="gv-home-next__field">
                 <span>Total trip budget</span>
                 <div className="gv-home-next__money">
-                  <span aria-hidden="true">C$</span>
+                  <span aria-hidden="true">{currencyPrefix(currency)}</span>
                   <input
                     type="number"
                     min="300"
@@ -295,6 +350,35 @@ export function HomeDiscoveryClient() {
                 </details>
               </div>
             </div>
+
+            {session && profileState === 'loading' ? (
+              <div className="gv-home-next__profile-context is-loading" role="status">Loading your signed-in travel profile…</div>
+            ) : null}
+
+            {session && profileState === 'ready' && accountProfile ? (
+              <div className="gv-home-next__profile-context">
+                <div>
+                  <strong>Travel Profile connected</strong>
+                  <span>{connectedProfileSummary.length ? connectedProfileSummary.join(' · ') : 'Your saved account preferences are available.'}</span>
+                  <small>Saved home, currency and compatible preference defaults are applied automatically. You can still change this search.</small>
+                </div>
+                <Link href="/travel-profile/">Edit profile</Link>
+              </div>
+            ) : null}
+
+            {session && profileState === 'ready' && !accountProfile ? (
+              <div className="gv-home-next__profile-context is-empty">
+                <div><strong>Complete your Travel Profile</strong><span>Save a home airport and preferences to make future searches faster.</span></div>
+                <Link href="/travel-profile/">Set up profile</Link>
+              </div>
+            ) : null}
+
+            {session && profileState === 'error' ? (
+              <div className="gv-home-next__profile-context is-error">
+                <div><strong>Profile temporarily unavailable</strong><span>Your search still works normally. No profile assumptions were added.</span></div>
+                <Link href="/travel-profile/">Open profile</Link>
+              </div>
+            ) : null}
 
             <details className="gv-home-next__advanced">
               <summary>Advanced options <span aria-hidden="true">⌄</span></summary>
@@ -362,6 +446,7 @@ export function HomeDiscoveryClient() {
       <HomeTripPreviews
         origin={requestOrigin}
         budget={budget}
+        currency={currency}
         adults={adults}
         children={children}
         tripLength={tripLength}
