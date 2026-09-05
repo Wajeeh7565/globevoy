@@ -42,8 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await beginSignIn(returnTo);
     } catch (error) {
+      // Sign-in can be intentionally unavailable on localhost or fail before
+      // navigation begins (for example if required browser crypto is missing).
+      // Surface that as normal product status instead of rethrowing an
+      // unhandled promise that triggers the Next.js development error overlay.
       setStatus(error instanceof Error ? error.message : 'Sign-in could not be started.');
-      throw error;
     }
   }, []);
 
