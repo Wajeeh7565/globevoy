@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useAuth } from '@/components/account/auth-provider';
 import { JourneyStoryDeck710DR4 } from '@/components/results/journey-story-deck-710d-r4';
 import { ResultsMap710D } from '@/components/results/results-map-710d';
 import {
@@ -35,6 +36,12 @@ function money(value: number, currency: string): string {
 
 function currentSearch(): URLSearchParams {
   return typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
+}
+
+function currentReturnTo(): string {
+  if (typeof window === 'undefined') return '/react/results/';
+  const value = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  return value.startsWith('/react/') ? value : '/react/results/';
 }
 
 function originName(search: ResultsSearch): string {
@@ -90,6 +97,8 @@ function RouteChoice({ item, search, active, onSelect }: {
 }
 
 export function ResultsClient() {
+  const { session, loading: authLoading, status: authStatus, signIn } = useAuth();
+  const routeLimit = session ? 6 : 3;
   const [search, setSearch] = useState<ResultsSearch | null>(null);
   const [routes, setRoutes] = useState<RecommendationCardModel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -124,7 +133,7 @@ export function ResultsClient() {
   }
 
   const load = useCallback(async () => {
-    if (!search) return;
+    if (!search || authLoading) return;
     setLoading(true);
     setError('');
     setRoutes([]);
@@ -142,7 +151,7 @@ export function ResultsClient() {
     }
     try {
       const payload = await getPublicMultiCityTours(multiCityApiParams(search));
-      const next = adaptMultiCityTours(payload, search).filter((item) => item.kind === 'multi').slice(0, 3);
+      const next = adaptMultiCityTours(payload, search).filter((item) => item.kind === 'multi').slice(0, routeLimit);
       const noRoute = noFeasibleFromPayload(payload);
       setNoFeasible(noRoute);
       if (!next.length) {
@@ -161,9 +170,9 @@ export function ResultsClient() {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, authLoading, routeLimit]);
 
-  useEffect(() => { if (search) void load(); }, [search, load]);
+  useEffect(() => { if (search && !authLoading) void load(); }, [search, authLoading, load]);
 
   const selected = useMemo(() => routes.find((item) => item.id === selectedId) || routes[0] || null, [routes, selectedId]);
 
@@ -237,6 +246,10 @@ export function ResultsClient() {
   }
 
   async function recalculatePreferred(preferredIds: string[], actionLabel: string) {
+    if (!session) {
+      setRouteActionMessage('Sign in to reshape routes, shuffle stops and add destinations.');
+      return;
+    }
     if (!search || routeActionBusy || preferredIds.length < 2) return;
     setRouteActionBusy(true);
     setRouteActionMessage(`${actionLabel}…`);
@@ -246,7 +259,7 @@ export function ResultsClient() {
         preferredStops: preferredIds.join(','),
         maxStops: preferredIds.length
       });
-      const next = adaptMultiCityTours(payload, search).filter((item) => item.kind === 'multi').slice(0, 3);
+      const next = adaptMultiCityTours(payload, search).filter((item) => item.kind === 'multi').slice(0, routeLimit);
       const exact = next.find((item) => samePreferredStops(item, preferredIds));
       if (!exact) {
         setRouteActionMessage('That change did not produce a feasible protected-budget route. Your current trip is unchanged.');
@@ -301,9 +314,10 @@ export function ResultsClient() {
 
   const selectedStops = selected?.cities || [];
   const selectedRouteLine = selected ? routeLine(selected, search) : [];
+  const accessLabel = session ? 'Signed-in discovery' : 'Guest discovery';
 
   return (
-    <main className="gv-story-page gv-story-page--r4">
+    <main className={`gv-story-page gv-story-page--r4 ${session ? 'gv-story-page--member' : 'gv-story-page--guest'}`}>
       <section className="gv-story-searchbar" aria-label="Current search">
         <div>
           <span>{search.rawOrigin || search.originCode}</span>
@@ -312,6 +326,25 @@ export function ResultsClient() {
           <span>{search.tripLength === 'auto' ? 'Flexible length' : `${search.nights} nights`}</span>
         </div>
       </section>
+
+      {!authLoading ? (
+        <section className={`gv-story-access-tier ${session ? 'is-member' : 'is-guest'}`} aria-label={accessLabel}>
+          <div className="gv-story-access-tier__icon" aria-hidden="true">{session ? '✓' : '3'}</div>
+          <div className="gv-story-access-tier__copy">
+            <small>{accessLabel}</small>
+            <strong>{session ? 'More possibilities, route editing unlocked' : 'Three strong possibilities, no account required'}</strong>
+            <span>{session
+              ? 'Globevoy can show up to 6 feasible routes and lets you reshape supported multi-city journeys.'
+              : 'Maps, trip details, automatic-date evidence and partner handoff stay available. Sign in for more alternatives, route editing and saved continuity.'}</span>
+          </div>
+          {!session ? (
+            <button type="button" onClick={() => { void signIn(currentReturnTo()); }}>Sign in for more</button>
+          ) : (
+            <span className="gv-story-access-tier__status">Up to 6 routes</span>
+          )}
+        </section>
+      ) : null}
+      {!session && authStatus ? <p className="gv-story-access-status" role="status">{authStatus}</p> : null}
 
       {loading ? (
         <section className="gv-story-state" role="status"><div className="gv-story-spinner" /><h2>Building connected journeys…</h2><p>Comparing route shape, stop combinations and the planning evidence available to Globevoy.</p></section>
@@ -328,7 +361,10 @@ export function ResultsClient() {
       {!loading && !error && selected ? (
         <>
           <section className="gv-story-route-section" aria-label="Choose a connected route">
-            <div className="gv-story-section-heading"><div><h2>Your trip options</h2></div></div>
+            <div className="gv-story-section-heading">
+              <div><h2>Your trip options</h2></div>
+              <span>{session ? `Signed in · ${routes.length} feasible option${routes.length === 1 ? '' : 's'} shown` : `Guest · ${routes.length} of up to 3 options shown`}</span>
+            </div>
             <div className="gv-story-route-choices">
               {routes.map((item) => <RouteChoice key={item.id} item={item} search={search} active={item.id === selected.id} onSelect={() => chooseRoute(item.id)} />)}
             </div>
@@ -370,7 +406,7 @@ export function ResultsClient() {
             revealed={revealedStops}
             activeStop={storyStop}
             latestRevealed={latestRevealed}
-            candidateCities={candidateCities}
+            candidateCities={session ? candidateCities : []}
             busy={routeActionBusy}
             actionMessage={routeActionMessage}
             automaticDates={automaticDates}
