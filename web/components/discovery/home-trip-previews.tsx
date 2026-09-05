@@ -17,6 +17,7 @@ import {
 type HomeTripPreviewsProps = {
   origin: string;
   budget: string;
+  currency: string;
   adults: number;
   children: number;
   tripLength: string;
@@ -68,7 +69,7 @@ function resultParams(props: HomeTripPreviewsProps): URLSearchParams {
   const params = new URLSearchParams({
     origin: props.origin.trim(),
     budget: String(Math.round(Number(props.budget))),
-    currency: 'CAD',
+    currency: props.currency,
     adults: String(props.adults),
     children: String(props.children),
     passengers: String(props.adults + props.children),
@@ -130,6 +131,7 @@ export function HomeTripPreviews(props: HomeTripPreviewsProps) {
   const query = useMemo(() => resultParams(props), [
     props.origin,
     props.budget,
+    props.currency,
     props.adults,
     props.children,
     props.tripLength,
