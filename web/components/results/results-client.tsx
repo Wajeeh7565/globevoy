@@ -98,7 +98,7 @@ function RouteChoice({ item, search, active, onSelect }: {
 
 export function ResultsClient() {
   const { session, loading: authLoading, status: authStatus, signIn } = useAuth();
-  const routeLimit = session ? 6 : 3;
+  const routeLimit = session ? 6 : 1;
   const [search, setSearch] = useState<ResultsSearch | null>(null);
   const [routes, setRoutes] = useState<RecommendationCardModel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -329,13 +329,13 @@ export function ResultsClient() {
 
       {!authLoading ? (
         <section className={`gv-story-access-tier ${session ? 'is-member' : 'is-guest'}`} aria-label={accessLabel}>
-          <div className="gv-story-access-tier__icon" aria-hidden="true">{session ? '✓' : '3'}</div>
+          <div className="gv-story-access-tier__icon" aria-hidden="true">{session ? '✓' : '1'}</div>
           <div className="gv-story-access-tier__copy">
             <small>{accessLabel}</small>
-            <strong>{session ? 'More possibilities, route editing unlocked' : 'Three strong possibilities, no account required'}</strong>
+            <strong>{session ? 'More possibilities, route editing unlocked' : 'One strong multi-city possibility, no account required'}</strong>
             <span>{session
               ? 'Globevoy can show up to 6 feasible routes and lets you reshape supported multi-city journeys.'
-              : 'Maps, trip details, automatic-date evidence and partner handoff stay available. Sign in for more alternatives, route editing and saved continuity.'}</span>
+              : 'Maps, trip details, automatic-date evidence and partner handoff stay available. Sign in for more multi-city alternatives, route editing and saved continuity.'}</span>
           </div>
           {!session ? (
             <button type="button" onClick={() => { void signIn(currentReturnTo()); }}>Sign in for more</button>
@@ -363,7 +363,7 @@ export function ResultsClient() {
           <section className="gv-story-route-section" aria-label="Choose a connected route">
             <div className="gv-story-section-heading">
               <div><h2>Your trip options</h2></div>
-              <span>{session ? `Signed in · ${routes.length} feasible option${routes.length === 1 ? '' : 's'} shown` : `Guest · ${routes.length} of up to 3 options shown`}</span>
+              <span>{session ? `Signed in · ${routes.length} feasible option${routes.length === 1 ? '' : 's'} shown` : 'Guest · 1 multi-city option shown'}</span>
             </div>
             <div className="gv-story-route-choices">
               {routes.map((item) => <RouteChoice key={item.id} item={item} search={search} active={item.id === selected.id} onSelect={() => chooseRoute(item.id)} />)}
