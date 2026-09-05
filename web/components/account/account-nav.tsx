@@ -38,22 +38,44 @@ export function AccountNav() {
             </summary>
             <div className="gv-account-nav__panel">
               <div className="gv-account-nav__identity">
-                <strong>Signed in</strong>
-                <span>{accountLabel.identity}</span>
+                <span className="gv-account-nav__identity-avatar" aria-hidden="true">{accountLabel.initial}</span>
+                <span className="gv-account-nav__identity-copy">
+                  <strong>Signed in as</strong>
+                  <span>{accountLabel.identity}</span>
+                </span>
               </div>
-              <Link href="/travel-profile/">
-                <strong>Travel Profile</strong>
-                <small>Home airport, passport countries and travel preferences</small>
+
+              <Link className="gv-account-nav__item" href="/travel-profile/">
+                <span className="gv-account-nav__item-icon" aria-hidden="true">✈</span>
+                <span className="gv-account-nav__item-copy">
+                  <strong>Travel profile</strong>
+                  <small>Home airport, countries & preferences</small>
+                </span>
+                <span className="gv-account-nav__item-arrow" aria-hidden="true">›</span>
               </Link>
-              <Link href="/my-trips/">
-                <strong>Saved Trips</strong>
-                <small>Continue trips you saved to this account</small>
+
+              <Link className="gv-account-nav__item" href="/my-trips/">
+                <span className="gv-account-nav__item-icon" aria-hidden="true">▣</span>
+                <span className="gv-account-nav__item-copy">
+                  <strong>My trips</strong>
+                  <small>Pick up your saved journeys</small>
+                </span>
+                <span className="gv-account-nav__item-arrow" aria-hidden="true">›</span>
               </Link>
-              <Link href="/account/">
-                <strong>Account</strong>
-                <small>Session and account details</small>
+
+              <Link className="gv-account-nav__item" href="/account/">
+                <span className="gv-account-nav__item-icon" aria-hidden="true">◎</span>
+                <span className="gv-account-nav__item-copy">
+                  <strong>Account details</strong>
+                  <small>Session and account information</small>
+                </span>
+                <span className="gv-account-nav__item-arrow" aria-hidden="true">›</span>
               </Link>
-              <button type="button" onClick={signOut}>Sign out</button>
+
+              <button className="gv-account-nav__signout" type="button" onClick={signOut}>
+                <span className="gv-account-nav__signout-icon" aria-hidden="true">↪</span>
+                <span>Sign out</span>
+              </button>
             </div>
           </details>
         </>
