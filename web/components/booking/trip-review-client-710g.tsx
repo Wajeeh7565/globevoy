@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/components/account/auth-provider';
 import { getSavedTrip, GlobevoyApiError, revalidateSavedTripForBooking } from '@/lib/api';
+import { browserIsStagingOrigin } from '@/lib/public-config';
 import type { BookingRevalidationHotel, BookingRevalidationResponse, SavedTrip, SavedTripCity } from '@/lib/contracts';
 
 export const GV_WEB_710G_VERSION = 'GV-WEB-710G-R1';
@@ -153,8 +154,10 @@ export function TripReviewClient710G() {
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<BookingRevalidationResponse | null>(null);
   const [error, setError] = useState('');
+  const [stagingOrigin, setStagingOrigin] = useState(false);
 
   useEffect(() => {
+    setStagingOrigin(browserIsStagingOrigin());
     if (typeof window === 'undefined') return;
     const id = clean(new URLSearchParams(window.location.search).get('tripId'));
     setTripId(validTripId(id) ? id : '');
@@ -227,9 +230,9 @@ export function TripReviewClient710G() {
       <main className="gv-710g-page">
         <section className="gv-710g-gate">
           <div className="gv-710g-gate__visual"><span>✈</span><strong>My Trip</strong><small>Private review</small></div>
-          <div><p className="gv-710g-kicker">TRIP REVIEW</p><h1>Sign in to review this saved trip</h1><p>Globevoy loads the owner-private Saved Trip, checks current evidence only when you ask, and hands you off to external partners for final confirmation.</p></div>
+          <div><p className="gv-710g-kicker">TRIP REVIEW</p><h1>Sign in to review this saved trip</h1><p>Globevoy loads the owner-private Saved Trip, checks current evidence only when you ask, and hands you off to external partners for final confirmation.</p>{!stagingOrigin ? <small>Secure account sign-in is disabled on localhost. Use the Globevoy staging site for the signed-in Trip Review test.</small> : null}</div>
           <div className="gv-710g-gate__actions">
-            <button type="button" className="gv-710g-primary" onClick={() => { void signIn(`/react/booking/${tripId ? `?tripId=${encodeURIComponent(tripId)}` : ''}`); }}>Sign in</button>
+            <button type="button" className="gv-710g-primary" disabled={!stagingOrigin} title={!stagingOrigin ? 'Secure sign-in is available only on the Globevoy staging site.' : undefined} onClick={() => { if (stagingOrigin) void signIn(`/react/booking/${tripId ? `?tripId=${encodeURIComponent(tripId)}` : ''}`); }}>{stagingOrigin ? 'Sign in' : 'Sign in on staging'}</button>
             <Link className="gv-710g-secondary" href="/my-trips/">Back to My Trips</Link>
           </div>
         </section>
