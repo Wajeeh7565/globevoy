@@ -8,6 +8,7 @@ import './booking-707b.css';
 import './results-708a.css';
 import './reconstruction-710b.css';
 import './home-710c.css';
+import './home-profile-710f-r2.css';
 import './home-previews-710c-r2.css';
 import './origin-autocomplete-710c-r3.css';
 import './results-710d.css';
