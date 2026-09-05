@@ -7,6 +7,7 @@ import './account-710f.css';
 import './account-menu-710f-r2w.css';
 import './my-trips-710f-r2v.css';
 import './booking-707b.css';
+import './booking-710g.css';
 import './results-708a.css';
 import './reconstruction-710b.css';
 import './home-710c.css';
