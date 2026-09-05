@@ -210,8 +210,6 @@ export function ResultsClient() {
         setAutomaticDates(payload.complete ? payload : null);
       })
       .catch(() => {
-        // Automatic dates are an additive evidence layer. Discovery remains
-        // usable when the staging feature is disabled or provider coverage is incomplete.
         if (!cancelled) setAutomaticDates(null);
       })
       .finally(() => {
@@ -395,7 +393,11 @@ export function ResultsClient() {
               </dl>
               <div className="gv-story-summary__buttons">
                 <button type="button" onClick={scrollToTrip}>View trip</button>
-                <button type="button" className="is-secondary" onClick={scrollToTrip}>Adjust trip</button>
+                {session ? (
+                  <button type="button" className="is-secondary" onClick={scrollToTrip}>Adjust trip</button>
+                ) : (
+                  <button type="button" className="is-secondary" onClick={() => { void signIn(currentReturnTo()); }}>Sign in to adjust</button>
+                )}
               </div>
             </aside>
           </section>
