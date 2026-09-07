@@ -16,8 +16,12 @@
 //
 // GV-WEB-710G-R4 compatibility: planning-only Saved Trips may have the exact
 // route but no exact dates yet. During the user's explicit current-price check,
-// prepare a bounded provider-observed exact-date chain in memory before Duffel
-// revalidation. Nothing is persisted, booked, reserved, ordered or ticketed.
+// prepare an in-memory schedule before Duffel revalidation. R4.2 preserves exact
+// airport evidence (for example YYZ instead of metro code YTO), uses provider
+// observations to choose the first departure date, and may derive later dates
+// strictly from the saved stop-night allocation when provider date-cache coverage
+// is sparse. Derived dates are planning-only until Duffel verifies them LIVE.
+// Nothing is persisted, booked, reserved, ordered or ticketed.
 
 const booking707BR1 = require('./staging-booking-revalidation-707b-r1');
 const booking707BBase = require('./staging-booking-revalidation-707b');
@@ -27,7 +31,7 @@ const autoDates710E = require('./staging-multicity-auto-dates-710e-r3a');
 
 const VERSION = 'GV-HOTEL-708C';
 const FLIGHT_NORMALIZATION_VERSION = 'GV-WEB-710G-R3';
-const AUTO_DATE_PREPARATION_VERSION = 'GV-WEB-710G-R4.1';
+const AUTO_DATE_PREPARATION_VERSION = 'GV-WEB-710G-R4.2';
 const ROUTE_PATH = booking707BR1.ROUTE_PATH;
 const STAGING_ORIGIN = booking707BR1.STAGING_ORIGIN;
 
@@ -42,6 +46,13 @@ function safeDate(value) {
 function safeIata(value) {
   const code = clean(value).toUpperCase();
   return /^[A-Z]{3}$/.test(code) ? code : null;
+}
+function addDays(dateString, days) {
+  const date = safeDate(dateString);
+  if (!date) return null;
+  const value = new Date(`${date}T12:00:00Z`);
+  value.setUTCDate(value.getUTCDate() + Math.round(finite(days, 0)));
+  return value.toISOString().slice(0, 10);
 }
 
 function routeLegHasFlightSemantics(leg = {}) {
@@ -87,6 +98,56 @@ function normalizeSavedTripFlightLegs(trip = null) {
 function sourceRouteLegs(tour = {}) {
   if (Array.isArray(tour.backendLegs) && tour.backendLegs.length) return tour.backendLegs;
   return Array.isArray(tour.legs) ? tour.legs : [];
+}
+
+function samePlace(a = {}, b = {}) {
+  const aId = clean(a?.cityId);
+  const bId = clean(b?.cityId);
+  if (aId && bId) return aId === bId;
+  const aCity = clean(a?.city).toLowerCase();
+  const bCity = clean(b?.city).toLowerCase();
+  return Boolean(aCity && bCity && aCity === bCity);
+}
+
+function preferredAirportCode(node = {}, tour = {}, stops = []) {
+  const explicit = safeIata(node?.airportCode);
+  if (explicit) return explicit;
+
+  if (isRecord(tour?.origin) && samePlace(node, tour.origin)) {
+    const originAirport = safeIata(tour.origin.airportCode);
+    if (originAirport) return originAirport;
+  }
+
+  const stop = (Array.isArray(stops) ? stops : []).find((row) => samePlace(node, row));
+  if (isRecord(stop)) {
+    const stopAirport = safeIata(stop.airportCode);
+    if (stopAirport) return stopAirport;
+
+    // A single saved airport candidate is safe to materialize. When a city has
+    // multiple possible airports, do not silently choose the first one.
+    const stopAirportCodes = Array.isArray(stop.airportCodes)
+      ? [...new Set(stop.airportCodes.map(safeIata).filter(Boolean))]
+      : [];
+    if (stopAirportCodes.length === 1) return stopAirportCodes[0];
+  }
+
+  return safeIata(node?.code);
+}
+
+function resolveAutomaticDateLegAirports(tour = {}, routeLegs = [], stops = []) {
+  return (Array.isArray(routeLegs) ? routeLegs : []).map((raw) => {
+    const leg = normalizeRouteFlightLeg(clone(raw, raw));
+    if (!isRecord(leg)) return leg;
+    const from = isRecord(leg.from) ? leg.from : {};
+    const to = isRecord(leg.to) ? leg.to : {};
+    const fromCode = preferredAirportCode(from, tour, stops);
+    const toCode = preferredAirportCode(to, tour, stops);
+    return {
+      ...leg,
+      from: { ...from, code: fromCode || from.code, airportCode: fromCode || from.airportCode || null },
+      to: { ...to, code: toCode || to.code, airportCode: toCode || to.airportCode || null }
+    };
+  });
 }
 
 function exactFlightLegReady(leg = {}) {
@@ -174,6 +235,79 @@ function applyAutomaticDatePlan(trip = null, plan = {}) {
   return next;
 }
 
+function deriveDownstreamDatePlan(autoTour = {}, providerPlan = {}) {
+  const legs = Array.isArray(autoTour?.legs) ? autoTour.legs : [];
+  const stops = Array.isArray(autoTour?.stops) ? autoTour.stops : [];
+  const providerSelected = Array.isArray(providerPlan?.selectedLegs) ? providerPlan.selectedLegs : [];
+  const first = providerSelected[0];
+  const firstDate = safeDate(first?.departureDate);
+  if (providerPlan?.complete === true || providerPlan?.reason !== 'no-complete-provider-date-chain') return null;
+  if (!legs.length || legs.length !== stops.length + 1 || !firstDate) return null;
+
+  const firstLeg = legs[0] || {};
+  const firstFrom = preferredAirportCode(firstLeg.from || {}, autoTour, stops);
+  const firstTo = preferredAirportCode(firstLeg.to || {}, autoTour, stops);
+  if (!firstFrom || !firstTo) return null;
+
+  const selectedLegs = [{
+    ...clone(first, {}),
+    legNumber: finite(first?.legNumber, 0) || finite(firstLeg?.legNumber, 0) || 1,
+    from: { ...(clone(firstLeg.from, {}) || {}), ...(clone(first?.from, {}) || {}), code: firstFrom, airportCode: firstFrom },
+    to: { ...(clone(firstLeg.to, {}) || {}), ...(clone(first?.to, {}) || {}), code: firstTo, airportCode: firstTo },
+    departureDate: firstDate,
+    sourceType: clean(first?.sourceType || first?.evidence?.sourceType || 'CACHED') || 'CACHED',
+    availabilityVerified: false
+  }];
+
+  for (let index = 1; index < legs.length; index += 1) {
+    const previousDate = safeDate(selectedLegs[index - 1]?.departureDate);
+    const savedNights = Number(stops[index - 1]?.nights);
+    if (!Number.isInteger(savedNights) || savedNights < 1) return null;
+    const departureDate = addDays(previousDate, savedNights);
+    const leg = legs[index] || {};
+    const fromCode = preferredAirportCode(leg.from || {}, autoTour, stops);
+    const toCode = preferredAirportCode(leg.to || {}, autoTour, stops);
+    if (!departureDate || !fromCode || !toCode) return null;
+    selectedLegs.push({
+      legNumber: finite(leg?.legNumber, 0) || index + 1,
+      from: { ...(clone(leg.from, {}) || {}), code: fromCode, airportCode: fromCode },
+      to: { ...(clone(leg.to, {}) || {}), code: toCode, airportCode: toCode },
+      departureDate,
+      targetDate: departureDate,
+      price: null,
+      currency: null,
+      sourceType: 'DERIVED',
+      selectionReason: 'saved-stop-nights-derived-for-live-revalidation',
+      availabilityVerified: false,
+      evidence: {
+        sourceType: 'DERIVED',
+        dateBasis: 'saved-stop-nights',
+        providerBacked: false,
+        productionEligible: false,
+        currentAvailabilityVerified: false,
+        requestedOrigin: fromCode,
+        requestedDestination: toCode,
+        departureDate
+      }
+    });
+  }
+
+  return {
+    ...clone(providerPlan, {}),
+    complete: true,
+    reason: null,
+    selectedLegs,
+    departureDate: selectedLegs[0]?.departureDate || null,
+    returnDate: selectedLegs[selectedLegs.length - 1]?.departureDate || null,
+    sourceType: 'MIXED_PLANNING',
+    dateBasis: 'provider-first-leg-plus-saved-stop-nights',
+    providerObservedDateLegCount: 1,
+    derivedDateLegCount: Math.max(0, selectedLegs.length - 1),
+    originalProviderChainReason: clean(providerPlan?.reason) || null,
+    currentAvailabilityVerified: false
+  };
+}
+
 function automaticDateDiagnostics(plan = {}) {
   const diagnostics = (Array.isArray(plan?.diagnostics) ? plan.diagnostics : []).map((row) => ({
     legNumber: finite(row?.legNumber, 0) || null,
@@ -184,7 +318,7 @@ function automaticDateDiagnostics(plan = {}) {
     providerSupported: Boolean(row?.providerSupported),
     providerReason: clean(row?.providerReason) || null,
     scannedMonths: Array.isArray(row?.scannedMonths)
-      ? row.scannedMonths.map((month) => clean(month)).filter(Boolean)
+      ? row.scannedMonths.map((month) => clean(isRecord(month) ? month.month : month)).filter(Boolean)
       : [],
     eligibleObservationCount: finite(row?.eligibleObservationCount, 0),
     monthObservationCount: finite(row?.monthObservationCount, 0),
@@ -259,15 +393,17 @@ async function prepareSavedTripAutomaticDates(trip = null, options = {}) {
     : (Array.isArray(hydrated?.stops) ? clone(hydrated.stops, []) : []);
   const autoTour = {
     ...clone(tour, {}),
-    legs: clone(routeLegs, []).map((leg) => normalizeRouteFlightLeg(leg)),
     stops
   };
+  autoTour.legs = resolveAutomaticDateLegAirports(autoTour, clone(routeLegs, []), stops);
   const queryTour = hydrated || autoTour;
   const query = booking707BBase._internal.queryForTrip(normalized, queryTour);
   const materializeRouteDates = options.materializeRouteDates || autoDates710E.materializeRouteDates;
 
   try {
-    const plan = await materializeRouteDates({ tour: autoTour, query, now: options.now });
+    const providerPlan = await materializeRouteDates({ tour: autoTour, query, now: options.now });
+    const derivedPlan = deriveDownstreamDatePlan(autoTour, providerPlan);
+    const plan = derivedPlan || providerPlan;
     const selectedLegs = Array.isArray(plan?.selectedLegs) ? plan.selectedLegs : [];
     if (plan?.complete !== true || selectedLegs.length !== routeLegs.length) {
       return {
@@ -310,7 +446,13 @@ async function prepareSavedTripAutomaticDates(trip = null, options = {}) {
         readyFlightLegCount: preparedReadyCount,
         departureDate: plan.departureDate || selectedLegs[0]?.departureDate || null,
         returnDate: plan.returnDate || selectedLegs[selectedLegs.length - 1]?.departureDate || null,
-        sourceType: plan.sourceType || 'CACHED'
+        sourceType: plan.sourceType || 'CACHED',
+        dateBasis: clean(plan.dateBasis) || null,
+        providerObservedDateLegCount: finite(plan.providerObservedDateLegCount, selectedLegs.length),
+        derivedDateLegCount: finite(plan.derivedDateLegCount, 0),
+        originalProviderChainReason: clean(plan.originalProviderChainReason) || null,
+        exactAirportResolutionApplied: true,
+        currentAvailabilityVerified: false
       }
     };
   } catch (error) {
@@ -564,6 +706,9 @@ module.exports = {
     normalizeRouteFlightLeg,
     normalizeSavedTripFlightLegs,
     sourceRouteLegs,
+    preferredAirportCode,
+    resolveAutomaticDateLegAirports,
+    deriveDownstreamDatePlan,
     exactFlightLegReady,
     applyAutomaticDatePlan,
     prepareSavedTripAutomaticDates,
