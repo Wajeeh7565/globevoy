@@ -27,7 +27,7 @@ const autoDates710E = require('./staging-multicity-auto-dates-710e-r3a');
 
 const VERSION = 'GV-HOTEL-708C';
 const FLIGHT_NORMALIZATION_VERSION = 'GV-WEB-710G-R3';
-const AUTO_DATE_PREPARATION_VERSION = 'GV-WEB-710G-R4';
+const AUTO_DATE_PREPARATION_VERSION = 'GV-WEB-710G-R4.1';
 const ROUTE_PATH = booking707BR1.ROUTE_PATH;
 const STAGING_ORIGIN = booking707BR1.STAGING_ORIGIN;
 
@@ -174,6 +174,51 @@ function applyAutomaticDatePlan(trip = null, plan = {}) {
   return next;
 }
 
+function automaticDateDiagnostics(plan = {}) {
+  const diagnostics = (Array.isArray(plan?.diagnostics) ? plan.diagnostics : []).map((row) => ({
+    legNumber: finite(row?.legNumber, 0) || null,
+    origin: safeIata(row?.origin),
+    destination: safeIata(row?.destination),
+    targetDate: safeDate(row?.targetDate),
+    candidateDepartureDate: safeDate(row?.candidateDepartureDate),
+    providerSupported: Boolean(row?.providerSupported),
+    providerReason: clean(row?.providerReason) || null,
+    scannedMonths: Array.isArray(row?.scannedMonths)
+      ? row.scannedMonths.map((month) => clean(month)).filter(Boolean)
+      : [],
+    eligibleObservationCount: finite(row?.eligibleObservationCount, 0),
+    monthObservationCount: finite(row?.monthObservationCount, 0),
+    cacheHit: Boolean(row?.cacheHit)
+  }));
+
+  const chainSearch = isRecord(plan?.chainSearch)
+    ? {
+        strategy: clean(plan.chainSearch.strategy) || null,
+        preservedStopNights: Boolean(plan.chainSearch.preservedStopNights),
+        attemptedStartDates: finite(plan.chainSearch.attemptedStartDates, 0),
+        viableChains: finite(plan.chainSearch.viableChains, 0),
+        attempts: (Array.isArray(plan.chainSearch.attempts) ? plan.chainSearch.attempts : []).map((attempt) => ({
+          startDate: safeDate(attempt?.startDate),
+          complete: Boolean(attempt?.complete),
+          observedLegs: finite(attempt?.observedLegs, 0),
+          reason: clean(attempt?.reason) || null,
+          failedLegNumber: finite(attempt?.failedLegNumber, 0) || null,
+          targetDate: safeDate(attempt?.targetDate)
+        }))
+      }
+    : null;
+
+  return {
+    failedLegNumber: finite(plan?.failedLegNumber, 0) || null,
+    targetDate: safeDate(plan?.targetDate),
+    automaticFloor: safeDate(plan?.automaticFloor),
+    horizonStartMonth: clean(plan?.horizonStartMonth) || null,
+    horizonMonths: finite(plan?.horizonMonths, 0) || null,
+    diagnostics,
+    chainSearch
+  };
+}
+
 async function prepareSavedTripAutomaticDates(trip = null, options = {}) {
   const env = options.env || process.env;
   const normalized = normalizeSavedTripFlightLegs(trip);
@@ -233,7 +278,8 @@ async function prepareSavedTripAutomaticDates(trip = null, options = {}) {
           complete: false,
           reason: clean(plan?.reason || 'automatic-date-chain-incomplete'),
           selectedLegCount: selectedLegs.length,
-          readyFlightLegCount
+          readyFlightLegCount,
+          ...automaticDateDiagnostics(plan)
         }
       };
     }
