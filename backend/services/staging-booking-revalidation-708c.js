@@ -28,8 +28,10 @@ const booking707BBase = require('./staging-booking-revalidation-707b');
 const savedTrips705C = require('./staging-saved-trips-705c');
 const nuitee708C = require('./nuitee-hotel-708c');
 const autoDates710E = require('./staging-multicity-auto-dates-710e-r3a');
+const current712 = require('./current-trip-total-712');
+const liveFare684A = require('./public-live-fare-pilot-684a');
 
-const VERSION = 'GV-HOTEL-708C';
+const VERSION = 'GV-LIVE-712';
 const FLIGHT_NORMALIZATION_VERSION = 'GV-WEB-710G-R3';
 const AUTO_DATE_PREPARATION_VERSION = 'GV-WEB-710G-R4.2';
 const ROUTE_PATH = booking707BR1.ROUTE_PATH;
@@ -513,6 +515,11 @@ function mergeHotelRows(existingRows = [], hotelResult = {}) {
         provider: evidence?.provider || null,
         providerState: evidence?.state || 'unavailable',
         providerReason: evidence?.reason || hotelResult.reason || null,
+        state: 'estimate',
+        availabilityVerified: false,
+        productionEligible: false,
+        priceVerified: false,
+        freshAmount: null,
         checkin: evidence?.checkin || null,
         checkout: evidence?.checkout || null,
         dateBasis: evidence?.dateBasis || null,
@@ -525,11 +532,22 @@ function mergeHotelRows(existingRows = [], hotelResult = {}) {
       providerState: evidence.state,
       state: evidence.availabilityVerified === true ? 'verified' : 'provider',
       availabilityVerified: evidence.availabilityVerified === true,
+      productionEligible: evidence.productionEligible === true,
+      priceVerified: evidence.priceVerified === true,
+      environment: evidence.environment || 'unknown',
+      sandbox: evidence.sandbox !== false,
+      dateConfirmed: evidence.dateConfirmed === true,
+      occupancies: clone(evidence.occupancies, null),
+      roomCount: evidence.roomCount || null,
+      travellerCount: evidence.travellerCount || null,
+      guestNationality: evidence.guestNationality || null,
+      expiresAt: evidence.expiresAt || null,
       hotelName: evidence.hotelName || null,
       address: evidence.address || null,
       rating: evidence.rating ?? null,
       photoUrl: evidence.photoUrl || null,
       roomName: evidence.roomName || null,
+      roomNames: clone(evidence.roomNames, []),
       boardName: evidence.boardName || null,
       freshAmount: finite(evidence.freshAmount, 0) || null,
       currency: clean(evidence.currency || saved.currency).toUpperCase(),
@@ -549,7 +567,7 @@ function mergeHotelRows(existingRows = [], hotelResult = {}) {
   });
 }
 
-function hotelSummary(payload = {}, hotelResult = {}, trip = null) {
+function hotelSummary(payload = {}, hotelResult = {}, trip = null, options = {}) {
   const existing = Array.isArray(payload.hotels) ? payload.hotels : [];
   const rowBaseline = existing.reduce((sum, row) => sum + finite(row.savedEstimate, 0), 0);
   // Prefer the exact saved stay snapshot when available. The compact per-stop
@@ -557,12 +575,9 @@ function hotelSummary(payload = {}, hotelResult = {}, trip = null) {
   // become a second arithmetic baseline (the same class of issue fixed in R1).
   const snapshotBaseline = finite(trip?.priceSnapshot?.stayEstimate, 0);
   const savedHotelEstimate = snapshotBaseline > 0 ? snapshotBaseline : rowBaseline;
-  const freshHotelTotal = hotelResult.allVerified === true ? finite(hotelResult.freshHotelTotal, 0) : 0;
-  const hotelDelta = hotelResult.allVerified === true ? freshHotelTotal - savedHotelEstimate : null;
-  const freshTripEstimate = finite(payload?.revalidation?.freshTripEstimate, 0);
-  const hotelAdjustedTripEstimate = hotelResult.allVerified === true && freshTripEstimate > 0
-    ? Math.max(0, freshTripEstimate + hotelDelta)
-    : null;
+  const current = current712.buildCurrentPricing({ ...payload, hotels: mergeHotelRows(existing, hotelResult) }, trip || {}, options);
+  const freshHotelTotal = current.hotelsTotal;
+  const hotelDelta = freshHotelTotal !== null ? Number((freshHotelTotal - savedHotelEstimate).toFixed(2)) : null;
   return {
     version: VERSION,
     enabled: hotelResult.enabled === true,
@@ -573,11 +588,14 @@ function hotelSummary(payload = {}, hotelResult = {}, trip = null) {
     providerBackedCount: finite(hotelResult.providerBackedCount, 0),
     verifiedCount: finite(hotelResult.verifiedCount, 0),
     allVerified: hotelResult.allVerified === true,
+    allLive: current.requiredHotels > 0 && current.liveHotels === current.requiredHotels,
+    liveCount: current.liveHotels,
     providerRequests: finite(hotelResult.providerRequests, 0),
     savedHotelEstimate: Math.round(savedHotelEstimate),
-    freshHotelTotal: hotelResult.allVerified === true ? Math.round(freshHotelTotal) : null,
-    hotelDelta: hotelDelta === null ? null : Math.round(hotelDelta),
-    hotelAdjustedTripEstimate: hotelAdjustedTripEstimate === null ? null : Math.round(hotelAdjustedTripEstimate),
+    freshHotelTotal,
+    hotelDelta,
+    // Legacy alias now means the same complete, current total as the ledger.
+    hotelAdjustedTripEstimate: current.currentTotal,
     observedAt: hotelResult.observedAt || null,
     bookingCapability: false,
     paymentCapability: false,
@@ -585,17 +603,17 @@ function hotelSummary(payload = {}, hotelResult = {}, trip = null) {
   };
 }
 
-function applyHotelEvidence(payload = {}, hotelResult = {}, trip = null) {
+function applyHotelEvidence(payload = {}, hotelResult = {}, trip = null, options = {}) {
   if (!payload || payload.ok !== true || !Array.isArray(payload.hotels) || !payload.hotels.length) return payload;
-  const summary = hotelSummary(payload, hotelResult, trip);
-  return {
+  const summary = hotelSummary(payload, hotelResult, trip, options);
+  return current712.applyCurrentPricing({
     ...payload,
     hotels: mergeHotelRows(payload.hotels, hotelResult),
     hotelRevalidation: summary,
     trust: {
       ...(payload.trust || {}),
       hotelEvidenceFreshlyChecked: summary.attempted,
-      hotelAvailabilityVerified: summary.allVerified,
+      hotelAvailabilityVerified: summary.allLive,
       hotelEvidenceProvider: 'Nuitee',
       hotelEvidenceVersion: VERSION,
       finalPartnerConfirmationRequired: true
@@ -607,31 +625,53 @@ function applyHotelEvidence(payload = {}, hotelResult = {}, trip = null) {
       noOrderCreation: true,
       noReservation: true
     }
-  };
+  }, trip || {}, options);
 }
 
 async function handleBookingRevalidation707B(event = {}, options = {}) {
+  const startedAt = Date.now();
   const env = options.env || process.env;
   let capturedTrip = null;
+  let capturedFreshTour = null;
   let datePreparation = null;
   const upstreamGetTrip = options.getTrip;
   const getTrip = async (sub, tripId) => {
-    const loadedTrip = upstreamGetTrip
+    let loadedTrip = upstreamGetTrip
       ? await upstreamGetTrip(sub, tripId)
       : await savedTrips705C._internal.getTrip(sub, tripId, { ...options, env });
+    const context = booking707BBase._internal.parseBody(event).hotelGuestContext;
+    if (loadedTrip && context) {
+      const hydrated = booking707BBase._internal.hydrateSavedTour(loadedTrip);
+      if (hydrated) {
+        const savedQuery = booking707BBase._internal.queryForTrip(loadedTrip, hydrated);
+        if (context.occupancies) {
+          try { nuitee708C._internal.occupancyForQuery({ ...savedQuery, occupancies: context.occupancies }); }
+          catch (_) { throw Object.assign(new Error('hotel-guest-context-mismatch'), { code: 'hotel-guest-context-mismatch' }); }
+        }
+        loadedTrip = clone(loadedTrip, loadedTrip);
+        loadedTrip.tripSnapshot.tour.passengerPricing = { ...(loadedTrip.tripSnapshot.tour.passengerPricing || {}), ...context };
+      }
+    }
     const prepared = await prepareSavedTripAutomaticDates(loadedTrip, { ...options, env });
     capturedTrip = prepared.trip;
     datePreparation = prepared.summary;
     return capturedTrip;
   };
 
-  const response = await booking707BR1.handleBookingRevalidation707B(event, { ...options, getTrip });
+  const upstreamLive = options.applyLiveFarePilot || liveFare684A.applyPublicLiveFarePilot684A;
+  const applyLiveFarePilot = async (tour, query, liveOptions) => {
+    const result = await upstreamLive(tour, query, liveOptions);
+    capturedFreshTour = result?.tour || null;
+    return result;
+  };
+  const response = await booking707BR1.handleBookingRevalidation707B(event, { ...options, getTrip, applyLiveFarePilot });
   if (response?.statusCode !== 200 || !capturedTrip) return withHeader(response, nuitee708C.enabled(env) ? VERSION : 'disabled');
 
   let payload;
   try { payload = JSON.parse(String(response.body || '{}')); }
   catch (_) { return withHeader(response, nuitee708C.enabled(env) ? VERSION : 'disabled'); }
   payload = augmentRevalidationPayload(payload, datePreparation, capturedTrip);
+  payload = current712.applyCurrentPricing(payload, capturedTrip, options);
   let augmentedResponse = { ...response, body: JSON.stringify(payload) };
 
   if (!nuitee708C.enabled(env)) return withHeader(augmentedResponse, 'disabled');
@@ -639,7 +679,10 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
     return withHeader(augmentedResponse);
   }
 
-  const tour = booking707BBase._internal.hydrateSavedTour(capturedTrip);
+  const savedTour = booking707BBase._internal.hydrateSavedTour(capturedTrip);
+  // Price hotels for the itinerary Duffel just returned, including its local
+  // arrival dates. Rehydrating the old snapshot loses overnight flight arrival.
+  const tour = capturedFreshTour && Array.isArray(capturedFreshTour.legs) && capturedFreshTour.legs.length === savedTour?.legs?.length ? { ...savedTour, legs: capturedFreshTour.legs } : savedTour;
   if (!tour) return withHeader(augmentedResponse);
   const query = booking707BBase._internal.queryForTrip(capturedTrip, tour);
   const verifyTourHotels = options.verifyTourHotels || nuitee708C.verifyTourHotels;
@@ -649,16 +692,20 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
     hotelResult = await verifyTourHotels(tour, query, {
       ...(options.nuitee || {}),
       env,
+      now: options.now || options.nuitee?.now,
+      // The staging Lambda has a 60-second ceiling. Flight/auth/date work has
+      // already consumed part of it; reserve eight seconds to finish safely.
+      totalTimeoutMs: Math.max(0, Math.min(finite(options.nuitee?.totalTimeoutMs, 55000), 52000 - (Date.now() - startedAt))),
       fetch: options.nuiteeFetch || options.nuitee?.fetch || globalThis.fetch
     });
   } catch (error) {
-    console.error('GV-HOTEL-708C hotel verification failed closed', { name: error?.name, message: error?.message });
+    console.error('GV-LIVE-712 hotel verification failed closed', { name: error?.name });
     hotelResult = {
       version: VERSION,
       enabled: true,
       attempted: true,
       provider: 'Nuitee',
-      reason: clean(error?.code || error?.name || 'provider-error'),
+      reason: 'hotel-provider-unavailable',
       totalCount: payload.hotels.length,
       verifiedCount: 0,
       providerBackedCount: 0,
@@ -668,7 +715,7 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
     };
   }
 
-  const augmented = applyHotelEvidence(payload, hotelResult, capturedTrip);
+  const augmented = applyHotelEvidence(payload, hotelResult, capturedTrip, options);
   augmentedResponse = { ...response, body: JSON.stringify(augmented) };
   return withHeader(augmentedResponse);
 }

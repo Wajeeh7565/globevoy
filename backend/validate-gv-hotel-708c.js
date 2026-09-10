@@ -22,6 +22,7 @@ const baseEnv = {
   GLOBEVOY_COGNITO_APP_CLIENT_ID: 'o2ohbv50253hjli5s34rbvv79',
   GLOBEVOY_SAVED_TRIPS_TABLE: 'globevoy-staging-saved-trips',
   ENABLE_NUITEE_HOTEL_708C: 'true',
+  NUITEE_GUEST_NATIONALITY: 'CA',
   NUITEE_SANDBOX_SECRET_ID: 'globevoy/staging/nuitee/sandbox'
 };
 
@@ -119,6 +120,7 @@ function ratesPayload(city) {
 function prebookPayload(amount) {
   return {
     data: {
+      prebookId: 'opaque-prebook-fixture',
       price: amount,
       currency: 'CAD',
       roomTypes: [{ rates: [{
@@ -199,10 +201,10 @@ function liveResult(tour) {
   await check('stay dates derive from saved nights plus outbound flight date', async () => {
     const tour = tourForAdapter();
     assert.deepEqual(adapter._internal.deriveStayWindow(tour, tour.stops[0], 0), {
-      checkin: '2026-10-10', checkout: '2026-10-13', nights: 3, dateBasis: 'saved-nights-plus-outbound-date'
+      checkin: '2026-10-10', checkout: '2026-10-13', nights: 3, dateBasis: 'saved-nights-plus-outbound-date', dateConfirmed: false
     });
     assert.deepEqual(adapter._internal.deriveStayWindow(tour, tour.stops[1], 1), {
-      checkin: '2026-10-13', checkout: '2026-10-16', nights: 3, dateBasis: 'saved-nights-plus-outbound-date'
+      checkin: '2026-10-13', checkout: '2026-10-16', nights: 3, dateBasis: 'saved-nights-plus-outbound-date', dateConfirmed: false
     });
   });
 
@@ -224,7 +226,7 @@ function liveResult(tour) {
         }
         if (url === adapter.PREBOOK_URL) {
           assert.match(body.offerId, /^opaque-offer-/);
-          return response(200, prebookPayload(activeCity === 'Toronto' ? 600 : 500));
+          return response(200, prebookPayload(body.offerId.endsWith('Toronto') ? 600 : 500));
         }
         throw new Error('unexpected-url');
       }
@@ -232,17 +234,18 @@ function liveResult(tour) {
     assert.equal(result.allVerified, true);
     assert.equal(result.verifiedCount, 2);
     assert.equal(result.providerRequests, 4);
-    assert.equal(result.freshHotelTotal, 1100);
+    assert.equal(result.freshHotelTotal, null, 'sandbox PREBOOK never becomes a current production hotel total');
+    assert.equal(result.allLive, false);
     assert.equal(result.rows[0].hotelName, 'Toronto Test Hotel');
     assert.equal(result.rows[0].photoUrl, 'https://images.example/toronto.jpg');
     assert.equal(result.rows[1].excludedFeesPresent, true);
-    assert.equal(result.rows.every((row) => row.evidence === 'Price and availability rechecked by provider'), true);
+    assert.equal(result.rows.every((row) => row.evidence === 'Test rate checked ΓÇö not a live booking price'), true);
     const sanitized = JSON.stringify(result);
     assert.doesNotMatch(sanitized, /opaque-offer|sand_unit_test_only|prebookId|rawProvider/i);
     assert.equal(requests.every((item) => item.keyHeaderPresent), true);
   });
 
-  await check('wrapper preserves 707B-R1 flight arithmetic and adds hotel-adjusted total from saved stay snapshot', async () => {
+  await check('wrapper preserves historical flight arithmetic but refuses a current total from legacy unproven hotel evidence', async () => {
     const hotelResult = {
       version: 'GV-HOTEL-708C', enabled: true, attempted: true, provider: 'Nuitee', reason: null,
       totalCount: 2, providerBackedCount: 2, verifiedCount: 2, allVerified: true, providerRequests: 4,
@@ -263,7 +266,7 @@ function liveResult(tour) {
       verifyTourHotels: async () => hotelResult
     });
     assert.equal(out.statusCode, 200);
-    assert.equal(out.headers['X-Globevoy-Hotel-Revalidation'], 'GV-HOTEL-708C');
+    assert.equal(out.headers['X-Globevoy-Hotel-Revalidation'], 'GV-LIVE-712');
     const body = JSON.parse(out.body);
     assert.equal(body.version, 'GV-WEB-707B');
     assert.equal(body.revalidation.calculationVersion, 'GV-WEB-707B-R1');
@@ -271,13 +274,15 @@ function liveResult(tour) {
     assert.equal(body.revalidation.flightDelta, 10);
     assert.equal(body.revalidation.freshTripEstimate, 2310);
     assert.equal(body.hotelRevalidation.savedHotelEstimate, 910);
-    assert.equal(body.hotelRevalidation.freshHotelTotal, 1100);
-    assert.equal(body.hotelRevalidation.hotelDelta, 190);
-    assert.equal(body.hotelRevalidation.hotelAdjustedTripEstimate, 2500);
+    assert.equal(body.hotelRevalidation.freshHotelTotal, null);
+    assert.equal(body.hotelRevalidation.hotelDelta, null);
+    assert.equal(body.hotelRevalidation.hotelAdjustedTripEstimate, null);
+    assert.equal(body.currentPricing.currentTotal, null);
+    assert.equal(body.currentPricing.status, 'estimate');
     assert.equal(body.hotelRevalidation.allVerified, true);
     assert.equal(body.hotels.every((row) => row.state === 'verified' && row.availabilityVerified === true), true);
     assert.equal(body.hotels[1].excludedFeesPresent, true);
-    assert.equal(body.trust.hotelAvailabilityVerified, true);
+    assert.equal(body.trust.hotelAvailabilityVerified, false);
     assert.deepEqual(body.bookingBoundary, { noBooking: true, noPayment: true, noOrderCreation: true, noReservation: true });
   });
 
