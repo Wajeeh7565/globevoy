@@ -102,9 +102,10 @@ function displayRate(tour = {}) {
 }
 
 function compactStops(tour = {}) {
+  const stops = Array.isArray(tour.stops) ? tour.stops : [];
   const stays = Array.isArray(tour.stays) ? tour.stays : [];
   const cities = Array.isArray(tour.cities) ? tour.cities : [];
-  const rows = stays.length ? stays : cities;
+  const rows = stops.length ? stops : (stays.length ? stays : cities);
   return rows.map((row, index) => {
     const city = cities[index] || {};
     const hotel = isRecord(row.hotel) ? row.hotel : (isRecord(city.hotel) ? city.hotel : {});

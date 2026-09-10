@@ -239,6 +239,36 @@ test('browser guest context accepts nationality/room ages only and rejects route
   assert.throws(() => base._internal.parseBody({ body: JSON.stringify({ tripId: 'trip71201', currency: 'USD' }) }));
 });
 
+test('stops-only saved tour hydrates hotel rows for current-price verification', () => {
+  const saved = trip();
+
+  delete saved.tripSnapshot.tour.stays;
+  delete saved.tripSnapshot.tour.cities;
+
+  const hydrated = base._internal.hydrateSavedTour(saved);
+
+  assert.ok(hydrated);
+  assert.equal(hydrated.stops.length, 2);
+  assert.deepEqual(
+    hydrated.stops.map((row) => row.city),
+    ['Toronto', 'Dublin']
+  );
+
+  const query = base._internal.queryForTrip(saved, hydrated);
+
+  const rows = base._internal.sanitizeHotelRows(hydrated, query, {
+    enrichStay: () => ({
+      hotel: { bookingUrl: 'https://www.agoda.com/search' }
+    })
+  });
+
+  assert.equal(rows.length, 2);
+  assert.deepEqual(
+    rows.map((row) => row.city),
+    ['Toronto', 'Dublin']
+  );
+});
+
 test('staging endpoint composes current flights and PREBOOK hotels using owner trip context', async () => {
   const saved = trip();
   const provider = fakeProvider();
