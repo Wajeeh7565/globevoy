@@ -189,13 +189,46 @@ export function TripReviewClient710G() {
     return () => { active = false; };
   }, [tripId, session, clear]);
 
+  function getHotelGuestNationality(): string | null {
+    if (typeof window === 'undefined') return null;
+    const storageKey = 'globevoy-hotel-guest-nationality-v1';
+    const cached = clean(window.sessionStorage.getItem(storageKey)).toUpperCase();
+    if (/^[A-Z]{2}$/.test(cached)) return cached;
+
+    const entered = window.prompt(
+      'Hotel providers need the traveller nationality to check current rates. Enter the 2-letter country code (for example CA for Canada or PK for Pakistan). No passport number is needed.'
+    );
+    if (entered === null) {
+      setError('Hotel price checking was cancelled. Nationality is required to request current hotel rates.');
+      return null;
+    }
+
+    const normalized = clean(entered).toUpperCase();
+    if (!/^[A-Z]{2}$/.test(normalized)) {
+      setError('Enter a valid 2-letter nationality code, such as CA or PK.');
+      return null;
+    }
+
+    window.sessionStorage.setItem(storageKey, normalized);
+    return normalized;
+  }
+
   async function revalidate() {
     if (!session || !tripId || checking) return;
+
+    const needsHotelContext = trip?.tripSnapshot.kind === 'multi' && tripStops(trip).length > 0;
+    const guestNationality = needsHotelContext ? getHotelGuestNationality() : null;
+    if (needsHotelContext && !guestNationality) return;
+
     setChecking(true);
     setResult(null);
     setError('');
     try {
-      setResult(await revalidateSavedTripForBooking(session.accessToken, tripId));
+      setResult(await revalidateSavedTripForBooking(
+        session.accessToken,
+        tripId,
+        guestNationality ? { guestNationality } : undefined
+      ));
     } catch (err) {
       if (err instanceof GlobevoyApiError && err.status === 401) {
         clear();

@@ -150,9 +150,19 @@ export async function saveTravelProfile(accessToken: string, profile: TravelProf
   return request<TravelProfileResponse>('PUT', '/api/account/travel-profile', accessToken, payload);
 }
 
-export async function revalidateSavedTripForBooking(accessToken: string, tripId: string): Promise<BookingRevalidationResponse> {
+export type HotelGuestContext = {
+  guestNationality: string;
+  occupancies?: Array<{ adults: number; children: number[] }>;
+};
+
+export async function revalidateSavedTripForBooking(
+  accessToken: string,
+  tripId: string,
+  hotelGuestContext?: HotelGuestContext
+): Promise<BookingRevalidationResponse> {
   const id = normalizedTripId(tripId);
-  return request<BookingRevalidationResponse>('POST', '/api/account/booking-revalidate', accessToken, { tripId: id });
+  const payload = hotelGuestContext ? { tripId: id, hotelGuestContext } : { tripId: id };
+  return request<BookingRevalidationResponse>('POST', '/api/account/booking-revalidate', accessToken, payload);
 }
 
 // GV-WEB-708A — public recommendation adapters reuse the same backend surfaces
