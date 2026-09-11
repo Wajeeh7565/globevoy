@@ -147,6 +147,12 @@ export interface BookingRevalidationHotel {
   provider?: 'Nuitee' | null;
   providerReason?: string | null;
   availabilityVerified: boolean;
+  productionEligible?: boolean;
+  priceVerified?: boolean;
+  environment?: 'sandbox' | 'production' | 'unknown';
+  sandbox?: boolean;
+  dateConfirmed?: boolean;
+  expiresAt?: string | null;
   hotelName?: string | null;
   address?: string | null;
   rating?: number | null;
@@ -169,7 +175,7 @@ export interface BookingRevalidationHotel {
 }
 
 export interface BookingHotelRevalidationSummary {
-  version: 'GV-HOTEL-708C';
+  version: 'GV-HOTEL-708C' | 'GV-LIVE-712';
   enabled: boolean;
   attempted: boolean;
   provider: 'Nuitee';
@@ -178,6 +184,8 @@ export interface BookingHotelRevalidationSummary {
   providerBackedCount: number;
   verifiedCount: number;
   allVerified: boolean;
+  allLive?: boolean;
+  liveCount?: number;
   providerRequests: number;
   savedHotelEstimate: number;
   freshHotelTotal?: number | null;
@@ -187,6 +195,26 @@ export interface BookingHotelRevalidationSummary {
   bookingCapability: false;
   paymentCapability: false;
   reservationCapability: false;
+}
+
+// Optional for compatibility with the older staging response. Only this
+// backend ledger can establish a complete current flight + hotel total.
+export interface CurrentTripPricing712 {
+  version: 'GV-LIVE-712';
+  status: 'live' | 'partial' | 'estimate';
+  currency: string;
+  currentTotal: number | null;
+  planningTotal: number | null;
+  flightsTotal: number | null;
+  hotelsTotal: number | null;
+  currentKnownSubtotal: number | null;
+  requiredFlights: number;
+  liveFlights: number;
+  requiredHotels: number;
+  liveHotels: number;
+  checkedAt: string;
+  expiresAt: string | null;
+  withinBudget: boolean | null;
 }
 
 export interface BookingRevalidationResponse {
@@ -228,6 +256,7 @@ export interface BookingRevalidationResponse {
     ticketingCapability: false;
   };
   hotelRevalidation?: BookingHotelRevalidationSummary;
+  currentPricing?: CurrentTripPricing712;
   flights: BookingRevalidationFlight[];
   hotels: BookingRevalidationHotel[];
   trust: {
@@ -236,7 +265,7 @@ export interface BookingRevalidationResponse {
     hotelEvidenceFreshlyChecked?: boolean;
     hotelAvailabilityVerified: boolean;
     hotelEvidenceProvider?: 'Nuitee';
-    hotelEvidenceVersion?: 'GV-HOTEL-708C';
+    hotelEvidenceVersion?: 'GV-HOTEL-708C' | 'GV-LIVE-712';
     bookingRevalidationCalculationVersion?: string;
     partnerHandoffIsComparisonOnly?: boolean;
     finalPartnerConfirmationRequired: true;

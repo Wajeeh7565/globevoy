@@ -7,7 +7,7 @@ const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
 const checks = [];
 function check(name, fn) {
   try { fn(); checks.push({ name, pass: true }); }
-  catch (error) { checks.push({ name, pass: false, error: error?.message || String(error) }); }
+  catch (error) { checks.push({ name, pass: false, error: error?.message?.split('\n')[0] || String(error) }); }
 }
 
 const page = read('app/results/page.tsx');
@@ -15,6 +15,10 @@ const client = read('components/results/results-client.tsx');
 const adapter = read('lib/recommendations-708a.ts');
 const selection = read('lib/multi-selection-708a.ts');
 const api = read('lib/api.ts');
+const previews = read('components/discovery/home-trip-previews.tsx');
+const deck = read('components/results/journey-story-deck-710d-r4.tsx');
+const map = read('components/results/results-map-710d.tsx');
+const openTrip = read('lib/saved-trip-open-707a-r2.ts');
 const layout = read('app/layout.tsx');
 const css = read('app/results-708a.css');
 
@@ -27,7 +31,7 @@ check('version and static React results route are exact', () => {
 check('existing public recommendation contracts are reused', () => {
   assert.match(api, /\/api\/recommendations/);
   assert.match(api, /\/api\/multicity-tours/);
-  assert.match(client, /getPublicRecommendations/);
+  assert.match(previews, /getPublicRecommendations/);
   assert.match(client, /getPublicMultiCityTours/);
   assert.doesNotMatch(`${api}\n${client}`, /DUFFEL_ACCESS_TOKEN|AWS_SECRET_ACCESS_KEY|client_secret|sk_live_/i);
 });
@@ -44,31 +48,39 @@ check('price evidence remains explicit and conservative', () => {
   assert.match(adapter, /Cached price evidence/);
   assert.match(adapter, /Planning estimate — verify before booking/);
   assert.match(adapter, /Planning estimate — verify route prices/);
-  assert.match(client, /PriceEvidenceBadge/);
-  assert.match(client, /Final schedules, inventory and prices are confirmed/);
+  assert.match(client, /JourneyStoryDeck710DR4/);
+  assert.match(deck, /PriceEvidenceBadge evidence=\{item.evidence\}/);
+  assert.match(client, /Estimated total/);
+  assert.match(deck, /Planning estimate · dates not yet verified/);
 });
 
-check('selection handoffs preserve proven legacy consumers', () => {
-  assert.match(client, /gv-selected-offer/);
-  assert.match(client, /globevoy\.multi\.selected\.v1/);
-  assert.match(client, /\/trip\.html\?/);
-  assert.match(client, /\/multicity-visualizer\.html\?/);
+// 710G moved selection into owner-private Saved Trips; the legacy adapter
+// and Open Trip bridge are still retained for existing consumers.
+check('saved selection and legacy compatibility contracts are preserved', () => {
+  assert.match(client, /createSavedTrip/);
+  assert.match(client, /materializedTour/);
+  assert.match(client, /\/react\/booking\/\?tripId=/);
   assert.match(selection, /backendLegs/);
   assert.match(selection, /estimatedCoreTotal/);
   assert.match(selection, /legacyMultiSelectionPayload/);
+  assert.match(openTrip, /globevoy\.multi\.selected\.v1/);
+  assert.match(openTrip, /multicity-visualizer\.html/);
 });
 
-check('loading error retry edit and empty-result states remain first class', () => {
-  assert.match(client, /Comparing trip possibilities/);
-  assert.match(client, /We could not build the recommendation set yet/);
+check('current Results retains loading, retry, empty-route and route-edit states', () => {
+  assert.match(client, /Building connected journeys/);
+  assert.match(client, /We could not build a multi-city journey yet/);
   assert.match(client, />Retry</);
-  assert.match(client, /Edit search/);
-  assert.match(client, /No single-destination or connected route met/);
+  assert.match(client, /No connected multi-city route met/);
+  assert.match(client, /onShuffleStop=\{shuffleStop\}/);
+  assert.match(client, /onAddDestination=\{addDestination\}/);
 });
 
-check('R4 map migration boundary is preserved', () => {
-  assert.match(client, /R4 map migration/);
-  assert.doesNotMatch(`${client}\n${adapter}`, /google\.maps|maps\.googleapis\.com|googleMapsApiKey/);
+check('710D map successor stays isolated from Google Maps credentials', () => {
+  assert.match(client, /ResultsMap710D/);
+  assert.match(map, /LeafletNamespace/);
+  assert.match(map, /mapRef\.current/);
+  assert.doesNotMatch(`${client}\n${adapter}\n${map}`, /google\.maps|maps\.googleapis\.com|googleMapsApiKey/);
 });
 
 check('708A does not edit the legacy frontend or backend runtime', () => {
@@ -88,3 +100,4 @@ checks.forEach((item, index) => console.log(`${item.pass ? 'PASS' : 'FAIL'} ${St
 const passed = checks.filter((item) => item.pass).length;
 console.log(`GV-WEB-708A: ${passed}/${checks.length} PASS`);
 if (passed !== checks.length) process.exitCode = 1;
+
