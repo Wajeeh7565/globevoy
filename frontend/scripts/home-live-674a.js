@@ -526,7 +526,6 @@
   startDate.min = today;
   endDate.min = today;
   restore();
-  renderOriginOptions(origin.value);
 
   passengerButton.addEventListener('click', () => passengerPanel.hidden ? openPassengers() : closePassengers());
   $$('[data-counter]').forEach((button) => {
