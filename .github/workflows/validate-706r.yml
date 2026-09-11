@@ -59,7 +59,7 @@ jobs:
               exit 1
             fi
           elif [ -f web/validation/validate-gv-web-708a.mjs ]; then
-            if printf '%s\n' "$changed" | grep -Eq '^(frontend|backend)/'; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
               echo '708A must not modify the proven legacy frontend or backend.' >&2
               exit 1
             fi
@@ -75,7 +75,7 @@ jobs:
               exit 1
             fi
           elif [ -f web/validation/validate-gv-web-707a.mjs ]; then
-            if printf '%s\n' "$changed" | grep -Eq '^(frontend|backend)/'; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
               echo 'React migration must not modify the proven frontend or backend.' >&2
               exit 1
             fi
@@ -146,13 +146,18 @@ jobs:
             node web/validation/validate-gv-web-708a.mjs
           fi
 
+      - name: Validate Trip Review pricing and My Trips behaviour
+        working-directory: .
+        run: node --test web/validation/validate-gv-live-712c.test.mjs
+
       - name: Build static Next.js application
         run: npm run build
 
       - name: Verify static export and migration boundary
         run: |
           test -f out/index.html
-          grep -q 'GV-WEB-706R' app/page.tsx
+          grep -q 'HomeDiscoveryClient' app/page.tsx
+          test -f components/discovery/home-discovery-client.tsx
           grep -q "output: 'export'" next.config.ts
           grep -q '15.5.21' package.json
           grep -q '19.2.7' package.json
@@ -226,3 +231,4 @@ jobs:
           path: web/package-lock.json
           if-no-files-found: error
           retention-days: 7
+

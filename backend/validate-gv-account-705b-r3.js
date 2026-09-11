@@ -117,7 +117,10 @@ async function expectAuthError(code, token) {
   const wrapper = fs.readFileSync(path.join(ROOT, 'backend', 'staging-lambda-702d.js'), 'utf8');
   const production = fs.readFileSync(path.join(ROOT, 'backend', 'lambda.js'), 'utf8');
   assert(wrapper.includes("require('./services/staging-cognito-auth-705b-r3')"));
-  assert(wrapper.includes("eventPath(event) === '/api/account/session'"));
+  // 710F stores the normalized path once before routing account siblings.
+  assert(wrapper.includes('const path = eventPath(event)'));
+  assert(wrapper.includes("const isAccountRoute = path === '/api/account/session'"));
+  assert.match(wrapper, /method !== 'OPTIONS' && isAccountRoute[\s\S]*?stagingAccount705B\.handleAccountSession705B\(event\)/);
   assert(wrapper.includes("headers['X-Globevoy-Staging-Account']"));
   assert.equal(production.includes('GV-ACCOUNT-705B-R3'), false);
   assert.equal(production.includes('/api/account/session'), false);
@@ -183,3 +186,4 @@ async function expectAuthError(code, token) {
   console.error(error && error.stack ? error.stack : error);
   process.exitCode = 1;
 });
+

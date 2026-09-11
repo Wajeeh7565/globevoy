@@ -18,6 +18,7 @@ const openR2 = readWeb('lib/saved-trip-open-707a-r2.ts');
 const provider = readWeb('components/account/auth-provider.tsx');
 const trips = readWeb('components/account/my-trips-client.tsx');
 const account = readWeb('components/account/account-page-client.tsx');
+const tripCard = readWeb('components/account/visual-saved-trip-card.tsx');
 const nextConfig = readWeb('next.config.ts');
 const legacyAuth = readRepo('frontend/scripts/auth-session-705b-r3.js');
 const legacyBooking = readRepo('frontend/scripts/my-trips-booking-706a.js');
@@ -32,9 +33,9 @@ check('No auth token is written to localStorage', !/localStorage\.setItem\([^\n]
 check('No refresh or ID token persistence is introduced', auth.includes('refreshTokenPersisted: false') && auth.includes('idTokenPersisted: false'));
 check('Saved Trips API remains bearer authenticated and cookie-free', api.includes('Authorization: `Bearer ${accessToken}`') && api.includes("credentials: 'omit'") && api.includes("cache: 'no-store'"));
 check('Delete uses authenticated DELETE on exact saved-trip route', api.includes("request<unknown>('DELETE', `/api/saved-trips?tripId=${encodeURIComponent(id)}`"));
-check('Signed-out My Trips clears private rows before any load', trips.includes('if (!session)') && trips.includes('setTrips([])') && trips.includes('Sign in to see your trips'));
+check('Signed-out My Trips clears private rows before any load', trips.includes('if (!session)') && trips.includes('setTrips([])') && trips.includes('my-trips-signin-title'));
 check('401 clears the React account session', trips.includes('error.status === 401') && trips.includes('clear()'));
-check('My Trips keeps snapshot trust language', trips.includes('Saved snapshot — verification required') && trips.includes('fresh provider verification'));
+check('My Trips keeps snapshot trust language', trips.includes('VisualSavedTripCard') && tripCard.includes("state: 'estimate'") && tripCard.includes('Saved snapshot · price check needed') && tripCard.includes('checks current provider evidence before partner handoff'));
 check('Open Trip allow-lists only proven legacy trip pages', handoff.includes("['trip.html', 'multicity-visualizer.html', 'multi-city-trip.html'].includes(name)"));
 check('707A R2 origin-preservation marker is exact', openR2.includes("GV_WEB_707A_R2_VERSION = 'GV-WEB-707A-R2'"));
 check('707A R2 prefers the saved account snapshot origin', openR2.includes('const snapshotOrigin = clean(trip.tripSnapshot.origin)') && openR2.includes('if (snapshotOrigin) return snapshotOrigin'));
@@ -58,3 +59,4 @@ checks.forEach((item, index) => console.log(`${item.pass ? 'PASS' : 'FAIL'} ${St
 const passed = checks.filter((item) => item.pass).length;
 console.log(`GV-WEB-707A: ${passed}/${checks.length} PASS`);
 if (passed !== checks.length) process.exitCode = 1;
+

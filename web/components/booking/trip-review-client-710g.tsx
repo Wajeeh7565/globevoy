@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/components/account/auth-provider';
 import { getSavedTrip, GlobevoyApiError, revalidateSavedTripForBooking } from '@/lib/api';
 import { browserIsStagingOrigin } from '@/lib/public-config';
+import { formatReviewMoney as money, isSandboxHotel, reviewPricing, flightComparisonLabel } from '@/lib/trip-review-pricing-712c';
 import type { BookingRevalidationHotel, BookingRevalidationResponse, SavedTrip, SavedTripCity } from '@/lib/contracts';
 
 export const GV_WEB_710G_VERSION = 'GV-WEB-710G-R1';
@@ -29,15 +30,6 @@ const CITY_IMAGES: Record<string, string> = {
 
 function clean(value: unknown): string { return String(value == null ? '' : value).trim(); }
 function validTripId(value: string): boolean { return /^[A-Za-z0-9_-]{8,80}$/.test(value); }
-
-function money(value: number | undefined | null, currency = 'CAD'): string {
-  if (!Number.isFinite(Number(value))) return '—';
-  try {
-    return new Intl.NumberFormat('en-CA', { style: 'currency', currency, maximumFractionDigits: 0 }).format(Number(value));
-  } catch {
-    return `${currency} ${Math.round(Number(value)).toLocaleString()}`;
-  }
-}
 
 function shortDate(value?: string | null): string {
   if (!value) return '';
@@ -100,32 +92,35 @@ function reasonLabel(reason?: string | null): string {
   return known[value] || (value ? `Fresh verification is unavailable (${value}).` : 'Fresh verification is unavailable right now.');
 }
 
-function statusCopy(result: BookingRevalidationResponse | null) {
-  if (!result) return { tone: 'pending', eyebrow: 'CURRENT-PRICE CHECK', title: 'Check prices before you leave Globevoy', body: 'Your saved total is a snapshot. One explicit check refreshes the provider evidence we can verify before you continue to a partner.' };
-  const hotelsVerified = result.hotelRevalidation?.allVerified === true;
-  if (result.revalidation.state === 'verified') {
-    return {
-      tone: 'verified', eyebrow: 'FRESH EVIDENCE',
-      title: hotelsVerified ? 'Flights and stays rechecked' : 'Flights rechecked',
-      body: hotelsVerified ? 'Fresh flight evidence and hotel availability were checked. The external partner still confirms the final price and completes any booking.' : 'Every supported flight leg was checked again. Hotel rows that are not verified remain planning evidence until the partner confirms them.'
-    };
-  }
-  if (result.revalidation.state === 'changed') {
-    return { tone: 'changed', eyebrow: 'PRICE MOVED', title: 'The trip changed since you saved it', body: 'Fresh provider evidence differs from the saved snapshot. Review the new amounts below before continuing to any partner.' };
-  }
-  return { tone: 'unavailable', eyebrow: 'NEEDS VERIFICATION', title: 'Some current-price evidence is unavailable', body: reasonLabel(result.revalidation.reason) };
+function statusCopy(result: BookingRevalidationResponse | null, pricing: ReturnType<typeof reviewPricing>) {
+  if (!result) return { tone: 'pending', eyebrow: 'CURRENT-PRICE CHECK', title: 'Check prices before you leave Globevoy', body: 'Your saved total is a snapshot. Check current prices before comparing with a partner.' };
+  if (pricing.complete) return {
+    tone: 'verified', eyebrow: pricing.label, title: 'Flights and stays rechecked',
+    body: 'The current checked total covers flights and hotels for all travellers. The external partner confirms its own final price and availability.'
+  };
+  if (pricing.expired) return {
+    tone: 'unavailable', eyebrow: 'NEEDS VERIFICATION', title: 'Check prices again',
+    body: 'The current-price evidence has expired. Earlier quotes below are for reference until you run another check.'
+  };
+  if (pricing.label === 'Partially live') return {
+    tone: 'changed', eyebrow: pricing.label, title: 'Some prices are checked; the full total is unavailable',
+    body: pricing.sandboxCount ? 'Flight evidence is separate from sandbox hotel test rates. Test rates do not count toward a live trip total.' : 'Some trip components still need current verification. Saved estimates do not count toward a live trip total.'
+  };
+  return { tone: 'unavailable', eyebrow: 'NEEDS VERIFICATION', title: 'Full current total unavailable', body: result.revalidation.reason ? reasonLabel(result.revalidation.reason) : 'The available evidence does not establish a complete current trip price. Check again before comparing with partners.' };
 }
 
-function HotelCard({ hotel, currency }: { hotel: BookingRevalidationHotel; currency: string }) {
-  const verified = hotel.state === 'verified' && hotel.availabilityVerified;
+function HotelCard({ hotel, currency, expired }: { hotel: BookingRevalidationHotel; currency: string; expired: boolean }) {
+  const sandbox = isSandboxHotel(hotel);
+  const verified = !sandbox && hotel.environment === 'production' && hotel.productionEligible === true && hotel.state === 'verified' && hotel.availabilityVerified;
   const providerBacked = hotel.state === 'provider';
-  const amount = verified || providerBacked ? hotel.freshAmount : hotel.savedEstimate;
+  const quoted = sandbox || hotel.state === 'verified' || providerBacked;
+  const amount = quoted ? hotel.freshAmount : hotel.savedEstimate;
   const dates = hotel.checkin && hotel.checkout ? `${shortDate(hotel.checkin)} – ${shortDate(hotel.checkout)}` : '';
   return (
     <article className={`gv-710g-hotel-card ${verified ? 'is-verified' : providerBacked ? 'is-provider' : 'is-estimate'}`}>
       <div className="gv-710g-hotel-card__media">
         {hotel.photoUrl ? <img src={hotel.photoUrl} alt={`${hotel.hotelName || hotel.city} stay`} loading="lazy" /> : <div className="gv-710g-photo-fallback"><span>▣</span><strong>{hotel.city}</strong></div>}
-        <span className="gv-710g-media-badge">{verified ? 'Availability checked' : providerBacked ? 'Provider price' : 'Planning estimate'}</span>
+        <span className="gv-710g-media-badge">{sandbox ? 'Sandbox test rate' : expired ? 'Earlier hotel quote' : verified ? 'Availability checked' : quoted ? 'Provider rate · verification required' : 'Planning estimate'}</span>
       </div>
       <div className="gv-710g-hotel-card__body">
         <div>
@@ -134,13 +129,14 @@ function HotelCard({ hotel, currency }: { hotel: BookingRevalidationHotel; curre
           <p>{hotel.nights} night{hotel.nights === 1 ? '' : 's'}{dates ? ` · ${dates}` : ''}</p>
         </div>
         <strong className="gv-710g-card-price">{money(amount, hotel.currency || currency)}</strong>
+        {sandbox ? <p>Test data only. This is not a bookable production rate.</p> : null}
         <div className="gv-710g-hotel-meta">
           {hotel.roomName ? <span>Room · {hotel.roomName}</span> : null}
           {hotel.boardName ? <span>Board · {hotel.boardName}</span> : null}
           {hotel.refundableTag ? <span>{hotel.refundableTag}</span> : null}
           {hotel.excludedFeesPresent ? <span>Some fees may be separate</span> : null}
         </div>
-        {hotel.handoffUrl ? <a className="gv-710g-partner-button" href={hotel.handoffUrl} target="_blank" rel="noopener noreferrer">{hotel.handoffLabel || 'Compare this stay'} <span>↗</span></a> : <span className="gv-710g-locked">Partner link not available yet</span>}
+        {!expired && !sandbox && hotel.handoffUrl ? <a className="gv-710g-partner-button" href={hotel.handoffUrl} target="_blank" rel="noopener noreferrer">{hotel.handoffLabel || 'Compare this stay'} <span>↗</span></a> : <span className="gv-710g-locked">{sandbox ? 'Test rate — partner booking unavailable' : expired ? 'Check price again' : 'Partner link not available yet'}</span>}
       </div>
     </article>
   );
@@ -155,6 +151,14 @@ export function TripReviewClient710G() {
   const [result, setResult] = useState<BookingRevalidationResponse | null>(null);
   const [error, setError] = useState('');
   const [stagingOrigin, setStagingOrigin] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!result) return;
+    setNow(Date.now());
+    const timer = window.setInterval(() => setNow(Date.now()), 15000);
+    return () => window.clearInterval(timer);
+  }, [result]);
 
   useEffect(() => {
     setStagingOrigin(browserIsStagingOrigin());
@@ -246,11 +250,10 @@ export function TripReviewClient710G() {
   const nights = useMemo(() => totalNights(trip), [trip]);
   const currency = result?.snapshot.currency || trip?.priceSnapshot?.currency || trip?.tripSnapshot.currency || 'CAD';
   const savedTotal = result?.snapshot.savedTripTotal ?? trip?.priceSnapshot?.tripEstimate;
-  const allHotelsVerified = result?.hotelRevalidation?.allVerified === true;
-  const freshTotal = allHotelsVerified ? result?.hotelRevalidation?.hotelAdjustedTripEstimate : result?.revalidation.freshTripEstimate;
-  const status = statusCopy(result);
-  const flightHandoffs = result?.revalidation.handoffEnabled ? result.flights.filter((flight) => flight.handoffEnabled && flight.handoffUrl) : [];
-  const hotelHandoffs = result?.hotels.filter((hotel) => hotel.handoffUrl) || [];
+  const pricing = reviewPricing(result, now);
+  const status = statusCopy(result, pricing);
+  const flightHandoffs = !pricing.expired && result?.revalidation.handoffEnabled ? result.flights.filter((flight) => flight.handoffEnabled && flight.handoffUrl) : [];
+  const hotelHandoffs = !pricing.expired ? result?.hotels.filter((hotel) => !isSandboxHotel(hotel) && hotel.handoffUrl) || [] : [];
   const partnerReady = flightHandoffs.length + hotelHandoffs.length > 0;
   const heroImages = stops.map((stop) => ({ stop, url: imageForCity(stop.city) })).filter((row) => row.url).slice(0, 3);
 
@@ -316,15 +319,15 @@ export function TripReviewClient710G() {
         <div><p className="gv-710g-kicker">{status.eyebrow}</p><h2>{status.title}</h2><p>{status.body}</p></div>
         <div className="gv-710g-trust__meta">
           <span><b>Flights</b>{result ? `${result.revalidation.liveFlightLegCount || 0}/${result.revalidation.requiredFlightLegCount || result.flights.length} checked` : 'Not checked'}</span>
-          <span><b>Hotels</b>{result?.hotelRevalidation ? `${result.hotelRevalidation.verifiedCount}/${result.hotelRevalidation.totalCount} verified` : 'Not checked'}</span>
+          <span><b>Hotels</b>{result?.hotelRevalidation ? `${result.hotelRevalidation.liveCount ?? 0}/${result.hotelRevalidation.totalCount} live${pricing.sandboxCount ? ` · ${pricing.sandboxCount} sandbox` : ''}` : 'Not checked'}</span>
         </div>
       </section>
 
       <section className="gv-710g-metrics" aria-label="Trip price summary">
         <article><span>Saved snapshot</span><strong>{money(savedTotal, currency)}</strong><small>{dateTimeLabel(result?.snapshot.capturedAt || trip?.priceSnapshot?.capturedAt || trip?.updatedAt)}</small></article>
-        <article className={result?.revalidation.applied ? 'is-highlight' : ''}><span>{allHotelsVerified ? 'Fresh trip evidence' : 'Fresh planning total'}</span><strong>{result?.revalidation.applied ? money(freshTotal, currency) : 'Check required'}</strong><small>{allHotelsVerified ? 'Flights + verified hotel checks' : 'Unverified stays remain estimates'}</small></article>
-        <article><span>Flight movement</span><strong>{result?.revalidation.applied ? money(result.revalidation.flightDelta, currency) : '—'}</strong><small>Compared with saved flight snapshot</small></article>
-        <article><span>Budget status</span><strong>{result?.revalidation.applied ? (result.revalidation.overBudget ? 'Over saved budget' : 'Within saved budget') : 'Not checked'}</strong><small>Partner price still wins at checkout</small></article>
+        <article className={pricing.complete ? 'is-highlight' : ''}><span>Current checked total</span><strong>{!result ? 'Check required' : pricing.complete ? money(pricing.currentTotal, pricing.currency) : 'Full current total unavailable'}</strong><small>{!result ? 'Check flights and hotels' : pricing.complete ? 'Flights + hotels · all travellers' : pricing.label}</small></article>
+        <article><span>Current checked flights</span><strong>{money(pricing.flightsTotal, pricing.currency)}</strong><small>Flight subtotal only · hotels excluded</small></article>
+        <article><span>Budget status</span><strong>{pricing.withinBudget === true ? 'Within saved budget' : pricing.withinBudget === false ? 'Over saved budget' : 'Not fully checked'}</strong><small>Based on a complete current trip total</small></article>
       </section>
 
       <section className="gv-710g-itinerary">
@@ -337,19 +340,20 @@ export function TripReviewClient710G() {
       </section>
 
       <section className="gv-710g-section">
-        <div className="gv-710g-section-head"><div><p className="gv-710g-kicker">FLIGHTS</p><h2>Flight evidence by leg</h2></div><span>{result?.revalidation.applied ? 'Fresh exact-date evidence shown below.' : 'Run the current-price check to unlock fresh flight evidence.'}</span></div>
-        {result?.revalidation.applied && result.flights.length ? <div className="gv-710g-flight-list">{result.flights.map((flight, index) => <article className="gv-710g-flight-row" key={`${flight.index}-${flight.origin}-${flight.destination}`}><div className="gv-710g-flight-index">{index + 1}</div><div className="gv-710g-flight-route"><small>{shortDate(flight.departureDate)} · {flight.sourceType === 'LIVE' ? 'Fresh Duffel observation' : 'Verification required'}</small><h3>{flight.origin} <span>→</span> {flight.destination}</h3>{flight.resolvedOrigin && (flight.resolvedOrigin !== flight.origin || flight.resolvedDestination !== flight.destination) ? <p>Same-city airport substitution: {flight.resolvedOrigin} → {flight.resolvedDestination}</p> : null}</div><div className="gv-710g-flight-price"><strong>{money(flight.freshAmount, flight.currency || currency)}</strong>{flight.handoffEnabled && flight.handoffUrl && result.revalidation.handoffEnabled ? <a href={flight.handoffUrl} target="_blank" rel="noopener noreferrer">{flight.handoffLabel || 'Compare flight'} ↗</a> : <span>Handoff locked</span>}</div></article>)}</div> : <div className="gv-710g-empty"><span>✈</span><strong>Fresh flight evidence will appear here.</strong><p>No stale flight handoff is shown before the explicit provider check.</p></div>}
+        <div className="gv-710g-section-head"><div><p className="gv-710g-kicker">FLIGHTS</p><h2>Flight prices by leg</h2></div><span>{result?.revalidation.applied ? 'Fresh exact-date evidence shown below.' : 'Run the current-price check to unlock fresh flight evidence.'}</span></div>
+        <p>Duffel provides the fare check shown here. Aviasales is a separate comparison search; its flights and prices may differ. A comparison link does not reserve the Duffel fare.</p>
+        {result?.revalidation.applied && result.flights.length ? <div className="gv-710g-flight-list">{result.flights.map((flight, index) => <article className="gv-710g-flight-row" key={`${flight.index}-${flight.origin}-${flight.destination}`}><div className="gv-710g-flight-index">{index + 1}</div><div className="gv-710g-flight-route"><small>{shortDate(flight.departureDate)} · {flight.sourceType === 'LIVE' ? 'Duffel fare check' : 'Verification required'}</small><h3>{flight.origin} <span>→</span> {flight.destination}</h3>{flight.resolvedOrigin && (flight.resolvedOrigin !== flight.origin || flight.resolvedDestination !== flight.destination) ? <p>Same-city airport substitution: {flight.resolvedOrigin} → {flight.resolvedDestination}</p> : null}</div><div className="gv-710g-flight-price"><strong>{money(flight.freshAmount, flight.currency || currency)}</strong>{!pricing.expired && flight.handoffEnabled && flight.handoffUrl && result.revalidation.handoffEnabled ? <a href={flight.handoffUrl} target="_blank" rel="noopener noreferrer">{flightComparisonLabel(flight.handoffUrl)} ↗</a> : <span>Handoff locked</span>}</div></article>)}</div> : <div className="gv-710g-empty"><span>✈</span><strong>Fresh flight evidence will appear here.</strong><p>No stale flight handoff is shown before the explicit provider check.</p></div>}
       </section>
 
       <section className="gv-710g-section">
-        <div className="gv-710g-section-head"><div><p className="gv-710g-kicker">STAYS</p><h2>Stay evidence, visually</h2></div><span>{result?.hotelRevalidation?.attempted ? 'Nuitee Rates + PREBOOK evidence is separated from planning estimates.' : 'Run the current-price check to look for provider-backed hotel evidence.'}</span></div>
-        {result?.hotels?.length ? <div className="gv-710g-hotel-grid">{result.hotels.map((hotel) => <HotelCard key={`${hotel.index}-${hotel.city}`} hotel={hotel} currency={currency} />)}</div> : <div className="gv-710g-empty"><span>▣</span><strong>Hotel evidence will appear after the check.</strong><p>Until then, the saved trip remains a planning snapshot.</p></div>}
+        <div className="gv-710g-section-head"><div><p className="gv-710g-kicker">STAYS</p><h2>Stay evidence, visually</h2></div><span>{result?.hotelRevalidation?.attempted ? (pricing.sandboxCount ? 'Sandbox hotel rates are test data and are excluded from the live trip total.' : 'Hotel quotes remain separate from saved planning estimates.') : 'Run the current-price check to look for provider-backed hotel evidence.'}</span></div>
+        {result?.hotels?.length ? <div className="gv-710g-hotel-grid">{result.hotels.map((hotel) => <HotelCard key={`${hotel.index}-${hotel.city}`} hotel={hotel} currency={currency} expired={pricing.expired} />)}</div> : <div className="gv-710g-empty"><span>▣</span><strong>Hotel evidence will appear after the check.</strong><p>Until then, the saved trip remains a planning snapshot.</p></div>}
       </section>
 
       <section className={`gv-710g-handoff ${partnerReady ? 'is-ready' : ''}`}>
         <div className="gv-710g-handoff__intro"><p className="gv-710g-kicker">PARTNER HANDOFF</p><h2>{partnerReady ? 'Ready to compare with partners' : 'Partner links unlock only when supported'}</h2><p>Globevoy helps you plan and verify. The external seller confirms the final itinerary, taxes, fees, availability and price before any purchase.</p></div>
         <div className="gv-710g-handoff__actions">
-          {flightHandoffs.slice(0, 3).map((flight) => <a key={`flight-${flight.index}`} href={flight.handoffUrl || '#'} target="_blank" rel="noopener noreferrer"><span className="gv-710g-handoff-icon">✈</span><span><small>FLIGHT PARTNER</small><strong>{flight.handoffLabel || `${flight.origin} → ${flight.destination}`}</strong></span><b>↗</b></a>)}
+          {flightHandoffs.slice(0, 3).map((flight) => <a key={`flight-${flight.index}`} href={flight.handoffUrl || '#'} target="_blank" rel="noopener noreferrer"><span className="gv-710g-handoff-icon">✈</span><span><small>FLIGHT PARTNER</small><strong>{`${flight.origin} → ${flight.destination} · ${flightComparisonLabel(flight.handoffUrl)}`}</strong></span><b>↗</b></a>)}
           {hotelHandoffs.slice(0, 3).map((hotel) => <a key={`hotel-${hotel.index}-${hotel.city}`} href={hotel.handoffUrl || '#'} target="_blank" rel="noopener noreferrer"><span className="gv-710g-handoff-icon">▣</span><span><small>STAY PARTNER</small><strong>{hotel.handoffLabel || hotel.hotelName || hotel.city}</strong></span><b>↗</b></a>)}
           {!partnerReady ? <div className="gv-710g-handoff-locked"><span>🔒</span><strong>Run or complete the current-price check first.</strong></div> : null}
         </div>
