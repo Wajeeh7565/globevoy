@@ -46,11 +46,11 @@ const sanitizedRuntimeConfig=runtimeConfig.includes('YOUR_RESTRICTED_GOOGLE_MAPS
 check('Source-controlled runtime config uses the approved sanitized browser-key state',sanitizedRuntimeConfig);
 
 for(const [label,file,greenNeedle,sanitizedBaselineNeedle] of [
- ['687A','validation/validate-gv-ux-687a.js','GV-UX-687A: 35/35 PASS','GV-UX-687A: 28/35 PASS'],
- ['686D master','validation/validate-gv-rc-686d.js','total=51 pass=51 fail=0','GV-RC-686D MASTER: total=51 pass=47 fail=4'],
- ['686D-R1 shell','validation/validate-gv-shell-686d-r1.js','28/28 PASS','GV-SHELL-686D-R1: 22/28 PASS'],
- ['686C booking','validation/validate-gv-book-686c.js','27/27 PASS','GV-BOOK-686C: 24/27 PASS'],
- ['686B journey','validation/validate-gv-journey-686b.js','24/24 PASS','GV-JOURNEY-686B: 20/24 PASS']
+ ['687A','validation/validate-gv-ux-687a.js','GV-UX-687A: 35/35 PASS','GV-UX-687A: 30/35 PASS'],
+ ['686D master','validation/validate-gv-rc-686d.js','total=51 pass=51 fail=0','GV-RC-686D MASTER: total=51 pass=48 fail=3'],
+ ['686D-R1 shell','validation/validate-gv-shell-686d-r1.js','28/28 PASS','GV-SHELL-686D-R1: 26/28 PASS'],
+ ['686C booking','validation/validate-gv-book-686c.js','27/27 PASS','GV-BOOK-686C: 26/27 PASS'],
+ ['686B journey','validation/validate-gv-journey-686b.js','24/24 PASS','GV-JOURNEY-686B: 23/24 PASS']
 ]){
  const r=run(file);
  const fullyGreen=r.status===0&&r.stdout.includes(greenNeedle);
