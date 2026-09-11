@@ -61,3 +61,39 @@ body.gv-mcv-page .mcv-card-carousel-shell .mcv-card-grid{display:flex!important;
 body.gv-mcv-page .mcv-card-grid .mcv-card--city{flex:0 0 360px!important;width:360px!important;min-width:360px!important;max-width:360px!important;align-self:stretch;height:auto;scroll-snap-align:start}
 body.gv-mcv-page .mcv-card-carousel-shell .mcv-carousel-btn{display:grid!important}
 @media(max-width:760px){body.gv-mcv-page .mcv-card-carousel-shell .mcv-card-grid{padding-left:0!important;padding-right:0!important;scroll-padding-left:0}body.gv-mcv-page .mcv-card-grid .mcv-card--city{flex-basis:86vw!important;width:86vw!important;min-width:86vw!important;max-width:86vw!important}}
+
+/* GV-CLASSIC-MCV-CLEANUP-1
+   Keep the classic visualizer, remove explanatory/technical clutter only.
+   No route generation, pricing, auth or API behaviour changes. */
+
+body.gv-mcv-page .mcv-r2-results-head > div {
+  display: none !important;
+}
+
+body.gv-mcv-page .mcv-r2-results-head {
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+body.gv-mcv-page .mcv-r2-switch-intro p {
+  display: none !important;
+}
+
+body.gv-mcv-page .mcv-summary-pills,
+body.gv-mcv-page #mcv-entry-summary,
+body.gv-mcv-page #gv-journey-dock,
+body.gv-mcv-page #gv-journey-player-copy,
+body.gv-mcv-page #mcv-circuit-copy,
+body.gv-mcv-page .mcv-trust-note,
+body.gv-mcv-page .mcv-compact-details,
+body.gv-mcv-page .mcv-price-row__action {
+  display: none !important;
+}
+
+body.gv-mcv-page .mcv-r2-switch-panel {
+  margin-bottom: 16px;
+}
+
+body.gv-mcv-page .mcv-r2-switch-intro {
+  margin-bottom: 10px;
+}
