@@ -39,7 +39,7 @@
       <span>Globevoy</span>
     </a>
     <div class="gv-utils">
-      <a class="gv-auth gv-auth--account" href="${accountHref}" aria-label="${signedIn ? 'Open your account' : 'Sign in or create an account'}"><span class="gv-auth__full">${accountLabel}</span><span class="gv-auth__short" aria-hidden="true">${accountLabel}</span></a>
+      <a class="gv-auth gv-auth--account" href="${accountHref}" data-gv-auth-entry aria-label="${signedIn ? 'Open your account' : 'Sign in or create an account'}"><span class="gv-auth__full">${accountLabel}</span><span class="gv-auth__short" aria-hidden="true">${accountLabel}</span></a>
     </div>
   </div>`;
 
