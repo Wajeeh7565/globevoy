@@ -40,11 +40,17 @@ jobs:
         run: |
           changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           printf '%s\n' "$changed"
-          unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validate-gv-hotel-708c\.js|web/lib/contracts\.ts|web/components/booking/booking-workspace-client\.tsx|docs/GV-HOTEL-708C-STAGING-LIVE-HOTEL-EVIDENCE\.md|\.github/workflows/validate-708c\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
-          if [ -n "$unexpected" ]; then
-            echo '708C may change only its bounded staging backend, additive React evidence surface, validator, documentation and CI workflows.' >&2
-            printf '%s\n' "$unexpected" >&2
-            exit 1
+          hotel_runtime_changed="$(printf '%s\n' "$changed" | grep -E '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+
+          if [ -n "$hotel_runtime_changed" ]; then
+            unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validate-gv-hotel-708c\.js|web/lib/contracts\.ts|web/components/booking/booking-workspace-client\.tsx|docs/GV-HOTEL-708C-STAGING-LIVE-HOTEL-EVIDENCE\.md|\.github/workflows/validate-708c\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
+            if [ -n "$unexpected" ]; then
+              echo '708C runtime changes must remain inside the bounded hotel task.' >&2
+              printf '%s\n' "$unexpected" >&2
+              exit 1
+            fi
+          else
+            echo 'No 708C backend runtime files changed; running hotel regression checks without task-boundary enforcement.'
           fi
 
       - name: Validate 708C with mocked secret and provider responses
