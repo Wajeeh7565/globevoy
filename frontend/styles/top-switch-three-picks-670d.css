@@ -46,3 +46,99 @@ body.mcv-updating .mcv-r2-pick-tab{pointer-events:none;opacity:.68}
   .mcv-r2-pick-tab{flex-basis:205px;grid-template-columns:1fr;grid-template-areas:"role" "route" "price";gap:4px}
   .mcv-r2-tab-price{font-size:18px}
 }
+
+
+/* GV-WEB-711B-R2 React-style classic account gate */
+.mcv-member-gate-711{
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  margin:0 0 18px;
+  padding:14px 16px;
+  border:1px solid rgba(0,143,137,.22);
+  border-radius:16px;
+  background:linear-gradient(180deg,#f7fffe,#f3fbfa);
+  box-shadow:0 8px 22px rgba(7,28,51,.05);
+}
+
+.mcv-member-gate-count{
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border-radius:12px;
+  background:#e6f7f5;
+  color:#007b75;
+  font-size:16px;
+  font-weight:950;
+}
+
+.mcv-member-gate-copy{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  min-width:0;
+}
+
+.mcv-member-gate-copy span{
+  color:#008f89;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.11em;
+}
+
+.mcv-member-gate-copy strong{
+  color:#071c33;
+  font-size:14px;
+  line-height:1.2;
+}
+
+.mcv-member-gate-copy small{
+  color:#647987;
+  font-size:10px;
+  line-height:1.4;
+}
+
+.mcv-member-gate-signin,
+.mcv-member-gate-badge{
+  border-radius:999px;
+  padding:10px 15px;
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:900;
+}
+
+.mcv-member-gate-signin{
+  border:0;
+  background:#08a79f;
+  color:#fff;
+  cursor:pointer;
+}
+
+.mcv-member-gate-signin:hover{
+  background:#008f89;
+}
+
+.mcv-member-gate-badge{
+  border:1px solid rgba(0,143,137,.25);
+  background:#fff;
+  color:#007b75;
+}
+
+.mcv-member-gate-711.is-member{
+  background:linear-gradient(180deg,#f5fffd,#eefaf8);
+}
+
+@media(max-width:720px){
+  .mcv-member-gate-711{
+    grid-template-columns:40px 1fr;
+  }
+
+  .mcv-member-gate-signin,
+  .mcv-member-gate-badge{
+    grid-column:1 / -1;
+    width:100%;
+    text-align:center;
+  }
+}

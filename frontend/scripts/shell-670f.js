@@ -5,8 +5,32 @@
   const body = document.body;
   const depth = parseInt(body.dataset.depth || '0', 10);
   const root = (path) => depth === 0 ? path : `../${path}`;
-  const profileHref = root('create-account.html');
-  const accountHref = root('account.html');
+  const accountBaseHref =
+    (location.hostname === '127.0.0.1' || location.hostname === 'localhost')
+      ? 'https://staging.dy4fw8gx1ccie.amplifyapp.com/account.html'
+      : root('account.html');
+
+  function hasActiveAccountSession() {
+    try {
+      const raw = sessionStorage.getItem('globevoy.auth.session.705b-r3');
+      if (!raw) return false;
+      const session = JSON.parse(raw);
+      return Boolean(
+        session &&
+        session.version === 'GV-ACCOUNT-705B-R3' &&
+        session.accessToken &&
+        session.user &&
+        session.user.sub &&
+        Number(session.expiresAt) > Date.now() + 30000
+      );
+    } catch (_) {
+      return false;
+    }
+  }
+
+  const signedIn = hasActiveAccountSession();
+  const accountHref = accountBaseHref;
+  const accountLabel = signedIn ? 'Account' : 'Sign in';
   const myTripsHref = root('my-trips.html');
 
   const header = `<div class="gv-header__inner">
@@ -15,8 +39,7 @@
       <span>Globevoy</span>
     </a>
     <div class="gv-utils">
-      <a class="gv-auth" href="${profileHref}" aria-label="Travel profile"><span class="gv-auth__full">Travel profile</span><span class="gv-auth__short" aria-hidden="true">Profile</span></a>
-      <a class="gv-auth gv-auth--account" href="${accountHref}" data-gv-auth-entry aria-label="Sign in or create an account"><span class="gv-auth__full">Sign in</span><span class="gv-auth__short" aria-hidden="true">Sign in</span></a>
+      <a class="gv-auth gv-auth--account" href="${accountHref}" data-gv-auth-entry aria-label="${signedIn ? 'Open your account' : 'Sign in or create an account'}"><span class="gv-auth__full">${accountLabel}</span><span class="gv-auth__short" aria-hidden="true">${accountLabel}</span></a>
     </div>
   </div>`;
 
