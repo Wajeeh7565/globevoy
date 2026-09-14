@@ -14,6 +14,7 @@ const auth705B = require('./staging-cognito-auth-705b-r3');
 const savedTrips705C = require('./staging-saved-trips-705c');
 const liveFare684A = require('./public-live-fare-pilot-684a');
 const { enrichFlightLeg, enrichStay } = require('./partner-links');
+const { parseHotelGuestContext } = require('./hotel-guest-context-712');
 
 const VERSION = 'GV-WEB-707B';
 const ROUTE_PATH = '/api/account/booking-revalidate';
@@ -76,10 +77,11 @@ function parseBody(event = {}) {
   try { body = raw ? JSON.parse(raw) : {}; } catch (_) { throw Object.assign(new Error('invalid-json'), { statusCode: 400 }); }
   if (!isRecord(body)) throw Object.assign(new Error('json-object-required'), { statusCode: 400 });
   const keys = Object.keys(body);
-  if (keys.some((key) => key !== 'tripId')) throw Object.assign(new Error('trip-id-only-request-required'), { statusCode: 400 });
+  if (keys.some((key) => !['tripId', 'hotelGuestContext'].includes(key))) throw Object.assign(new Error('trip-id-only-request-required'), { statusCode: 400 });
   const tripId = clean(body.tripId);
   if (!validTripId(tripId)) throw Object.assign(new Error('valid-trip-id-required'), { statusCode: 400 });
-  return { tripId };
+  const hotelGuestContext = parseHotelGuestContext(body.hotelGuestContext);
+  return hotelGuestContext ? { tripId, hotelGuestContext } : { tripId };
 }
 
 async function authenticate(event = {}, options = {}) {
@@ -100,9 +102,10 @@ function displayRate(tour = {}) {
 }
 
 function compactStops(tour = {}) {
+  const stops = Array.isArray(tour.stops) ? tour.stops : [];
   const stays = Array.isArray(tour.stays) ? tour.stays : [];
   const cities = Array.isArray(tour.cities) ? tour.cities : [];
-  const rows = stays.length ? stays : cities;
+  const rows = stops.length ? stops : (stays.length ? stays : cities);
   return rows.map((row, index) => {
     const city = cities[index] || {};
     const hotel = isRecord(row.hotel) ? row.hotel : (isRecord(city.hotel) ? city.hotel : {});
@@ -143,13 +146,20 @@ function hydrateSavedTour(trip = {}) {
 function queryForTrip(trip = {}, tour = {}) {
   const party = isRecord(tour.passengerPricing) ? tour.passengerPricing : {};
   const snapshot = trip.tripSnapshot || {};
+  const partyCount = Math.max(1, finite(party.adults, snapshot.travellers || 1)) + Math.max(0, finite(party.children, 0)) + Math.max(0, finite(party.infants, 0));
   return {
     adults: Math.max(1, Math.round(finite(party.adults, snapshot.travellers || 1))),
     children: Math.max(0, Math.round(finite(party.children, 0))),
     infants: Math.max(0, Math.round(finite(party.infants, 0))),
-    passengers: Math.max(1, Math.round(finite(party.travellers || party.passengers, snapshot.travellers || 1))),
-    travellers: Math.max(1, Math.round(finite(party.travellers || party.passengers, snapshot.travellers || 1))),
+    passengers: Math.max(1, Math.round(finite(party.travellers || party.passengers, partyCount))),
+    travellers: Math.max(1, Math.round(finite(party.travellers || party.passengers, partyCount))),
     rooms: Math.max(1, Math.round(finite(party.rooms, 1))),
+    // Preserve exact hotel occupancy; absent ages must fail hotel verification
+    // visibly rather than silently quoting an adult-only room.
+    childrenAges: clone(party.childrenAges || party.childAges || snapshot.childrenAges || snapshot.childAges, []),
+    infantAges: clone(party.infantAges || snapshot.infantAges, []),
+    occupancies: clone(party.occupancies || party.roomOccupancies || snapshot.occupancies, null),
+    guestNationality: clean(party.guestNationality || party.nationality || snapshot.guestNationality).toUpperCase() || null,
     currency: displayCurrency(trip, tour),
     budget: finite(trip?.priceSnapshot?.totalBudget ?? tour?.displayBudget?.totalBudget, 0)
   };
@@ -216,6 +226,14 @@ function sanitizeFlightRows(beforeTour = {}, afterTour = {}, query = {}, handoff
       airportMode: clean(evidence.airportMode683H || 'EXACT'),
       sourceType: clean(evidence.sourceType || '').toUpperCase(),
       productionEligible: evidence.productionEligible === true,
+      providerPassengerCount: Number.isInteger(Number(evidence.providerPassengerCount)) && Number(evidence.providerPassengerCount) > 0 ? Number(evidence.providerPassengerCount) : null,
+      airlineName: clean(evidence.airline) || null,
+      airlineLogoUrl: /^https:\/\//i.test(clean(evidence.airlineLogoUrl)) ? clean(evidence.airlineLogoUrl) : null,
+      departureTime: clean(evidence.departureTime) || null,
+      arrivalTime: clean(evidence.arrivalTime) || null,
+      arrivalDate: clean(evidence.arrivalDate) || null,
+      durationMinutes: evidence.durationMinutes != null && Number.isFinite(Number(evidence.durationMinutes)) ? Number(evidence.durationMinutes) : null,
+      stops: evidence.stops != null && Number.isInteger(Number(evidence.stops)) ? Number(evidence.stops) : null,
       handoffEnabled: Boolean(handoffEnabled && enriched.bookingUrl),
       handoffLabel: handoffEnabled && enriched?.booking?.trust?.ctaLabel ? clean(enriched.booking.trust.ctaLabel) : null,
       handoffUrl: handoffEnabled && /^https:\/\//i.test(clean(enriched.bookingUrl)) ? clean(enriched.bookingUrl) : null,
@@ -379,6 +397,7 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
       }
     }, requestOrigin);
   } catch (error) {
+    if (error?.code === 'hotel-guest-context-mismatch') return response(422, { ok: false, error: 'hotel-guest-context-mismatch', reason: 'Hotel guests must match the travellers and rooms in this saved trip.' }, requestOrigin);
     console.error('GV-WEB-707B booking revalidation error', { name: error?.name, message: error?.message });
     return response(503, { ok: false, error: 'fresh-revalidation-temporarily-unavailable' }, requestOrigin);
   }
