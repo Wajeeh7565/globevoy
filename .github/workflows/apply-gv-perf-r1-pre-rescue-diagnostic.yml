@@ -50,7 +50,10 @@ jobs:
           grep -q "Symbol.for('globevoy.pre-rescue-live-fare-diagnostic-684a')" backend/services/public-live-fare-pilot-684a.js
           grep -q "preLiveSelectionDiagnostic" backend/services/affordable-flight-discovery-684b.js
           grep -q "selectedFlightFallbackMode: eligibility.selectedFlightFallback === true" backend/services/affordable-flight-discovery-684b.js
-          node backend/validate-gv-rec-684b.js
+          if grep -E "createOrder|createPayment|ticketingCapability: true|bookingCapability: true" backend/services/public-live-fare-pilot-684a.js backend/services/affordable-flight-discovery-684b.js; then
+            echo "Unexpected booking/payment capability found."
+            exit 1
+          fi
 
       - name: Commit only the two runtime source files
         if: steps.already.outputs.patched != 'true'
