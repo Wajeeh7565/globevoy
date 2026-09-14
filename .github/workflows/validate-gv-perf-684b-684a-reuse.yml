@@ -1,0 +1,43 @@
+name: GV-PERF 684B to 684A Reuse Diagnostic
+
+on:
+  push:
+    branches:
+      - 'feature/gv-perf-684b-684a-reuse-diagnostic'
+  pull_request:
+    branches:
+      - staging
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate 684B live-evidence reuse
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Syntax check diagnostic
+        run: node --check backend/validate-gv-perf-684b-684a-reuse.js
+
+      - name: Run 684B to final 684A reuse diagnostic
+        run: node backend/validate-gv-perf-684b-684a-reuse.js
+
+      - name: Confirm diagnostic is deployment-free
+        shell: bash
+        run: |
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)[[:space:]].*(update|create|start-deployment|deploy)|amplify[[:space:]]+publish" backend/validate-gv-perf-684b-684a-reuse.js; then
+            echo "Deployment command found inside diagnostic."
+            exit 1
+          fi
+          echo "PASS - diagnostic contains no AWS deployment command."
