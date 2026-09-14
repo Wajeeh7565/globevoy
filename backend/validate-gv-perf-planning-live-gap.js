@@ -7,8 +7,8 @@ const path = require('path');
 const generatedSource = fs.readFileSync(path.join(__dirname, 'generated-tour.js'), 'utf8');
 const discoverySource = fs.readFileSync(path.join(__dirname, 'services', 'affordable-flight-discovery-684b.js'), 'utf8');
 
-function mustFind(source, needle, label) {
-  const at = source.indexOf(needle);
+function mustFind(source, needle, label, fromIndex = 0) {
+  const at = source.indexOf(needle, fromIndex);
   assert(at >= 0, `${label} not found`);
   return at;
 }
@@ -21,17 +21,20 @@ const selectionAt = mustFind(
 const firstLiveAt = mustFind(
   generatedSource,
   'const publicLiveFare684A = await applyPublicLiveFarePilot684A(enrichment.tour, routeQuery);',
-  'first final-route 684A live pricing'
+  'selected-route 684A live pricing',
+  selectionAt
 );
 const overBudgetAt = mustFind(
   generatedSource,
   'let routeStillOverBudgetAfterLive684B = Boolean(',
-  'post-live over-budget decision'
+  'post-live over-budget decision',
+  firstLiveAt
 );
 const rescueAt = mustFind(
   generatedSource,
   'const overBudgetFlightRescue684B = await discoverAffordableFlightTour684B(',
-  'bounded over-budget 684B rescue'
+  'bounded over-budget 684B rescue',
+  overBudgetAt
 );
 
 assert(selectionAt < firstLiveAt, 'planning route must be selected before 684A obtains exact live fares');
@@ -49,8 +52,8 @@ assert.match(
   'pre-live selector should rank planning candidates with automaticTourCandidateScore'
 );
 assert.match(
-  generatedSource,
-  /routeStillOverBudgetAfterLive684B[\s\S]*affordableFlightDiscovery684B\.summary\?\.reason === '684b-selected-route-already-has-flight'/,
+  generatedSource.slice(overBudgetAt, rescueAt + 1200),
+  /affordableFlightDiscovery684B\.summary\?\.reason === '684b-selected-route-already-has-flight'/,
   'selected flight route should trigger bounded rescue only after live over-budget evidence'
 );
 assert.match(
