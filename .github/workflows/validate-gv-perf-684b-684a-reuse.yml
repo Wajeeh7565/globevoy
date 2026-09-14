@@ -27,17 +27,24 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Syntax check diagnostic
-        run: node --check backend/validate-gv-perf-684b-684a-reuse.js
+      - name: Syntax check diagnostics
+        run: |
+          node --check backend/validate-gv-perf-684b-684a-reuse.js
+          node --check backend/validate-gv-perf-planning-live-gap.js
 
       - name: Run 684B to final 684A reuse diagnostic
         run: node backend/validate-gv-perf-684b-684a-reuse.js
 
-      - name: Confirm diagnostic is deployment-free
+      - name: Run planning to live-price gap diagnostic
+        run: node backend/validate-gv-perf-planning-live-gap.js
+
+      - name: Confirm diagnostics are deployment-free
         shell: bash
         run: |
-          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)[[:space:]].*(update|create|start-deployment|deploy)|amplify[[:space:]]+publish" backend/validate-gv-perf-684b-684a-reuse.js; then
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)[[:space:]].*(update|create|start-deployment|deploy)|amplify[[:space:]]+publish" \
+            backend/validate-gv-perf-684b-684a-reuse.js \
+            backend/validate-gv-perf-planning-live-gap.js; then
             echo "Deployment command found inside diagnostic."
             exit 1
           fi
-          echo "PASS - diagnostic contains no AWS deployment command."
+          echo "PASS - diagnostics contain no AWS deployment command."
