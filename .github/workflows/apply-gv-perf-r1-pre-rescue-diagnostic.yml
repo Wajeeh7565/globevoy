@@ -1,0 +1,61 @@
+name: GV-PERF Apply Pre-Rescue Diagnostic
+
+on:
+  push:
+    branches:
+      - 'feature/gv-perf-r1-pre-rescue-diagnostic'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Stop when already patched
+        id: already
+        shell: bash
+        run: |
+          if grep -q "GV-PERF-R1 staging diagnostic only" backend/services/public-live-fare-pilot-684a.js; then
+            echo "patched=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "patched=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Apply exact source patch
+        if: steps.already.outputs.patched != 'true'
+        run: node backend/patch-gv-perf-r1-pre-rescue-diagnostic.js
+
+      - name: Syntax check changed runtime files
+        if: steps.already.outputs.patched != 'true'
+        run: |
+          node --check backend/services/public-live-fare-pilot-684a.js
+          node --check backend/services/affordable-flight-discovery-684b.js
+
+      - name: Run protected backend validations
+        if: steps.already.outputs.patched != 'true'
+        run: |
+          node backend/validate-gv-flight-684a.js
+          node backend/validate-gv-rec-684b.js
+
+      - name: Commit only the two runtime source files
+        if: steps.already.outputs.patched != 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/services/public-live-fare-pilot-684a.js backend/services/affordable-flight-discovery-684b.js
+          git diff --cached --check
+          git commit -m "GV-PERF-R1 expose pre-rescue live-price diagnostic"
+          git push origin HEAD:${GITHUB_REF_NAME}
