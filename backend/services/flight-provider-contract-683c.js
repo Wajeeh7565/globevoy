@@ -198,6 +198,8 @@ function normalizeObservation683C(raw = {}, context = {}, provider = {}) {
     timingQuality: Number.isFinite(Number(raw.timingQuality)) ? Number(raw.timingQuality) : null,
     departureTime: raw.departureTime || null,
     arrivalTime: raw.arrivalTime || null,
+    arrivalDate: raw.arrivalDate || null,
+    airlineLogoUrl: raw.airlineLogoUrl || null,
     durationLabel: raw.durationLabel || null
   };
 }
