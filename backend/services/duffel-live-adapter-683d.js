@@ -215,6 +215,9 @@ function normalizeLiveOffer683D(offer = {}, request = {}, context = {}) {
     providerEndpoint: ALLOWED_PATH_683D,
     departureTime: String(endpoint.first?.departing_at || '').slice(11, 16) || null,
     arrivalTime: String(endpoint.last?.arriving_at || '').slice(11, 16) || null,
+    // Keep the destination-local arrival day: overnight flights change hotel check-in.
+    arrivalDate: String(endpoint.last?.arriving_at || '').slice(0, 10) || null,
+    airlineLogoUrl: offer?.owner?.logo_symbol_url || offer?.owner?.logo_lockup_url || null,
     flightNumber: endpoint.first?.operating_carrier_flight_number || endpoint.first?.marketing_carrier_flight_number || null,
     requestedCurrency: request.currency,
     currencyMismatch: currency !== request.currency,
