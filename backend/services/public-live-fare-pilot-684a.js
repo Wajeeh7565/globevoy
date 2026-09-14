@@ -737,6 +737,24 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
   const patched = applyTravellerPricingToTour({ ...tour, legs }, query);
   const afterTotalUsd = totalUsd684A(patched);
   const strictBudgetFit = strictBudgetFit685CR1(afterTotalUsd, tour, query);
+
+  // GV-PERF-R1 staging diagnostic only: keep the just-priced route on the request
+  // object through a Symbol so it is invisible to normal JSON serialization. The
+  // bounded 684B rescue can snapshot it before pricing a replacement candidate.
+  const preRescueDiagnosticSymbol684A = Symbol.for('globevoy.pre-rescue-live-fare-diagnostic-684a');
+  query[preRescueDiagnosticSymbol684A] = {
+    version: 'GV-PERF-R1',
+    route: (Array.isArray(tour.stops) ? tour.stops : [])
+      .map(stop => String(stop?.cityId || stop?.airportCode || stop?.code || stop?.city || '').trim().toLowerCase())
+      .filter(Boolean)
+      .join('>') || null,
+    beforeLiveUsd: Math.round(beforeTotalUsd),
+    afterLiveUsd: Math.round(afterTotalUsd),
+    livePriceDeltaUsd: Math.round(afterTotalUsd - beforeTotalUsd),
+    overBudget: strictBudgetFit.overBudget === true,
+    providerRequests: Number(state.requests || 0)
+  };
+
   return {
     tour: {
       ...patched,

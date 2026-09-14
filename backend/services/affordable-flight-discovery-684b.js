@@ -230,6 +230,22 @@ function buildShortlist684B(tours = [], currentTour = null, query = {}, options 
 async function discoverAffordableFlightTour684B(tours = [], currentTour = null, query = {}, options = {}) {
   const env = options.env || process.env;
   const eligibility = eligibility684B(tours, currentTour, query, env, { allowSelectedFlightFallback: options.allowSelectedFlightFallback === true });
+  const preRescueDiagnosticSymbol684A = Symbol.for('globevoy.pre-rescue-live-fare-diagnostic-684a');
+  const preRescueLiveFare684A = query?.[preRescueDiagnosticSymbol684A] || null;
+  const currentTotalUsd684B = typeof options.totalUsd === 'function' ? options.totalUsd : defaultTotalUsd684B;
+  const currentPlanningTotalUsd684B = currentTour ? Number(currentTotalUsd684B(currentTour, query) || 0) : 0;
+  const preLiveSelectionDiagnostic = eligibility.selectedFlightFallback === true && currentTour
+    ? {
+        version: 'GV-PERF-R1',
+        route: routeKey684B(currentTour) || preRescueLiveFare684A?.route || null,
+        planningTotalUsd: currentPlanningTotalUsd684B > 0 ? Math.round(currentPlanningTotalUsd684B) : null,
+        beforeLiveUsd: Number.isFinite(Number(preRescueLiveFare684A?.beforeLiveUsd)) ? Number(preRescueLiveFare684A.beforeLiveUsd) : null,
+        afterLiveUsd: Number.isFinite(Number(preRescueLiveFare684A?.afterLiveUsd)) ? Number(preRescueLiveFare684A.afterLiveUsd) : null,
+        livePriceDeltaUsd: Number.isFinite(Number(preRescueLiveFare684A?.livePriceDeltaUsd)) ? Number(preRescueLiveFare684A.livePriceDeltaUsd) : null,
+        overBudget: preRescueLiveFare684A?.overBudget === true,
+        providerRequests: Number.isFinite(Number(preRescueLiveFare684A?.providerRequests)) ? Number(preRescueLiveFare684A.providerRequests) : null
+      }
+    : null;
   const baseSummary = {
     version: VERSION_684B,
     enabled: enabled684BR1(env),
@@ -257,6 +273,7 @@ async function discoverAffordableFlightTour684B(tours = [], currentTour = null, 
     providerFareAmountBasis: 'party-total',
     completeLiveEvidenceRequired: true,
     selectedFlightFallbackMode: eligibility.selectedFlightFallback === true,
+    preLiveSelectionDiagnostic,
     orderCapability: false,
     paymentCapability: false,
     bookingCapability: false,
