@@ -174,7 +174,7 @@ function sampleTour() {
 
   test('684A generated-tour integration runs pilot before legacy verification on both final paths', () => {
     const source = fs.readFileSync(path.join(__dirname, 'generated-tour.js'), 'utf8');
-    const matches = [...source.matchAll(/const publicLiveFare684A = await applyPublicLiveFarePilot684A\(enrichment\.tour, routeQuery\);\s*const liveVerification = await verifyTourWithLiveProviders\(publicLiveFare684A\.tour, routeQuery\);/g)];
+    const matches = [...source.matchAll(/const publicLiveFare684A = await applyPublicLiveFarePilot684A\(enrichment\.tour, routeQuery\);\s*(?:performanceR3\.publicLiveFare684AMs = elapsedR3\(publicLiveFareStartedR3\);\s*const verificationStartedR3 = process\.hrtime\.bigint\(\);\s*)?const liveVerification = await verifyTourWithLiveProviders\(publicLiveFare684A\.tour, routeQuery\);/g)];
     assert.equal(matches.length, 2);
     assert.match(source, /liveVerification\.summary\?\.overBudget \|\| publicLiveFare684A\.summary\?\.overBudget/);
     assert.match(source, /over-budget-after-684a-live-fare/);

@@ -2767,6 +2767,29 @@ async function attemptBudgetSafeRouteRecovery669c(routeQuery = {}, liveVerificat
 }
 
 async function getGeneratedTour(query = {}) {
+  // GV-PERF-R3: request-local response diagnostics only. Stage durations are
+  // monotonic wall time; selection may already include provider/date enrichment.
+  const startedR3 = process.hrtime.bigint();
+  const elapsedR3 = start => Number(process.hrtime.bigint() - start) / 1e6;
+  const performanceR3 = {
+    version: 'GV-PERF-R3',
+    globalRouteGraphMs: 0,
+    legacyRouteEngineMs: 0,
+    candidatePreparationMs: 0,
+    routeSelectionMs: 0,
+    initial684BMs: 0,
+    cheapFlightEnrichmentMs: 0,
+    cheapFlightEnrichmentReused: false,
+    publicLiveFare684AMs: 0,
+    liveProviderVerificationMs: 0,
+    finalizationMs: 0,
+    totalMs: 0
+  };
+  let candidatePreparationStartedR3 = null;
+  let finalizationStartedR3 = null;
+  // Keep early returns and exceptions inside the existing orchestration. The
+  // outer response decoration also measures fallback/recursive wall time in totalMs.
+  const resultR3 = await (async () => {
   if (!generatedTourEnabled()) {
     return { ok: true, supported: false, reason: 'feature-disabled', requiredFlag: 'ENABLE_GENERATED_TOUR_651A=true' };
   }
@@ -2810,14 +2833,21 @@ async function getGeneratedTour(query = {}) {
   // GV-GLOBAL-665B generates provider-informed candidate routes on demand from the unified global
   // city/airport graph for every origin. The legacy curated route engine remains
   // available and both candidate sets are validated before AI ranking.
-  const graph = globalRouteGraphEnabled()
+  const graphEnabledR3 = globalRouteGraphEnabled();
+  const graphStartedR3 = process.hrtime.bigint();
+  const graph = graphEnabledR3
     ? await generateProviderDrivenGlobalRouteCandidates(routeQuery)
     : { tours: [], diagnostics: { enabled: false, version: GLOBAL_ROUTE_GRAPH_VERSION } };
 
+  performanceR3.globalRouteGraphMs = graphEnabledR3 ? elapsedR3(graphStartedR3) : 0;
+
   let base;
+  const legacyStartedR3 = process.hrtime.bigint();
   try {
     base = await getMultiCityTours(routeQuery);
+    performanceR3.legacyRouteEngineMs = elapsedR3(legacyStartedR3);
   } catch (error) {
+    performanceR3.legacyRouteEngineMs = elapsedR3(legacyStartedR3);
     if (Array.isArray(graph.tours) && graph.tours.length) {
       base = {
         ok: true,
@@ -2838,6 +2868,7 @@ async function getGeneratedTour(query = {}) {
     }
   }
 
+  candidatePreparationStartedR3 = process.hrtime.bigint();
   const legacyTours = Array.isArray(base.tours) ? base.tours : [];
   const graphTours = Array.isArray(graph.tours) ? graph.tours : [];
   const combined = [];
@@ -2880,17 +2911,34 @@ async function getGeneratedTour(query = {}) {
     if (previewTour) {
       smartDurationDecision677A = resolveSmartDuration677A(previewTour, routeQuery, durationDecision674A);
       if (smartDurationDecision677A.nights !== durationDecision674A.nights) {
-        return getGeneratedTour({
+        performanceR3.candidatePreparationMs = elapsedR3(candidatePreparationStartedR3);
+        candidatePreparationStartedR3 = null;
+        const refinedResponseR3 = await getGeneratedTour({
           ...query,
           __smartDurationDecision677A: smartDurationDecision677A,
           __smartDurationRefinementPass677A: '1'
         });
+        const refinedTimingR3 = refinedResponseR3.diagnostics?.performanceR3;
+        if (refinedTimingR3) {
+          // The refinement runs before selection. Preserve the selected pass's
+          // timings and include both sequential route-generation/preparation passes.
+          Object.assign(performanceR3, refinedTimingR3, {
+            globalRouteGraphMs: performanceR3.globalRouteGraphMs + refinedTimingR3.globalRouteGraphMs,
+            legacyRouteEngineMs: performanceR3.legacyRouteEngineMs + refinedTimingR3.legacyRouteEngineMs,
+            candidatePreparationMs: performanceR3.candidatePreparationMs + refinedTimingR3.candidatePreparationMs
+          });
+        }
+        return refinedResponseR3;
       }
       routeQuery.smartDurationDecision677A = smartDurationDecision677A;
     }
   }
 
+  performanceR3.candidatePreparationMs = elapsedR3(candidatePreparationStartedR3);
+  candidatePreparationStartedR3 = null;
+  const selectionStartedR3 = process.hrtime.bigint();
   let selection = await selectTourWithOptionalProviderRanking(combined, routeQuery);
+  performanceR3.routeSelectionMs = elapsedR3(selectionStartedR3);
   let selectedTour = selection?.tour ? (guardEnabled() ? normalizeAirportIntegrity(selection.tour, routeQuery) : selection.tour) : null;
 
   // GV-REC-684B: planning-only role assignment can accidentally hide a genuinely
@@ -2899,6 +2947,7 @@ async function getGeneratedTour(query = {}) {
   // candidates and require complete 684A exact-date LIVE evidence before rescuing
   // one into the result. Lowest-cost is intentionally left alone so a cheaper ground
   // trip can remain the true lowest-cost option.
+  const discoveryStartedR3 = process.hrtime.bigint();
   let affordableFlightDiscovery684B = await discoverAffordableFlightTour684B(
     combined,
     selectedTour,
@@ -2913,6 +2962,7 @@ async function getGeneratedTour(query = {}) {
       scoreCandidate: affordableFlightDiscoveryCandidateScore684B
     }
   );
+  performanceR3.initial684BMs = elapsedR3(discoveryStartedR3);
   if (affordableFlightDiscovery684B.summary?.applied && affordableFlightDiscovery684B.tour) {
     const requestedDiscoveryRole684B = requestedPickRole670a(routeQuery);
     selectedTour = requestedDiscoveryRole684B
@@ -2962,7 +3012,13 @@ async function getGeneratedTour(query = {}) {
     };
   }
 
-  let enrichment = selection?.enrichment || await enrichTourWithCheapFlights(selectedTour, routeQuery);
+  let enrichment = selection?.enrichment;
+  performanceR3.cheapFlightEnrichmentReused = Boolean(enrichment);
+  if (!enrichment) {
+    const enrichmentStartedR3 = process.hrtime.bigint();
+    enrichment = await enrichTourWithCheapFlights(selectedTour, routeQuery);
+    performanceR3.cheapFlightEnrichmentMs = elapsedR3(enrichmentStartedR3);
+  }
   if (isOverUserBudget(enrichment.tour, routeQuery)) {
     enrichment = {
       tour: exactDateWindow669d(routeQuery) ? applyExactDateWindow669d(selectedTour, routeQuery) : selectedTour,
@@ -2978,8 +3034,15 @@ async function getGeneratedTour(query = {}) {
       }
     };
   }
+  const publicLiveFareStartedR3 = process.hrtime.bigint();
   const publicLiveFare684A = await applyPublicLiveFarePilot684A(enrichment.tour, routeQuery);
+  performanceR3.publicLiveFare684AMs = elapsedR3(publicLiveFareStartedR3);
+  const verificationStartedR3 = process.hrtime.bigint();
   const liveVerification = await verifyTourWithLiveProviders(publicLiveFare684A.tour, routeQuery);
+  performanceR3.liveProviderVerificationMs = elapsedR3(verificationStartedR3);
+  // Includes existing post-verification rescue/recovery, when taken, as well as
+  // budget checks, visualizer, guard, entry decoration and response assembly.
+  finalizationStartedR3 = process.hrtime.bigint();
   enrichment = {
     ...enrichment,
     tour: liveVerification.tour,
@@ -3284,6 +3347,20 @@ async function getGeneratedTour(query = {}) {
       }
     }
   };
+  })();
+  const responseR3 = {
+    ...resultR3,
+    diagnostics: { ...(resultR3.diagnostics || {}), performanceR3 }
+  };
+  const finishedR3 = process.hrtime.bigint();
+  if (candidatePreparationStartedR3 !== null) {
+    performanceR3.candidatePreparationMs = Number(finishedR3 - candidatePreparationStartedR3) / 1e6;
+  }
+  if (finalizationStartedR3 !== null) {
+    performanceR3.finalizationMs = Number(finishedR3 - finalizationStartedR3) / 1e6;
+  }
+  performanceR3.totalMs = Number(finishedR3 - startedR3) / 1e6;
+  return responseR3;
 }
 
 module.exports = {
