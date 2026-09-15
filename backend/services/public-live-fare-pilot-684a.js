@@ -18,6 +18,7 @@ const {
   MAX_HARD_REQUEST_CAP_683H,
   simulationAvailable683H,
   requestState683H,
+  exactThreeStagingEnabledGvPerfR2,
   mapQuotaReservation683MR4,
   callDuffel683H,
   normalizeLiveObservation683H,
@@ -302,6 +303,18 @@ function promotedEvidence684A(observation = {}, task = {}) {
 
 async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {}) {
   const env = options.env || process.env;
+  const exactConcurrencyExperimentR2 = {
+    version: 'GV-PERF-R2',
+    scope: '684a-exact-initial',
+    active: false,
+    initialQuotaKnown: null, // no scheduler ran (ineligible/reused)
+    initialQuotaRemaining: null,
+    initialBatchSize: 0,
+    configuredInitialCeiling: 2,
+    exactPhysicalConcurrencyPeak: 0,
+    metroConfiguredCeiling: 2,
+    metroPhysicalConcurrencyPeak: 0
+  };
   const beforeTotalUsd = totalUsd684A(tour);
   const budgetCeilingUsd = budgetCeilingUsd684A(tour, query);
   const reused = completeAppliedEvidence684A(tour);
@@ -322,6 +335,7 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
         attempted: false,
         applied: true,
         reused: true,
+        exactConcurrencyExperimentR2,
         reason: '684a-complete-live-evidence-already-applied',
         beforeTotalUsd: Math.round(beforeTotalUsd),
         afterTotalUsd: Math.round(beforeTotalUsd),
@@ -357,6 +371,7 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
   }
   const eligibility = eligibility684A(tour, query, env);
   const baseSummary = {
+    exactConcurrencyExperimentR2,
     enabled: envTrue(FLAG_684A, env),
     version: VERSION_684A,
     providerEngineVersion: VERSION_683H,
@@ -402,6 +417,12 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
     requiredRequestBudget: tasks.length * 2,
     boundedByHardCap: tasks.length * 2 > MAX_HARD_REQUEST_CAP_683H
   });
+  state.exactConcurrencyExperimentR2 = exactConcurrencyExperimentR2;
+  // GV-PERF-R2: only this initial exact phase may opt in. In particular, do not
+  // put the policy into options or state: both are reused by metro fallback.
+  const exactSchedulingPolicy = tasks.length === 3 && exactThreeStagingEnabledGvPerfR2(env)
+    ? { scope: '684a-exact-initial', initialMaxBatch: 3 }
+    : null;
 
   const rows = await mapQuotaReservation683MR4(
     tasks,
@@ -435,7 +456,8 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
       return { task, supported: true, raw, selection };
     },
     () => Boolean(state.abortReason) || state.proactiveQuotaFailClosed683MR3 === true || state.requests >= state.cap,
-    options
+    options,
+    exactSchedulingPolicy
   );
 
   const exactRows = tasks.map((task, index) => {

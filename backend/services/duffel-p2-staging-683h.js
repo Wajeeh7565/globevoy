@@ -1,10 +1,11 @@
 'use strict';
 
 // GV-PROVIDER-683M-R4 — Quota-reservation Duffel scheduling on the request-scoped production canary.
-// Preserves 683M concurrency<=2, request-scoped deduplication, latency diagnostics, R2 reset-aware
+// Preserves default 683M concurrency<=2, request-scoped deduplication, latency diagnostics, R2 reset-aware
 // 429 recovery, and R3 proactive quota protection. R4 sizes each independent-leg batch from observed
 // provider quota: remaining>=2 may reserve a pair, remaining=1 runs serial, and remaining=0 uses the
 // existing bounded reset gate or fails closed without launching another provider request.
+// GV-PERF-R2 permits only 684A's explicitly flagged staging initial exact batch to use three.
 // Preserves the 683J-R2 evidence non-downgrade repair. Normal production traffic remains OFF.
 // A production canary can activate only for a single HTTP request after the Lambda/server
 // entrypoint validates the existing admin token AND X-GV-Provider-Canary: 683K, then injects
@@ -119,6 +120,11 @@ function runtimeEnvironment683J(env = process.env) {
 
 function stagingIdentity683J(env = process.env) {
   return runtimeEnvironment683J(env) === 'staging';
+}
+
+function exactThreeStagingEnabledGvPerfR2(env = process.env) {
+  return stagingIdentity683J(env)
+    && envTrue('ENABLE_GV_PERF_R2_684A_EXACT_THREE_STAGING', env);
 }
 
 function activationEnabled683J(env = process.env) {
@@ -524,6 +530,7 @@ function latencyDiagnostics683M(state = {}) {
     version: VERSION_683H,
     boundedConcurrency: Number(state.providerConcurrencyLimit683M || MAX_PROVIDER_CONCURRENCY_683M),
     concurrencyPeak: Number(state.providerConcurrencyPeak683M || 0),
+    ...(state.exactConcurrencyExperimentR2 ? { exactConcurrencyExperimentR2: { ...state.exactConcurrencyExperimentR2 } } : {}),
     physicalProviderRequests: Number(state.requests || 0),
     logicalExactSearches: Number(state.exactRequests || 0),
     logicalMetroSearches: Number(state.metroRequests || 0),
@@ -576,14 +583,16 @@ function latencyDiagnostics683M(state = {}) {
     },
     quotaReservationScheduling683MR4: {
       enabled: true,
-      maxBatchSize: QUOTA_RESERVATION_MAX_BATCH_683MR4,
+      maxBatchSize: state.exactConcurrencyExperimentR2?.active === true ? 3 : QUOTA_RESERVATION_MAX_BATCH_683MR4,
       batches: Number(state.quotaReservationBatches683MR4 || 0),
       reservedSlots: Number(state.quotaReservationSlots683MR4 || 0),
       quotaLimitedBatches: Number(state.quotaReservationLimitedBatches683MR4 || 0),
       exactRemainingTwoPairBatches: Number(state.quotaReservationExactTwoBatches683MR4 || 0),
       serialBatches: Number(state.quotaReservationSerialBatches683MR4 || 0),
       lastBatchSize: Number(state.quotaReservationLastBatchSize683MR4 || 0),
-      rule: 'batch=min(2,remaining-quota,outstanding); remaining=0 uses bounded reset gate before launch'
+      rule: state.exactConcurrencyExperimentR2?.active === true
+        ? '684A staging initial exact batch<=3 (unknown quota allowed); later/metro batches<=2; quota/reset and request-cap gates retained'
+        : 'batch=min(2,remaining-quota,outstanding); remaining=0 uses bounded reset gate before launch'
     }
   };
 }
@@ -622,28 +631,56 @@ function nullableFiniteNumber683MR3(value) {
   return Number.isFinite(n) ? n : null;
 }
 
-function quotaReservationBatchSize683MR4(state = {}, outstanding = MAX_PROVIDER_CONCURRENCY_683M) {
+function quotaReservationBatchSize683MR4(state = {}, outstanding = MAX_PROVIDER_CONCURRENCY_683M, initialCeiling = QUOTA_RESERVATION_MAX_BATCH_683MR4) {
+  // Only the explicitly guarded initial 684A scheduler call supplies three.
+  const ceiling = initialCeiling === 3 ? 3 : QUOTA_RESERVATION_MAX_BATCH_683MR4;
   if (state.proactiveQuotaFailClosed683MR3 === true) return 0;
   const pending = Math.max(0, Math.floor(Number(outstanding) || 0));
   if (pending <= 0) return 0;
   const remaining = nullableFiniteNumber683MR3(state.quotaRemaining683MR3);
   if (remaining == null) {
     // After a proactive reset wait, keep the first new-window observation serial;
-    // otherwise unknown quota may use the proven bounded concurrency of two.
-    return Math.min(state.quotaSerialMode683MR3 === true ? 1 : QUOTA_RESERVATION_MAX_BATCH_683MR4, pending);
+    // otherwise unknown quota uses two, or the explicit staging R2 initial ceiling.
+    return Math.min(state.quotaSerialMode683MR3 === true ? 1 : ceiling, pending);
   }
   if (remaining <= 0) return 0;
-  return Math.max(1, Math.min(QUOTA_RESERVATION_MAX_BATCH_683MR4, pending, Math.floor(remaining)));
+  return Math.max(1, Math.min(ceiling, pending, Math.floor(remaining)));
 }
 
 function quotaAwareConcurrency683MR3(state = {}) {
   return quotaReservationBatchSize683MR4(state, MAX_PROVIDER_CONCURRENCY_683M);
 }
 
-async function mapQuotaReservation683MR4(items = [], state = {}, worker, shouldStop = () => false, options = {}) {
+async function mapQuotaReservation683MR4(items = [], state = {}, worker, shouldStop = () => false, options = {}, schedulingPolicy = null) {
   const rows = Array.isArray(items) ? items : [];
   const results = new Array(rows.length);
   let cursor = 0;
+  // Separate sixth argument: generic provider options cannot propagate this override
+  // into metro fallback or other callers. Never persist the scheduling policy on state.
+  const freshInitialState = () => state.requests === 0
+    && state.quotaReservationBatches683MR4 === 0
+    && state.providerConcurrencyCurrent683M === 0
+    && !state.abortReason && !state.proactiveQuotaFailClosed683MR3
+    && !state.quotaSerialMode683MR3 && !state._rateLimitGatePromise683MR3
+    && !state._rateLimitRetryLeaseUsed683MR3 && !state._proactiveQuotaWaitLeaseUsed683MR3
+    && state.rateLimitEvents683MR3 === 0 && state.rateLimitRetryCount683MR3 === 0
+    && state.proactiveQuotaWaitCount683MR3 === 0;
+  const initialThree = schedulingPolicy?.scope === '684a-exact-initial'
+    && schedulingPolicy?.initialMaxBatch === 3 && rows.length === 3
+    && exactThreeStagingEnabledGvPerfR2(options.env || process.env)
+    && freshInitialState();
+  const experiment = state.exactConcurrencyExperimentR2;
+  // 684A attaches diagnostics before its exact call, even when the flag is off.
+  // Metro must not overwrite that first phase's diagnostics.
+  const recordInitial = experiment && experiment.initialQuotaKnown === null;
+  if (recordInitial) {
+    const remaining = nullableFiniteNumber683MR3(state.quotaRemaining683MR3);
+    experiment.active = initialThree;
+    experiment.initialQuotaKnown = remaining != null;
+    experiment.initialQuotaRemaining = remaining;
+    experiment.configuredInitialCeiling = initialThree ? 3 : QUOTA_RESERVATION_MAX_BATCH_683MR4;
+  }
+  if (initialThree) state.providerConcurrencyLimit683M = 3; // diagnostic only
   while (cursor < rows.length) {
     if (shouldStop() || state.proactiveQuotaFailClosed683MR3 === true) break;
     await waitForRateLimitGate683MR3(state);
@@ -656,14 +693,19 @@ async function mapQuotaReservation683MR4(items = [], state = {}, worker, shouldS
 
     const outstanding = rows.length - cursor;
     const remainingBeforeBatch = nullableFiniteNumber683MR3(state.quotaRemaining683MR3);
-    const take = quotaReservationBatchSize683MR4(state, outstanding);
+    // Recheck after the reset gate: waiting consumes the initial-three exception.
+    const initialException = initialThree && cursor === 0 && freshInitialState();
+    const ceiling = initialException ? 3 : QUOTA_RESERVATION_MAX_BATCH_683MR4;
+    const quotaTake = quotaReservationBatchSize683MR4(state, outstanding, ceiling);
+    const take = initialException ? Math.min(quotaTake, Math.max(0, state.cap - state.requests)) : quotaTake;
     if (take <= 0) break;
+    if (recordInitial && cursor === 0) experiment.initialBatchSize = take;
 
     state.quotaReservationBatches683MR4 += 1;
     state.quotaReservationSlots683MR4 += take;
     state.quotaReservationLastBatchSize683MR4 = take;
     if (take === 1) state.quotaReservationSerialBatches683MR4 += 1;
-    if (remainingBeforeBatch != null && take < Math.min(QUOTA_RESERVATION_MAX_BATCH_683MR4, outstanding)) state.quotaReservationLimitedBatches683MR4 += 1;
+    if (remainingBeforeBatch != null && quotaTake < Math.min(ceiling, outstanding)) state.quotaReservationLimitedBatches683MR4 += 1;
     if (remainingBeforeBatch === 2 && outstanding >= 2 && take === 2) state.quotaReservationExactTwoBatches683MR4 += 1;
 
     const batch = [];
@@ -931,12 +973,21 @@ async function physicalDuffelRequest683MR3(args, state, options = {}) {
   state.providerConcurrencyPeak683M = Math.max(state.providerConcurrencyPeak683M, state.providerConcurrencyCurrent683M);
   const exactFn = options.searchExact || duffel683D.searchExactDate683D;
   const kind = options.requestKind683M === 'metro' ? 'metro' : 'exact';
+  const experiment = state.exactConcurrencyExperimentR2;
+  const phaseCurrent = experiment
+    ? (state._physicalConcurrencyByKindGvPerfR2 ||= { exact: 0, metro: 0 }) : null;
+  if (phaseCurrent) {
+    phaseCurrent[kind] += 1;
+    const peakKey = kind === 'metro' ? 'metroPhysicalConcurrencyPeak' : 'exactPhysicalConcurrencyPeak';
+    experiment[peakKey] = Math.max(experiment[peakKey], phaseCurrent[kind]);
+  }
   const started = Date.now();
   try {
     const result = await exactFn(args, { env: options.env || process.env, fetch: options.fetchDuffel || options.fetch, allowWithoutShadowFlag: options.allowWithoutShadowFlag === true });
     captureRateLimitMetadata683MR3(result, state);
     return result;
   } finally {
+    if (phaseCurrent) phaseCurrent[kind] -= 1;
     const elapsed = Math.max(0, Date.now() - started);
     state.providerLatencyTotalMs683M += elapsed;
     state.providerLatencyMaxMs683M = Math.max(state.providerLatencyMaxMs683M, elapsed);
@@ -1291,6 +1342,7 @@ module.exports = {
   dependencyReady683H,
   runtimeEnvironment683J,
   stagingIdentity683J,
+  exactThreeStagingEnabledGvPerfR2,
   activationEnabled683J,
   productionCanaryAuthorized683K,
   stagingActivationReady683J,
