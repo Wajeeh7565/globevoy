@@ -78,6 +78,9 @@ jobs:
       - name: Reviewed 439-to-441 activation candidate 702E
         run: node backend/validate-gv-rec-702e.js
 
+      - name: GV-WEB-FE-R3.1B unified account navigation
+        run: node backend/validate-gv-web-fe-r3-1b.js
+
       - name: Frontend 687B exact + regression validation
         run: node frontend/validation/validate-gv-rec-687b-frontend.js
 
@@ -86,9 +89,6 @@ jobs:
 
       - name: GV-WEB-FE-R2 canonical Account and My Trips routing
         run: node backend/validate-gv-web-fe-r2.js
-
-      - name: GV-WEB-FE-R3.1B unified account navigation
-        run: node backend/validate-gv-web-fe-r3-1b.js
 
       - name: Current runtime syntax checks
         shell: bash
