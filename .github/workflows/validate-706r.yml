@@ -48,7 +48,7 @@ jobs:
           changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           printf '%s\n' "$changed"
           if printf '%s\n' "$changed" | grep -Eq '^frontend/validation/validate-gv-web-fe-r3-1b\.js$'; then
-            unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(frontend/(about|booking|create-account|explore|how-it-works|index|mixed-results|multi-city-trip|multi-city|multicity-visualizer|saved-trips|sign-in|trip|trust)\.html|frontend/scripts/shell-670f\.js|frontend/styles/shell\.css|frontend/validation/validate-gv-shell-686d-r1\.js|frontend/validation/validate-gv-web-fe-r3-1b\.js|\.github/workflows/validate\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
+            unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(frontend/(about|booking|create-account|explore|how-it-works|index|mixed-results|multi-city-trip|multi-city|multicity-visualizer|saved-trips|sign-in|trip|trust)\.html|frontend/scripts/shell-670f\.js|frontend/styles/shell\.css|frontend/validation/validate-gv-shell-686d-r1\.js|frontend/validation/validate-gv-web-fe-r3-1b\.js|backend/validate-gv-account-705b-r3\.js|\.github/workflows/validate\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
             if [ -n "$unexpected" ]; then
               echo 'GV-WEB-FE-R3.1B may change only the bounded shared classic shell, its cache keys and validators:' >&2
               printf '%s\n' "$unexpected" >&2
