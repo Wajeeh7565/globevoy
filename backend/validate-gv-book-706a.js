@@ -18,7 +18,7 @@ function main() {
   const guard = read('frontend/scripts/booking-account-snapshot-706a.js');
   const production = read('backend/lambda.js');
 
-  assert.match(myTripsHtml, /my-trips-booking-706a\.js\?v=706a/);
+  assert.match(myTripsHtml, /my-trips-booking-706a\.js\?v=706a-fe-r1/);
   assert.match(myTrips, /GV-BOOK-706A/);
   assert.match(myTrips, /runtime\(\)\.api\.get\(id\)/);
   assert.match(myTrips, /data-gv-book-saved/);
