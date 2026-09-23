@@ -356,6 +356,7 @@ export function JourneyClient710E() {
   if (!savedMode && !routeId) return <main className="gv-journey-page"><section className="gv-journey-state"><h1>Choose a route first</h1><a href={backUrl}>Back to routes</a></section></main>;
   if (!savedMode && loading) return <main className="gv-journey-page"><section className="gv-journey-state"><div className="gv-journey-spinner" /><h1>Opening your journey…</h1><p>Matching the exact route you selected.</p></section></main>;
   if (!savedMode && (error || !route)) return <main className="gv-journey-page"><section className="gv-journey-state gv-journey-state--error"><p>ROUTE STATUS</p><h1>We cannot open this exact journey right now</h1><span>{error}</span><div><button onClick={retry}>Try again</button><a href={backUrl}>Back to routes</a></div></section></main>;
+  if (!search || !route) return <main className="gv-journey-page"><section className="gv-journey-state gv-journey-state--error"><p>JOURNEY STATUS</p><h1>This journey is not ready to display</h1><a href={backUrl}>Go back</a></section></main>;
 
   const origin = originName(search);
   const originCode = search.originCode || search.rawOrigin;
