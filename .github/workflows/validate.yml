@@ -87,6 +87,9 @@ jobs:
       - name: GV-WEB-FE-R2 canonical Account and My Trips routing
         run: node backend/validate-gv-web-fe-r2.js
 
+      - name: GV-WEB-FE-R3.1B unified Account header
+        run: node frontend/validation/validate-gv-web-fe-r3-1b.js
+
       - name: Current runtime syntax checks
         shell: bash
         run: |
@@ -118,6 +121,7 @@ jobs:
           node --check frontend/runtime/api-client.js
           node --check frontend/validation/validate-gv-data-701c.js
           node --check frontend/scripts/multicity-visualizer-687b.js
+          node --check frontend/validation/validate-gv-web-fe-r3-1b.js
 
       - name: Confirm CI is deployment-free
         shell: bash
