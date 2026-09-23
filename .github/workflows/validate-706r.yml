@@ -47,7 +47,15 @@ jobs:
         run: |
           changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           printf '%s\n' "$changed"
-          if printf '%s\n' "$changed" | grep -Eq '^backend/validate-gv-web-fe-r2\.js            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+          if printf '%s\n' "$changed" | grep -Eq '^backend/validate-gv-web-fe-r2\.js$'; then
+            unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(frontend/account\.html|frontend/my-trips\.html|frontend/saved-trips\.html|frontend/scripts/shell-670f\.js|web/components/app-shell\.tsx|web/components/account/account-page-client\.tsx|web/components/account/my-trips-client\.tsx|backend/validate-gv-web-fe-r2\.js|\.github/workflows/validate\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
+            if [ -n "$unexpected" ]; then
+              echo 'GV-WEB-FE-R2 may change only its bounded canonical Account/My Trips routing surfaces:' >&2
+              printf '%s\n' "$unexpected" >&2
+              exit 1
+            fi
+          elif printf '%s\n' "$changed" | grep -Eq '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$'; then
+            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
               echo '708C must not modify the proven legacy frontend.' >&2
               exit 1
             fi
