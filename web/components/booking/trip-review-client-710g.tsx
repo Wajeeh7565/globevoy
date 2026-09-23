@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/components/account/auth-provider';
-import { getSavedTrip, GlobevoyApiError, revalidateSavedTripForBooking } from '@/lib/api';
+import { getSavedTrip, getTravelProfile, GlobevoyApiError, revalidateSavedTripForBooking } from '@/lib/api';
 import { browserIsStagingOrigin } from '@/lib/public-config';
 import { formatReviewMoney as money, isSandboxHotel, reviewPricing, flightComparisonLabel } from '@/lib/trip-review-pricing-712c';
 import type { BookingRevalidationHotel, BookingRevalidationResponse, SavedTrip, SavedTripCity } from '@/lib/contracts';
@@ -30,6 +30,49 @@ const CITY_IMAGES: Record<string, string> = {
 
 function clean(value: unknown): string { return String(value == null ? '' : value).trim(); }
 function validTripId(value: string): boolean { return /^[A-Za-z0-9_-]{8,80}$/.test(value); }
+
+const HOTEL_NATIONALITY_STORAGE_KEY = 'globevoy-hotel-guest-nationality-v1';
+
+type CountryOption = { code: string; label: string };
+let COUNTRY_OPTIONS_CACHE: CountryOption[] | null = null;
+
+function normalizedCountryText(value: string): string {
+  return clean(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function countryOptions(): CountryOption[] {
+  if (COUNTRY_OPTIONS_CACHE) return COUNTRY_OPTIONS_CACHE;
+  const options: CountryOption[] = [];
+  try {
+    const display = new Intl.DisplayNames(['en'], { type: 'region' });
+    for (let first = 65; first <= 90; first += 1) {
+      for (let second = 65; second <= 90; second += 1) {
+        const code = String.fromCharCode(first, second);
+        const label = display.of(code);
+        if (!label || label === code || /unknown region/i.test(label) || ['EU', 'UN', 'ZZ'].includes(code)) continue;
+        options.push({ code, label });
+      }
+    }
+  } catch (_) {
+    options.push(
+      { code: 'CA', label: 'Canada' },
+      { code: 'PK', label: 'Pakistan' },
+      { code: 'US', label: 'United States' },
+      { code: 'GB', label: 'United Kingdom' },
+      { code: 'IN', label: 'India' },
+      { code: 'AU', label: 'Australia' }
+    );
+  }
+  COUNTRY_OPTIONS_CACHE = options.sort((a, b) => a.label.localeCompare(b.label));
+  return COUNTRY_OPTIONS_CACHE;
+}
+
+function countryCodeForProfileValue(value: string): string {
+  const direct = clean(value).toUpperCase();
+  if (/^[A-Z]{2}$/.test(direct)) return direct;
+  const wanted = normalizedCountryText(value);
+  return countryOptions().find((option) => normalizedCountryText(option.label) === wanted)?.code || '';
+}
 
 function shortDate(value?: string | null): string {
   if (!value) return '';
@@ -152,6 +195,10 @@ export function TripReviewClient710G() {
   const [error, setError] = useState('');
   const [stagingOrigin, setStagingOrigin] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const [nationalityOpen, setNationalityOpen] = useState(false);
+  const [nationalityCode, setNationalityCode] = useState('');
+  const [profileNationalityChoices, setProfileNationalityChoices] = useState<CountryOption[]>([]);
+  const nationalityOptions = useMemo(() => countryOptions(), []);
 
   useEffect(() => {
     if (!result) return;
@@ -166,6 +213,50 @@ export function TripReviewClient710G() {
     const id = clean(new URLSearchParams(window.location.search).get('tripId'));
     setTripId(validTripId(id) ? id : '');
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (!session) {
+      setProfileNationalityChoices([]);
+      return () => { active = false; };
+    }
+    void getTravelProfile(session.accessToken)
+      .then((response) => {
+        if (!active || !response.exists) return;
+        const seen = new Set<string>();
+        const choices = (response.profile.citizenshipCountries || [])
+          .map((value) => {
+            const code = countryCodeForProfileValue(value);
+            const option = nationalityOptions.find((item) => item.code === code);
+            return code && option ? option : null;
+          })
+          .filter((item): item is CountryOption => Boolean(item))
+          .filter((item) => {
+            if (seen.has(item.code)) return false;
+            seen.add(item.code);
+            return true;
+          });
+        setProfileNationalityChoices(choices);
+      })
+      .catch(() => {
+        if (active) setProfileNationalityChoices([]);
+      });
+    return () => { active = false; };
+  }, [session, nationalityOptions]);
+
+  useEffect(() => {
+    if (!nationalityOpen || nationalityCode || profileNationalityChoices.length === 0) return;
+    setNationalityCode(profileNationalityChoices[0].code);
+  }, [nationalityOpen, nationalityCode, profileNationalityChoices]);
+
+  useEffect(() => {
+    if (!nationalityOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !checking) setNationalityOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [nationalityOpen, checking]);
 
   useEffect(() => {
     let active = true;
@@ -193,37 +284,19 @@ export function TripReviewClient710G() {
     return () => { active = false; };
   }, [tripId, session, clear]);
 
-  function getHotelGuestNationality(): string | null {
-    if (typeof window === 'undefined') return null;
-    const storageKey = 'globevoy-hotel-guest-nationality-v1';
-    const cached = clean(window.sessionStorage.getItem(storageKey)).toUpperCase();
-    if (/^[A-Z]{2}$/.test(cached)) return cached;
-
-    const entered = window.prompt(
-      'Hotel providers need the traveller nationality to check current rates. Enter the 2-letter country code (for example CA for Canada or PK for Pakistan). No passport number is needed.'
-    );
-    if (entered === null) {
-      setError('Hotel price checking was cancelled. Nationality is required to request current hotel rates.');
-      return null;
-    }
-
-    const normalized = clean(entered).toUpperCase();
-    if (!/^[A-Z]{2}$/.test(normalized)) {
-      setError('Enter a valid 2-letter nationality code, such as CA or PK.');
-      return null;
-    }
-
-    window.sessionStorage.setItem(storageKey, normalized);
-    return normalized;
+  function cachedHotelGuestNationality(): string {
+    if (typeof window === 'undefined') return '';
+    const cached = clean(window.sessionStorage.getItem(HOTEL_NATIONALITY_STORAGE_KEY)).toUpperCase();
+    return /^[A-Z]{2}$/.test(cached) ? cached : '';
   }
 
-  async function revalidate() {
+  function storeHotelGuestNationality(code: string) {
+    if (typeof window === 'undefined') return;
+    window.sessionStorage.setItem(HOTEL_NATIONALITY_STORAGE_KEY, code);
+  }
+
+  async function runRevalidation(guestNationality: string | null) {
     if (!session || !tripId || checking) return;
-
-    const needsHotelContext = trip?.tripSnapshot.kind === 'multi' && tripStops(trip).length > 0;
-    const guestNationality = needsHotelContext ? getHotelGuestNationality() : null;
-    if (needsHotelContext && !guestNationality) return;
-
     setChecking(true);
     setResult(null);
     setError('');
@@ -243,6 +316,43 @@ export function TripReviewClient710G() {
     } finally {
       setChecking(false);
     }
+  }
+
+  function revalidate() {
+    if (!session || !tripId || checking) return;
+    const needsHotelContext = trip?.tripSnapshot.kind === 'multi' && tripStops(trip).length > 0;
+    if (!needsHotelContext) {
+      void runRevalidation(null);
+      return;
+    }
+
+    const cached = cachedHotelGuestNationality();
+    if (cached) {
+      void runRevalidation(cached);
+      return;
+    }
+
+    if (profileNationalityChoices.length === 1) {
+      const profileCode = profileNationalityChoices[0].code;
+      storeHotelGuestNationality(profileCode);
+      void runRevalidation(profileCode);
+      return;
+    }
+
+    setError('');
+    setNationalityCode(profileNationalityChoices[0]?.code || '');
+    setNationalityOpen(true);
+  }
+
+  function confirmNationalityAndCheck() {
+    const normalized = clean(nationalityCode).toUpperCase();
+    if (!/^[A-Z]{2}$/.test(normalized)) {
+      setError('Choose a traveller nationality before checking current hotel rates.');
+      return;
+    }
+    storeHotelGuestNationality(normalized);
+    setNationalityOpen(false);
+    void runRevalidation(normalized);
   }
 
   const stops = useMemo(() => tripStops(trip), [trip]);
@@ -306,6 +416,30 @@ export function TripReviewClient710G() {
       </section>
 
       {error ? <div className="gv-710g-error" role="status">{error}</div> : null}
+
+      {nationalityOpen ? (
+        <div className="gv-710g-nationality-overlay" role="presentation">
+          <section className="gv-710g-nationality-modal" role="dialog" aria-modal="true" aria-labelledby="gv-nationality-title" aria-describedby="gv-nationality-copy">
+            <button className="gv-710g-nationality-close" type="button" aria-label="Close nationality selection" disabled={checking} onClick={() => setNationalityOpen(false)}>×</button>
+            <p className="gv-710g-kicker">HOTEL RATE CHECK</p>
+            <h2 id="gv-nationality-title">Traveller nationality</h2>
+            <p id="gv-nationality-copy">Hotel providers require the traveller nationality to check current rates. Choose the country that applies to this rate request.</p>
+            {profileNationalityChoices.length > 1 ? <p className="gv-710g-nationality-profile-note">Your Travel Profile lists more than one citizenship, so choose the one to use for this hotel check.</p> : null}
+            <label className="gv-710g-nationality-field">
+              <span>Nationality</span>
+              <select autoFocus value={nationalityCode} onChange={(event) => setNationalityCode(event.target.value)}>
+                <option value="">Choose nationality</option>
+                {nationalityOptions.map((option) => <option key={option.code} value={option.code}>{option.label} ({option.code})</option>)}
+              </select>
+            </label>
+            <p className="gv-710g-nationality-privacy">Country only. Do not enter a passport number, document number or payment information.</p>
+            <div className="gv-710g-nationality-actions">
+              <button className="gv-710g-secondary" type="button" disabled={checking} onClick={() => setNationalityOpen(false)}>Cancel</button>
+              <button className="gv-710g-primary" type="button" disabled={!nationalityCode || checking} onClick={confirmNationalityAndCheck}>{checking ? 'Checking…' : 'Continue price check'}</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
 
       <section className="gv-710g-progress" aria-label="Trip review progress">
         <div className="is-done"><i>1</i><span><b>Saved</b><small>Trip snapshot</small></span></div>
