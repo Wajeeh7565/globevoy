@@ -983,12 +983,26 @@ async function generateProviderDrivenCandidates(query = {}) {
   if (!providerDiscoveryEnabled()) return { tours: [], diagnostics: { enabled: false, version: GLOBAL_ROUTE_GRAPH_VERSION } };
   const origin = resolveAnyOrigin(query.origin || query.originCode || query.from || query.startingCity);
   if (!origin) return { tours: [], diagnostics: { enabled: true, version: GLOBAL_ROUTE_GRAPH_VERSION, reason: 'origin-not-resolved' } };
+  // GV-PERF-R4: response-only wall-clock breakdown for the provider-driven graph.
+  // It records existing awaits and CPU work; it does not change scan count/order.
+  const providerDrivenStartedR4 = process.hrtime.bigint();
+  const elapsedR4 = start => Number(process.hrtime.bigint() - start) / 1e6;
+  const performanceR4 = {
+    version: 'GV-PERF-R4',
+    firstProviderScanMs: 0,
+    secondProviderScansMs: 0,
+    secondProviderScanCount: 0,
+    providerCandidateBuildMs: 0
+  };
   const budget = budgetUsd(query);
   const nights = totalNights(query);
   const startMonth = monthKey(query.month || query.departureMonth || query.startMonth);
+  const firstProviderScanStartedR4 = process.hrtime.bigint();
   const firstScan = await scanProviderDestinations(origin.airportCode, startMonth, 6, 100);
+  performanceR4.firstProviderScanMs = elapsedR4(firstProviderScanStartedR4);
   if (!firstScan.supported) {
-    return { tours: [], origin, diagnostics: { enabled: true, version: GLOBAL_ROUTE_GRAPH_VERSION, providerDriven: true, providerAvailable: false, reason: firstScan.reason, scannedMonths: firstScan.scannedMonths || [] } };
+    performanceR4.providerCandidateBuildMs = Math.max(0, elapsedR4(providerDrivenStartedR4) - performanceR4.firstProviderScanMs);
+    return { tours: [], origin, diagnostics: { enabled: true, version: GLOBAL_ROUTE_GRAPH_VERSION, providerDriven: true, providerAvailable: false, reason: firstScan.reason, scannedMonths: firstScan.scannedMonths || [], performanceR4 } };
   }
 
   const firstOptions = firstScan.observations
@@ -1021,7 +1035,10 @@ async function generateProviderDrivenCandidates(query = {}) {
 
     if (maxStopsForTrip({ ...query, nights }, { totalNights: nights }) < 2) continue;
     const nextMonth = monthKey(addDaysIso(first.observation.departureDate, pairAllocations[0]));
+    const secondProviderScanStartedR4 = process.hrtime.bigint();
     const secondScan = await scanProviderDestinations(preferredAirport(first.row), nextMonth, PROVIDER_SECOND_LEG_MONTHS, 80);
+    performanceR4.secondProviderScanCount += 1;
+    performanceR4.secondProviderScansMs += elapsedR4(secondProviderScanStartedR4);
     if (!secondScan.supported) continue;
     const secondOptions = secondScan.observations
       .map(observation => ({ observation, row: providerObservationRow(observation) }))
@@ -1059,6 +1076,10 @@ async function generateProviderDrivenCandidates(query = {}) {
   }
 
   candidates.sort((a, b) => b.score - a.score || num(a.tour.estimatedTotalUsd) - num(b.tour.estimatedTotalUsd));
+  performanceR4.providerCandidateBuildMs = Math.max(
+    0,
+    elapsedR4(providerDrivenStartedR4) - performanceR4.firstProviderScanMs - performanceR4.secondProviderScansMs
+  );
   return {
     tours: candidates.slice(0, MAX_CANDIDATES).map(item => item.tour),
     origin,
@@ -1071,14 +1092,25 @@ async function generateProviderDrivenCandidates(query = {}) {
       firstLegObservationCount: firstScan.observations.length,
       firstDestinationCount: firstOptions.length,
       feasibleProviderConnectedRouteCount: candidates.length,
-      fallbackRequired: candidates.length === 0
+      fallbackRequired: candidates.length === 0,
+      performanceR4
     }
   };
 }
 
 async function generateProviderDrivenGlobalRouteCandidates(query = {}) {
   const provider = await generateProviderDrivenCandidates(query);
+  const fallbackStartedR4 = process.hrtime.bigint();
   const fallback = generateGlobalRouteCandidates(query);
+  const deterministicFallbackMsR4 = Number(process.hrtime.bigint() - fallbackStartedR4) / 1e6;
+  const performanceR4 = {
+    version: 'GV-PERF-R4',
+    firstProviderScanMs: Number(provider.diagnostics?.performanceR4?.firstProviderScanMs || 0),
+    secondProviderScansMs: Number(provider.diagnostics?.performanceR4?.secondProviderScansMs || 0),
+    secondProviderScanCount: Number(provider.diagnostics?.performanceR4?.secondProviderScanCount || 0),
+    providerCandidateBuildMs: Number(provider.diagnostics?.performanceR4?.providerCandidateBuildMs || 0),
+    deterministicFallbackMs: deterministicFallbackMsR4
+  };
   const combined = [];
   const seen = new Set();
   for (const tour of [...(provider.tours || []), ...(fallback.tours || [])]) {
@@ -1096,7 +1128,8 @@ async function generateProviderDrivenGlobalRouteCandidates(query = {}) {
       version: GLOBAL_ROUTE_GRAPH_VERSION,
       providerDriven: provider.diagnostics || null,
       deterministicFallback: fallback.diagnostics || null,
-      combinedFeasibleRouteCount: combined.length
+      combinedFeasibleRouteCount: combined.length,
+      performanceR4
     }
   };
 }
