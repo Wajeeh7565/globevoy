@@ -21,8 +21,8 @@ const mixedRuntime = read('scripts/mixed-results-674a.js');
 const headerTemplate = shell.slice(shell.indexOf('const header'), shell.indexOf('const footer'));
 
 check('Shared shell preserves approved 686D-R1 visual baseline with 705B-R3 account successor', shell.includes('GV-SHELL-686D-R1') && shell.includes("dataset.gvShellVersion = '686d-r1'") && shell.includes("dataset.gvAccountVersion = '705b-r3'"));
-check('Header preserves home brand and Travel profile while adding only the secure account action', headerTemplate.includes('class="gv-brand"') && headerTemplate.includes('class="gv-auth"') && headerTemplate.includes('data-gv-auth-entry') && !headerTemplate.includes('class="gv-nav"'));
-check('Travel profile remains local and secure sign-in is a separate action', shell.includes("const profileHref = root('create-account.html')") && headerTemplate.includes('Travel profile') && headerTemplate.includes('Sign in') && headerTemplate.includes("const accountHref") === false);
+check('Header preserves home brand with the approved unified account-nav mount', headerTemplate.includes('class="gv-brand"') && headerTemplate.includes('data-gv-shell-account-nav') && shell.includes('class="gv-account-nav"') && !headerTemplate.includes('class="gv-nav"'));
+check('Travel profile, My Trips and Account use the canonical React account surfaces', shell.includes("root('react/travel-profile/')") && shell.includes("root('react/my-trips/')") && shell.includes("root('react/account/')") && shell.includes('data-gv-auth-signin') && shell.includes('data-gv-auth-signout'));
 check('Removed navigation is not replaced by a mobile menu', !headerTemplate.includes('gv-burger') && !headerTemplate.includes('gv-mobile-menu') && !headerTemplate.includes('aria-expanded'));
 check('Minimal header is compact and keeps mobile profile visible', shellCss.includes('--gv-header-h:60px') && shellCss.includes('.gv-auth__short{display:none}') && !shellCss.includes('.gv-burger'));
 check('Shared shell defines consolidated colour and surface tokens', ['--gv-navy:', '--gv-teal:', '--gv-amber:', '--gv-canvas:', '--gv-border:'].every((token) => shellCss.includes(token)));
