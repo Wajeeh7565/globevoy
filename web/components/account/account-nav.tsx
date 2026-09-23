@@ -29,7 +29,6 @@ export function AccountNav() {
     <nav className="gv-account-nav" aria-label="Account navigation">
       {session ? (
         <>
-          <Link className="gv-account-nav__trips" href="/my-trips/">My Trips</Link>
           <details className="gv-account-nav__menu">
             <summary aria-label={`Open account menu for ${accountLabel.identity}`}>
               <span className="gv-account-nav__avatar" aria-hidden="true">{accountLabel.initial}</span>
