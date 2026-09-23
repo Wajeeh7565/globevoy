@@ -50,7 +50,6 @@
 
   const accountNavigation = signedIn
     ? `<nav class="gv-account-nav" aria-label="Account navigation">
-        <a class="gv-account-nav__trips" href="${myTripsHref}">My Trips</a>
         <details class="gv-account-nav__menu">
           <summary aria-label="Open account menu for ${safeAccountIdentity}">
             <span class="gv-account-nav__avatar" aria-hidden="true">${accountInitial}</span>
