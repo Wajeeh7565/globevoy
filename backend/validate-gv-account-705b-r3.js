@@ -151,7 +151,14 @@ async function expectAuthError(code, token) {
   assert(authSession.includes('Deliberately do not persist tokens.refresh_token or tokens.id_token.'));
   assert(authSession.includes("logout.searchParams.set('logout_uri', cfg.logoutUrl)"));
 
-  assert(shell.includes('data-gv-auth-entry'));
+  assert(
+    shell.includes('data-gv-auth-entry') ||
+    (
+      shell.includes("dataset.gvUnifiedAccountHeader = 'GV-WEB-FE-R3.1B'") &&
+      shell.includes('data-gv-auth-signin') &&
+      shell.includes('data-gv-auth-signout')
+    )
+  );
   assert(shell.includes('runtime/auth-config-705b-r3.js'));
   assert(shell.includes('scripts/auth-session-705b-r3.js'));
   assert(callback.includes('data-gv-auth-callback="true"'));
