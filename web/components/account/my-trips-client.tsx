@@ -98,6 +98,11 @@ export function MyTripsClient() {
   }
 
   function openTrip(trip: SavedTrip) {
+    const id = String(trip.tripId || '').trim();
+    if (trip.tripSnapshot.kind === 'multi' && /^[A-Za-z0-9_-]{8,80}$/.test(id)) {
+      window.location.assign(`/react/journey/?tripId=${encodeURIComponent(id)}`);
+      return;
+    }
     if (!openSavedTripPreservingOrigin(trip)) {
       setNotice('This saved trip cannot be reopened safely from this page.');
       setNoticeKind('error');
