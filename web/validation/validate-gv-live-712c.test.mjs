@@ -150,6 +150,27 @@ test('comparison labels distinguish Aviasales hosts from unrelated hosts', () =>
   assert.equal(flightComparisonLabel(null), 'Compare with flight partner');
 });
 
+
+test('Trip Review uses an in-product nationality dialog instead of a browser prompt', () => {
+  const source = fs.readFileSync(path.join(web, 'components/booking/trip-review-client-710g.tsx'), 'utf8');
+  assert.doesNotMatch(source, /window\.prompt\s*\(/);
+  assert.match(source, /gv-710g-nationality-modal/);
+  assert.match(source, /aria-modal="true"/);
+  assert.match(source, /Traveller nationality/);
+  assert.match(source, /Continue price check/);
+  assert.match(source, /globevoy-hotel-guest-nationality-v2/);
+});
+
+test('Trip Review can reuse an unambiguous Travel Profile citizenship for hotel checks', () => {
+  const source = fs.readFileSync(path.join(web, 'components/booking/trip-review-client-710g.tsx'), 'utf8');
+  assert.match(source, /getTravelProfile\(session\.accessToken\)/);
+  assert.match(source, /response\.profile\.citizenshipCountries/);
+  assert.match(source, /profileNationalityChoices\.length === 1/);
+  assert.match(source, /storeHotelGuestNationality\(profileCode\)/);
+  assert.match(source, /runRevalidation\(profileCode\)/);
+  assert.match(source, /lists more than one citizenship/);
+});
+
 function tripsHarness(authSession, listSavedTrips, values = [[trip], false, '', '', '', 'all']) {
   const hooks = hookHarness(values);
   const { MyTripsClient } = loadSource('components/account/my-trips-client.tsx', {
