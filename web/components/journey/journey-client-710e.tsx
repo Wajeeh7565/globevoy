@@ -1,10 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/components/account/auth-provider';
 import { JourneyMap710E } from '@/components/journey/journey-map-710e';
 import { PriceEvidenceBadge } from '@/components/price-evidence-badge';
-import { getPublicMultiCityTours, GlobevoyApiError } from '@/lib/api';
-import type { JsonObject } from '@/lib/contracts';
+import { getPublicMultiCityTours, getSavedTrip, GlobevoyApiError } from '@/lib/api';
+import type { JsonObject, SavedTrip } from '@/lib/contracts';
 import {
   adaptMultiCityTours,
   multiCityApiParams,
@@ -16,6 +17,7 @@ import {
 } from '@/lib/recommendations-708a';
 
 const GV_WEB_710E_VERSION = 'GV-WEB-710E-R2';
+const GV_WEB_FE_R3_2_VERSION = 'GV-WEB-FE-R3.2';
 const LEGACY_ASSET_BASE = String(process.env.NEXT_PUBLIC_GLOBEVOY_LEGACY_ASSET_BASE_URL || '/assets').replace(/\/+$/, '');
 const LEGACY_CITY_IMAGES: Record<string, string> = {
   cairo: 'cairo.jpg',
@@ -95,6 +97,114 @@ function currentParams(): URLSearchParams {
   return typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search);
 }
 
+function validTripId(value: string): boolean {
+  return /^[A-Za-z0-9_-]{8,80}$/.test(clean(value));
+}
+
+function positive(value: unknown, fallback = 0): number {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function savedSearchForTrip(trip: SavedTrip): ResultsSearch {
+  const snapshot = trip.tripSnapshot;
+  const price = trip.priceSnapshot || { currency: snapshot.currency || 'CAD' };
+  const tour = record(snapshot.tour);
+  const tourOrigin = record(tour.origin);
+  const originCode = clean(snapshot.origin || tourOrigin.code || tourOrigin.airportCode).toUpperCase();
+  const originCity = textField(tourOrigin, 'city', 'name') || (originCode === 'YYZ' ? 'Toronto' : originCode || 'Origin');
+  const cityNights = (snapshot.cities || []).reduce((sum, city) => sum + positive(city.nights), 0);
+  const nights = Math.max(1, Math.round(positive(snapshot.nights, cityNights || 1)));
+  const passengers = Math.max(1, Math.round(positive(snapshot.travellers, 1)));
+  const estimate = positive(price.tripEstimate);
+  const budget = positive(price.totalBudget, estimate || 1);
+  return {
+    rawOrigin: originCode || originCity,
+    originCode,
+    originCity,
+    budget,
+    currency: clean(price.currency || snapshot.currency || 'CAD').toUpperCase() || 'CAD',
+    adults: passengers,
+    children: 0,
+    passengers,
+    nights,
+    tripLength: `${nights} nights`,
+    interests: [],
+    hotelStyle: '',
+    region: '',
+    month: ''
+  };
+}
+
+function savedRouteForTrip(trip: SavedTrip, search: ResultsSearch): RecommendationCardModel | null {
+  const snapshot = trip.tripSnapshot;
+  if (snapshot.kind !== 'multi') return null;
+
+  const sourceTour = record(snapshot.tour);
+  const raw: JsonObject = { ...sourceTour };
+  const existingStops = rows(sourceTour.stops).length ? rows(sourceTour.stops) : rows(sourceTour.cities);
+  const fallbackStops = (snapshot.cities || []).map((city) => ({
+    id: city.id,
+    city: city.city,
+    country: city.country,
+    code: city.code,
+    airportCode: city.code,
+    nights: city.nights
+  }));
+  const stops = existingStops.length ? existingStops : fallbackStops;
+  if (!stops.length) return null;
+
+  const price = trip.priceSnapshot || { currency: search.currency };
+  const savedTotal = positive(price.tripEstimate);
+  const sourceBudget = record(sourceTour.displayBudget);
+  const routeTotal = savedTotal || positive(sourceBudget.tripEstimate);
+  if (!(routeTotal > 0)) return null;
+
+  const sourceOrigin = record(sourceTour.origin);
+  raw.title = clean(trip.name || sourceTour.title) || stops.map((stop) => textField(stop, 'city')).filter(Boolean).join(' + ');
+  raw.tourId = clean(snapshot.routeId || sourceTour.tourId || sourceTour.routeId || trip.tripId);
+  raw.routeId = raw.tourId;
+  raw.totalNights = search.nights;
+  raw.origin = {
+    ...sourceOrigin,
+    city: textField(sourceOrigin, 'city', 'name') || search.originCity,
+    code: textField(sourceOrigin, 'code', 'airportCode') || search.originCode,
+    airportCode: textField(sourceOrigin, 'airportCode', 'code') || search.originCode
+  };
+  raw.stops = stops;
+  if (!rows(sourceTour.cities).length) raw.cities = stops;
+  const savedRemaining = finite(price.remaining);
+  const reserveAmount = positive(price.reserve);
+  raw.displayBudget = {
+    ...sourceBudget,
+    totalBudget: search.budget,
+    tripEstimate: routeTotal,
+    amountLeft: savedRemaining ?? (search.budget - routeTotal),
+    reserveAmount
+  };
+  raw.pricingStatus = 'ESTIMATED';
+  raw.priceEvidence = { ...record(sourceTour.priceEvidence), evidenceClass: 'ESTIMATED' };
+
+  const adapted = adaptMultiCityTours({ tours: [raw] }, search)[0];
+  if (!adapted) return null;
+  return {
+    ...adapted,
+    title: clean(trip.name) || adapted.title,
+    total: routeTotal,
+    remaining: savedRemaining ?? adapted.remaining,
+    reserveAmount,
+    sourceBudgetTotal: search.budget,
+    routeId: clean(snapshot.routeId || adapted.routeId || trip.tripId),
+    raw,
+    selectionPayload: raw,
+    evidence: {
+      state: 'estimate',
+      label: 'Saved snapshot · price check needed',
+      note: 'Saved prices are historical snapshots. Check current provider evidence before continuing to a travel partner.'
+    }
+  };
+}
+
 function JourneyStopMedia({ image, city, index }: { image: string; city: ResultsCity; index: number }) {
   const [failed, setFailed] = useState(false);
   const showImage = Boolean(image) && !failed;
@@ -115,22 +225,75 @@ function JourneyStopMedia({ image, city, index }: { image: string; city: Results
 }
 
 export function JourneyClient710E() {
+  const { session, loading: authLoading, signIn, clear } = useAuth();
   const [params, setParams] = useState<URLSearchParams>(() => new URLSearchParams());
   const [search, setSearch] = useState<ResultsSearch | null>(null);
   const [route, setRoute] = useState<RecommendationCardModel | null>(null);
   const [routeId, setRouteId] = useState('');
+  const [tripId, setTripId] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeStop, setActiveStop] = useState(-1);
 
   useEffect(() => {
     const next = currentParams();
+    const requestedTripId = clean(next.get('tripId'));
     setParams(next);
-    setRouteId(clean(next.get('routeId')));
-    setSearch(parseResultsSearch(next));
+    setTripId(requestedTripId);
+    if (requestedTripId) {
+      setRouteId('');
+      setSearch(null);
+    } else {
+      setRouteId(clean(next.get('routeId')));
+      setSearch(parseResultsSearch(next));
+    }
   }, []);
 
-  const load = useCallback(async () => {
+  const loadSaved = useCallback(async () => {
+    if (!tripId || authLoading) return;
+    setLoading(true);
+    setError('');
+    setRoute(null);
+
+    if (!validTripId(tripId)) {
+      setError('This saved trip link is invalid.');
+      setLoading(false);
+      return;
+    }
+    if (!session) {
+      setError('Sign in to open this private saved journey.');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const trip = await getSavedTrip(session.accessToken, tripId);
+      if (!trip || clean(trip.tripId) !== tripId) throw new Error('saved-trip-mismatch');
+      if (trip.tripSnapshot.kind !== 'multi') {
+        setError('This saved trip does not use the connected-journey view yet.');
+        return;
+      }
+      const savedSearch = savedSearchForTrip(trip);
+      const savedRoute = savedRouteForTrip(trip, savedSearch);
+      if (!savedRoute) {
+        setError('This saved journey snapshot is incomplete and cannot be reopened safely.');
+        return;
+      }
+      setSearch(savedSearch);
+      setRoute(savedRoute);
+    } catch (err) {
+      if (err instanceof GlobevoyApiError && err.status === 401) {
+        clear();
+        setError('Your session expired. Sign in again to open this private saved journey.');
+      } else {
+        setError('Globevoy could not load this private saved journey. Your saved trip is unchanged.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [tripId, authLoading, session, clear]);
+
+  const loadPublic = useCallback(async () => {
     if (!search || !routeId) return;
     setLoading(true);
     setError('');
@@ -152,7 +315,13 @@ export function JourneyClient710E() {
     }
   }, [search, routeId]);
 
-  useEffect(() => { if (search && routeId) void load(); }, [search, routeId, load]);
+  useEffect(() => {
+    if (tripId) {
+      if (!authLoading) void loadSaved();
+      return;
+    }
+    if (search && routeId) void loadPublic();
+  }, [tripId, authLoading, search, routeId, loadSaved, loadPublic]);
 
   useEffect(() => {
     if (!route) return;
@@ -168,16 +337,26 @@ export function JourneyClient710E() {
     return () => observer.disconnect();
   }, [route]);
 
+  const savedMode = Boolean(tripId);
   const backUrl = useMemo(() => {
+    if (tripId) return '/react/my-trips/';
     const next = new URLSearchParams(params);
     next.delete('routeId');
     return `/react/results/?${next.toString()}`;
-  }, [params]);
+  }, [params, tripId]);
 
-  if (!search) return <main className="gv-journey-page"><section className="gv-journey-state">Preparing your journey…</section></main>;
-  if (!routeId) return <main className="gv-journey-page"><section className="gv-journey-state"><h1>Choose a route first</h1><a href={backUrl}>Back to routes</a></section></main>;
-  if (loading) return <main className="gv-journey-page"><section className="gv-journey-state"><div className="gv-journey-spinner" /><h1>Opening your journey…</h1><p>Matching the exact route you selected.</p></section></main>;
-  if (error || !route) return <main className="gv-journey-page"><section className="gv-journey-state gv-journey-state--error"><p>ROUTE STATUS</p><h1>We cannot open this exact journey right now</h1><span>{error}</span><div><button onClick={() => void load()}>Try again</button><a href={backUrl}>Back to routes</a></div></section></main>;
+  const retry = () => {
+    if (savedMode) void loadSaved();
+    else void loadPublic();
+  };
+
+  if (savedMode && (authLoading || loading)) return <main className="gv-journey-page"><section className="gv-journey-state"><div className="gv-journey-spinner" /><h1>Opening your saved journey…</h1><p>Loading the exact private snapshot from your account.</p></section></main>;
+  if (savedMode && (error || !route || !search)) return <main className="gv-journey-page"><section className="gv-journey-state gv-journey-state--error"><p>SAVED TRIP STATUS</p><h1>We cannot open this saved journey right now</h1><span>{error}</span><div>{!session ? <button onClick={() => { void signIn(`/react/journey/?tripId=${encodeURIComponent(tripId)}`); }}>Sign in</button> : <button onClick={retry}>Try again</button>}<a href={backUrl}>Back to My Trips</a></div></section></main>;
+  if (!savedMode && !search) return <main className="gv-journey-page"><section className="gv-journey-state">Preparing your journey…</section></main>;
+  if (!savedMode && !routeId) return <main className="gv-journey-page"><section className="gv-journey-state"><h1>Choose a route first</h1><a href={backUrl}>Back to routes</a></section></main>;
+  if (!savedMode && loading) return <main className="gv-journey-page"><section className="gv-journey-state"><div className="gv-journey-spinner" /><h1>Opening your journey…</h1><p>Matching the exact route you selected.</p></section></main>;
+  if (!savedMode && (error || !route)) return <main className="gv-journey-page"><section className="gv-journey-state gv-journey-state--error"><p>ROUTE STATUS</p><h1>We cannot open this exact journey right now</h1><span>{error}</span><div><button onClick={retry}>Try again</button><a href={backUrl}>Back to routes</a></div></section></main>;
+  if (!search || !route) return <main className="gv-journey-page"><section className="gv-journey-state gv-journey-state--error"><p>JOURNEY STATUS</p><h1>This journey is not ready to display</h1><a href={backUrl}>Go back</a></section></main>;
 
   const origin = originName(search);
   const originCode = search.originCode || search.rawOrigin;
@@ -186,11 +365,11 @@ export function JourneyClient710E() {
 
   return (
     <main className="gv-journey-page">
-      <nav className="gv-journey-back"><a href={backUrl}>← Back to route choices</a><span>{GV_WEB_710E_VERSION}</span></nav>
+      <nav className="gv-journey-back"><a href={backUrl}>{savedMode ? '← Back to My Trips' : '← Back to route choices'}</a><span>{savedMode ? GV_WEB_FE_R3_2_VERSION : GV_WEB_710E_VERSION}</span></nav>
 
       <header className="gv-journey-hero">
         <div>
-          <p>YOUR CONNECTED JOURNEY</p>
+          <p>{savedMode ? 'YOUR SAVED JOURNEY' : 'YOUR CONNECTED JOURNEY'}</p>
           <h1>{routeTitle(route)}</h1>
           <span>{routeLine}</span>
         </div>
@@ -198,6 +377,7 @@ export function JourneyClient710E() {
           <strong>{money(route.total, search.currency)}</strong>
           <span>{route.nights} nights · {stops.length} stops</span>
           <PriceEvidenceBadge evidence={route.evidence} />
+          {savedMode ? <a className="gv-journey-check-prices" href={`/react/booking/?tripId=${encodeURIComponent(tripId)}`}>Check current prices</a> : null}
         </div>
       </header>
 

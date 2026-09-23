@@ -7,3 +7,9 @@
 @media(max-width:900px){.gv-journey-layout{grid-template-columns:1fr}.gv-journey-rail{position:static;order:-1}.gv-journey-map{height:300px}.gv-journey-hero{align-items:flex-start;flex-direction:column}.gv-journey-hero__numbers{text-align:left;align-items:flex-start}.gv-journey-story{padding-left:28px}}
 @media(max-width:620px){.gv-journey-page{padding:18px 14px 52px}.gv-journey-hero{padding:22px 20px;border-radius:18px}.gv-journey-stop__image{height:180px}.gv-journey-stop__title{flex-direction:column}.gv-journey-stop__details{grid-template-columns:1fr}.gv-journey-flight{grid-template-columns:34px 1fr}.gv-journey-flight>small{grid-column:2;text-align:left;max-width:max-content}.gv-journey-origin{grid-template-columns:1fr}.gv-journey-origin small{display:block}.gv-journey-map{height:260px}.gv-journey-stop__fallback strong{font-size:2.8rem}}
 @media(prefers-reduced-motion:reduce){.gv-journey-stop,.gv-journey-map-pin,.gv-journey-stop__image.has-image img{transition:none}.gv-journey-spinner{animation-duration:1.8s}}
+
+
+/* GV-WEB-FE-R3.2 — owner-private saved journey stays inside the React surface. */
+.gv-journey-check-prices{display:inline-flex;align-items:center;justify-content:center;min-height:40px;margin-top:4px;padding:9px 13px;border:1px solid rgba(255,255,255,.28);border-radius:10px;background:#fff;color:#07334a;text-decoration:none;font-size:.78rem;font-weight:900;box-shadow:0 8px 18px rgba(3,28,44,.14)}
+.gv-journey-check-prices:hover{background:#f0fbfa}
+.gv-journey-check-prices:focus-visible{outline:3px solid #f6c667;outline-offset:2px}
