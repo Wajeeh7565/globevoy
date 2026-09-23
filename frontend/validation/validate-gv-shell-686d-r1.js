@@ -31,10 +31,10 @@ check('No active-page underline remains in shell CSS', !css.includes('.gv-nav') 
 check('No hamburger or mobile menu is introduced', !shell.includes('gv-burger') && !shell.includes('gv-mobile-menu') && !css.includes('.gv-burger'));
 check('Logo returns to the canonical homepage', header.includes('class="gv-brand"') && header.includes("root('index.html')") && header.includes('aria-label="Globevoy home"'));
 check('Account-aware header keeps canonical React account destinations in the unified menu', shell.includes('const accountBaseHref =') && shell.includes("root('react/account/')") && shell.includes("root('react/my-trips/')") && shell.includes("root('react/travel-profile/')") && header.includes('data-gv-shell-account-nav') && !header.includes('aria-label="Travel profile"'));
-check('Mobile keeps compact account-aware Sign in or Account label with accessible name', header.includes('gv-auth__short') && header.includes('${accountLabel}') && header.includes("signedIn ? 'Open your account' : 'Sign in or create an account'"));
+check('Mobile keeps compact account-aware controls with accessible names', shell.includes('gv-account-nav__signin') && shell.includes('aria-label="Account navigation"') && shell.includes('aria-label="Open account menu for ${account.identity}"') && css.includes('@media(max-width:520px)'));
 check('Header is lower weight and compact', css.includes('--gv-header-h:60px') && css.includes('box-shadow:0 6px 18px') && css.includes('justify-content:space-between'));
 check('Logo and profile remain mobile tap targets', css.includes('min-height:44px') && css.includes('min-height:42px'));
-check('Keyboard focus states are explicit', css.includes('.gv-brand:focus-visible') && css.includes('.gv-auth:focus-visible'));
+check('Keyboard focus states are explicit', css.includes('.gv-brand:focus-visible') && css.includes('.gv-account-nav__signin:focus-visible') && css.includes('.gv-account-nav__menu>summary:focus-visible'));
 check('Shell still prevents page-level horizontal overflow', css.includes('body.gv-canonical{overflow-x:hidden!important'));
 check('All canonical shell pages retain 686D CSS and load an approved shell cache key', shellPages.every((name) => { const value = read(name); return value.includes('shell.css?v=686d-r1') && /shell-670f\.js\?v=(?:686d-r1|705b-r3)/.test(value); }));
 check('Footer preserves secondary Plan, Learn and Legal links', ['Start a trip', 'Explore destinations', 'How it works', 'Trust and pricing', 'Privacy', 'Terms', 'Affiliate disclosure'].every((label) => shell.includes(label)));
