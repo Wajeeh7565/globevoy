@@ -47,7 +47,575 @@ jobs:
         run: |
           changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           printf '%s\n' "$changed"
-          if printf '%s\n' "$changed" | grep -Eq '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$'; then
+          if printf '%s\n' "$changed" | grep -Eq '^frontend/validation/validate-gv-web-fe-r3-1b\.js            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+              echo '708C must not modify the proven legacy frontend.' >&2
+              exit 1
+            fi
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+            if [ -n "$unexpected_backend" ]; then
+              echo '708C may change only its bounded staging hotel adapter/wrapper/validator backend files:' >&2
+              printf '%s\n' "$unexpected_backend" >&2
+              exit 1
+            fi
+          elif [ -f web/validation/validate-gv-web-708a.mjs ]; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+              echo '708A must not modify the proven legacy frontend or backend.' >&2
+              exit 1
+            fi
+          elif [ -f backend/validate-gv-web-707b.js ]; then
+            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+              echo '707B must not modify the proven legacy frontend.' >&2
+              exit 1
+            fi
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/services/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
+            if [ -n "$unexpected_backend" ]; then
+              echo '707B may change only its staging wrapper/service/validator backend files:' >&2
+              printf '%s\n' "$unexpected_backend" >&2
+              exit 1
+            fi
+          elif [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+              echo 'React migration must not modify the proven frontend or backend.' >&2
+              exit 1
+            fi
+          fi
+
+      - name: Install pinned framework dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Verify pinned dependency contract
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          const expected = {
+            dependencies: {
+              next: '15.5.21',
+              react: '19.2.7',
+              'react-dom': '19.2.7'
+            },
+            devDependencies: {
+              '@types/node': '22.20.1',
+              '@types/react': '19.2.18',
+              '@types/react-dom': '19.2.4',
+              typescript: '5.9.3'
+            }
+          };
+          if (Number(lock.lockfileVersion) < 3) {
+            throw new Error(`Unexpected npm lockfileVersion: ${lock.lockfileVersion}`);
+          }
+          const root = lock.packages && lock.packages[''];
+          if (!root) throw new Error('Generated package-lock is missing the root package contract.');
+          for (const [group, entries] of Object.entries(expected)) {
+            for (const [name, version] of Object.entries(entries)) {
+              if (pkg[group]?.[name] !== version) {
+                throw new Error(`package.json ${group}.${name} changed: ${pkg[group]?.[name]} !== ${version}`);
+              }
+              if (root[group]?.[name] !== version) {
+                throw new Error(`package-lock root ${group}.${name} changed: ${root[group]?.[name]} !== ${version}`);
+              }
+              const installed = JSON.parse(fs.readFileSync(path.join('node_modules', name, 'package.json'), 'utf8'));
+              if (installed.version !== version) {
+                throw new Error(`Installed ${name} changed: ${installed.version} !== ${version}`);
+              }
+            }
+          }
+          console.log('Pinned React dependency contract verified.');
+          NODE
+          npm ls --depth=0
+
+      - name: TypeScript strict validation
+        run: npm run typecheck
+
+      - name: Validate approved React successor contracts
+        working-directory: .
+        run: |
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            node web/validation/validate-gv-web-707a.mjs
+          fi
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            node backend/validate-gv-web-707b.js
+          fi
+          if [ -f backend/validate-gv-web-707b-r1.js ]; then
+            node backend/validate-gv-web-707b-r1.js
+          fi
+          if [ -f web/validation/validate-gv-web-708a.mjs ]; then
+            node web/validation/validate-gv-web-708a.mjs
+          fi
+          if [ -f web/validation/validate-gv-web-fe-r3.mjs ]; then
+            node web/validation/validate-gv-web-fe-r3.mjs
+          fi
+
+      - name: Validate Trip Review pricing and My Trips behaviour
+        working-directory: .
+        run: node --test web/validation/validate-gv-live-712c.test.mjs
+
+      - name: Build static Next.js application
+        run: npm run build
+
+      - name: Verify static export and migration boundary
+        run: |
+          test -f out/index.html
+          grep -q 'HomeDiscoveryClient' app/page.tsx
+          test -f components/discovery/home-discovery-client.tsx
+          grep -q "output: 'export'" next.config.ts
+          grep -q '15.5.21' package.json
+          grep -q '19.2.7' package.json
+          grep -q '22.20.1' package.json
+          grep -q '19.2.18' package.json
+          grep -q '19.2.4' package.json
+          grep -q '5.9.3' package.json
+          ! grep -R -E 'DUFFEL_ACCESS_TOKEN|AWS_SECRET_ACCESS_KEY|client_secret|Cognito.*secret' app components lib package.json next.config.ts
+          if [ -f app/my-trips/page.tsx ]; then
+            test -f out/account/index.html
+            test -f out/my-trips/index.html
+            grep -q "basePath: '/react'" next.config.ts
+            grep -q '/react/_next/' out/account/index.html
+            grep -q '/react/_next/' out/my-trips/index.html
+          fi
+          if [ -f app/booking/page.tsx ]; then
+            test -f out/booking/index.html
+            grep -q '/react/_next/' out/booking/index.html
+          fi
+          if [ -f app/results/page.tsx ]; then
+            test -f out/results/index.html
+            grep -q '/react/_next/' out/results/index.html
+          fi
+
+      - name: Verify versioned Amplify composite artifact
+        working-directory: .
+        run: |
+          test -f amplify.yml
+          grep -q 'GV-WEB-707A-R1 composite staging build' amplify.yml
+          grep -q 'baseDirectory: amplify-publish' amplify.yml
+          grep -q 'cp -a frontend/. amplify-publish/' amplify.yml
+          grep -q 'cp -a web/out/. amplify-publish/react/' amplify.yml
+          rm -rf amplify-publish
+          mkdir -p amplify-publish/react
+          cp -a frontend/. amplify-publish/
+          cp -a web/out/. amplify-publish/react/
+          test -f amplify-publish/index.html
+          test -f amplify-publish/react/index.html
+          test -f amplify-publish/react/account/index.html
+          test -f amplify-publish/react/my-trips/index.html
+          grep -q '/react/_next/' amplify-publish/react/index.html
+          grep -q '/react/_next/' amplify-publish/react/account/index.html
+          grep -q '/react/_next/' amplify-publish/react/my-trips/index.html
+          if [ -f web/app/booking/page.tsx ]; then
+            test -f amplify-publish/react/booking/index.html
+            grep -q '/react/_next/' amplify-publish/react/booking/index.html
+          fi
+          if [ -f web/app/results/page.tsx ]; then
+            test -f amplify-publish/react/results/index.html
+            grep -q '/react/_next/' amplify-publish/react/results/index.html
+          fi
+
+      - name: Preserve account, booking and Duffel regressions for React successors
+        working-directory: .
+        run: |
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            node backend/validate-gv-account-705b-r3.js
+            node backend/validate-gv-account-705c.js
+            node backend/validate-gv-account-705c-r4.js
+            node backend/validate-gv-book-706a.js
+          fi
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            node backend/validate-gv-flight-703c.js
+            node backend/validate-gv-flight-703e.js
+          fi
+
+      - name: Capture generated dependency lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: gv-web-706r-package-lock
+          path: web/package-lock.json
+          if-no-files-found: error
+          retention-days: 7
+
+; then
+            unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(frontend/(about|booking|create-account|explore|how-it-works|index|mixed-results|multi-city-trip|multi-city|multicity-visualizer|saved-trips|sign-in|trip|trust)\.html|frontend/scripts/shell-670f\.js|frontend/styles/shell\.css|frontend/validation/validate-gv-shell-686d-r1\.js|frontend/validation/validate-gv-web-fe-r3-1b\.js|\.github/workflows/validate\.yml|\.github/workflows/validate-706r\.yml)            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+              echo '708C must not modify the proven legacy frontend.' >&2
+              exit 1
+            fi
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+            if [ -n "$unexpected_backend" ]; then
+              echo '708C may change only its bounded staging hotel adapter/wrapper/validator backend files:' >&2
+              printf '%s\n' "$unexpected_backend" >&2
+              exit 1
+            fi
+          elif [ -f web/validation/validate-gv-web-708a.mjs ]; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+              echo '708A must not modify the proven legacy frontend or backend.' >&2
+              exit 1
+            fi
+          elif [ -f backend/validate-gv-web-707b.js ]; then
+            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+              echo '707B must not modify the proven legacy frontend.' >&2
+              exit 1
+            fi
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/services/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
+            if [ -n "$unexpected_backend" ]; then
+              echo '707B may change only its staging wrapper/service/validator backend files:' >&2
+              printf '%s\n' "$unexpected_backend" >&2
+              exit 1
+            fi
+          elif [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+              echo 'React migration must not modify the proven frontend or backend.' >&2
+              exit 1
+            fi
+          fi
+
+      - name: Install pinned framework dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Verify pinned dependency contract
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          const expected = {
+            dependencies: {
+              next: '15.5.21',
+              react: '19.2.7',
+              'react-dom': '19.2.7'
+            },
+            devDependencies: {
+              '@types/node': '22.20.1',
+              '@types/react': '19.2.18',
+              '@types/react-dom': '19.2.4',
+              typescript: '5.9.3'
+            }
+          };
+          if (Number(lock.lockfileVersion) < 3) {
+            throw new Error(`Unexpected npm lockfileVersion: ${lock.lockfileVersion}`);
+          }
+          const root = lock.packages && lock.packages[''];
+          if (!root) throw new Error('Generated package-lock is missing the root package contract.');
+          for (const [group, entries] of Object.entries(expected)) {
+            for (const [name, version] of Object.entries(entries)) {
+              if (pkg[group]?.[name] !== version) {
+                throw new Error(`package.json ${group}.${name} changed: ${pkg[group]?.[name]} !== ${version}`);
+              }
+              if (root[group]?.[name] !== version) {
+                throw new Error(`package-lock root ${group}.${name} changed: ${root[group]?.[name]} !== ${version}`);
+              }
+              const installed = JSON.parse(fs.readFileSync(path.join('node_modules', name, 'package.json'), 'utf8'));
+              if (installed.version !== version) {
+                throw new Error(`Installed ${name} changed: ${installed.version} !== ${version}`);
+              }
+            }
+          }
+          console.log('Pinned React dependency contract verified.');
+          NODE
+          npm ls --depth=0
+
+      - name: TypeScript strict validation
+        run: npm run typecheck
+
+      - name: Validate approved React successor contracts
+        working-directory: .
+        run: |
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            node web/validation/validate-gv-web-707a.mjs
+          fi
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            node backend/validate-gv-web-707b.js
+          fi
+          if [ -f backend/validate-gv-web-707b-r1.js ]; then
+            node backend/validate-gv-web-707b-r1.js
+          fi
+          if [ -f web/validation/validate-gv-web-708a.mjs ]; then
+            node web/validation/validate-gv-web-708a.mjs
+          fi
+          if [ -f web/validation/validate-gv-web-fe-r3.mjs ]; then
+            node web/validation/validate-gv-web-fe-r3.mjs
+          fi
+
+      - name: Validate Trip Review pricing and My Trips behaviour
+        working-directory: .
+        run: node --test web/validation/validate-gv-live-712c.test.mjs
+
+      - name: Build static Next.js application
+        run: npm run build
+
+      - name: Verify static export and migration boundary
+        run: |
+          test -f out/index.html
+          grep -q 'HomeDiscoveryClient' app/page.tsx
+          test -f components/discovery/home-discovery-client.tsx
+          grep -q "output: 'export'" next.config.ts
+          grep -q '15.5.21' package.json
+          grep -q '19.2.7' package.json
+          grep -q '22.20.1' package.json
+          grep -q '19.2.18' package.json
+          grep -q '19.2.4' package.json
+          grep -q '5.9.3' package.json
+          ! grep -R -E 'DUFFEL_ACCESS_TOKEN|AWS_SECRET_ACCESS_KEY|client_secret|Cognito.*secret' app components lib package.json next.config.ts
+          if [ -f app/my-trips/page.tsx ]; then
+            test -f out/account/index.html
+            test -f out/my-trips/index.html
+            grep -q "basePath: '/react'" next.config.ts
+            grep -q '/react/_next/' out/account/index.html
+            grep -q '/react/_next/' out/my-trips/index.html
+          fi
+          if [ -f app/booking/page.tsx ]; then
+            test -f out/booking/index.html
+            grep -q '/react/_next/' out/booking/index.html
+          fi
+          if [ -f app/results/page.tsx ]; then
+            test -f out/results/index.html
+            grep -q '/react/_next/' out/results/index.html
+          fi
+
+      - name: Verify versioned Amplify composite artifact
+        working-directory: .
+        run: |
+          test -f amplify.yml
+          grep -q 'GV-WEB-707A-R1 composite staging build' amplify.yml
+          grep -q 'baseDirectory: amplify-publish' amplify.yml
+          grep -q 'cp -a frontend/. amplify-publish/' amplify.yml
+          grep -q 'cp -a web/out/. amplify-publish/react/' amplify.yml
+          rm -rf amplify-publish
+          mkdir -p amplify-publish/react
+          cp -a frontend/. amplify-publish/
+          cp -a web/out/. amplify-publish/react/
+          test -f amplify-publish/index.html
+          test -f amplify-publish/react/index.html
+          test -f amplify-publish/react/account/index.html
+          test -f amplify-publish/react/my-trips/index.html
+          grep -q '/react/_next/' amplify-publish/react/index.html
+          grep -q '/react/_next/' amplify-publish/react/account/index.html
+          grep -q '/react/_next/' amplify-publish/react/my-trips/index.html
+          if [ -f web/app/booking/page.tsx ]; then
+            test -f amplify-publish/react/booking/index.html
+            grep -q '/react/_next/' amplify-publish/react/booking/index.html
+          fi
+          if [ -f web/app/results/page.tsx ]; then
+            test -f amplify-publish/react/results/index.html
+            grep -q '/react/_next/' amplify-publish/react/results/index.html
+          fi
+
+      - name: Preserve account, booking and Duffel regressions for React successors
+        working-directory: .
+        run: |
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            node backend/validate-gv-account-705b-r3.js
+            node backend/validate-gv-account-705c.js
+            node backend/validate-gv-account-705c-r4.js
+            node backend/validate-gv-book-706a.js
+          fi
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            node backend/validate-gv-flight-703c.js
+            node backend/validate-gv-flight-703e.js
+          fi
+
+      - name: Capture generated dependency lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: gv-web-706r-package-lock
+          path: web/package-lock.json
+          if-no-files-found: error
+          retention-days: 7
+
+ || true)"
+            if [ -n "$unexpected" ]; then
+              echo 'GV-WEB-FE-R3.1B may change only the bounded shared classic shell, its cache keys and validators:' >&2
+              printf '%s\n' "$unexpected" >&2
+              exit 1
+            fi
+          elif printf '%s\n' "$changed" | grep -Eq '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+              echo '708C must not modify the proven legacy frontend.' >&2
+              exit 1
+            fi
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+            if [ -n "$unexpected_backend" ]; then
+              echo '708C may change only its bounded staging hotel adapter/wrapper/validator backend files:' >&2
+              printf '%s\n' "$unexpected_backend" >&2
+              exit 1
+            fi
+          elif [ -f web/validation/validate-gv-web-708a.mjs ]; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+              echo '708A must not modify the proven legacy frontend or backend.' >&2
+              exit 1
+            fi
+          elif [ -f backend/validate-gv-web-707b.js ]; then
+            if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
+              echo '707B must not modify the proven legacy frontend.' >&2
+              exit 1
+            fi
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/services/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
+            if [ -n "$unexpected_backend" ]; then
+              echo '707B may change only its staging wrapper/service/validator backend files:' >&2
+              printf '%s\n' "$unexpected_backend" >&2
+              exit 1
+            fi
+          elif [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+              echo 'React migration must not modify the proven frontend or backend.' >&2
+              exit 1
+            fi
+          fi
+
+      - name: Install pinned framework dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Verify pinned dependency contract
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          const expected = {
+            dependencies: {
+              next: '15.5.21',
+              react: '19.2.7',
+              'react-dom': '19.2.7'
+            },
+            devDependencies: {
+              '@types/node': '22.20.1',
+              '@types/react': '19.2.18',
+              '@types/react-dom': '19.2.4',
+              typescript: '5.9.3'
+            }
+          };
+          if (Number(lock.lockfileVersion) < 3) {
+            throw new Error(`Unexpected npm lockfileVersion: ${lock.lockfileVersion}`);
+          }
+          const root = lock.packages && lock.packages[''];
+          if (!root) throw new Error('Generated package-lock is missing the root package contract.');
+          for (const [group, entries] of Object.entries(expected)) {
+            for (const [name, version] of Object.entries(entries)) {
+              if (pkg[group]?.[name] !== version) {
+                throw new Error(`package.json ${group}.${name} changed: ${pkg[group]?.[name]} !== ${version}`);
+              }
+              if (root[group]?.[name] !== version) {
+                throw new Error(`package-lock root ${group}.${name} changed: ${root[group]?.[name]} !== ${version}`);
+              }
+              const installed = JSON.parse(fs.readFileSync(path.join('node_modules', name, 'package.json'), 'utf8'));
+              if (installed.version !== version) {
+                throw new Error(`Installed ${name} changed: ${installed.version} !== ${version}`);
+              }
+            }
+          }
+          console.log('Pinned React dependency contract verified.');
+          NODE
+          npm ls --depth=0
+
+      - name: TypeScript strict validation
+        run: npm run typecheck
+
+      - name: Validate approved React successor contracts
+        working-directory: .
+        run: |
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            node web/validation/validate-gv-web-707a.mjs
+          fi
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            node backend/validate-gv-web-707b.js
+          fi
+          if [ -f backend/validate-gv-web-707b-r1.js ]; then
+            node backend/validate-gv-web-707b-r1.js
+          fi
+          if [ -f web/validation/validate-gv-web-708a.mjs ]; then
+            node web/validation/validate-gv-web-708a.mjs
+          fi
+          if [ -f web/validation/validate-gv-web-fe-r3.mjs ]; then
+            node web/validation/validate-gv-web-fe-r3.mjs
+          fi
+
+      - name: Validate Trip Review pricing and My Trips behaviour
+        working-directory: .
+        run: node --test web/validation/validate-gv-live-712c.test.mjs
+
+      - name: Build static Next.js application
+        run: npm run build
+
+      - name: Verify static export and migration boundary
+        run: |
+          test -f out/index.html
+          grep -q 'HomeDiscoveryClient' app/page.tsx
+          test -f components/discovery/home-discovery-client.tsx
+          grep -q "output: 'export'" next.config.ts
+          grep -q '15.5.21' package.json
+          grep -q '19.2.7' package.json
+          grep -q '22.20.1' package.json
+          grep -q '19.2.18' package.json
+          grep -q '19.2.4' package.json
+          grep -q '5.9.3' package.json
+          ! grep -R -E 'DUFFEL_ACCESS_TOKEN|AWS_SECRET_ACCESS_KEY|client_secret|Cognito.*secret' app components lib package.json next.config.ts
+          if [ -f app/my-trips/page.tsx ]; then
+            test -f out/account/index.html
+            test -f out/my-trips/index.html
+            grep -q "basePath: '/react'" next.config.ts
+            grep -q '/react/_next/' out/account/index.html
+            grep -q '/react/_next/' out/my-trips/index.html
+          fi
+          if [ -f app/booking/page.tsx ]; then
+            test -f out/booking/index.html
+            grep -q '/react/_next/' out/booking/index.html
+          fi
+          if [ -f app/results/page.tsx ]; then
+            test -f out/results/index.html
+            grep -q '/react/_next/' out/results/index.html
+          fi
+
+      - name: Verify versioned Amplify composite artifact
+        working-directory: .
+        run: |
+          test -f amplify.yml
+          grep -q 'GV-WEB-707A-R1 composite staging build' amplify.yml
+          grep -q 'baseDirectory: amplify-publish' amplify.yml
+          grep -q 'cp -a frontend/. amplify-publish/' amplify.yml
+          grep -q 'cp -a web/out/. amplify-publish/react/' amplify.yml
+          rm -rf amplify-publish
+          mkdir -p amplify-publish/react
+          cp -a frontend/. amplify-publish/
+          cp -a web/out/. amplify-publish/react/
+          test -f amplify-publish/index.html
+          test -f amplify-publish/react/index.html
+          test -f amplify-publish/react/account/index.html
+          test -f amplify-publish/react/my-trips/index.html
+          grep -q '/react/_next/' amplify-publish/react/index.html
+          grep -q '/react/_next/' amplify-publish/react/account/index.html
+          grep -q '/react/_next/' amplify-publish/react/my-trips/index.html
+          if [ -f web/app/booking/page.tsx ]; then
+            test -f amplify-publish/react/booking/index.html
+            grep -q '/react/_next/' amplify-publish/react/booking/index.html
+          fi
+          if [ -f web/app/results/page.tsx ]; then
+            test -f amplify-publish/react/results/index.html
+            grep -q '/react/_next/' amplify-publish/react/results/index.html
+          fi
+
+      - name: Preserve account, booking and Duffel regressions for React successors
+        working-directory: .
+        run: |
+          if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+            node backend/validate-gv-account-705b-r3.js
+            node backend/validate-gv-account-705c.js
+            node backend/validate-gv-account-705c-r4.js
+            node backend/validate-gv-book-706a.js
+          fi
+          if [ -f backend/validate-gv-web-707b.js ]; then
+            node backend/validate-gv-flight-703c.js
+            node backend/validate-gv-flight-703e.js
+          fi
+
+      - name: Capture generated dependency lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: gv-web-706r-package-lock
+          path: web/package-lock.json
+          if-no-files-found: error
+          retention-days: 7
+
+; then
             if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
               echo '708C must not modify the proven legacy frontend.' >&2
               exit 1
