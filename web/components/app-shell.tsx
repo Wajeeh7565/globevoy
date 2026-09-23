@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { AuthProvider } from '@/components/account/auth-provider';
 import { AccountNav } from '@/components/account/account-nav';
@@ -10,25 +9,50 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <AuthProvider>
       <div className="gv-app-shell">
-        <header className="gv-header">
+        <header className="gv-header" data-gv-shell-version="GV-WEB-FE-R3">
           <div className="gv-header__inner">
-            <Link className="gv-brand" href="/" aria-label="Globevoy home">
+            <a className="gv-brand" href="/" aria-label="Globevoy home">
               <img className="gv-brand__mark-image" src={BRAND_MARK_SRC} alt="" aria-hidden="true" />
               <img className="gv-brand__wordmark" src={BRAND_WORDMARK_SRC} alt="Globevoy" />
-            </Link>
+            </a>
             <div className="gv-header__actions">
               <AccountNav />
             </div>
           </div>
         </header>
         <main>{children}</main>
-        <footer className="gv-footer">
+        <footer className="gv-footer" data-gv-shell-version="GV-WEB-FE-R3">
           <div className="gv-footer__inner">
-            <div className="gv-footer__brand">
-              <strong>Globevoy</strong>
-              <span>See where your budget can take you.</span>
+            <div className="gv-footer__top">
+              <div className="gv-footer__brand">
+                <a className="gv-footer__brand-link" href="/" aria-label="Globevoy home">Globevoy</a>
+                <p className="gv-footer__tag">Plan a complete trip around your total group budget, then confirm live prices and availability with booking partners.</p>
+              </div>
+              <div>
+                <h2>Plan</h2>
+                <a href="/">Start a trip</a>
+                <a href="/explore.html">Explore destinations</a>
+                <a href="/react/travel-profile/">Travel profile</a>
+                <a href="/react/my-trips/">My Trips</a>
+                <a href="/react/account/">Account</a>
+              </div>
+              <div>
+                <h2>Learn</h2>
+                <a href="/how-it-works.html">How it works</a>
+                <a href="/trust.html">Trust and pricing</a>
+                <a href="/about.html">About Globevoy</a>
+              </div>
+              <div>
+                <h2>Legal</h2>
+                <a href="/privacy.html">Privacy</a>
+                <a href="/terms.html">Terms</a>
+                <a href="/affiliate.html">Affiliate disclosure</a>
+              </div>
             </div>
-            <p className="gv-footer__trust">Trip prices can change. Globevoy shows the evidence behind important prices and asks you to verify current availability before continuing with an external travel partner.</p>
+            <div className="gv-footer__bottom">
+              <p className="gv-footer__disclosure">Prices, availability and booking details can change and are confirmed on partner websites. Globevoy may earn a referral commission when a traveller continues to a partner.</p>
+              <p>© 2026 Globevoy</p>
+            </div>
           </div>
         </footer>
       </div>

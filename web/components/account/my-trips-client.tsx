@@ -117,7 +117,7 @@ export function MyTripsClient() {
         <p>Guest discovery stays open. Sign in when you want to save, continue, and re-check a trip later.</p>
         <div className="gv-account-actions">
           <Button onClick={() => { void signIn('/react/my-trips/'); }}>Sign in or create account</Button>
-          <a className="gv-button gv-button--secondary" href="/react/">Keep exploring</a>
+          <a className="gv-button gv-button--secondary" href="/">Keep exploring</a>
         </div>
         {authStatus ? <p className="gv-account-status" role="status">{authStatus}</p> : null}
       </div>
@@ -135,7 +135,7 @@ export function MyTripsClient() {
         <div className="gv-my-trips-visual-hero__aside">
           <span>{trips.length}<small>saved</small></span>
           <span>{multiCount}<small>multi-city</small></span>
-          <a className="gv-button gv-button--primary" href="/react/">+ Plan another trip</a>
+          <a className="gv-button gv-button--primary" href="/">+ Plan another trip</a>
         </div>
       </section>
 
@@ -157,7 +157,7 @@ export function MyTripsClient() {
           <div className="gv-my-trips-empty-visual" aria-hidden="true"><span>⌖</span><i>●━━✈━━●</i></div>
           <h2>Your first trip will land here</h2>
           <p>Explore a journey, save it, and Globevoy will keep the snapshot ready for your next visit.</p>
-          <a className="gv-button gv-button--primary" href="/react/">Explore trips</a>
+          <a className="gv-button gv-button--primary" href="/">Explore trips</a>
         </div>
       ) : null}
 

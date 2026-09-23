@@ -119,7 +119,7 @@ export function TravelProfileClient() {
           <p>Guest discovery stays available without an account. Sign in when you want Globevoy to remember your home airport, travel style, places you have visited and places you want to explore.</p>
           <div className="gv-account-actions">
             <Button onClick={() => { void signIn('/react/travel-profile/'); }}>Sign in or create account</Button>
-            <Link className="gv-button gv-button--secondary" href="/">Continue as guest</Link>
+            <a className="gv-button gv-button--secondary" href="/">Continue as guest</a>
           </div>
           {authStatus ? <p className="gv-account-status" role="status">{authStatus}</p> : null}
         </div>
