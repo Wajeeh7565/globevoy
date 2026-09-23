@@ -84,6 +84,9 @@ jobs:
       - name: GV-PERF-R5 bounded rescue ordering
         run: node backend/validate-gv-perf-r5.test.js
 
+      - name: GV-WEB-FE-R2 canonical Account and My Trips routing
+        run: node backend/validate-gv-web-fe-r2.js
+
       - name: Current runtime syntax checks
         shell: bash
         run: |
@@ -93,6 +96,7 @@ jobs:
           node --check backend/generated-tour.js
           node --check backend/services/affordable-flight-discovery-684b.js
           node --check backend/validate-gv-perf-r5.test.js
+          node --check backend/validate-gv-web-fe-r2.js
           node --check backend/services/route-diversity-687b.js
           node --check backend/services/worldwide-city-registry-701a.js
           node --check backend/services/global-recommendation-coverage-702a.js
