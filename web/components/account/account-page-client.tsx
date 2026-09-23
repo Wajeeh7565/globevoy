@@ -23,7 +23,7 @@ export function AccountPageClient() {
         </div>
         <div className="gv-account-actions">
           <Button onClick={() => { void signIn('/react/account/'); }}>Sign in or create account</Button>
-          <Link className="gv-button gv-button--secondary" href="/">Continue as guest</Link>
+          <a className="gv-button gv-button--secondary" href="/">Continue as guest</a>
         </div>
         <p className="gv-muted">Account creation and password recovery are handled by Globevoy&apos;s secure Amazon Cognito managed sign-in rather than by a custom password form on this page.</p>
         {status ? <p className="gv-account-status" role="status">{status}</p> : null}
