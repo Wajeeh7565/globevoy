@@ -46,6 +46,7 @@
   const safeAccountIdentity = escapeHtml(accountIdentity);
   const accountInitial = escapeHtml(String(accountIdentity).trim().charAt(0).toUpperCase() || 'G');
   const currentReturnTo = `${location.pathname}${location.search}${location.hash}`;
+  const safeCurrentReturnTo = escapeHtml(currentReturnTo);
 
   const accountNavigation = signedIn
     ? `<nav class="gv-account-nav" aria-label="Account navigation">
@@ -87,7 +88,7 @@
         </details>
       </nav>`
     : `<nav class="gv-account-nav" aria-label="Account navigation">
-        <button type="button" class="gv-account-nav__signin" data-gv-auth-signin data-return-to="${currentReturnTo.replace(/"/g, '&quot;')}">Sign in</button>
+        <button type="button" class="gv-account-nav__signin" data-gv-auth-signin data-return-to="${safeCurrentReturnTo}">Sign in</button>
       </nav>`;
 
   const header = `<div class="gv-header__inner">
