@@ -1,10 +1,14 @@
-/* GV-BOOK-706A — owner-private Saved Trip -> Booking Workspace handoff. */
+/* GV-WEB-FE-R1 — owner-private Saved Trip -> canonical React Trip Review.
+ * Legacy 706A handoff helpers remain for backward-compatible old booking URLs,
+ * but My Trips now sends users to one current-price review surface. */
 (function () {
   'use strict';
 
   if (window.GlobevoyMyTripsBooking706A) return;
 
   const VERSION = 'GV-BOOK-706A';
+  const CANONICAL_REVIEW_VERSION = 'GV-WEB-FE-R1';
+  const CANONICAL_REVIEW_PATH = '/react/booking/';
   const HANDOFF_PREFIX = 'gv.account.booking.handoff.706a.';
   const HANDOFF_TTL_MS = 15 * 60 * 1000;
 
@@ -12,6 +16,10 @@
   function clean(value) { return String(value == null ? '' : value).trim(); }
   function number(value, fallback = 0) { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : fallback; }
   function validTripId(value) { return /^[A-Za-z0-9_-]{8,80}$/.test(clean(value)); }
+  function canonicalReviewUrl(tripId) {
+    const id = clean(tripId);
+    return validTripId(id) ? `${CANONICAL_REVIEW_PATH}?tripId=${encodeURIComponent(id)}` : '';
+  }
   function clone(value, fallback = null) { try { return JSON.parse(JSON.stringify(value)); } catch (_) { return fallback; } }
   function announce(message, kind = '') {
     const node = document.getElementById('gv-saved-trips-status');
@@ -168,20 +176,19 @@
   async function continueToBooking(tripId, button) {
     const id = clean(tripId);
     if (!validTripId(id) || !runtime()?.api?.get) return;
-    if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); button.textContent = 'Loading…'; }
+    if (button) { button.disabled = true; button.setAttribute('aria-busy', 'true'); button.textContent = 'Opening review…'; }
     try {
-      // Fetch the exact owner-private record by tripId immediately before handoff.
-      // The 705C API derives ownership only from the verified Cognito subject.
+      // Preserve the owner-private boundary before navigation: verify that this
+      // exact tripId is readable by the current Cognito subject, then let the
+      // React Trip Review load the record again and perform fresh revalidation.
       const trip = await runtime().api.get(id);
       if (!trip || clean(trip.tripId) !== id) throw new Error('saved-trip-not-found');
-      const handoff = buildHandoff(trip);
-      sessionStorage.setItem(`${HANDOFF_PREFIX}${id}`, JSON.stringify(handoff));
-      const path = bookingUrlForTrip(trip);
-      if (!path) throw new Error('booking-route-unavailable');
+      const path = canonicalReviewUrl(id);
+      if (!path) throw new Error('trip-review-route-unavailable');
       location.assign(path);
     } catch (error) {
-      if (button) { button.disabled = false; button.setAttribute('aria-busy', 'false'); button.textContent = 'Continue booking'; }
-      announce(error?.status === 401 ? 'Sign in again to continue this saved trip.' : 'This saved trip could not be prepared for booking. Your account data is unchanged.', 'error');
+      if (button) { button.disabled = false; button.setAttribute('aria-busy', 'false'); button.textContent = 'Check current prices'; }
+      announce(error?.status === 401 ? 'Sign in again to review this saved trip.' : 'This saved trip could not be opened for a current-price review. Your account data is unchanged.', 'error');
     }
   }
   function enhanceCards() {
@@ -193,7 +200,7 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.dataset.gvBookSaved = '706a';
-      button.textContent = 'Continue booking';
+      button.textContent = 'Check current prices';
       actions.insertBefore(button, actions.querySelector('[data-gv-delete-saved]') || null);
     });
   }
@@ -221,10 +228,13 @@
 
   window.GlobevoyMyTripsBooking706A = Object.freeze({
     version: VERSION,
+    canonicalReviewVersion: CANONICAL_REVIEW_VERSION,
+    canonicalReviewPath: CANONICAL_REVIEW_PATH,
     continueToBooking,
+    canonicalReviewUrl,
     buildHandoff,
     bookingUrlForTrip,
-    _internal: Object.freeze({ accountTourForBooking, singleOfferForBooking, validTripId })
+    _internal: Object.freeze({ accountTourForBooking, singleOfferForBooking, validTripId, canonicalReviewUrl })
   });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install, { once: true });

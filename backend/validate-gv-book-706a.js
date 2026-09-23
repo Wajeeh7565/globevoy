@@ -22,9 +22,18 @@ function main() {
   assert.match(myTrips, /GV-BOOK-706A/);
   assert.match(myTrips, /runtime\(\)\.api\.get\(id\)/);
   assert.match(myTrips, /data-gv-book-saved/);
-  assert.match(myTrips, /Continue booking/);
+  const continueStart = myTrips.indexOf('async function continueToBooking');
+  const continueEnd = myTrips.indexOf('function enhanceCards', continueStart);
+  const continueBlock = myTrips.slice(continueStart, continueEnd);
+  assert.ok(continueStart >= 0 && continueEnd > continueStart, 'continueToBooking block must be present');
+  assert.match(myTrips, /CANONICAL_REVIEW_VERSION = 'GV-WEB-FE-R1'/);
+  assert.match(myTrips, /CANONICAL_REVIEW_PATH = '\/react\/booking\/'/);
+  assert.match(myTrips, /Check current prices/);
+  assert.match(continueBlock, /runtime\(\)\.api\.get\(id\)/);
+  assert.match(continueBlock, /canonicalReviewUrl\(id\)/);
+  assert.doesNotMatch(continueBlock, /buildHandoff|bookingUrlForTrip|sessionStorage\.setItem/);
   assert.match(myTrips, /HANDOFF_PREFIX = 'gv\.account\.booking\.handoff\.706a\.'/);
-  pass('My Trips fetches the exact owner-private tripId before booking handoff');
+  pass('Classic My Trips verifies the owner-private tripId and routes to the canonical React Trip Review');
 
   assert.match(myTrips, /savedAccountContext706A/);
   assert.match(myTrips, /snapshotOnly: true/);
