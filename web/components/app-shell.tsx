@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { AuthProvider } from '@/components/account/auth-provider';
 import { AccountNav } from '@/components/account/account-nav';
@@ -12,10 +11,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="gv-app-shell">
         <header className="gv-header">
           <div className="gv-header__inner">
-            <Link className="gv-brand" href="/" aria-label="Globevoy home">
+            <a className="gv-brand" href="/" aria-label="Globevoy home">
               <img className="gv-brand__mark-image" src={BRAND_MARK_SRC} alt="" aria-hidden="true" />
               <img className="gv-brand__wordmark" src={BRAND_WORDMARK_SRC} alt="Globevoy" />
-            </Link>
+            </a>
             <div className="gv-header__actions">
               <AccountNav />
             </div>
