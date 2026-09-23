@@ -100,6 +100,9 @@
 
   function renderAuthUi(session = getSession()) {
     if (document.body) document.body.dataset.signedIn = session ? 'true' : 'false';
+    if (window.GlobevoyShellAccountNavR31B?.render) {
+      window.GlobevoyShellAccountNavR31B.render(session);
+    }
     document.querySelectorAll('[data-gv-auth-entry]').forEach((entry) => {
       const full = entry.querySelector('.gv-auth__full');
       const short = entry.querySelector('.gv-auth__short');
