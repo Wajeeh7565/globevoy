@@ -10,37 +10,109 @@
       ? 'https://staging.dy4fw8gx1ccie.amplifyapp.com/react/account/'
       : root('react/account/');
 
-  function hasActiveAccountSession() {
+  function activeAccountSession() {
     try {
       const raw = sessionStorage.getItem('globevoy.auth.session.705b-r3');
-      if (!raw) return false;
+      if (!raw) return null;
       const session = JSON.parse(raw);
-      return Boolean(
-        session &&
-        session.version === 'GV-ACCOUNT-705B-R3' &&
-        session.accessToken &&
-        session.user &&
-        session.user.sub &&
-        Number(session.expiresAt) > Date.now() + 30000
-      );
+      if (
+        !session ||
+        session.version !== 'GV-ACCOUNT-705B-R3' ||
+        !session.accessToken ||
+        !session.user ||
+        !session.user.sub ||
+        Number(session.expiresAt) <= Date.now() + 30000
+      ) return null;
+      return session;
     } catch (_) {
-      return false;
+      return null;
     }
   }
 
-  const signedIn = hasActiveAccountSession();
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function accountIdentity(session) {
+    const identity = session?.user?.email || session?.user?.username || 'Account';
+    const initial = String(identity).trim().charAt(0).toUpperCase() || 'G';
+    return { identity: escapeHtml(identity), initial: escapeHtml(initial) };
+  }
+
   const accountHref = accountBaseHref;
-  const accountLabel = signedIn ? 'Account' : 'Sign in';
   const myTripsHref = root('react/my-trips/');
+  const travelProfileHref = root('react/travel-profile/');
+
+  function accountNavMarkup(session) {
+    if (!session) {
+      return `<nav class="gv-account-nav" aria-label="Account navigation">
+        <button type="button" class="gv-account-nav__signin" data-gv-auth-signin>Sign in</button>
+      </nav>`;
+    }
+
+    const account = accountIdentity(session);
+    return `<nav class="gv-account-nav" aria-label="Account navigation">
+      <a class="gv-account-nav__trips" href="${myTripsHref}">My Trips</a>
+      <details class="gv-account-nav__menu">
+        <summary aria-label="Open account menu for ${account.identity}">
+          <span class="gv-account-nav__avatar" aria-hidden="true">${account.initial}</span>
+          <span>Account</span>
+          <span class="gv-account-nav__chevron" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="gv-account-nav__panel">
+          <div class="gv-account-nav__identity">
+            <span class="gv-account-nav__identity-avatar" aria-hidden="true">${account.initial}</span>
+            <span class="gv-account-nav__identity-copy">
+              <strong>Signed in as</strong>
+              <span>${account.identity}</span>
+            </span>
+          </div>
+          <a class="gv-account-nav__item" href="${travelProfileHref}">
+            <span class="gv-account-nav__item-icon" aria-hidden="true">✈</span>
+            <span class="gv-account-nav__item-copy"><strong>Travel profile</strong><small>Home airport, countries &amp; preferences</small></span>
+            <span class="gv-account-nav__item-arrow" aria-hidden="true">›</span>
+          </a>
+          <a class="gv-account-nav__item" href="${myTripsHref}">
+            <span class="gv-account-nav__item-icon" aria-hidden="true">▣</span>
+            <span class="gv-account-nav__item-copy"><strong>My trips</strong><small>Pick up your saved journeys</small></span>
+            <span class="gv-account-nav__item-arrow" aria-hidden="true">›</span>
+          </a>
+          <a class="gv-account-nav__item" href="${accountHref}">
+            <span class="gv-account-nav__item-icon" aria-hidden="true">◎</span>
+            <span class="gv-account-nav__item-copy"><strong>Account details</strong><small>Session and account information</small></span>
+            <span class="gv-account-nav__item-arrow" aria-hidden="true">›</span>
+          </a>
+          <button class="gv-account-nav__signout" type="button" data-gv-auth-signout>
+            <span class="gv-account-nav__signout-icon" aria-hidden="true">↪</span>
+            <span>Sign out</span>
+          </button>
+        </div>
+      </details>
+    </nav>`;
+  }
+
+  function renderShellAccountNav(session = activeAccountSession()) {
+    document.querySelectorAll('[data-gv-shell-account-nav]').forEach((rootNode) => {
+      rootNode.innerHTML = accountNavMarkup(session);
+    });
+  }
+
+  window.GlobevoyShellAccountNavR31B = Object.freeze({
+    version: 'GV-WEB-FE-R3.1B',
+    render: renderShellAccountNav
+  });
 
   const header = `<div class="gv-header__inner">
     <a class="gv-brand" href="${root('index.html')}" aria-label="Globevoy home">
       <img src="${root('assets/images/globevoy-mark.png')}" alt="">
       <span>Globevoy</span>
     </a>
-    <div class="gv-utils">
-      <a class="gv-auth gv-auth--account" href="${accountHref}" data-gv-auth-entry aria-label="${signedIn ? 'Open your account' : 'Sign in or create an account'}"><span class="gv-auth__full">${accountLabel}</span><span class="gv-auth__short" aria-hidden="true">${accountLabel}</span></a>
-    </div>
+    <div class="gv-utils" data-gv-shell-account-nav></div>
   </div>`;
 
   const footer = `<div class="gv-footer__inner">
@@ -49,7 +121,7 @@
         <a class="gv-footer__brand-link" href="${root('index.html')}" aria-label="Globevoy home"><img class="gv-footer__logo" src="${root('assets/images/globevoy-logo.png')}" alt="Globevoy"></a>
         <p class="gv-footer__tag">Plan a complete trip around your total group budget, then confirm live prices and availability with booking partners.</p>
       </div>
-      <div><h2>Plan</h2><a href="${root('index.html')}">Start a trip</a><a href="${root('explore.html')}">Explore destinations</a><a href="${root('create-account.html')}">Travel profile</a><a href="${myTripsHref}">My Trips</a><a href="${accountHref}">Account</a></div>
+      <div><h2>Plan</h2><a href="${root('index.html')}">Start a trip</a><a href="${root('explore.html')}">Explore destinations</a><a href="${travelProfileHref}">Travel profile</a><a href="${myTripsHref}">My Trips</a><a href="${accountHref}">Account</a></div>
       <div><h2>Learn</h2><a href="${root('how-it-works.html')}">How it works</a><a href="${root('trust.html')}">Trust and pricing</a><a href="${root('about.html')}">About Globevoy</a></div>
       <div><h2>Legal</h2><a href="${root('privacy.html')}">Privacy</a><a href="${root('terms.html')}">Terms</a><a href="${root('affiliate.html')}">Affiliate disclosure</a></div>
     </div>
@@ -68,8 +140,10 @@
     headerRoot.dataset.gvShellVersion = '686d-r1';
     headerRoot.dataset.gvAccountVersion = '705b-r3';
     headerRoot.dataset.gvSavedTripsVersion = '705c';
+    headerRoot.dataset.gvUnifiedAccountNav = 'r3-1b';
     if (body.classList.contains('gv-multi-trip-page')) headerRoot.dataset.gvSavedTripsRouteDetails = '705c-r3';
     headerRoot.innerHTML = header;
+    renderShellAccountNav();
   }
   if (footerRoot) {
     footerRoot.className = 'gv-footer';
