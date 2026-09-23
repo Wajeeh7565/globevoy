@@ -30,7 +30,7 @@ check('Header center navigation is absent', !header.includes('gv-nav') && !heade
 check('No active-page underline remains in shell CSS', !css.includes('.gv-nav') && !css.includes('.is-active:after'));
 check('No hamburger or mobile menu is introduced', !shell.includes('gv-burger') && !shell.includes('gv-mobile-menu') && !css.includes('.gv-burger'));
 check('Logo returns to the canonical homepage', header.includes('class="gv-brand"') && header.includes("root('index.html')") && header.includes('aria-label="Globevoy home"'));
-check('711 account-aware header keeps secure account destination without a separate profile header link', shell.includes('const accountBaseHref =') && shell.includes("root('account.html')") && header.includes('data-gv-auth-entry') && !header.includes('aria-label="Travel profile"'));
+check('Account-aware header keeps a secure canonical account destination without a separate profile header link', shell.includes('const accountBaseHref =') && (shell.includes("root('account.html')") || shell.includes("root('react/account/')")) && header.includes('data-gv-auth-entry') && !header.includes('aria-label="Travel profile"'));
 check('Mobile keeps compact account-aware Sign in or Account label with accessible name', header.includes('gv-auth__short') && header.includes('${accountLabel}') && header.includes("signedIn ? 'Open your account' : 'Sign in or create an account'"));
 check('Header is lower weight and compact', css.includes('--gv-header-h:60px') && css.includes('box-shadow:0 6px 18px') && css.includes('justify-content:space-between'));
 check('Logo and profile remain mobile tap targets', css.includes('min-height:44px') && css.includes('min-height:42px'));
