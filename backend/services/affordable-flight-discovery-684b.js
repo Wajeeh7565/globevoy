@@ -28,6 +28,7 @@ const { normalizeParty } = require('./traveller-pricing');
 const adultScope703E = require('./duffel-adult-scope-703e');
 
 const VERSION_684B = 'GV-REC-684B-R3';
+const PERF_R5_VERSION = 'GV-PERF-R5';
 // R3 is code-gated because the Lambda environment is already at the AWS 4KB
 // aggregate environment-variable ceiling. No new Lambda environment keys are
 // introduced. Activation is still bounded by the existing 684A public pilot.
@@ -86,6 +87,11 @@ function configuredOrigins684B(env = process.env) {
 
 function enabled684BR1(env = process.env) {
   return CODE_ENABLED_684B_R3 && envTrue('ENABLE_DUFFEL_PUBLIC_LIVE_FARE_PILOT_684A', env);
+}
+
+function cheapestFirstRescueR5Enabled(env = process.env, eligibility = {}) {
+  return eligibility?.selectedFlightFallback === true
+    && normalizeWebOrigin684B(env?.CORS_ORIGIN) === STAGING_ORIGIN_684B;
 }
 
 function endpointCode(node = {}) {
@@ -224,7 +230,13 @@ function buildShortlist684B(tours = [], currentTour = null, query = {}, options 
     const next = ranked.find(row => !shortlist.some(chosen => chosen.key === row.key));
     if (next) shortlist.push(next);
   }
-  return shortlist.slice(0, MAX_CANDIDATE_CHECKS_684B);
+  const bounded = shortlist.slice(0, MAX_CANDIDATE_CHECKS_684B);
+  // GV-PERF-R5: only the staging over-budget selected-flight rescue may try the
+  // same bounded shortlist cheapest-first. Candidate membership/caps are unchanged.
+  if (options.preferCheapestFirst === true) {
+    return bounded.slice().sort((a, b) => a.planningTotalUsd - b.planningTotalUsd || b.score - a.score || a.key.localeCompare(b.key));
+  }
+  return bounded;
 }
 
 async function discoverAffordableFlightTour684B(tours = [], currentTour = null, query = {}, options = {}) {
@@ -234,6 +246,7 @@ async function discoverAffordableFlightTour684B(tours = [], currentTour = null, 
   const preRescueLiveFare684A = query?.[preRescueDiagnosticSymbol684A] || null;
   const currentTotalUsd684B = typeof options.totalUsd === 'function' ? options.totalUsd : defaultTotalUsd684B;
   const currentPlanningTotalUsd684B = currentTour ? Number(currentTotalUsd684B(currentTour, query) || 0) : 0;
+  const cheapestFirstRescueR5 = cheapestFirstRescueR5Enabled(env, eligibility);
   const preLiveSelectionDiagnostic = eligibility.selectedFlightFallback === true && currentTour
     ? {
         version: 'GV-PERF-R1',
@@ -274,6 +287,13 @@ async function discoverAffordableFlightTour684B(tours = [], currentTour = null, 
     completeLiveEvidenceRequired: true,
     selectedFlightFallbackMode: eligibility.selectedFlightFallback === true,
     preLiveSelectionDiagnostic,
+    rescueOrderingR5: {
+      version: PERF_R5_VERSION,
+      active: cheapestFirstRescueR5,
+      stagingOnly: true,
+      strategy: cheapestFirstRescueR5 ? 'cheapest-planning-total-first' : 'role-ranked-first',
+      candidateOrder: []
+    },
     orderCapability: false,
     paymentCapability: false,
     bookingCapability: false,
@@ -288,7 +308,14 @@ async function discoverAffordableFlightTour684B(tours = [], currentTour = null, 
     return { tour: currentTour, enrichment: null, summary: { ...baseSummary, reason: '684b-missing-discovery-dependencies' } };
   }
 
-  const shortlist = buildShortlist684B(tours, currentTour, query, options);
+  const shortlist = buildShortlist684B(tours, currentTour, query, {
+    ...options,
+    preferCheapestFirst: cheapestFirstRescueR5
+  });
+  const rescueOrderingR5 = {
+    ...baseSummary.rescueOrderingR5,
+    candidateOrder: shortlist.map(row => row.key)
+  };
   const candidateDiagnostics = [];
   let providerRequests = 0;
   for (const row of shortlist) {
@@ -340,6 +367,7 @@ async function discoverAffordableFlightTour684B(tours = [], currentTour = null, 
       selectedLiveTotalUsd: Math.round(Number(live?.summary?.afterTotalUsd || 0)),
       livePriceDeltaUsd: Math.round(Number(live?.summary?.afterTotalUsd || 0) - row.planningTotalUsd),
       selectedFlightLegCount: row.flightLegCount,
+      rescueOrderingR5,
       candidateDiagnostics
     };
     return {
@@ -365,6 +393,7 @@ async function discoverAffordableFlightTour684B(tours = [], currentTour = null, 
       candidateCount: shortlist.length,
       candidatesAttempted: candidateDiagnostics.length,
       providerRequests,
+      rescueOrderingR5,
       candidateDiagnostics
     }
   };
@@ -390,6 +419,7 @@ function status684B(env = process.env) {
     completeLiveEvidenceRequired: true,
     overBudgetSelectedFlightRescue: true,
     strictUserCurrencyBudgetFitR3: true,
+    stagingCheapestFirstRescueR5: normalizeWebOrigin684B(env?.CORS_ORIGIN) === STAGING_ORIGIN_684B,
     requires684A: true,
     orderCapability: false,
     paymentCapability: false,
@@ -400,6 +430,7 @@ function status684B(env = process.env) {
 
 module.exports = {
   VERSION_684B,
+  PERF_R5_VERSION,
   CODE_ENABLED_684B_R3,
   DEFAULT_ORIGINS_684B,
   STAGING_ORIGIN_684B,
@@ -411,6 +442,7 @@ module.exports = {
   configuredOrigins684B,
   configuredMaxAdults684B: adultScope703E.configuredMaxAdults703E,
   enabled684BR1,
+  cheapestFirstRescueR5Enabled,
   eligibility684B,
   buildShortlist684B,
   discoverAffordableFlightTour684B,
