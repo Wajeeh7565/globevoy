@@ -2785,6 +2785,21 @@ async function getGeneratedTour(query = {}) {
     finalizationMs: 0,
     totalMs: 0
   };
+  // GV-PERF-R4 narrows the two broad R3 hotspots without changing behavior.
+  const performanceR4 = {
+    version: 'GV-PERF-R4',
+    firstProviderScanMs: 0,
+    secondProviderScansMs: 0,
+    secondProviderScanCount: 0,
+    providerCandidateBuildMs: 0,
+    deterministicFallbackMs: 0,
+    postLive684BRescueMs: 0,
+    rescueProviderRequests: 0,
+    budgetRecoveryMs: 0,
+    visualizerMs: 0,
+    finalGuardMs: 0,
+    responseAssemblyMs: 0
+  };
   let candidatePreparationStartedR3 = null;
   let finalizationStartedR3 = null;
   // Keep early returns and exceptions inside the existing orchestration. The
@@ -2840,6 +2855,12 @@ async function getGeneratedTour(query = {}) {
     : { tours: [], diagnostics: { enabled: false, version: GLOBAL_ROUTE_GRAPH_VERSION } };
 
   performanceR3.globalRouteGraphMs = graphEnabledR3 ? elapsedR3(graphStartedR3) : 0;
+  const graphPerformanceR4 = graph?.diagnostics?.performanceR4 || {};
+  performanceR4.firstProviderScanMs = Number(graphPerformanceR4.firstProviderScanMs || 0);
+  performanceR4.secondProviderScansMs = Number(graphPerformanceR4.secondProviderScansMs || 0);
+  performanceR4.secondProviderScanCount = Number(graphPerformanceR4.secondProviderScanCount || 0);
+  performanceR4.providerCandidateBuildMs = Number(graphPerformanceR4.providerCandidateBuildMs || 0);
+  performanceR4.deterministicFallbackMs = Number(graphPerformanceR4.deterministicFallbackMs || 0);
 
   let base;
   const legacyStartedR3 = process.hrtime.bigint();
@@ -2926,6 +2947,16 @@ async function getGeneratedTour(query = {}) {
             globalRouteGraphMs: performanceR3.globalRouteGraphMs + refinedTimingR3.globalRouteGraphMs,
             legacyRouteEngineMs: performanceR3.legacyRouteEngineMs + refinedTimingR3.legacyRouteEngineMs,
             candidatePreparationMs: performanceR3.candidatePreparationMs + refinedTimingR3.candidatePreparationMs
+          });
+        }
+        const refinedTimingR4 = refinedResponseR3.diagnostics?.performanceR4;
+        if (refinedTimingR4) {
+          Object.assign(performanceR4, refinedTimingR4, {
+            firstProviderScanMs: performanceR4.firstProviderScanMs + refinedTimingR4.firstProviderScanMs,
+            secondProviderScansMs: performanceR4.secondProviderScansMs + refinedTimingR4.secondProviderScansMs,
+            secondProviderScanCount: performanceR4.secondProviderScanCount + refinedTimingR4.secondProviderScanCount,
+            providerCandidateBuildMs: performanceR4.providerCandidateBuildMs + refinedTimingR4.providerCandidateBuildMs,
+            deterministicFallbackMs: performanceR4.deterministicFallbackMs + refinedTimingR4.deterministicFallbackMs
           });
         }
         return refinedResponseR3;
@@ -3056,6 +3087,7 @@ async function getGeneratedTour(query = {}) {
       || (publicLiveFare684A.summary?.applied === true && strictLiveBudgetFit684BR3.overBudget === true)
   );
   if (routeStillOverBudgetAfterLive684B && affordableFlightDiscovery684B.summary?.reason === '684b-selected-route-already-has-flight') {
+    const postLive684BRescueStartedR4 = process.hrtime.bigint();
     // GV-REC-684B-R3 preserves R2 rescue: the selected planning route may already contain flights, so
     // R1 intentionally skipped discovery. If 684A then proves that selected route
     // is over budget, give the bounded shortlist one chance to rescue a DIFFERENT
@@ -3078,6 +3110,7 @@ async function getGeneratedTour(query = {}) {
       }
     );
     affordableFlightDiscovery684B = overBudgetFlightRescue684B;
+    performanceR4.rescueProviderRequests = Number(overBudgetFlightRescue684B.summary?.providerRequests || 0);
     if (overBudgetFlightRescue684B.summary?.applied && overBudgetFlightRescue684B.tour) {
       const requestedDiscoveryRole684B = requestedPickRole670a(routeQuery);
       const rescuedSelectedTour684B = requestedDiscoveryRole684B
@@ -3112,12 +3145,15 @@ async function getGeneratedTour(query = {}) {
         routeStillOverBudgetAfterLive684B = false;
       }
     }
+    performanceR4.postLive684BRescueMs = elapsedR3(postLive684BRescueStartedR4);
   }
   if (routeStillOverBudgetAfterLive684B) {
     const budgetVerification = publicLiveFare684A.summary?.overBudget && !liveVerification.summary?.overBudget
       ? { ...liveVerification, summary: { ...liveVerification.summary, overBudget: true, budgetClaim: 'over-budget-after-684a-live-fare', publicLiveFarePilot684A: publicLiveFare684A.summary } }
       : liveVerification;
+    const budgetRecoveryStartedR4 = process.hrtime.bigint();
     const recovered = await attemptBudgetSafeRouteRecovery669c(routeQuery, budgetVerification);
+    performanceR4.budgetRecoveryMs = elapsedR3(budgetRecoveryStartedR4);
     if (recovered) return recovered;
     return {
       ok: true,
@@ -3135,11 +3171,15 @@ async function getGeneratedTour(query = {}) {
       }
     };
   }
+  const visualizerStartedR4 = process.hrtime.bigint();
   const exactPreservedTour = exactDateWindow669d(routeQuery)
     ? recomputeTourTotals(applyExactDateWindow669d(enrichment.tour, routeQuery), routeQuery)
     : enrichment.tour;
   const visualizerTour = buildVisualizerTour(guardEnabled() ? normalizeAirportIntegrity(exactPreservedTour, routeQuery) : exactPreservedTour, routeQuery, enrichment);
+  performanceR4.visualizerMs = elapsedR3(visualizerStartedR4);
+  const finalGuardStartedR4 = process.hrtime.bigint();
   const finalGuard = evaluateTour(visualizerTour, routeQuery);
+  performanceR4.finalGuardMs = elapsedR3(finalGuardStartedR4);
   if (!finalGuard.accepted) {
     return {
       ok: true,
@@ -3206,7 +3246,8 @@ async function getGeneratedTour(query = {}) {
       }
     };
   }
-  return {
+  const responseAssemblyStartedR4 = process.hrtime.bigint();
+  const finalResponseR4 = {
     ok: true,
     supported: true,
     version: GENERATED_TOUR_VERSION,
@@ -3347,10 +3388,12 @@ async function getGeneratedTour(query = {}) {
       }
     }
   };
+  performanceR4.responseAssemblyMs = elapsedR3(responseAssemblyStartedR4);
+  return finalResponseR4;
   })();
   const responseR3 = {
     ...resultR3,
-    diagnostics: { ...(resultR3.diagnostics || {}), performanceR3 }
+    diagnostics: { ...(resultR3.diagnostics || {}), performanceR3, performanceR4 }
   };
   const finishedR3 = process.hrtime.bigint();
   if (candidatePreparationStartedR3 !== null) {
