@@ -28,20 +28,30 @@
     }
   }
 
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   const session = activeAccountSession();
   const signedIn = Boolean(session);
   const accountHref = accountBaseHref;
   const myTripsHref = root('react/my-trips/');
   const travelProfileHref = root('react/travel-profile/');
   const accountIdentity = session?.user?.email || session?.user?.username || 'Account';
-  const accountInitial = String(accountIdentity).trim().charAt(0).toUpperCase() || 'G';
+  const safeAccountIdentity = escapeHtml(accountIdentity);
+  const accountInitial = escapeHtml(String(accountIdentity).trim().charAt(0).toUpperCase() || 'G');
   const currentReturnTo = `${location.pathname}${location.search}${location.hash}`;
 
   const accountNavigation = signedIn
     ? `<nav class="gv-account-nav" aria-label="Account navigation">
         <a class="gv-account-nav__trips" href="${myTripsHref}">My Trips</a>
         <details class="gv-account-nav__menu">
-          <summary aria-label="Open account menu for ${accountIdentity.replace(/"/g, '&quot;')}">
+          <summary aria-label="Open account menu for ${safeAccountIdentity}">
             <span class="gv-account-nav__avatar" aria-hidden="true">${accountInitial}</span>
             <span>Account</span>
             <span class="gv-account-nav__chevron" aria-hidden="true">⌄</span>
@@ -51,7 +61,7 @@
               <span class="gv-account-nav__identity-avatar" aria-hidden="true">${accountInitial}</span>
               <span class="gv-account-nav__identity-copy">
                 <strong>Signed in as</strong>
-                <span>${accountIdentity}</span>
+                <span>${safeAccountIdentity}</span>
               </span>
             </div>
             <a class="gv-account-nav__item" href="${travelProfileHref}">
