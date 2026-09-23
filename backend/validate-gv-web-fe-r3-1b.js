@@ -3,6 +3,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const read = (relativePath) => fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -74,6 +75,18 @@ function main() {
 
   assert.doesNotMatch(production, /GV-WEB-FE-R3\.1B|GlobevoyShellAccountNavR31B|gvUnifiedAccountNav/);
   pass('FE-R3.1B remains frontend-only and leaves production Lambda untouched');
+
+  const master = spawnSync(process.execPath, [path.join(ROOT, 'frontend/validation/validate-gv-rc-686d.js')], {
+    cwd: path.join(ROOT, 'frontend'),
+    encoding: 'utf8'
+  });
+  if (master.status !== 0) {
+    console.error(master.stdout || '');
+    console.error(master.stderr || '');
+  }
+  assert.equal(master.status, 0);
+  assert.match(master.stdout, /GV-RC-686D MASTER: total=51 pass=51 fail=0/);
+  pass('cumulative 686D product shell regression remains green under FE-R3.1B');
 
   console.log(`\nGV-WEB-FE-R3.1B validation PASS (${checks.length}/${checks.length})`);
 }
