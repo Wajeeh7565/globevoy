@@ -31,7 +31,7 @@ const CITY_IMAGES: Record<string, string> = {
 function clean(value: unknown): string { return String(value == null ? '' : value).trim(); }
 function validTripId(value: string): boolean { return /^[A-Za-z0-9_-]{8,80}$/.test(value); }
 
-const HOTEL_NATIONALITY_STORAGE_KEY = 'globevoy-hotel-guest-nationality-v1';
+const HOTEL_NATIONALITY_STORAGE_KEY = 'globevoy-hotel-guest-nationality-v2';
 
 type CountryOption = { code: string; label: string };
 let COUNTRY_OPTIONS_CACHE: CountryOption[] | null = null;
