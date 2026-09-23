@@ -7,8 +7,8 @@
   const root = (path) => depth === 0 ? path : `../${path}`;
   const accountBaseHref =
     (location.hostname === '127.0.0.1' || location.hostname === 'localhost')
-      ? 'https://staging.dy4fw8gx1ccie.amplifyapp.com/account.html'
-      : root('account.html');
+      ? 'https://staging.dy4fw8gx1ccie.amplifyapp.com/react/account/'
+      : root('react/account/');
 
   function hasActiveAccountSession() {
     try {
@@ -31,7 +31,7 @@
   const signedIn = hasActiveAccountSession();
   const accountHref = accountBaseHref;
   const accountLabel = signedIn ? 'Account' : 'Sign in';
-  const myTripsHref = root('my-trips.html');
+  const myTripsHref = root('react/my-trips/');
 
   const header = `<div class="gv-header__inner">
     <a class="gv-brand" href="${root('index.html')}" aria-label="Globevoy home">
