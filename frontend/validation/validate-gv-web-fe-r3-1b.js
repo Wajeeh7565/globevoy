@@ -24,7 +24,6 @@ function main() {
 
   for (const token of [
     'class="gv-account-nav"',
-    'gv-account-nav__trips',
     'gv-account-nav__menu',
     'gv-account-nav__avatar',
     'gv-account-nav__identity',
@@ -33,7 +32,8 @@ function main() {
     'data-gv-auth-signin',
     'data-gv-auth-signout'
   ]) assert.ok(shell.includes(token), `missing classic account-nav token: ${token}`);
-  pass('classic signed-in and signed-out controls use the React account-nav structure');
+  assert.doesNotMatch(shell, /class="gv-account-nav__trips"/);
+  pass('classic signed-in and signed-out controls use one Account menu without a duplicate My Trips shortcut');
 
   assert.ok(shell.includes("root('react/account/')"));
   assert.ok(shell.includes("root('react/my-trips/')"));
