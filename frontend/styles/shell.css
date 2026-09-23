@@ -19,3 +19,46 @@ html{scroll-behavior:smooth}body.gv-canonical{overflow-x:hidden!important;overfl
 @media(max-width:700px){.gv-footer__top{grid-template-columns:1fr 1fr}.gv-footer__brand{grid-column:1/-1}.gv-footer__inner{padding:38px 20px 22px}}
 @media(max-width:520px){.gv-header__inner{padding:0 14px}.gv-brand span{font-size:16px}.gv-auth{min-width:76px;padding:8px 12px}.gv-auth__full{display:none}.gv-auth__short{display:inline}.gv-footer__top{grid-template-columns:1fr}.gv-footer__brand{grid-column:auto}.gv-reference-banner{padding:8px 12px}.gv-shell-state__steps{flex-direction:column;align-items:stretch}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.gv-shell-state__mark{animation:none}}
+
+
+/* GV-WEB-FE-R3.1B unified account navigation — mirrors React account nav */
+.gv-account-nav{display:flex;align-items:center;gap:8px;position:relative}
+.gv-account-nav>a,.gv-account-nav__signin,.gv-account-nav__menu>summary{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 12px;border:1px solid rgba(255,255,255,.22);border-radius:10px;background:transparent;color:#fff;text-decoration:none;font:inherit;font-size:.82rem;font-weight:800;cursor:pointer}
+.gv-account-nav>a:hover,.gv-account-nav__signin:hover,.gv-account-nav__menu>summary:hover{background:rgba(255,255,255,.1)}
+.gv-account-nav__signin:disabled{opacity:.65;cursor:not-allowed}
+.gv-account-nav__menu{position:relative}
+.gv-account-nav__menu>summary{list-style:none;gap:8px}
+.gv-account-nav__menu>summary::-webkit-details-marker{display:none}
+.gv-account-nav__avatar{display:grid;place-items:center;width:24px;height:24px;border-radius:999px;background:#17b6aa;color:#05283a;font-size:.72rem;font-weight:950}
+.gv-account-nav__chevron{font-size:.8rem;transition:transform .18s ease}
+.gv-account-nav__menu[open] .gv-account-nav__chevron{transform:rotate(180deg)}
+.gv-account-nav__panel{position:absolute;z-index:30;top:calc(100% + 10px);right:0;width:min(312px,calc(100vw - 24px));padding:10px;border:1px solid #d8e3e7;border-radius:16px;background:#fff;box-shadow:0 24px 58px rgba(3,20,38,.24);color:#102238;text-align:left}
+.gv-account-nav__panel:before{content:"";position:absolute;top:-6px;right:27px;width:12px;height:12px;background:#fff;border-left:1px solid #d8e3e7;border-top:1px solid #d8e3e7;transform:rotate(45deg)}
+.gv-account-nav__identity{display:flex;align-items:center;gap:10px;padding:10px 10px 12px;margin:0 0 5px;border-bottom:1px solid #edf2f4}
+.gv-account-nav__identity-avatar{display:grid;place-items:center;flex:0 0 auto;width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#14b4aa,#08716f);color:#fff;font-size:.82rem;font-weight:950;box-shadow:0 7px 16px rgba(8,113,111,.18)}
+.gv-account-nav__identity-copy{display:grid;gap:2px;min-width:0}
+.gv-account-nav__identity-copy strong{font-size:.66rem;text-transform:uppercase;letter-spacing:.09em;color:#6c7b84}
+.gv-account-nav__identity-copy span{overflow:hidden;color:#153044;font-size:.76rem;font-weight:750;text-overflow:ellipsis;white-space:nowrap}
+.gv-account-nav__panel>a.gv-account-nav__item{display:grid;grid-template-columns:36px minmax(0,1fr) 14px;align-items:center;gap:10px;padding:9px 10px;margin:2px 0;border:0;border-radius:11px;background:transparent;color:#102238;text-decoration:none;min-height:54px;transition:background .16s ease,transform .16s ease}
+.gv-account-nav__panel>a.gv-account-nav__item:hover{background:#eef8f7;transform:translateX(1px)}
+.gv-account-nav__item-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#edf7f6;color:#08716f;font-size:1rem;font-weight:900}
+.gv-account-nav__item-copy{display:grid;gap:2px;min-width:0}
+.gv-account-nav__item-copy strong{font-size:.8rem;line-height:1.15;color:#102238}
+.gv-account-nav__item-copy small{font-size:.67rem;line-height:1.3;color:#6c7b84;font-weight:600}
+.gv-account-nav__item-arrow{color:#9aabb2;font-size:.8rem;font-weight:900}
+.gv-account-nav__panel>button.gv-account-nav__signout{display:flex;align-items:center;gap:9px;width:100%;margin-top:6px;padding:10px;border:0;border-top:1px solid #edf2f4;border-radius:0;background:transparent;color:#8a2d3a;text-align:left;font:inherit;font-size:.76rem;font-weight:850;cursor:pointer}
+.gv-account-nav__panel>button.gv-account-nav__signout:hover{border-radius:9px;background:#fff4f4}
+.gv-account-nav__signout-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#fff0f1;color:#9b3543;font-size:.9rem}
+.gv-account-nav__panel a:focus-visible,.gv-account-nav__panel button:focus-visible,.gv-account-nav__signin:focus-visible,.gv-account-nav__menu>summary:focus-visible{outline:3px solid rgba(20,180,170,.3);outline-offset:2px}
+@media(max-width:760px){.gv-account-nav__trips{display:none!important}}
+@media(max-width:520px){
+  .gv-account-nav{gap:5px}
+  .gv-account-nav>a,.gv-account-nav__signin,.gv-account-nav__menu>summary{padding:7px 9px;font-size:.76rem}
+  .gv-account-nav__menu>summary>span:nth-child(2){display:none}
+  .gv-account-nav__panel{right:-3px;width:min(300px,calc(100vw - 18px));padding:8px}
+  .gv-account-nav__panel:before{right:24px}
+  .gv-account-nav__identity{padding:9px}
+  .gv-account-nav__panel>a.gv-account-nav__item{padding:8px 9px;min-height:50px}
+  .gv-account-nav__item-icon{width:34px;height:34px}
+  .gv-account-nav__item-copy small{font-size:.64rem}
+}
