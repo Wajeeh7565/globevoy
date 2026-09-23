@@ -53,7 +53,7 @@ check('Booking engine is byte-identical to 686A', hash('scripts/booking-hub-685d
 check('Budget-confidence engine is byte-identical to 686A', hash('scripts/budget-confidence-685b.js') === '3ed77e95f240096f6d241499c1e0b517a1f97c77ae855bb9c85d0098f54eb832');
 // 705B-R3 is an approved successor layered onto the 686D visual shell. Protect
 // the journey isolation instead of pinning the shared shell to an old byte hash.
-check('Product shell preserves 686D-R1 visual baseline while layering only 705B-R3 account entry', shell.includes('GV-SHELL-686D-R1') && shell.includes("dataset.gvShellVersion = '686d-r1'") && shell.includes("dataset.gvAccountVersion = '705b-r3'") && shell.includes('data-gv-auth-entry') && !shell.includes('gv-burger') && !shell.includes('gv-mobile-menu'));
+check('Product shell preserves 686D-R1 visual baseline while layering the approved account-nav successor', shell.includes('GV-SHELL-686D-R1') && shell.includes("dataset.gvShellVersion = '686d-r1'") && shell.includes("dataset.gvAccountVersion = '705b-r3'") && shell.includes('GlobevoyShellAccountNavR31B') && shell.includes('data-gv-shell-account-nav') && !shell.includes('gv-burger') && !shell.includes('gv-mobile-menu'));
 check('API client and runtime config are byte-identical to 686A', hash('runtime/api-client.js') === 'd10d716b60d13f36b456a7797c22590ba5ca1c12bec31586d8e0c36242df8af6' && hash('runtime/config.js') === '191e377fdf5dba312e60f0b2c21c74b6283b729c982bcbff8c7c08fd637ea958');
 // 706A intentionally layers an account-trip handoff around the protected 686C
 // booking engines. Accept the old exact page or this reviewed successor only
