@@ -14,6 +14,7 @@ const globals = read('app/globals.css');
 const account = read('components/account/account-page-client.tsx');
 const trips = read('components/account/my-trips-client.tsx');
 const profile = read('components/account/travel-profile-client.tsx');
+const accountNav = read('components/account/account-nav.tsx');
 
 check('React shell declares GV-WEB-FE-R3', shell.includes('data-gv-shell-version="GV-WEB-FE-R3"'));
 check('React brand returns to canonical planner root', shell.includes('<a className="gv-brand" href="/" aria-label="Globevoy home">'));
@@ -36,6 +37,10 @@ check('React My Trips planning actions return to canonical planner',
   trips.includes('href="/">Explore trips</a>'));
 check('React Travel Profile guest action returns to canonical planner',
   profile.includes('<a className="gv-button gv-button--secondary" href="/">Continue as guest</a>'));
+check('React account header keeps My Trips inside the Account menu only',
+  accountNav.includes('<strong>My trips</strong>') &&
+  !accountNav.includes('className="gv-account-nav__trips"'));
+
 check('FE-R3 does not add booking/payment language to shell',
   !shell.includes('Book now') && !shell.includes('Pay now') && !shell.includes('Complete purchase'));
 
