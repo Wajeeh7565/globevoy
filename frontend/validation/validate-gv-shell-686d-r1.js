@@ -13,7 +13,7 @@ const check = (name, pass, detail = '') => checks.push({ name, pass: Boolean(pas
 const release = JSON.parse(read('GV-SHELL-686D-R1-RELEASE.json'));
 const shell = read('scripts/shell-670f.js');
 const css = read('styles/shell.css');
-const header = shell.slice(shell.indexOf('const header'), shell.indexOf('const footer'));
+const header = shell.slice(shell.indexOf('const accountNavigation'), shell.indexOf('const footer'));
 
 const shellPages = [
   'about.html', 'booking.html', 'create-account.html', 'explore.html',
