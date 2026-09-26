@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const overlay = require('./services/reviewed-recovery-overlay-702c-r2');
-const coverage702a = require('./services/global-recommendation-coverage-702a');
+const coverage702a = require('./services/admin/audits/global-recommendation-coverage-702a');
 
 let passed = 0;
 function check(name, fn) {

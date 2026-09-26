@@ -10,7 +10,7 @@ process.env.ENABLE_UNIFIED_CITY_REGISTRY_668A = 'true';
 process.env.ENABLE_PROVIDER_MAPPING_COMPLETION_668B = 'true';
 process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668T = 'true';
 
-const audit = require('./services/global-recommendation-coverage-702a');
+const audit = require('./services/admin/audits/global-recommendation-coverage-702a');
 const staging = require('./staging-lambda');
 
 let passed = 0;

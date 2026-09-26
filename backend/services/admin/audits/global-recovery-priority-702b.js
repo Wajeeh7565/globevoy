@@ -6,8 +6,8 @@
 // July 2026 668-series audits.
 
 const coverage702a = require('./global-recommendation-coverage-702a');
-const activationSnapshot = require('../data/verified-city-activation-1000-668t.json');
-const recovery668s = require('../data/inactive-city-recovery-wave1-150-668s.json');
+const activationSnapshot = require('../../../data/verified-city-activation-1000-668t.json');
+const recovery668s = require('../../../data/inactive-city-recovery-wave1-150-668s.json');
 
 const VERSION = 'GV-REC-702B';
 const FLAG_NAME = 'ENABLE_GLOBAL_RECOVERY_PRIORITY_702B';

@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const semantics = require('./services/flight-cache-semantics-702f-a');
-const coverage702a = require('./services/global-recommendation-coverage-702a');
+const coverage702a = require('./services/admin/audits/global-recommendation-coverage-702a');
 const {
   EVIDENCE_CLASSES_683C,
   RANKING_GRADES_683C

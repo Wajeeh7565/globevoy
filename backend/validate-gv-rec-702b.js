@@ -9,7 +9,7 @@ process.env.ENABLE_WORLDWIDE_CITY_REGISTRY_701A = 'true';
 process.env.ENABLE_GLOBAL_RECOMMENDATION_COVERAGE_AUDIT_702A = 'true';
 process.env.ENABLE_GLOBAL_RECOVERY_PRIORITY_702B = 'true';
 
-const priority = require('./services/global-recovery-priority-702b');
+const priority = require('./services/admin/audits/global-recovery-priority-702b');
 const staging = require('./staging-lambda');
 
 let passed = 0;

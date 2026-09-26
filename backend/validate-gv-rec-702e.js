@@ -6,7 +6,7 @@ const path = require('path');
 
 process.env.ENABLE_GLOBAL_RECOMMENDATION_COVERAGE_AUDIT_702A = 'true';
 
-const coverage702a = require('./services/global-recommendation-coverage-702a');
+const coverage702a = require('./services/admin/audits/global-recommendation-coverage-702a');
 const reviewedRecovery = require('./services/reviewed-recovery-overlay-702c-r2');
 const promotion = require('./services/reviewed-activation-promotion-702e');
 const manifest = require('./data/gv-rec-702e-promotion-manifest.json');

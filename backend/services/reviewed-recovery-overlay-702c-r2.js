@@ -1,6 +1,6 @@
 'use strict';
 
-const coverage702a = require('./global-recommendation-coverage-702a');
+const coverage702a = require('./admin/audits/global-recommendation-coverage-702a');
 const evidence = require('../data/gv-rec-702c-r2-reviewed-evidence-manifest.json');
 
 const VERSION = 'GV-REC-702C-R2';

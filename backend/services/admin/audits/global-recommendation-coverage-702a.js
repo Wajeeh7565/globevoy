@@ -10,9 +10,9 @@
 // Duffel, Travelpayouts, Agoda, Stay22, or any other provider, and it does not
 // change ranking, routing, pricing, destination activation, or booking claims.
 
-const registry = require('../data/unified-city-registry-1000-668b.json');
-const providerMappings = require('../data/provider-mappings-1000-668b.json');
-const activationSnapshot = require('../data/verified-city-activation-1000-668t.json');
+const registry = require('../../../data/unified-city-registry-1000-668b.json');
+const providerMappings = require('../../../data/provider-mappings-1000-668b.json');
+const activationSnapshot = require('../../../data/verified-city-activation-1000-668t.json');
 
 const VERSION = 'GV-REC-702A';
 const FLAG_NAME = 'ENABLE_GLOBAL_RECOMMENDATION_COVERAGE_AUDIT_702A';
