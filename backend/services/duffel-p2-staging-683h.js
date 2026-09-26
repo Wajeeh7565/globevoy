@@ -32,7 +32,7 @@ const duffel683D = require('./duffel-live-adapter-683d');
 const { normalizeObservation683C } = require('./flight-provider-contract-683c');
 const { normalizeAmount683G, enabled683G, status683G } = require('./fx-normalization-683g');
 const { scheduleForStart, evaluateCandidate, selectCandidate } = require('./whole-trip-date-optimizer-681b-p2');
-const { normalizeParty } = require('./traveller-pricing');
+const { normalizeParty } = require('./domain/pricing/traveller-pricing');
 
 const VERSION_683H = 'GV-PROVIDER-683M-R4';
 const METRO_REGISTRY_PATH_683H = path.join(__dirname, '..', 'data', 'airport-metro-groups-683h.json');

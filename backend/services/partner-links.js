@@ -2,8 +2,8 @@
 
 const { getDestination } = require('../data/destination-meta');
 const { wrapAviasalesAffiliateLink } = require('./travelpayouts');
-const { normalizeParty } = require('./traveller-pricing');
-const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('./price-evidence-integrity');
+const { normalizeParty } = require('./domain/pricing/traveller-pricing');
+const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('./domain/pricing/price-evidence-integrity');
 
 const DEFAULT_AGODA_CID = process.env.AGODA_AFFILIATE_CID || process.env.AGODA_CID || '1963873';
 

@@ -15,7 +15,7 @@ const {
 const { loadGroupedCityFoundation } = require('../data/grouped-city-foundation');
 const { attachTourPresentation, currencyToUsdRate } = require('../budget-presentation');
 const { fetchTravelpayoutsCandidates } = require('./travelpayouts');
-const { normalizeParty, providerFarePartyTotalUsd } = require('./traveller-pricing');
+const { normalizeParty, providerFarePartyTotalUsd } = require('./domain/pricing/traveller-pricing');
 const {
   evaluateTour,
   maxStopsForTrip,

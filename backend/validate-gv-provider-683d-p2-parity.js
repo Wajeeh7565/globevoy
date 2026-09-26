@@ -18,7 +18,7 @@ Object.assign(process.env, {
 
 const assert = require('node:assert/strict');
 const generated = require('./generated-tour');
-const { automaticDateFloor } = require('./services/price-evidence-integrity');
+const { automaticDateFloor } = require('./services/domain/pricing/price-evidence-integrity');
 const cheap = require('./services/cheap-one-way-flights');
 
 function addDays(date, days) {

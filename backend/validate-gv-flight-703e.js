@@ -54,7 +54,7 @@ const adapter683D = require('./services/duffel-live-adapter-683d');
 const live684A = require('./services/public-live-fare-pilot-684a');
 const discovery684B = require('./services/affordable-flight-discovery-684b');
 const fareSelection685C = require('./services/live-fare-selection-685c');
-const travellerPricing = require('./services/traveller-pricing');
+const travellerPricing = require('./services/domain/pricing/traveller-pricing');
 
 assert.equal(adultScope.configuredMaxAdults703E(process.env), 2);
 assert.equal(live684A.status684A(process.env).maxAdults, 2);
@@ -331,7 +331,7 @@ async function main() {
   const wrapperSource = fs.readFileSync(path.join(ROOT, 'staging-lambda-702d.js'), 'utf8');
   const productionSource = fs.readFileSync(path.join(ROOT, 'lambda.js'), 'utf8');
   const adapterSource = fs.readFileSync(path.join(ROOT, 'services', 'duffel-live-adapter-683d.js'), 'utf8');
-  const pricingSource = fs.readFileSync(path.join(ROOT, 'services', 'traveller-pricing.js'), 'utf8');
+  const pricingSource = fs.readFileSync(path.join(ROOT, 'services', 'domain', 'pricing', 'traveller-pricing.js'), 'utf8');
   const overlaySource = fs.readFileSync(path.join(ROOT, 'services', 'staging-duffel-two-adult-703e.js'), 'utf8');
 
   const install703DIndex = wrapperSource.indexOf('stagingAffordable703D.install()');

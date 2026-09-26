@@ -10,8 +10,8 @@ const fs = require('fs');
 const path = require('path');
 const controls = require('./generated-tour-controls');
 const feasibility = require('./services/route-feasibility');
-const pricing = require('./services/traveller-pricing');
-const canonical = require('./services/canonical-total-evidence');
+const pricing = require('./services/domain/pricing/traveller-pricing');
+const canonical = require('./services/domain/pricing/canonical-total-evidence');
 
 const checks = [];
 function check(name, condition, details = null) {

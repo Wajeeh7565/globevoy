@@ -9,7 +9,7 @@ on:
       - 'backend/services/staging-duffel-two-adult-703e.js'
       - 'backend/services/duffel-live-adapter-683d.js'
       - 'backend/services/flight-provider-contract-683c.js'
-      - 'backend/services/traveller-pricing.js'
+      - 'backend/services/domain/pricing/traveller-pricing.js'
       - 'backend/services/public-live-fare-pilot-684a.js'
       - 'backend/services/affordable-flight-discovery-684b.js'
       - 'backend/services/staging-duffel-five-origin-703b.js'
@@ -61,7 +61,7 @@ jobs:
           node --check backend/services/staging-duffel-two-adult-703e.js
           node --check backend/services/duffel-live-adapter-683d.js
           node --check backend/services/flight-provider-contract-683c.js
-          node --check backend/services/traveller-pricing.js
+          node --check backend/services/domain/pricing/traveller-pricing.js
           node --check backend/services/public-live-fare-pilot-684a.js
           node --check backend/services/affordable-flight-discovery-684b.js
           node --check backend/validate-gv-flight-703e.js
@@ -81,7 +81,7 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'services/duffel-adult-scope-703e.js'
           unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-two-adult-703e.js'
           unzip -l "dist/${artifact}" | grep -q 'services/duffel-live-adapter-683d.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/traveller-pricing.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/domain/pricing/traveller-pricing.js'
           unzip -l "dist/${artifact}" | grep -q 'services/public-live-fare-pilot-684a.js'
           unzip -l "dist/${artifact}" | grep -q 'services/affordable-flight-discovery-684b.js'
           unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'

@@ -32,8 +32,8 @@ const {
   VERSION_685C_R1,
   strictBudgetFit685CR1,
   reconcileWholeTripFares685CR1
-} = require('./whole-trip-fare-reconciliation-685c-r1');
-const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('./traveller-pricing');
+} = require('./domain/pricing/whole-trip-fare-reconciliation-685c-r1');
+const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('./domain/pricing/traveller-pricing');
 const adultScope703E = require('./duffel-adult-scope-703e');
 const { currencyToUsdRate, normalizeCurrency } = require('../budget-presentation');
 

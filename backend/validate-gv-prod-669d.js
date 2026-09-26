@@ -11,7 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const activation = require('./services/verified-city-activation');
 const generated = require('./generated-tour');
-const pricing = require('./services/traveller-pricing');
+const pricing = require('./services/domain/pricing/traveller-pricing');
 const graph = require('./services/global-route-graph');
 
 const checks = [];

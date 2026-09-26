@@ -4,7 +4,7 @@
 // Pure normalization only. This module performs no network requests and has no
 // booking/order/payment capability.
 
-const { SOURCE_TYPES, normalizeFlightEvidence } = require('./price-evidence-integrity');
+const { SOURCE_TYPES, normalizeFlightEvidence } = require('./domain/pricing/price-evidence-integrity');
 
 const FLIGHT_PROVIDER_CONTRACT_VERSION_683C = 'GV-PROVIDER-683C';
 

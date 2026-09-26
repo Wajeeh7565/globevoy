@@ -3,7 +3,7 @@
 // GV-FLIGHT-685C-R1 — pure, bounded reconciliation of already-returned and
 // already-normalized Duffel alternatives. It performs no provider or FX calls.
 
-const { currencyToUsdRate, normalizeCurrency } = require('../budget-presentation');
+const { currencyToUsdRate, normalizeCurrency } = require('../../../budget-presentation');
 
 const VERSION_685C_R1 = 'GV-FLIGHT-685C-R1';
 const MAX_FLIGHT_LEGS_685C_R1 = 3;

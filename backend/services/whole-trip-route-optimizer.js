@@ -8,7 +8,7 @@
 
 const { evaluateTour, _internal: feasibility } = require('./route-feasibility');
 const { _internal: globalGraph } = require('./global-route-graph');
-const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('./traveller-pricing');
+const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('./domain/pricing/traveller-pricing');
 const { currencyToUsdRate, normalizeCurrency } = require('../budget-presentation');
 
 const WHOLE_TRIP_ROUTE_OPTIMIZATION_VERSION_677C = 'GV-REC-677C';

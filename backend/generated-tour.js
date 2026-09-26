@@ -13,7 +13,7 @@ const { VERSION: AI_ROUTE_DIVERSITY_VERSION_687B, enabled: aiRouteDiversity687BE
 const { enrichFlightLeg, enrichStay, summarizePriceProvenance } = require('./services/partner-links');
 const { GUARD_VERSION, guardEnabled, maxStopsForTrip, normalizeAirportIntegrity, evaluateTour, guardCandidateTours, _internal: routeFeasibilityInternal } = require('./services/route-feasibility');
 const { GLOBAL_ROUTE_GRAPH_VERSION, globalRouteGraphEnabled, generateProviderDrivenGlobalRouteCandidates } = require('./services/global-route-graph');
-const { PRICING_INTEGRITY_VERSION, normalizeParty, providerFarePartyTotalUsd, priceTransportLeg, applyTravellerPricingToTour } = require('./services/traveller-pricing');
+const { PRICING_INTEGRITY_VERSION, normalizeParty, providerFarePartyTotalUsd, priceTransportLeg, applyTravellerPricingToTour } = require('./services/domain/pricing/traveller-pricing');
 const { LIVE_PROVIDER_VERIFICATION_VERSION, enabled: liveProviderVerificationEnabled, verifyTourWithLiveProviders } = require('./services/live-provider-verification');
 const { VERSION_684A, applyPublicLiveFarePilot684A, status684A } = require('./services/public-live-fare-pilot-684a');
 const { VERSION_684B, discoverAffordableFlightTour684B, status684B } = require('./services/affordable-flight-discovery-684b');

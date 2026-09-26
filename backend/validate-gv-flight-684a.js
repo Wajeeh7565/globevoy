@@ -190,7 +190,7 @@ function sampleTour() {
   });
 
   test('canonical flight provider label is provider-derived, not hardcoded Aviasales', () => {
-    const source = fs.readFileSync(path.join(__dirname, 'services/canonical-total-evidence.js'), 'utf8');
+    const source = fs.readFileSync(path.join(__dirname, 'services/domain/pricing/canonical-total-evidence.js'), 'utf8');
     assert.match(source, /verification\.provider \|\| evidence\.providerLabel \|\| evidence\.source/);
   });
 

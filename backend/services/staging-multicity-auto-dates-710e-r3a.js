@@ -19,7 +19,7 @@ const {
   fetchCheapestOneWayAcrossMonths,
   selectBestUsableObservation
 } = require('./cheap-one-way-flights');
-const { automaticDateFloor } = require('./price-evidence-integrity');
+const { automaticDateFloor } = require('./domain/pricing/price-evidence-integrity');
 
 const VERSION = 'GV-FLIGHT-710E-R3A';
 const REVISION = 'GV-FLIGHT-710E-R3A-R1';
