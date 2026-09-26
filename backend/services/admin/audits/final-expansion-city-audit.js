@@ -1,12 +1,12 @@
 'use strict';
 
-// GV-CITY-668O — public, read-only plan for Expansion-500 priority audit
-// wave 2. This module never calls providers and never changes the 668N
-// production activation allowlist.
+// GV-CITY-668Q — public, read-only plan for the final 155 unaudited
+// Expansion-500 cities. This module never calls providers and never changes
+// the 668P production activation allowlist.
 
-const plan = require('../data/expansion-500-priority-audit-150-668o.json');
+const plan = require('../../../data/expansion-500-final-audit-155-668q.json');
 
-const VERSION = 'GV-CITY-668O';
+const VERSION = 'GV-CITY-668Q';
 
 function clean(value) { return String(value || '').trim(); }
 function lower(value) { return clean(value).toLowerCase(); }
@@ -21,7 +21,7 @@ function safeInt(value, fallback, min, max) {
 }
 function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
 function enabled() {
-  return lower(process.env.ENABLE_EXPANSION_500_PRIORITY_AUDIT_668O) === 'true';
+  return lower(process.env.ENABLE_EXPANSION_500_FINAL_AUDIT_668Q) === 'true';
 }
 
 const records = Array.isArray(plan.records) ? plan.records.filter(Boolean) : [];
@@ -31,30 +31,30 @@ function summary() {
     ok: true,
     enabled: enabled(),
     version: VERSION,
-    status: enabled() ? 'expansion-500-priority-audit-wave-2-plan-ready' : 'feature-disabled',
+    status: enabled() ? 'final-155-expansion-coverage-audit-plan-ready' : 'feature-disabled',
     generatedAt: plan.generatedAt,
     source: clone(plan.source),
     summary: clone(plan.summary),
     policy: clone(plan.policy),
     activationState: {
-      currentVersion: 'GV-CITY-668N',
-      auditedCount: Number(plan.source?.auditedCityCountBeforeRun || 695),
-      productionActiveCount: Number(plan.source?.productionActiveCountBeforeRun || 393),
+      currentVersion: 'GV-CITY-668P',
+      auditedCount: Number(plan.source?.auditedCityCountBeforeRun || 845),
+      productionActiveCount: Number(plan.source?.productionActiveCountBeforeRun || 420),
       current500AuditedCount: Number(plan.source?.current500AuditedBeforeRun || 500),
-      expansion500AuditedCount: Number(plan.source?.expansion500AuditedBeforeRun || 195),
-      expansion500ProductionActiveCount: Number(plan.source?.expansion500ProductionActiveBeforeRun || 84),
+      expansion500AuditedCount: Number(plan.source?.expansion500AuditedBeforeRun || 345),
+      expansion500ProductionActiveCount: Number(plan.source?.expansion500ProductionActiveBeforeRun || 111),
       unchangedUntilAuditImport: true
     },
     auditProjection: {
-      expansion500AuditedAfterRun: Number(plan.summary?.projectedExpansionAuditedAfterRun || 345),
-      totalAuditedAfterRun: Number(plan.summary?.projectedTotalAuditedAfterRun || 845),
-      remainingExpansionAfterRun: 500 - Number(plan.summary?.projectedExpansionAuditedAfterRun || 345),
-      remainingUnauditedAfterRun: Number(plan.summary?.projectedRemainingUnauditedAfterRun || 155),
+      expansion500AuditedAfterRun: Number(plan.summary?.projectedExpansionAuditedAfterRun || 500),
+      totalAuditedAfterRun: Number(plan.summary?.projectedTotalAuditedAfterRun || 1000),
+      remainingExpansionAfterRun: 0,
+      remainingUnauditedAfterRun: Number(plan.summary?.projectedRemainingUnauditedAfterRun || 0),
       activationImportRequired: true
     },
     nextAction: enabled()
-      ? 'Run the authenticated Expansion150 audit. Review and import its output before changing production activation.'
-      : 'Set ENABLE_EXPANSION_500_PRIORITY_AUDIT_668O=true.',
+      ? 'Run the authenticated Final155 audit. Review and import its output before changing production activation.'
+      : 'Set ENABLE_EXPANSION_500_FINAL_AUDIT_668Q=true.',
     disclaimer: 'This is an audit target plan, not a live-provider result or production activation list.'
   };
 }
@@ -63,7 +63,9 @@ function search(query = {}) {
   const q = normalize(query.q || query.query || '');
   const region = lower(query.region || query.worldRegion || '');
   const group = lower(query.group || '');
-  const productReview = lower(query.productReviewRequired || query.productReview || '');
+  const lane = lower(query.lane || query.auditLane || '');
+  const mapped = lower(query.bothProvidersMapped || query.fullyMapped || '');
+  const agodaResolved = lower(query.agodaResolved || query.agodaMappingAccepted || '');
   const internationalAirport = lower(query.internationalAirport || '');
   const gateway = lower(query.gateway || query.requiresGatewayTransfer || '');
   const offset = safeInt(query.offset, 0, 0, records.length);
@@ -71,15 +73,20 @@ function search(query = {}) {
   const matches = records.filter(record => {
     if (region && lower(record.worldRegion) !== region) return false;
     if (group && lower(record.group) !== group) return false;
-    if (productReview === 'true' && record.productReviewRequired !== true) return false;
-    if (productReview === 'false' && record.productReviewRequired !== false) return false;
+    if (lane && lower(record.auditLane) !== lane) return false;
+    if (mapped === 'true' && record.bothProvidersMapped !== true) return false;
+    if (mapped === 'false' && record.bothProvidersMapped !== false) return false;
+    if (agodaResolved === 'true' && record.agodaMappingAccepted !== true) return false;
+    if (agodaResolved === 'false' && record.agodaMappingAccepted !== false) return false;
     if (internationalAirport === 'true' && record.internationalAirportSignal !== true) return false;
     if (internationalAirport === 'false' && record.internationalAirportSignal !== false) return false;
     if (gateway === 'true' && record.requiresGatewayTransfer !== true) return false;
     if (gateway === 'false' && record.requiresGatewayTransfer !== false) return false;
     if (q) {
-      const textValues = [record.cityId, record.displayName, record.country].map(normalize).filter(Boolean);
-      const exactCodes = [record.countryCode, record.providerLocationCode, record.preferredAirportCode].map(normalize).filter(Boolean);
+      const textValues = [record.cityId, record.displayName, record.country, record.auditLane, record.agodaMappingStatus]
+        .map(normalize).filter(Boolean);
+      const exactCodes = [record.countryCode, record.providerLocationCode, record.preferredAirportCode]
+        .map(normalize).filter(Boolean);
       if (!textValues.some(value => value.includes(q)) && !exactCodes.includes(q)) return false;
     }
     return true;
@@ -89,12 +96,12 @@ function search(query = {}) {
     ok: true,
     enabled: enabled(),
     version: VERSION,
-    status: enabled() ? 'expansion-500-priority-audit-wave-2-plan-ready' : 'feature-disabled',
+    status: enabled() ? 'final-155-expansion-coverage-audit-plan-ready' : 'feature-disabled',
     offset,
     count: Math.min(limit, Math.max(0, matches.length - offset)),
     totalMatches: matches.length,
     records: clone(matches.slice(offset, offset + limit)),
-    disclaimer: 'These cities are selected for audit only. They remain estimate-only until verified results are reviewed and imported.'
+    disclaimer: 'These cities are selected for final audit only. They remain estimate-only until verified results are reviewed and imported.'
   };
 }
 

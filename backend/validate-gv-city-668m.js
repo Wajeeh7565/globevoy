@@ -15,7 +15,7 @@ process.env.GLOBEVOY_USE_MOCKS = 'false';
 const plan = require('./data/expansion-500-priority-audit-150-668m.json');
 const registry = require('./data/unified-city-registry-1000-668b.json');
 const activationSnapshot = require('./data/verified-city-activation-545-668l.json');
-const priority = require('./services/expansion-priority-city-audit');
+const priority = require('./services/admin/audits/expansion-priority-city-audit');
 const activation = require('./services/verified-city-activation');
 const lambda = require('./lambda');
 

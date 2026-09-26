@@ -1,12 +1,12 @@
 'use strict';
 
-// GV-CITY-668M — public, read-only plan for Expansion-500 priority audit
-// wave 1. This module never calls providers and never changes the 668L
+// GV-CITY-668O — public, read-only plan for Expansion-500 priority audit
+// wave 2. This module never calls providers and never changes the 668N
 // production activation allowlist.
 
-const plan = require('../data/expansion-500-priority-audit-150-668m.json');
+const plan = require('../../../data/expansion-500-priority-audit-150-668o.json');
 
-const VERSION = 'GV-CITY-668M';
+const VERSION = 'GV-CITY-668O';
 
 function clean(value) { return String(value || '').trim(); }
 function lower(value) { return clean(value).toLowerCase(); }
@@ -21,7 +21,7 @@ function safeInt(value, fallback, min, max) {
 }
 function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
 function enabled() {
-  return lower(process.env.ENABLE_EXPANSION_500_PRIORITY_AUDIT_668M) === 'true';
+  return lower(process.env.ENABLE_EXPANSION_500_PRIORITY_AUDIT_668O) === 'true';
 }
 
 const records = Array.isArray(plan.records) ? plan.records.filter(Boolean) : [];
@@ -31,29 +31,30 @@ function summary() {
     ok: true,
     enabled: enabled(),
     version: VERSION,
-    status: enabled() ? 'expansion-500-priority-audit-wave-1-plan-ready' : 'feature-disabled',
+    status: enabled() ? 'expansion-500-priority-audit-wave-2-plan-ready' : 'feature-disabled',
     generatedAt: plan.generatedAt,
     source: clone(plan.source),
     summary: clone(plan.summary),
     policy: clone(plan.policy),
     activationState: {
-      currentVersion: 'GV-CITY-668L',
-      auditedCount: Number(plan.source?.auditedCityCountBeforeRun || 545),
-      productionActiveCount: Number(plan.source?.productionActiveCountBeforeRun || 322),
+      currentVersion: 'GV-CITY-668N',
+      auditedCount: Number(plan.source?.auditedCityCountBeforeRun || 695),
+      productionActiveCount: Number(plan.source?.productionActiveCountBeforeRun || 393),
       current500AuditedCount: Number(plan.source?.current500AuditedBeforeRun || 500),
-      expansion500AuditedCount: Number(plan.source?.expansion500AuditedBeforeRun || 45),
-      expansion500ProductionActiveCount: Number(plan.source?.expansion500ProductionActiveBeforeRun || 13),
+      expansion500AuditedCount: Number(plan.source?.expansion500AuditedBeforeRun || 195),
+      expansion500ProductionActiveCount: Number(plan.source?.expansion500ProductionActiveBeforeRun || 84),
       unchangedUntilAuditImport: true
     },
     auditProjection: {
-      expansion500AuditedAfterRun: Number(plan.summary?.projectedExpansionAuditedAfterRun || 195),
-      totalAuditedAfterRun: Number(plan.summary?.projectedTotalAuditedAfterRun || 695),
-      remainingExpansionAfterRun: 500 - Number(plan.summary?.projectedExpansionAuditedAfterRun || 195),
+      expansion500AuditedAfterRun: Number(plan.summary?.projectedExpansionAuditedAfterRun || 345),
+      totalAuditedAfterRun: Number(plan.summary?.projectedTotalAuditedAfterRun || 845),
+      remainingExpansionAfterRun: 500 - Number(plan.summary?.projectedExpansionAuditedAfterRun || 345),
+      remainingUnauditedAfterRun: Number(plan.summary?.projectedRemainingUnauditedAfterRun || 155),
       activationImportRequired: true
     },
     nextAction: enabled()
       ? 'Run the authenticated Expansion150 audit. Review and import its output before changing production activation.'
-      : 'Set ENABLE_EXPANSION_500_PRIORITY_AUDIT_668M=true.',
+      : 'Set ENABLE_EXPANSION_500_PRIORITY_AUDIT_668O=true.',
     disclaimer: 'This is an audit target plan, not a live-provider result or production activation list.'
   };
 }
@@ -88,7 +89,7 @@ function search(query = {}) {
     ok: true,
     enabled: enabled(),
     version: VERSION,
-    status: enabled() ? 'expansion-500-priority-audit-wave-1-plan-ready' : 'feature-disabled',
+    status: enabled() ? 'expansion-500-priority-audit-wave-2-plan-ready' : 'feature-disabled',
     offset,
     count: Math.min(limit, Math.max(0, matches.length - offset)),
     totalMatches: matches.length,
