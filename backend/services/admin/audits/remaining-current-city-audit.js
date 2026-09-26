@@ -1,12 +1,12 @@
 'use strict';
 
-// GV-CITY-668K — public, read-only completion plan for the final Current-500
-// audit wave. This module never calls providers and never changes the 668J
+// GV-CITY-668I — public, read-only plan for the next bounded live-provider
+// audit. This module never calls providers and never changes the 668H
 // production activation allowlist.
 
-const plan = require('../data/current-500-completion-audit-145-668k.json');
+const plan = require('../../../data/remaining-current-500-audit-150-668i.json');
 
-const VERSION = 'GV-CITY-668K';
+const VERSION = 'GV-CITY-668I';
 
 function clean(value) { return String(value || '').trim(); }
 function lower(value) { return clean(value).toLowerCase(); }
@@ -21,7 +21,7 @@ function safeInt(value, fallback, min, max) {
 }
 function clone(value) { return value === undefined ? undefined : JSON.parse(JSON.stringify(value)); }
 function enabled() {
-  return lower(process.env.ENABLE_CURRENT_500_COMPLETION_AUDIT_668K) === 'true';
+  return lower(process.env.ENABLE_REMAINING_CURRENT_500_AUDIT_668I) === 'true';
 }
 
 const records = Array.isArray(plan.records) ? plan.records.filter(Boolean) : [];
@@ -31,27 +31,21 @@ function summary() {
     ok: true,
     enabled: enabled(),
     version: VERSION,
-    status: enabled() ? 'current-500-completion-audit-plan-ready' : 'feature-disabled',
+    status: enabled() ? 'remaining-current-500-audit-plan-ready' : 'feature-disabled',
     generatedAt: plan.generatedAt,
     source: clone(plan.source),
     summary: clone(plan.summary),
     policy: clone(plan.policy),
     activationState: {
-      currentVersion: 'GV-CITY-668J',
-      auditedCount: Number(plan.source?.auditedCityCountBeforeRun || 400),
-      productionActiveCount: Number(plan.source?.productionActiveCountBeforeRun || 259),
-      current500AuditedCount: Number(plan.source?.current500AuditedBeforeRun || 355),
-      current500ProductionActiveCount: Number(plan.source?.current500ProductionActiveBeforeRun || 246),
+      currentVersion: 'GV-CITY-668H',
+      auditedCount: Number(plan.source?.auditedCityCountBeforeRun || 250),
+      productionActiveCount: Number(plan.source?.productionActiveCountBeforeRun || 176),
+      current500AuditedCount: Number(plan.source?.current500AuditedBeforeRun || 205),
       unchangedUntilAuditImport: true
     },
-    completionProjection: {
-      current500AuditedAfterRun: Number(plan.summary?.projectedCurrent500AuditedAfterRun || 500),
-      totalAuditedAfterRun: Number(plan.summary?.projectedTotalAuditedAfterRun || 545),
-      activationImportRequired: true
-    },
     nextAction: enabled()
-      ? 'Run the authenticated Final145 audit. Review and import its output before changing production activation.'
-      : 'Set ENABLE_CURRENT_500_COMPLETION_AUDIT_668K=true.',
+      ? 'Run the authenticated Remaining150 audit. Review and import its output before changing production activation.'
+      : 'Set ENABLE_REMAINING_CURRENT_500_AUDIT_668I=true.',
     disclaimer: 'This is an audit target plan, not a live-provider result or production activation list.'
   };
 }
@@ -86,7 +80,7 @@ function search(query = {}) {
     ok: true,
     enabled: enabled(),
     version: VERSION,
-    status: enabled() ? 'current-500-completion-audit-plan-ready' : 'feature-disabled',
+    status: enabled() ? 'remaining-current-500-audit-plan-ready' : 'feature-disabled',
     offset,
     count: Math.min(limit, Math.max(0, matches.length - offset)),
     totalMatches: matches.length,
