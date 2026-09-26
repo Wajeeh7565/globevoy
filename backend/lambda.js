@@ -22,7 +22,7 @@ const {
 } = require('./multicity-routes');
 const { getMixedResults } = require('./mixed-results');
 const { registrySummary, searchRegistry } = require('./services/city-registry');
-const { coverageSummary, searchCoverage } = require('./services/provider-mapping-audit');
+const { coverageSummary, searchCoverage } = require('./services/admin/audits/provider-mapping-audit');
 const { snapshotSummary: liveCoverageSummary, searchSnapshot: searchLiveCoverage, verifyBatch: verifyLiveCoverageBatch, isAuthorized: isLiveCoverageAuthorized } = require('./services/provider-live-coverage');
 const { summary: verifiedActivationSummary, search: searchVerifiedActivation, retryQueues: verifiedActivationRetryQueues } = require('./services/verified-city-activation');
 const { summary: remainingCurrentAuditSummary, search: searchRemainingCurrentAudit } = require('./services/remaining-current-city-audit');

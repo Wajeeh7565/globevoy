@@ -3,7 +3,7 @@
 // GV-CITY-668B — static provider mapping completion and coverage audit.
 // Static mappings are not live fare, room, or bookability verification.
 
-const audit = require('../data/provider-mappings-1000-668b.json');
+const audit = require('../../../data/provider-mappings-1000-668b.json');
 const VERSION = 'GV-CITY-668B';
 
 function enabled() {
