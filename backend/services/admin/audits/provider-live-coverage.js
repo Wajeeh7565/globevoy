@@ -5,12 +5,12 @@
 // and production recommendation eligibility are intentionally separate signals.
 
 const crypto = require('crypto');
-const staticAudit = require('../data/provider-mappings-1000-668b.json');
-const registry = require('../data/unified-city-registry-1000-668b.json');
-const snapshot = require('../data/provider-live-coverage-1000-668c.json');
-const { fetchCheapOneWayFlightDates, addMonths } = require('./cheap-one-way-flights');
-const { fetchAgodaCoverageProbe, buildStayDates, qualityCandidateRetrievalEnabled } = require('./agoda');
-const routeFeasibility = require('./route-feasibility');
+const staticAudit = require('../../../data/provider-mappings-1000-668b.json');
+const registry = require('../../../data/unified-city-registry-1000-668b.json');
+const snapshot = require('../../../data/provider-live-coverage-1000-668c.json');
+const { fetchCheapOneWayFlightDates, addMonths } = require('../../cheap-one-way-flights');
+const { fetchAgodaCoverageProbe, buildStayDates, qualityCandidateRetrievalEnabled } = require('../../agoda');
+const routeFeasibility = require('../../route-feasibility');
 
 const VERSION = 'GV-CITY-668E';
 const DEFAULT_BATCH_SIZE = 5;

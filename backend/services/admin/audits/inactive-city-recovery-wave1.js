@@ -4,7 +4,7 @@
 // This module never calls providers and never changes the 668R production
 // activation allowlist.
 
-const plan = require('../data/inactive-city-recovery-wave1-150-668s.json');
+const plan = require('../../../data/inactive-city-recovery-wave1-150-668s.json');
 
 const VERSION = 'GV-CITY-668S';
 

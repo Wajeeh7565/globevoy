@@ -12,8 +12,8 @@ process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668R = 'true';
 process.env.ENABLE_INACTIVE_CITY_RECOVERY_668S = 'true';
 process.env.GLOBEVOY_USE_MOCKS = 'false';
 
-const recovery = require('./services/inactive-city-recovery-wave1');
-const provider = require('./services/provider-live-coverage');
+const recovery = require('./services/admin/audits/inactive-city-recovery-wave1');
+const provider = require('./services/admin/audits/provider-live-coverage');
 const lambda = require('./lambda');
 const plan = require('./data/inactive-city-recovery-wave1-150-668s.json');
 const snapshot = require('./data/verified-city-activation-1000-668r.json');

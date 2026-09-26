@@ -12,7 +12,7 @@ process.env.GV_PROVIDER_COVERAGE_ADMIN_TOKEN = 'validation-admin-token';
 process.env.GV_PROVIDER_COVERAGE_MAX_BATCH = '10';
 process.env.GLOBEVOY_USE_MOCKS = 'false';
 
-const service = require('./services/provider-live-coverage');
+const service = require('./services/admin/audits/provider-live-coverage');
 const lambda = require('./lambda');
 const snapshot = require('./data/provider-live-coverage-1000-668c.json');
 const pilot = require('./data/provider-live-pilot-100-668c.json');

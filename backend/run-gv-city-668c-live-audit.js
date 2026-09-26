@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 process.env.ENABLE_LIVE_PROVIDER_COVERAGE_668C = 'true';
-const service = require('./services/provider-live-coverage');
+const service = require('./services/admin/audits/provider-live-coverage');
 const template = require('./data/provider-live-coverage-1000-668c.json');
 const pilot = require('./data/provider-live-pilot-100-668c.json');
 const staticAudit = require('./data/provider-mappings-1000-668b.json');

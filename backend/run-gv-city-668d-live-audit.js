@@ -6,7 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 process.env.ENABLE_MULTI_WINDOW_PROVIDER_COVERAGE_668D = 'true';
-const service = require('./services/provider-live-coverage');
+const service = require('./services/admin/audits/provider-live-coverage');
 const template = require('./data/provider-live-coverage-1000-668c.json');
 const pilot = require('./data/provider-live-pilot-100-668c.json');
 const review = require('./data/provider-live-review-66-668d.json');

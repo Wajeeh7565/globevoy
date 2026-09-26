@@ -15,7 +15,7 @@ process.env.GV_PROVIDER_COVERAGE_MAX_BATCH = '10';
 process.env.GLOBEVOY_USE_MOCKS = 'false';
 process.env.ENABLE_PRICE_AUDIT_610D = 'true';
 
-const service = require('./services/provider-live-coverage');
+const service = require('./services/admin/audits/provider-live-coverage');
 const agodaService = require('./services/agoda');
 const lambda = require('./lambda');
 const staticAudit = require('./data/provider-mappings-1000-668b.json');
