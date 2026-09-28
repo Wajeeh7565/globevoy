@@ -1,6 +1,6 @@
 # GV-REFACTOR-R1.2 — Test and validation classification plan
 
-Status: **Phase A and Phase B completed; Phase C is in progress**.
+Status: **Phase A, Phase B, and the safe portion of Phase C are completed**.
 
 Current state:
 
@@ -8,7 +8,8 @@ Current state:
 - The unified `Globevoy Validation` GitHub Actions workflow is active and proven on the service-refactor branch.
 - Runtime service organization is complete at 69/69 files.
 - Phase C has started: the four PERF-R2/R3/R4/R5 Node tests are now organized under `tests/performance/`.
-- Remaining validators will continue moving gradually by cohort while preserving existing behavior and coverage.
+- Release/package validators that are referenced by historical workflows or expected inside build artifacts remain in their existing locations.
+- Further physical validator relocation is deferred unless workflow/package contracts are migrated separately with explicit evidence.
 
 ## Current inventory
 
@@ -86,7 +87,11 @@ Existing historical workflows should remain in place initially. The new workflow
 
 ### Phase C — move validators gradually
 
-Once the unified runner is stable, move validators into `tests/` by cohort and update paths. Do not combine test-file relocation with provider/runtime refactoring in the same commit.
+Once the unified runner is stable, move **standalone test files** into `tests/` by cohort and update paths.
+
+The PERF-R2/R3/R4/R5 Node tests have now been moved to `tests/performance/`.
+
+Do not automatically relocate release validators that are referenced by historical workflows, packaging checks, deployment artifacts, or operator procedures. Those validators are part of release/build contracts and require a separate migration decision.
 
 ### Phase D — retire redundant workflows only with evidence
 
@@ -129,4 +134,4 @@ The exact command membership should be generated from the current workflow/valid
 
 ## Non-goals
 
-No AWS deployment changes, no Lambda/Fargate migration, no provider behavior changes, no production calls, no removal of existing workflows, and no test-file relocation in R1.2.
+No AWS deployment changes, no Lambda/Fargate migration, no provider behavior changes, no production calls, no removal of existing workflows, and no relocation of release/package validators whose paths are part of historical workflow or artifact contracts.

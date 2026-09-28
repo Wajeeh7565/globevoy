@@ -96,8 +96,8 @@
 .github\workflows\build-staging-backend.yml:80: - name: Validate staging five-origin final-live policy
 .github\workflows\build-staging-backend.yml:81: run: node backend/validate-gv-flight-703b.js
 .github\workflows\build-staging-backend.yml:83: - name: Validate GV-PERF-R5 bounded rescue ordering
-.github\workflows\build-staging-backend.yml:84: run: node backend/validate-gv-perf-r5.test.js
-.github\workflows\build-staging-backend.yml:93: node --check backend/validate-gv-perf-r5.test.js
+.github\workflows\build-staging-backend.yml:84: run: node tests/performance/validate-gv-perf-r5.test.js
+.github\workflows\build-staging-backend.yml:93: node --check tests/performance/validate-gv-perf-r5.test.js
 .github\workflows\build-staging-backend.yml:104: node --check backend/validate-gv-data-701b.js
 .github\workflows\build-staging-backend.yml:105: node --check backend/validate-gv-rec-702a.js
 .github\workflows\build-staging-backend.yml:106: node --check backend/validate-gv-rec-702b.js

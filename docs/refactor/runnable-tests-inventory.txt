@@ -57,10 +57,10 @@ backend\validate-gv-live-667a.js
 backend\validate-gv-live-667b.js
 backend\validate-gv-live-712.js
 backend\validate-gv-mvp-666a.js
-backend\validate-gv-perf-r2.test.js
-backend\validate-gv-perf-r3.test.js
-backend\validate-gv-perf-r4.test.js
-backend\validate-gv-perf-r5.test.js
+tests\performance\validate-gv-perf-r2.test.js
+tests\performance\validate-gv-perf-r3.test.js
+tests\performance\validate-gv-perf-r4.test.js
+tests\performance\validate-gv-perf-r5.test.js
 backend\validate-gv-platform-700a-staging-api.js
 backend\validate-gv-prod-669b.js
 backend\validate-gv-prod-669c.js
