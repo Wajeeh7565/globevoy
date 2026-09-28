@@ -3,7 +3,7 @@
 // GV-PERF-R2: real scheduler/684A code, deferred provider promises, no network.
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const h = require('./services/duffel-p2-staging-683h');
+const h = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
 const pilot = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 const FLAG = 'ENABLE_GV_PERF_R2_684A_EXACT_THREE_STAGING';
 const env = {

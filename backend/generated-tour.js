@@ -25,7 +25,7 @@ const { getDestination } = require('./data/destination-meta');
 const { WHOLE_TRIP_DATE_OPTIMIZER_VERSION_681B_P2, candidateStartDates: candidateStartDates681BP2, evaluateCandidate: evaluateWholeTripDateCandidate681BP2, selectCandidate: selectWholeTripDateCandidate681BP2 } = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
 const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, productionApproved: stay22ProductionApproved682B, fetchStay22Evidence } = require('./services/providers/stays/stay22/stay22-evidence-682b');
 const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('./services/providers/stays/shared/property-identity-682c');
-const { VERSION_683H, enabled683H: duffelP2Enabled683H, status683H: duffelP2Status683H, seedCandidateStarts683H, buildLiveProviderResults683H, applyResolvedAirports683H, liveSelectionFailClosedReason683JR1: classifyLiveSelectionFailClosed683JR1 } = require('./services/duffel-p2-staging-683h');
+const { VERSION_683H, enabled683H: duffelP2Enabled683H, status683H: duffelP2Status683H, seedCandidateStarts683H, buildLiveProviderResults683H, applyResolvedAirports683H, liveSelectionFailClosedReason683JR1: classifyLiveSelectionFailClosed683JR1 } = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
 
 const GENERATED_TOUR_VERSION = '2.18.3-gv-rec-684b-r3-strict-currency-budget-fit';
 const FLEXIBLE_DATE_ENGINE_VERSION_681B_P1 = 'GV-TRUST-681B-P1';

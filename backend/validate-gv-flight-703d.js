@@ -4,10 +4,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const policy703B = require('./services/staging-duffel-five-origin-703b');
-const policy703D = require('./services/staging-affordable-flight-five-origin-703d');
+const policy703B = require('./services/providers/flights/duffel/staging/staging-duffel-five-origin-703b');
+const policy703D = require('./services/providers/flights/staging/staging-affordable-flight-five-origin-703d');
 const discovery684B = require('./services/domain/live-fares/affordable-flight-discovery-684b');
-const shared703C = require('./services/staging-duffel-shared-budget-703c');
+const shared703C = require('./services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c');
 
 const ROOT = __dirname;
 const STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com/';
@@ -173,7 +173,7 @@ function main() {
   const wrapperSource = fs.readFileSync(path.join(ROOT, 'staging-lambda-702d.js'), 'utf8');
   const productionSource = fs.readFileSync(path.join(ROOT, 'lambda.js'), 'utf8');
   const discoverySource = fs.readFileSync(path.join(ROOT, 'services', 'domain', 'live-fares', 'affordable-flight-discovery-684b.js'), 'utf8');
-  const overlaySource = fs.readFileSync(path.join(ROOT, 'services', 'staging-affordable-flight-five-origin-703d.js'), 'utf8');
+  const overlaySource = fs.readFileSync(path.join(ROOT, 'services', 'providers', 'flights', 'staging', 'staging-affordable-flight-five-origin-703d.js'), 'utf8');
 
   const install703BIndex = wrapperSource.indexOf('stagingDuffel703B.install()');
   const install703DIndex = wrapperSource.indexOf('stagingAffordable703D.install()');

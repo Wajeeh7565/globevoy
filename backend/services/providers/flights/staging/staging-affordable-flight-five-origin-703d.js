@@ -6,7 +6,7 @@
 // order/ticketing capability, or change production. It only injects the already-
 // proven five-origin cohort into 684B inside the isolated staging process.
 
-const stagingDuffel703B = require('./staging-duffel-five-origin-703b');
+const stagingDuffel703B = require('../duffel/staging/staging-duffel-five-origin-703b');
 
 const VERSION = 'GV-FLIGHT-703D';
 const REQUIRED_STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';

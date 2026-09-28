@@ -18,23 +18,23 @@ delete process.env.GV_DUFFEL_MAX_ADULTS_703E;
 // Mirror the staging wrapper installation order. 703C intentionally loads 684A
 // before 703E; the adult scope is read dynamically so the later staging-only
 // ceiling change is still safe and does not alter production/default behavior.
-const policy703B = require('./services/staging-duffel-five-origin-703b');
+const policy703B = require('./services/providers/flights/duffel/staging/staging-duffel-five-origin-703b');
 const install703B = policy703B.install();
 assert.equal(install703B.ok, true);
 assert.equal(install703B.applied, true);
 
-const shared703C = require('./services/staging-duffel-shared-budget-703c');
+const shared703C = require('./services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c');
 const install703C = shared703C.install();
 assert.equal(install703C.ok, true);
 assert.equal(install703C.applied, true);
 assert.equal(shared703C.SHARED_PHYSICAL_REQUEST_CAP, 8);
 
-const policy703D = require('./services/staging-affordable-flight-five-origin-703d');
+const policy703D = require('./services/providers/flights/staging/staging-affordable-flight-five-origin-703d');
 const install703D = policy703D.install();
 assert.equal(install703D.ok, true);
 assert.equal(install703D.applied, true);
 
-const policy703E = require('./services/staging-duffel-two-adult-703e');
+const policy703E = require('./services/providers/flights/duffel/staging/staging-duffel-two-adult-703e');
 const install703E = policy703E.install();
 assert.equal(policy703E.VERSION, 'GV-FLIGHT-703E');
 assert.equal(install703E.ok, true);
@@ -332,7 +332,7 @@ async function main() {
   const productionSource = fs.readFileSync(path.join(ROOT, 'lambda.js'), 'utf8');
   const adapterSource = fs.readFileSync(path.join(ROOT, 'services', 'providers', 'flights', 'duffel', 'duffel-live-adapter-683d.js'), 'utf8');
   const pricingSource = fs.readFileSync(path.join(ROOT, 'services', 'domain', 'pricing', 'traveller-pricing.js'), 'utf8');
-  const overlaySource = fs.readFileSync(path.join(ROOT, 'services', 'staging-duffel-two-adult-703e.js'), 'utf8');
+  const overlaySource = fs.readFileSync(path.join(ROOT, 'services', 'providers', 'flights', 'duffel', 'staging', 'staging-duffel-two-adult-703e.js'), 'utf8');
 
   const install703DIndex = wrapperSource.indexOf('stagingAffordable703D.install()');
   const install703EIndex = wrapperSource.indexOf('stagingAdults703E.install()');

@@ -4,7 +4,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const pilot = require('./services/domain/live-fares/public-live-fare-pilot-684a');
-const p2 = require('./services/duffel-p2-staging-683h');
+const p2 = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
 const liveVerification = require('./services/domain/live-fares/live-provider-verification');
 
 let passed = 0;

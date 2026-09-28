@@ -26,7 +26,7 @@ const {
   loadMetroRegistry683H,
   buildMetroFallbackCandidates683H,
   applyResolvedAirports683H
-} = require('../../duffel-p2-staging-683h');
+} = require('../../providers/flights/duffel/duffel-p2-staging-683h');
 const { VERSION_685C, VERSION_685C_R2, selectLiveFareOffers685C } = require('./live-fare-selection-685c');
 const {
   VERSION_685C_R1,

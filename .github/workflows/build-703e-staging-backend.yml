@@ -6,15 +6,15 @@ on:
       - staging
     paths:
       - 'backend/services/providers/flights/duffel/duffel-adult-scope-703e.js'
-      - 'backend/services/staging-duffel-two-adult-703e.js'
+      - 'backend/services/providers/flights/duffel/staging/staging-duffel-two-adult-703e.js'
       - 'backend/services/providers/flights/duffel/duffel-live-adapter-683d.js'
       - 'backend/services/providers/flights/flight-provider-contract-683c.js'
       - 'backend/services/domain/pricing/traveller-pricing.js'
       - 'backend/services/domain/live-fares/public-live-fare-pilot-684a.js'
       - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
-      - 'backend/services/staging-duffel-five-origin-703b.js'
-      - 'backend/services/staging-duffel-shared-budget-703c.js'
-      - 'backend/services/staging-affordable-flight-five-origin-703d.js'
+      - 'backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
+      - 'backend/services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
+      - 'backend/services/providers/flights/staging/staging-affordable-flight-five-origin-703d.js'
       - 'backend/generated-tour.js'
       - 'backend/staging-lambda-702d.js'
       - 'backend/validate-gv-flight-703b.js'
@@ -58,7 +58,7 @@ jobs:
           node --check backend/generated-tour.js
           node --check backend/staging-lambda-702d.js
           node --check backend/services/providers/flights/duffel/duffel-adult-scope-703e.js
-          node --check backend/services/staging-duffel-two-adult-703e.js
+          node --check backend/services/providers/flights/duffel/staging/staging-duffel-two-adult-703e.js
           node --check backend/services/providers/flights/duffel/duffel-live-adapter-683d.js
           node --check backend/services/providers/flights/flight-provider-contract-683c.js
           node --check backend/services/domain/pricing/traveller-pricing.js
@@ -79,12 +79,12 @@ jobs:
           test -f "dist/${artifact}"
           unzip -l "dist/${artifact}" | grep -q 'staging-lambda-702d.js'
           unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/duffel-adult-scope-703e.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-two-adult-703e.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-two-adult-703e.js'
           unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/duffel-live-adapter-683d.js'
           unzip -l "dist/${artifact}" | grep -q 'services/domain/pricing/traveller-pricing.js'
           unzip -l "dist/${artifact}" | grep -q 'services/domain/live-fares/public-live-fare-pilot-684a.js'
           unzip -l "dist/${artifact}" | grep -q 'services/domain/live-fares/affordable-flight-discovery-684b.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
           unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703e.js'
           sha256sum "dist/${artifact}" > "dist/${artifact}.sha256.txt"
           cat > dist/DEPLOYMENT-703E.txt <<EOF2

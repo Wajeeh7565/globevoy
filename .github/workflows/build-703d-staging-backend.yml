@@ -6,9 +6,9 @@ on:
       - staging
     paths:
       - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
-      - 'backend/services/staging-affordable-flight-five-origin-703d.js'
-      - 'backend/services/staging-duffel-five-origin-703b.js'
-      - 'backend/services/staging-duffel-shared-budget-703c.js'
+      - 'backend/services/providers/flights/staging/staging-affordable-flight-five-origin-703d.js'
+      - 'backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
+      - 'backend/services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
       - 'backend/staging-lambda-702d.js'
       - 'backend/validate-gv-flight-703b.js'
       - 'backend/validate-gv-flight-703c.js'
@@ -49,9 +49,9 @@ jobs:
           node --check backend/staging-lambda.js
           node --check backend/staging-lambda-702d.js
           node --check backend/services/domain/live-fares/affordable-flight-discovery-684b.js
-          node --check backend/services/staging-duffel-five-origin-703b.js
-          node --check backend/services/staging-duffel-shared-budget-703c.js
-          node --check backend/services/staging-affordable-flight-five-origin-703d.js
+          node --check backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js
+          node --check backend/services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js
+          node --check backend/services/providers/flights/staging/staging-affordable-flight-five-origin-703d.js
           node --check backend/validate-gv-flight-703d.js
 
       - name: Build 703D staging ZIP
@@ -67,9 +67,9 @@ jobs:
           test -f "dist/${artifact}"
           unzip -l "dist/${artifact}" | grep -q 'staging-lambda-702d.js'
           unzip -l "dist/${artifact}" | grep -q 'services/domain/live-fares/affordable-flight-discovery-684b.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-five-origin-703b.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/staging-affordable-flight-five-origin-703d.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/staging/staging-affordable-flight-five-origin-703d.js'
           unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703d.js'
           sha256sum "dist/${artifact}" > "dist/${artifact}.sha256.txt"
           cat > dist/DEPLOYMENT-703D.txt <<EOF

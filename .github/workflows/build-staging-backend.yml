@@ -100,7 +100,7 @@ jobs:
           node --check backend/services/staging-reviewed-recovery-702d.js
           node --check backend/services/cities/recovery/reviewed-activation-promotion-702e.js
           node --check backend/services/staging-gateway-foundation-702f-d.js
-          node --check backend/services/staging-duffel-five-origin-703b.js
+          node --check backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js
           node --check backend/validate-gv-data-701b.js
           node --check backend/validate-gv-rec-702a.js
           node --check backend/validate-gv-rec-702b.js
@@ -136,7 +136,7 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'services/staging-reviewed-recovery-702d.js'
           unzip -l "dist/${artifact}" | grep -q 'services/cities/recovery/reviewed-activation-promotion-702e.js'
           unzip -l "dist/${artifact}" | grep -q 'services/staging-gateway-foundation-702f-d.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-five-origin-703b.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
           unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703b.js'
           unzip -l "dist/${artifact}" | grep -q 'data/gv-rec-702c-r2-reviewed-evidence-manifest.json'
           unzip -l "dist/${artifact}" | grep -q 'data/gv-rec-702e-promotion-manifest.json'

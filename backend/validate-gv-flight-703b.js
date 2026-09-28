@@ -3,7 +3,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const policy = require('./services/staging-duffel-five-origin-703b');
+const policy = require('./services/providers/flights/duffel/staging/staging-duffel-five-origin-703b');
 const live684A = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 const discovery684B = require('./services/domain/live-fares/affordable-flight-discovery-684b');
 
@@ -70,7 +70,7 @@ function main() {
   assert(stagingLoadIndex > installIndex, '703B policy must install before staging Lambda loads');
   assert(wrapper.includes("X-Globevoy-Staging-Duffel"), '703B diagnostic header missing');
 
-  const source = fs.readFileSync(path.join(__dirname, 'services', 'staging-duffel-five-origin-703b.js'), 'utf8');
+  const source = fs.readFileSync(path.join(__dirname, 'services', 'providers', 'flights', 'duffel', 'staging', 'staging-duffel-five-origin-703b.js'), 'utf8');
   assert(!/process\.env\.ENABLE_DUFFEL/.test(source), '703B must not enable Duffel flags');
   assert(!/env\.ENABLE_DUFFEL/.test(source), '703B must not mutate Duffel enable flags');
   assert(!source.includes('DUFFEL_ACCESS_TOKEN ='), '703B must not inject Duffel credentials');

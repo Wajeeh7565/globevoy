@@ -3,7 +3,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const h = require('./services/duffel-p2-staging-683h');
+const h = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
 const p2 = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
 const liveVerification683JR2 = require('./services/domain/live-fares/live-provider-verification');
 
@@ -563,7 +563,7 @@ function rawDuffel683DResult(origin, destination, departureDate, amount = 100, c
   });
   const lambdaSource = fs.readFileSync(path.join(__dirname,'lambda.js'),'utf8');
   const serverSource = fs.readFileSync(path.join(__dirname,'server.js'),'utf8');
-  const serviceSource = fs.readFileSync(path.join(__dirname,'services/duffel-p2-staging-683h.js'),'utf8');
+  const serviceSource = fs.readFileSync(path.join(__dirname,'services/providers/flights/duffel/duffel-p2-staging-683h.js'),'utf8');
   test('generated-tour contains 683H dormant P2 hook', () => assert.match(generatedSource,/duffelP2Enabled683H/));
   test('683J generated-tour diagnostics expose request budget plan', () => assert.match(generatedSource,/requestBudgetPlan:\s*live683H\?\.requestBudgetPlan/));
   test('683J generated-tour diagnostics expose provider abort state', () => assert.match(generatedSource,/providerAbortReason:\s*live683H\?\.state\?\.abortReason/));

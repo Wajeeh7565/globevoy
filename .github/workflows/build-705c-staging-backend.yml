@@ -71,8 +71,8 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'services/accounts/auth/staging-cognito-auth-705b-r3.js'
           unzip -l "dist/${artifact}" | grep -q 'services/accounts/saved-trips/staging-saved-trips-705c.js'
           unzip -l "dist/${artifact}" | grep -q 'validate-gv-account-705c.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-two-adult-703e.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-two-adult-703e.js'
           bytes=$(stat -c%s "dist/${artifact}")
           test "$bytes" -le 52428800
           sha256sum "dist/${artifact}" > "dist/${artifact}.sha256.txt"

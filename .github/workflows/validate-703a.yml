@@ -8,7 +8,7 @@ on:
       - 'backend/data/gv-flight-703a-duffel-expansion-audit.json'
       - 'backend/validate-gv-flight-703a.js'
       - 'backend/services/providers/flights/duffel/duffel-live-adapter-683d.js'
-      - 'backend/services/duffel-p2-staging-683h.js'
+      - 'backend/services/providers/flights/duffel/duffel-p2-staging-683h.js'
       - 'backend/services/domain/live-fares/public-live-fare-pilot-684a.js'
       - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
       - 'backend/generated-tour.js'
@@ -44,7 +44,7 @@ jobs:
         run: |
           set -euo pipefail
           if grep -R -E "require\(['\"]\./?(data/)?gv-flight-703a-duffel-expansion-audit|GV-FLIGHT-703A" \
-              backend/lambda.js backend/staging-lambda.js backend/staging-lambda-702d.js backend/generated-tour.js backend/services/providers/flights/duffel/duffel-live-adapter-683d.js backend/services/duffel-p2-staging-683h.js backend/services/domain/live-fares/public-live-fare-pilot-684a.js backend/services/domain/live-fares/affordable-flight-discovery-684b.js; then
+              backend/lambda.js backend/staging-lambda.js backend/staging-lambda-702d.js backend/generated-tour.js backend/services/providers/flights/duffel/duffel-live-adapter-683d.js backend/services/providers/flights/duffel/duffel-p2-staging-683h.js backend/services/domain/live-fares/public-live-fare-pilot-684a.js backend/services/domain/live-fares/affordable-flight-discovery-684b.js; then
             echo "703A runtime wiring detected."
             exit 1
           fi

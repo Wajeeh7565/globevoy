@@ -17,7 +17,7 @@ if (stagingGateway.enabled() && GATEWAY_INSTALLATION.ok !== true) {
   throw new Error(`GV-REC-702F-D staging gateway overlay failed closed: ${(GATEWAY_INSTALLATION.issues || []).join(',')}`);
 }
 
-const stagingDuffel703B = require('./services/staging-duffel-five-origin-703b');
+const stagingDuffel703B = require('./services/providers/flights/duffel/staging/staging-duffel-five-origin-703b');
 const DUFFEL_703B_INSTALLATION = stagingDuffel703B.install();
 if (stagingDuffel703B.enabled() && DUFFEL_703B_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703B staging Duffel origin policy failed closed: ${DUFFEL_703B_INSTALLATION.reason || 'unknown'}`);
@@ -25,7 +25,7 @@ if (stagingDuffel703B.enabled() && DUFFEL_703B_INSTALLATION.ok !== true) {
 
 // Install 703C before staging-lambda -> lambda -> generated-tour loads 684A.
 // This guarantees generated-tour captures the shared-budget-aware 684A export.
-const stagingDuffelBudget703C = require('./services/staging-duffel-shared-budget-703c');
+const stagingDuffelBudget703C = require('./services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c');
 const DUFFEL_703C_INSTALLATION = stagingDuffelBudget703C.install();
 if (stagingDuffelBudget703C.enabled() && DUFFEL_703C_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703C staging shared Duffel budget failed closed: ${DUFFEL_703C_INSTALLATION.reason || 'unknown'}`);
@@ -34,7 +34,7 @@ if (stagingDuffelBudget703C.enabled() && DUFFEL_703C_INSTALLATION.ok !== true) {
 // 703D must install after the 703B five-origin final-schedule policy is present,
 // but before generated-tour loads 684B. It only injects the bounded staging
 // affordable-discovery allowlist; it does not enable Duffel or add credentials.
-const stagingAffordable703D = require('./services/staging-affordable-flight-five-origin-703d');
+const stagingAffordable703D = require('./services/providers/flights/staging/staging-affordable-flight-five-origin-703d');
 const DUFFEL_703D_INSTALLATION = stagingAffordable703D.install();
 if (stagingAffordable703D.enabled() && DUFFEL_703D_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703D staging affordable-flight origin policy failed closed: ${DUFFEL_703D_INSTALLATION.reason || 'unknown'}`);
@@ -43,7 +43,7 @@ if (stagingAffordable703D.enabled() && DUFFEL_703D_INSTALLATION.ok !== true) {
 // 703E installs after 703B/703C/703D so the origin cohort and shared cap are
 // already proven. It only raises the in-process adult ceiling from one to two
 // for this exact staging origin; it does not enable Duffel or add credentials.
-const stagingAdults703E = require('./services/staging-duffel-two-adult-703e');
+const stagingAdults703E = require('./services/providers/flights/duffel/staging/staging-duffel-two-adult-703e');
 const DUFFEL_703E_INSTALLATION = stagingAdults703E.install();
 if (stagingAdults703E.enabled() && DUFFEL_703E_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703E staging two-adult policy failed closed: ${DUFFEL_703E_INSTALLATION.reason || 'unknown'}`);
