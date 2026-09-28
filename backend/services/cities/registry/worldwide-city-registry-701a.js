@@ -15,7 +15,7 @@ const curatedRegistry = require('../../../data/unified-city-registry-1000-668b.j
 const {
   findForCatalogueRow,
   resolveRegistryCity
-} = require('../../city-registry');
+} = require('./city-registry');
 const {
   VERSION: ACTIVATION_VERSION,
   enabled: verifiedActivationEnabled,

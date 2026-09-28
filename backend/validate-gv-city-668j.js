@@ -13,7 +13,7 @@ process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668J = 'true';
 process.env.GLOBEVOY_USE_MOCKS = 'false';
 
 const activation = require('./services/cities/registry/verified-city-activation');
-const cityRegistry = require('./services/city-registry');
+const cityRegistry = require('./services/cities/registry/city-registry');
 const routeGraph = require('./services/domain/routing/global-route-graph');
 const lambda = require('./lambda');
 const snapshot = require('./data/verified-city-activation-400-668j.json');

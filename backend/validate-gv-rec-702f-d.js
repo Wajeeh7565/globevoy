@@ -5,7 +5,7 @@ const fs = require('fs');
 const { execFileSync } = require('child_process');
 const overlay = require('./services/cities/gateways/staging/staging-gateway-foundation-702f-d');
 const manifest = require('./data/gateway-foundation-corrections-702f-d.json');
-const cityRegistry = require('./services/city-registry');
+const cityRegistry = require('./services/cities/registry/city-registry');
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function byId(registry) { return new Map((registry.records || []).map(row => [row.cityId, row])); }
@@ -107,7 +107,7 @@ function main() {
     if (!entry.GATEWAY_INSTALLATION || entry.GATEWAY_INSTALLATION.ok !== true || entry.GATEWAY_INSTALLATION.appliedCount !== 9) {
       throw new Error('staging gateway installation failed');
     }
-    const registry = require('./services/city-registry');
+    const registry = require('./services/cities/registry/city-registry');
     const selected = registry.routeGraphSelection([]);
     for (const change of manifest.corrections) {
       const resolved = registry.resolveRegistryCity(change.cityId);

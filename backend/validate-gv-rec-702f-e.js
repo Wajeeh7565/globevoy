@@ -7,7 +7,7 @@ const path = require('path');
 const candidate = require('./services/cities/gateways/permanent-gateway-foundation-candidate-702f-e');
 const stagingOverlay = require('./services/cities/gateways/staging/staging-gateway-foundation-702f-d');
 const manifest = require('./data/gateway-foundation-permanent-candidate-702f-e.json');
-const cityRegistry = require('./services/city-registry');
+const cityRegistry = require('./services/cities/registry/city-registry');
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function byId(registry) { return new Map((registry.records || []).map(row => [row.cityId, row])); }
@@ -107,7 +107,7 @@ function main() {
     'staging-lambda.js',
     'staging-lambda-702d.js',
     'generated-tour.js',
-    'services/city-registry.js',
+    'services/cities/registry/city-registry.js',
     'services/domain/routing/global-route-graph.js'
   ]) {
     const source = fs.readFileSync(path.join(__dirname, runtimePath), 'utf8');

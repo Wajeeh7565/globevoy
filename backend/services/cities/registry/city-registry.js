@@ -3,15 +3,15 @@
 // GV-CITY-668A — unified 1,000-city origin + destination registry.
 // Static airport/city validation does not imply live fare or hotel inventory.
 
-const registry668A = require('../data/unified-city-registry-1000.json');
-const registry668B = require('../data/unified-city-registry-1000-668b.json');
+const registry668A = require('../../../data/unified-city-registry-1000.json');
+const registry668B = require('../../../data/unified-city-registry-1000-668b.json');
 const {
   VERSION: ACTIVATION_VERSION,
   enabled: verifiedActivationEnabled,
   summary: verifiedActivationSummary,
   activationForCity,
   annotateCatalogueRow
-} = require('./cities/registry/verified-city-activation');
+} = require('./verified-city-activation');
 
 const VERSION = 'GV-CITY-668B';
 

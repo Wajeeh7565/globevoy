@@ -21,7 +21,7 @@ const {
   isMultiCityValidationError
 } = require('./multicity-routes');
 const { getMixedResults } = require('./mixed-results');
-const { registrySummary, searchRegistry } = require('./services/city-registry');
+const { registrySummary, searchRegistry } = require('./services/cities/registry/city-registry');
 const { coverageSummary, searchCoverage } = require('./services/admin/audits/provider-mapping-audit');
 const { snapshotSummary: liveCoverageSummary, searchSnapshot: searchLiveCoverage, verifyBatch: verifyLiveCoverageBatch, isAuthorized: isLiveCoverageAuthorized } = require('./services/admin/audits/provider-live-coverage');
 const { summary: verifiedActivationSummary, search: searchVerifiedActivation, retryQueues: verifiedActivationRetryQueues } = require('./services/cities/registry/verified-city-activation');

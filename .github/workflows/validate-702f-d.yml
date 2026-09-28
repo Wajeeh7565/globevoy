@@ -10,7 +10,7 @@ on:
       - 'backend/validate-gv-rec-702f-d.js'
       - 'backend/staging-lambda-702d.js'
       - 'backend/data/unified-city-registry-1000-668b.json'
-      - 'backend/services/city-registry.js'
+      - 'backend/services/cities/registry/city-registry.js'
       - 'backend/services/cities/gateways/ourairports-gateway-enrichment-702f-b.js'
       - 'docs/GV-REC-702F-D.md'
       - '.github/workflows/validate-702f-d.yml'

@@ -6,7 +6,7 @@
 // Provider enrichment and LLM curation happen later in generated-tour.js.
 
 const globalCatalogue = require('../../../data/global-destination-catalogue.json');
-const { cityRegistryEnabled, routeGraphSelection } = require('../../city-registry');
+const { cityRegistryEnabled, routeGraphSelection } = require('../../cities/registry/city-registry');
 const {
   enabled: verifiedActivationEnabled,
   activationForCity,

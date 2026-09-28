@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const registry = require('./data/unified-city-registry-1000.json');
-const cityService = require('./services/city-registry');
+const cityService = require('./services/cities/registry/city-registry');
 
 const checks = [];
 function check(name, condition, details = {}) {
