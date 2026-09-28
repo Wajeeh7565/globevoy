@@ -24,7 +24,7 @@ const {
   worldwideRegistrySummary,
   resolveWorldwideCity,
   searchWorldwideRegistry
-} = require('./services/worldwide-city-registry-701a');
+} = require('./services/cities/registry/worldwide-city-registry-701a');
 const {
   VERSION: GLOBAL_COVERAGE_VERSION,
   enabled: globalCoverageEnabled,

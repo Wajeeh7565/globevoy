@@ -10,7 +10,7 @@
 // - never returns provider offer/prebook IDs or raw provider responses;
 // - individual provider failures fail closed to the caller's saved estimate.
 
-const worldwide701A = require('../../../worldwide-city-registry-701a');
+const worldwide701A = require('../../../cities/registry/worldwide-city-registry-701a');
 
 const VERSION = 'GV-LIVE-712'; // Successor to GV-HOTEL-708C; existing route/flag retained.
 const RATE_URL = 'https://api.liteapi.travel/v3.0/hotels/rates';

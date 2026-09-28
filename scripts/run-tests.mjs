@@ -65,7 +65,7 @@ const groups = {
     ['node', '--check', 'backend/generated-tour.js'],
     ['node', '--check', 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'],
     ['node', '--check', 'backend/services/domain/routing/route-diversity-687b.js'],
-    ['node', '--check', 'backend/services/worldwide-city-registry-701a.js'],
+    ['node', '--check', 'backend/services/cities/registry/worldwide-city-registry-701a.js'],
     ['node', '--check', 'backend/services/admin/audits/global-recommendation-coverage-702a.js'],
     ['node', '--check', 'backend/services/admin/audits/global-recovery-priority-702b.js'],
     ['node', '--check', 'backend/services/admin/audits/global-provider-recovery-smoke-plan-702c.js'],

@@ -10,18 +10,18 @@
 // Static city/airport/provider metadata never implies a live fare, live hotel
 // inventory, or guaranteed bookability.
 
-const globalCatalogue = require('../data/global-destination-catalogue.json');
-const curatedRegistry = require('../data/unified-city-registry-1000-668b.json');
+const globalCatalogue = require('../../../data/global-destination-catalogue.json');
+const curatedRegistry = require('../../../data/unified-city-registry-1000-668b.json');
 const {
   findForCatalogueRow,
   resolveRegistryCity
-} = require('./city-registry');
+} = require('../../city-registry');
 const {
   VERSION: ACTIVATION_VERSION,
   enabled: verifiedActivationEnabled,
   activationForCity,
   summary: verifiedActivationSummary
-} = require('./verified-city-activation');
+} = require('../../verified-city-activation');
 
 const VERSION = 'GV-DATA-701A';
 

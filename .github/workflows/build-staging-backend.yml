@@ -92,7 +92,7 @@ jobs:
           node --check backend/services/domain/live-fares/affordable-flight-discovery-684b.js
           node --check backend/validate-gv-perf-r5.test.js
           node --check backend/services/domain/routing/route-diversity-687b.js
-          node --check backend/services/worldwide-city-registry-701a.js
+          node --check backend/services/cities/registry/worldwide-city-registry-701a.js
           node --check backend/services/admin/audits/global-recommendation-coverage-702a.js
           node --check backend/services/admin/audits/global-recovery-priority-702b.js
           node --check backend/services/admin/audits/global-provider-recovery-smoke-plan-702c.js
@@ -128,7 +128,7 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'staging-lambda-702d.js'
           unzip -l "dist/${artifact}" | grep -q 'lambda.js'
           unzip -l "dist/${artifact}" | grep -q 'generated-tour.js'
-          unzip -l "dist/${artifact}" | grep -q 'services/worldwide-city-registry-701a.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/cities/registry/worldwide-city-registry-701a.js'
           unzip -l "dist/${artifact}" | grep -q 'services/admin/audits/global-recommendation-coverage-702a.js'
           unzip -l "dist/${artifact}" | grep -q 'services/admin/audits/global-recovery-priority-702b.js'
           unzip -l "dist/${artifact}" | grep -q 'services/admin/audits/global-provider-recovery-smoke-plan-702c.js'
