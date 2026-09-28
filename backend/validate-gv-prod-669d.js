@@ -12,7 +12,7 @@ const path = require('path');
 const activation = require('./services/verified-city-activation');
 const generated = require('./generated-tour');
 const pricing = require('./services/domain/pricing/traveller-pricing');
-const graph = require('./services/global-route-graph');
+const graph = require('./services/domain/routing/global-route-graph');
 
 const checks = [];
 function check(name, passed, details = null) {

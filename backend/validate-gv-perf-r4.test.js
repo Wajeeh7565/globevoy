@@ -56,7 +56,7 @@ function harness(config = {}) {
         return { tours: [first, selected], requested: { origin: 'YYZ' }, diagnostics: { baseline: true } };
       }
     },
-    './services/global-route-graph': {
+    './services/domain/routing/global-route-graph': {
       globalRouteGraphEnabled: () => true,
       generateProviderDrivenGlobalRouteCandidates: async () => {
         calls.push('graph');

@@ -5,7 +5,7 @@ process.env.ENABLE_MVP_VALIDATION_REPAIRS_669B = 'true';
 process.env.ENABLE_GLOBAL_ROUTE_GRAPH_665B = 'true';
 process.env.ENABLE_PROVIDER_DRIVEN_ROUTE_DISCOVERY_665B = 'false';
 
-const graph = require('./services/global-route-graph');
+const graph = require('./services/domain/routing/global-route-graph');
 const fallback = require('./global-generated-tour-fallback');
 const activation = require('./services/verified-city-activation');
 const generated = require('./generated-tour');

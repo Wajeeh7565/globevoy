@@ -19,7 +19,7 @@ const baseline = require('./services/verified-city-activation');
 const overlay = require('./services/cities/recovery/staging/staging-reviewed-recovery-702d');
 const installation = overlay.install({ baseline });
 const cityRegistry = require('./services/city-registry');
-const graph = require('./services/global-route-graph');
+const graph = require('./services/domain/routing/global-route-graph');
 
 let passed = 0;
 async function check(name, fn) {

@@ -20,7 +20,7 @@ const fs = require('fs');
 const path = require('path');
 const generated = require('./generated-tour');
 const activation = require('./services/verified-city-activation');
-const graph = require('./services/global-route-graph');
+const graph = require('./services/domain/routing/global-route-graph');
 const { getMultiCityTours } = require('./multicity-routes');
 
 const checks = [];

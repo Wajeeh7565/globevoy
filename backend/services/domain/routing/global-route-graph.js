@@ -5,23 +5,23 @@
 // catalogue. It does not invent provider fares or live hotel availability.
 // Provider enrichment and LLM curation happen later in generated-tour.js.
 
-const globalCatalogue = require('../data/global-destination-catalogue.json');
-const { cityRegistryEnabled, routeGraphSelection } = require('./city-registry');
+const globalCatalogue = require('../../../data/global-destination-catalogue.json');
+const { cityRegistryEnabled, routeGraphSelection } = require('../../city-registry');
 const {
   enabled: verifiedActivationEnabled,
   activationForCity,
   liveRecommendationEligible
-} = require('./verified-city-activation');
-const { loadGroupedCityFoundation } = require('../data/grouped-city-foundation');
-const { attachTourPresentation, currencyToUsdRate } = require('../budget-presentation');
-const { fetchTravelpayoutsCandidates } = require('./travelpayouts');
-const { normalizeParty, providerFarePartyTotalUsd } = require('./domain/pricing/traveller-pricing');
+} = require('../../verified-city-activation');
+const { loadGroupedCityFoundation } = require('../../../data/grouped-city-foundation');
+const { attachTourPresentation, currencyToUsdRate } = require('../../../budget-presentation');
+const { fetchTravelpayoutsCandidates } = require('../../travelpayouts');
+const { normalizeParty, providerFarePartyTotalUsd } = require('../pricing/traveller-pricing');
 const {
   evaluateTour,
   maxStopsForTrip,
   requestedNights,
   _internal: { haversineKm, macroRegion, estimateLegTravelHours }
-} = require('./domain/routing/route-feasibility');
+} = require('./route-feasibility');
 
 const GLOBAL_ROUTE_GRAPH_VERSION = 'GV-GLOBAL-665B+GV-MVP-666A+GV-CITY-668A+GV-CITY-668J+GV-PROD-669B+GV-PROD-669C+GV-PROD-669F';
 const RESERVE_PERCENT = 0.05;

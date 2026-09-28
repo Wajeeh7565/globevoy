@@ -41,7 +41,7 @@ check('registry search returns Suwon as origin', expansionSearch.records.some(r 
 const destinationSearch = cityService.searchRegistry({ q: 'Rabat', mode: 'destination', limit: 10 });
 check('registry search returns Rabat as destination', destinationSearch.records.some(r => r.displayName === 'Rabat' && r.destination?.eligible));
 
-const globalGraph = require('./services/global-route-graph');
+const globalGraph = require('./services/domain/routing/global-route-graph');
 const idx = globalGraph._internal.indexes();
 check('route graph exposes exactly 1000 registry destinations when enabled', idx.registrySelected.length === 1000, { count: idx.registrySelected.length });
 check('deterministic fallback remains limited to reviewed current 500', idx.trusted.length === 500, { count: idx.trusted.length });

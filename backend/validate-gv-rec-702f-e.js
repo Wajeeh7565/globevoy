@@ -108,7 +108,7 @@ function main() {
     'staging-lambda-702d.js',
     'generated-tour.js',
     'services/city-registry.js',
-    'services/global-route-graph.js'
+    'services/domain/routing/global-route-graph.js'
   ]) {
     const source = fs.readFileSync(path.join(__dirname, runtimePath), 'utf8');
     assert(!source.includes('permanent-gateway-foundation-candidate-702f-e'), `${runtimePath}: 702F-E must not be runtime imported`);

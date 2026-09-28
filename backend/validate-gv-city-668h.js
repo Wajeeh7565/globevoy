@@ -14,7 +14,7 @@ process.env.GLOBEVOY_USE_MOCKS = 'false';
 
 const activation = require('./services/verified-city-activation');
 const cityRegistry = require('./services/city-registry');
-const routeGraph = require('./services/global-route-graph');
+const routeGraph = require('./services/domain/routing/global-route-graph');
 const lambda = require('./lambda');
 const snapshot = require('./data/verified-city-activation-250-668h.json');
 const retry = require('./data/verified-city-retry-queues-668h.json');

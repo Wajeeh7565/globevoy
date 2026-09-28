@@ -36,7 +36,7 @@ function harness(config = {}, moduleSource = source) {
       if (config.legacyThrows) throw new Error('legacy failure');
       return { tours: [first, selected], requested: { origin: 'YYZ' }, diagnostics: { baseline: true } };
     } },
-    './services/global-route-graph': {
+    './services/domain/routing/global-route-graph': {
       globalRouteGraphEnabled: () => config.graph !== false,
       generateProviderDrivenGlobalRouteCandidates: async () => {
         calls.push('graph'); advance(3);
