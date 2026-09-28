@@ -4,7 +4,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const h = require('./services/duffel-p2-staging-683h');
-const p2 = require('./services/whole-trip-date-optimizer-681b-p2');
+const p2 = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
 const liveVerification683JR2 = require('./services/live-provider-verification');
 
 let passed = 0;

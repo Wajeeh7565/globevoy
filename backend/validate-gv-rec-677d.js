@@ -7,7 +7,7 @@ process.env.ENABLE_ROUTE_FEASIBILITY_GUARD_664A = 'true';
 const fs = require('fs');
 const path = require('path');
 const generated = require('./generated-tour');
-const destinationValue = require('./services/destination-value-proximity');
+const destinationValue = require('./services/domain/routing/destination-value-proximity');
 
 const checks = [];
 function check(name, passed, details = null) {

@@ -44,7 +44,7 @@ function harness(config = {}, moduleSource = source) {
         return { tours: config.emptyGraph ? [] : [first], diagnostics: { enabled: true } };
       }
     },
-    './services/route-feasibility': {
+    './services/domain/routing/route-feasibility': {
       guardEnabled: () => false, maxStopsForTrip: () => 3,
       guardCandidateTours: rows => ({ tours: rows }),
       evaluateTour: tour => { calls.push('guard'); advance(23); return {

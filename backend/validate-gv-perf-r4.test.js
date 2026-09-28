@@ -67,7 +67,7 @@ function harness(config = {}) {
         };
       }
     },
-    './services/route-feasibility': {
+    './services/domain/routing/route-feasibility': {
       guardEnabled: () => false,
       maxStopsForTrip: () => 3,
       guardCandidateTours: rows => ({ tours: rows }),

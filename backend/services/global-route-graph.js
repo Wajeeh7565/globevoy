@@ -21,7 +21,7 @@ const {
   maxStopsForTrip,
   requestedNights,
   _internal: { haversineKm, macroRegion, estimateLegTravelHours }
-} = require('./route-feasibility');
+} = require('./domain/routing/route-feasibility');
 
 const GLOBAL_ROUTE_GRAPH_VERSION = 'GV-GLOBAL-665B+GV-MVP-666A+GV-CITY-668A+GV-CITY-668J+GV-PROD-669B+GV-PROD-669C+GV-PROD-669F';
 const RESERVE_PERCENT = 0.05;

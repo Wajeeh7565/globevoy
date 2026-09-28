@@ -7,7 +7,7 @@ process.env.ENABLE_ROUTE_FEASIBILITY_GUARD_664A = 'true';
 const fs = require('fs');
 const path = require('path');
 const generated = require('./generated-tour');
-const optimizer = require('./services/whole-trip-route-optimizer');
+const optimizer = require('./services/domain/routing/whole-trip-route-optimizer');
 
 const checks = [];
 function check(name, passed, details = null) {

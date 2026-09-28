@@ -6,7 +6,7 @@ const path = require('node:path');
 
 const contract = require('./services/flight-provider-contract-683c');
 const router = require('./services/flight-provider-router-683c');
-const optimizer = require('./services/whole-trip-date-optimizer-681b-p2');
+const optimizer = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
 
 let passed = 0;
 function pass(name) { passed += 1; console.log(`PASS ${name}`); }

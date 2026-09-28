@@ -5,7 +5,7 @@
 // synchronized itinerary. The selected route cities are never changed here.
 
 const { enrichTourWithCheapFlights, buildVisualizerTour } = require('./generated-tour');
-const { guardEnabled, normalizeAirportIntegrity, evaluateTour } = require('./services/route-feasibility');
+const { guardEnabled, normalizeAirportIntegrity, evaluateTour } = require('./services/domain/routing/route-feasibility');
 const { normalizeParty } = require('./services/domain/pricing/traveller-pricing');
 const { LIVE_PROVIDER_VERIFICATION_VERSION, verifyTourWithLiveProviders } = require('./services/live-provider-verification');
 

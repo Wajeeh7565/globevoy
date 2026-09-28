@@ -6,7 +6,7 @@
 const globalCatalogue = require('./data/global-destination-catalogue.json');
 const { loadGroupedCityFoundation } = require('./data/grouped-city-foundation');
 const { attachTourPresentation, currencyToUsdRate } = require('./budget-presentation');
-const { guardEnabled, maxStopsForTrip } = require('./services/route-feasibility');
+const { guardEnabled, maxStopsForTrip } = require('./services/domain/routing/route-feasibility');
 const { GLOBAL_ROUTE_GRAPH_VERSION, globalRouteGraphEnabled, generateGlobalRouteCandidates } = require('./services/global-route-graph');
 const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/verified-city-activation');
 

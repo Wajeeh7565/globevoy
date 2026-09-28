@@ -13,7 +13,7 @@ const generated = require('./generated-tour');
 const adaptive = require('./budget-adaptive-routes');
 const travellerPricing = require('./services/domain/pricing/traveller-pricing');
 const canonicalEvidence = require('./services/domain/pricing/canonical-total-evidence');
-const feasibility = require('./services/route-feasibility');
+const feasibility = require('./services/domain/routing/route-feasibility');
 const partnerLinks = require('./services/partner-links');
 
 const checks = [];

@@ -1,7 +1,7 @@
 
 'use strict';
 const fs=require('fs'); const path=require('path');
-const diversity=require('./services/route-diversity-687b');
+const diversity=require('./services/domain/routing/route-diversity-687b');
 let pass=0, fail=0; function check(name, ok, detail=''){ if(ok){pass++; console.log('[PASS]',name);} else {fail++; console.error('[FAIL]',name,detail||'');}}
 const PREVIEW='https://686d-preview.dttux5e6ddtzb.amplifyapp.com'; const PROD='https://globevoy.com';
 check('P3 version marker', diversity.VERSION==='GV-REC-687B-P3', diversity.VERSION);
@@ -16,7 +16,7 @@ check('Lambda deletes public spoof before trusted injection', lambda.includes('d
 check('Generated-tour endpoint passes trusted 687B query', lambda.includes('getGeneratedTour(generatedTourQuery687BP1(canary683K.query, event.headers || {}))'));
 const gt=fs.readFileSync(path.join(__dirname,'generated-tour.js'),'utf8');
 check('Generated-tour gates 687B with request query', gt.includes('aiRouteDiversity687BEnabled(query)'));
-const svc=fs.readFileSync(path.join(__dirname,'services/route-diversity-687b.js'),'utf8');
+const svc=fs.readFileSync(path.join(__dirname,'services/domain/routing/route-diversity-687b.js'),'utf8');
 check('No 687B enable env var required', !svc.includes('ENABLE_AI_ASSISTED_ROUTE_DIVERSITY_687B') && !svc.includes('GV_AI_ROUTE_DIVERSITY_687B'));
 check('Production origin is sole P3 activation gate', svc.includes('return clean(query.__gvRequestOrigin687B) === PRODUCTION_ORIGIN_687B'));
 console.log(`\nGV-REC-687B-P3: ${pass}/${pass+fail} PASS`); if(fail) process.exit(1);

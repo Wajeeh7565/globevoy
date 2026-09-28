@@ -7,9 +7,9 @@
 // the existing 677B pipeline after a route is selected.
 
 const { evaluateTour, _internal: feasibility } = require('./route-feasibility');
-const { _internal: globalGraph } = require('./global-route-graph');
-const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('./domain/pricing/traveller-pricing');
-const { currencyToUsdRate, normalizeCurrency } = require('../budget-presentation');
+const { _internal: globalGraph } = require('../../global-route-graph');
+const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
+const { currencyToUsdRate, normalizeCurrency } = require('../../../budget-presentation');
 
 const WHOLE_TRIP_ROUTE_OPTIMIZATION_VERSION_677C = 'GV-REC-677C';
 const MAX_PERMUTATION_STOPS_677C = 4;
