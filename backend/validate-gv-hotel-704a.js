@@ -183,7 +183,7 @@ for (const forbidden of [
   assert.equal(moduleText.includes(forbidden), false, `704A readiness module contains forbidden live/writable token: ${forbidden}`);
 }
 
-const legacyText = fs.readFileSync(path.join(__dirname, 'services', 'agoda.js'), 'utf8');
+const legacyText = fs.readFileSync(path.join(__dirname, 'services', 'providers', 'stays', 'agoda', 'agoda.js'), 'utf8');
 assert(legacyText.includes("https://affiliateapi7643.agoda.com/affiliateservice/lt_v1"));
 assert(legacyText.includes('destination.agodaCityId'));
 assert(legacyText.includes('AGODA_SITE_ID'));

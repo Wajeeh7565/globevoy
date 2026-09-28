@@ -7,7 +7,7 @@ process.env.AGODA_API_KEY = 'test-key';
 process.env.GV_ALLOW_INJECTED_PROVIDER_EVIDENCE_FOR_VALIDATION = 'true';
 process.env.ENABLE_LIVE_PROVIDER_VERIFICATION_667A = 'true';
 
-const agoda = require('./services/agoda');
+const agoda = require('./services/providers/stays/agoda/agoda');
 
 let passed = 0;
 let total = 0;

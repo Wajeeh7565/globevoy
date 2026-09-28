@@ -16,7 +16,7 @@ process.env.GLOBEVOY_USE_MOCKS = 'false';
 process.env.ENABLE_PRICE_AUDIT_610D = 'true';
 
 const service = require('./services/admin/audits/provider-live-coverage');
-const agodaService = require('./services/agoda');
+const agodaService = require('./services/providers/stays/agoda/agoda');
 const lambda = require('./lambda');
 const staticAudit = require('./data/provider-mappings-1000-668b.json');
 const quality13 = require('./data/provider-live-quality-review-13-668e.json');

@@ -2,7 +2,7 @@ const { resolveOrigin, getDestination, fallbackFlightCandidates, is500CityDiscov
 const { PERSONAL_EXPENSE_RESERVE_PERCENT, buildBudgetReserve } = require('./data/daily-budget');
 const { fetchTravelpayoutsCandidates, convertFlightValueToUsd, buildAviasalesLink } = require('./services/providers/flights/travelpayouts/travelpayouts');
 const { fetchFlexDateWindows, isSupportedRoute, flexWindowsSourceWording } = require('./services/providers/flights/flexible-dates');
-const { fetchAgodaStayEstimate } = require('./services/agoda');
+const { fetchAgodaStayEstimate } = require('./services/providers/stays/agoda/agoda');
 const { getCityIntelligence, groupRoleCounts, normalizePreference } = require('./city-intelligence');
 const {
   buildCompositeScore,

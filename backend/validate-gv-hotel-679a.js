@@ -11,7 +11,7 @@ process.env.GV_ALLOW_INJECTED_PROVIDER_EVIDENCE_FOR_VALIDATION = 'true';
 process.env.ENABLE_PRICE_AUDIT_610D = 'false';
 process.env.CAD_TO_USD = process.env.CAD_TO_USD || '0.735';
 
-const agoda = require('./services/agoda');
+const agoda = require('./services/providers/stays/agoda/agoda');
 const live = require('./services/domain/live-fares/live-provider-verification');
 
 const checks = [];

@@ -6,7 +6,7 @@
 // downgrades the budget claim whenever critical items remain estimates.
 
 const { fetchFlightDates683C } = require('../../providers/flights/flight-provider-router-683c');
-const { fetchAgodaStayEstimate, AGODA_PROVIDER_STAY_VERSION_679A, AGODA_PRICE_LINK_INTEGRITY_VERSION_679A_R1, BOOKING_TRUST_VERSION_680A, providerStayIntegration679AEnabled, priceLinkIntegrity679AR1Enabled } = require('../../agoda');
+const { fetchAgodaStayEstimate, AGODA_PROVIDER_STAY_VERSION_679A, AGODA_PRICE_LINK_INTEGRITY_VERSION_679A_R1, BOOKING_TRUST_VERSION_680A, providerStayIntegration679AEnabled, priceLinkIntegrity679AR1Enabled } = require('../../providers/stays/agoda/agoda');
 const { AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2, agodaHandoffIntegrity679AR2Enabled } = require('../../providers/links/partner-links');
 const { getDestination } = require('../../../data/destination-meta');
 const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');

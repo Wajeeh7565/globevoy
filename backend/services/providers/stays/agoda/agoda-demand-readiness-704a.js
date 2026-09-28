@@ -211,7 +211,7 @@ function auditCurrentIntegration704A(env = {}) {
   const legacyEndpointDetected = /affiliateapi7643\.agoda\.com|affiliateservice\/lt_v1/i.test(configuredEndpoint);
   return {
     version: VERSION,
-    currentLegacyAdapter: 'backend/services/agoda.js',
+    currentLegacyAdapter: 'backend/services/providers/stays/agoda/agoda.js',
     configuredEndpointClass: legacyEndpointDetected ? 'legacy-affiliate-lt-v1' : 'custom-or-unknown',
     legacyDefaultEndpoint: LEGACY_DEFAULT_ENDPOINT,
     currentDemandSearchPath: CURRENT_SEARCH_PATH,

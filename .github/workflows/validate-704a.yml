@@ -42,7 +42,7 @@ jobs:
         run: |
           node --check backend/services/providers/stays/agoda/agoda-demand-readiness-704a.js
           node --check backend/validate-gv-hotel-704a.js
-          node --check backend/services/agoda.js
+          node --check backend/services/providers/stays/agoda/agoda.js
           node --check backend/recommendations.js
           node --check backend/generated-tour.js
           node --check backend/lambda.js
@@ -65,10 +65,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'https://affiliateapi7643.agoda.com/affiliateservice/lt_v1' backend/services/agoda.js
-          grep -Fq 'destination.agodaCityId' backend/services/agoda.js
-          grep -Fq 'AGODA_SITE_ID' backend/services/agoda.js
-          grep -Fq 'AGODA_API_KEY' backend/services/agoda.js
+          grep -Fq 'https://affiliateapi7643.agoda.com/affiliateservice/lt_v1' backend/services/providers/stays/agoda/agoda.js
+          grep -Fq 'destination.agodaCityId' backend/services/providers/stays/agoda/agoda.js
+          grep -Fq 'AGODA_SITE_ID' backend/services/providers/stays/agoda/agoda.js
+          grep -Fq 'AGODA_API_KEY' backend/services/providers/stays/agoda/agoda.js
           echo 'PASS - current legacy Agoda boundary is unchanged and explicitly audited.'
 
       - name: Confirm 704A implementation is deployment-free
