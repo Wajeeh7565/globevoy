@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const adapter = require('./services/nuitee-hotel-708c');
+const adapter = require('./services/providers/stays/nuitee/nuitee-hotel-708c');
 const wrapper = require('./services/booking/revalidation/staging-booking-revalidation-708c');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -174,7 +174,7 @@ function liveResult(tour) {
 
 (async () => {
   await check('708C stays staging-only and contains no booking/payment endpoint', async () => {
-    const source = read('backend/services/nuitee-hotel-708c.js');
+    const source = read('backend/services/providers/stays/nuitee/nuitee-hotel-708c.js');
     const production = read('backend/lambda.js');
     assert.match(source, /GV-HOTEL-708C/);
     assert.match(source, /hotels\/rates/);

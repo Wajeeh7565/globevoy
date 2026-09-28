@@ -5,7 +5,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
-const hotel = require('./services/nuitee-hotel-708c');
+const hotel = require('./services/providers/stays/nuitee/nuitee-hotel-708c');
 const ledger = require('./services/domain/pricing/current-trip-total-712');
 const wrapper = require('./services/booking/revalidation/staging-booking-revalidation-708c');
 const base = require('./services/booking/revalidation/staging-booking-revalidation-707b');
@@ -306,6 +306,6 @@ test('staging endpoint composes current flights and PREBOOK hotels using owner t
 test('no production Lambda activation or new booking/order/payment endpoints', () => {
   const production = fs.readFileSync(`${__dirname}/lambda.js`, 'utf8');
   assert.doesNotMatch(production, /nuitee-hotel-708c|current-trip-total-712/);
-  const adapter = fs.readFileSync(`${__dirname}/services/nuitee-hotel-708c.js`, 'utf8');
+  const adapter = fs.readFileSync(`${__dirname}/services/providers/stays/nuitee/nuitee-hotel-708c.js`, 'utf8');
   assert.doesNotMatch(adapter, /rates\/book|air\/orders/);
 });

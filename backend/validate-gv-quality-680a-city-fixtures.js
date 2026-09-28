@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const { enrichFlightLeg, enrichStay } = require('./services/partner-links');
+const { enrichFlightLeg, enrichStay } = require('./services/providers/links/partner-links');
 
 function daysBetween(start, end) {
   return Math.round((Date.parse(`${end}T00:00:00Z`) - Date.parse(`${start}T00:00:00Z`)) / 86400000);

@@ -6,7 +6,7 @@ const {
   normalizeHotelEvidence, automaticDateFloor, automaticDateAllowed
 } = require('./services/domain/pricing/price-evidence-integrity');
 const { buildCanonicalLedger } = require('./services/domain/pricing/canonical-total-evidence');
-const { buildAviasalesOneWaySearchUrl, buildAgodaCitySearchUrl } = require('./services/partner-links');
+const { buildAviasalesOneWaySearchUrl, buildAgodaCitySearchUrl } = require('./services/providers/links/partner-links');
 const { initialAutomaticStartDate } = require('./generated-tour');
 
 const checks = [];

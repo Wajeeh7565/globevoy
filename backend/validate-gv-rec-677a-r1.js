@@ -14,7 +14,7 @@ const adaptive = require('./budget-adaptive-routes');
 const travellerPricing = require('./services/domain/pricing/traveller-pricing');
 const canonicalEvidence = require('./services/domain/pricing/canonical-total-evidence');
 const feasibility = require('./services/domain/routing/route-feasibility');
-const partnerLinks = require('./services/partner-links');
+const partnerLinks = require('./services/providers/links/partner-links');
 
 const checks = [];
 function check(name, passed, details = null) {

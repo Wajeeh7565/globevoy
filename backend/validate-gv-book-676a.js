@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
-const service = require('./services/duffel-sandbox-proof');
+const service = require('./services/providers/flights/duffel/duffel-sandbox-proof');
 const lambda = require('./lambda');
 
 const checks=[];
@@ -85,7 +85,7 @@ async function main(){
   if(oldToken===undefined)delete process.env.DUFFEL_ACCESS_TOKEN;else process.env.DUFFEL_ACCESS_TOKEN=oldToken;
 
   const lambdaSource=fs.readFileSync(path.join(__dirname,'lambda.js'),'utf8');
-  check('Lambda imports sandbox proof service',lambdaSource.includes("require('./services/duffel-sandbox-proof')"));
+  check('Lambda imports sandbox proof service',lambdaSource.includes("require('./services/providers/flights/duffel/duffel-sandbox-proof')"));
   check('Lambda exposes only one proof route',lambdaSource.includes("path === '/api/duffel-sandbox-proof'"));
   check('no order creation endpoint added',!lambdaSource.includes('/api/duffel-order')&&!lambdaSource.includes('/api/duffel-payment'));
 

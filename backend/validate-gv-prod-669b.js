@@ -9,7 +9,7 @@ const graph = require('./services/global-route-graph');
 const fallback = require('./global-generated-tour-fallback');
 const activation = require('./services/verified-city-activation');
 const generated = require('./generated-tour');
-const { enrichStay } = require('./services/partner-links');
+const { enrichStay } = require('./services/providers/links/partner-links');
 
 const checks = [];
 function check(name, passed, details = null) {

@@ -13,7 +13,7 @@
 const auth705B = require('../../accounts/auth/staging-cognito-auth-705b-r3');
 const savedTrips705C = require('../../accounts/saved-trips/staging-saved-trips-705c');
 const liveFare684A = require('../../domain/live-fares/public-live-fare-pilot-684a');
-const { enrichFlightLeg, enrichStay } = require('../../partner-links');
+const { enrichFlightLeg, enrichStay } = require('../../providers/links/partner-links');
 const { parseHotelGuestContext } = require('../context/hotel-guest-context-712');
 
 const VERSION = 'GV-WEB-707B';

@@ -11,7 +11,7 @@ process.env.ENABLE_PRICE_AUDIT_610D = 'true';
 process.env.CAD_TO_USD = '0.735';
 
 const live = require('./services/domain/live-fares/live-provider-verification');
-const links = require('./services/partner-links');
+const links = require('./services/providers/links/partner-links');
 
 let passed=0,total=0;
 function check(name,ok,detail){total++;if(ok){passed++;console.log(`PASS ${name}`)}else{console.error(`FAIL ${name}`,detail||'');process.exitCode=1}}

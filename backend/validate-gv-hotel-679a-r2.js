@@ -7,7 +7,7 @@ const {
   enrichStay,
   AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2,
   agodaHandoffIntegrity679AR2Enabled
-} = require('./services/partner-links');
+} = require('./services/providers/links/partner-links');
 
 let passed = 0;
 let total = 0;
