@@ -7,9 +7,9 @@
 // reviewers can prove exactly which records would change before any production
 // activation work is approved.
 
-const coverage702a = require('./admin/audits/global-recommendation-coverage-702a');
+const coverage702a = require('../../admin/audits/global-recommendation-coverage-702a');
 const reviewedRecovery = require('./reviewed-recovery-overlay-702c-r2');
-const manifest = require('../data/gv-rec-702e-promotion-manifest.json');
+const manifest = require('../../../data/gv-rec-702e-promotion-manifest.json');
 
 const VERSION = 'GV-REC-702E';
 const BASELINE_VERSION = 'GV-CITY-668T';

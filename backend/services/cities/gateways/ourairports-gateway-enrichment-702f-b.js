@@ -2,8 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const registry = require('../data/unified-city-registry-1000-668b.json');
-const source = require('../data/ourairports-source-702f-b.json');
+const registry = require('../../../data/unified-city-registry-1000-668b.json');
+const source = require('../../../data/ourairports-source-702f-b.json');
 
 const VERSION = 'GV-REC-702F-B';
 const ALLOWED_TYPES = new Set(['large_airport', 'medium_airport', 'small_airport', 'seaplane_base', 'heliport']);

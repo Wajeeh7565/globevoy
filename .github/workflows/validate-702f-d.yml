@@ -11,7 +11,7 @@ on:
       - 'backend/staging-lambda-702d.js'
       - 'backend/data/unified-city-registry-1000-668b.json'
       - 'backend/services/city-registry.js'
-      - 'backend/services/ourairports-gateway-enrichment-702f-b.js'
+      - 'backend/services/cities/gateways/ourairports-gateway-enrichment-702f-b.js'
       - 'docs/GV-REC-702F-D.md'
       - '.github/workflows/validate-702f-d.yml'
   workflow_dispatch:
@@ -59,7 +59,7 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const assert = require('assert');
-          const audit = require('./backend/services/ourairports-gateway-enrichment-702f-b');
+          const audit = require('./backend/services/cities/gateways/ourairports-gateway-enrichment-702f-b');
           const manifest = require('./backend/data/gateway-foundation-corrections-702f-d.json');
           const registry = require('./backend/data/unified-city-registry-1000-668b.json');
           const csv = fs.readFileSync('/tmp/gv702fd/airports.csv', 'utf8');

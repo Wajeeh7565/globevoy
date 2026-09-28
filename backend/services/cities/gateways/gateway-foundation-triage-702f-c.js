@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const context = require('../data/gateway-review-context-702f-c.json');
+const context = require('../../../data/gateway-review-context-702f-c.json');
 
 const VERSION = 'GV-REC-702F-C';
 const EXPECTED_INPUT_VERSION = 'GV-REC-702F-B';

@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const overlay = require('./services/reviewed-recovery-overlay-702c-r2');
+const overlay = require('./services/cities/recovery/reviewed-recovery-overlay-702c-r2');
 const coverage702a = require('./services/admin/audits/global-recommendation-coverage-702a');
 
 let passed = 0;

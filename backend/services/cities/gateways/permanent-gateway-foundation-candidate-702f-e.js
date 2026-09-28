@@ -2,9 +2,9 @@
 
 const fs = require('fs');
 const path = require('path');
-const baseRegistry = require('../data/unified-city-registry-1000-668b.json');
-const sourceCorrections = require('../data/gateway-foundation-corrections-702f-d.json');
-const manifest = require('../data/gateway-foundation-permanent-candidate-702f-e.json');
+const baseRegistry = require('../../../data/unified-city-registry-1000-668b.json');
+const sourceCorrections = require('../../../data/gateway-foundation-corrections-702f-d.json');
+const manifest = require('../../../data/gateway-foundation-permanent-candidate-702f-e.json');
 
 const VERSION = 'GV-REC-702F-E';
 
