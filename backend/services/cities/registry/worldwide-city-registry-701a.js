@@ -21,7 +21,7 @@ const {
   enabled: verifiedActivationEnabled,
   activationForCity,
   summary: verifiedActivationSummary
-} = require('../../verified-city-activation');
+} = require('./verified-city-activation');
 
 const VERSION = 'GV-DATA-701A';
 

@@ -119,7 +119,7 @@ function main() {
         throw new Error(change.cityId + ': route graph primary airport not overlaid');
       }
     }
-    const activation = require('./services/verified-city-activation').summary();
+    const activation = require('./services/cities/registry/verified-city-activation').summary();
     if (activation.summary.productionActiveCount !== 439) throw new Error('668T baseline count changed');
     console.log(JSON.stringify({ applied: entry.GATEWAY_INSTALLATION.appliedCount, routeRows: selected.length, baselineActive: activation.summary.productionActiveCount }));
   `;

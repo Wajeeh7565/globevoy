@@ -116,7 +116,7 @@ function main() {
   }
 
   process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668T = 'true';
-  const activation = require('./services/verified-city-activation').summary();
+  const activation = require('./services/cities/registry/verified-city-activation').summary();
   assert.strictEqual(activation.summary.productionActiveCount, 439, 'historical 668T production baseline changed');
 
   const summary = candidate.summary();

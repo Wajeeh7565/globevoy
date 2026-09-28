@@ -12,7 +12,7 @@ process.env.ENABLE_GENERATED_TOUR_651A = 'true';
 process.env.ENABLE_PROVIDER_CHEAP_DATE_SCANNER_650B = 'true';
 process.env.ENABLE_AUTOMATIC_CHEAP_DATE_TOUR_BUILDER_657B = 'true';
 
-const baseline = require('./services/verified-city-activation');
+const baseline = require('./services/cities/registry/verified-city-activation');
 const acapulcoBefore = baseline.activationForCity('acapulco-mx', { includeEvidence: false });
 const aalesundBefore = baseline.activationForCity('aalesund-no', { includeEvidence: false });
 const aalborgBefore = baseline.activationForCity('aalborg-dk', { includeEvidence: false });

@@ -11,7 +11,7 @@ const {
   summary: verifiedActivationSummary,
   activationForCity,
   annotateCatalogueRow
-} = require('./verified-city-activation');
+} = require('./cities/registry/verified-city-activation');
 
 const VERSION = 'GV-CITY-668B';
 

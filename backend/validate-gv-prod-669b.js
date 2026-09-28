@@ -7,7 +7,7 @@ process.env.ENABLE_PROVIDER_DRIVEN_ROUTE_DISCOVERY_665B = 'false';
 
 const graph = require('./services/domain/routing/global-route-graph');
 const fallback = require('./global-generated-tour-fallback');
-const activation = require('./services/verified-city-activation');
+const activation = require('./services/cities/registry/verified-city-activation');
 const generated = require('./generated-tour');
 const { enrichStay } = require('./services/providers/links/partner-links');
 

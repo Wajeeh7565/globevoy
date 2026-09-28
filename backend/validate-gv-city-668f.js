@@ -12,7 +12,7 @@ process.env.ENABLE_AGODA_QUALITY_CANDIDATE_RETRIEVAL_668E = 'true';
 process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668F = 'true';
 process.env.GLOBEVOY_USE_MOCKS = 'false';
 
-const activation = require('./services/verified-city-activation');
+const activation = require('./services/cities/registry/verified-city-activation');
 const cityRegistry = require('./services/city-registry');
 const routeGraph = require('./services/domain/routing/global-route-graph');
 const lambda = require('./lambda');

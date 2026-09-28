@@ -143,7 +143,7 @@ check('candidate never relaxes thresholds or claims a production write/deploymen
 
 check('702E candidate is not imported by any Lambda or production activation runtime', () => {
   const root = __dirname;
-  for (const rel of ['lambda.js', 'staging-lambda.js', 'services/verified-city-activation.js']) {
+  for (const rel of ['lambda.js', 'staging-lambda.js', 'services/cities/registry/verified-city-activation.js']) {
     const source = fs.readFileSync(path.join(root, rel), 'utf8');
     assert.ok(!source.includes('reviewed-activation-promotion-702e'), `${rel} imports 702E candidate`);
     assert.ok(!source.includes('gv-rec-702e-promotion-manifest'), `${rel} imports 702E manifest`);

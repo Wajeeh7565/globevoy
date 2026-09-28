@@ -11,24 +11,24 @@ const USE_668R = String(process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668R || '').
 const USE_668P = String(process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P || '').trim().toLowerCase() === 'true';
 const USE_668N = String(process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N || '').trim().toLowerCase() === 'true';
 const activationSnapshot = USE_668T
-  ? require('../data/verified-city-activation-1000-668t.json')
+  ? require('../../../data/verified-city-activation-1000-668t.json')
   : USE_668R
-    ? require('../data/verified-city-activation-1000-668r.json')
+    ? require('../../../data/verified-city-activation-1000-668r.json')
     : USE_668P
-      ? require('../data/verified-city-activation-845-668p.json')
+      ? require('../../../data/verified-city-activation-845-668p.json')
       : USE_668N
-        ? require('../data/verified-city-activation-695-668n.json')
-        : require('../data/verified-city-activation-545-668l.json');
+        ? require('../../../data/verified-city-activation-695-668n.json')
+        : require('../../../data/verified-city-activation-545-668l.json');
 const retrySnapshot = USE_668T
-  ? require('../data/verified-city-retry-queues-668t.json')
+  ? require('../../../data/verified-city-retry-queues-668t.json')
   : USE_668R
-    ? require('../data/verified-city-retry-queues-668r.json')
+    ? require('../../../data/verified-city-retry-queues-668r.json')
     : USE_668P
-      ? require('../data/verified-city-retry-queues-668p.json')
+      ? require('../../../data/verified-city-retry-queues-668p.json')
       : USE_668N
-        ? require('../data/verified-city-retry-queues-668n.json')
-        : require('../data/verified-city-retry-queues-668l.json');
-const registry = require('../data/unified-city-registry-1000-668b.json');
+        ? require('../../../data/verified-city-retry-queues-668n.json')
+        : require('../../../data/verified-city-retry-queues-668l.json');
+const registry = require('../../../data/unified-city-registry-1000-668b.json');
 
 const VERSION = USE_668T ? 'GV-CITY-668T' : USE_668R ? 'GV-CITY-668R' : USE_668P ? 'GV-CITY-668P' : USE_668N ? 'GV-CITY-668N' : 'GV-CITY-668L';
 const FLAG_NAME = USE_668T ? 'ENABLE_VERIFIED_CITY_ACTIVATION_668T' : USE_668R ? 'ENABLE_VERIFIED_CITY_ACTIVATION_668R' : USE_668P ? 'ENABLE_VERIFIED_CITY_ACTIVATION_668P' : USE_668N ? 'ENABLE_VERIFIED_CITY_ACTIVATION_668N' : 'ENABLE_VERIFIED_CITY_ACTIVATION_668L';

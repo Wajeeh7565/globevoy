@@ -87,7 +87,7 @@ function applyOverlay(activation = {}, options = {}) {
 }
 
 function install(options = {}) {
-  const baseline = options.baseline || require('../../../verified-city-activation');
+  const baseline = options.baseline || require('../../registry/verified-city-activation');
   if (baseline[INSTALL_MARK]) {
     return {
       ok: true,

@@ -16,7 +16,7 @@ const plan = require('./data/remaining-current-500-audit-150-668i.json');
 const registry = require('./data/unified-city-registry-1000-668b.json');
 const activationSnapshot = require('./data/verified-city-activation-250-668h.json');
 const priority = require('./services/admin/audits/remaining-current-city-audit');
-const activation = require('./services/verified-city-activation');
+const activation = require('./services/cities/registry/verified-city-activation');
 const lambda = require('./lambda');
 
 function clean(value) { return String(value || '').trim(); }

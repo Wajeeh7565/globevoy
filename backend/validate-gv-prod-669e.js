@@ -10,7 +10,7 @@ process.env.ENABLE_ROUTE_CONTROL_DATE_GATEWAY_INTEGRITY_667D = 'true';
 
 const fs = require('fs');
 const path = require('path');
-const activation = require('./services/verified-city-activation');
+const activation = require('./services/cities/registry/verified-city-activation');
 const generated = require('./generated-tour');
 const adaptive = require('./budget-adaptive-routes');
 const multicity = require('./multicity-routes');

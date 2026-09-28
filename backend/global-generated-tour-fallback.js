@@ -8,7 +8,7 @@ const { loadGroupedCityFoundation } = require('./data/grouped-city-foundation');
 const { attachTourPresentation, currencyToUsdRate } = require('./budget-presentation');
 const { guardEnabled, maxStopsForTrip } = require('./services/domain/routing/route-feasibility');
 const { GLOBAL_ROUTE_GRAPH_VERSION, globalRouteGraphEnabled, generateGlobalRouteCandidates } = require('./services/domain/routing/global-route-graph');
-const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/verified-city-activation');
+const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/cities/registry/verified-city-activation');
 
 const GLOBAL_FALLBACK_VERSION = '2.0.1-gv-prod-669b-active-destination-origin-repair';
 const RESERVE_PERCENT = 0.10;

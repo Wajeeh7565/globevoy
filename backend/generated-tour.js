@@ -17,7 +17,7 @@ const { PRICING_INTEGRITY_VERSION, normalizeParty, providerFarePartyTotalUsd, pr
 const { LIVE_PROVIDER_VERIFICATION_VERSION, enabled: liveProviderVerificationEnabled, verifyTourWithLiveProviders } = require('./services/domain/live-fares/live-provider-verification');
 const { VERSION_684A, applyPublicLiveFarePilot684A, status684A } = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 const { VERSION_684B, discoverAffordableFlightTour684B, status684B } = require('./services/domain/live-fares/affordable-flight-discovery-684b');
-const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/verified-city-activation');
+const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/cities/registry/verified-city-activation');
 const { ENTRY_ELIGIBILITY_VERSION, recommendationEligibility } = require('./services/domain/eligibility/travel-entry-eligibility');
 const { WHOLE_TRIP_ROUTE_OPTIMIZATION_VERSION_677C, enabled: wholeTripRouteOptimization677CEnabled, optimizeTourOrder: optimizeTourOrder677C, candidateAdjustment: wholeTripCandidateAdjustment677C } = require('./services/domain/routing/whole-trip-route-optimizer');
 const { DESTINATION_VALUE_PROXIMITY_VERSION_677D, enabled: destinationValueProximity677DEnabled, candidateAdjustment: destinationValueCandidateAdjustment677D, annotateTour: annotateDestinationValue677D } = require('./services/domain/routing/destination-value-proximity');
