@@ -7,7 +7,7 @@ process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668T = 'true';
 delete process.env.ENABLE_MVP_VALIDATION_REPAIRS_669B; // R1 must be safe by default.
 
 const generated = require('./generated-tour');
-const graph = require('./services/global-route-graph');
+const graph = require('./services/domain/routing/global-route-graph');
 
 (async () => {
   const monthEdge = generated.effectiveFlexibleMonth680BR1('2026-08', '2026-08-25', 14);

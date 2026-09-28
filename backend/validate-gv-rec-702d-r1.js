@@ -15,11 +15,11 @@ process.env.ENABLE_AUTOMATIC_CHEAP_DATE_TOUR_BUILDER_657B = 'true';
 delete process.env.TRAVELPAYOUTS_TOKEN;
 delete process.env.GLOBEVOY_USE_MOCKS;
 
-const baseline = require('./services/verified-city-activation');
-const overlay = require('./services/staging-reviewed-recovery-702d');
+const baseline = require('./services/cities/registry/verified-city-activation');
+const overlay = require('./services/cities/recovery/staging/staging-reviewed-recovery-702d');
 const installation = overlay.install({ baseline });
-const cityRegistry = require('./services/city-registry');
-const graph = require('./services/global-route-graph');
+const cityRegistry = require('./services/cities/registry/city-registry');
+const graph = require('./services/domain/routing/global-route-graph');
 
 let passed = 0;
 async function check(name, fn) {

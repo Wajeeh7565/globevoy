@@ -9,7 +9,7 @@ Object.assign(process.env, {
 const fs = require('fs');
 const path = require('path');
 const generated = require('./generated-tour');
-const cheapFlights = require('./services/cheap-one-way-flights');
+const cheapFlights = require('./services/providers/flights/cheap-one-way-flights');
 
 const checks = [];
 function check(name, passed, details = null) {

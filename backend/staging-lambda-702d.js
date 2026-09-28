@@ -8,16 +8,16 @@
 // Rollback: set the Lambda handler back to `staging-lambda.handler` and remove
 // the staging QA flags. No production snapshot or handler is changed.
 
-const stagingRecovery = require('./services/staging-reviewed-recovery-702d');
+const stagingRecovery = require('./services/cities/recovery/staging/staging-reviewed-recovery-702d');
 const INSTALLATION = stagingRecovery.install();
 
-const stagingGateway = require('./services/staging-gateway-foundation-702f-d');
+const stagingGateway = require('./services/cities/gateways/staging/staging-gateway-foundation-702f-d');
 const GATEWAY_INSTALLATION = stagingGateway.install();
 if (stagingGateway.enabled() && GATEWAY_INSTALLATION.ok !== true) {
   throw new Error(`GV-REC-702F-D staging gateway overlay failed closed: ${(GATEWAY_INSTALLATION.issues || []).join(',')}`);
 }
 
-const stagingDuffel703B = require('./services/staging-duffel-five-origin-703b');
+const stagingDuffel703B = require('./services/providers/flights/duffel/staging/staging-duffel-five-origin-703b');
 const DUFFEL_703B_INSTALLATION = stagingDuffel703B.install();
 if (stagingDuffel703B.enabled() && DUFFEL_703B_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703B staging Duffel origin policy failed closed: ${DUFFEL_703B_INSTALLATION.reason || 'unknown'}`);
@@ -25,7 +25,7 @@ if (stagingDuffel703B.enabled() && DUFFEL_703B_INSTALLATION.ok !== true) {
 
 // Install 703C before staging-lambda -> lambda -> generated-tour loads 684A.
 // This guarantees generated-tour captures the shared-budget-aware 684A export.
-const stagingDuffelBudget703C = require('./services/staging-duffel-shared-budget-703c');
+const stagingDuffelBudget703C = require('./services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c');
 const DUFFEL_703C_INSTALLATION = stagingDuffelBudget703C.install();
 if (stagingDuffelBudget703C.enabled() && DUFFEL_703C_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703C staging shared Duffel budget failed closed: ${DUFFEL_703C_INSTALLATION.reason || 'unknown'}`);
@@ -34,7 +34,7 @@ if (stagingDuffelBudget703C.enabled() && DUFFEL_703C_INSTALLATION.ok !== true) {
 // 703D must install after the 703B five-origin final-schedule policy is present,
 // but before generated-tour loads 684B. It only injects the bounded staging
 // affordable-discovery allowlist; it does not enable Duffel or add credentials.
-const stagingAffordable703D = require('./services/staging-affordable-flight-five-origin-703d');
+const stagingAffordable703D = require('./services/providers/flights/staging/staging-affordable-flight-five-origin-703d');
 const DUFFEL_703D_INSTALLATION = stagingAffordable703D.install();
 if (stagingAffordable703D.enabled() && DUFFEL_703D_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703D staging affordable-flight origin policy failed closed: ${DUFFEL_703D_INSTALLATION.reason || 'unknown'}`);
@@ -43,7 +43,7 @@ if (stagingAffordable703D.enabled() && DUFFEL_703D_INSTALLATION.ok !== true) {
 // 703E installs after 703B/703C/703D so the origin cohort and shared cap are
 // already proven. It only raises the in-process adult ceiling from one to two
 // for this exact staging origin; it does not enable Duffel or add credentials.
-const stagingAdults703E = require('./services/staging-duffel-two-adult-703e');
+const stagingAdults703E = require('./services/providers/flights/duffel/staging/staging-duffel-two-adult-703e');
 const DUFFEL_703E_INSTALLATION = stagingAdults703E.install();
 if (stagingAdults703E.enabled() && DUFFEL_703E_INSTALLATION.ok !== true) {
   throw new Error(`GV-FLIGHT-703E staging two-adult policy failed closed: ${DUFFEL_703E_INSTALLATION.reason || 'unknown'}`);
@@ -51,26 +51,26 @@ if (stagingAdults703E.enabled() && DUFFEL_703E_INSTALLATION.ok !== true) {
 
 // 705B-R3 is code-only and staging-only. It verifies Cognito access tokens
 // against the fixed staging user pool and never handles passwords or AWS keys.
-const stagingAccount705B = require('./services/staging-cognito-auth-705b-r3');
+const stagingAccount705B = require('./services/accounts/auth/staging-cognito-auth-705b-r3');
 
 // 705C is staging-only owner-private saved-trip storage. It reuses the exact
 // 705B verifier and derives DynamoDB ownership only from the verified token sub.
-const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
+const stagingSavedTrips705C = require('./services/accounts/saved-trips/staging-saved-trips-705c');
 
 // 710F-R1 adds an owner-private Travel Profile in the same account table. It
 // stores preference/context fields only and explicitly rejects passport/document
 // numbers, payment data and credentials.
-const stagingTravelProfile710F = require('./services/staging-travel-profile-710f-r1');
+const stagingTravelProfile710F = require('./services/accounts/travel-profile/staging-travel-profile-710f-r1');
 
 // GV-HOTEL-708C wraps staging-booking-revalidation-707b-r1 additively. The
 // existing 707B-R1 owner-private Duffel flow/arithmetic stays authoritative;
 // Nuitee hotel Rates -> PREBOOK runs only when its staging feature flag is on.
-const stagingBooking707B = require('./services/staging-booking-revalidation-708c');
+const stagingBooking707B = require('./services/booking/revalidation/staging-booking-revalidation-708c');
 
 // GV-FLIGHT-710E-R3A is staging-only and read-only. It materializes the
 // automatic cheapest-practical date chain for one selected multi-city route
 // using existing provider fare observations. It never books or reserves.
-const stagingAutoDates710ER3A = require('./services/staging-multicity-auto-dates-710e-r3a');
+const stagingAutoDates710ER3A = require('./services/domain/routing/staging/staging-multicity-auto-dates-710e-r3a');
 
 const staging = require('./staging-lambda');
 

@@ -1,7 +1,7 @@
 'use strict';
 process.env.ENABLE_SMART_FLIGHT_DATE_SELECTION_677B = 'true';
 process.env.ENABLE_FLIGHT_QUALITY_GUARDRAILS_677B_R2 = 'true';
-const flights = require('./services/cheap-one-way-flights');
+const flights = require('./services/providers/flights/cheap-one-way-flights');
 const generated = require('./generated-tour');
 const checks=[];
 function check(name, passed, details=null){ console.log(`${passed?'[PASS]':'[FAIL]'} ${name}${details?` - ${JSON.stringify(details)}`:''}`); checks.push({name,passed:Boolean(passed),details}); if(!passed) process.exitCode=1; }

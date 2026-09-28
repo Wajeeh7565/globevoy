@@ -9,7 +9,7 @@ const ROOT = __dirname;
 const REQUIRED_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com/';
 process.env.CORS_ORIGIN = REQUIRED_ORIGIN;
 
-const shared = require('./services/staging-duffel-shared-budget-703c');
+const shared = require('./services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c');
 const install = shared.install();
 assert.equal(shared.VERSION, 'GV-FLIGHT-703C');
 assert.equal(shared.SHARED_PHYSICAL_REQUEST_CAP, 8);
@@ -21,8 +21,8 @@ assert.equal(install.credentialsChanged, false);
 assert.equal(install.environmentVariablesAdded, 0);
 assert.equal(install.productionChanged, false);
 
-const duffelP2 = require('./services/duffel-p2-staging-683h');
-const live684A = require('./services/public-live-fare-pilot-684a');
+const duffelP2 = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
+const live684A = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 assert.equal(typeof duffelP2.requestState683H, 'function');
 assert.equal(typeof live684A.applyPublicLiveFarePilot684A, 'function');
 
@@ -105,8 +105,8 @@ assert.equal(typeof live684A.applyPublicLiveFarePilot684A, 'function');
   // Install must fail closed if 684A was already loaded before the staging patch.
   const failClosed = execFileSync(process.execPath, ['-e', `
     process.env.CORS_ORIGIN=${JSON.stringify(REQUIRED_ORIGIN)};
-    require('./services/public-live-fare-pilot-684a');
-    const s=require('./services/staging-duffel-shared-budget-703c');
+    require('./services/domain/live-fares/public-live-fare-pilot-684a');
+    const s=require('./services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c');
     const r=s.install();
     if (r.ok !== false || r.reason !== '703c-684a-loaded-before-shared-budget-install') process.exit(9);
   `], { cwd: ROOT, encoding: 'utf8' });
@@ -115,7 +115,7 @@ assert.equal(typeof live684A.applyPublicLiveFarePilot684A, 'function');
   // Outside the exact isolated staging origin the feature is disabled.
   execFileSync(process.execPath, ['-e', `
     process.env.CORS_ORIGIN='https://globevoy.com/';
-    const s=require('./services/staging-duffel-shared-budget-703c');
+    const s=require('./services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c');
     if (s.enabled() !== false) process.exit(8);
     const r=s.install();
     if (r.ok !== true || r.applied !== false) process.exit(7);
@@ -124,8 +124,8 @@ assert.equal(typeof live684A.applyPublicLiveFarePilot684A, 'function');
   const wrapperSource = fs.readFileSync(path.join(ROOT, 'staging-lambda-702d.js'), 'utf8');
   const productionSource = fs.readFileSync(path.join(ROOT, 'lambda.js'), 'utf8');
   const generatedTourSource = fs.readFileSync(path.join(ROOT, 'generated-tour.js'), 'utf8');
-  const discoverySource = fs.readFileSync(path.join(ROOT, 'services', 'affordable-flight-discovery-684b.js'), 'utf8');
-  const sharedSource = fs.readFileSync(path.join(ROOT, 'services', 'staging-duffel-shared-budget-703c.js'), 'utf8');
+  const discoverySource = fs.readFileSync(path.join(ROOT, 'services', 'domain', 'live-fares', 'affordable-flight-discovery-684b.js'), 'utf8');
+  const sharedSource = fs.readFileSync(path.join(ROOT, 'services', 'providers', 'flights', 'duffel', 'staging', 'staging-duffel-shared-budget-703c.js'), 'utf8');
 
   assert.match(wrapperSource, /staging-duffel-shared-budget-703c/);
   assert.match(wrapperSource, /runWithBudget/);

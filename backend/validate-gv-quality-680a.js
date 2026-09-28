@@ -4,8 +4,8 @@ process.env.ENABLE_AGODA_HANDOFF_INTEGRITY_679A_R2 = 'true';
 process.env.ENABLE_MAP_FIRST_THREE_PICKS_670A = 'true';
 
 const assert = require('node:assert/strict');
-const { enrichFlightLeg, enrichStay, BOOKING_TRUST_VERSION_680A } = require('./services/partner-links');
-const { qualityRejectionReasons, rankQualifiedHotels } = require('./services/agoda');
+const { enrichFlightLeg, enrichStay, BOOKING_TRUST_VERSION_680A } = require('./services/providers/links/partner-links');
+const { qualityRejectionReasons, rankQualifiedHotels } = require('./services/providers/stays/agoda/agoda');
 const { _internal: generatedTourInternal } = require('./generated-tour');
 
 const observedAt = new Date().toISOString();

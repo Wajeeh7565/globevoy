@@ -5,9 +5,9 @@ on:
     branches:
       - staging
     paths:
-      - 'backend/services/staging-duffel-five-origin-703b.js'
-      - 'backend/services/public-live-fare-pilot-684a.js'
-      - 'backend/services/affordable-flight-discovery-684b.js'
+      - 'backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
+      - 'backend/services/domain/live-fares/public-live-fare-pilot-684a.js'
+      - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
       - 'backend/staging-lambda-702d.js'
       - 'backend/validate-gv-flight-703b.js'
       - '.github/workflows/validate-703b.yml'
@@ -34,7 +34,7 @@ jobs:
 
       - name: Syntax and deterministic policy validation
         run: |
-          node --check backend/services/staging-duffel-five-origin-703b.js
+          node --check backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js
           node --check backend/staging-lambda-702d.js
           node --check backend/validate-gv-flight-703b.js
           node backend/validate-gv-flight-703b.js

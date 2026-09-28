@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const triage = require('./services/gateway-foundation-triage-702f-c');
+const triage = require('./services/cities/gateways/gateway-foundation-triage-702f-c');
 const context = require('./data/gateway-review-context-702f-c.json');
 
 function row({

@@ -8,7 +8,7 @@ Object.assign(process.env, {
 });
 
 const generated = require('./generated-tour');
-const cheapFlights = require('./services/cheap-one-way-flights');
+const cheapFlights = require('./services/providers/flights/cheap-one-way-flights');
 const checks = [];
 function check(name, passed, details = null) {
   checks.push({ name, passed: Boolean(passed), details });

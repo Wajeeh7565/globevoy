@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const enrichment = require('./services/ourairports-gateway-enrichment-702f-b');
+const enrichment = require('./services/cities/gateways/ourairports-gateway-enrichment-702f-b');
 const source = require('./data/ourairports-source-702f-b.json');
 
 const CSV = [

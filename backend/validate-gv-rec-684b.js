@@ -3,8 +3,8 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const discovery = require('./services/affordable-flight-discovery-684b');
-const pilot684A = require('./services/public-live-fare-pilot-684a');
+const discovery = require('./services/domain/live-fares/affordable-flight-discovery-684b');
+const pilot684A = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 const generated = require('./generated-tour');
 
 let passed = 0;
@@ -87,7 +87,7 @@ function liveResult(tour, totalUsd, requests = 2) {
   test('684B-R3 adds no new Lambda environment gate', () => {
     const e = discovery.eligibility684B([mexicoTour()], groundTour(), { adults: 1, pickRole: 'best-balance' }, readyEnv);
     assert.equal(discovery.CODE_ENABLED_684B_R3, true); assert.equal(e.eligible, true);
-    const source = fs.readFileSync(path.join(__dirname, 'services', 'affordable-flight-discovery-684b.js'), 'utf8');
+    const source = fs.readFileSync(path.join(__dirname, 'services', 'domain', 'live-fares', 'affordable-flight-discovery-684b.js'), 'utf8');
     assert(!source.includes('ENABLE_AFFORDABLE_FLIGHT_DISCOVERY_684B'));
     assert(!source.includes('GV_AFFORDABLE_FLIGHT_DISCOVERY_ORIGINS_684B'));
   });
@@ -285,7 +285,7 @@ function liveResult(tour, totalUsd, requests = 2) {
     assert.match(source, /VERSION_684B/);
   });
   test('684B adds no Duffel order payment booking or ticketing API', () => {
-    const source = fs.readFileSync(path.join(__dirname, 'services', 'affordable-flight-discovery-684b.js'), 'utf8').toLowerCase();
+    const source = fs.readFileSync(path.join(__dirname, 'services', 'domain', 'live-fares', 'affordable-flight-discovery-684b.js'), 'utf8').toLowerCase();
     assert(!source.includes('/air/orders'));
     assert(!source.includes('/orders/'));
     assert(!source.includes('createpayment'));

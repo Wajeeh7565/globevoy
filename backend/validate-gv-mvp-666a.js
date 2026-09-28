@@ -6,7 +6,7 @@ const {
   priceTransportLeg,
   priceStopStay,
   applyTravellerPricingToTour
-} = require('./services/traveller-pricing');
+} = require('./services/domain/pricing/traveller-pricing');
 
 const checks = [];
 function check(name, fn) {

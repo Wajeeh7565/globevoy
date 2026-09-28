@@ -3,8 +3,8 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const service = require('./services/staging-saved-trips-705c');
-const auth705B = require('./services/staging-cognito-auth-705b-r3');
+const service = require('./services/accounts/saved-trips/staging-saved-trips-705c');
+const auth705B = require('./services/accounts/auth/staging-cognito-auth-705b-r3');
 
 const ROOT = path.resolve(__dirname, '..');
 const ORIGIN = service.STAGING_ORIGIN;
@@ -195,7 +195,7 @@ async function main() {
     pass('delete is exact-key and owner-private');
   }
 
-  const serviceSource = fs.readFileSync(path.join(__dirname, 'services/staging-saved-trips-705c.js'), 'utf8');
+  const serviceSource = fs.readFileSync(path.join(__dirname, 'services/accounts/saved-trips/staging-saved-trips-705c.js'), 'utf8');
   assert.equal(/\bScan(Command)?\b/.test(serviceSource), false);
   assert.match(serviceSource, /verified.*sub|verified\.sub/i);
   assert.match(serviceSource, /requiresRevalidation/);

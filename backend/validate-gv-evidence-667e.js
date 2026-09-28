@@ -5,8 +5,8 @@ process.env.ENABLE_TRANSPORT_EVIDENCE_ACTION_LABELS_667E = 'true';
 
 const fs = require('fs');
 const path = require('path');
-const canonical = require('./services/canonical-total-evidence');
-const live = require('./services/live-provider-verification');
+const canonical = require('./services/domain/pricing/canonical-total-evidence');
+const live = require('./services/domain/live-fares/live-provider-verification');
 
 const checks = [];
 function check(name, pass, details = null) {

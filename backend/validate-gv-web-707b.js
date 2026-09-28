@@ -3,7 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const service = require('./services/staging-booking-revalidation-707b');
+const service = require('./services/booking/revalidation/staging-booking-revalidation-707b');
 
 const ROOT = path.resolve(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');

@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { enrichFlightLeg } = require('./services/partner-links');
+const { enrichFlightLeg } = require('./services/providers/links/partner-links');
 const generatedTourModule = require('./generated-tour');
 const generatedTour = generatedTourModule._internal;
 const checks = [];

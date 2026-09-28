@@ -17,9 +17,9 @@ process.env.ENABLE_EXPANSION_500_PRIORITY_AUDIT_668O = 'true';
 process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P = 'true';
 process.env.GLOBEVOY_USE_MOCKS = 'false';
 
-const activation = require('./services/verified-city-activation');
-const cityRegistry = require('./services/city-registry');
-const routeGraph = require('./services/global-route-graph');
+const activation = require('./services/cities/registry/verified-city-activation');
+const cityRegistry = require('./services/cities/registry/city-registry');
+const routeGraph = require('./services/domain/routing/global-route-graph');
 const lambda = require('./lambda');
 const snapshot = require('./data/verified-city-activation-845-668p.json');
 const retry = require('./data/verified-city-retry-queues-668p.json');
@@ -164,7 +164,7 @@ function get(id, includeEvidence = true) { return activation.activationForCity(i
   check('668P flag-off disables new enforcement in current process', activation.enabled() === false && activation.liveRecommendationEligible('kutaisi-ge') === true);
   process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P = 'true';
 
-  const rollbackScript = "process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668L='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N='true'; delete process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P; const a=require('./services/verified-city-activation'); const s=a.summary(); process.stdout.write(JSON.stringify({version:a.VERSION,active:s.summary.productionActiveCount,audited:s.summary.auditedCount}));";
+  const rollbackScript = "process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668L='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N='true'; delete process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P; const a=require('./services/cities/registry/verified-city-activation'); const s=a.summary(); process.stdout.write(JSON.stringify({version:a.VERSION,active:s.summary.productionActiveCount,audited:s.summary.auditedCount}));";
   const rollback = JSON.parse(execFileSync(process.execPath, ['-e', rollbackScript], { cwd: __dirname, encoding: 'utf8' }));
   check('cold-start rollback returns to 668N snapshot', rollback.version === 'GV-CITY-668N' && rollback.active === 393 && rollback.audited === 695, rollback);
 

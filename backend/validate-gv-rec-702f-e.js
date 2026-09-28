@@ -4,10 +4,10 @@ const assert = require('assert');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const candidate = require('./services/permanent-gateway-foundation-candidate-702f-e');
-const stagingOverlay = require('./services/staging-gateway-foundation-702f-d');
+const candidate = require('./services/cities/gateways/permanent-gateway-foundation-candidate-702f-e');
+const stagingOverlay = require('./services/cities/gateways/staging/staging-gateway-foundation-702f-d');
 const manifest = require('./data/gateway-foundation-permanent-candidate-702f-e.json');
-const cityRegistry = require('./services/city-registry');
+const cityRegistry = require('./services/cities/registry/city-registry');
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function byId(registry) { return new Map((registry.records || []).map(row => [row.cityId, row])); }
@@ -107,8 +107,8 @@ function main() {
     'staging-lambda.js',
     'staging-lambda-702d.js',
     'generated-tour.js',
-    'services/city-registry.js',
-    'services/global-route-graph.js'
+    'services/cities/registry/city-registry.js',
+    'services/domain/routing/global-route-graph.js'
   ]) {
     const source = fs.readFileSync(path.join(__dirname, runtimePath), 'utf8');
     assert(!source.includes('permanent-gateway-foundation-candidate-702f-e'), `${runtimePath}: 702F-E must not be runtime imported`);
@@ -116,7 +116,7 @@ function main() {
   }
 
   process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668T = 'true';
-  const activation = require('./services/verified-city-activation').summary();
+  const activation = require('./services/cities/registry/verified-city-activation').summary();
   assert.strictEqual(activation.summary.productionActiveCount, 439, 'historical 668T production baseline changed');
 
   const summary = candidate.summary();

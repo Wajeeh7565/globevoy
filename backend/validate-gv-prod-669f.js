@@ -15,8 +15,8 @@ process.env.ENABLE_PROVIDER_DRIVEN_ROUTE_DISCOVERY_665B = 'false';
 
 const fs = require('fs');
 const path = require('path');
-const activation = require('./services/verified-city-activation');
-const graph = require('./services/global-route-graph');
+const activation = require('./services/cities/registry/verified-city-activation');
+const graph = require('./services/domain/routing/global-route-graph');
 const generated = require('./generated-tour');
 const adaptive = require('./budget-adaptive-routes');
 const multicity = require('./multicity-routes');
@@ -80,7 +80,7 @@ check('Shared YVR code owner prefers direct Vancouver over gateway Whistler', yv
   requiresGatewayTransfer: yvrOwner?.unifiedRegistry?.origin?.requiresGatewayTransfer
 });
 
-const source = fs.readFileSync(path.join(__dirname, 'services', 'global-route-graph.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, 'services', 'domain', 'routing', 'global-route-graph.js'), 'utf8');
 check('669F city-first path is packaged', source.includes('preserve the traveller\'s explicit city identity') && source.includes('originDisplayIntegrity669fEnabled() && !codeOnlyInput'));
 check('669F airport override path is packaged', source.includes('requestedAirportCode = null') && source.includes('supportedCodes.includes(requestedCode)'));
 check('669F shared-code ownership guard is packaged', source.includes('originCodeOwnershipScore') && source.includes('requiresGateway) score -= 120'));

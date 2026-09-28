@@ -17,8 +17,8 @@ process.env.GLOBEVOY_USE_MOCKS = 'false';
 const plan = require('./data/expansion-500-priority-audit-150-668o.json');
 const registry = require('./data/unified-city-registry-1000-668b.json');
 const activationSnapshot = require('./data/verified-city-activation-695-668n.json');
-const wave2 = require('./services/expansion-priority-city-audit-wave2');
-const activation = require('./services/verified-city-activation');
+const wave2 = require('./services/admin/audits/expansion-priority-city-audit-wave2');
+const activation = require('./services/cities/registry/verified-city-activation');
 const lambda = require('./lambda');
 
 function clean(value) { return String(value || '').trim(); }

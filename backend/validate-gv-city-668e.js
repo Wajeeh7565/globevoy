@@ -15,12 +15,12 @@ process.env.GV_PROVIDER_COVERAGE_MAX_BATCH = '10';
 process.env.GLOBEVOY_USE_MOCKS = 'false';
 process.env.ENABLE_PRICE_AUDIT_610D = 'true';
 
-const service = require('./services/provider-live-coverage');
-const agodaService = require('./services/agoda');
+const service = require('./services/admin/audits/provider-live-coverage');
+const agodaService = require('./services/providers/stays/agoda/agoda');
 const lambda = require('./lambda');
 const staticAudit = require('./data/provider-mappings-1000-668b.json');
 const quality13 = require('./data/provider-live-quality-review-13-668e.json');
-const cheapFlights = require('./services/cheap-one-way-flights');
+const cheapFlights = require('./services/providers/flights/cheap-one-way-flights');
 
 const checks = [];
 function check(name, pass, details = {}) {

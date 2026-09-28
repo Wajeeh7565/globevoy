@@ -16,8 +16,8 @@ const {
   resolveWorldwideCity,
   searchWorldwideRegistry,
   _internal
-} = require('./services/worldwide-city-registry-701a');
-const { findForCatalogueRow } = require('./services/city-registry');
+} = require('./services/cities/registry/worldwide-city-registry-701a');
+const { findForCatalogueRow } = require('./services/cities/registry/city-registry');
 
 let passed = 0;
 function check(name, fn) {

@@ -19,9 +19,9 @@ process.env.ENABLE_EXPANSION_500_FINAL_AUDIT_668Q = 'true';
 process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668R = 'true';
 process.env.GLOBEVOY_USE_MOCKS = 'false';
 
-const activation = require('./services/verified-city-activation');
-const cityRegistry = require('./services/city-registry');
-const routeGraph = require('./services/global-route-graph');
+const activation = require('./services/cities/registry/verified-city-activation');
+const cityRegistry = require('./services/cities/registry/city-registry');
+const routeGraph = require('./services/domain/routing/global-route-graph');
 const lambda = require('./lambda');
 const snapshot = require('./data/verified-city-activation-1000-668r.json');
 const retry = require('./data/verified-city-retry-queues-668r.json');
@@ -165,7 +165,7 @@ function get(id, includeEvidence = true) { return activation.activationForCity(i
   check('668R flag-off disables new enforcement in current process', activation.enabled() === false && activation.liveRecommendationEligible('hargeisa-so') === true);
   process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668R = 'true';
 
-  const rollbackScript = "process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668L='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P='true'; delete process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668R; const a=require('./services/verified-city-activation'); const s=a.summary(); process.stdout.write(JSON.stringify({version:a.VERSION,active:s.summary.productionActiveCount,audited:s.summary.auditedCount}));";
+  const rollbackScript = "process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668L='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P='true'; delete process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668R; const a=require('./services/cities/registry/verified-city-activation'); const s=a.summary(); process.stdout.write(JSON.stringify({version:a.VERSION,active:s.summary.productionActiveCount,audited:s.summary.auditedCount}));";
   const rollback = JSON.parse(execFileSync(process.execPath, ['-e', rollbackScript], { cwd: __dirname, encoding: 'utf8' }));
   check('cold-start rollback returns to 668P snapshot', rollback.version === 'GV-CITY-668P' && rollback.active === 420 && rollback.audited === 845, rollback);
 

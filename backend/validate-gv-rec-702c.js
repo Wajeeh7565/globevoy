@@ -3,7 +3,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const smoke = require('./services/global-provider-recovery-smoke-plan-702c');
+const smoke = require('./services/admin/audits/global-provider-recovery-smoke-plan-702c');
 
 const AS_OF = '2026-08-20T12:00:00.000Z';
 const EXPECTED_IDS = [
@@ -72,7 +72,7 @@ check('702C is planning-only and does not call Agoda or providers in CI', () => 
   assert.strictEqual(plan.safety.noProviderCalls, true);
   assert.strictEqual(plan.safety.noAgodaCalls, true);
   assert.strictEqual(plan.safety.noCredentials, true);
-  const source = fs.readFileSync(path.join(__dirname, 'services', 'global-provider-recovery-smoke-plan-702c.js'), 'utf8');
+  const source = fs.readFileSync(path.join(__dirname, 'services', 'admin', 'audits', 'global-provider-recovery-smoke-plan-702c.js'), 'utf8');
   assert.ok(!source.includes('TRAVELPAYOUTS_TOKEN'));
   assert.ok(!source.includes('AGODA_API_KEY'));
   assert.ok(!source.includes('global.fetch'));

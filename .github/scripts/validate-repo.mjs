@@ -32,7 +32,7 @@ for (const [relativePath, type] of [
   ['frontend/runtime/config.js', 'file'],
   ['frontend/validation/validate-gv-rec-687b-frontend.js', 'file'],
   ['backend/validate-gv-rec-687b-p3.js', 'file'],
-  ['backend/services/route-diversity-687b.js', 'file']
+  ['backend/services/domain/routing/route-diversity-687b.js', 'file']
 ]) requirePath(relativePath, type);
 
 const baselinePath = path.join(root, 'CURRENT_BASELINE.md');

@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const generated = require('./generated-tour');
 const controls = require('./generated-tour-controls');
-const feasibility = require('./services/route-feasibility');
+const feasibility = require('./services/domain/routing/route-feasibility');
 
 const checks = [];
 function check(name, passed, details = null) {

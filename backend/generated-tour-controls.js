@@ -7,9 +7,9 @@ const { getGeneratedTour, buildVisualizerTour, enrichTourWithCheapFlights, _inte
 const { loadGroupedCityFoundation } = require('./data/grouped-city-foundation');
 const { resolveOrigin } = require('./data/destination-meta');
 const { attachTourPresentation } = require('./budget-presentation');
-const { GUARD_VERSION, guardEnabled, maxStopsForTrip, normalizeAirportIntegrity, evaluateTour } = require('./services/route-feasibility');
-const { PRICING_INTEGRITY_VERSION, normalizeParty, applyTravellerPricingToTour } = require('./services/traveller-pricing');
-const { LIVE_PROVIDER_VERIFICATION_VERSION, verifyTourWithLiveProviders } = require('./services/live-provider-verification');
+const { GUARD_VERSION, guardEnabled, maxStopsForTrip, normalizeAirportIntegrity, evaluateTour } = require('./services/domain/routing/route-feasibility');
+const { PRICING_INTEGRITY_VERSION, normalizeParty, applyTravellerPricingToTour } = require('./services/domain/pricing/traveller-pricing');
+const { LIVE_PROVIDER_VERIFICATION_VERSION, verifyTourWithLiveProviders } = require('./services/domain/live-fares/live-provider-verification');
 
 const CONTROL_VERSION = '2.2.0-gv-quality-680b-saved-route-recovery';
 const MIN_STOPS = 2;

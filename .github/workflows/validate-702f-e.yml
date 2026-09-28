@@ -7,8 +7,8 @@ on:
     paths:
       - 'backend/data/gateway-foundation-permanent-candidate-702f-e.json'
       - 'backend/data/gateway-foundation-corrections-702f-d.json'
-      - 'backend/services/permanent-gateway-foundation-candidate-702f-e.js'
-      - 'backend/services/staging-gateway-foundation-702f-d.js'
+      - 'backend/services/cities/gateways/permanent-gateway-foundation-candidate-702f-e.js'
+      - 'backend/services/cities/gateways/staging/staging-gateway-foundation-702f-d.js'
       - 'backend/validate-gv-rec-702f-e.js'
       - 'backend/data/unified-city-registry-1000-668b.json'
       - '.github/workflows/validate-702f-e.yml'
@@ -43,7 +43,7 @@ jobs:
 
       - name: Syntax and deterministic candidate validation
         run: |
-          node --check backend/services/permanent-gateway-foundation-candidate-702f-e.js
+          node --check backend/services/cities/gateways/permanent-gateway-foundation-candidate-702f-e.js
           node --check backend/validate-gv-rec-702f-e.js
           ENABLE_VERIFIED_CITY_ACTIVATION_668T=true node backend/validate-gv-rec-702f-e.js
 
@@ -52,7 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist/gv-rec-702f-e
-          node backend/services/permanent-gateway-foundation-candidate-702f-e.js \
+          node backend/services/cities/gateways/permanent-gateway-foundation-candidate-702f-e.js \
             --out dist/gv-rec-702f-e/GV-REC-702F-E-Permanent-Foundation-Candidate.json
           node <<'NODE'
           const fs = require('fs');

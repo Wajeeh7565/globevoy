@@ -2,7 +2,7 @@
 process.env.ENABLE_SMART_FLIGHT_DATE_SELECTION_677B='true';
 process.env.ENABLE_FLIGHT_QUALITY_GUARDRAILS_677B_R2='true';
 process.env.ENABLE_ROUTE_RELATIVE_FLIGHT_QUALITY_677B_R3='true';
-const flights=require('./services/cheap-one-way-flights');
+const flights=require('./services/providers/flights/cheap-one-way-flights');
 const generated=require('./generated-tour');
 const checks=[];function check(name,passed,details=null){console.log(`${passed?'[PASS]':'[FAIL]'} ${name}${details?` - ${JSON.stringify(details)}`:''}`);checks.push({name,passed:!!passed,details});if(!passed)process.exitCode=1;}
 check('R3 generated-tour version packaged',['2.10.3-gv-rec-677b-r3-route-relative-flight-quality','2.11.0-gv-rec-677c-whole-trip-route-optimization','2.12.0-gv-rec-677d-destination-value-proximity'].includes(generated.GENERATED_TOUR_VERSION),generated.GENERATED_TOUR_VERSION);

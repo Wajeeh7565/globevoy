@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const diversity = require('./services/route-diversity-687b');
+const diversity = require('./services/domain/routing/route-diversity-687b');
 
 let pass = 0;
 let fail = 0;
@@ -78,7 +78,7 @@ async function main() {
   check('Preview-origin fallback returns unmodified candidate pool', previewOrigin.tour === null && previewOrigin.tours.length === candidates.length && previewOrigin.diagnostics.selectedBy === 'feature-disabled');
 
   const source = fs.readFileSync(path.join(__dirname, 'generated-tour.js'), 'utf8');
-  check('Generated-tour integration imports 687B service', source.includes("require('./services/route-diversity-687b')"));
+  check('Generated-tour integration imports 687B service', source.includes("require('./services/domain/routing/route-diversity-687b')"));
   check('687B selection occurs before legacy role-scoped narrowing', source.indexOf('selectDiverseRoleCandidate687B(guarded.tours, query)') > -1 && source.indexOf('selectDiverseRoleCandidate687B(guarded.tours, query)') < source.indexOf('const orderOptimizationRows'));
   check('Generated-tour exposes diversity diagnostics', source.includes('aiAssistedRouteDiversity687B') && source.includes('AI may rank only already-valid candidate IDs'));
   check('New roles recognized by generated-tour', source.includes("'something-different', 'hidden-gem'"));

@@ -6,9 +6,9 @@ const path = require('path');
 
 process.env.ENABLE_GLOBAL_RECOMMENDATION_COVERAGE_AUDIT_702A = 'true';
 
-const coverage702a = require('./services/global-recommendation-coverage-702a');
-const reviewedRecovery = require('./services/reviewed-recovery-overlay-702c-r2');
-const promotion = require('./services/reviewed-activation-promotion-702e');
+const coverage702a = require('./services/admin/audits/global-recommendation-coverage-702a');
+const reviewedRecovery = require('./services/cities/recovery/reviewed-recovery-overlay-702c-r2');
+const promotion = require('./services/cities/recovery/reviewed-activation-promotion-702e');
 const manifest = require('./data/gv-rec-702e-promotion-manifest.json');
 
 const EXPECTED_IDS = ['acapulco-mx', 'aalesund-no'];
@@ -143,7 +143,7 @@ check('candidate never relaxes thresholds or claims a production write/deploymen
 
 check('702E candidate is not imported by any Lambda or production activation runtime', () => {
   const root = __dirname;
-  for (const rel of ['lambda.js', 'staging-lambda.js', 'services/verified-city-activation.js']) {
+  for (const rel of ['lambda.js', 'staging-lambda.js', 'services/cities/registry/verified-city-activation.js']) {
     const source = fs.readFileSync(path.join(root, rel), 'utf8');
     assert.ok(!source.includes('reviewed-activation-promotion-702e'), `${rel} imports 702E candidate`);
     assert.ok(!source.includes('gv-rec-702e-promotion-manifest'), `${rel} imports 702E manifest`);

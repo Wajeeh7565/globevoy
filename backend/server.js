@@ -7,28 +7,28 @@ const {
   isInvalidOriginError,
   isRecommendationValidationError
 } = require('./recommendations');
-const { fetchFlexDateWindows } = require('./services/flexible-dates');
+const { fetchFlexDateWindows } = require('./services/providers/flights/flexible-dates');
 const {
   getMultiCityTours,
   buildValidationErrorResponse: buildMultiCityValidationErrorResponse,
   isMultiCityValidationError
 } = require('./multicity-routes');
-const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D, duffelStatus683D } = require('./services/flight-provider-router-683c');
-const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/fx-normalization-683g');
-const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./services/duffel-p2-staging-683h');
+const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D, duffelStatus683D } = require('./services/providers/flights/flight-provider-router-683c');
+const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/shared/fx-normalization-683g');
+const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
 const { getGeneratedTour } = require('./generated-tour');
 const { getGeneratedTourControl } = require('./generated-tour-controls');
 const { getMixedResults } = require('./mixed-results');
-const { registrySummary, searchRegistry } = require('./services/city-registry');
-const { coverageSummary, searchCoverage } = require('./services/provider-mapping-audit');
-const { snapshotSummary: liveCoverageSummary, searchSnapshot: searchLiveCoverage, verifyBatch: verifyLiveCoverageBatch, isAuthorized: isLiveCoverageAuthorized } = require('./services/provider-live-coverage');
-const { summary: verifiedActivationSummary, search: searchVerifiedActivation, retryQueues: verifiedActivationRetryQueues } = require('./services/verified-city-activation');
-const { summary: remainingCurrentAuditSummary, search: searchRemainingCurrentAudit } = require('./services/remaining-current-city-audit');
-const { summary: current500CompletionAuditSummary, search: searchCurrent500CompletionAudit } = require('./services/current-500-completion-audit');
-const { summary: expansionPriorityAuditSummary, search: searchExpansionPriorityAudit } = require('./services/expansion-priority-city-audit');
-const { summary: expansionPriorityAuditWave2Summary, search: searchExpansionPriorityAuditWave2 } = require('./services/expansion-priority-city-audit-wave2');
-const { summary: finalExpansionAuditSummary, search: searchFinalExpansionAudit } = require('./services/final-expansion-city-audit');
-const { summary: inactiveRecoveryWave1Summary, search: searchInactiveRecoveryWave1 } = require('./services/inactive-city-recovery-wave1');
+const { registrySummary, searchRegistry } = require('./services/cities/registry/city-registry');
+const { coverageSummary, searchCoverage } = require('./services/admin/audits/provider-mapping-audit');
+const { snapshotSummary: liveCoverageSummary, searchSnapshot: searchLiveCoverage, verifyBatch: verifyLiveCoverageBatch, isAuthorized: isLiveCoverageAuthorized } = require('./services/admin/audits/provider-live-coverage');
+const { summary: verifiedActivationSummary, search: searchVerifiedActivation, retryQueues: verifiedActivationRetryQueues } = require('./services/cities/registry/verified-city-activation');
+const { summary: remainingCurrentAuditSummary, search: searchRemainingCurrentAudit } = require('./services/admin/audits/remaining-current-city-audit');
+const { summary: current500CompletionAuditSummary, search: searchCurrent500CompletionAudit } = require('./services/admin/audits/current-500-completion-audit');
+const { summary: expansionPriorityAuditSummary, search: searchExpansionPriorityAudit } = require('./services/admin/audits/expansion-priority-city-audit');
+const { summary: expansionPriorityAuditWave2Summary, search: searchExpansionPriorityAuditWave2 } = require('./services/admin/audits/expansion-priority-city-audit-wave2');
+const { summary: finalExpansionAuditSummary, search: searchFinalExpansionAudit } = require('./services/admin/audits/final-expansion-city-audit');
+const { summary: inactiveRecoveryWave1Summary, search: searchInactiveRecoveryWave1 } = require('./services/admin/audits/inactive-city-recovery-wave1');
 
 const FLEX_ROUTE_CONFIG = {
   'lisbon-porto':     { originCode: 'YTO', destCode: 'LIS' },

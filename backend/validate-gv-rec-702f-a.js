@@ -1,12 +1,12 @@
 'use strict';
 
 const assert = require('assert');
-const semantics = require('./services/flight-cache-semantics-702f-a');
-const coverage702a = require('./services/global-recommendation-coverage-702a');
+const semantics = require('./services/providers/flights/flight-cache-semantics-702f-a');
+const coverage702a = require('./services/admin/audits/global-recommendation-coverage-702a');
 const {
   EVIDENCE_CLASSES_683C,
   RANKING_GRADES_683C
-} = require('./services/flight-provider-contract-683c');
+} = require('./services/providers/flights/flight-provider-contract-683c');
 
 let passed = 0;
 function check(name, fn) {

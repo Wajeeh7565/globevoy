@@ -3,9 +3,9 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const h = require('./services/duffel-p2-staging-683h');
-const p2 = require('./services/whole-trip-date-optimizer-681b-p2');
-const liveVerification683JR2 = require('./services/live-provider-verification');
+const h = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
+const p2 = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
+const liveVerification683JR2 = require('./services/domain/live-fares/live-provider-verification');
 
 let passed = 0;
 function test(name, fn) {
@@ -563,7 +563,7 @@ function rawDuffel683DResult(origin, destination, departureDate, amount = 100, c
   });
   const lambdaSource = fs.readFileSync(path.join(__dirname,'lambda.js'),'utf8');
   const serverSource = fs.readFileSync(path.join(__dirname,'server.js'),'utf8');
-  const serviceSource = fs.readFileSync(path.join(__dirname,'services/duffel-p2-staging-683h.js'),'utf8');
+  const serviceSource = fs.readFileSync(path.join(__dirname,'services/providers/flights/duffel/duffel-p2-staging-683h.js'),'utf8');
   test('generated-tour contains 683H dormant P2 hook', () => assert.match(generatedSource,/duffelP2Enabled683H/));
   test('683J generated-tour diagnostics expose request budget plan', () => assert.match(generatedSource,/requestBudgetPlan:\s*live683H\?\.requestBudgetPlan/));
   test('683J generated-tour diagnostics expose provider abort state', () => assert.match(generatedSource,/providerAbortReason:\s*live683H\?\.state\?\.abortReason/));
@@ -601,7 +601,7 @@ function rawDuffel683DResult(origin, destination, departureDate, amount = 100, c
   test('683H never marks production approved true', () => assert.doesNotMatch(serviceSource,/productionApproved:\s*true/));
 
   test('683J-R1 canonicalizer is wired through 683C', () => assert.match(serviceSource,/normalizeObservation683C/));
-  const liveVerifierSource = fs.readFileSync(path.join(__dirname,'services/live-provider-verification.js'),'utf8');
+  const liveVerifierSource = fs.readFileSync(path.join(__dirname,'services/domain/live-fares/live-provider-verification.js'),'utf8');
   test('683J-R2 final-tour common evidence propagates R2 canonical marker', () => assert.match(generatedSource,/canonicalLiveEvidence683JR2:\s*selected\.canonicalLiveEvidence683JR2/));
   test('683J-R2 final-tour common evidence propagates provider evidence class', () => assert.match(generatedSource,/providerEvidenceClass:\s*selected\.providerEvidenceClass/));
   test('683J-R2 final-tour common evidence propagates provider ranking grade', () => assert.match(generatedSource,/providerRankingGrade:\s*selected\.providerRankingGrade/));

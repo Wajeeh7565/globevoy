@@ -19,8 +19,8 @@ process.env.ENABLE_PROVIDER_DRIVEN_ROUTE_DISCOVERY_665B = 'false';
 const fs = require('fs');
 const path = require('path');
 const generated = require('./generated-tour');
-const activation = require('./services/verified-city-activation');
-const graph = require('./services/global-route-graph');
+const activation = require('./services/cities/registry/verified-city-activation');
+const graph = require('./services/domain/routing/global-route-graph');
 const { getMultiCityTours } = require('./multicity-routes');
 
 const checks = [];

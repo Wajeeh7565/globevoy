@@ -4,28 +4,28 @@
 // one-way date observations from Travelpayouts/Aviasales.
 
 const { getMultiCityTours } = require('./multicity-routes');
-const { selectBestUsableObservation, smartFlightDateSelection677BEnabled, SMART_FLIGHT_DATE_SELECTION_VERSION_677B, smartFlightQualityGuardrails677BR2Enabled, SMART_FLIGHT_QUALITY_GUARDRAIL_VERSION_677B_R2, smartRouteRelativeFlightQuality677BR3Enabled, SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3 } = require('./services/cheap-one-way-flights');
-const { FLIGHT_PROVIDER_CONTRACT_VERSION_683C, fetchFlightDates683C, fetchFlightAcrossMonths683C, adapterSummary683C } = require('./services/flight-provider-router-683c');
+const { selectBestUsableObservation, smartFlightDateSelection677BEnabled, SMART_FLIGHT_DATE_SELECTION_VERSION_677B, smartFlightQualityGuardrails677BR2Enabled, SMART_FLIGHT_QUALITY_GUARDRAIL_VERSION_677B_R2, smartRouteRelativeFlightQuality677BR3Enabled, SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3 } = require('./services/providers/flights/cheap-one-way-flights');
+const { FLIGHT_PROVIDER_CONTRACT_VERSION_683C, fetchFlightDates683C, fetchFlightAcrossMonths683C, adapterSummary683C } = require('./services/providers/flights/flight-provider-router-683c');
 const { attachTourPresentation, currencyToUsdRate, normalizeCurrency } = require('./budget-presentation');
 const { findBestGlobalTour, GLOBAL_FALLBACK_VERSION } = require('./global-generated-tour-fallback');
-const { curateCandidateTours } = require('./services/route-curator');
-const { VERSION: AI_ROUTE_DIVERSITY_VERSION_687B, enabled: aiRouteDiversity687BEnabled, selectDiverseRoleCandidate: selectDiverseRoleCandidate687B } = require('./services/route-diversity-687b');
-const { enrichFlightLeg, enrichStay, summarizePriceProvenance } = require('./services/partner-links');
-const { GUARD_VERSION, guardEnabled, maxStopsForTrip, normalizeAirportIntegrity, evaluateTour, guardCandidateTours, _internal: routeFeasibilityInternal } = require('./services/route-feasibility');
-const { GLOBAL_ROUTE_GRAPH_VERSION, globalRouteGraphEnabled, generateProviderDrivenGlobalRouteCandidates } = require('./services/global-route-graph');
-const { PRICING_INTEGRITY_VERSION, normalizeParty, providerFarePartyTotalUsd, priceTransportLeg, applyTravellerPricingToTour } = require('./services/traveller-pricing');
-const { LIVE_PROVIDER_VERIFICATION_VERSION, enabled: liveProviderVerificationEnabled, verifyTourWithLiveProviders } = require('./services/live-provider-verification');
-const { VERSION_684A, applyPublicLiveFarePilot684A, status684A } = require('./services/public-live-fare-pilot-684a');
-const { VERSION_684B, discoverAffordableFlightTour684B, status684B } = require('./services/affordable-flight-discovery-684b');
-const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/verified-city-activation');
-const { ENTRY_ELIGIBILITY_VERSION, recommendationEligibility } = require('./services/travel-entry-eligibility');
-const { WHOLE_TRIP_ROUTE_OPTIMIZATION_VERSION_677C, enabled: wholeTripRouteOptimization677CEnabled, optimizeTourOrder: optimizeTourOrder677C, candidateAdjustment: wholeTripCandidateAdjustment677C } = require('./services/whole-trip-route-optimizer');
-const { DESTINATION_VALUE_PROXIMITY_VERSION_677D, enabled: destinationValueProximity677DEnabled, candidateAdjustment: destinationValueCandidateAdjustment677D, annotateTour: annotateDestinationValue677D } = require('./services/destination-value-proximity');
+const { curateCandidateTours } = require('./services/domain/routing/route-curator');
+const { VERSION: AI_ROUTE_DIVERSITY_VERSION_687B, enabled: aiRouteDiversity687BEnabled, selectDiverseRoleCandidate: selectDiverseRoleCandidate687B } = require('./services/domain/routing/route-diversity-687b');
+const { enrichFlightLeg, enrichStay, summarizePriceProvenance } = require('./services/providers/links/partner-links');
+const { GUARD_VERSION, guardEnabled, maxStopsForTrip, normalizeAirportIntegrity, evaluateTour, guardCandidateTours, _internal: routeFeasibilityInternal } = require('./services/domain/routing/route-feasibility');
+const { GLOBAL_ROUTE_GRAPH_VERSION, globalRouteGraphEnabled, generateProviderDrivenGlobalRouteCandidates } = require('./services/domain/routing/global-route-graph');
+const { PRICING_INTEGRITY_VERSION, normalizeParty, providerFarePartyTotalUsd, priceTransportLeg, applyTravellerPricingToTour } = require('./services/domain/pricing/traveller-pricing');
+const { LIVE_PROVIDER_VERIFICATION_VERSION, enabled: liveProviderVerificationEnabled, verifyTourWithLiveProviders } = require('./services/domain/live-fares/live-provider-verification');
+const { VERSION_684A, applyPublicLiveFarePilot684A, status684A } = require('./services/domain/live-fares/public-live-fare-pilot-684a');
+const { VERSION_684B, discoverAffordableFlightTour684B, status684B } = require('./services/domain/live-fares/affordable-flight-discovery-684b');
+const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/cities/registry/verified-city-activation');
+const { ENTRY_ELIGIBILITY_VERSION, recommendationEligibility } = require('./services/domain/eligibility/travel-entry-eligibility');
+const { WHOLE_TRIP_ROUTE_OPTIMIZATION_VERSION_677C, enabled: wholeTripRouteOptimization677CEnabled, optimizeTourOrder: optimizeTourOrder677C, candidateAdjustment: wholeTripCandidateAdjustment677C } = require('./services/domain/routing/whole-trip-route-optimizer');
+const { DESTINATION_VALUE_PROXIMITY_VERSION_677D, enabled: destinationValueProximity677DEnabled, candidateAdjustment: destinationValueCandidateAdjustment677D, annotateTour: annotateDestinationValue677D } = require('./services/domain/routing/destination-value-proximity');
 const { getDestination } = require('./data/destination-meta');
-const { WHOLE_TRIP_DATE_OPTIMIZER_VERSION_681B_P2, candidateStartDates: candidateStartDates681BP2, evaluateCandidate: evaluateWholeTripDateCandidate681BP2, selectCandidate: selectWholeTripDateCandidate681BP2 } = require('./services/whole-trip-date-optimizer-681b-p2');
-const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, productionApproved: stay22ProductionApproved682B, fetchStay22Evidence } = require('./services/stay22-evidence-682b');
-const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('./services/property-identity-682c');
-const { VERSION_683H, enabled683H: duffelP2Enabled683H, status683H: duffelP2Status683H, seedCandidateStarts683H, buildLiveProviderResults683H, applyResolvedAirports683H, liveSelectionFailClosedReason683JR1: classifyLiveSelectionFailClosed683JR1 } = require('./services/duffel-p2-staging-683h');
+const { WHOLE_TRIP_DATE_OPTIMIZER_VERSION_681B_P2, candidateStartDates: candidateStartDates681BP2, evaluateCandidate: evaluateWholeTripDateCandidate681BP2, selectCandidate: selectWholeTripDateCandidate681BP2 } = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
+const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, productionApproved: stay22ProductionApproved682B, fetchStay22Evidence } = require('./services/providers/stays/stay22/stay22-evidence-682b');
+const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('./services/providers/stays/shared/property-identity-682c');
+const { VERSION_683H, enabled683H: duffelP2Enabled683H, status683H: duffelP2Status683H, seedCandidateStarts683H, buildLiveProviderResults683H, applyResolvedAirports683H, liveSelectionFailClosedReason683JR1: classifyLiveSelectionFailClosed683JR1 } = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
 
 const GENERATED_TOUR_VERSION = '2.18.3-gv-rec-684b-r3-strict-currency-budget-fit';
 const FLEXIBLE_DATE_ENGINE_VERSION_681B_P1 = 'GV-TRUST-681B-P1';

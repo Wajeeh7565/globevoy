@@ -13,7 +13,7 @@ function main() {
 
   const bridge = read('frontend/scripts/saved-trips-705c-r3-route-details.js');
   const shell = read('frontend/scripts/shell-670f.js');
-  const backend = read('backend/services/staging-saved-trips-705c.js');
+  const backend = read('backend/services/accounts/saved-trips/staging-saved-trips-705c.js');
 
   assert.match(bridge, /GV-ACCOUNT-705C-R3/);
   assert.match(bridge, /MAX_COMPACT_BYTES = 40 \* 1024/);

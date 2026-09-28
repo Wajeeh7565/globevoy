@@ -3,8 +3,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');
-const adapter = require('./services/nuitee-hotel-708c');
-const wrapper = require('./services/staging-booking-revalidation-708c');
+const adapter = require('./services/providers/stays/nuitee/nuitee-hotel-708c');
+const wrapper = require('./services/booking/revalidation/staging-booking-revalidation-708c');
 
 const ROOT = path.resolve(__dirname, '..');
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -174,7 +174,7 @@ function liveResult(tour) {
 
 (async () => {
   await check('708C stays staging-only and contains no booking/payment endpoint', async () => {
-    const source = read('backend/services/nuitee-hotel-708c.js');
+    const source = read('backend/services/providers/stays/nuitee/nuitee-hotel-708c.js');
     const production = read('backend/lambda.js');
     assert.match(source, /GV-HOTEL-708C/);
     assert.match(source, /hotels\/rates/);
@@ -315,7 +315,7 @@ function liveResult(tour) {
 
   await check('staging wrapper owns 708C while production and 707B-R1 remain unchanged', async () => {
     const staging = read('backend/staging-lambda-702d.js');
-    const r1 = read('backend/services/staging-booking-revalidation-707b-r1.js');
+    const r1 = read('backend/services/booking/revalidation/staging-booking-revalidation-707b-r1.js');
     const production = read('backend/lambda.js');
     assert.match(staging, /staging-booking-revalidation-708c/);
     assert.match(staging, /handleBookingRevalidation707B/);

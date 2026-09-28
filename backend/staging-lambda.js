@@ -24,21 +24,21 @@ const {
   worldwideRegistrySummary,
   resolveWorldwideCity,
   searchWorldwideRegistry
-} = require('./services/worldwide-city-registry-701a');
+} = require('./services/cities/registry/worldwide-city-registry-701a');
 const {
   VERSION: GLOBAL_COVERAGE_VERSION,
   enabled: globalCoverageEnabled,
   summary: globalCoverageSummary,
   resolve: resolveGlobalCoverage,
   search: searchGlobalCoverage
-} = require('./services/global-recommendation-coverage-702a');
+} = require('./services/admin/audits/global-recommendation-coverage-702a');
 const {
   VERSION: GLOBAL_RECOVERY_VERSION,
   enabled: globalRecoveryEnabled,
   summary: globalRecoverySummary,
   resolve: resolveGlobalRecovery,
   search: searchGlobalRecovery
-} = require('./services/global-recovery-priority-702b');
+} = require('./services/admin/audits/global-recovery-priority-702b');
 
 const VERSION = 'GV-PLATFORM-700A-STAGING-API-R1';
 const WORLDWIDE_API_VERSION = 'GV-DATA-701B';

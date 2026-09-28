@@ -4,9 +4,9 @@ const assert = require('node:assert/strict');
 const {
   PRICE_EVIDENCE_VERSION, SOURCE_TYPES, normalizeFlightEvidence,
   normalizeHotelEvidence, automaticDateFloor, automaticDateAllowed
-} = require('./services/price-evidence-integrity');
-const { buildCanonicalLedger } = require('./services/canonical-total-evidence');
-const { buildAviasalesOneWaySearchUrl, buildAgodaCitySearchUrl } = require('./services/partner-links');
+} = require('./services/domain/pricing/price-evidence-integrity');
+const { buildCanonicalLedger } = require('./services/domain/pricing/canonical-total-evidence');
+const { buildAviasalesOneWaySearchUrl, buildAgodaCitySearchUrl } = require('./services/providers/links/partner-links');
 const { initialAutomaticStartDate } = require('./generated-tour');
 
 const checks = [];

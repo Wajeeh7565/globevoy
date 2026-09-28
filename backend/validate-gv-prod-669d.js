@@ -9,10 +9,10 @@ process.env.ENABLE_PROVIDER_DRIVEN_ROUTE_DISCOVERY_665B = 'false';
 
 const fs = require('fs');
 const path = require('path');
-const activation = require('./services/verified-city-activation');
+const activation = require('./services/cities/registry/verified-city-activation');
 const generated = require('./generated-tour');
-const pricing = require('./services/traveller-pricing');
-const graph = require('./services/global-route-graph');
+const pricing = require('./services/domain/pricing/traveller-pricing');
+const graph = require('./services/domain/routing/global-route-graph');
 
 const checks = [];
 function check(name, passed, details = null) {

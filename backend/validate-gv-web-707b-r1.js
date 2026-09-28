@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const service = require('./services/staging-booking-revalidation-707b-r1');
+const service = require('./services/booking/revalidation/staging-booking-revalidation-707b-r1');
 
 const checks = [];
 async function check(name, fn) {
@@ -108,7 +108,7 @@ function buggy707BPayload() {
 
   await check('compact canonical USD legs restore the saved EUR flight baseline', async () => {
     const trip = compactTrip();
-    const tour = require('./services/staging-booking-revalidation-707b')._internal.hydrateSavedTour(trip);
+    const tour = require('./services/booking/revalidation/staging-booking-revalidation-707b')._internal.hydrateSavedTour(trip);
     assert.equal(Math.round(service._internal.savedFlightDisplayTotal(trip, tour)), 588);
     assert.deepEqual(
       tour.legs.map((leg) => Math.round(service._internal.savedLegDisplayAmount(leg, tour))),
@@ -131,7 +131,7 @@ function buggy707BPayload() {
   await check('explicit saved flight snapshot remains authoritative when present', async () => {
     const trip = compactTrip();
     trip.priceSnapshot.flightEstimate = 600;
-    const tour = require('./services/staging-booking-revalidation-707b')._internal.hydrateSavedTour(trip);
+    const tour = require('./services/booking/revalidation/staging-booking-revalidation-707b')._internal.hydrateSavedTour(trip);
     assert.equal(service._internal.savedFlightDisplayTotal(trip, tour), 600);
   });
 

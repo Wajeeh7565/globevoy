@@ -1,0 +1,405 @@
+.github\workflows\build-703c-staging-backend.yml:11: - 'backend/validate-gv-flight-703b.js'
+.github\workflows\build-703c-staging-backend.yml:12: - 'backend/validate-gv-flight-703c.js'
+.github\workflows\build-703c-staging-backend.yml:21: name: Validate and package 703C staging Lambda
+.github\workflows\build-703c-staging-backend.yml:34: - name: Validate production baseline and 703 flight gates
+.github\workflows\build-703c-staging-backend.yml:36: node .github/scripts/validate-repo.mjs
+.github\workflows\build-703c-staging-backend.yml:37: node backend/validate-gv-rec-687b-p3.js
+.github\workflows\build-703c-staging-backend.yml:38: node backend/validate-gv-flight-703b.js
+.github\workflows\build-703c-staging-backend.yml:39: node backend/validate-gv-flight-703c.js
+.github\workflows\build-703c-staging-backend.yml:48: node --check backend/validate-gv-flight-703c.js
+.github\workflows\build-703c-staging-backend.yml:64: unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703c.js'
+.github\workflows\build-703d-staging-backend.yml:13: - 'backend/validate-gv-flight-703b.js'
+.github\workflows\build-703d-staging-backend.yml:14: - 'backend/validate-gv-flight-703c.js'
+.github\workflows\build-703d-staging-backend.yml:15: - 'backend/validate-gv-flight-703d.js'
+.github\workflows\build-703d-staging-backend.yml:25: name: Validate and package 703D staging Lambda
+.github\workflows\build-703d-staging-backend.yml:38: - name: Validate production baseline and 703 flight gates
+.github\workflows\build-703d-staging-backend.yml:40: node .github/scripts/validate-repo.mjs
+.github\workflows\build-703d-staging-backend.yml:41: node backend/validate-gv-rec-687b-p3.js
+.github\workflows\build-703d-staging-backend.yml:42: node backend/validate-gv-flight-703b.js
+.github\workflows\build-703d-staging-backend.yml:43: node backend/validate-gv-flight-703c.js
+.github\workflows\build-703d-staging-backend.yml:44: node backend/validate-gv-flight-703d.js
+.github\workflows\build-703d-staging-backend.yml:55: node --check backend/validate-gv-flight-703d.js
+.github\workflows\build-703d-staging-backend.yml:73: unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703d.js'
+.github\workflows\build-703e-staging-backend.yml:20: - 'backend/validate-gv-flight-703b.js'
+.github\workflows\build-703e-staging-backend.yml:21: - 'backend/validate-gv-flight-703c.js'
+.github\workflows\build-703e-staging-backend.yml:22: - 'backend/validate-gv-flight-703d.js'
+.github\workflows\build-703e-staging-backend.yml:23: - 'backend/validate-gv-flight-703e.js'
+.github\workflows\build-703e-staging-backend.yml:33: name: Validate and package 703E staging Lambda
+.github\workflows\build-703e-staging-backend.yml:46: - name: Validate production baseline and 703 flight gates
+.github\workflows\build-703e-staging-backend.yml:48: node .github/scripts/validate-repo.mjs
+.github\workflows\build-703e-staging-backend.yml:49: node backend/validate-gv-rec-687b-p3.js
+.github\workflows\build-703e-staging-backend.yml:50: node backend/validate-gv-flight-703b.js
+.github\workflows\build-703e-staging-backend.yml:51: node backend/validate-gv-flight-703c.js
+.github\workflows\build-703e-staging-backend.yml:52: node backend/validate-gv-flight-703d.js
+.github\workflows\build-703e-staging-backend.yml:53: node backend/validate-gv-flight-703e.js
+.github\workflows\build-703e-staging-backend.yml:67: node --check backend/validate-gv-flight-703e.js
+.github\workflows\build-703e-staging-backend.yml:88: unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703e.js'
+.github\workflows\build-705b-operator-pack.yml:9: - 'backend/validate-gv-account-705b.js'
+.github\workflows\build-705b-operator-pack.yml:11: - '.github/workflows/validate-705b.yml'
+.github\workflows\build-705b-operator-pack.yml:20: name: Validate and package 705B operator bootstrap
+.github\workflows\build-705b-operator-pack.yml:33: - name: Validate operator contract
+.github\workflows\build-705b-operator-pack.yml:35: node .github/scripts/validate-repo.mjs
+.github\workflows\build-705b-operator-pack.yml:36: node backend/validate-gv-account-705a.js
+.github\workflows\build-705b-operator-pack.yml:37: node backend/validate-gv-account-705b.js
+.github\workflows\build-705b-r3-staging-backend.yml:9: - 'backend/validate-gv-account-705b-r3.js'
+.github\workflows\build-705b-r3-staging-backend.yml:16: - 'backend/validate-gv-account-705b-r3.js'
+.github\workflows\build-705b-r3-staging-backend.yml:40: - name: Validate account runtime and current provider baselines
+.github\workflows\build-705b-r3-staging-backend.yml:42: node .github/scripts/validate-repo.mjs
+.github\workflows\build-705b-r3-staging-backend.yml:43: node backend/validate-gv-flight-703e.js
+.github\workflows\build-705b-r3-staging-backend.yml:44: node backend/validate-gv-hotel-704a.js
+.github\workflows\build-705b-r3-staging-backend.yml:45: node backend/validate-gv-account-705a.js
+.github\workflows\build-705b-r3-staging-backend.yml:46: node backend/validate-gv-account-705b.js
+.github\workflows\build-705b-r3-staging-backend.yml:47: node backend/validate-gv-account-705b-r3.js
+.github\workflows\build-705b-r3-staging-backend.yml:53: node --check backend/validate-gv-account-705b-r3.js
+.github\workflows\build-705b-r3-staging-backend.yml:68: unzip -l "dist/${artifact}" | grep -q 'validate-gv-account-705b-r3.js'
+.github\workflows\build-705c-staging-backend.yml:9: - 'backend/validate-gv-account-705c.js'
+.github\workflows\build-705c-staging-backend.yml:17: - 'backend/validate-gv-account-705c.js'
+.github\workflows\build-705c-staging-backend.yml:42: - name: Validate saved trips and current baselines
+.github\workflows\build-705c-staging-backend.yml:44: node .github/scripts/validate-repo.mjs
+.github\workflows\build-705c-staging-backend.yml:45: node backend/validate-gv-flight-703e.js
+.github\workflows\build-705c-staging-backend.yml:46: node backend/validate-gv-hotel-704a.js
+.github\workflows\build-705c-staging-backend.yml:47: node backend/validate-gv-account-705a.js
+.github\workflows\build-705c-staging-backend.yml:48: node backend/validate-gv-account-705b.js
+.github\workflows\build-705c-staging-backend.yml:49: node backend/validate-gv-account-705b-r3.js
+.github\workflows\build-705c-staging-backend.yml:50: node backend/validate-gv-account-705c.js
+.github\workflows\build-705c-staging-backend.yml:56: node --check backend/validate-gv-account-705c.js
+.github\workflows\build-705c-staging-backend.yml:73: unzip -l "dist/${artifact}" | grep -q 'validate-gv-account-705c.js'
+.github\workflows\build-staging-backend.yml:13: - '.github/scripts/validate-repo.mjs'
+.github\workflows\build-staging-backend.yml:25: name: Validate and package staging Lambda
+.github\workflows\build-staging-backend.yml:38: - name: Validate repository safety
+.github\workflows\build-staging-backend.yml:39: run: node .github/scripts/validate-repo.mjs
+.github\workflows\build-staging-backend.yml:41: - name: Validate verified production backend remains green
+.github\workflows\build-staging-backend.yml:43: node backend/validate-gv-rec-687b-p3.js
+.github\workflows\build-staging-backend.yml:44: node backend/validate-gv-rec-687b.js
+.github\workflows\build-staging-backend.yml:46: - name: Validate isolated staging wrapper
+.github\workflows\build-staging-backend.yml:47: run: node backend/validate-gv-platform-700a-staging-api.js
+.github\workflows\build-staging-backend.yml:49: - name: Validate worldwide registry staging API
+.github\workflows\build-staging-backend.yml:51: node backend/validate-gv-data-701a.js
+.github\workflows\build-staging-backend.yml:52: node backend/validate-gv-data-701b.js
+.github\workflows\build-staging-backend.yml:54: - name: Validate global recommendation coverage audit
+.github\workflows\build-staging-backend.yml:55: run: node backend/validate-gv-rec-702a.js
+.github\workflows\build-staging-backend.yml:57: - name: Validate freshness-aware global recovery priority
+.github\workflows\build-staging-backend.yml:59: node backend/validate-gv-rec-702b.js
+.github\workflows\build-staging-backend.yml:60: node backend/validate-gv-rec-702b-r1.js
+.github\workflows\build-staging-backend.yml:62: - name: Validate bounded provider recovery Smoke10 plan
+.github\workflows\build-staging-backend.yml:63: run: node backend/validate-gv-rec-702c.js
+.github\workflows\build-staging-backend.yml:65: - name: Validate reviewed recovery projection
+.github\workflows\build-staging-backend.yml:66: run: node backend/validate-gv-rec-702c-r2.js
+.github\workflows\build-staging-backend.yml:68: - name: Validate staging-only reviewed recovery QA
+.github\workflows\build-staging-backend.yml:69: run: node backend/validate-gv-rec-702d.js
+.github\workflows\build-staging-backend.yml:71: - name: Validate curated 1000-city staging route surface
+.github\workflows\build-staging-backend.yml:72: run: node backend/validate-gv-rec-702d-r1.js
+.github\workflows\build-staging-backend.yml:74: - name: Validate reviewed 439-to-441 activation candidate
+.github\workflows\build-staging-backend.yml:75: run: node backend/validate-gv-rec-702e.js
+.github\workflows\build-staging-backend.yml:77: - name: Validate staging-only high-confidence airport overlay
+.github\workflows\build-staging-backend.yml:78: run: node backend/validate-gv-rec-702f-d.js
+.github\workflows\build-staging-backend.yml:80: - name: Validate staging five-origin final-live policy
+.github\workflows\build-staging-backend.yml:81: run: node backend/validate-gv-flight-703b.js
+.github\workflows\build-staging-backend.yml:83: - name: Validate GV-PERF-R5 bounded rescue ordering
+.github\workflows\build-staging-backend.yml:84: run: node tests/performance/validate-gv-perf-r5.test.js
+.github\workflows\build-staging-backend.yml:93: node --check tests/performance/validate-gv-perf-r5.test.js
+.github\workflows\build-staging-backend.yml:104: node --check backend/validate-gv-data-701b.js
+.github\workflows\build-staging-backend.yml:105: node --check backend/validate-gv-rec-702a.js
+.github\workflows\build-staging-backend.yml:106: node --check backend/validate-gv-rec-702b.js
+.github\workflows\build-staging-backend.yml:107: node --check backend/validate-gv-rec-702b-r1.js
+.github\workflows\build-staging-backend.yml:108: node --check backend/validate-gv-rec-702c.js
+.github\workflows\build-staging-backend.yml:109: node --check backend/validate-gv-rec-702c-r2.js
+.github\workflows\build-staging-backend.yml:110: node --check backend/validate-gv-rec-702d.js
+.github\workflows\build-staging-backend.yml:111: node --check backend/validate-gv-rec-702d-r1.js
+.github\workflows\build-staging-backend.yml:112: node --check backend/validate-gv-rec-702e.js
+.github\workflows\build-staging-backend.yml:113: node --check backend/validate-gv-rec-702f-d.js
+.github\workflows\build-staging-backend.yml:114: node --check backend/validate-gv-flight-703b.js
+.github\workflows\build-staging-backend.yml:140: unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703b.js'
+.github\workflows\validate-702f-a.yml:12: - 'backend/validate-gv-rec-702f-a.js'
+.github\workflows\validate-702f-a.yml:14: - '.github/workflows/validate-702f-a.yml'
+.github\workflows\validate-702f-a.yml:25: validate:
+.github\workflows\validate-702f-a.yml:26: name: Validate Travelpayouts cache semantics
+.github\workflows\validate-702f-a.yml:40: run: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-702f-a.yml:43: run: node backend/validate-gv-rec-702a.js
+.github\workflows\validate-702f-a.yml:46: run: node backend/validate-gv-rec-702e.js
+.github\workflows\validate-702f-a.yml:48: - name: Validate 702F-A cache semantics
+.github\workflows\validate-702f-a.yml:49: run: node backend/validate-gv-rec-702f-a.js
+.github\workflows\validate-702f-a.yml:54: node --check backend/validate-gv-rec-702f-a.js
+.github\workflows\validate-702f-a.yml:70: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)[[:space:]].*(update|create|deploy)|amplify[[:space:]]+publish" .github/workflows/validate-702f-a.yml; then
+.github\workflows\validate-702f-b.yml:9: - 'backend/validate-gv-rec-702f-b.js'
+.github\workflows\validate-702f-b.yml:13: - '.github/workflows/validate-702f-b.yml'
+.github\workflows\validate-702f-b.yml:21: name: Validate pinned OurAirports gateway enrichment
+.github\workflows\validate-702f-b.yml:37: node --check backend/validate-gv-rec-702f-b.js
+.github\workflows\validate-702f-b.yml:38: node backend/validate-gv-rec-702f-b.js
+.github\workflows\validate-702f-b.yml:62: - name: Validate report safety and coverage
+.github\workflows\validate-702f-b.yml:126: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-702f-b.yml; then
+.github\workflows\validate-702f-c.yml:10: - 'backend/validate-gv-rec-702f-c.js'
+.github\workflows\validate-702f-c.yml:15: - '.github/workflows/validate-702f-c.yml'
+.github\workflows\validate-702f-c.yml:23: name: Validate corrected 50-city gateway triage
+.github\workflows\validate-702f-c.yml:39: node --check backend/validate-gv-rec-702f-c.js
+.github\workflows\validate-702f-c.yml:40: node backend/validate-gv-rec-702f-c.js
+.github\workflows\validate-702f-c.yml:67: - name: Validate exact corrected queue and safety boundary
+.github\workflows\validate-702f-c.yml:157: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-702f-c.yml; then
+.github\workflows\validate-702f-d.yml:10: - 'backend/validate-gv-rec-702f-d.js'
+.github\workflows\validate-702f-d.yml:16: - '.github/workflows/validate-702f-d.yml'
+.github\workflows\validate-702f-d.yml:23: validate:
+.github\workflows\validate-702f-d.yml:24: name: Validate nine-city staging preferred-airport overlay
+.github\workflows\validate-702f-d.yml:40: node --check backend/validate-gv-rec-702f-d.js
+.github\workflows\validate-702f-d.yml:42: node backend/validate-gv-rec-702f-d.js
+.github\workflows\validate-702f-d.yml:121: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-702f-d.yml; then
+.github\workflows\validate-702f-e.yml:12: - 'backend/validate-gv-rec-702f-e.js'
+.github\workflows\validate-702f-e.yml:14: - '.github/workflows/validate-702f-e.yml'
+.github\workflows\validate-702f-e.yml:22: validate:
+.github\workflows\validate-702f-e.yml:23: name: Validate 9-city permanent foundation projection
+.github\workflows\validate-702f-e.yml:47: node --check backend/validate-gv-rec-702f-e.js
+.github\workflows\validate-702f-e.yml:48: ENABLE_VERIFIED_CITY_ACTIVATION_668T=true node backend/validate-gv-rec-702f-e.js
+.github\workflows\validate-702f-e.yml:83: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-702f-e.yml; then
+.github\workflows\validate-703a.yml:9: - 'backend/validate-gv-flight-703a.js'
+.github\workflows\validate-703a.yml:15: - '.github/workflows/validate-703a.yml'
+.github\workflows\validate-703a.yml:24: name: Validate Duffel expansion architecture audit
+.github\workflows\validate-703a.yml:39: node --check backend/validate-gv-flight-703a.js
+.github\workflows\validate-703a.yml:40: node backend/validate-gv-flight-703a.js
+.github\workflows\validate-703a.yml:51: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-703a.yml; then
+.github\workflows\validate-703b.yml:12: - 'backend/validate-gv-flight-703b.js'
+.github\workflows\validate-703b.yml:13: - '.github/workflows/validate-703b.yml'
+.github\workflows\validate-703b.yml:21: validate:
+.github\workflows\validate-703b.yml:22: name: Validate staging five-origin final-live policy
+.github\workflows\validate-703b.yml:39: node --check backend/validate-gv-flight-703b.js
+.github\workflows\validate-703b.yml:40: node backend/validate-gv-flight-703b.js
+.github\workflows\validate-703b.yml:55: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+api\.duffel\.com" .github/workflows/validate-703b.yml; then
+.github\workflows\validate-703c.yml:14: - 'backend/validate-gv-flight-703c.js'
+.github\workflows\validate-703c.yml:15: - '.github/workflows/validate-703c.yml'
+.github\workflows\validate-703c.yml:23: validate:
+.github\workflows\validate-703c.yml:24: name: Validate shared physical-request budget
+.github\workflows\validate-703c.yml:41: node --check backend/validate-gv-flight-703c.js
+.github\workflows\validate-703c.yml:42: node backend/validate-gv-flight-703c.js
+.github\workflows\validate-703c.yml:65: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+api\.duffel\.com" .github/workflows/validate-703c.yml; then
+.github\workflows\validate-703d.yml:13: - 'backend/validate-gv-flight-703b.js'
+.github\workflows\validate-703d.yml:14: - 'backend/validate-gv-flight-703c.js'
+.github\workflows\validate-703d.yml:15: - 'backend/validate-gv-flight-703d.js'
+.github\workflows\validate-703d.yml:16: - '.github/workflows/validate-703d.yml'
+.github\workflows\validate-703d.yml:24: validate:
+.github\workflows\validate-703d.yml:25: name: Validate bounded five-origin 684B staging policy
+.github\workflows\validate-703d.yml:38: - name: Validate repository and prior flight safeguards
+.github\workflows\validate-703d.yml:40: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-703d.yml:41: node backend/validate-gv-flight-703b.js
+.github\workflows\validate-703d.yml:42: node backend/validate-gv-flight-703c.js
+.github\workflows\validate-703d.yml:43: node backend/validate-gv-flight-703d.js
+.github\workflows\validate-703d.yml:52: node --check backend/validate-gv-flight-703d.js
+.github\workflows\validate-703d.yml:77: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+api\.duffel\.com" .github/workflows/validate-703d.yml; then
+.github\workflows\validate-703e.yml:22: - 'backend/validate-gv-flight-703b.js'
+.github\workflows\validate-703e.yml:23: - 'backend/validate-gv-flight-703c.js'
+.github\workflows\validate-703e.yml:24: - 'backend/validate-gv-flight-703d.js'
+.github\workflows\validate-703e.yml:25: - 'backend/validate-gv-flight-703e.js'
+.github\workflows\validate-703e.yml:26: - '.github/workflows/validate-703e.yml'
+.github\workflows\validate-703e.yml:34: validate:
+.github\workflows\validate-703e.yml:35: name: Validate two-adult party-total fare integrity
+.github\workflows\validate-703e.yml:48: - name: Validate repository and prior flight safeguards
+.github\workflows\validate-703e.yml:50: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-703e.yml:51: node backend/validate-gv-rec-687b-p3.js
+.github\workflows\validate-703e.yml:52: node backend/validate-gv-flight-703b.js
+.github\workflows\validate-703e.yml:53: node backend/validate-gv-flight-703c.js
+.github\workflows\validate-703e.yml:54: node backend/validate-gv-flight-703d.js
+.github\workflows\validate-703e.yml:55: node backend/validate-gv-flight-703e.js
+.github\workflows\validate-703e.yml:69: node --check backend/validate-gv-flight-703e.js
+.github\workflows\validate-703e.yml:98: if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+api\.duffel\.com" .github/workflows/validate-703e.yml; then
+.github\workflows\validate-703e.yml:102: if grep -E "https://api\.duffel\.com" backend/validate-gv-flight-703e.js; then
+.github\workflows\validate-704a.yml:9: - 'backend/validate-gv-hotel-704a.js'
+.github\workflows\validate-704a.yml:11: - '.github/workflows/validate-704a.yml'
+.github\workflows\validate-704a.yml:18: validate:
+.github\workflows\validate-704a.yml:19: name: Validate modern Agoda Demand contract without provider calls
+.github\workflows\validate-704a.yml:32: - name: Validate repository and current flight baseline
+.github\workflows\validate-704a.yml:34: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-704a.yml:35: node backend/validate-gv-flight-703b.js
+.github\workflows\validate-704a.yml:36: node backend/validate-gv-flight-703c.js
+.github\workflows\validate-704a.yml:37: node backend/validate-gv-flight-703d.js
+.github\workflows\validate-704a.yml:38: node backend/validate-gv-flight-703e.js
+.github\workflows\validate-704a.yml:39: node backend/validate-gv-hotel-704a.js
+.github\workflows\validate-704a.yml:44: node --check backend/validate-gv-hotel-704a.js
+.github\workflows\validate-704a.yml:78: if grep -E 'aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+agoda' backend/services/agoda-demand-readiness-704a.js backend/validate-gv-hotel-704a.js; then
+.github\workflows\validate-705a.yml:9: - 'backend/validate-gv-account-705a.js'
+.github\workflows\validate-705a.yml:11: - '.github/workflows/validate-705a.yml'
+.github\workflows\validate-705a.yml:18: validate:
+.github\workflows\validate-705a.yml:19: name: Validate account security and saved-trip ownership contract
+.github\workflows\validate-705a.yml:32: - name: Validate repository and current roadmap baseline
+.github\workflows\validate-705a.yml:34: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-705a.yml:35: node backend/validate-gv-flight-703e.js
+.github\workflows\validate-705a.yml:36: node backend/validate-gv-hotel-704a.js
+.github\workflows\validate-705a.yml:37: node backend/validate-gv-account-705a.js
+.github\workflows\validate-705a.yml:42: node --check backend/validate-gv-account-705a.js
+.github\workflows\validate-705a.yml:76: if grep -E 'aws[[:space:]]+(cognito-idp|dynamodb|lambda|amplify|cloudformation)|amplify[[:space:]]+publish' backend/services/account-architecture-705a.js backend/validate-gv-account-705a.js; then
+.github\workflows\validate-705b-r1.yml:8: - '.github/workflows/validate-705b-r1.yml'
+.github\workflows\validate-705b-r1.yml:15: validate:
+.github\workflows\validate-705b-r1.yml:40: node backend/validate-gv-account-705b.js
+.github\workflows\validate-705b-r3.yml:9: - 'backend/validate-gv-account-705b-r3.js'
+.github\workflows\validate-705b-r3.yml:16: - '.github/workflows/validate-705b-r3.yml'
+.github\workflows\validate-705b-r3.yml:24: validate:
+.github\workflows\validate-705b-r3.yml:25: name: Validate PKCE browser flow and Cognito JWT boundary
+.github\workflows\validate-705b-r3.yml:39: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-705b-r3.yml:40: node backend/validate-gv-flight-703e.js
+.github\workflows\validate-705b-r3.yml:41: node backend/validate-gv-hotel-704a.js
+.github\workflows\validate-705b-r3.yml:42: node backend/validate-gv-account-705a.js
+.github\workflows\validate-705b-r3.yml:43: node backend/validate-gv-account-705b.js
+.github\workflows\validate-705b-r3.yml:46: run: node backend/validate-gv-account-705b-r3.js
+.github\workflows\validate-705b-r3.yml:52: node --check backend/validate-gv-account-705b-r3.js
+.github\workflows\validate-705b.yml:9: - 'backend/validate-gv-account-705b.js'
+.github\workflows\validate-705b.yml:11: - '.github/workflows/validate-705b.yml'
+.github\workflows\validate-705b.yml:19: validate:
+.github\workflows\validate-705b.yml:20: name: Validate Cognito infrastructure contract without AWS changes
+.github\workflows\validate-705b.yml:33: - name: Validate repository and current roadmap baseline
+.github\workflows\validate-705b.yml:35: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-705b.yml:36: node backend/validate-gv-flight-703e.js
+.github\workflows\validate-705b.yml:37: node backend/validate-gv-hotel-704a.js
+.github\workflows\validate-705b.yml:38: node backend/validate-gv-account-705a.js
+.github\workflows\validate-705b.yml:39: node backend/validate-gv-account-705b.js
+.github\workflows\validate-705b.yml:52: if grep -E '(^|[[:space:]])(bash|sh)[[:space:]]+ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito\.sh' .github/workflows/validate-705b.yml .github/workflows/build-705b-operator-pack.yml; then
+.github\workflows\validate-705b.yml:56: echo 'PASS - 705B CI validates/packages only; it creates no AWS resources.'
+.github\workflows\validate-705c-r3.yml:9: - 'backend/validate-gv-account-705c-r3.js'
+.github\workflows\validate-705c-r3.yml:10: - '.github/workflows/validate-705c-r3.yml'
+.github\workflows\validate-705c-r3.yml:16: - 'backend/validate-gv-account-705c-r3.js'
+.github\workflows\validate-705c-r3.yml:17: - '.github/workflows/validate-705c-r3.yml'
+.github\workflows\validate-705c-r3.yml:28: validate:
+.github\workflows\validate-705c-r3.yml:40: node --check backend/validate-gv-account-705c-r3.js
+.github\workflows\validate-705c-r3.yml:41: - name: Validate compact route account save
+.github\workflows\validate-705c-r3.yml:42: run: node backend/validate-gv-account-705c-r3.js
+.github\workflows\validate-705c-r3.yml:45: node backend/validate-gv-account-705b-r3.js
+.github\workflows\validate-705c-r3.yml:46: node backend/validate-gv-account-705c.js
+.github\workflows\validate-705c-r3.yml:47: node backend/validate-gv-account-705c-r2.js
+.github\workflows\validate-705c-r4.yml:8: - 'backend/validate-gv-account-705c-r4.js'
+.github\workflows\validate-705c-r4.yml:9: - '.github/workflows/validate-705c-r4.yml'
+.github\workflows\validate-705c-r4.yml:14: - 'backend/validate-gv-account-705c-r4.js'
+.github\workflows\validate-705c-r4.yml:15: - '.github/workflows/validate-705c-r4.yml'
+.github\workflows\validate-705c-r4.yml:26: validate:
+.github\workflows\validate-705c-r4.yml:37: node --check backend/validate-gv-account-705c-r4.js
+.github\workflows\validate-705c-r4.yml:38: - name: Validate staging-only saved-trip CRUD CORS
+.github\workflows\validate-705c-r4.yml:39: run: node backend/validate-gv-account-705c-r4.js
+.github\workflows\validate-705c-r4.yml:42: node backend/validate-gv-account-705b-r3.js
+.github\workflows\validate-705c-r4.yml:43: node backend/validate-gv-account-705c.js
+.github\workflows\validate-705c-r4.yml:44: node backend/validate-gv-account-705c-r2.js
+.github\workflows\validate-705c-r4.yml:45: node backend/validate-gv-account-705c-r3.js
+.github\workflows\validate-705c.yml:9: - 'backend/validate-gv-account-705c.js'
+.github\workflows\validate-705c.yml:10: - 'backend/validate-gv-account-705c-r2.js'
+.github\workflows\validate-705c.yml:20: - '.github/workflows/validate-705c.yml'
+.github\workflows\validate-705c.yml:26: - 'backend/validate-gv-account-705c.js'
+.github\workflows\validate-705c.yml:27: - 'backend/validate-gv-account-705c-r2.js'
+.github\workflows\validate-705c.yml:37: - '.github/workflows/validate-705c.yml'
+.github\workflows\validate-705c.yml:48: validate:
+.github\workflows\validate-705c.yml:60: node --check backend/validate-gv-account-705c.js
+.github\workflows\validate-705c.yml:61: node --check backend/validate-gv-account-705c-r2.js
+.github\workflows\validate-705c.yml:66: - name: Validate secure saved trips
+.github\workflows\validate-705c.yml:68: node backend/validate-gv-account-705b-r3.js
+.github\workflows\validate-705c.yml:69: node backend/validate-gv-account-705c.js
+.github\workflows\validate-705c.yml:70: node backend/validate-gv-account-705c-r2.js
+.github\workflows\validate-705c.yml:73: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-705c.yml:74: node backend/validate-gv-flight-703e.js
+.github\workflows\validate-705c.yml:75: node backend/validate-gv-hotel-704a.js
+.github\workflows\validate-706a.yml:12: - 'backend/validate-gv-book-706a.js'
+.github\workflows\validate-706a.yml:13: - '.github/workflows/validate-706a.yml'
+.github\workflows\validate-706a.yml:22: - 'backend/validate-gv-book-706a.js'
+.github\workflows\validate-706a.yml:23: - '.github/workflows/validate-706a.yml'
+.github\workflows\validate-706a.yml:34: validate:
+.github\workflows\validate-706a.yml:47: node --check backend/validate-gv-book-706a.js
+.github\workflows\validate-706a.yml:48: - name: Validate saved trip booking workspace
+.github\workflows\validate-706a.yml:49: run: node backend/validate-gv-book-706a.js
+.github\workflows\validate-706a.yml:52: node backend/validate-gv-account-705b-r3.js
+.github\workflows\validate-706a.yml:53: node backend/validate-gv-account-705c.js
+.github\workflows\validate-706a.yml:54: node backend/validate-gv-account-705c-r3.js
+.github\workflows\validate-706a.yml:55: node .github/scripts/validate-repo.mjs
+.github\workflows\validate-706r.yml:12: - 'backend/validate-gv-web-707b.js'
+.github\workflows\validate-706r.yml:13: - 'backend/validate-gv-web-707b-r1.js'
+.github\workflows\validate-706r.yml:15: - '.github/workflows/validate-706r.yml'
+.github\workflows\validate-706r.yml:16: - '.github/workflows/validate-707a.yml'
+.github\workflows\validate-706r.yml:23: validate:
+.github\workflows\validate-706r.yml:50: if printf '%s\n' "$changed" | grep -Eq '^frontend/validation/validate-gv-web-fe-r3-1b\.js$'; then
+.github\workflows\validate-706r.yml:51: unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(frontend/(about|booking|create-account|explore|how-it-works|index|mixed-results|multi-city-trip|multi-city|multicity-visualizer|saved-trips|sign-in|trip|trust)\.html|frontend/scripts/shell-670f\.js|frontend/styles/shell\.css|frontend/validation/validate-gv-shell-686d-r1\.js|frontend/validation/validate-gv-book-686c\.js|frontend/validation/validate-gv-journey-686b\.js|frontend/validation/validate-gv-rc-686d\.js|frontend/validation/validate-gv-ux-687a\.js|frontend/validation/validate-gv-web-fe-r3-1b\.js|web/components/account/account-nav\.tsx|web/validation/validate-gv-web-fe-r3\.mjs|backend/validate-gv-account-705b-r3\.js|\.github/workflows/validate\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
+.github\workflows\validate-706r.yml:57: elif printf '%s\n' "$changed" | grep -Eq '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$'; then
+.github\workflows\validate-706r.yml:62: unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+.github\workflows\validate-706r.yml:68: elif [ -f web/validation/validate-gv-web-708a.mjs ]; then
+.github\workflows\validate-706r.yml:69: if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+.github\workflows\validate-706r.yml:73: elif [ -f backend/validate-gv-web-707b.js ]; then
+.github\workflows\validate-706r.yml:78: unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/services/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
+.github\workflows\validate-706r.yml:84: elif [ -f web/validation/validate-gv-web-707a.mjs ]; then
+.github\workflows\validate-706r.yml:85: if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+.github\workflows\validate-706r.yml:138: run: npm run typecheck
+.github\workflows\validate-706r.yml:140: - name: Validate approved React successor contracts
+.github\workflows\validate-706r.yml:143: if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+.github\workflows\validate-706r.yml:144: node web/validation/validate-gv-web-707a.mjs
+.github\workflows\validate-706r.yml:146: if [ -f backend/validate-gv-web-707b.js ]; then
+.github\workflows\validate-706r.yml:147: node backend/validate-gv-web-707b.js
+.github\workflows\validate-706r.yml:149: if [ -f backend/validate-gv-web-707b-r1.js ]; then
+.github\workflows\validate-706r.yml:150: node backend/validate-gv-web-707b-r1.js
+.github\workflows\validate-706r.yml:152: if [ -f web/validation/validate-gv-web-708a.mjs ]; then
+.github\workflows\validate-706r.yml:153: node web/validation/validate-gv-web-708a.mjs
+.github\workflows\validate-706r.yml:155: if [ -f web/validation/validate-gv-web-fe-r3.mjs ]; then
+.github\workflows\validate-706r.yml:156: node web/validation/validate-gv-web-fe-r3.mjs
+.github\workflows\validate-706r.yml:158: if [ -f web/validation/validate-gv-web-fe-r3-2.mjs ]; then
+.github\workflows\validate-706r.yml:159: node web/validation/validate-gv-web-fe-r3-2.mjs
+.github\workflows\validate-706r.yml:162: - name: Validate Trip Review pricing and My Trips behaviour
+.github\workflows\validate-706r.yml:164: run: node --test web/validation/validate-gv-live-712c.test.mjs
+.github\workflows\validate-706r.yml:167: run: npm run build
+.github\workflows\validate-706r.yml:229: if [ -f web/validation/validate-gv-web-707a.mjs ]; then
+.github\workflows\validate-706r.yml:230: node backend/validate-gv-account-705b-r3.js
+.github\workflows\validate-706r.yml:231: node backend/validate-gv-account-705c.js
+.github\workflows\validate-706r.yml:232: node backend/validate-gv-account-705c-r4.js
+.github\workflows\validate-706r.yml:233: node backend/validate-gv-book-706a.js
+.github\workflows\validate-706r.yml:235: if [ -f backend/validate-gv-web-707b.js ]; then
+.github\workflows\validate-706r.yml:236: node backend/validate-gv-flight-703c.js
+.github\workflows\validate-706r.yml:237: node backend/validate-gv-flight-703e.js
+.github\workflows\validate-707a.yml:9: - '.github/workflows/validate-707a.yml'
+.github\workflows\validate-707a.yml:16: validate:
+.github\workflows\validate-707a.yml:54: run: npm run typecheck
+.github\workflows\validate-707a.yml:56: - name: Validate 707A account privacy and handoff contracts
+.github\workflows\validate-707a.yml:58: run: node validation/validate-gv-web-707a.mjs
+.github\workflows\validate-707a.yml:62: run: npm run build
+.github\workflows\validate-707a.yml:77: node backend/validate-gv-account-705b-r3.js
+.github\workflows\validate-707a.yml:78: node backend/validate-gv-account-705c.js
+.github\workflows\validate-707a.yml:79: node backend/validate-gv-account-705c-r4.js
+.github\workflows\validate-707a.yml:80: node backend/validate-gv-book-706a.js
+.github\workflows\validate-707a.yml:83: run: grep -q '^  contents: read$' .github/workflows/validate-707a.yml
+.github\workflows\validate-708b.yml:8: - 'ops/validate-gv-hotel-708b.mjs'
+.github\workflows\validate-708b.yml:10: - '.github/workflows/validate-708b.yml'
+.github\workflows\validate-708b.yml:17: validate:
+.github\workflows\validate-708b.yml:38: unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(ops/Run-GV-HOTEL-708B-Nuitee-Sandbox\.mjs|ops/validate-gv-hotel-708b\.mjs|docs/GV-HOTEL-708B-NUITEE-EVALUATION\.md|\.github/workflows/validate-708b\.yml)$' || true)"
+.github\workflows\validate-708b.yml:45: - name: Validate Nuitee evaluation package without network or credential
+.github\workflows\validate-708b.yml:46: run: node ops/validate-gv-hotel-708b.mjs
+.github\workflows\validate-708c.yml:10: - 'backend/validate-gv-hotel-708c.js'
+.github\workflows\validate-708c.yml:14: - '.github/workflows/validate-708c.yml'
+.github\workflows\validate-708c.yml:15: - '.github/workflows/validate-706r.yml'
+.github\workflows\validate-708c.yml:22: validate:
+.github\workflows\validate-708c.yml:43: hotel_runtime_changed="$(printf '%s\n' "$changed" | grep -E '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+.github\workflows\validate-708c.yml:46: unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validate-gv-hotel-708c\.js|web/lib/contracts\.ts|web/components/booking/booking-workspace-client\.tsx|docs/GV-HOTEL-708C-STAGING-LIVE-HOTEL-EVIDENCE\.md|\.github/workflows/validate-708c\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
+.github\workflows\validate-708c.yml:56: - name: Validate 708C with mocked secret and provider responses
+.github\workflows\validate-708c.yml:57: run: node backend/validate-gv-hotel-708c.js
+.github\workflows\validate-708c.yml:60: run: node backend/validate-gv-web-707b.js
+.github\workflows\validate-708c.yml:63: run: node backend/validate-gv-web-707b-r1.js
+.github\workflows\validate-708c.yml:69: run: npm run typecheck --prefix web
+.github\workflows\validate-708c.yml:72: run: npm run build --prefix web
+.github\workflows\validate.yml:22: validate:
+.github\workflows\validate.yml:23: name: Validate current Globevoy baseline
+.github\workflows\validate.yml:40: run: node .github/scripts/validate-repo.mjs
+.github\workflows\validate.yml:43: run: node backend/validate-gv-rec-687b-p3.js
+.github\workflows\validate.yml:46: run: node backend/validate-gv-rec-687b.js
+.github\workflows\validate.yml:49: run: node backend/validate-gv-data-701a.js
+.github\workflows\validate.yml:52: run: node backend/validate-gv-data-701b.js
+.github\workflows\validate.yml:55: run: node frontend/validation/validate-gv-data-701c.js
+.github\workflows\validate.yml:58: run: node backend/validate-gv-rec-702a.js
+.github\workflows\validate.yml:61: run: node backend/validate-gv-rec-702b.js
+.github\workflows\validate.yml:64: run: node backend/validate-gv-rec-702b-r1.js
+.github\workflows\validate.yml:67: run: node backend/validate-gv-rec-702c.js
+.github\workflows\validate.yml:70: run: node backend/validate-gv-rec-702c-r2.js
+.github\workflows\validate.yml:73: run: node backend/validate-gv-rec-702d.js
+.github\workflows\validate.yml:76: run: node backend/validate-gv-rec-702d-r1.js
+.github\workflows\validate.yml:79: run: node backend/validate-gv-rec-702e.js
+.github\workflows\validate.yml:82: run: node frontend/validation/validate-gv-rec-687b-frontend.js
+.github\workflows\validate.yml:85: run: node backend/validate-gv-perf-r5.test.js
+.github\workflows\validate.yml:88: run: node backend/validate-gv-web-fe-r2.js
+.github\workflows\validate.yml:91: run: node frontend/validation/validate-gv-web-fe-r3-1b.js
+.github\workflows\validate.yml:101: node --check backend/validate-gv-perf-r5.test.js
+.github\workflows\validate.yml:102: node --check backend/validate-gv-web-fe-r2.js
+.github\workflows\validate.yml:111: node --check backend/validate-gv-data-701a.js
+.github\workflows\validate.yml:112: node --check backend/validate-gv-data-701b.js
+.github\workflows\validate.yml:113: node --check backend/validate-gv-rec-702a.js
+.github\workflows\validate.yml:114: node --check backend/validate-gv-rec-702b.js
+.github\workflows\validate.yml:115: node --check backend/validate-gv-rec-702b-r1.js
+.github\workflows\validate.yml:116: node --check backend/validate-gv-rec-702c.js
+.github\workflows\validate.yml:117: node --check backend/validate-gv-rec-702c-r2.js
+.github\workflows\validate.yml:118: node --check backend/validate-gv-rec-702d.js
+.github\workflows\validate.yml:119: node --check backend/validate-gv-rec-702d-r1.js
+.github\workflows\validate.yml:120: node --check backend/validate-gv-rec-702e.js
+.github\workflows\validate.yml:122: node --check frontend/validation/validate-gv-data-701c.js
+.github\workflows\validate.yml:124: node --check frontend/validation/validate-gv-web-fe-r3-1b.js

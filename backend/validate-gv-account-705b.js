@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const account705A = require('./services/account-architecture-705a');
+const account705A = require('./services/accounts/architecture/account-architecture-705a');
 
 const ROOT = path.join(__dirname, '..');
 const SCRIPT = path.join(ROOT, 'ops', 'GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh');

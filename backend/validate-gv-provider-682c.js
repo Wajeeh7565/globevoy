@@ -8,9 +8,9 @@ process.env.STAY22_API_KEY = 'validation-only-key';
 process.env.ENABLE_STAY22_P2_DATE_PRICING_682B = 'true';
 process.env.GV_ALLOW_INJECTED_PROVIDER_EVIDENCE_FOR_VALIDATION = 'true';
 
-const identity = require('./services/property-identity-682c');
-const stay22 = require('./services/stay22-evidence-682b');
-const live = require('./services/live-provider-verification');
+const identity = require('./services/providers/stays/shared/property-identity-682c');
+const stay22 = require('./services/providers/stays/stay22/stay22-evidence-682b');
+const live = require('./services/domain/live-fares/live-provider-verification');
 const generated = require('./generated-tour');
 
 let passed = 0;

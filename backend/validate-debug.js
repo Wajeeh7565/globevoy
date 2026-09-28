@@ -14,7 +14,7 @@ Object.assign(process.env, {
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
 const generated = require('./generated-tour');
-const optimizer = require('./services/whole-trip-date-optimizer-681b-p2');
+const optimizer = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
 
 const checks = [];
 function test(name, fn) { fn(); checks.push({ name, status: 'PASS' }); }

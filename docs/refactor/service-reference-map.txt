@@ -1,0 +1,518 @@
+backend\generated-tour-controls.js:10: const { GUARD_VERSION, guardEnabled, maxStopsForTrip, normalizeAirportIntegrity, evaluateTour } = require('./services/route-feasibility');
+backend\generated-tour-controls.js:11: const { PRICING_INTEGRITY_VERSION, normalizeParty, applyTravellerPricingToTour } = require('./services/traveller-pricing');
+backend\generated-tour-controls.js:12: const { LIVE_PROVIDER_VERIFICATION_VERSION, verifyTourWithLiveProviders } = require('./services/live-provider-verification');
+backend\generated-tour-dates.js:8: const { guardEnabled, normalizeAirportIntegrity, evaluateTour } = require('./services/route-feasibility');
+backend\generated-tour-dates.js:9: const { normalizeParty } = require('./services/traveller-pricing');
+backend\generated-tour-dates.js:10: const { LIVE_PROVIDER_VERIFICATION_VERSION, verifyTourWithLiveProviders } = require('./services/live-provider-verification');
+backend\generated-tour.js:7: const { selectBestUsableObservation, smartFlightDateSelection677BEnabled, SMART_FLIGHT_DATE_SELECTION_VERSION_677B, smartFlightQualityGuardrails677BR2Enabled, SMART_FLIGHT_QUALITY_GUARDRAIL_VERSION_677B_R2, smartRouteRelativeFlightQuality677BR3Enabled, SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3 } = require('./services/cheap-one-way-flights');
+backend\generated-tour.js:8: const { FLIGHT_PROVIDER_CONTRACT_VERSION_683C, fetchFlightDates683C, fetchFlightAcrossMonths683C, adapterSummary683C } = require('./services/flight-provider-router-683c');
+backend\generated-tour.js:11: const { curateCandidateTours } = require('./services/route-curator');
+backend\generated-tour.js:12: const { VERSION: AI_ROUTE_DIVERSITY_VERSION_687B, enabled: aiRouteDiversity687BEnabled, selectDiverseRoleCandidate: selectDiverseRoleCandidate687B } = require('./services/route-diversity-687b');
+backend\generated-tour.js:13: const { enrichFlightLeg, enrichStay, summarizePriceProvenance } = require('./services/partner-links');
+backend\generated-tour.js:14: const { GUARD_VERSION, guardEnabled, maxStopsForTrip, normalizeAirportIntegrity, evaluateTour, guardCandidateTours, _internal: routeFeasibilityInternal } = require('./services/route-feasibility');
+backend\generated-tour.js:15: const { GLOBAL_ROUTE_GRAPH_VERSION, globalRouteGraphEnabled, generateProviderDrivenGlobalRouteCandidates } = require('./services/global-route-graph');
+backend\generated-tour.js:16: const { PRICING_INTEGRITY_VERSION, normalizeParty, providerFarePartyTotalUsd, priceTransportLeg, applyTravellerPricingToTour } = require('./services/traveller-pricing');
+backend\generated-tour.js:17: const { LIVE_PROVIDER_VERIFICATION_VERSION, enabled: liveProviderVerificationEnabled, verifyTourWithLiveProviders } = require('./services/live-provider-verification');
+backend\generated-tour.js:18: const { VERSION_684A, applyPublicLiveFarePilot684A, status684A } = require('./services/public-live-fare-pilot-684a');
+backend\generated-tour.js:19: const { VERSION_684B, discoverAffordableFlightTour684B, status684B } = require('./services/affordable-flight-discovery-684b');
+backend\generated-tour.js:20: const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/verified-city-activation');
+backend\generated-tour.js:21: const { ENTRY_ELIGIBILITY_VERSION, recommendationEligibility } = require('./services/travel-entry-eligibility');
+backend\generated-tour.js:22: const { WHOLE_TRIP_ROUTE_OPTIMIZATION_VERSION_677C, enabled: wholeTripRouteOptimization677CEnabled, optimizeTourOrder: optimizeTourOrder677C, candidateAdjustment: wholeTripCandidateAdjustment677C } = require('./services/whole-trip-route-optimizer');
+backend\generated-tour.js:23: const { DESTINATION_VALUE_PROXIMITY_VERSION_677D, enabled: destinationValueProximity677DEnabled, candidateAdjustment: destinationValueCandidateAdjustment677D, annotateTour: annotateDestinationValue677D } = require('./services/destination-value-proximity');
+backend\generated-tour.js:25: const { WHOLE_TRIP_DATE_OPTIMIZER_VERSION_681B_P2, candidateStartDates: candidateStartDates681BP2, evaluateCandidate: evaluateWholeTripDateCandidate681BP2, selectCandidate: selectWholeTripDateCandidate681BP2 } = require('./services/whole-trip-date-optimizer-681b-p2');
+backend\generated-tour.js:26: const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, productionApproved: stay22ProductionApproved682B, fetchStay22Evidence } = require('./services/stay22-evidence-682b');
+backend\generated-tour.js:27: const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('./services/property-identity-682c');
+backend\generated-tour.js:28: const { VERSION_683H, enabled683H: duffelP2Enabled683H, status683H: duffelP2Status683H, seedCandidateStarts683H, buildLiveProviderResults683H, applyResolvedAirports683H, liveSelectionFailClosedReason683JR1: classifyLiveSelectionFailClosed683JR1 } = require('./services/duffel-p2-staging-683h');
+backend\global-generated-tour-fallback.js:9: const { guardEnabled, maxStopsForTrip } = require('./services/route-feasibility');
+backend\global-generated-tour-fallback.js:10: const { GLOBAL_ROUTE_GRAPH_VERSION, globalRouteGraphEnabled, generateGlobalRouteCandidates } = require('./services/global-route-graph');
+backend\global-generated-tour-fallback.js:11: const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('./services/verified-city-activation');
+backend\lambda.js:8: const { fetchFlexDateWindows } = require('./services/flexible-dates');
+backend\lambda.js:9: const { fetchFareCalendar } = require('./services/fare-calendar');
+backend\lambda.js:10: const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D, duffelStatus683D } = require('./services/flight-provider-router-683c');
+backend\lambda.js:11: const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/fx-normalization-683g');
+backend\lambda.js:12: const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./services/duffel-p2-staging-683h');
+backend\lambda.js:16: const { evaluateTravelEntryEligibility } = require('./services/travel-entry-eligibility');
+backend\lambda.js:17: const { status: duffelSandboxStatus, runProof: runDuffelSandboxProof, DuffelProofValidationError } = require('./services/duffel-sandbox-proof');
+backend\lambda.js:24: const { registrySummary, searchRegistry } = require('./services/city-registry');
+backend\lambda.js:25: const { coverageSummary, searchCoverage } = require('./services/provider-mapping-audit');
+backend\lambda.js:26: const { snapshotSummary: liveCoverageSummary, searchSnapshot: searchLiveCoverage, verifyBatch: verifyLiveCoverageBatch, isAuthorized: isLiveCoverageAuthorized } = require('./services/provider-live-coverage');
+backend\lambda.js:27: const { summary: verifiedActivationSummary, search: searchVerifiedActivation, retryQueues: verifiedActivationRetryQueues } = require('./services/verified-city-activation');
+backend\lambda.js:28: const { summary: remainingCurrentAuditSummary, search: searchRemainingCurrentAudit } = require('./services/remaining-current-city-audit');
+backend\lambda.js:29: const { summary: current500CompletionAuditSummary, search: searchCurrent500CompletionAudit } = require('./services/current-500-completion-audit');
+backend\lambda.js:30: const { summary: expansionPriorityAuditSummary, search: searchExpansionPriorityAudit } = require('./services/expansion-priority-city-audit');
+backend\lambda.js:31: const { summary: expansionPriorityAuditWave2Summary, search: searchExpansionPriorityAuditWave2 } = require('./services/expansion-priority-city-audit-wave2');
+backend\lambda.js:32: const { summary: finalExpansionAuditSummary, search: searchFinalExpansionAudit } = require('./services/final-expansion-city-audit');
+backend\lambda.js:33: const { summary: inactiveRecoveryWave1Summary, search: searchInactiveRecoveryWave1 } = require('./services/inactive-city-recovery-wave1');
+backend\recommendations.js:3: const { fetchTravelpayoutsCandidates, convertFlightValueToUsd, buildAviasalesLink } = require('./services/travelpayouts');
+backend\recommendations.js:4: const { fetchFlexDateWindows, isSupportedRoute, flexWindowsSourceWording } = require('./services/flexible-dates');
+backend\recommendations.js:5: const { fetchAgodaStayEstimate } = require('./services/agoda');
+backend\run-gv-city-668c-live-audit.js:9: const service = require('./services/provider-live-coverage');
+backend\run-gv-city-668d-live-audit.js:9: const service = require('./services/provider-live-coverage');
+backend\run-gv-city-668e-live-audit.js:10: const service = require('./services/provider-live-coverage');
+backend\run-gv-provider-683d-live-smoke.js:13: const { fetchDuffelShadow683D, duffelStatus683D } = require('./services/flight-provider-router-683c');
+backend\run-gv-provider-683g-live-fx-smoke.js:4: const fx = require('./services/fx-normalization-683g');
+backend\server.js:10: const { fetchFlexDateWindows } = require('./services/flexible-dates');
+backend\server.js:16: const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D, duffelStatus683D } = require('./services/flight-provider-router-683c');
+backend\server.js:17: const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/fx-normalization-683g');
+backend\server.js:18: const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./services/duffel-p2-staging-683h');
+backend\server.js:22: const { registrySummary, searchRegistry } = require('./services/city-registry');
+backend\server.js:23: const { coverageSummary, searchCoverage } = require('./services/provider-mapping-audit');
+backend\server.js:24: const { snapshotSummary: liveCoverageSummary, searchSnapshot: searchLiveCoverage, verifyBatch: verifyLiveCoverageBatch, isAuthorized: isLiveCoverageAuthorized } = require('./services/provider-live-coverage');
+backend\server.js:25: const { summary: verifiedActivationSummary, search: searchVerifiedActivation, retryQueues: verifiedActivationRetryQueues } = require('./services/verified-city-activation');
+backend\server.js:26: const { summary: remainingCurrentAuditSummary, search: searchRemainingCurrentAudit } = require('./services/remaining-current-city-audit');
+backend\server.js:27: const { summary: current500CompletionAuditSummary, search: searchCurrent500CompletionAudit } = require('./services/current-500-completion-audit');
+backend\server.js:28: const { summary: expansionPriorityAuditSummary, search: searchExpansionPriorityAudit } = require('./services/expansion-priority-city-audit');
+backend\server.js:29: const { summary: expansionPriorityAuditWave2Summary, search: searchExpansionPriorityAuditWave2 } = require('./services/expansion-priority-city-audit-wave2');
+backend\server.js:30: const { summary: finalExpansionAuditSummary, search: searchFinalExpansionAudit } = require('./services/final-expansion-city-audit');
+backend\server.js:31: const { summary: inactiveRecoveryWave1Summary, search: searchInactiveRecoveryWave1 } = require('./services/inactive-city-recovery-wave1');
+backend\staging-lambda-702d.js:11: const stagingRecovery = require('./services/staging-reviewed-recovery-702d');
+backend\staging-lambda-702d.js:14: const stagingGateway = require('./services/staging-gateway-foundation-702f-d');
+backend\staging-lambda-702d.js:20: const stagingDuffel703B = require('./services/staging-duffel-five-origin-703b');
+backend\staging-lambda-702d.js:28: const stagingDuffelBudget703C = require('./services/staging-duffel-shared-budget-703c');
+backend\staging-lambda-702d.js:37: const stagingAffordable703D = require('./services/staging-affordable-flight-five-origin-703d');
+backend\staging-lambda-702d.js:46: const stagingAdults703E = require('./services/staging-duffel-two-adult-703e');
+backend\staging-lambda-702d.js:54: const stagingAccount705B = require('./services/staging-cognito-auth-705b-r3');
+backend\staging-lambda-702d.js:58: const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
+backend\staging-lambda-702d.js:63: const stagingTravelProfile710F = require('./services/staging-travel-profile-710f-r1');
+backend\staging-lambda-702d.js:68: const stagingBooking707B = require('./services/staging-booking-revalidation-708c');
+backend\staging-lambda-702d.js:73: const stagingAutoDates710ER3A = require('./services/staging-multicity-auto-dates-710e-r3a');
+backend\staging-lambda.js:27: } = require('./services/worldwide-city-registry-701a');
+backend\staging-lambda.js:34: } = require('./services/global-recommendation-coverage-702a');
+backend\staging-lambda.js:41: } = require('./services/global-recovery-priority-702b');
+backend\validate-debug.js:17: const optimizer = require('./services/whole-trip-date-optimizer-681b-p2');
+backend\validate-gv-account-705a.js:7: const account = require('./services/account-architecture-705a');
+backend\validate-gv-account-705b-r3.js:8: const auth = require('./services/staging-cognito-auth-705b-r3');
+backend\validate-gv-account-705b-r3.js:119: assert(wrapper.includes("require('./services/staging-cognito-auth-705b-r3')"));
+backend\validate-gv-account-705b.js:7: const account705A = require('./services/account-architecture-705a');
+backend\validate-gv-account-705c-r3.js:16: const backend = read('backend/services/staging-saved-trips-705c.js');
+backend\validate-gv-account-705c.js:6: const service = require('./services/staging-saved-trips-705c');
+backend\validate-gv-account-705c.js:7: const auth705B = require('./services/staging-cognito-auth-705b-r3');
+backend\validate-gv-account-705c.js:198: const serviceSource = fs.readFileSync(path.join(__dirname, 'services/staging-saved-trips-705c.js'), 'utf8');
+backend\validate-gv-book-676a.js:5: const service = require('./services/duffel-sandbox-proof');
+backend\validate-gv-book-676a.js:88: check('Lambda imports sandbox proof service',lambdaSource.includes("require('./services/duffel-sandbox-proof')"));
+backend\validate-gv-city-668a.js:6: const cityService = require('./services/city-registry');
+backend\validate-gv-city-668a.js:44: const globalGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668b.js:9: const coverage = require('./services/provider-mapping-audit');
+backend\validate-gv-city-668b.js:10: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668c.js:15: const service = require('./services/provider-live-coverage');
+backend\validate-gv-city-668c.js:20: const cheapFlights = require('./services/cheap-one-way-flights');
+backend\validate-gv-city-668d.js:17: const service = require('./services/provider-live-coverage');
+backend\validate-gv-city-668d.js:21: const cheapFlights = require('./services/cheap-one-way-flights');
+backend\validate-gv-city-668e.js:18: const service = require('./services/provider-live-coverage');
+backend\validate-gv-city-668e.js:19: const agodaService = require('./services/agoda');
+backend\validate-gv-city-668e.js:23: const cheapFlights = require('./services/cheap-one-way-flights');
+backend\validate-gv-city-668f.js:15: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668f.js:16: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668f.js:17: const routeGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668h.js:15: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668h.js:16: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668h.js:17: const routeGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668i.js:18: const priority = require('./services/remaining-current-city-audit');
+backend\validate-gv-city-668i.js:19: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668j.js:15: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668j.js:16: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668j.js:17: const routeGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668k.js:18: const completion = require('./services/current-500-completion-audit');
+backend\validate-gv-city-668k.js:19: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668l.js:16: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668l.js:17: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668l.js:18: const routeGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668m.js:18: const priority = require('./services/expansion-priority-city-audit');
+backend\validate-gv-city-668m.js:19: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668n.js:18: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668n.js:19: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668n.js:20: const routeGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668n.js:159: const rollbackScript = "process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668L='true'; delete process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N; const a=require('./services/verified-city-activation'); const s=a.summary(); process.stdout.write(JSON.stringify({version:a.VERSION,active:s.summary.productionActiveCount,audited:s.summary.auditedCount}));";
+backend\validate-gv-city-668o.js:20: const wave2 = require('./services/expansion-priority-city-audit-wave2');
+backend\validate-gv-city-668o.js:21: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668p.js:20: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668p.js:21: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668p.js:22: const routeGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668p.js:167: const rollbackScript = "process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668L='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N='true'; delete process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P; const a=require('./services/verified-city-activation'); const s=a.summary(); process.stdout.write(JSON.stringify({version:a.VERSION,active:s.summary.productionActiveCount,audited:s.summary.auditedCount}));";
+backend\validate-gv-city-668q.js:27: const finalAudit = require('./services/final-expansion-city-audit');
+backend\validate-gv-city-668q.js:28: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668q.js:29: const providerCoverage = require('./services/provider-live-coverage');
+backend\validate-gv-city-668r.js:22: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668r.js:23: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668r.js:24: const routeGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668r.js:168: const rollbackScript = "process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668L='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P='true'; delete process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668R; const a=require('./services/verified-city-activation'); const s=a.summary(); process.stdout.write(JSON.stringify({version:a.VERSION,active:s.summary.productionActiveCount,audited:s.summary.auditedCount}));";
+backend\validate-gv-city-668s.js:15: const recovery = require('./services/inactive-city-recovery-wave1');
+backend\validate-gv-city-668s.js:16: const provider = require('./services/provider-live-coverage');
+backend\validate-gv-city-668t.js:24: const activation = require('./services/verified-city-activation');
+backend\validate-gv-city-668t.js:25: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-city-668t.js:26: const routeGraph = require('./services/global-route-graph');
+backend\validate-gv-city-668t.js:172: const rollbackScript = "process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668L='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668N='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668P='true'; process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668R='true'; delete process.env.ENABLE_VERIFIED_CITY_ACTIVATION_668T; const a=require('./services/verified-city-activation'); const s=a.summary(); process.stdout.write(JSON.stringify({version:a.VERSION,active:s.summary.productionActiveCount,audited:s.summary.auditedCount}));";
+backend\validate-gv-control-667d.js:12: const feasibility = require('./services/route-feasibility');
+backend\validate-gv-control-667d.js:13: const pricing = require('./services/traveller-pricing');
+backend\validate-gv-control-667d.js:14: const canonical = require('./services/canonical-total-evidence');
+backend\validate-gv-data-701a.js:19: } = require('./services/worldwide-city-registry-701a');
+backend\validate-gv-data-701a.js:20: const { findForCatalogueRow } = require('./services/city-registry');
+backend\validate-gv-entry-675a.js:5: const service = require('./services/travel-entry-eligibility');
+backend\validate-gv-entry-675a.js:72: check('generated-tour imports entry eligibility guard', generatedSource.includes("require('./services/travel-entry-eligibility')"));
+backend\validate-gv-evidence-667e.js:8: const canonical = require('./services/canonical-total-evidence');
+backend\validate-gv-evidence-667e.js:9: const live = require('./services/live-provider-verification');
+backend\validate-gv-flight-684a.js:6: const pilot = require('./services/public-live-fare-pilot-684a');
+backend\validate-gv-flight-684a.js:7: const p2 = require('./services/duffel-p2-staging-683h');
+backend\validate-gv-flight-684a.js:8: const liveVerification = require('./services/live-provider-verification');
+backend\validate-gv-flight-684a.js:184: const source = fs.readFileSync(path.join(__dirname, 'services/public-live-fare-pilot-684a.js'), 'utf8');
+backend\validate-gv-flight-684a.js:193: const source = fs.readFileSync(path.join(__dirname, 'services/canonical-total-evidence.js'), 'utf8');
+backend\validate-gv-flight-703a.js:7: const duffel = require('./services/duffel-live-adapter-683d');
+backend\validate-gv-flight-703a.js:8: const p2 = require('./services/duffel-p2-staging-683h');
+backend\validate-gv-flight-703a.js:9: const pilot = require('./services/public-live-fare-pilot-684a');
+backend\validate-gv-flight-703a.js:10: const discovery = require('./services/affordable-flight-discovery-684b');
+backend\validate-gv-flight-703a.js:81: const adapterSource = source('services/duffel-live-adapter-683d.js');
+backend\validate-gv-flight-703a.js:88: const pilotSource = source('services/public-live-fare-pilot-684a.js');
+backend\validate-gv-flight-703a.js:93: const discoverySource = source('services/affordable-flight-discovery-684b.js');
+backend\validate-gv-flight-703a.js:108: 'services/duffel-live-adapter-683d.js',
+backend\validate-gv-flight-703a.js:109: 'services/duffel-p2-staging-683h.js',
+backend\validate-gv-flight-703a.js:110: 'services/public-live-fare-pilot-684a.js',
+backend\validate-gv-flight-703a.js:111: 'services/affordable-flight-discovery-684b.js'
+backend\validate-gv-flight-703b.js:6: const policy = require('./services/staging-duffel-five-origin-703b');
+backend\validate-gv-flight-703b.js:7: const live684A = require('./services/public-live-fare-pilot-684a');
+backend\validate-gv-flight-703b.js:8: const discovery684B = require('./services/affordable-flight-discovery-684b');
+backend\validate-gv-flight-703c.js:12: const shared = require('./services/staging-duffel-shared-budget-703c');
+backend\validate-gv-flight-703c.js:24: const duffelP2 = require('./services/duffel-p2-staging-683h');
+backend\validate-gv-flight-703c.js:25: const live684A = require('./services/public-live-fare-pilot-684a');
+backend\validate-gv-flight-703c.js:108: require('./services/public-live-fare-pilot-684a');
+backend\validate-gv-flight-703c.js:109: const s=require('./services/staging-duffel-shared-budget-703c');
+backend\validate-gv-flight-703c.js:118: const s=require('./services/staging-duffel-shared-budget-703c');
+backend\validate-gv-flight-703d.js:7: const policy703B = require('./services/staging-duffel-five-origin-703b');
+backend\validate-gv-flight-703d.js:8: const policy703D = require('./services/staging-affordable-flight-five-origin-703d');
+backend\validate-gv-flight-703d.js:9: const discovery684B = require('./services/affordable-flight-discovery-684b');
+backend\validate-gv-flight-703d.js:10: const shared703C = require('./services/staging-duffel-shared-budget-703c');
+backend\validate-gv-flight-703e.js:21: const policy703B = require('./services/staging-duffel-five-origin-703b');
+backend\validate-gv-flight-703e.js:26: const shared703C = require('./services/staging-duffel-shared-budget-703c');
+backend\validate-gv-flight-703e.js:32: const policy703D = require('./services/staging-affordable-flight-five-origin-703d');
+backend\validate-gv-flight-703e.js:37: const policy703E = require('./services/staging-duffel-two-adult-703e');
+backend\validate-gv-flight-703e.js:52: const adultScope = require('./services/duffel-adult-scope-703e');
+backend\validate-gv-flight-703e.js:53: const adapter683D = require('./services/duffel-live-adapter-683d');
+backend\validate-gv-flight-703e.js:54: const live684A = require('./services/public-live-fare-pilot-684a');
+backend\validate-gv-flight-703e.js:55: const discovery684B = require('./services/affordable-flight-discovery-684b');
+backend\validate-gv-flight-703e.js:56: const fareSelection685C = require('./services/live-fare-selection-685c');
+backend\validate-gv-flight-703e.js:57: const travellerPricing = require('./services/traveller-pricing');
+backend\validate-gv-hotel-679a-r1-integration.js:10: const live = require('./services/live-provider-verification');
+backend\validate-gv-hotel-679a-r1.js:10: const agoda = require('./services/agoda');
+backend\validate-gv-hotel-679a-r2-integration.js:13: const live = require('./services/live-provider-verification');
+backend\validate-gv-hotel-679a-r2-integration.js:14: const links = require('./services/partner-links');
+backend\validate-gv-hotel-679a-r2.js:10: } = require('./services/partner-links');
+backend\validate-gv-hotel-679a.js:14: const agoda = require('./services/agoda');
+backend\validate-gv-hotel-679a.js:15: const live = require('./services/live-provider-verification');
+backend\validate-gv-hotel-704a.js:7: const readiness = require('./services/agoda-demand-readiness-704a');
+backend\validate-gv-hotel-708c.js:6: const adapter = require('./services/nuitee-hotel-708c');
+backend\validate-gv-hotel-708c.js:7: const wrapper = require('./services/staging-booking-revalidation-708c');
+backend\validate-gv-hotel-708c.js:177: const source = read('backend/services/nuitee-hotel-708c.js');
+backend\validate-gv-hotel-708c.js:318: const r1 = read('backend/services/staging-booking-revalidation-707b-r1.js');
+backend\validate-gv-live-667a.js:6: const { verifyTourWithLiveProviders, LIVE_PROVIDER_VERIFICATION_VERSION } = require('./services/live-provider-verification');
+backend\validate-gv-live-667a.js:8: const { _clearCache } = require('./services/cheap-one-way-flights');
+backend\validate-gv-live-667b.js:6: const { verifyTourWithLiveProviders, LIVE_PROVIDER_VERIFICATION_VERSION } = require('./services/live-provider-verification');
+backend\validate-gv-live-667b.js:7: const { applyCanonicalIntegrity, CANONICAL_INTEGRITY_VERSION } = require('./services/canonical-total-evidence');
+backend\validate-gv-live-667b.js:8: const { normalizeAirportIntegrity } = require('./services/route-feasibility');
+backend\validate-gv-live-667b.js:9: const { applyTravellerPricingToTour } = require('./services/traveller-pricing');
+backend\validate-gv-live-667b.js:11: const { _clearCache } = require('./services/cheap-one-way-flights');
+backend\validate-gv-live-712.js:8: const hotel = require('./services/nuitee-hotel-708c');
+backend\validate-gv-live-712.js:9: const ledger = require('./services/current-trip-total-712');
+backend\validate-gv-live-712.js:10: const wrapper = require('./services/staging-booking-revalidation-708c');
+backend\validate-gv-live-712.js:11: const base = require('./services/staging-booking-revalidation-707b');
+backend\validate-gv-live-712.js:12: const { parseHotelGuestContext } = require('./services/hotel-guest-context-712');
+backend\validate-gv-live-712.js:309: const adapter = fs.readFileSync(`${__dirname}/services/nuitee-hotel-708c.js`, 'utf8');
+backend\validate-gv-mvp-666a.js:9: } = require('./services/traveller-pricing');
+backend\validate-gv-perf-r2.test.js:6: const h = require('./services/duffel-p2-staging-683h');
+backend\validate-gv-perf-r2.test.js:7: const pilot = require('./services/public-live-fare-pilot-684a');
+backend\validate-gv-perf-r3.test.js:39: './services/global-route-graph': {
+backend\validate-gv-perf-r3.test.js:47: './services/route-feasibility': {
+backend\validate-gv-perf-r3.test.js:54: './services/travel-entry-eligibility': {
+backend\validate-gv-perf-r3.test.js:60: './services/affordable-flight-discovery-684b': {
+backend\validate-gv-perf-r3.test.js:70: './services/public-live-fare-pilot-684a': {
+backend\validate-gv-perf-r3.test.js:78: './services/live-provider-verification': {
+backend\validate-gv-perf-r4.test.js:59: './services/global-route-graph': {
+backend\validate-gv-perf-r4.test.js:70: './services/route-feasibility': {
+backend\validate-gv-perf-r4.test.js:80: './services/travel-entry-eligibility': {
+backend\validate-gv-perf-r4.test.js:83: './services/affordable-flight-discovery-684b': {
+backend\validate-gv-perf-r4.test.js:113: './services/public-live-fare-pilot-684a': {
+backend\validate-gv-perf-r4.test.js:132: './services/live-provider-verification': {
+backend\validate-gv-perf-r5.test.js:5: const discovery = require('./services/affordable-flight-discovery-684b');
+backend\validate-gv-prod-669b.js:8: const graph = require('./services/global-route-graph');
+backend\validate-gv-prod-669b.js:10: const activation = require('./services/verified-city-activation');
+backend\validate-gv-prod-669b.js:12: const { enrichStay } = require('./services/partner-links');
+backend\validate-gv-prod-669c.js:11: const activation = require('./services/verified-city-activation');
+backend\validate-gv-prod-669c.js:12: const graph = require('./services/global-route-graph');
+backend\validate-gv-prod-669d.js:12: const activation = require('./services/verified-city-activation');
+backend\validate-gv-prod-669d.js:14: const pricing = require('./services/traveller-pricing');
+backend\validate-gv-prod-669d.js:15: const graph = require('./services/global-route-graph');
+backend\validate-gv-prod-669e.js:13: const activation = require('./services/verified-city-activation');
+backend\validate-gv-prod-669f.js:18: const activation = require('./services/verified-city-activation');
+backend\validate-gv-prod-669f.js:19: const graph = require('./services/global-route-graph');
+backend\validate-gv-prod-673f-r1.js:5: const { enrichFlightLeg } = require('./services/partner-links');
+backend\validate-gv-provider-682b.js:13: const stay22 = require('./services/stay22-evidence-682b');
+backend\validate-gv-provider-682b.js:14: const live = require('./services/live-provider-verification');
+backend\validate-gv-provider-682b.js:15: const canonical = require('./services/canonical-total-evidence');
+backend\validate-gv-provider-682b.js:16: const optimizer = require('./services/whole-trip-date-optimizer-681b-p2');
+backend\validate-gv-provider-682c.js:11: const identity = require('./services/property-identity-682c');
+backend\validate-gv-provider-682c.js:12: const stay22 = require('./services/stay22-evidence-682b');
+backend\validate-gv-provider-682c.js:13: const live = require('./services/live-provider-verification');
+backend\validate-gv-provider-683c.js:7: const contract = require('./services/flight-provider-contract-683c');
+backend\validate-gv-provider-683c.js:8: const router = require('./services/flight-provider-router-683c');
+backend\validate-gv-provider-683c.js:9: const optimizer = require('./services/whole-trip-date-optimizer-681b-p2');
+backend\validate-gv-provider-683c.js:158: for (const rel of ['generated-tour.js', 'server.js', 'lambda.js', 'services/live-provider-verification.js']) {
+backend\validate-gv-provider-683c.js:168: const contractSource = fs.readFileSync(path.join(__dirname, 'services/flight-provider-contract-683c.js'), 'utf8');
+backend\validate-gv-provider-683c.js:169: const routerSource = fs.readFileSync(path.join(__dirname, 'services/flight-provider-router-683c.js'), 'utf8');
+backend\validate-gv-provider-683d-p2-parity.js:21: const { automaticDateFloor } = require('./services/price-evidence-integrity');
+backend\validate-gv-provider-683d-p2-parity.js:22: const cheap = require('./services/cheap-one-way-flights');
+backend\validate-gv-provider-683d.js:7: const adapter = require('./services/duffel-live-adapter-683d');
+backend\validate-gv-provider-683d.js:8: const router = require('./services/flight-provider-router-683c');
+backend\validate-gv-provider-683d.js:232: const source = fs.readFileSync(path.join(__dirname, 'services/duffel-live-adapter-683d.js'), 'utf8');
+backend\validate-gv-provider-683g.js:4: const service = require('./services/fx-normalization-683g');
+backend\validate-gv-provider-683h.js:6: const h = require('./services/duffel-p2-staging-683h');
+backend\validate-gv-provider-683h.js:7: const p2 = require('./services/whole-trip-date-optimizer-681b-p2');
+backend\validate-gv-provider-683h.js:8: const liveVerification683JR2 = require('./services/live-provider-verification');
+backend\validate-gv-provider-683h.js:566: const serviceSource = fs.readFileSync(path.join(__dirname,'services/duffel-p2-staging-683h.js'),'utf8');
+backend\validate-gv-provider-683h.js:604: const liveVerifierSource = fs.readFileSync(path.join(__dirname,'services/live-provider-verification.js'),'utf8');
+backend\validate-gv-quality-680a-city-fixtures.js:4: const { enrichFlightLeg, enrichStay } = require('./services/partner-links');
+backend\validate-gv-quality-680a.js:7: const { enrichFlightLeg, enrichStay, BOOKING_TRUST_VERSION_680A } = require('./services/partner-links');
+backend\validate-gv-quality-680a.js:8: const { qualityRejectionReasons, rankQualifiedHotels } = require('./services/agoda');
+backend\validate-gv-quality-680b-r1.js:10: const graph = require('./services/global-route-graph');
+backend\validate-gv-rec-677a-r1.js:14: const travellerPricing = require('./services/traveller-pricing');
+backend\validate-gv-rec-677a-r1.js:15: const canonicalEvidence = require('./services/canonical-total-evidence');
+backend\validate-gv-rec-677a-r1.js:16: const feasibility = require('./services/route-feasibility');
+backend\validate-gv-rec-677a-r1.js:17: const partnerLinks = require('./services/partner-links');
+backend\validate-gv-rec-677a.js:8: const cheapFlights = require('./services/cheap-one-way-flights');
+backend\validate-gv-rec-677b-r1.js:11: const cheapFlights = require('./services/cheap-one-way-flights');
+backend\validate-gv-rec-677b-r2.js:4: const flights = require('./services/cheap-one-way-flights');
+backend\validate-gv-rec-677b-r3.js:5: const flights=require('./services/cheap-one-way-flights');
+backend\validate-gv-rec-677b.js:12: const cheapFlights = require('./services/cheap-one-way-flights');
+backend\validate-gv-rec-677c.js:10: const optimizer = require('./services/whole-trip-route-optimizer');
+backend\validate-gv-rec-677d.js:10: const destinationValue = require('./services/destination-value-proximity');
+backend\validate-gv-rec-684b.js:6: const discovery = require('./services/affordable-flight-discovery-684b');
+backend\validate-gv-rec-684b.js:7: const pilot684A = require('./services/public-live-fare-pilot-684a');
+backend\validate-gv-rec-687b-p3.js:4: const diversity=require('./services/route-diversity-687b');
+backend\validate-gv-rec-687b-p3.js:19: const svc=fs.readFileSync(path.join(__dirname,'services/route-diversity-687b.js'),'utf8');
+backend\validate-gv-rec-687b.js:5: const diversity = require('./services/route-diversity-687b');
+backend\validate-gv-rec-687b.js:81: check('Generated-tour integration imports 687B service', source.includes("require('./services/route-diversity-687b')"));
+backend\validate-gv-rec-702a.js:13: const audit = require('./services/global-recommendation-coverage-702a');
+backend\validate-gv-rec-702b.js:12: const priority = require('./services/global-recovery-priority-702b');
+backend\validate-gv-rec-702c-r2.js:4: const overlay = require('./services/reviewed-recovery-overlay-702c-r2');
+backend\validate-gv-rec-702c-r2.js:5: const coverage702a = require('./services/global-recommendation-coverage-702a');
+backend\validate-gv-rec-702c.js:6: const smoke = require('./services/global-provider-recovery-smoke-plan-702c');
+backend\validate-gv-rec-702d-r1.js:18: const baseline = require('./services/verified-city-activation');
+backend\validate-gv-rec-702d-r1.js:19: const overlay = require('./services/staging-reviewed-recovery-702d');
+backend\validate-gv-rec-702d-r1.js:21: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-rec-702d-r1.js:22: const graph = require('./services/global-route-graph');
+backend\validate-gv-rec-702d.js:15: const baseline = require('./services/verified-city-activation');
+backend\validate-gv-rec-702d.js:19: const overlay = require('./services/staging-reviewed-recovery-702d');
+backend\validate-gv-rec-702e.js:9: const coverage702a = require('./services/global-recommendation-coverage-702a');
+backend\validate-gv-rec-702e.js:10: const reviewedRecovery = require('./services/reviewed-recovery-overlay-702c-r2');
+backend\validate-gv-rec-702e.js:11: const promotion = require('./services/reviewed-activation-promotion-702e');
+backend\validate-gv-rec-702e.js:146: for (const rel of ['lambda.js', 'staging-lambda.js', 'services/verified-city-activation.js']) {
+backend\validate-gv-rec-702f-a.js:4: const semantics = require('./services/flight-cache-semantics-702f-a');
+backend\validate-gv-rec-702f-a.js:5: const coverage702a = require('./services/global-recommendation-coverage-702a');
+backend\validate-gv-rec-702f-a.js:9: } = require('./services/flight-provider-contract-683c');
+backend\validate-gv-rec-702f-b.js:4: const enrichment = require('./services/ourairports-gateway-enrichment-702f-b');
+backend\validate-gv-rec-702f-c.js:4: const triage = require('./services/gateway-foundation-triage-702f-c');
+backend\validate-gv-rec-702f-d.js:6: const overlay = require('./services/staging-gateway-foundation-702f-d');
+backend\validate-gv-rec-702f-d.js:8: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-rec-702f-d.js:110: const registry = require('./services/city-registry');
+backend\validate-gv-rec-702f-d.js:122: const activation = require('./services/verified-city-activation').summary();
+backend\validate-gv-rec-702f-e.js:7: const candidate = require('./services/permanent-gateway-foundation-candidate-702f-e');
+backend\validate-gv-rec-702f-e.js:8: const stagingOverlay = require('./services/staging-gateway-foundation-702f-d');
+backend\validate-gv-rec-702f-e.js:10: const cityRegistry = require('./services/city-registry');
+backend\validate-gv-rec-702f-e.js:110: 'services/city-registry.js',
+backend\validate-gv-rec-702f-e.js:111: 'services/global-route-graph.js'
+backend\validate-gv-rec-702f-e.js:119: const activation = require('./services/verified-city-activation').summary();
+backend\validate-gv-trust-681a-r1.js:7: } = require('./services/price-evidence-integrity');
+backend\validate-gv-trust-681a-r1.js:8: const { buildCanonicalLedger } = require('./services/canonical-total-evidence');
+backend\validate-gv-trust-681a-r1.js:9: const { buildAviasalesOneWaySearchUrl, buildAgodaCitySearchUrl } = require('./services/partner-links');
+backend\validate-gv-trust-681b-p1.js:9: const { selectBestUsableObservation } = require('./services/cheap-one-way-flights');
+backend\validate-gv-trust-681b-p2.js:17: const optimizer = require('./services/whole-trip-date-optimizer-681b-p2');
+backend\validate-gv-ux-670a.js:22: const activation = require('./services/verified-city-activation');
+backend\validate-gv-ux-670a.js:23: const graph = require('./services/global-route-graph');
+backend\validate-gv-ux-674a.js:11: const feasibility = require('./services/route-feasibility');
+backend\validate-gv-web-707b-r1.js:4: const service = require('./services/staging-booking-revalidation-707b-r1');
+backend\validate-gv-web-707b-r1.js:111: const tour = require('./services/staging-booking-revalidation-707b')._internal.hydrateSavedTour(trip);
+backend\validate-gv-web-707b-r1.js:134: const tour = require('./services/staging-booking-revalidation-707b')._internal.hydrateSavedTour(trip);
+backend\validate-gv-web-707b.js:6: const service = require('./services/staging-booking-revalidation-707b');
+backend\services\agoda-demand-readiness-704a.js:214: currentLegacyAdapter: 'backend/services/agoda.js',
+.github\scripts\validate-repo.mjs:35: ['backend/services/route-diversity-687b.js', 'file']
+.github\workflows\build-703c-staging-backend.yml:8: - 'backend/services/staging-duffel-shared-budget-703c.js'
+.github\workflows\build-703c-staging-backend.yml:9: - 'backend/services/staging-duffel-five-origin-703b.js'
+.github\workflows\build-703c-staging-backend.yml:46: node --check backend/services/staging-duffel-five-origin-703b.js
+.github\workflows\build-703c-staging-backend.yml:47: node --check backend/services/staging-duffel-shared-budget-703c.js
+.github\workflows\build-703c-staging-backend.yml:62: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-five-origin-703b.js'
+.github\workflows\build-703c-staging-backend.yml:63: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
+.github\workflows\build-703d-staging-backend.yml:8: - 'backend/services/affordable-flight-discovery-684b.js'
+.github\workflows\build-703d-staging-backend.yml:9: - 'backend/services/staging-affordable-flight-five-origin-703d.js'
+.github\workflows\build-703d-staging-backend.yml:10: - 'backend/services/staging-duffel-five-origin-703b.js'
+.github\workflows\build-703d-staging-backend.yml:11: - 'backend/services/staging-duffel-shared-budget-703c.js'
+.github\workflows\build-703d-staging-backend.yml:51: node --check backend/services/affordable-flight-discovery-684b.js
+.github\workflows\build-703d-staging-backend.yml:52: node --check backend/services/staging-duffel-five-origin-703b.js
+.github\workflows\build-703d-staging-backend.yml:53: node --check backend/services/staging-duffel-shared-budget-703c.js
+.github\workflows\build-703d-staging-backend.yml:54: node --check backend/services/staging-affordable-flight-five-origin-703d.js
+.github\workflows\build-703d-staging-backend.yml:69: unzip -l "dist/${artifact}" | grep -q 'services/affordable-flight-discovery-684b.js'
+.github\workflows\build-703d-staging-backend.yml:70: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-five-origin-703b.js'
+.github\workflows\build-703d-staging-backend.yml:71: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
+.github\workflows\build-703d-staging-backend.yml:72: unzip -l "dist/${artifact}" | grep -q 'services/staging-affordable-flight-five-origin-703d.js'
+.github\workflows\build-703e-staging-backend.yml:8: - 'backend/services/duffel-adult-scope-703e.js'
+.github\workflows\build-703e-staging-backend.yml:9: - 'backend/services/staging-duffel-two-adult-703e.js'
+.github\workflows\build-703e-staging-backend.yml:10: - 'backend/services/duffel-live-adapter-683d.js'
+.github\workflows\build-703e-staging-backend.yml:11: - 'backend/services/flight-provider-contract-683c.js'
+.github\workflows\build-703e-staging-backend.yml:12: - 'backend/services/traveller-pricing.js'
+.github\workflows\build-703e-staging-backend.yml:13: - 'backend/services/public-live-fare-pilot-684a.js'
+.github\workflows\build-703e-staging-backend.yml:14: - 'backend/services/affordable-flight-discovery-684b.js'
+.github\workflows\build-703e-staging-backend.yml:15: - 'backend/services/staging-duffel-five-origin-703b.js'
+.github\workflows\build-703e-staging-backend.yml:16: - 'backend/services/staging-duffel-shared-budget-703c.js'
+.github\workflows\build-703e-staging-backend.yml:17: - 'backend/services/staging-affordable-flight-five-origin-703d.js'
+.github\workflows\build-703e-staging-backend.yml:60: node --check backend/services/duffel-adult-scope-703e.js
+.github\workflows\build-703e-staging-backend.yml:61: node --check backend/services/staging-duffel-two-adult-703e.js
+.github\workflows\build-703e-staging-backend.yml:62: node --check backend/services/duffel-live-adapter-683d.js
+.github\workflows\build-703e-staging-backend.yml:63: node --check backend/services/flight-provider-contract-683c.js
+.github\workflows\build-703e-staging-backend.yml:64: node --check backend/services/traveller-pricing.js
+.github\workflows\build-703e-staging-backend.yml:65: node --check backend/services/public-live-fare-pilot-684a.js
+.github\workflows\build-703e-staging-backend.yml:66: node --check backend/services/affordable-flight-discovery-684b.js
+.github\workflows\build-703e-staging-backend.yml:81: unzip -l "dist/${artifact}" | grep -q 'services/duffel-adult-scope-703e.js'
+.github\workflows\build-703e-staging-backend.yml:82: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-two-adult-703e.js'
+.github\workflows\build-703e-staging-backend.yml:83: unzip -l "dist/${artifact}" | grep -q 'services/duffel-live-adapter-683d.js'
+.github\workflows\build-703e-staging-backend.yml:84: unzip -l "dist/${artifact}" | grep -q 'services/traveller-pricing.js'
+.github\workflows\build-703e-staging-backend.yml:85: unzip -l "dist/${artifact}" | grep -q 'services/public-live-fare-pilot-684a.js'
+.github\workflows\build-703e-staging-backend.yml:86: unzip -l "dist/${artifact}" | grep -q 'services/affordable-flight-discovery-684b.js'
+.github\workflows\build-703e-staging-backend.yml:87: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
+.github\workflows\build-705b-r3-staging-backend.yml:7: - 'backend/services/staging-cognito-auth-705b-r3.js'
+.github\workflows\build-705b-r3-staging-backend.yml:14: - 'backend/services/staging-cognito-auth-705b-r3.js'
+.github\workflows\build-705b-r3-staging-backend.yml:52: node --check backend/services/staging-cognito-auth-705b-r3.js
+.github\workflows\build-705b-r3-staging-backend.yml:67: unzip -l "dist/${artifact}" | grep -q 'services/staging-cognito-auth-705b-r3.js'
+.github\workflows\build-705b-r3-staging-backend.yml:69: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
+.github\workflows\build-705b-r3-staging-backend.yml:70: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-two-adult-703e.js'
+.github\workflows\build-705c-staging-backend.yml:7: - 'backend/services/staging-saved-trips-705c.js'
+.github\workflows\build-705c-staging-backend.yml:15: - 'backend/services/staging-saved-trips-705c.js'
+.github\workflows\build-705c-staging-backend.yml:54: node --check backend/services/staging-saved-trips-705c.js
+.github\workflows\build-705c-staging-backend.yml:71: unzip -l "dist/${artifact}" | grep -q 'services/staging-cognito-auth-705b-r3.js'
+.github\workflows\build-705c-staging-backend.yml:72: unzip -l "dist/${artifact}" | grep -q 'services/staging-saved-trips-705c.js'
+.github\workflows\build-705c-staging-backend.yml:74: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-shared-budget-703c.js'
+.github\workflows\build-705c-staging-backend.yml:75: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-two-adult-703e.js'
+.github\workflows\build-staging-backend.yml:92: node --check backend/services/affordable-flight-discovery-684b.js
+.github\workflows\build-staging-backend.yml:94: node --check backend/services/route-diversity-687b.js
+.github\workflows\build-staging-backend.yml:95: node --check backend/services/worldwide-city-registry-701a.js
+.github\workflows\build-staging-backend.yml:96: node --check backend/services/global-recommendation-coverage-702a.js
+.github\workflows\build-staging-backend.yml:97: node --check backend/services/global-recovery-priority-702b.js
+.github\workflows\build-staging-backend.yml:98: node --check backend/services/global-provider-recovery-smoke-plan-702c.js
+.github\workflows\build-staging-backend.yml:99: node --check backend/services/reviewed-recovery-overlay-702c-r2.js
+.github\workflows\build-staging-backend.yml:100: node --check backend/services/staging-reviewed-recovery-702d.js
+.github\workflows\build-staging-backend.yml:101: node --check backend/services/reviewed-activation-promotion-702e.js
+.github\workflows\build-staging-backend.yml:102: node --check backend/services/staging-gateway-foundation-702f-d.js
+.github\workflows\build-staging-backend.yml:103: node --check backend/services/staging-duffel-five-origin-703b.js
+.github\workflows\build-staging-backend.yml:131: unzip -l "dist/${artifact}" | grep -q 'services/worldwide-city-registry-701a.js'
+.github\workflows\build-staging-backend.yml:132: unzip -l "dist/${artifact}" | grep -q 'services/global-recommendation-coverage-702a.js'
+.github\workflows\build-staging-backend.yml:133: unzip -l "dist/${artifact}" | grep -q 'services/global-recovery-priority-702b.js'
+.github\workflows\build-staging-backend.yml:134: unzip -l "dist/${artifact}" | grep -q 'services/global-provider-recovery-smoke-plan-702c.js'
+.github\workflows\build-staging-backend.yml:135: unzip -l "dist/${artifact}" | grep -q 'services/reviewed-recovery-overlay-702c-r2.js'
+.github\workflows\build-staging-backend.yml:136: unzip -l "dist/${artifact}" | grep -q 'services/staging-reviewed-recovery-702d.js'
+.github\workflows\build-staging-backend.yml:137: unzip -l "dist/${artifact}" | grep -q 'services/reviewed-activation-promotion-702e.js'
+.github\workflows\build-staging-backend.yml:138: unzip -l "dist/${artifact}" | grep -q 'services/staging-gateway-foundation-702f-d.js'
+.github\workflows\build-staging-backend.yml:139: unzip -l "dist/${artifact}" | grep -q 'services/staging-duffel-five-origin-703b.js'
+.github\workflows\validate-702f-a.yml:11: - 'backend/services/flight-cache-semantics-702f-a.js'
+.github\workflows\validate-702f-a.yml:53: node --check backend/services/flight-cache-semantics-702f-a.js
+.github\workflows\validate-702f-a.yml:60: if grep -R "flight-cache-semantics-702f-a" backend/lambda.js backend/staging-lambda.js backend/staging-lambda-702d.js backend/generated-tour.js backend/services/verified-city-activation.js; then
+.github\workflows\validate-702f-b.yml:8: - 'backend/services/ourairports-gateway-enrichment-702f-b.js'
+.github\workflows\validate-702f-b.yml:36: node --check backend/services/ourairports-gateway-enrichment-702f-b.js
+.github\workflows\validate-702f-b.yml:58: node backend/services/ourairports-gateway-enrichment-702f-b.js \
+.github\workflows\validate-702f-c.yml:9: - 'backend/services/gateway-foundation-triage-702f-c.js'
+.github\workflows\validate-702f-c.yml:11: - 'backend/services/ourairports-gateway-enrichment-702f-b.js'
+.github\workflows\validate-702f-c.yml:38: node --check backend/services/gateway-foundation-triage-702f-c.js
+.github\workflows\validate-702f-c.yml:57: node backend/services/ourairports-gateway-enrichment-702f-b.js \
+.github\workflows\validate-702f-c.yml:63: node backend/services/gateway-foundation-triage-702f-c.js \
+.github\workflows\validate-702f-d.yml:9: - 'backend/services/staging-gateway-foundation-702f-d.js'
+.github\workflows\validate-702f-d.yml:13: - 'backend/services/city-registry.js'
+.github\workflows\validate-702f-d.yml:14: - 'backend/services/ourairports-gateway-enrichment-702f-b.js'
+.github\workflows\validate-702f-d.yml:39: node --check backend/services/staging-gateway-foundation-702f-d.js
+.github\workflows\validate-702f-d.yml:62: const audit = require('./backend/services/ourairports-gateway-enrichment-702f-b');
+.github\workflows\validate-702f-e.yml:10: - 'backend/services/permanent-gateway-foundation-candidate-702f-e.js'
+.github\workflows\validate-702f-e.yml:11: - 'backend/services/staging-gateway-foundation-702f-d.js'
+.github\workflows\validate-702f-e.yml:46: node --check backend/services/permanent-gateway-foundation-candidate-702f-e.js
+.github\workflows\validate-702f-e.yml:55: node backend/services/permanent-gateway-foundation-candidate-702f-e.js \
+.github\workflows\validate-703a.yml:10: - 'backend/services/duffel-live-adapter-683d.js'
+.github\workflows\validate-703a.yml:11: - 'backend/services/duffel-p2-staging-683h.js'
+.github\workflows\validate-703a.yml:12: - 'backend/services/public-live-fare-pilot-684a.js'
+.github\workflows\validate-703a.yml:13: - 'backend/services/affordable-flight-discovery-684b.js'
+.github\workflows\validate-703a.yml:47: backend/lambda.js backend/staging-lambda.js backend/staging-lambda-702d.js backend/generated-tour.js backend/services/duffel-live-adapter-683d.js backend/services/duffel-p2-staging-683h.js backend/services/public-live-fare-pilot-684a.js backend/services/affordable-flight-discovery-684b.js; then
+.github\workflows\validate-703b.yml:8: - 'backend/services/staging-duffel-five-origin-703b.js'
+.github\workflows\validate-703b.yml:9: - 'backend/services/public-live-fare-pilot-684a.js'
+.github\workflows\validate-703b.yml:10: - 'backend/services/affordable-flight-discovery-684b.js'
+.github\workflows\validate-703b.yml:37: node --check backend/services/staging-duffel-five-origin-703b.js
+.github\workflows\validate-703c.yml:8: - 'backend/services/staging-duffel-shared-budget-703c.js'
+.github\workflows\validate-703c.yml:9: - 'backend/services/public-live-fare-pilot-684a.js'
+.github\workflows\validate-703c.yml:10: - 'backend/services/affordable-flight-discovery-684b.js'
+.github\workflows\validate-703c.yml:11: - 'backend/services/duffel-p2-staging-683h.js'
+.github\workflows\validate-703c.yml:39: node --check backend/services/staging-duffel-shared-budget-703c.js
+.github\workflows\validate-703c.yml:58: grep -Fq "Object.freeze(['YYZ'])" backend/services/affordable-flight-discovery-684b.js
+.github\workflows\validate-703d.yml:8: - 'backend/services/affordable-flight-discovery-684b.js'
+.github\workflows\validate-703d.yml:9: - 'backend/services/staging-affordable-flight-five-origin-703d.js'
+.github\workflows\validate-703d.yml:10: - 'backend/services/staging-duffel-five-origin-703b.js'
+.github\workflows\validate-703d.yml:11: - 'backend/services/staging-duffel-shared-budget-703c.js'
+.github\workflows\validate-703d.yml:47: node --check backend/services/affordable-flight-discovery-684b.js
+.github\workflows\validate-703d.yml:48: node --check backend/services/staging-affordable-flight-five-origin-703d.js
+.github\workflows\validate-703d.yml:49: node --check backend/services/staging-duffel-five-origin-703b.js
+.github\workflows\validate-703d.yml:50: node --check backend/services/staging-duffel-shared-budget-703c.js
+.github\workflows\validate-703d.yml:68: grep -Fq "Object.freeze(['YYZ'])" backend/services/affordable-flight-discovery-684b.js
+.github\workflows\validate-703d.yml:69: grep -Fq "Object.freeze(['YYZ', 'JFK', 'LAX', 'DUB', 'DXB'])" backend/services/affordable-flight-discovery-684b.js
+.github\workflows\validate-703d.yml:70: grep -Fq 'const SHARED_PHYSICAL_REQUEST_CAP = 8;' backend/services/staging-duffel-shared-budget-703c.js
+.github\workflows\validate-703e.yml:8: - 'backend/services/duffel-adult-scope-703e.js'
+.github\workflows\validate-703e.yml:9: - 'backend/services/staging-duffel-two-adult-703e.js'
+.github\workflows\validate-703e.yml:10: - 'backend/services/duffel-live-adapter-683d.js'
+.github\workflows\validate-703e.yml:11: - 'backend/services/flight-provider-contract-683c.js'
+.github\workflows\validate-703e.yml:12: - 'backend/services/traveller-pricing.js'
+.github\workflows\validate-703e.yml:13: - 'backend/services/public-live-fare-pilot-684a.js'
+.github\workflows\validate-703e.yml:14: - 'backend/services/affordable-flight-discovery-684b.js'
+.github\workflows\validate-703e.yml:15: - 'backend/services/live-fare-selection-685c.js'
+.github\workflows\validate-703e.yml:16: - 'backend/services/whole-trip-fare-reconciliation-685c-r1.js'
+.github\workflows\validate-703e.yml:17: - 'backend/services/staging-duffel-five-origin-703b.js'
+.github\workflows\validate-703e.yml:18: - 'backend/services/staging-duffel-shared-budget-703c.js'
+.github\workflows\validate-703e.yml:19: - 'backend/services/staging-affordable-flight-five-origin-703d.js'
+.github\workflows\validate-703e.yml:62: node --check backend/services/duffel-adult-scope-703e.js
+.github\workflows\validate-703e.yml:63: node --check backend/services/staging-duffel-two-adult-703e.js
+.github\workflows\validate-703e.yml:64: node --check backend/services/duffel-live-adapter-683d.js
+.github\workflows\validate-703e.yml:65: node --check backend/services/flight-provider-contract-683c.js
+.github\workflows\validate-703e.yml:66: node --check backend/services/traveller-pricing.js
+.github\workflows\validate-703e.yml:67: node --check backend/services/public-live-fare-pilot-684a.js
+.github\workflows\validate-703e.yml:68: node --check backend/services/affordable-flight-discovery-684b.js
+.github\workflows\validate-703e.yml:85: grep -Fq "Object.freeze(['YYZ', 'JFK', 'LAX', 'DUB', 'DXB'])" backend/services/staging-duffel-five-origin-703b.js
+.github\workflows\validate-703e.yml:86: grep -Fq 'const SHARED_PHYSICAL_REQUEST_CAP = 8;' backend/services/staging-duffel-shared-budget-703c.js
+.github\workflows\validate-703e.yml:87: grep -Fq 'const MAX_CANDIDATE_CHECKS_684B = 2;' backend/services/affordable-flight-discovery-684b.js
+.github\workflows\validate-703e.yml:88: grep -Fq 'const MAX_FLIGHT_LEGS_684A = 3;' backend/services/public-live-fare-pilot-684a.js
+.github\workflows\validate-703e.yml:89: grep -Fq 'const MAX_FLIGHT_LEGS_684B = 3;' backend/services/affordable-flight-discovery-684b.js
+.github\workflows\validate-703e.yml:90: grep -Fq 'const DEFAULT_MAX_ADULTS = 1;' backend/services/duffel-adult-scope-703e.js
+.github\workflows\validate-703e.yml:91: grep -Fq 'const STAGING_MAX_ADULTS = 2;' backend/services/duffel-adult-scope-703e.js
+.github\workflows\validate-704a.yml:8: - 'backend/services/agoda-demand-readiness-704a.js'
+.github\workflows\validate-704a.yml:43: node --check backend/services/agoda-demand-readiness-704a.js
+.github\workflows\validate-704a.yml:45: node --check backend/services/agoda.js
+.github\workflows\validate-704a.yml:58: if grep -E 'globalThis\.fetch\(|[^A-Za-z]fetch\(|AGODA_API_KEY|AGODA_SITE_ID|Authorization:' backend/services/agoda-demand-readiness-704a.js; then
+.github\workflows\validate-704a.yml:68: grep -Fq 'https://affiliateapi7643.agoda.com/affiliateservice/lt_v1' backend/services/agoda.js
+.github\workflows\validate-704a.yml:69: grep -Fq 'destination.agodaCityId' backend/services/agoda.js
+.github\workflows\validate-704a.yml:70: grep -Fq 'AGODA_SITE_ID' backend/services/agoda.js
+.github\workflows\validate-704a.yml:71: grep -Fq 'AGODA_API_KEY' backend/services/agoda.js
+.github\workflows\validate-704a.yml:78: if grep -E 'aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+agoda' backend/services/agoda-demand-readiness-704a.js backend/validate-gv-hotel-704a.js; then
+.github\workflows\validate-705a.yml:8: - 'backend/services/account-architecture-705a.js'
+.github\workflows\validate-705a.yml:41: node --check backend/services/account-architecture-705a.js
+.github\workflows\validate-705a.yml:72: if grep -E "require\(['\"]@aws-sdk/|CognitoIdentityProviderClient\(|DynamoDBClient\(|globalThis\.fetch\(|DUFFEL_ACCESS_TOKEN|AGODA_API_KEY" backend/services/account-architecture-705a.js; then
+.github\workflows\validate-705a.yml:76: if grep -E 'aws[[:space:]]+(cognito-idp|dynamodb|lambda|amplify|cloudformation)|amplify[[:space:]]+publish' backend/services/account-architecture-705a.js backend/validate-gv-account-705a.js; then
+.github\workflows\validate-705b-r3.yml:7: - 'backend/services/staging-cognito-auth-705b-r3.js'
+.github\workflows\validate-705b-r3.yml:50: node --check backend/services/staging-cognito-auth-705b-r3.js
+.github\workflows\validate-705b-r3.yml:62: backend/services/staging-cognito-auth-705b-r3.js
+.github\workflows\validate-705c.yml:7: - 'backend/services/staging-saved-trips-705c.js'
+.github\workflows\validate-705c.yml:24: - 'backend/services/staging-saved-trips-705c.js'
+.github\workflows\validate-705c.yml:58: node --check backend/services/staging-saved-trips-705c.js
+.github\workflows\validate-706r.yml:10: - 'backend/services/staging-booking-revalidation-707b.js'
+.github\workflows\validate-706r.yml:11: - 'backend/services/staging-booking-revalidation-707b-r1.js'
+.github\workflows\validate-706r.yml:57: elif printf '%s\n' "$changed" | grep -Eq '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$'; then
+.github\workflows\validate-706r.yml:62: unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+.github\workflows\validate-706r.yml:78: unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/services/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
+.github\workflows\validate-708c.yml:7: - 'backend/services/nuitee-hotel-708c.js'
+.github\workflows\validate-708c.yml:8: - 'backend/services/staging-booking-revalidation-708c.js'
+.github\workflows\validate-708c.yml:43: hotel_runtime_changed="$(printf '%s\n' "$changed" | grep -E '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+.github\workflows\validate-708c.yml:46: unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validate-gv-hotel-708c\.js|web/lib/contracts\.ts|web/components/booking/booking-workspace-client\.tsx|docs/GV-HOTEL-708C-STAGING-LIVE-HOTEL-EVIDENCE\.md|\.github/workflows/validate-708c\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
+.github\workflows\validate.yml:100: node --check backend/services/affordable-flight-discovery-684b.js
+.github\workflows\validate.yml:103: node --check backend/services/route-diversity-687b.js
+.github\workflows\validate.yml:104: node --check backend/services/worldwide-city-registry-701a.js
+.github\workflows\validate.yml:105: node --check backend/services/global-recommendation-coverage-702a.js
+.github\workflows\validate.yml:106: node --check backend/services/global-recovery-priority-702b.js
+.github\workflows\validate.yml:107: node --check backend/services/global-provider-recovery-smoke-plan-702c.js
+.github\workflows\validate.yml:108: node --check backend/services/reviewed-recovery-overlay-702c-r2.js
+.github\workflows\validate.yml:109: node --check backend/services/staging-reviewed-recovery-702d.js
+.github\workflows\validate.yml:110: node --check backend/services/reviewed-activation-promotion-702e.js

@@ -3,12 +3,12 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { verifyTourWithLiveProviders, LIVE_PROVIDER_VERIFICATION_VERSION } = require('./services/live-provider-verification');
-const { applyCanonicalIntegrity, CANONICAL_INTEGRITY_VERSION } = require('./services/canonical-total-evidence');
-const { normalizeAirportIntegrity } = require('./services/route-feasibility');
-const { applyTravellerPricingToTour } = require('./services/traveller-pricing');
+const { verifyTourWithLiveProviders, LIVE_PROVIDER_VERIFICATION_VERSION } = require('./services/domain/live-fares/live-provider-verification');
+const { applyCanonicalIntegrity, CANONICAL_INTEGRITY_VERSION } = require('./services/domain/pricing/canonical-total-evidence');
+const { normalizeAirportIntegrity } = require('./services/domain/routing/route-feasibility');
+const { applyTravellerPricingToTour } = require('./services/domain/pricing/traveller-pricing');
 const { buildVisualizerTour } = require('./generated-tour');
-const { _clearCache } = require('./services/cheap-one-way-flights');
+const { _clearCache } = require('./services/providers/flights/cheap-one-way-flights');
 
 process.env.ENABLE_LIVE_PROVIDER_VERIFICATION_667A = 'true';
 process.env.ENABLE_CANONICAL_TOTAL_EVIDENCE_INTEGRITY_667B = 'true';

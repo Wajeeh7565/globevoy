@@ -3,9 +3,9 @@
 const assert = require('assert');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
-const overlay = require('./services/staging-gateway-foundation-702f-d');
+const overlay = require('./services/cities/gateways/staging/staging-gateway-foundation-702f-d');
 const manifest = require('./data/gateway-foundation-corrections-702f-d.json');
-const cityRegistry = require('./services/city-registry');
+const cityRegistry = require('./services/cities/registry/city-registry');
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function byId(registry) { return new Map((registry.records || []).map(row => [row.cityId, row])); }
@@ -107,7 +107,7 @@ function main() {
     if (!entry.GATEWAY_INSTALLATION || entry.GATEWAY_INSTALLATION.ok !== true || entry.GATEWAY_INSTALLATION.appliedCount !== 9) {
       throw new Error('staging gateway installation failed');
     }
-    const registry = require('./services/city-registry');
+    const registry = require('./services/cities/registry/city-registry');
     const selected = registry.routeGraphSelection([]);
     for (const change of manifest.corrections) {
       const resolved = registry.resolveRegistryCity(change.cityId);
@@ -119,7 +119,7 @@ function main() {
         throw new Error(change.cityId + ': route graph primary airport not overlaid');
       }
     }
-    const activation = require('./services/verified-city-activation').summary();
+    const activation = require('./services/cities/registry/verified-city-activation').summary();
     if (activation.summary.productionActiveCount !== 439) throw new Error('668T baseline count changed');
     console.log(JSON.stringify({ applied: entry.GATEWAY_INSTALLATION.appliedCount, routeRows: selected.length, baselineActive: activation.summary.productionActiveCount }));
   `;

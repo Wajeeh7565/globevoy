@@ -7,8 +7,8 @@ on:
       - 'web/**'
       - 'amplify.yml'
       - 'backend/staging-lambda-702d.js'
-      - 'backend/services/staging-booking-revalidation-707b.js'
-      - 'backend/services/staging-booking-revalidation-707b-r1.js'
+      - 'backend/services/booking/revalidation/staging-booking-revalidation-707b.js'
+      - 'backend/services/booking/revalidation/staging-booking-revalidation-707b-r1.js'
       - 'backend/validate-gv-web-707b.js'
       - 'backend/validate-gv-web-707b-r1.js'
       - 'docs/GV-WEB-706R-MIGRATION-PLAN.md'
@@ -54,12 +54,12 @@ jobs:
               printf '%s\n' "$unexpected" >&2
               exit 1
             fi
-          elif printf '%s\n' "$changed" | grep -Eq '^(backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$'; then
+          elif printf '%s\n' "$changed" | grep -Eq '^(backend/services/providers/stays/nuitee/nuitee-hotel-708c\.js|backend/services/booking/revalidation/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$'; then
             if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
               echo '708C must not modify the proven legacy frontend.' >&2
               exit 1
             fi
-            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/nuitee-hotel-708c\.js|backend/services/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/providers/stays/nuitee/nuitee-hotel-708c\.js|backend/services/booking/revalidation/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
             if [ -n "$unexpected_backend" ]; then
               echo '708C may change only its bounded staging hotel adapter/wrapper/validator backend files:' >&2
               printf '%s\n' "$unexpected_backend" >&2
@@ -75,7 +75,7 @@ jobs:
               echo '707B must not modify the proven legacy frontend.' >&2
               exit 1
             fi
-            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/staging-booking-revalidation-707b\.js|backend/services/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/booking/revalidation/staging-booking-revalidation-707b\.js|backend/services/booking/revalidation/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
             if [ -n "$unexpected_backend" ]; then
               echo '707B may change only its staging wrapper/service/validator backend files:' >&2
               printf '%s\n' "$unexpected_backend" >&2
