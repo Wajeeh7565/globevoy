@@ -14,7 +14,7 @@
 // changes arithmetic only and preserves fail-closed behavior.
 
 const base707B = require('./staging-booking-revalidation-707b');
-const savedTrips705C = require('./accounts/saved-trips/staging-saved-trips-705c');
+const savedTrips705C = require('../../accounts/saved-trips/staging-saved-trips-705c');
 
 const VERSION = 'GV-WEB-707B-R1';
 const ROUTE_PATH = base707B.ROUTE_PATH;

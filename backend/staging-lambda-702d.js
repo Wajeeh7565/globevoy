@@ -65,7 +65,7 @@ const stagingTravelProfile710F = require('./services/accounts/travel-profile/sta
 // GV-HOTEL-708C wraps staging-booking-revalidation-707b-r1 additively. The
 // existing 707B-R1 owner-private Duffel flow/arithmetic stays authoritative;
 // Nuitee hotel Rates -> PREBOOK runs only when its staging feature flag is on.
-const stagingBooking707B = require('./services/staging-booking-revalidation-708c');
+const stagingBooking707B = require('./services/booking/revalidation/staging-booking-revalidation-708c');
 
 // GV-FLIGHT-710E-R3A is staging-only and read-only. It materializes the
 // automatic cheapest-practical date chain for one selected multi-city route

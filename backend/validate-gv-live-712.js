@@ -7,9 +7,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const hotel = require('./services/nuitee-hotel-708c');
 const ledger = require('./services/domain/pricing/current-trip-total-712');
-const wrapper = require('./services/staging-booking-revalidation-708c');
-const base = require('./services/staging-booking-revalidation-707b');
-const { parseHotelGuestContext } = require('./services/hotel-guest-context-712');
+const wrapper = require('./services/booking/revalidation/staging-booking-revalidation-708c');
+const base = require('./services/booking/revalidation/staging-booking-revalidation-707b');
+const { parseHotelGuestContext } = require('./services/booking/context/hotel-guest-context-712');
 
 const NOW = '2026-09-10T12:00:00.000Z';
 const EXPIRY = '2026-09-10T12:05:00.000Z';
