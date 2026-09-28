@@ -5,7 +5,7 @@ on:
     branches:
       - staging
     paths:
-      - 'backend/services/agoda-demand-readiness-704a.js'
+      - 'backend/services/providers/stays/agoda/agoda-demand-readiness-704a.js'
       - 'backend/validate-gv-hotel-704a.js'
       - 'docs/GV-HOTEL-704A.md'
       - '.github/workflows/validate-704a.yml'
@@ -40,7 +40,7 @@ jobs:
 
       - name: Syntax checks
         run: |
-          node --check backend/services/agoda-demand-readiness-704a.js
+          node --check backend/services/providers/stays/agoda/agoda-demand-readiness-704a.js
           node --check backend/validate-gv-hotel-704a.js
           node --check backend/services/agoda.js
           node --check backend/recommendations.js
@@ -55,7 +55,7 @@ jobs:
             echo '704A readiness code was wired into a runtime path.'
             exit 1
           fi
-          if grep -E 'globalThis\.fetch\(|[^A-Za-z]fetch\(|AGODA_API_KEY|AGODA_SITE_ID|Authorization:' backend/services/agoda-demand-readiness-704a.js; then
+          if grep -E 'globalThis\.fetch\(|[^A-Za-z]fetch\(|AGODA_API_KEY|AGODA_SITE_ID|Authorization:' backend/services/providers/stays/agoda/agoda-demand-readiness-704a.js; then
             echo '704A readiness module contains provider-call or credential wiring.'
             exit 1
           fi
@@ -75,7 +75,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -E 'aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+agoda' backend/services/agoda-demand-readiness-704a.js backend/validate-gv-hotel-704a.js; then
+          if grep -E 'aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+agoda' backend/services/providers/stays/agoda/agoda-demand-readiness-704a.js backend/validate-gv-hotel-704a.js; then
             echo 'Deployment/provider-call command found in 704A implementation.'
             exit 1
           fi

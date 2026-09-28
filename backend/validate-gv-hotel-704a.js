@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const readiness = require('./services/agoda-demand-readiness-704a');
+const readiness = require('./services/providers/stays/agoda/agoda-demand-readiness-704a');
 
 assert.equal(readiness.VERSION, 'GV-HOTEL-704A');
 assert.equal(readiness.CURRENT_SEARCH_PATH, '/api/v4/property/availability');
@@ -168,7 +168,7 @@ assert.equal(audit.productionChanged, false);
 
 // The 704A module must remain pure: no network calls, secrets, production or
 // transaction wiring. Existing 679A integration stays untouched in this task.
-const moduleText = fs.readFileSync(path.join(__dirname, 'services', 'agoda-demand-readiness-704a.js'), 'utf8');
+const moduleText = fs.readFileSync(path.join(__dirname, 'services', 'providers', 'stays', 'agoda', 'agoda-demand-readiness-704a.js'), 'utf8');
 for (const forbidden of [
   'globalThis.fetch(',
   'fetch(',

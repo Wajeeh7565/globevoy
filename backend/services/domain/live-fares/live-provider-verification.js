@@ -13,8 +13,8 @@ const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = requi
 const { currencyToUsdRate, normalizeCurrency } = require('../../../budget-presentation');
 const { applyCanonicalIntegrity, enabled: canonicalIntegrityEnabled, CANONICAL_INTEGRITY_VERSION } = require('../pricing/canonical-total-evidence');
 const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('../pricing/price-evidence-integrity');
-const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, fetchStay22Evidence } = require('../../stay22-evidence-682b');
-const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('../../property-identity-682c');
+const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, fetchStay22Evidence } = require('../../providers/stays/stay22/stay22-evidence-682b');
+const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('../../providers/stays/shared/property-identity-682c');
 
 const LIVE_PROVIDER_VERIFICATION_VERSION = 'GV-EVIDENCE-667E';
 const DEFAULT_MAX_FLIGHT_LEGS = 4;
