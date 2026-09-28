@@ -172,7 +172,7 @@ function main() {
   // before the ordinary staging Lambda loads generated-tour/684B.
   const wrapperSource = fs.readFileSync(path.join(ROOT, 'staging-lambda-702d.js'), 'utf8');
   const productionSource = fs.readFileSync(path.join(ROOT, 'lambda.js'), 'utf8');
-  const discoverySource = fs.readFileSync(path.join(ROOT, 'services', 'affordable-flight-discovery-684b.js'), 'utf8');
+  const discoverySource = fs.readFileSync(path.join(ROOT, 'services', 'domain', 'live-fares', 'affordable-flight-discovery-684b.js'), 'utf8');
   const overlaySource = fs.readFileSync(path.join(ROOT, 'services', 'staging-affordable-flight-five-origin-703d.js'), 'utf8');
 
   const install703BIndex = wrapperSource.indexOf('stagingDuffel703B.install()');

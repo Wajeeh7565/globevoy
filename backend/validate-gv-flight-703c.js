@@ -124,7 +124,7 @@ assert.equal(typeof live684A.applyPublicLiveFarePilot684A, 'function');
   const wrapperSource = fs.readFileSync(path.join(ROOT, 'staging-lambda-702d.js'), 'utf8');
   const productionSource = fs.readFileSync(path.join(ROOT, 'lambda.js'), 'utf8');
   const generatedTourSource = fs.readFileSync(path.join(ROOT, 'generated-tour.js'), 'utf8');
-  const discoverySource = fs.readFileSync(path.join(ROOT, 'services', 'affordable-flight-discovery-684b.js'), 'utf8');
+  const discoverySource = fs.readFileSync(path.join(ROOT, 'services', 'domain', 'live-fares', 'affordable-flight-discovery-684b.js'), 'utf8');
   const sharedSource = fs.readFileSync(path.join(ROOT, 'services', 'staging-duffel-shared-budget-703c.js'), 'utf8');
 
   assert.match(wrapperSource, /staging-duffel-shared-budget-703c/);
