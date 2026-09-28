@@ -14,12 +14,12 @@
 // preserve every saved stop-night allocation exactly, and choose the cheapest
 // complete provider-backed chain. No dates are invented or shifted silently.
 
-const { getMultiCityTours } = require('../multicity-routes');
+const { getMultiCityTours } = require('../../../../multicity-routes');
 const {
   fetchCheapestOneWayAcrossMonths,
   selectBestUsableObservation
-} = require('./providers/flights/cheap-one-way-flights');
-const { automaticDateFloor } = require('./domain/pricing/price-evidence-integrity');
+} = require('../../../providers/flights/cheap-one-way-flights');
+const { automaticDateFloor } = require('../../pricing/price-evidence-integrity');
 
 const VERSION = 'GV-FLIGHT-710E-R3A';
 const REVISION = 'GV-FLIGHT-710E-R3A-R1';

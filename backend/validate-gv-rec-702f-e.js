@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const candidate = require('./services/cities/gateways/permanent-gateway-foundation-candidate-702f-e');
-const stagingOverlay = require('./services/staging-gateway-foundation-702f-d');
+const stagingOverlay = require('./services/cities/gateways/staging/staging-gateway-foundation-702f-d');
 const manifest = require('./data/gateway-foundation-permanent-candidate-702f-e.json');
 const cityRegistry = require('./services/city-registry');
 

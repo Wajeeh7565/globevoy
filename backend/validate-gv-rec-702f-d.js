@@ -3,7 +3,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
-const overlay = require('./services/staging-gateway-foundation-702f-d');
+const overlay = require('./services/cities/gateways/staging/staging-gateway-foundation-702f-d');
 const manifest = require('./data/gateway-foundation-corrections-702f-d.json');
 const cityRegistry = require('./services/city-registry');
 

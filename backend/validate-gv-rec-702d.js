@@ -16,7 +16,7 @@ const baseline = require('./services/verified-city-activation');
 const acapulcoBefore = baseline.activationForCity('acapulco-mx', { includeEvidence: false });
 const aalesundBefore = baseline.activationForCity('aalesund-no', { includeEvidence: false });
 const aalborgBefore = baseline.activationForCity('aalborg-dk', { includeEvidence: false });
-const overlay = require('./services/staging-reviewed-recovery-702d');
+const overlay = require('./services/cities/recovery/staging/staging-reviewed-recovery-702d');
 
 let passed = 0;
 async function check(name, fn) {

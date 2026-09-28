@@ -70,7 +70,7 @@ const groups = {
     ['node', '--check', 'backend/services/admin/audits/global-recovery-priority-702b.js'],
     ['node', '--check', 'backend/services/admin/audits/global-provider-recovery-smoke-plan-702c.js'],
     ['node', '--check', 'backend/services/cities/recovery/reviewed-recovery-overlay-702c-r2.js'],
-    ['node', '--check', 'backend/services/staging-reviewed-recovery-702d.js'],
+    ['node', '--check', 'backend/services/cities/recovery/staging/staging-reviewed-recovery-702d.js'],
     ['node', '--check', 'backend/services/cities/recovery/reviewed-activation-promotion-702e.js'],
     ['node', '--check', 'frontend/runtime/api-client.js'],
     ['node', '--check', 'frontend/scripts/multicity-visualizer-687b.js']

@@ -16,7 +16,7 @@ delete process.env.TRAVELPAYOUTS_TOKEN;
 delete process.env.GLOBEVOY_USE_MOCKS;
 
 const baseline = require('./services/verified-city-activation');
-const overlay = require('./services/staging-reviewed-recovery-702d');
+const overlay = require('./services/cities/recovery/staging/staging-reviewed-recovery-702d');
 const installation = overlay.install({ baseline });
 const cityRegistry = require('./services/city-registry');
 const graph = require('./services/global-route-graph');

@@ -4,8 +4,8 @@
 // Mutates only the in-memory GV-CITY-668B registry loaded by the dedicated
 // staging Lambda. The committed 1,000-city registry remains immutable.
 
-const registry668B = require('../data/unified-city-registry-1000-668b.json');
-const manifest = require('../data/gateway-foundation-corrections-702f-d.json');
+const registry668B = require('../../../../data/unified-city-registry-1000-668b.json');
+const manifest = require('../../../../data/gateway-foundation-corrections-702f-d.json');
 
 const VERSION = 'GV-REC-702F-D';
 const FLAG_NAME = 'ENABLE_STAGING_GATEWAY_FOUNDATION_702F_D';

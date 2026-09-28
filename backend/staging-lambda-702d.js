@@ -8,10 +8,10 @@
 // Rollback: set the Lambda handler back to `staging-lambda.handler` and remove
 // the staging QA flags. No production snapshot or handler is changed.
 
-const stagingRecovery = require('./services/staging-reviewed-recovery-702d');
+const stagingRecovery = require('./services/cities/recovery/staging/staging-reviewed-recovery-702d');
 const INSTALLATION = stagingRecovery.install();
 
-const stagingGateway = require('./services/staging-gateway-foundation-702f-d');
+const stagingGateway = require('./services/cities/gateways/staging/staging-gateway-foundation-702f-d');
 const GATEWAY_INSTALLATION = stagingGateway.install();
 if (stagingGateway.enabled() && GATEWAY_INSTALLATION.ok !== true) {
   throw new Error(`GV-REC-702F-D staging gateway overlay failed closed: ${(GATEWAY_INSTALLATION.issues || []).join(',')}`);
@@ -70,7 +70,7 @@ const stagingBooking707B = require('./services/booking/revalidation/staging-book
 // GV-FLIGHT-710E-R3A is staging-only and read-only. It materializes the
 // automatic cheapest-practical date chain for one selected multi-city route
 // using existing provider fare observations. It never books or reserves.
-const stagingAutoDates710ER3A = require('./services/staging-multicity-auto-dates-710e-r3a');
+const stagingAutoDates710ER3A = require('./services/domain/routing/staging/staging-multicity-auto-dates-710e-r3a');
 
 const staging = require('./staging-lambda');
 

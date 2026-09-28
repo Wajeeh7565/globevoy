@@ -8,7 +8,7 @@ on:
       - 'backend/data/gateway-foundation-permanent-candidate-702f-e.json'
       - 'backend/data/gateway-foundation-corrections-702f-d.json'
       - 'backend/services/cities/gateways/permanent-gateway-foundation-candidate-702f-e.js'
-      - 'backend/services/staging-gateway-foundation-702f-d.js'
+      - 'backend/services/cities/gateways/staging/staging-gateway-foundation-702f-d.js'
       - 'backend/validate-gv-rec-702f-e.js'
       - 'backend/data/unified-city-registry-1000-668b.json'
       - '.github/workflows/validate-702f-e.yml'

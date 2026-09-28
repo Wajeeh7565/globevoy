@@ -8,7 +8,7 @@
 // all present. The overlay is dynamic and fails closed when any condition is
 // removed.
 
-const reviewedRecovery = require('./cities/recovery/reviewed-recovery-overlay-702c-r2');
+const reviewedRecovery = require('../reviewed-recovery-overlay-702c-r2');
 
 const VERSION = 'GV-REC-702D';
 const FLAG_NAME = 'ENABLE_STAGING_REVIEWED_RECOVERY_702D';
@@ -87,7 +87,7 @@ function applyOverlay(activation = {}, options = {}) {
 }
 
 function install(options = {}) {
-  const baseline = options.baseline || require('./verified-city-activation');
+  const baseline = options.baseline || require('../../../verified-city-activation');
   if (baseline[INSTALL_MARK]) {
     return {
       ok: true,
