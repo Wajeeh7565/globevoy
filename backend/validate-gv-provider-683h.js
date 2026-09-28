@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const h = require('./services/duffel-p2-staging-683h');
 const p2 = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
-const liveVerification683JR2 = require('./services/live-provider-verification');
+const liveVerification683JR2 = require('./services/domain/live-fares/live-provider-verification');
 
 let passed = 0;
 function test(name, fn) {
@@ -601,7 +601,7 @@ function rawDuffel683DResult(origin, destination, departureDate, amount = 100, c
   test('683H never marks production approved true', () => assert.doesNotMatch(serviceSource,/productionApproved:\s*true/));
 
   test('683J-R1 canonicalizer is wired through 683C', () => assert.match(serviceSource,/normalizeObservation683C/));
-  const liveVerifierSource = fs.readFileSync(path.join(__dirname,'services/live-provider-verification.js'),'utf8');
+  const liveVerifierSource = fs.readFileSync(path.join(__dirname,'services/domain/live-fares/live-provider-verification.js'),'utf8');
   test('683J-R2 final-tour common evidence propagates R2 canonical marker', () => assert.match(generatedSource,/canonicalLiveEvidence683JR2:\s*selected\.canonicalLiveEvidence683JR2/));
   test('683J-R2 final-tour common evidence propagates provider evidence class', () => assert.match(generatedSource,/providerEvidenceClass:\s*selected\.providerEvidenceClass/));
   test('683J-R2 final-tour common evidence propagates provider ranking grade', () => assert.match(generatedSource,/providerRankingGrade:\s*selected\.providerRankingGrade/));

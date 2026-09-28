@@ -11,7 +11,7 @@ process.env.ENABLE_STAY22_P2_DATE_PRICING_682B = 'true';
 process.env.GV_ALLOW_INJECTED_PROVIDER_EVIDENCE_FOR_VALIDATION = 'true';
 
 const stay22 = require('./services/stay22-evidence-682b');
-const live = require('./services/live-provider-verification');
+const live = require('./services/domain/live-fares/live-provider-verification');
 const canonical = require('./services/domain/pricing/canonical-total-evidence');
 const optimizer = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
 const generated = require('./generated-tour');

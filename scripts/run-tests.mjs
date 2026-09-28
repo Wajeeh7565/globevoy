@@ -63,7 +63,7 @@ const groups = {
     ['node', '--check', 'backend/staging-lambda.js'],
     ['node', '--check', 'backend/staging-lambda-702d.js'],
     ['node', '--check', 'backend/generated-tour.js'],
-    ['node', '--check', 'backend/services/affordable-flight-discovery-684b.js'],
+    ['node', '--check', 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'],
     ['node', '--check', 'backend/services/domain/routing/route-diversity-687b.js'],
     ['node', '--check', 'backend/services/worldwide-city-registry-701a.js'],
     ['node', '--check', 'backend/services/admin/audits/global-recommendation-coverage-702a.js'],

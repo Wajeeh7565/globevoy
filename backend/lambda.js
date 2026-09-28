@@ -13,7 +13,7 @@ const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./ser
 const { getGeneratedTour } = require('./generated-tour');
 const { getGeneratedTourControl } = require('./generated-tour-controls');
 const { recalculateGeneratedTourDate } = require('./generated-tour-dates');
-const { evaluateTravelEntryEligibility } = require('./services/travel-entry-eligibility');
+const { evaluateTravelEntryEligibility } = require('./services/domain/eligibility/travel-entry-eligibility');
 const { status: duffelSandboxStatus, runProof: runDuffelSandboxProof, DuffelProofValidationError } = require('./services/duffel-sandbox-proof');
 const {
   getMultiCityTours,

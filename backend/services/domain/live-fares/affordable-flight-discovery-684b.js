@@ -24,8 +24,8 @@
 //     memorable/default lanes rather than force flying everywhere;
 //   * no order, payment, booking or ticketing capability.
 
-const { normalizeParty } = require('./domain/pricing/traveller-pricing');
-const adultScope703E = require('./duffel-adult-scope-703e');
+const { normalizeParty } = require('../pricing/traveller-pricing');
+const adultScope703E = require('../../duffel-adult-scope-703e');
 
 const VERSION_684B = 'GV-REC-684B-R3';
 const PERF_R5_VERSION = 'GV-PERF-R5';

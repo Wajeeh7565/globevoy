@@ -51,9 +51,9 @@ assert.equal(process.env.DUFFEL_ACCESS_TOKEN, undefined);
 
 const adultScope = require('./services/duffel-adult-scope-703e');
 const adapter683D = require('./services/duffel-live-adapter-683d');
-const live684A = require('./services/public-live-fare-pilot-684a');
-const discovery684B = require('./services/affordable-flight-discovery-684b');
-const fareSelection685C = require('./services/live-fare-selection-685c');
+const live684A = require('./services/domain/live-fares/public-live-fare-pilot-684a');
+const discovery684B = require('./services/domain/live-fares/affordable-flight-discovery-684b');
+const fareSelection685C = require('./services/domain/live-fares/live-fare-selection-685c');
 const travellerPricing = require('./services/domain/pricing/traveller-pricing');
 
 assert.equal(adultScope.configuredMaxAdults703E(process.env), 2);

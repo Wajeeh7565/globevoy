@@ -5,16 +5,16 @@
 // the selected route/date appears in provider results, records evidence freshness, and
 // downgrades the budget claim whenever critical items remain estimates.
 
-const { fetchFlightDates683C } = require('./flight-provider-router-683c');
-const { fetchAgodaStayEstimate, AGODA_PROVIDER_STAY_VERSION_679A, AGODA_PRICE_LINK_INTEGRITY_VERSION_679A_R1, BOOKING_TRUST_VERSION_680A, providerStayIntegration679AEnabled, priceLinkIntegrity679AR1Enabled } = require('./agoda');
-const { AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2, agodaHandoffIntegrity679AR2Enabled } = require('./partner-links');
-const { getDestination } = require('../data/destination-meta');
-const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('./domain/pricing/traveller-pricing');
-const { currencyToUsdRate, normalizeCurrency } = require('../budget-presentation');
-const { applyCanonicalIntegrity, enabled: canonicalIntegrityEnabled, CANONICAL_INTEGRITY_VERSION } = require('./domain/pricing/canonical-total-evidence');
-const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('./domain/pricing/price-evidence-integrity');
-const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, fetchStay22Evidence } = require('./stay22-evidence-682b');
-const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('./property-identity-682c');
+const { fetchFlightDates683C } = require('../../flight-provider-router-683c');
+const { fetchAgodaStayEstimate, AGODA_PROVIDER_STAY_VERSION_679A, AGODA_PRICE_LINK_INTEGRITY_VERSION_679A_R1, BOOKING_TRUST_VERSION_680A, providerStayIntegration679AEnabled, priceLinkIntegrity679AR1Enabled } = require('../../agoda');
+const { AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2, agodaHandoffIntegrity679AR2Enabled } = require('../../partner-links');
+const { getDestination } = require('../../../data/destination-meta');
+const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
+const { currencyToUsdRate, normalizeCurrency } = require('../../../budget-presentation');
+const { applyCanonicalIntegrity, enabled: canonicalIntegrityEnabled, CANONICAL_INTEGRITY_VERSION } = require('../pricing/canonical-total-evidence');
+const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('../pricing/price-evidence-integrity');
+const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, fetchStay22Evidence } = require('../../stay22-evidence-682b');
+const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('../../property-identity-682c');
 
 const LIVE_PROVIDER_VERIFICATION_VERSION = 'GV-EVIDENCE-667E';
 const DEFAULT_MAX_FLIGHT_LEGS = 4;

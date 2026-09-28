@@ -3,7 +3,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { verifyTourWithLiveProviders, LIVE_PROVIDER_VERIFICATION_VERSION } = require('./services/live-provider-verification');
+const { verifyTourWithLiveProviders, LIVE_PROVIDER_VERIFICATION_VERSION } = require('./services/domain/live-fares/live-provider-verification');
 const { buildVisualizerTour } = require('./generated-tour');
 const { _clearCache } = require('./services/cheap-one-way-flights');
 

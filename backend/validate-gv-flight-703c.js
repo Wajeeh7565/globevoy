@@ -22,7 +22,7 @@ assert.equal(install.environmentVariablesAdded, 0);
 assert.equal(install.productionChanged, false);
 
 const duffelP2 = require('./services/duffel-p2-staging-683h');
-const live684A = require('./services/public-live-fare-pilot-684a');
+const live684A = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 assert.equal(typeof duffelP2.requestState683H, 'function');
 assert.equal(typeof live684A.applyPublicLiveFarePilot684A, 'function');
 
@@ -105,7 +105,7 @@ assert.equal(typeof live684A.applyPublicLiveFarePilot684A, 'function');
   // Install must fail closed if 684A was already loaded before the staging patch.
   const failClosed = execFileSync(process.execPath, ['-e', `
     process.env.CORS_ORIGIN=${JSON.stringify(REQUIRED_ORIGIN)};
-    require('./services/public-live-fare-pilot-684a');
+    require('./services/domain/live-fares/public-live-fare-pilot-684a');
     const s=require('./services/staging-duffel-shared-budget-703c');
     const r=s.install();
     if (r.ok !== false || r.reason !== '703c-684a-loaded-before-shared-budget-install') process.exit(9);

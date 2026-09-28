@@ -11,7 +11,7 @@ const {
   scoreTiming,
   SMART_FLIGHT_DATE_SELECTION_VERSION_677B,
   SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3
-} = require('./cheap-one-way-flights');
+} = require('../../cheap-one-way-flights');
 
 const VERSION_685C = 'GV-FLIGHT-685C';
 const VERSION_685C_R2 = 'GV-FLIGHT-685C-R2';

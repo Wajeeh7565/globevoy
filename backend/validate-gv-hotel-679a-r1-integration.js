@@ -7,7 +7,7 @@ process.env.ENABLE_LIVE_PROVIDER_VERIFICATION_667A = 'true';
 process.env.GV_ALLOW_INJECTED_PROVIDER_EVIDENCE_FOR_VALIDATION = 'true';
 process.env.ENABLE_PRICE_AUDIT_610D = 'true';
 process.env.CAD_TO_USD = '0.735';
-const live = require('./services/live-provider-verification');
+const live = require('./services/domain/live-fares/live-provider-verification');
 let passed=0,total=0;
 function check(name,ok,detail){total++;if(ok){passed++;console.log(`PASS ${name}`)}else{console.error(`FAIL ${name}`,detail||'');process.exitCode=1}}
 function response(payload,status=200){return{ok:status>=200&&status<300,status,async text(){return JSON.stringify(payload)}}}

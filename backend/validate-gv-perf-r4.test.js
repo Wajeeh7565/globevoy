@@ -77,10 +77,10 @@ function harness(config = {}) {
         return { accepted: true, tour, reasons: [], warnings: [], metrics: {} };
       }
     },
-    './services/travel-entry-eligibility': {
+    './services/domain/eligibility/travel-entry-eligibility': {
       recommendationEligibility: () => ({ hardBlocked: false, summary: {}, checks: [] })
     },
-    './services/affordable-flight-discovery-684b': {
+    './services/domain/live-fares/affordable-flight-discovery-684b': {
       discoverAffordableFlightTour684B: async (_rows, tour) => {
         discoveryCalls += 1;
         if (discoveryCalls === 1) {
@@ -110,7 +110,7 @@ function harness(config = {}) {
         return { enabled: true };
       }
     },
-    './services/public-live-fare-pilot-684a': {
+    './services/domain/live-fares/public-live-fare-pilot-684a': {
       applyPublicLiveFarePilot684A: async tour => {
         calls.push('684A');
         advance(23);
@@ -129,7 +129,7 @@ function harness(config = {}) {
         return { enabled: true };
       }
     },
-    './services/live-provider-verification': {
+    './services/domain/live-fares/live-provider-verification': {
       verifyTourWithLiveProviders: async tour => {
         verifyCalls += 1;
         calls.push(verifyCalls === 1 ? 'verify-initial' : 'verify-rescue');

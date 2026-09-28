@@ -26,16 +26,16 @@ const {
   loadMetroRegistry683H,
   buildMetroFallbackCandidates683H,
   applyResolvedAirports683H
-} = require('./duffel-p2-staging-683h');
+} = require('../../duffel-p2-staging-683h');
 const { VERSION_685C, VERSION_685C_R2, selectLiveFareOffers685C } = require('./live-fare-selection-685c');
 const {
   VERSION_685C_R1,
   strictBudgetFit685CR1,
   reconcileWholeTripFares685CR1
-} = require('./domain/pricing/whole-trip-fare-reconciliation-685c-r1');
-const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('./domain/pricing/traveller-pricing');
-const adultScope703E = require('./duffel-adult-scope-703e');
-const { currencyToUsdRate, normalizeCurrency } = require('../budget-presentation');
+} = require('../pricing/whole-trip-fare-reconciliation-685c-r1');
+const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
+const adultScope703E = require('../../duffel-adult-scope-703e');
+const { currencyToUsdRate, normalizeCurrency } = require('../../../budget-presentation');
 
 const VERSION_684A = 'GV-FLIGHT-684A';
 const VERSION_685C_R3 = 'GV-FLIGHT-685C-R3';

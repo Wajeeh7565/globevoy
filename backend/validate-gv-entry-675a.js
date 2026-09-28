@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
-const service = require('./services/travel-entry-eligibility');
+const service = require('./services/domain/eligibility/travel-entry-eligibility');
 const lambda = require('./lambda');
 
 const checks = [];
@@ -69,7 +69,7 @@ async function main() {
   check('Lambda endpoint requires POST', get.statusCode === 405, get.statusCode);
 
   const generatedSource = fs.readFileSync(path.join(__dirname, 'generated-tour.js'), 'utf8');
-  check('generated-tour imports entry eligibility guard', generatedSource.includes("require('./services/travel-entry-eligibility')"));
+  check('generated-tour imports entry eligibility guard', generatedSource.includes("require('./services/domain/eligibility/travel-entry-eligibility')"));
   check('generated-tour filters hard-blocked candidates before ranking', generatedSource.includes('candidateEntryEligibility.hardBlocked') && generatedSource.includes('entryBlockedCandidates'));
   check('generated-tour attaches entry eligibility to final tour', generatedSource.includes('guardedVisualizerTour.entryEligibility'));
 

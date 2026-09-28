@@ -6,7 +6,7 @@ const path = require('node:path');
 
 const policy703B = require('./services/staging-duffel-five-origin-703b');
 const policy703D = require('./services/staging-affordable-flight-five-origin-703d');
-const discovery684B = require('./services/affordable-flight-discovery-684b');
+const discovery684B = require('./services/domain/live-fares/affordable-flight-discovery-684b');
 const shared703C = require('./services/staging-duffel-shared-budget-703c');
 
 const ROOT = __dirname;

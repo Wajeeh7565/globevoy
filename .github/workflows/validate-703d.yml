@@ -5,7 +5,7 @@ on:
     branches:
       - staging
     paths:
-      - 'backend/services/affordable-flight-discovery-684b.js'
+      - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
       - 'backend/services/staging-affordable-flight-five-origin-703d.js'
       - 'backend/services/staging-duffel-five-origin-703b.js'
       - 'backend/services/staging-duffel-shared-budget-703c.js'
@@ -44,7 +44,7 @@ jobs:
 
       - name: Syntax checks
         run: |
-          node --check backend/services/affordable-flight-discovery-684b.js
+          node --check backend/services/domain/live-fares/affordable-flight-discovery-684b.js
           node --check backend/services/staging-affordable-flight-five-origin-703d.js
           node --check backend/services/staging-duffel-five-origin-703b.js
           node --check backend/services/staging-duffel-shared-budget-703c.js
@@ -65,8 +65,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq "Object.freeze(['YYZ'])" backend/services/affordable-flight-discovery-684b.js
-          grep -Fq "Object.freeze(['YYZ', 'JFK', 'LAX', 'DUB', 'DXB'])" backend/services/affordable-flight-discovery-684b.js
+          grep -Fq "Object.freeze(['YYZ'])" backend/services/domain/live-fares/affordable-flight-discovery-684b.js
+          grep -Fq "Object.freeze(['YYZ', 'JFK', 'LAX', 'DUB', 'DXB'])" backend/services/domain/live-fares/affordable-flight-discovery-684b.js
           grep -Fq 'const SHARED_PHYSICAL_REQUEST_CAP = 8;' backend/services/staging-duffel-shared-budget-703c.js
           echo 'PASS - YYZ default, bounded five-origin staging maximum, and 703C cap=8 preserved.'
 

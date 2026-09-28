@@ -155,7 +155,7 @@ function pass(name) { passed += 1; console.log(`PASS ${name}`); }
   pass('unknown provider fails closed');
 
   // 11. Runtime entrypoints now route flight evidence through 683C.
-  for (const rel of ['generated-tour.js', 'server.js', 'lambda.js', 'services/live-provider-verification.js']) {
+  for (const rel of ['generated-tour.js', 'server.js', 'lambda.js', 'services/domain/live-fares/live-provider-verification.js']) {
     const source = fs.readFileSync(path.join(__dirname, rel), 'utf8');
     assert.match(source, /flight-provider-router-683c/);
   }

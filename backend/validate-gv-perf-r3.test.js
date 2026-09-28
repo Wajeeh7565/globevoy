@@ -51,13 +51,13 @@ function harness(config = {}, moduleSource = source) {
         accepted: !config.guardRejects, tour, reasons: [], warnings: [], metrics: {}
       }; }
     },
-    './services/travel-entry-eligibility': {
+    './services/domain/eligibility/travel-entry-eligibility': {
       recommendationEligibility: () => {
         calls.push('entry'); advance(7); entryChecks += 1;
         return { hardBlocked: Boolean(config.entryBlocked && entryChecks <= 2), summary: {}, checks: [] };
       }
     },
-    './services/affordable-flight-discovery-684b': {
+    './services/domain/live-fares/affordable-flight-discovery-684b': {
       discoverAffordableFlightTour684B: async (_rows, tour) => {
         calls.push('684B'); advance(11);
         if (config.discoveryApplies) return { tour: selected,
@@ -67,7 +67,7 @@ function harness(config = {}, moduleSource = source) {
       },
       status684B: () => { advance(3); return { enabled: true }; }
     },
-    './services/public-live-fare-pilot-684a': {
+    './services/domain/live-fares/public-live-fare-pilot-684a': {
       applyPublicLiveFarePilot684A: async tour => {
         calls.push('684A'); advance(23);
         return { tour, summary: { applied: true, overBudget: Boolean(config.overBudget),
@@ -75,7 +75,7 @@ function harness(config = {}, moduleSource = source) {
       },
       status684A: () => { advance(2); return { enabled: true }; }
     },
-    './services/live-provider-verification': {
+    './services/domain/live-fares/live-provider-verification': {
       verifyTourWithLiveProviders: async tour => {
         calls.push('verify'); advance(29); return { tour, summary: { overBudget: Boolean(config.overBudget) } };
       }

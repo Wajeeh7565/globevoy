@@ -4,8 +4,8 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const policy = require('./services/staging-duffel-five-origin-703b');
-const live684A = require('./services/public-live-fare-pilot-684a');
-const discovery684B = require('./services/affordable-flight-discovery-684b');
+const live684A = require('./services/domain/live-fares/public-live-fare-pilot-684a');
+const discovery684B = require('./services/domain/live-fares/affordable-flight-discovery-684b');
 
 function main() {
   const expectedOrigins = ['YYZ', 'JFK', 'LAX', 'DUB', 'DXB'];

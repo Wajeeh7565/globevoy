@@ -6,8 +6,8 @@ on:
       - staging
     paths:
       - 'backend/services/staging-duffel-shared-budget-703c.js'
-      - 'backend/services/public-live-fare-pilot-684a.js'
-      - 'backend/services/affordable-flight-discovery-684b.js'
+      - 'backend/services/domain/live-fares/public-live-fare-pilot-684a.js'
+      - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
       - 'backend/services/duffel-p2-staging-683h.js'
       - 'backend/generated-tour.js'
       - 'backend/staging-lambda-702d.js'
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq "Object.freeze(['YYZ'])" backend/services/affordable-flight-discovery-684b.js
+          grep -Fq "Object.freeze(['YYZ'])" backend/services/domain/live-fares/affordable-flight-discovery-684b.js
           echo 'PASS - 684B discovery remains YYZ-only.'
 
       - name: Confirm workflow is deployment-free and provider-call-free

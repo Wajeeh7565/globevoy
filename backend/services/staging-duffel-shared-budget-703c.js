@@ -165,7 +165,7 @@ function install(env = process.env) {
     return installResult;
   }
 
-  const liveModulePath = require.resolve('./public-live-fare-pilot-684a');
+  const liveModulePath = require.resolve('./domain/live-fares/public-live-fare-pilot-684a');
   if (require.cache[liveModulePath]) {
     installResult = {
       ok: false,
@@ -200,7 +200,7 @@ function install(env = process.env) {
 
   // Load 684A only after the request-state export is patched so its destructured
   // requestState683H binding captures the shared-budget-aware function.
-  const live684A = require('./public-live-fare-pilot-684a');
+  const live684A = require('./domain/live-fares/public-live-fare-pilot-684a');
   if (typeof live684A.applyPublicLiveFarePilot684A !== 'function') {
     duffelP2.requestState683H = originalRequestState;
     installResult = {

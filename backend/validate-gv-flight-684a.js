@@ -3,9 +3,9 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const pilot = require('./services/public-live-fare-pilot-684a');
+const pilot = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 const p2 = require('./services/duffel-p2-staging-683h');
-const liveVerification = require('./services/live-provider-verification');
+const liveVerification = require('./services/domain/live-fares/live-provider-verification');
 
 let passed = 0;
 function test(name, fn) {
@@ -181,7 +181,7 @@ function sampleTour() {
   });
 
   test('684A adds no Duffel order/payment/booking/ticketing API', () => {
-    const source = fs.readFileSync(path.join(__dirname, 'services/public-live-fare-pilot-684a.js'), 'utf8');
+    const source = fs.readFileSync(path.join(__dirname, 'services/domain/live-fares/public-live-fare-pilot-684a.js'), 'utf8');
     assert.doesNotMatch(source, /\/air\/orders|payment_intent|createOrder\s*\(|createBooking\s*\(|createTicket\s*\(/i);
     assert.match(source, /orderCapability: false/);
     assert.match(source, /paymentCapability: false/);

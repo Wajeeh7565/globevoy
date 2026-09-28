@@ -7,7 +7,7 @@
 const { enrichTourWithCheapFlights, buildVisualizerTour } = require('./generated-tour');
 const { guardEnabled, normalizeAirportIntegrity, evaluateTour } = require('./services/domain/routing/route-feasibility');
 const { normalizeParty } = require('./services/domain/pricing/traveller-pricing');
-const { LIVE_PROVIDER_VERIFICATION_VERSION, verifyTourWithLiveProviders } = require('./services/live-provider-verification');
+const { LIVE_PROVIDER_VERIFICATION_VERSION, verifyTourWithLiveProviders } = require('./services/domain/live-fares/live-provider-verification');
 
 const GENERATED_TOUR_DATE_VERSION = '1.1.0-gv-live-667a-provider-reverified-date-sync';
 

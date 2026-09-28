@@ -29,7 +29,7 @@ const savedTrips705C = require('./staging-saved-trips-705c');
 const nuitee708C = require('./nuitee-hotel-708c');
 const autoDates710E = require('./staging-multicity-auto-dates-710e-r3a');
 const current712 = require('./domain/pricing/current-trip-total-712');
-const liveFare684A = require('./public-live-fare-pilot-684a');
+const liveFare684A = require('./domain/live-fares/public-live-fare-pilot-684a');
 
 const VERSION = 'GV-LIVE-712';
 const FLIGHT_NORMALIZATION_VERSION = 'GV-WEB-710G-R3';

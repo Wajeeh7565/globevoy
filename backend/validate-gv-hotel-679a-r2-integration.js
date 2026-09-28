@@ -10,7 +10,7 @@ process.env.GV_ALLOW_INJECTED_PROVIDER_EVIDENCE_FOR_VALIDATION = 'true';
 process.env.ENABLE_PRICE_AUDIT_610D = 'true';
 process.env.CAD_TO_USD = '0.735';
 
-const live = require('./services/live-provider-verification');
+const live = require('./services/domain/live-fares/live-provider-verification');
 const links = require('./services/partner-links');
 
 let passed=0,total=0;
