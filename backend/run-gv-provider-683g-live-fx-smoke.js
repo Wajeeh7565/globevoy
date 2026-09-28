@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const fx = require('./services/fx-normalization-683g');
+const fx = require('./services/shared/fx-normalization-683g');
 
 process.env.ENABLE_BOC_FX_683G='true';
 process.env.ENABLE_FX_NORMALIZATION_683G='true';

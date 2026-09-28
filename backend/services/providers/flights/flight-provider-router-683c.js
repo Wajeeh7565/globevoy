@@ -4,17 +4,17 @@
 // This is a search/evidence abstraction only. It has no order, booking, payment,
 // ticketing or merchant-of-record capability.
 
-const legacy = require('./cheap-one-way-flights');
+const legacy = require('../../cheap-one-way-flights');
 const {
   FLIGHT_PROVIDER_CONTRACT_VERSION_683C,
   EVIDENCE_CLASSES_683C,
   RANKING_GRADES_683C,
   descriptor683C,
   normalizeResult683C
-} = require('./providers/flights/flight-provider-contract-683c');
+} = require('./flight-provider-contract-683c');
 
 const DEFAULT_PROVIDER_ID_683C = 'travelpayouts-aviasales-data';
-const duffel683D = require('./duffel-live-adapter-683d');
+const duffel683D = require('../../duffel-live-adapter-683d');
 const adapters = new Map();
 
 function travelpayoutsDescriptor() {

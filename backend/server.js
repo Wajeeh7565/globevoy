@@ -13,8 +13,8 @@ const {
   buildValidationErrorResponse: buildMultiCityValidationErrorResponse,
   isMultiCityValidationError
 } = require('./multicity-routes');
-const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D, duffelStatus683D } = require('./services/flight-provider-router-683c');
-const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/fx-normalization-683g');
+const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D, duffelStatus683D } = require('./services/providers/flights/flight-provider-router-683c');
+const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/shared/fx-normalization-683g');
 const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./services/duffel-p2-staging-683h');
 const { getGeneratedTour } = require('./generated-tour');
 const { getGeneratedTourControl } = require('./generated-tour-controls');

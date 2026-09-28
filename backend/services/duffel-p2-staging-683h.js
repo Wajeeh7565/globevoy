@@ -30,7 +30,7 @@ const fs = require('fs');
 const path = require('path');
 const duffel683D = require('./duffel-live-adapter-683d');
 const { normalizeObservation683C } = require('./providers/flights/flight-provider-contract-683c');
-const { normalizeAmount683G, enabled683G, status683G } = require('./fx-normalization-683g');
+const { normalizeAmount683G, enabled683G, status683G } = require('./shared/fx-normalization-683g');
 const { scheduleForStart, evaluateCandidate, selectCandidate } = require('./domain/routing/whole-trip-date-optimizer-681b-p2');
 const { normalizeParty } = require('./domain/pricing/traveller-pricing');
 

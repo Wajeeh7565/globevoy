@@ -10,7 +10,7 @@ const assert = require('node:assert/strict');
 process.env.ENABLE_DUFFEL_LIVE_683D = 'true';
 process.env.ENABLE_DUFFEL_SHADOW_683D = 'true';
 
-const { fetchDuffelShadow683D, duffelStatus683D } = require('./services/flight-provider-router-683c');
+const { fetchDuffelShadow683D, duffelStatus683D } = require('./services/providers/flights/flight-provider-router-683c');
 
 const cases = [
   { name: 'LAX-LAS', origin: 'LAX', destination: 'LAS', departureDate: '2026-09-01', currency: 'USD', passengers: 1 },

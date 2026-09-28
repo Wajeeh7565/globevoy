@@ -1,7 +1,7 @@
 'use strict';
 const assert = require('assert');
 const path = require('path');
-const service = require('./services/fx-normalization-683g');
+const service = require('./services/shared/fx-normalization-683g');
 const lambda = require('./lambda');
 
 let passed = 0;
@@ -104,7 +104,7 @@ const env = { ENABLE_BOC_FX_683G:'true', ENABLE_FX_NORMALIZATION_683G:'true', GV
   const lambdaText=require('fs').readFileSync(path.join(__dirname,'lambda.js'),'utf8');
   const serverText=require('fs').readFileSync(path.join(__dirname,'server.js'),'utf8');
   check('683G endpoint exists in Lambda and local server', ()=>assert(lambdaText.includes('/api/provider-fx-normalize/683g')&&serverText.includes('/api/provider-fx-normalize/683g')));
-  const svcText=require('fs').readFileSync(path.join(__dirname,'services','fx-normalization-683g.js'),'utf8');
+  const svcText=require('fs').readFileSync(path.join(__dirname,'services','shared','fx-normalization-683g.js'),'utf8');
   check('683G source contains no API credential', ()=>assert(!/api[_-]?key\s*[:=]\s*["'][^"']+/i.test(svcText)));
   check('683G source contains no order/payment endpoint', ()=>assert(!svcText.includes('/air/orders')&&!svcText.includes('/payments')));
   check('683G source never mutates provider totalPrice', ()=>assert(svcText.includes('totalPrice: observation.totalPrice')));

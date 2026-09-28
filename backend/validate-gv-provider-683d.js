@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const adapter = require('./services/duffel-live-adapter-683d');
-const router = require('./services/flight-provider-router-683c');
+const router = require('./services/providers/flights/flight-provider-router-683c');
 
 let passed = 0;
 function pass(name) { passed += 1; console.log(`PASS ${name}`); }
