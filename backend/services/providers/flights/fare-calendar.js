@@ -11,7 +11,7 @@
 // Never fabricated:          availability, observedAt, expiresAt, passenger count
 
 const BASE_URL = 'https://api.travelpayouts.com';
-const { SOURCE_TYPES, normalizeFlightEvidence, automaticDateFloor } = require('./domain/pricing/price-evidence-integrity');
+const { SOURCE_TYPES, normalizeFlightEvidence, automaticDateFloor } = require('../../domain/pricing/price-evidence-integrity');
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 const MAX_OBS = 31;
 

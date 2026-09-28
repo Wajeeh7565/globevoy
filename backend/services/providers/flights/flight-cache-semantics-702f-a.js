@@ -11,7 +11,7 @@
 // This module performs no network requests, does not activate/deactivate cities,
 // and is not imported by Lambda/runtime recommendation code.
 
-const coverage702a = require('./admin/audits/global-recommendation-coverage-702a');
+const coverage702a = require('../../admin/audits/global-recommendation-coverage-702a');
 const {
   EVIDENCE_CLASSES_683C,
   RANKING_GRADES_683C

@@ -8,7 +8,7 @@ on:
     branches:
       - staging
     paths:
-      - 'backend/services/flight-cache-semantics-702f-a.js'
+      - 'backend/services/providers/flights/flight-cache-semantics-702f-a.js'
       - 'backend/validate-gv-rec-702f-a.js'
       - 'docs/GV-REC-702F-A.md'
       - '.github/workflows/validate-702f-a.yml'
@@ -50,7 +50,7 @@ jobs:
 
       - name: Syntax checks
         run: |
-          node --check backend/services/flight-cache-semantics-702f-a.js
+          node --check backend/services/providers/flights/flight-cache-semantics-702f-a.js
           node --check backend/validate-gv-rec-702f-a.js
 
       - name: Confirm 702F-A is not runtime-wired

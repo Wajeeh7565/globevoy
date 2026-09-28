@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const contract = require('./services/flight-provider-contract-683c');
+const contract = require('./services/providers/flights/flight-provider-contract-683c');
 const router = require('./services/flight-provider-router-683c');
 const optimizer = require('./services/domain/routing/whole-trip-date-optimizer-681b-p2');
 
@@ -165,7 +165,7 @@ function pass(name) { passed += 1; console.log(`PASS ${name}`); }
   pass('runtime flight evidence path is provider-neutral');
 
   // 12. The 683C modules contain no booking/order/payment mutation surface or secret literals.
-  const contractSource = fs.readFileSync(path.join(__dirname, 'services/flight-provider-contract-683c.js'), 'utf8');
+  const contractSource = fs.readFileSync(path.join(__dirname, 'services/providers/flights/flight-provider-contract-683c.js'), 'utf8');
   const routerSource = fs.readFileSync(path.join(__dirname, 'services/flight-provider-router-683c.js'), 'utf8');
   const combined = `${contractSource}\n${routerSource}`;
   assert.doesNotMatch(combined, /createOrder|createBooking|chargePayment|paymentIntent|ticketOrder/i);

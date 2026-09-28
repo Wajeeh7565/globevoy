@@ -5,8 +5,8 @@ const {
   isInvalidOriginError,
   isRecommendationValidationError
 } = require('./recommendations');
-const { fetchFlexDateWindows } = require('./services/flexible-dates');
-const { fetchFareCalendar } = require('./services/fare-calendar');
+const { fetchFlexDateWindows } = require('./services/providers/flights/flexible-dates');
+const { fetchFareCalendar } = require('./services/providers/flights/fare-calendar');
 const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D, duffelStatus683D } = require('./services/flight-provider-router-683c');
 const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/fx-normalization-683g');
 const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./services/duffel-p2-staging-683h');

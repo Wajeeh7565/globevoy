@@ -7,7 +7,7 @@ const {
   isInvalidOriginError,
   isRecommendationValidationError
 } = require('./recommendations');
-const { fetchFlexDateWindows } = require('./services/flexible-dates');
+const { fetchFlexDateWindows } = require('./services/providers/flights/flexible-dates');
 const {
   getMultiCityTours,
   buildValidationErrorResponse: buildMultiCityValidationErrorResponse,

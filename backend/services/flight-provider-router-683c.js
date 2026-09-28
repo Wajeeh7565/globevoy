@@ -11,7 +11,7 @@ const {
   RANKING_GRADES_683C,
   descriptor683C,
   normalizeResult683C
-} = require('./flight-provider-contract-683c');
+} = require('./providers/flights/flight-provider-contract-683c');
 
 const DEFAULT_PROVIDER_ID_683C = 'travelpayouts-aviasales-data';
 const duffel683D = require('./duffel-live-adapter-683d');
