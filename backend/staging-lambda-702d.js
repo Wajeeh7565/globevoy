@@ -51,16 +51,16 @@ if (stagingAdults703E.enabled() && DUFFEL_703E_INSTALLATION.ok !== true) {
 
 // 705B-R3 is code-only and staging-only. It verifies Cognito access tokens
 // against the fixed staging user pool and never handles passwords or AWS keys.
-const stagingAccount705B = require('./services/staging-cognito-auth-705b-r3');
+const stagingAccount705B = require('./services/accounts/auth/staging-cognito-auth-705b-r3');
 
 // 705C is staging-only owner-private saved-trip storage. It reuses the exact
 // 705B verifier and derives DynamoDB ownership only from the verified token sub.
-const stagingSavedTrips705C = require('./services/staging-saved-trips-705c');
+const stagingSavedTrips705C = require('./services/accounts/saved-trips/staging-saved-trips-705c');
 
 // 710F-R1 adds an owner-private Travel Profile in the same account table. It
 // stores preference/context fields only and explicitly rejects passport/document
 // numbers, payment data and credentials.
-const stagingTravelProfile710F = require('./services/staging-travel-profile-710f-r1');
+const stagingTravelProfile710F = require('./services/accounts/travel-profile/staging-travel-profile-710f-r1');
 
 // GV-HOTEL-708C wraps staging-booking-revalidation-707b-r1 additively. The
 // existing 707B-R1 owner-private Duffel flow/arithmetic stays authoritative;

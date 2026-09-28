@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const account = require('./services/account-architecture-705a');
+const account = require('./services/accounts/architecture/account-architecture-705a');
 
 assert.equal(account.VERSION, 'GV-ACCOUNT-705A');
 assert.equal(account.AUTH_PROVIDER, 'Amazon-Cognito-User-Pools');
@@ -216,7 +216,7 @@ for (const file of [
   assert.equal(/account-architecture-705a|GV-ACCOUNT-705A/.test(text), false, `${file} contains runtime 705A wiring`);
 }
 
-const moduleText = fs.readFileSync(path.join(__dirname, 'services', 'account-architecture-705a.js'), 'utf8');
+const moduleText = fs.readFileSync(path.join(__dirname, 'services', 'accounts', 'architecture', 'account-architecture-705a.js'), 'utf8');
 for (const forbidden of [
   'require(\'@aws-sdk/',
   'require("@aws-sdk/',

@@ -5,7 +5,7 @@
 // access-token `sub`; no client-supplied owner identity is accepted.
 
 const crypto = require('node:crypto');
-const auth705B = require('./staging-cognito-auth-705b-r3');
+const auth705B = require('../auth/staging-cognito-auth-705b-r3');
 
 const VERSION = 'GV-ACCOUNT-705C';
 const ROUTE_PATH = '/api/saved-trips';

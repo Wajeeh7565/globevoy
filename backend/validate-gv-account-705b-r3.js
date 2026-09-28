@@ -5,7 +5,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const auth = require('./services/staging-cognito-auth-705b-r3');
+const auth = require('./services/accounts/auth/staging-cognito-auth-705b-r3');
 
 const ROOT = path.join(__dirname, '..');
 const NOW_MS = Date.UTC(2026, 7, 21, 3, 0, 0);
@@ -116,7 +116,7 @@ async function expectAuthError(code, token) {
 
   const wrapper = fs.readFileSync(path.join(ROOT, 'backend', 'staging-lambda-702d.js'), 'utf8');
   const production = fs.readFileSync(path.join(ROOT, 'backend', 'lambda.js'), 'utf8');
-  assert(wrapper.includes("require('./services/staging-cognito-auth-705b-r3')"));
+  assert(wrapper.includes("require('./services/accounts/auth/staging-cognito-auth-705b-r3')"));
   // 710F stores the normalized path once before routing account siblings.
   assert(wrapper.includes('const path = eventPath(event)'));
   assert(wrapper.includes("const isAccountRoute = path === '/api/account/session'"));

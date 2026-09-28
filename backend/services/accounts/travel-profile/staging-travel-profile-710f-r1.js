@@ -5,7 +5,7 @@
 // intentionally stores preference/context fields only: never passport/document
 // numbers, payment data, provider credentials, auth tokens or raw provider data.
 
-const auth705B = require('./staging-cognito-auth-705b-r3');
+const auth705B = require('../auth/staging-cognito-auth-705b-r3');
 
 const VERSION = 'GV-WEB-710F-R1';
 const ROUTE_PATH = '/api/account/travel-profile';

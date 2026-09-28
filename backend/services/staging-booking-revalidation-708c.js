@@ -25,7 +25,7 @@
 
 const booking707BR1 = require('./staging-booking-revalidation-707b-r1');
 const booking707BBase = require('./staging-booking-revalidation-707b');
-const savedTrips705C = require('./staging-saved-trips-705c');
+const savedTrips705C = require('./accounts/saved-trips/staging-saved-trips-705c');
 const nuitee708C = require('./nuitee-hotel-708c');
 const autoDates710E = require('./staging-multicity-auto-dates-710e-r3a');
 const current712 = require('./domain/pricing/current-trip-total-712');
