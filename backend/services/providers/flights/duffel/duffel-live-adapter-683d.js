@@ -4,7 +4,7 @@
 // This service is search/evidence only. It intentionally supports only Duffel's
 // offer-request endpoint and never creates orders, payments, tickets, or bookings.
 
-const { EVIDENCE_CLASSES_683C, RANKING_GRADES_683C } = require('./providers/flights/flight-provider-contract-683c');
+const { EVIDENCE_CLASSES_683C, RANKING_GRADES_683C } = require('../flight-provider-contract-683c');
 
 const DUFFEL_PROVIDER_ID_683D = 'duffel-live-683d';
 const DUFFEL_PROVIDER_VERSION_683D = 'GV-PROVIDER-683D';

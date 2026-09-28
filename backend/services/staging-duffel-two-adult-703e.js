@@ -10,7 +10,7 @@
 const policy703B = require('./staging-duffel-five-origin-703b');
 const shared703C = require('./staging-duffel-shared-budget-703c');
 const policy703D = require('./staging-affordable-flight-five-origin-703d');
-const adultScope = require('./duffel-adult-scope-703e');
+const adultScope = require('./providers/flights/duffel/duffel-adult-scope-703e');
 
 const VERSION = 'GV-FLIGHT-703E';
 const REQUIRED_SHARED_BUDGET_VERSION = 'GV-FLIGHT-703C';

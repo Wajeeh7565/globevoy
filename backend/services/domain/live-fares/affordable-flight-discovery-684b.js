@@ -25,7 +25,7 @@
 //   * no order, payment, booking or ticketing capability.
 
 const { normalizeParty } = require('../pricing/traveller-pricing');
-const adultScope703E = require('../../duffel-adult-scope-703e');
+const adultScope703E = require('../../providers/flights/duffel/duffel-adult-scope-703e');
 
 const VERSION_684B = 'GV-REC-684B-R3';
 const PERF_R5_VERSION = 'GV-PERF-R5';

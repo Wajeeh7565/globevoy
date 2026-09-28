@@ -49,8 +49,8 @@ assert.equal(install703E.productionChanged, false);
 assert.equal(process.env.ENABLE_DUFFEL_PUBLIC_LIVE_FARE_PILOT_684A, undefined);
 assert.equal(process.env.DUFFEL_ACCESS_TOKEN, undefined);
 
-const adultScope = require('./services/duffel-adult-scope-703e');
-const adapter683D = require('./services/duffel-live-adapter-683d');
+const adultScope = require('./services/providers/flights/duffel/duffel-adult-scope-703e');
+const adapter683D = require('./services/providers/flights/duffel/duffel-live-adapter-683d');
 const live684A = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 const discovery684B = require('./services/domain/live-fares/affordable-flight-discovery-684b');
 const fareSelection685C = require('./services/domain/live-fares/live-fare-selection-685c');
@@ -330,7 +330,7 @@ async function main() {
 
   const wrapperSource = fs.readFileSync(path.join(ROOT, 'staging-lambda-702d.js'), 'utf8');
   const productionSource = fs.readFileSync(path.join(ROOT, 'lambda.js'), 'utf8');
-  const adapterSource = fs.readFileSync(path.join(ROOT, 'services', 'duffel-live-adapter-683d.js'), 'utf8');
+  const adapterSource = fs.readFileSync(path.join(ROOT, 'services', 'providers', 'flights', 'duffel', 'duffel-live-adapter-683d.js'), 'utf8');
   const pricingSource = fs.readFileSync(path.join(ROOT, 'services', 'domain', 'pricing', 'traveller-pricing.js'), 'utf8');
   const overlaySource = fs.readFileSync(path.join(ROOT, 'services', 'staging-duffel-two-adult-703e.js'), 'utf8');
 

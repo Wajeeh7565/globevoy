@@ -8,7 +8,7 @@ const { applyCanonicalIntegrity, CANONICAL_INTEGRITY_VERSION } = require('./serv
 const { normalizeAirportIntegrity } = require('./services/domain/routing/route-feasibility');
 const { applyTravellerPricingToTour } = require('./services/domain/pricing/traveller-pricing');
 const { buildVisualizerTour } = require('./generated-tour');
-const { _clearCache } = require('./services/cheap-one-way-flights');
+const { _clearCache } = require('./services/providers/flights/cheap-one-way-flights');
 
 process.env.ENABLE_LIVE_PROVIDER_VERIFICATION_667A = 'true';
 process.env.ENABLE_CANONICAL_TOTAL_EVIDENCE_INTEGRITY_667B = 'true';

@@ -18,7 +18,7 @@ const { getMultiCityTours } = require('../multicity-routes');
 const {
   fetchCheapestOneWayAcrossMonths,
   selectBestUsableObservation
-} = require('./cheap-one-way-flights');
+} = require('./providers/flights/cheap-one-way-flights');
 const { automaticDateFloor } = require('./domain/pricing/price-evidence-integrity');
 
 const VERSION = 'GV-FLIGHT-710E-R3A';

@@ -4,7 +4,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const audit = require('./data/gv-flight-703a-duffel-expansion-audit.json');
-const duffel = require('./services/duffel-live-adapter-683d');
+const duffel = require('./services/providers/flights/duffel/duffel-live-adapter-683d');
 const p2 = require('./services/duffel-p2-staging-683h');
 const pilot = require('./services/domain/live-fares/public-live-fare-pilot-684a');
 const discovery = require('./services/domain/live-fares/affordable-flight-discovery-684b');
@@ -78,7 +78,7 @@ function main() {
   assert.strictEqual(audit.recommended703CPrerequisite.requiredBeforeBroad684BExpansion, true);
   assert.strictEqual(audit.recommended703CPrerequisite.suggestedInitialHardCeiling, 12);
 
-  const adapterSource = source('services/duffel-live-adapter-683d.js');
+  const adapterSource = source('services/providers/flights/duffel/duffel-live-adapter-683d.js');
   assert(adapterSource.includes('supplier_timeout=10000'));
   assert(adapterSource.includes("'Duffel-Version': 'v2'"));
   assert(adapterSource.includes('ratelimit-remaining'));
@@ -105,7 +105,7 @@ function main() {
     'staging-lambda.js',
     'staging-lambda-702d.js',
     'generated-tour.js',
-    'services/duffel-live-adapter-683d.js',
+    'services/providers/flights/duffel/duffel-live-adapter-683d.js',
     'services/duffel-p2-staging-683h.js',
     'services/domain/live-fares/public-live-fare-pilot-684a.js',
     'services/domain/live-fares/affordable-flight-discovery-684b.js'

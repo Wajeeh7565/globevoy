@@ -34,7 +34,7 @@ const {
   reconcileWholeTripFares685CR1
 } = require('../pricing/whole-trip-fare-reconciliation-685c-r1');
 const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
-const adultScope703E = require('../../duffel-adult-scope-703e');
+const adultScope703E = require('../../providers/flights/duffel/duffel-adult-scope-703e');
 const { currencyToUsdRate, normalizeCurrency } = require('../../../budget-presentation');
 
 const VERSION_684A = 'GV-FLIGHT-684A';

@@ -4,7 +4,7 @@
 // one-way date observations from Travelpayouts/Aviasales.
 
 const { getMultiCityTours } = require('./multicity-routes');
-const { selectBestUsableObservation, smartFlightDateSelection677BEnabled, SMART_FLIGHT_DATE_SELECTION_VERSION_677B, smartFlightQualityGuardrails677BR2Enabled, SMART_FLIGHT_QUALITY_GUARDRAIL_VERSION_677B_R2, smartRouteRelativeFlightQuality677BR3Enabled, SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3 } = require('./services/cheap-one-way-flights');
+const { selectBestUsableObservation, smartFlightDateSelection677BEnabled, SMART_FLIGHT_DATE_SELECTION_VERSION_677B, smartFlightQualityGuardrails677BR2Enabled, SMART_FLIGHT_QUALITY_GUARDRAIL_VERSION_677B_R2, smartRouteRelativeFlightQuality677BR3Enabled, SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3 } = require('./services/providers/flights/cheap-one-way-flights');
 const { FLIGHT_PROVIDER_CONTRACT_VERSION_683C, fetchFlightDates683C, fetchFlightAcrossMonths683C, adapterSummary683C } = require('./services/providers/flights/flight-provider-router-683c');
 const { attachTourPresentation, currencyToUsdRate, normalizeCurrency } = require('./budget-presentation');
 const { findBestGlobalTour, GLOBAL_FALLBACK_VERSION } = require('./global-generated-tour-fallback');

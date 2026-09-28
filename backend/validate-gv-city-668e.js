@@ -20,7 +20,7 @@ const agodaService = require('./services/agoda');
 const lambda = require('./lambda');
 const staticAudit = require('./data/provider-mappings-1000-668b.json');
 const quality13 = require('./data/provider-live-quality-review-13-668e.json');
-const cheapFlights = require('./services/cheap-one-way-flights');
+const cheapFlights = require('./services/providers/flights/cheap-one-way-flights');
 
 const checks = [];
 function check(name, pass, details = {}) {

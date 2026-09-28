@@ -18,7 +18,7 @@ const service = require('./services/admin/audits/provider-live-coverage');
 const lambda = require('./lambda');
 const staticAudit = require('./data/provider-mappings-1000-668b.json');
 const review66 = require('./data/provider-live-review-66-668d.json');
-const cheapFlights = require('./services/cheap-one-way-flights');
+const cheapFlights = require('./services/providers/flights/cheap-one-way-flights');
 
 const checks = [];
 function check(name, pass, details = {}) {

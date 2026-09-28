@@ -6,7 +6,7 @@ Object.assign(process.env, {
 const fs = require('node:fs');
 const assert = require('node:assert/strict');
 const generated = require('./generated-tour');
-const { selectBestUsableObservation } = require('./services/cheap-one-way-flights');
+const { selectBestUsableObservation } = require('./services/providers/flights/cheap-one-way-flights');
 const {
   automaticFirstLegWindowDays681BP1,
   automaticLegWindowDays,

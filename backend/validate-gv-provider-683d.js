@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const adapter = require('./services/duffel-live-adapter-683d');
+const adapter = require('./services/providers/flights/duffel/duffel-live-adapter-683d');
 const router = require('./services/providers/flights/flight-provider-router-683c');
 
 let passed = 0;
@@ -229,7 +229,7 @@ function fakeResponse(offers, { liveMode = true, status = 200, responseHeaders =
     pass('683D explicit zero remaining quota is preserved');
 
     // 18. Adapter source contains no mutation endpoint path or embedded live credential.
-    const source = fs.readFileSync(path.join(__dirname, 'services/duffel-live-adapter-683d.js'), 'utf8');
+    const source = fs.readFileSync(path.join(__dirname, 'services/providers/flights/duffel/duffel-live-adapter-683d.js'), 'utf8');
     assert.equal((source.match(/\/air\/offer_requests/g) || []).length >= 1, true);
     assert.doesNotMatch(source, /['"`]\/air\/orders|['"`]\/payments|['"`]\/air\/orders\//i);
     assert.doesNotMatch(source, /duffel_live_[A-Za-z0-9_-]{12,}/);

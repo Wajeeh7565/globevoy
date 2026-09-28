@@ -8,7 +8,7 @@ const crypto = require('crypto');
 const staticAudit = require('../../../data/provider-mappings-1000-668b.json');
 const registry = require('../../../data/unified-city-registry-1000-668b.json');
 const snapshot = require('../../../data/provider-live-coverage-1000-668c.json');
-const { fetchCheapOneWayFlightDates, addMonths } = require('../../cheap-one-way-flights');
+const { fetchCheapOneWayFlightDates, addMonths } = require('../../providers/flights/cheap-one-way-flights');
 const { fetchAgodaCoverageProbe, buildStayDates, qualityCandidateRetrievalEnabled } = require('../../agoda');
 const routeFeasibility = require('../../domain/routing/route-feasibility');
 

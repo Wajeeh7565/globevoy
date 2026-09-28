@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { verifyTourWithLiveProviders, LIVE_PROVIDER_VERIFICATION_VERSION } = require('./services/domain/live-fares/live-provider-verification');
 const { buildVisualizerTour } = require('./generated-tour');
-const { _clearCache } = require('./services/cheap-one-way-flights');
+const { _clearCache } = require('./services/providers/flights/cheap-one-way-flights');
 
 process.env.ENABLE_LIVE_PROVIDER_VERIFICATION_667A = 'true';
 process.env.ENABLE_CANONICAL_TOTAL_EVIDENCE_INTEGRITY_667B = 'true';

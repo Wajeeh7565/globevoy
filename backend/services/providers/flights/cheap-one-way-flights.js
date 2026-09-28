@@ -14,7 +14,7 @@ const SMART_FLIGHT_DATE_SELECTION_VERSION_677B = 'GV-REC-677B';
 const SMART_FLIGHT_QUALITY_GUARDRAIL_VERSION_677B_R2 = 'GV-REC-677B-R2';
 const SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3 = 'GV-REC-677B-R3';
 const ALLOWED_BOOKING_HOSTS = new Set(['www.aviasales.com', 'aviasales.com', 'tp.media']);
-const { SOURCE_TYPES, normalizeFlightEvidence } = require('./domain/pricing/price-evidence-integrity');
+const { SOURCE_TYPES, normalizeFlightEvidence } = require('../../domain/pricing/price-evidence-integrity');
 
 const CURRENCY_PARAMS = {
   CAD: { currency: 'cad', market: 'ca' },
