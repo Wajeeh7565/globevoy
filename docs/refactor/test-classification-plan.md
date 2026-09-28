@@ -1,6 +1,6 @@
 # GV-REFACTOR-R1.2 — Test and validation classification plan
 
-Status: **Phase A, Phase B, and the safe portion of Phase C are completed**.
+Status: **Phase A, Phase B, the safe portion of Phase C, and the R1 backend cleanup are completed**.
 
 Current state:
 
@@ -131,6 +131,52 @@ The exact command membership should be generated from the current workflow/valid
 3. Should historical `VALIDATION_*.json` evidence move to S3/artifact storage after the CI refactor?
 4. Which checks should block every PR versus run nightly/on demand?
 5. Should we use Node's built-in test runner first, or adopt a framework such as Vitest/Jest later only if needed?
+
+
+## R1 backend cleanup closeout
+
+The backend cleanup portion of GV-REFACTOR-R1 is complete on the feature branch.
+
+Completed cleanup:
+
+- All 69/69 backend service files are organized under responsibility-based folders.
+- No JavaScript service files remain directly under `backend/services/`.
+- PERF-R2/R3/R4/R5 tests are organized under `tests/performance/`.
+- Historical release reports and release evidence are separated under `backend/archive/`.
+- 38 historical manifests were moved to `backend/archive/manifests/`.
+- 25 non-operational validation-result JSON files were moved to `backend/archive/validation-results/`.
+- 33 non-operational historical utility scripts were moved under `backend/archive/scripts/`.
+- One unreferenced historical checksum artifact was removed.
+
+Final backend-root inventory:
+
+- 188 files total.
+- 118 `validate-*.js` validators.
+- 48 operational `VALIDATION_*.json` files.
+- 5 operational `Run-*.ps1` scripts.
+- 1 retained operational `GV-*` checksum file.
+- 16 core backend JavaScript files.
+- 0 `build-*.js` files.
+- 0 `run-*.js` files.
+
+Final validator audit:
+
+- 36 validators are referenced by workflows or the unified test runner.
+- 2 validators have other operational references.
+- 80 validators are standalone but path-sensitive.
+- 0 validators are standalone/simple relocation candidates.
+
+Further validator relocation is intentionally deferred. Moving the remaining validators would require changing historical workflow, packaging, fixture, or relative-path contracts and should be handled as a separate migration rather than repository cleanup.
+
+Final local verification passed:
+
+- `npm test` — 36 commands across 5 groups.
+- `git diff --check` — clean.
+- No AWS, production, provider-behavior, deployment, IAM, or secrets changes were made as part of the cleanup.
+
+Latest completed utility-script cleanup commit before closeout: `fc497a5a82906c4b887bbf8fab96c070d0863478`.
+
+GitHub `Globevoy Validation` run #996 passed on repair commit `6829c1609843b37365f7829ccdc2be7b55d5c29e`.
 
 ## Non-goals
 
