@@ -52,10 +52,10 @@ const groups = {
   ],
 
   performance: [
-    ['node', '--test', 'backend/validate-gv-perf-r2.test.js'],
-    ['node', '--test', 'backend/validate-gv-perf-r3.test.js'],
-    ['node', '--test', 'backend/validate-gv-perf-r4.test.js'],
-    ['node', '--test', 'backend/validate-gv-perf-r5.test.js']
+    ['node', '--test', 'tests/performance/validate-gv-perf-r2.test.js'],
+    ['node', '--test', 'tests/performance/validate-gv-perf-r3.test.js'],
+    ['node', '--test', 'tests/performance/validate-gv-perf-r4.test.js'],
+    ['node', '--test', 'tests/performance/validate-gv-perf-r5.test.js']
   ],
 
   syntax: [

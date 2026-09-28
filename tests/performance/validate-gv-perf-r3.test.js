@@ -6,7 +6,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { createRequire } = require('node:module');
-const filename = path.join(__dirname, 'generated-tour.js');
+const backendDir = path.resolve(__dirname, '../../backend');
+const filename = path.join(backendDir, 'generated-tour.js');
 const source = fs.readFileSync(filename, 'utf8');
 const realRequire = createRequire(filename);
 const numericFields = ['globalRouteGraphMs', 'legacyRouteEngineMs', 'candidatePreparationMs',
@@ -113,7 +114,7 @@ function harness(config = {}, moduleSource = source) {
     attemptBudgetSafeRouteRecovery669c: async () => { calls.push('recovery'); advance(37); return null; }
   };
   const sandbox = {
-    module: { exports: {} }, exports: {}, __dirname, __filename: filename,
+    module: { exports: {} }, exports: {}, __dirname: backendDir, __filename: filename,
     process: { env: {}, hrtime: { bigint: () => now } },
     console, URL, Buffer,
     require: id => ({ ...realRequire(id), ...(deps[id] || {}) }),

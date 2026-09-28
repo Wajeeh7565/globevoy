@@ -2,7 +2,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const discovery = require('./services/domain/live-fares/affordable-flight-discovery-684b');
+const discovery = require('../../backend/services/domain/live-fares/affordable-flight-discovery-684b');
 
 const stagingEnv = {
   ENABLE_DUFFEL_PUBLIC_LIVE_FARE_PILOT_684A: 'true',

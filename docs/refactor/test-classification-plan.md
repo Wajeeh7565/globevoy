@@ -1,14 +1,14 @@
 # GV-REFACTOR-R1.2 — Test and validation classification plan
 
-Status: **Phase A and Phase B completed; Phase C is next**.
+Status: **Phase A and Phase B completed; Phase C is in progress**.
 
 Current state:
 
 - Root `npm test` and grouped test commands are implemented.
 - The unified `Globevoy Validation` GitHub Actions workflow is active and proven on the service-refactor branch.
 - Runtime service organization is complete at 69/69 files.
-- No validator/test files have been physically relocated yet.
-- Phase C will move validators gradually by cohort while preserving existing behavior and coverage.
+- Phase C has started: the four PERF-R2/R3/R4/R5 Node tests are now organized under `tests/performance/`.
+- Remaining validators will continue moving gradually by cohort while preserving existing behavior and coverage.
 
 ## Current inventory
 
@@ -33,10 +33,10 @@ There are also 97 `VALIDATION_*.json` files. These are evidence/output artifacts
 
 The only conventionally named `.test.*` files today are:
 
-- `backend/validate-gv-perf-r2.test.js`
-- `backend/validate-gv-perf-r3.test.js`
-- `backend/validate-gv-perf-r4.test.js`
-- `backend/validate-gv-perf-r5.test.js`
+- `tests/performance/validate-gv-perf-r2.test.js`
+- `tests/performance/validate-gv-perf-r3.test.js`
+- `tests/performance/validate-gv-perf-r4.test.js`
+- `tests/performance/validate-gv-perf-r5.test.js`
 - `web/validation/validate-gv-live-712c.test.mjs`
 
 ## Proposed future test layout

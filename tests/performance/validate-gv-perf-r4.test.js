@@ -7,7 +7,8 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { createRequire } = require('node:module');
 
-const filename = path.join(__dirname, 'generated-tour.js');
+const backendDir = path.resolve(__dirname, '../../backend');
+const filename = path.join(backendDir, 'generated-tour.js');
 const source = fs.readFileSync(filename, 'utf8');
 const realRequire = createRequire(filename);
 const plain = value => JSON.parse(JSON.stringify(value));
@@ -183,7 +184,7 @@ function harness(config = {}) {
   const sandbox = {
     module: { exports: {} },
     exports: {},
-    __dirname,
+    __dirname: backendDir,
     __filename: filename,
     process: { env: {}, hrtime: { bigint: () => now } },
     console,
