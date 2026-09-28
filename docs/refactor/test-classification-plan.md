@@ -1,6 +1,14 @@
 # GV-REFACTOR-R1.2 — Test and validation classification plan
 
-Status: **proposal only — no validators moved yet**.
+Status: **Phase A and Phase B completed; Phase C is next**.
+
+Current state:
+
+- Root `npm test` and grouped test commands are implemented.
+- The unified `Globevoy Validation` GitHub Actions workflow is active and proven on the service-refactor branch.
+- Runtime service organization is complete at 69/69 files.
+- No validator/test files have been physically relocated yet.
+- Phase C will move validators gradually by cohort while preserving existing behavior and coverage.
 
 ## Current inventory
 

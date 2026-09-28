@@ -1,6 +1,15 @@
-# GV-REFACTOR-R1.1 — Proposed backend service move plan
+# GV-REFACTOR-R1.1 — Backend service migration
 
-Status: **proposal only — no runtime files moved yet**.
+Status: **completed on the feature branch**.
+
+Completion record:
+
+- All **69/69** service files were moved into the planned responsibility-based structure.
+- No JavaScript service files remain directly under `backend/services/`.
+- Runtime imports, validator paths, workflow paths, and package/build references were updated with each migration cohort.
+- The final service migration commit is `866b97b8f36125f1f3f46ece90fa42e973858173`.
+- GitHub `Globevoy Validation` run **#986** passed on that exact commit.
+- No production deployment, AWS infrastructure change, provider behavior change, or service deletion was part of the migration.
 
 This plan classifies all 69 current files under `backend/services/` by responsibility. It follows the folder direction proposed by Vamsi, while adding explicit account and booking areas that exist in the current codebase.
 
