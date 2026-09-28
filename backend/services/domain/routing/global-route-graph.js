@@ -14,7 +14,7 @@ const {
 } = require('../../cities/registry/verified-city-activation');
 const { loadGroupedCityFoundation } = require('../../../data/grouped-city-foundation');
 const { attachTourPresentation, currencyToUsdRate } = require('../../../budget-presentation');
-const { fetchTravelpayoutsCandidates } = require('../../travelpayouts');
+const { fetchTravelpayoutsCandidates } = require('../../providers/flights/travelpayouts/travelpayouts');
 const { normalizeParty, providerFarePartyTotalUsd } = require('../pricing/traveller-pricing');
 const {
   evaluateTour,

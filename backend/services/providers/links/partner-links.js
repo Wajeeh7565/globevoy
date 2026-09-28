@@ -1,7 +1,7 @@
 'use strict';
 
 const { getDestination } = require('../../../data/destination-meta');
-const { wrapAviasalesAffiliateLink } = require('../../travelpayouts');
+const { wrapAviasalesAffiliateLink } = require('../flights/travelpayouts/travelpayouts');
 const { normalizeParty } = require('../../domain/pricing/traveller-pricing');
 const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('../../domain/pricing/price-evidence-integrity');
 

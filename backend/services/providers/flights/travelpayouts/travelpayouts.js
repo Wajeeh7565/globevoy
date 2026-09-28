@@ -1,4 +1,4 @@
-const { fallbackFlightCandidates } = require('../data/destination-meta');
+const { fallbackFlightCandidates } = require('../../../../data/destination-meta');
 
 const DEFAULT_ENDPOINT = 'https://api.travelpayouts.com/graphql/v1/query';
 const AVIASALES_AFFILIATE = {

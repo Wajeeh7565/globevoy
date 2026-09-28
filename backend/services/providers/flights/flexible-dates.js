@@ -2,7 +2,7 @@
 // GV-DATA-403: Server-side Travelpayouts REST adapter for anchor-round-trip flex-date windows.
 // Token read from process.env.TRAVELPAYOUTS_TOKEN only. Never embedded in URLs or returned to browser.
 
-const { buildFallbackAviasalesLink, wrapAviasalesAffiliateLink } = require('../../travelpayouts');
+const { buildFallbackAviasalesLink, wrapAviasalesAffiliateLink } = require('./travelpayouts/travelpayouts');
 
 const BASE_URL = 'https://api.travelpayouts.com';
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
