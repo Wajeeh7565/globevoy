@@ -213,7 +213,7 @@ function goodHotel() {
   check('668O Wave 2 endpoint remains preserved', lambdaWave2.version === 'GV-CITY-668O' && lambdaWave2.summary.selectedCount === 150);
   check('668Q plan endpoint is read-only', methodDenied.statusCode === 405);
 
-  const runner = fs.readFileSync(path.join(__dirname, 'Run-GV-CITY-668Q-Final155-Coverage-Audit.ps1'), 'utf8');
+  const runner = fs.readFileSync(path.join(__dirname, 'archive', 'scripts', 'powershell', 'Run-GV-CITY-668Q-Final155-Coverage-Audit.ps1'), 'utf8');
   check('runner supports Smoke5 and Final155 modes', runner.includes("[ValidateSet('Smoke5', 'Final155')]") && runner.includes("$Mode = 'Smoke5'"));
   check('runner uses the 668Q final plan endpoint', runner.includes('/api/expansion-500-final-audit'));
   check('runner uses the protected provider verifier', runner.includes('/api/provider-live-coverage/verify') && runner.includes('x-gv-admin-token'));

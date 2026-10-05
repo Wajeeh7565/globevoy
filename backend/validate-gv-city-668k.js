@@ -134,7 +134,7 @@ function parseBody(response) {
   check('Sapporo remains unaudited estimate-only before import', activation.activationForCity('sapporo-jp', { includeEvidence: false }).auditStatus === 'unaudited' && activation.activationForCity('sapporo-jp', { includeEvidence: false }).liveRecommendationEligible === false);
   check('existing verified Osaka remains active', activation.activationForCity('osaka-jp', { includeEvidence: false }).liveRecommendationEligible === true);
 
-  const ps = fs.readFileSync(path.join(__dirname, 'Run-GV-CITY-668K-Complete-Current500-Audit.ps1'), 'utf8');
+  const ps = fs.readFileSync(path.join(__dirname, 'archive', 'scripts', 'powershell', 'Run-GV-CITY-668K-Complete-Current500-Audit.ps1'), 'utf8');
   check('PowerShell runner supports Smoke5, Priority50, and Final145', ['Smoke5','Priority50','Final145'].every(value => ps.includes(value)));
   check('PowerShell runner uses the 668K endpoint and safe URL interpolation', ps.includes('/api/current-500-completion-audit') && ps.includes('"${PlanUrl}?limit=145"'));
   check('PowerShell runner supports checkpoint resume', ps.includes('[switch]$Resume') && ps.includes('CHECKPOINT.json') && ps.includes('Find-LatestCheckpoint'));
