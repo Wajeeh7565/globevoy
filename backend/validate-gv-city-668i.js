@@ -132,7 +132,7 @@ function parseBody(response) {
   check('Philadelphia remains unaudited estimate-only before import', activation.activationForCity('philadelphia-us', { includeEvidence: false }).auditStatus === 'unaudited' && activation.activationForCity('philadelphia-us', { includeEvidence: false }).liveRecommendationEligible === false);
   check('existing verified Osaka remains active', activation.activationForCity('osaka-jp', { includeEvidence: false }).liveRecommendationEligible === true);
 
-  const ps = fs.readFileSync(path.join(__dirname, 'Run-GV-CITY-668I-Remaining-Current500-Audit.ps1'), 'utf8');
+  const ps = fs.readFileSync(path.join(__dirname, 'archive', 'scripts', 'powershell', 'Run-GV-CITY-668I-Remaining-Current500-Audit.ps1'), 'utf8');
   check('PowerShell runner supports Smoke5, Priority50, and Remaining150', ['Smoke5','Priority50','Remaining150'].every(value => ps.includes(value)));
   check('PowerShell runner uses the 668I endpoint and fixed URL interpolation', ps.includes('/api/remaining-current-city-audit') && ps.includes('"${PlanUrl}?limit=150"'));
   check('PowerShell runner supports checkpoint resume', ps.includes('[switch]$Resume') && ps.includes('CHECKPOINT.json') && ps.includes('Find-LatestCheckpoint'));
