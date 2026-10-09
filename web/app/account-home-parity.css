@@ -201,3 +201,74 @@
   .gv-travel-profile-page .gv-profile-hero,
   .gv-travel-profile-page .gv-profile-guest{padding:24px}
 }
+
+
+/* GV-WEB unified header: edge alignment and the preferred React navy.
+   The existing React wordmark and icon are intentionally retained. */
+.gv-app-shell>.gv-header{
+  width:100%;
+  background:#061427;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.gv-app-shell>.gv-header .gv-header__inner{
+  width:100%;
+  max-width:none;
+  margin:0;
+  padding-inline:clamp(16px,2vw,30px);
+  justify-content:space-between;
+  gap:12px;
+}
+.gv-app-shell>.gv-header .gv-brand{
+  flex-shrink:0;
+  margin:0;
+}
+.gv-app-shell>.gv-header .gv-header__actions{
+  margin-left:auto;
+  margin-right:0;
+}
+.gv-app-shell>.gv-header .gv-account-nav__signin{
+  color:#071c33;
+  background:#fff;
+  border:1px solid #fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.16);
+  font-weight:850;
+  padding-inline:17px;
+  opacity:1;
+}
+.gv-app-shell>.gv-header .gv-account-nav__signin:hover:not(:disabled){
+  background:#e8f5f4;
+  border-color:#e8f5f4;
+  color:#071c33;
+}
+.gv-app-shell>.gv-header .gv-account-nav__signin:disabled{
+  opacity:.87;
+  cursor:not-allowed;
+}
+.gv-app-shell>.gv-header .gv-account-nav__menu>summary{
+  background:rgba(255,255,255,.09);
+  border-color:rgba(255,255,255,.42);
+  color:#fff;
+}
+.gv-app-shell>.gv-header .gv-account-nav__menu>summary:hover{
+  background:rgba(255,255,255,.16);
+}
+.gv-app-shell>.gv-header :is(.gv-account-nav__signin,.gv-account-nav__menu>summary):focus-visible{
+  outline:3px solid #ffb51b;
+  outline-offset:3px;
+}
+
+/* More whitespace and readable visual hierarchy instead of long paragraphs. */
+.gv-account-page .gv-account-panel>p.gv-muted,
+.gv-account-page .gv-account-dashboard>div:first-child+p,
+.gv-travel-profile-page .gv-profile-guest__copy>p:not(.gv-kicker){
+  max-width:640px;
+  line-height:1.6;
+}
+.gv-account-page .gv-account-panel .gv-account-dashboard__cards{gap:14px}
+.gv-travel-profile-page .gv-profile-guest__copy h1{max-width:650px}
+.gv-travel-profile-page .gv-profile-benefits>span{padding:14px 16px}
+.gv-travel-profile-page .gv-profile-benefits small{font-size:.76rem}
+@media(max-width:520px){
+  .gv-app-shell>.gv-header .gv-header__inner{padding-inline:14px}
+  .gv-app-shell>.gv-header .gv-account-nav__signin{padding-inline:12px}
+}
