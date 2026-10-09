@@ -1,71 +1,85 @@
-# GlobeVoy — Feature Inventory (staging)
+# GlobeVoy — Feature Inventory and GitHub References
 
-**Owner:** GlobeVoy team  
-**Purpose:** List what a visitor can do and where that capability is implemented, as requested for product planning.  
-**Reference:** [Staging website](https://staging.dy4fw8gx1ccie.amplifyapp.com/) and GitHub `staging` source.  
-**Last reviewed:** October 2026
+**Date:** October 8, 2026  
+**Purpose:** Identify existing GlobeVoy user features, locate their implementation in GitHub, and prepare for a team review.
 
-> **Important:** “Implemented in code” does not prove a feature works end to end in staging. Confirm each feature in the browser before declaring it fully functional. The classic `frontend/` experience and React `web/` pages coexist; do not count their duplicate interfaces as separate product features.
+**Repository:** [Wajeeh7565/globevoy — staging](https://github.com/Wajeeh7565/globevoy/tree/staging)
 
-## 1. Search and personalization
+**Important:** The features below are supported by code in the staging repository. Their deployment status and end-to-end functionality still need to be confirmed through website testing.
 
-| Feature / user story | GitHub implementation | Verification |
-|---|---|---|
-| As a visitor, I can enter my starting city or airport. | [Homepage](../frontend/index.html), [search JS](../frontend/scripts/home-live-674a.js) | Manual staging test needed |
-| I can choose a travel budget and group size. | [Homepage](../frontend/index.html), [search JS](../frontend/scripts/home-live-674a.js) | Manual staging test needed |
-| I can choose trip dates/duration and adjust advanced preferences. | [Homepage](../frontend/index.html), [search JS](../frontend/scripts/home-live-674a.js) | Manual staging test needed |
-| I can choose interests, destination region and hotel preferences. | [Homepage](../frontend/index.html), [search JS](../frontend/scripts/home-live-674a.js) | Manual staging test needed |
-| I can preview destination ideas from the homepage. | [Homepage](../frontend/index.html), [discovery data](../frontend/runtime/discovery-data-500.js) | Manual staging test needed |
-| I can start discovering trips without signing in. | [Homepage](../frontend/index.html), [Account](../web/components/account/account-page-client.tsx) | Manual staging test needed |
+## A. Homepage and Trip Search
 
-## 2. Recommendations, routes and trip details
+| Feature | What the user can do | GitHub reference |
+| --- | --- | --- |
+| Starting city search | Enter a departure city or airport and choose from suggestions | [Homepage React component](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/discovery/home-discovery-client.tsx) |
+| Location-based origin | Use location services to select a nearby departure airport | [Homepage React component](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/discovery/home-discovery-client.tsx) |
+| Budget and passengers | Set trip budget, currency and number of travellers | [Homepage](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/index.html) |
+| Travel preferences | Choose dates, trip duration, interests, region and hotel style | [Homepage search logic](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/home-live-674a.js) |
+| Homepage trip previews | See suggested trips before opening the full results page | [Trip previews](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/discovery/home-trip-previews.tsx) |
 
-| Feature / user story | GitHub implementation | Verification |
-|---|---|---|
-| I can see suggested single-city destinations based on my search. | [Explore UI](../frontend/explore.html), [explore JS](../frontend/scripts/explore-live.js), [recommendations API](../backend/recommendations.js) | Manual staging and API check needed |
-| I can compare suggested destinations and estimated prices. | [Mixed results](../frontend/mixed-results.html), [mixed results JS](../frontend/scripts/mixed-results-674a.js) | Manual staging test needed |
-| I can explore destinations on a map and see photos where available. | [Explore](../frontend/explore.html), [city images](../frontend/scripts/city-images-673c.js) | Manual staging test needed |
-| I can generate a connected multi-city itinerary. | [Multi-city visualizer](../frontend/multicity-visualizer.html), [generated tour API](../backend/generated-tour.js) | Manual staging and API check needed |
-| I can compare routes and see the order of stops. | [Multi-city visualizer JS](../frontend/scripts/multicity-visualizer-687b.js) | Manual staging test needed |
-| I can view each stop, estimated hotel/transport details and a journey visualization. | [Selected trip](../frontend/multi-city-trip.html), [journey JS](../frontend/scripts/journey-experience-687a.js) | Manual staging test needed |
-| I can adjust or replace a route destination where available. | [Multi-city visualizer](../frontend/multicity-visualizer.html), [route JS](../frontend/scripts/multicity-visualizer-687b.js) | Check route eligibility and limitations |
+## B. Recommendations and Results
 
-## 3. Account, saved trips and profile
+| Feature | What the user can do | GitHub reference |
+| --- | --- | --- |
+| Single-city recommendations | Discover destinations based on budget and preferences | [Recommendation backend](https://github.com/Wajeeh7565/globevoy/blob/staging/backend/recommendations.js) |
+| Mixed trip results | Compare single-city and multi-city trip possibilities | [Mixed results frontend](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/mixed-results-674a.js) |
+| Budget-based ranking | View destinations selected using cost, preferences and quality rules | [Recommendation backend](https://github.com/Wajeeh7565/globevoy/blob/staging/backend/recommendations.js) |
+| Destination maps | Explore recommended destinations geographically | [Explore frontend](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/explore-live.js) |
+| Destination photos | View photos associated with destinations | [City image component](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/city-images-673c.js) |
+| Flexible fare comparison | Explore observed flight prices for different travel dates where supported | [Explore frontend](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/explore-live.js) |
 
-| Feature / user story | GitHub implementation | Verification |
-|---|---|---|
-| I can sign in through the managed account flow. | [React account](../web/components/account/account-page-client.tsx), [authentication provider](../web/components/account/auth-provider.tsx) | Test on approved deployed origin; not localhost |
-| I can sign out of my session. | [React Account](../web/components/account/account-page-client.tsx) | Test on approved deployed origin |
-| I can save and reopen my trips. | [React My Trips](../web/components/account/my-trips-client.tsx), [account API](../web/lib/api.ts) | Test signed-in flow |
-| I can filter or delete my saved trips. | [React My Trips](../web/components/account/my-trips-client.tsx) | Test signed-in flow |
-| I can save my usual airport, currency, interests and travel preferences. | [React Travel Profile](../web/components/account/travel-profile-client.tsx) | Test signed-in flow |
-| I can save visited and wishlist destinations. | [React Travel Profile](../web/components/account/travel-profile-client.tsx) | Test signed-in flow |
+## C. Multi-City Trip Planning
 
-## 4. Flights, hotels, booking information
+| Feature | What the user can do | GitHub reference |
+| --- | --- | --- |
+| Automatic route generation | Generate a connected multi-city itinerary | [Generated tour backend](https://github.com/Wajeeh7565/globevoy/blob/staging/backend/generated-tour.js) |
+| Multiple route choices | Compare alternative multi-city itineraries | [Multi-city visualizer](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/multicity-visualizer-687b.js) |
+| Route visualization | See city order, travel connections and route maps | [Multi-city visualizer](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/multicity-visualizer-687b.js) |
+| Route customization | Replace or adjust cities in a generated itinerary where permitted | [Multi-city visualizer](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/multicity-visualizer-687b.js) |
+| Trip details | View trip duration, estimated transport and hotel costs | [Trip details page](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/multi-city-trip.html) |
+| Visual journey experience | Explore the trip as a journey from departure to return | [Journey experience](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/journey-experience-687a.js) |
 
-| Feature / user story | GitHub implementation | Verification |
-|---|---|---|
-| I can review estimated flights, hotels and total trip budget. | [Booking page](../frontend/booking.html), [booking hub](../frontend/scripts/booking-hub-685d.js) | Test evidence freshness and pricing labels |
-| I can review entry/transit guidance associated with a planned route. | [Booking page](../frontend/booking.html), [entry JS](../frontend/scripts/booking-entry-675a.js) | Guidance only, not visa confirmation |
-| I can continue to booking partners where a verified handoff is available. | [Booking hub](../frontend/scripts/booking-hub-685d.js), [React booking workspace](../web/components/booking/booking-workspace-client.tsx) | Test availability and links |
-| I can re-check current provider price evidence for eligible saved journeys. | [React booking workspace](../web/components/booking/booking-workspace-client.tsx) | Limited flow; verify eligibility |
+## D. Accounts and Personalization
 
-**Not currently a completed GlobeVoy feature:** making and paying for a complete flight+hotel reservation inside GlobeVoy itself. Booking proceeds via external partners and estimates should never be described as guaranteed live prices.
+| Feature | What the user can do | GitHub reference |
+| --- | --- | --- |
+| User authentication | Sign in, create an account through managed authentication, and sign out | [Account component](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/account/account-page-client.tsx) |
+| Travel Profile | Save home airport, currency, interests, hotel preferences and travel pace | [Travel Profile component](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/account/travel-profile-client.tsx) |
+| Visited and wishlist places | Record previously visited destinations and places the user wants to visit | [Travel Profile component](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/account/travel-profile-client.tsx) |
+| Saved Trips | Save trips to a signed-in account and reopen them later | [My Trips component](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/account/my-trips-client.tsx) |
+| Saved-trip management | View, filter and delete saved trips | [My Trips component](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/account/my-trips-client.tsx) |
 
-## 5. Current product issues / potential new features
+## E. Flight, Hotel and Booking Features
 
-These are proposals **for team review**, not things to present as already delivered:
+| Feature | What the user can do | GitHub reference |
+| --- | --- | --- |
+| Flight and hotel estimates | View the estimated cost of transport and accommodation | [Recommendation backend](https://github.com/Wajeeh7565/globevoy/blob/staging/backend/recommendations.js) |
+| Booking itinerary | Review the flight, hotel and transport components of a planned journey | [Booking Hub](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/booking-hub-685d.js) |
+| External booking links | Open external travel partners where supported | [Booking Hub](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/booking-hub-685d.js) |
+| Fresh price revalidation | Request updated provider evidence for eligible saved trips | [Booking workspace](https://github.com/Wajeeh7565/globevoy/blob/staging/web/components/booking/booking-workspace-client.tsx) |
+| Entry and transit guidance | Review travel-entry considerations for a planned route | [Booking entry logic](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/scripts/booking-entry-675a.js) |
+| Price transparency | Understand the difference between live, cached and estimated prices | [Trust and pricing page](https://github.com/Wajeeh7565/globevoy/blob/staging/frontend/trust.html) |
 
-1. More variety across repeat destination searches (team feedback).
-2. Scheduled discovery and refresh of new destination/attraction information.
-3. More accurate, refreshed flight/hotel pricing and clearer confidence labels.
-4. Fewer unnecessary paragraphs and more purposeful visual content (Mehdi's feedback).
-5. Consistent cards, page layout, buttons and typography across older and React pages.
-6. A smoother handoff from recommendation to final reservation.
+## F. Areas for Improvement
 
-## How to review this with the team
+These are possible improvements to discuss, not completed features.
 
-- Walk through the live website as a **guest** and as a **signed-in** user on approved staging.
-- Update each verification cell to `Working`, `Partially working`, `Not working`, or `Not tested`.
-- Report limitations/bugs separately instead of silently classifying all source code as complete.
-- Agree on priority improvements before opening implementation issues.
+| Improvement | Reason |
+| --- | --- |
+| More diverse city recommendations | Avoid recommending very similar destinations repeatedly |
+| Periodic destination-data updates | Keep attraction and destination information fresh |
+| Better personalization | Make stronger use of saved preferences and travel history |
+| More reliable live prices | Reduce reliance on estimates and outdated provider observations |
+| Complete booking integration | Improve the path from trip planning to confirmed reservations |
+| Better performance | Reduce delays and improve the user experience |
+| Unified React experience | Complete migration and reduce differences between older and newer pages |
+
+## Next Steps
+
+1. Test the major features on GlobeVoy staging.
+2. Record whether each one is working, partially working or not working.
+3. Confirm the relevant GitHub source files.
+4. Review gaps and priorities with the team.
+5. Select improvements and create development tasks.
+
+**Expected outcome:** A clear reference showing what GlobeVoy currently offers, how features are implemented, and what should be improved next.
