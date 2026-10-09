@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { AppShell } from '@/components/app-shell';
+import '../public/assets/fonts/fonts.css';
 import './globals.css';
 import './account-707a.css';
 import './account-710f.css';
