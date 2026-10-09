@@ -118,8 +118,8 @@ export function MyTripsClient() {
       <div className="gv-my-trips-state gv-my-trips-state--visual" aria-labelledby="my-trips-signin-title">
         <div className="gv-my-trips-empty-visual" aria-hidden="true"><span>✈</span><i>●━━●━━●</i></div>
         <p className="gv-kicker">YOUR TRIPS, ACROSS DEVICES</p>
-        <h2 id="my-trips-signin-title">Sign in to see saved journeys</h2>
-        <p>Guest discovery stays open. Sign in when you want to save, continue, and re-check a trip later.</p>
+        <h2 id="my-trips-signin-title">Your trips in one place</h2>
+        <p>Sign in to save, revisit and check your trips.</p>
         <div className="gv-account-actions">
           <Button onClick={() => { void signIn('/react/my-trips/'); }}>Sign in or create account</Button>
           <a className="gv-button gv-button--secondary" href="/">Keep exploring</a>
@@ -135,7 +135,7 @@ export function MyTripsClient() {
         <div>
           <p className="gv-kicker">YOUR SAVED JOURNEYS</p>
           <h1>My Trips</h1>
-          <p>Pick up where you left off.</p>
+          <p>Continue where you left off.</p>
         </div>
         <div className="gv-my-trips-visual-hero__aside">
           <span>{trips.length}<small>saved</small></span>
@@ -160,8 +160,8 @@ export function MyTripsClient() {
       {!loading && trips.length === 0 ? (
         <div className="gv-my-trips-state gv-my-trips-state--visual">
           <div className="gv-my-trips-empty-visual" aria-hidden="true"><span>⌖</span><i>●━━✈━━●</i></div>
-          <h2>Your first trip will land here</h2>
-          <p>Explore a journey, save it, and Globevoy will keep the snapshot ready for your next visit.</p>
+          <h2>Your trips start here</h2>
+          <p>Explore a trip and save it here.</p>
           <a className="gv-button gv-button--primary" href="/">Explore trips</a>
         </div>
       ) : null}
@@ -187,8 +187,8 @@ export function MyTripsClient() {
       ) : null}
 
       <div className="gv-my-trips-footnote">
-        <span>Saved prices are snapshots.</span>
-        <strong>Globevoy checks current provider evidence before partner handoff.</strong>
+        <span>Saved prices may change.</span>
+        <strong>Recheck prices before booking.</strong>
         <Link href="/account/">Account</Link>
       </div>
     </div>
