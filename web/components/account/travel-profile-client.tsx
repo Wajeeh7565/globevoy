@@ -115,8 +115,8 @@ export function TravelProfileClient() {
       <section className="gv-profile-guest">
         <div className="gv-profile-guest__copy">
           <p className="gv-kicker">TRAVEL PROFILE</p>
-          <h1>Make Globevoy feel more like your travel planner.</h1>
-          <p>Guest discovery stays available without an account. Sign in when you want Globevoy to remember your home airport, travel style, places you have visited and places you want to explore.</p>
+          <h1>Travel your way.</h1>
+          <p>Save your airport, travel style and dream destinations. Or keep exploring as a guest.</p>
           <div className="gv-account-actions">
             <Button onClick={() => { void signIn('/react/travel-profile/'); }}>Sign in or create account</Button>
             <a className="gv-button gv-button--secondary" href="/">Continue as guest</a>
@@ -124,9 +124,9 @@ export function TravelProfileClient() {
           {authStatus ? <p className="gv-account-status" role="status">{authStatus}</p> : null}
         </div>
         <div className="gv-profile-benefits" aria-label="Travel Profile benefits">
-          <span><b>01</b><strong>Remember your starting point</strong><small>Keep your usual city and airport ready for future searches.</small></span>
-          <span><b>02</b><strong>Rank trips around you</strong><small>Interests, hotel style and pace become useful recommendation signals.</small></span>
-          <span><b>03</b><strong>Pick up where you left off</strong><small>Travel Profile and Saved Trips live behind your private account.</small></span>
+          <span><b>01</b><strong>Start faster</strong><small>Your favourite departure airport.</small></span>
+          <span><b>02</b><strong>Trips that fit</strong><small>Your interests and travel style.</small></span>
+          <span><b>03</b><strong>Keep your plans</strong><small>Trips saved to your account.</small></span>
         </div>
       </section>
     );
@@ -137,8 +137,8 @@ export function TravelProfileClient() {
       <header className="gv-profile-hero">
         <div>
           <p className="gv-kicker">YOUR TRAVEL PROFILE</p>
-          <h1>Tell Globevoy how you like to travel.</h1>
-          <p>These details belong to your signed-in account. They are preferences and country context only — never enter passport numbers, visa numbers or payment information.</p>
+          <h1>Your travel preferences.</h1>
+          <p>Save how you like to travel. Never enter passport, visa or payment numbers.</p>
         </div>
         <aside className="gv-profile-progress">
           <span>PROFILE SIGNALS</span>
@@ -179,7 +179,7 @@ export function TravelProfileClient() {
           </section>
 
           <section className="gv-profile-card">
-            <div className="gv-profile-card__head"><span>04</span><div><h2>Your travel history</h2><p>Keep recommendations fresh instead of repeatedly surfacing the same places.</p></div></div>
+            <div className="gv-profile-card__head"><span>04</span><div><h2>Your travel history</h2><p>Help us suggest new places over time.</p></div></div>
             <div className="gv-profile-grid gv-profile-grid--2">
               <label><span>Places you have visited</span><textarea rows={4} value={listText(profile.visitedPlaces)} placeholder="Niagara Falls, Istanbul, Lahore" onChange={(e) => update('visitedPlaces', textList(e.target.value))} /></label>
               <label><span>Places on your wish list</span><textarea rows={4} value={listText(profile.wishListPlaces)} placeholder="Tokyo, Lisbon, Cape Town" onChange={(e) => update('wishListPlaces', textList(e.target.value))} /></label>
