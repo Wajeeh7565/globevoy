@@ -64,3 +64,85 @@ html{scroll-behavior:smooth}body.gv-canonical{overflow-x:hidden!important;overfl
   .gv-account-nav__item-icon{width:34px;height:34px}
   .gv-account-nav__item-copy small{font-size:.64rem}
 }
+
+
+/* GV-WEB unified classic header — mirror the React header without
+   altering the original homepage hero, search card or page layout. */
+#gv-header.gv-header{
+  width:100%;
+  background:#061427;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+#gv-header .gv-header__inner{
+  width:100%;
+  max-width:none;
+  margin:0;
+  padding-inline:clamp(16px,2vw,30px);
+  gap:12px;
+  justify-content:space-between;
+}
+#gv-header .gv-brand{
+  margin:0;
+  flex-shrink:0;
+  gap:9px;
+  min-height:44px;
+  align-items:center;
+}
+#gv-header .gv-brand img.gv-brand__mark-image{
+  width:32px;
+  height:32px;
+  max-width:none;
+  border-radius:8px;
+  object-fit:contain;
+  display:block;
+}
+#gv-header .gv-brand img.gv-brand__wordmark{
+  display:block;
+  width:92px;
+  height:auto;
+  max-height:25px;
+  max-width:none;
+  border-radius:0;
+  object-fit:contain;
+}
+#gv-header .gv-header__actions{
+  display:flex;
+  margin-left:auto;
+  margin-right:0;
+  align-items:center;
+}
+#gv-header .gv-account-nav__signin{
+  color:#071c33;
+  background:#fff;
+  border:1px solid #fff;
+  border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.16);
+  font-weight:850;
+  padding-inline:17px;
+  opacity:1;
+}
+#gv-header .gv-account-nav__signin:hover:not(:disabled){
+  color:#071c33;
+  background:#e8f5f4;
+  border-color:#e8f5f4;
+}
+#gv-header .gv-account-nav__signin:disabled{
+  opacity:.87;
+  cursor:not-allowed;
+}
+#gv-header .gv-account-nav__menu>summary{
+  color:#fff;
+  background:rgba(255,255,255,.09);
+  border-color:rgba(255,255,255,.42);
+}
+#gv-header .gv-account-nav__menu>summary:hover{
+  background:rgba(255,255,255,.16);
+}
+#gv-header :is(.gv-account-nav__signin,.gv-account-nav__menu>summary):focus-visible{
+  outline:3px solid #ffb51b;
+  outline-offset:3px;
+}
+@media(max-width:520px){
+  #gv-header .gv-header__inner{padding-inline:14px}
+  #gv-header .gv-account-nav__signin{padding-inline:12px}
+}
