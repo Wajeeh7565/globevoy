@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { AppShell } from '@/components/app-shell';
+import '../public/assets/fonts/fonts.css';
 import './globals.css';
 import './account-707a.css';
 import './account-710f.css';
@@ -21,6 +22,7 @@ import './results-710d-r5.css';
 import './results-access-710f-r3.css';
 import './journey-710e.css';
 import './results-710e-link.css';
+import './account-home-parity.css';
 
 export const metadata: Metadata = {
   title: {

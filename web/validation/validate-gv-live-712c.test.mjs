@@ -185,7 +185,9 @@ function tripsHarness(authSession, listSavedTrips, values = [[trip], false, '', 
 test('signed-out My Trips hides existing private rows, clears them, and never loads', () => {
   let calls = 0;
   const view = tripsHarness(null, () => { calls++; });
-  assert.match(view.html, /Sign in to see saved journeys/);
+  // Validate the sign-in entry point, not an exact headline that may change.
+  assert.match(view.html, /aria-labelledby="my-trips-signin-title"/);
+  assert.match(view.html, />Sign in or create account<\/button>/);
   assert.doesNotMatch(view.html, /Cancún|Philadelphia|2,000/);
   view.effects[1]();
   assert.deepEqual(view.writes.find((write) => write.slot === 0)?.value, []);

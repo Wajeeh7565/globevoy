@@ -15,17 +15,17 @@ export function AccountPageClient() {
     return (
       <section className="gv-account-panel" aria-labelledby="account-sign-in-title">
         <p className="gv-kicker">YOUR GLOBEVOY ACCOUNT</p>
-        <h1 id="account-sign-in-title">Plan freely. Sign in when you want Globevoy to remember.</h1>
-        <p className="gv-muted">Guest discovery stays available. A private account unlocks Saved Trips, Travel Profile and cross-session continuation without turning sign-in into a gate before you can explore.</p>
+        <h1 id="account-sign-in-title">Your trips, one place.</h1>
+        <p className="gv-muted">Save your trips and travel preferences. You can still explore as a guest.</p>
         <div className="gv-account-dashboard__cards" aria-label="Account benefits">
-          <div className="gv-account-dashboard__card"><span>01</span><strong>Saved Trips</strong><small>Keep private trip snapshots and return to them later.</small></div>
-          <div className="gv-account-dashboard__card"><span>02</span><strong>Travel Profile</strong><small>Remember your home airport, interests, travel style and destination history.</small></div>
+          <div className="gv-account-dashboard__card"><span>01</span><strong>Saved Trips</strong><small>Revisit your favourite journeys.</small></div>
+          <div className="gv-account-dashboard__card"><span>02</span><strong>Travel Profile</strong><small>Save your airport and travel style.</small></div>
         </div>
         <div className="gv-account-actions">
           <Button onClick={() => { void signIn('/react/account/'); }}>Sign in or create account</Button>
           <a className="gv-button gv-button--secondary" href="/">Continue as guest</a>
         </div>
-        <p className="gv-muted">Account creation and password recovery are handled by Globevoy&apos;s secure Amazon Cognito managed sign-in rather than by a custom password form on this page.</p>
+        <p className="gv-muted">Sign-in and password recovery are handled securely by Amazon Cognito.</p>
         {status ? <p className="gv-account-status" role="status">{status}</p> : null}
       </section>
     );
@@ -40,8 +40,8 @@ export function AccountPageClient() {
       </div>
 
       <div className="gv-account-dashboard__cards">
-        <Link className="gv-account-dashboard__card" href="/my-trips/"><span>MY TRIPS</span><strong>Saved Trips</strong><small>Open private saved journeys, recheck current prices and continue planning.</small></Link>
-        <Link className="gv-account-dashboard__card" href="/travel-profile/"><span>PERSONALIZATION</span><strong>Travel Profile</strong><small>Set your home base, country context, interests, hotel style and travel history.</small></Link>
+        <Link className="gv-account-dashboard__card" href="/my-trips/"><span>MY TRIPS</span><strong>Saved Trips</strong><small>Reopen trips and check current prices.</small></Link>
+        <Link className="gv-account-dashboard__card" href="/travel-profile/"><span>PERSONALIZATION</span><strong>Travel Profile</strong><small>Your home airport, interests and travel style.</small></Link>
       </div>
 
       <dl className="gv-account-details">
@@ -50,7 +50,7 @@ export function AccountPageClient() {
       </dl>
 
       <div className="gv-account-dashboard__footer">
-        <p>Globevoy keeps the access token only in sessionStorage for this browser session. No refresh token or ID token is persisted by this React account flow.</p>
+        <p>Your saved trips and preferences are private to your account.</p>
         <Button variant="secondary" onClick={signOut}>Sign out</Button>
       </div>
     </section>
