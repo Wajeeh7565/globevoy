@@ -1,0 +1,203 @@
+/* GlobeVoy classic-homepage visual parity for the React account area.
+   Visual changes only. No Cognito, saved-trip or profile behaviour changes.
+   /assets is supplied by the existing frontend/ Amplify composite build. */
+
+@font-face{
+  font-family:"Inter";
+  font-style:normal;
+  font-weight:100 900;
+  font-display:swap;
+  src:url("/assets/fonts/inter_567244088c.woff2") format("woff2");
+}
+
+.gv-account-page,
+.gv-my-trips-page,
+.gv-travel-profile-page{
+  width:min(1180px,calc(100% - 40px));
+  margin:0 auto;
+  padding:38px 0 84px;
+}
+
+/* Repeat the classic homepage's dark scenic hero and teal accent.
+   Keep the existing React form fields and business logic intact. */
+.gv-account-page .gv-account-panel,
+.gv-my-trips-page .gv-my-trips-visual-hero,
+.gv-my-trips-page .gv-my-trips-state--visual,
+.gv-travel-profile-page .gv-profile-hero,
+.gv-travel-profile-page .gv-profile-guest{
+  background-image:
+    linear-gradient(90deg,rgba(3,14,30,.94) 0%,rgba(7,28,51,.86) 48%,rgba(7,28,51,.63) 100%),
+    url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2200&q=84");
+  background-position:center;
+  background-size:cover;
+  background-color:#071c33;
+  border:1px solid rgba(7,28,51,.14);
+  border-radius:20px;
+  box-shadow:0 20px 48px rgba(7,28,51,.16);
+  color:#fff;
+}
+
+.gv-account-page .gv-account-panel,
+.gv-travel-profile-page .gv-profile-hero,
+.gv-travel-profile-page .gv-profile-guest,
+.gv-my-trips-page .gv-my-trips-visual-hero{
+  padding:clamp(26px,4vw,48px);
+}
+
+/* Account: keep the same hero tone while ensuring the signed-in
+   cards and buttons stay readable and easy to navigate. */
+.gv-account-page .gv-account-panel{
+  max-width:none;
+  margin:0;
+}
+.gv-account-page .gv-account-panel h1{
+  color:#fff;
+  max-width:830px;
+  line-height:1.06;
+  letter-spacing:-.04em;
+}
+.gv-account-page .gv-account-panel .gv-kicker,
+.gv-my-trips-page .gv-my-trips-visual-hero .gv-kicker,
+.gv-my-trips-page .gv-my-trips-state--visual .gv-kicker,
+.gv-travel-profile-page .gv-profile-hero .gv-kicker,
+.gv-travel-profile-page .gv-profile-guest .gv-kicker{
+  color:#7af6ed;
+}
+.gv-account-page .gv-account-panel .gv-muted,
+.gv-account-page .gv-account-dashboard__footer p{
+  color:rgba(255,255,255,.84);
+}
+.gv-account-page .gv-account-dashboard__card{
+  background:#fff;
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:18px;
+  box-shadow:0 12px 28px rgba(0,0,0,.13);
+}
+.gv-account-page a.gv-account-dashboard__card:hover{
+  border-color:#7af6ed;
+  background:#f0faf9;
+}
+.gv-account-page .gv-account-details>div,
+.gv-account-page .gv-account-dashboard__footer{
+  border-color:rgba(255,255,255,.2);
+}
+.gv-account-page .gv-account-details dt{color:rgba(255,255,255,.72)}
+.gv-account-page .gv-account-details dd{color:#fff}
+.gv-account-page .gv-account-success{
+  width:fit-content;
+  background:rgba(16,139,112,.22);
+  border:1px solid rgba(122,246,237,.35);
+  color:#d6fff6;
+}
+.gv-account-page .gv-account-status:not(.gv-account-status--error){
+  background:rgba(255,255,255,.95);
+  color:#071c33;
+}
+
+/* My Trips: the signed-in hero and empty/sign-in states now share
+   the same scenic treatment as the homepage. */
+.gv-my-trips-page .gv-my-trips-visual-hero::after{display:none}
+.gv-my-trips-page .gv-my-trips-visual-hero h1,
+.gv-my-trips-page .gv-my-trips-state--visual h2{color:#fff}
+.gv-my-trips-page .gv-my-trips-visual-hero p:not(.gv-kicker),
+.gv-my-trips-page .gv-my-trips-state--visual>p:not(.gv-kicker){
+  color:rgba(255,255,255,.86);
+}
+.gv-my-trips-page .gv-my-trips-state--visual{
+  padding:clamp(30px,5vw,58px) 24px;
+}
+.gv-my-trips-page .gv-my-trips-empty-visual{
+  background:rgba(255,255,255,.94);
+  color:#08716f;
+}
+.gv-my-trips-page .gv-saved-visual-card{
+  border-radius:18px;
+  border-color:#d7e0e7;
+  box-shadow:0 16px 38px rgba(7,28,51,.1);
+}
+.gv-my-trips-page .gv-my-trips-filters button.is-active{
+  background:#e8f5f4;
+  color:#08716f;
+  border-color:#008f89;
+}
+.gv-my-trips-page .gv-my-trips-visual-hero__aside .gv-button{
+  background:#008f89;
+}
+
+/* Travel Profile: keep the existing fields and private-account
+   data flow, but make both guest and signed-in entry feel consistent. */
+.gv-travel-profile-page .gv-profile-hero,
+.gv-travel-profile-page .gv-profile-guest{
+  gap:32px;
+}
+.gv-travel-profile-page .gv-profile-hero h1,
+.gv-travel-profile-page .gv-profile-guest h1{color:#fff}
+.gv-travel-profile-page .gv-profile-hero p:last-child,
+.gv-travel-profile-page .gv-profile-guest__copy>p:not(.gv-kicker){
+  color:rgba(255,255,255,.86);
+}
+.gv-travel-profile-page .gv-profile-progress{
+  background:rgba(3,14,30,.56);
+  border:1px solid rgba(255,255,255,.24);
+  backdrop-filter:blur(8px);
+}
+.gv-travel-profile-page .gv-profile-benefits>span{
+  background:#fff;
+  border:1px solid #e0e9ed;
+  box-shadow:0 9px 24px rgba(0,0,0,.12);
+}
+.gv-travel-profile-page .gv-profile-card,
+.gv-travel-profile-page .gv-profile-savebar{
+  border-radius:18px;
+  border-color:#d7e0e7;
+}
+.gv-travel-profile-page .gv-profile-card__head>span{
+  background:#e8f5f4;
+  color:#08716f;
+}
+.gv-travel-profile-page .gv-profile-interest-grid label.is-selected span{
+  background:#e8f5f4;
+  border-color:#008f89;
+  color:#08716f;
+}
+
+/* Match the classic search card buttons and keyboard focus treatment. */
+.gv-account-page .gv-button--primary,
+.gv-my-trips-page .gv-button--primary,
+.gv-travel-profile-page .gv-button--primary{
+  background:#008f89;
+  color:#fff;
+}
+.gv-account-page .gv-button--primary:hover,
+.gv-my-trips-page .gv-button--primary:hover,
+.gv-travel-profile-page .gv-button--primary:hover{
+  background:#08716f;
+}
+.gv-account-page :is(a,button,input,select,textarea,summary):focus-visible,
+.gv-my-trips-page :is(a,button,input,select,textarea,summary):focus-visible,
+.gv-travel-profile-page :is(a,button,input,select,textarea,summary):focus-visible{
+  outline:3px solid #ffb51b;
+  outline-offset:3px;
+}
+
+@media(max-width:780px){
+  .gv-account-page,
+  .gv-my-trips-page,
+  .gv-travel-profile-page{
+    width:min(100% - 28px,1180px);
+    padding-top:24px;
+  }
+  .gv-travel-profile-page .gv-profile-hero,
+  .gv-travel-profile-page .gv-profile-guest{
+    grid-template-columns:1fr;
+  }
+}
+@media(max-width:520px){
+  .gv-account-page,
+  .gv-my-trips-page,
+  .gv-travel-profile-page{width:min(100% - 24px,1180px)}
+  .gv-account-page .gv-account-panel,
+  .gv-my-trips-page .gv-my-trips-visual-hero,
+  .gv-travel-profile-page .gv-profile-hero,
+  .gv-travel-profile-page .gv-profile-guest{padding:24px}
+}
