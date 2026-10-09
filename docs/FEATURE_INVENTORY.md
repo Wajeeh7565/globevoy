@@ -56,14 +56,14 @@
 
 These are proposals **for team review**, not things to present as already delivered:
 
-1. More variety across repeat destination searches (Vamsi's feedback).
+1. More variety across repeat destination searches (team feedback).
 2. Scheduled discovery and refresh of new destination/attraction information.
 3. More accurate, refreshed flight/hotel pricing and clearer confidence labels.
 4. Fewer unnecessary paragraphs and more purposeful visual content (Mehdi's feedback).
 5. Consistent cards, page layout, buttons and typography across older and React pages.
 6. A smoother handoff from recommendation to final reservation.
 
-## How to use this with Vamsi
+## How to review this with the team
 
 - Walk through the live website as a **guest** and as a **signed-in** user on approved staging.
 - Update each verification cell to `Working`, `Partially working`, `Not working`, or `Not tested`.
