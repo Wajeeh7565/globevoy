@@ -2,14 +2,6 @@
    Visual changes only. No Cognito, saved-trip or profile behaviour changes.
    /assets is supplied by the existing frontend/ Amplify composite build. */
 
-@font-face{
-  font-family:"Inter";
-  font-style:normal;
-  font-weight:100 900;
-  font-display:swap;
-  src:url("/assets/fonts/inter_567244088c.woff2") format("woff2");
-}
-
 .gv-account-page,
 .gv-my-trips-page,
 .gv-travel-profile-page{
@@ -241,7 +233,12 @@
   color:#071c33;
 }
 .gv-app-shell>.gv-header .gv-account-nav__signin:disabled{
-  opacity:.87;
+  /* Keep the classic homepage look during local visual testing;
+     the actual login action stays disabled outside approved staging. */
+  opacity:1;
+  color:#071c33;
+  background:#fff;
+  border-color:#fff;
   cursor:not-allowed;
 }
 .gv-app-shell>.gv-header .gv-account-nav__menu>summary{
