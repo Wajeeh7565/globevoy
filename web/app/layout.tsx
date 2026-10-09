@@ -21,6 +21,7 @@ import './results-710d-r5.css';
 import './results-access-710f-r3.css';
 import './journey-710e.css';
 import './results-710e-link.css';
+import './account-home-parity.css';
 
 export const metadata: Metadata = {
   title: {
