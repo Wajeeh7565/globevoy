@@ -212,6 +212,8 @@ function liveResult(tour) {
     const requests = [];
     let activeCity = '';
     const result = await adapter.verifyTourHotels(tourForAdapter(), { adults: 1, currency: 'CAD' }, {
+      // Pin the clock before the October 2026 fixture stays; otherwise this test expires over time.
+      now: '2026-10-01T12:00:00.000Z',
       env: baseEnv,
       getSecretValue: async (secretId) => {
         assert.equal(secretId, baseEnv.NUITEE_SANDBOX_SECRET_ID);
