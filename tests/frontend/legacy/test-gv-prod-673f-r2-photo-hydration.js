@@ -2,7 +2,7 @@
 const fs=require('fs');
 const vm=require('vm');
 const path=require('path');
-const root=__dirname;
+const root=path.resolve(__dirname,'../../../frontend');
 const visualizer=fs.readFileSync(path.join(root,'scripts/multicity-visualizer-673c.js'),'utf8');
 const cityImages=fs.readFileSync(path.join(root,'scripts/city-images-673c.js'),'utf8');
 const checks=[];
