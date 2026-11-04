@@ -1,0 +1,18 @@
+# Send only what the backend prototype needs to the Docker build context.
+.git
+.github
+**/node_modules
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.p12
+backend/archive
+backend/validate*.js
+frontend
+web
+tests
+docs
+dist
+*.zip
+*.log
