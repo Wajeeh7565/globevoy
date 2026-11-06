@@ -3,7 +3,8 @@ import fs from 'node:fs';
 
 const groups = {
   repo: [
-    ['node', '.github/scripts/validate-repo.mjs']
+    ['node', '.github/scripts/validate-repo.mjs'],
+    ['node', 'scripts/validate-organization.mjs']
   ],
 
   backend: [

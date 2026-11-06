@@ -8,6 +8,7 @@
   "scripts": {
     "test": "node scripts/run-tests.mjs default",
     "test:repo": "node scripts/run-tests.mjs repo",
+    "test:structure": "node scripts/validate-organization.mjs",
     "test:backend": "node scripts/run-tests.mjs backend",
     "test:frontend": "node scripts/run-tests.mjs frontend",
     "test:web": "node scripts/run-tests.mjs web",

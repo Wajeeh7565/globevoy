@@ -1,0 +1,200 @@
+{
+  "baseline": "447fba5cbaa622a66b83876d99f93bdeb605ad96",
+  "moves": [
+    {
+      "from": "frontend/BROWSER_VALIDATION_GV_PROD_673D.json",
+      "to": "archive/frontend/validation-results/BROWSER_VALIDATION_GV_PROD_673D.json",
+      "sha256": "39f98663985ab86d211ddb1d8556e8aa5f66c7591a2ce40fe2d8415022f20d8e"
+    },
+    {
+      "from": "frontend/DEPLOY_GV_PROD_673D_AMPLIFY.md",
+      "to": "archive/frontend/release-evidence/DEPLOY_GV_PROD_673D_AMPLIFY.md",
+      "sha256": "f2e82e61454baec18e65f70222d226e73a7ac91175b552258a3628afefe921fe"
+    },
+    {
+      "from": "frontend/GV-PROD-673D_MANUAL_CHECKLIST.md",
+      "to": "archive/frontend/release-evidence/GV-PROD-673D_MANUAL_CHECKLIST.md",
+      "sha256": "4cd3ea128ee2dca48d3b15d9a515164b61c123ba4e786a72e1e71e7bd01b1c2f"
+    },
+    {
+      "from": "frontend/GV-PROD-673D_REPORT.md",
+      "to": "archive/frontend/release-evidence/GV-PROD-673D_REPORT.md",
+      "sha256": "eceeaf26704ed50989eb46f43fbadcb8fcd95565de723e2cf6f2e9a7cb30866b"
+    },
+    {
+      "from": "frontend/GV-PROD-673F-R2_ORIGIN_QUARANTINE.json",
+      "to": "archive/frontend/validation-results/GV-PROD-673F-R2_ORIGIN_QUARANTINE.json",
+      "sha256": "6b81edc831e64dae9c85a4fb7fc069744be58cdc09de7884fa22dfaf391dad24"
+    },
+    {
+      "from": "frontend/validate-gv-book-685d-r1-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-book-685d-r1-frontend.js",
+      "sha256": "350b903f7bbf264637b9ce4f7ac1819e438ab631d7389d097cf1e49bc7ee192c"
+    },
+    {
+      "from": "frontend/validate-gv-book-685d-r2-trust-repair.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-book-685d-r2-trust-repair.js",
+      "sha256": "af82294fca9280bdaeb3c65e425fd2fc6fb871991a1b8fc448e1771a95cd4672"
+    },
+    {
+      "from": "frontend/validate-gv-entry-675a-browser-fixture.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-entry-675a-browser-fixture.js",
+      "sha256": "3d4ce15d51685134482df9ddc075b268c8375fec14e0badbe9a6f7be9480ceb2"
+    },
+    {
+      "from": "frontend/validate-gv-entry-675a-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-entry-675a-frontend.js",
+      "sha256": "ca524538fc6c7cc914aa7b17c8f4ace4c3065a8da1f2bf81033ab75ce2450af3"
+    },
+    {
+      "from": "frontend/validate-gv-hotel-679a-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-hotel-679a-frontend.js",
+      "sha256": "67a0ea1a08d4b38ef72d3c013eff1fe1f0a33724ab444fbc8946c2f8581d4df7"
+    },
+    {
+      "from": "frontend/validate-gv-hotel-679a-r1-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-hotel-679a-r1-frontend.js",
+      "sha256": "1aeba5950b8d9db5b081e0a55b58ef266b2936a75cad81a5c492902ffe5d0f90"
+    },
+    {
+      "from": "frontend/validate-gv-hotel-679a-r2-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-hotel-679a-r2-frontend.js",
+      "sha256": "32da5fe9217fb9a5a9543ec975c64aa844ca6e68b70d18f29523a0ac7d87775d"
+    },
+    {
+      "from": "frontend/validate-gv-prod-673e.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-prod-673e.js",
+      "sha256": "ad8d82e352288dda064736bac33e8ad70f7fe384c0e4bb217b0961fe5ca80c9d"
+    },
+    {
+      "from": "frontend/validate-gv-prod-673f-r2.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-prod-673f-r2.js",
+      "sha256": "8666225f1bc51f6bc530918a8a6ffa4693381f5c5d9d12f267526cfd7f75f518"
+    },
+    {
+      "from": "frontend/validate-gv-quality-680a-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-quality-680a-frontend.js",
+      "sha256": "ee06812ae87dd82f5430c8ac05dc9a2b263ce35aeb30d3922151678f09d4b9d4"
+    },
+    {
+      "from": "frontend/validate-gv-quality-680b-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-quality-680b-frontend.js",
+      "sha256": "670e857fc9d6d4884e605711ce26874d5f98a0cbd4d9138ac1dd9a48c4bd08d3"
+    },
+    {
+      "from": "frontend/validate-gv-rec-677a-r1-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-rec-677a-r1-frontend.js",
+      "sha256": "1afbf7d231ec77add1f948dff5edc1539efe9ed48f6975c6f0524c57f7365fc0"
+    },
+    {
+      "from": "frontend/validate-gv-rec-677a.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-rec-677a.js",
+      "sha256": "750cdc7f843e1aa18d25792b2960450b5c5b70fb0030cebdfa7bebce6cf7b3d7"
+    },
+    {
+      "from": "frontend/validate-gv-rec-677b-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-rec-677b-frontend.js",
+      "sha256": "42c9f8e8f221ea7f04859a7718787881ec31b818655889895a99cbcc79347a6e"
+    },
+    {
+      "from": "frontend/validate-gv-rec-677b-r2-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-rec-677b-r2-frontend.js",
+      "sha256": "b799637fc70e7ebf510834babb862ad7f660d3452ed6616ce0981068635d61fc"
+    },
+    {
+      "from": "frontend/validate-gv-rec-677b-r3-frontend.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-rec-677b-r3-frontend.js",
+      "sha256": "ba63f5383c49903e1a2b7064716cad4c922e3f3be6e1decfc69be25df0263d40"
+    },
+    {
+      "from": "frontend/validate-gv-ux-674a.js",
+      "to": "archive/frontend/legacy-validation-scripts/validate-gv-ux-674a.js",
+      "sha256": "d008faf7c1b3701b96a7e8c7d80e3907aa07adba41f0d41bffda6c2de050515a"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_BOOK_685D_R1_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_BOOK_685D_R1_FRONTEND.json",
+      "sha256": "fffb38b4143583aecad39efadd7c5ba959430a10d2fd2626eeddf11524dbe67c"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_BOOK_685D_R2_TRUST_REPAIR.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_BOOK_685D_R2_TRUST_REPAIR.json",
+      "sha256": "aa2f5e2599d9683eb380e70c70f5e2bee8bb864e44d3c7ef3b7d655b0dac3472"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_ENTRY_675A_BROWSER_FIXTURE.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_ENTRY_675A_BROWSER_FIXTURE.json",
+      "sha256": "9db8ffd47cd4f038e4fedec9af06e87f038b7faa2dcb13de2c2a74a59811b7e3"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_ENTRY_675A_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_ENTRY_675A_FRONTEND.json",
+      "sha256": "6634fc06f568bd86056d198dad40da87067d0df1a112a43a8e10282546e6756e"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_ENTRY_675A_REFERENCES.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_ENTRY_675A_REFERENCES.json",
+      "sha256": "a129f6b96903feff4ae1c1479b2265a5e3ade5325ffc236f3347aca17c01786f"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_HOTEL_679A_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_HOTEL_679A_FRONTEND.json",
+      "sha256": "a08cb3d73a6a67f8892b3a05767abba0db6007fdf83835628ddf2946e6de15bc"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_HOTEL_679A_R1_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_HOTEL_679A_R1_FRONTEND.json",
+      "sha256": "987a04c8af0c202bf099b7b37e1d2d346bc37577a3031c5126adbf3757e1a0bf"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_HOTEL_679A_R2_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_HOTEL_679A_R2_FRONTEND.json",
+      "sha256": "bae3faaf1e98f93ba318b440c562ead308a2efd3dd92f614a74ee4d81ca94422"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_IMG_673A_GV_BOOK_673B.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_IMG_673A_GV_BOOK_673B.json",
+      "sha256": "85b69f50db858eaf1be2712ace6e6951c8d38c74a8ab6019d2d3eee1d46f92d8"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_PROD_673C.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_PROD_673C.json",
+      "sha256": "fe2c80762a16be25913f27584526fb0dd70d08f38b6c296a20d011da0f55663e"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_PROD_673D.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_PROD_673D.json",
+      "sha256": "ccc407c0e97a8f9e00201be1b8307a883b76833f234b4c83601881df1c2ffa86"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_PROD_673F_R2.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_PROD_673F_R2.json",
+      "sha256": "a6db6385962c80cd8976801d572c38b684cb9c1bdbc634520a3386dc3d7f0e82"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_REC_677A_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_REC_677A_FRONTEND.json",
+      "sha256": "f5bc7b233cafb560d57964d22a016015195f0e03ff73d8f1c79f82c5c6ec9c5b"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_REC_677A_R1_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_REC_677A_R1_FRONTEND.json",
+      "sha256": "65073943160e9d35218270a8dca2325676b74117b4ce83f7265c4561707d87e0"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_REC_677B_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_REC_677B_FRONTEND.json",
+      "sha256": "8ba73ded853f59f203df469d378594c43fea6eabd147bfed772252cd6100b82b"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_REC_677B_R2_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_REC_677B_R2_FRONTEND.json",
+      "sha256": "de06a4ba0cb37fdd63ce6f282d928592b52da1bd738870d34528253e62a28a8f"
+    },
+    {
+      "from": "frontend/VALIDATION_GV_UX_674A_FRONTEND.json",
+      "to": "archive/frontend/validation-results/VALIDATION_GV_UX_674A_FRONTEND.json",
+      "sha256": "51f894c45b76b315b4ce23b93511d2eb42dfe94800c1e0ee32898c66ed6455c1"
+    }
+  ]
+}
