@@ -1,21 +1,28 @@
 'use client';
 
 import type { AuthSession } from '@/lib/contracts';
-import {
-  COGNITO_CALLBACK_URL,
-  COGNITO_CLIENT_ID,
-  COGNITO_DOMAIN,
-  COGNITO_LOGOUT_URL,
-  COGNITO_SCOPES,
-  GV_AUTH_VERSION,
-  STAGING_API_BASE_URL,
-  browserIsStagingOrigin
-} from '@/lib/public-config';
+import { COGNITO_SCOPES, GV_AUTH_VERSION, browserEnvironment } from '@/lib/public-config';
 
 const PENDING_KEY = 'globevoy.auth.pending.705b-r3';
 const SESSION_KEY = 'globevoy.auth.session.705b-r3';
 const REVERIFY_AFTER_MS = 5 * 60 * 1000;
 const EXPIRY_SKEW_MS = 30 * 1000;
+
+// Authentication is selected by the same origin policy as the classic website.
+// A production release must supply a verified, separate Cognito pool and backend.
+function activeAuth() {
+  const environment = browserEnvironment();
+  if (!environment.accountsEnabled || !environment.auth || !environment.apiBaseUrl) {
+    throw new Error('Accounts are not available on this website yet.');
+  }
+  return {
+    domain: environment.auth.domainBaseUrl,
+    clientId: environment.auth.clientId,
+    callbackUrl: `${window.location.origin}/auth-callback.html`,
+    logoutUrl: `${window.location.origin}/index.html`,
+    apiBaseUrl: environment.apiBaseUrl
+  };
+}
 
 interface PendingAuth {
   version: string;
@@ -72,7 +79,7 @@ export function safeReturnTo(value?: string): string {
 }
 
 export function getAuthSession(): AuthSession | null {
-  if (typeof window === 'undefined' || !browserIsStagingOrigin()) return null;
+  if (typeof window === 'undefined' || !browserEnvironment().accountsEnabled) return null;
   const stored = readJson<AuthSession>(SESSION_KEY);
   if (!stored || stored.version !== GV_AUTH_VERSION || !stored.accessToken || !Number.isFinite(Number(stored.expiresAt)) || !stored.user?.sub) {
     remove(SESSION_KEY);
@@ -92,7 +99,7 @@ export function clearAuthSession(): void {
 }
 
 export async function beginSignIn(returnTo?: string): Promise<void> {
-  if (!browserIsStagingOrigin()) throw new Error('Accounts are not available on this website yet.');
+  const account = activeAuth();
   if (!window.crypto?.subtle || !window.crypto?.getRandomValues) throw new Error('This browser does not support the security features required for sign-in.');
 
   const verifier = randomUrlSafe(32);
@@ -107,10 +114,10 @@ export async function beginSignIn(returnTo?: string): Promise<void> {
   };
   writeJson(PENDING_KEY, pending);
 
-  const authorize = new URL(`${COGNITO_DOMAIN}/oauth2/authorize`);
+  const authorize = new URL(`${account.domain}/oauth2/authorize`);
   authorize.searchParams.set('response_type', 'code');
-  authorize.searchParams.set('client_id', COGNITO_CLIENT_ID);
-  authorize.searchParams.set('redirect_uri', COGNITO_CALLBACK_URL);
+  authorize.searchParams.set('client_id', account.clientId);
+  authorize.searchParams.set('redirect_uri', account.callbackUrl);
   authorize.searchParams.set('scope', COGNITO_SCOPES.join(' '));
   authorize.searchParams.set('state', state);
   authorize.searchParams.set('code_challenge', challenge);
@@ -125,11 +132,11 @@ interface VerifiedSessionResponse {
 }
 
 export async function reverifyAuthSession(session = getAuthSession()): Promise<AuthSession | null> {
-  if (!browserIsStagingOrigin() || !session) return null;
+  if (!browserEnvironment().accountsEnabled || !session) return null;
   if (Date.now() - Number(session.verifiedAt || 0) < REVERIFY_AFTER_MS) return session;
-  if (!browserIsStagingOrigin()) return null;
+  const account = activeAuth();
   try {
-    const response = await fetch(`${STAGING_API_BASE_URL}/api/account/session`, {
+    const response = await fetch(`${account.apiBaseUrl}/api/account/session`, {
       method: 'GET',
       headers: { Authorization: `Bearer ${session.accessToken}` },
       cache: 'no-store',
@@ -152,13 +159,14 @@ export async function reverifyAuthSession(session = getAuthSession()): Promise<A
 
 export function signOut(): void {
   clearAuthSession();
-  if (!browserIsStagingOrigin()) {
+  if (!browserEnvironment().accountsEnabled) {
     window.location.assign('/');
     return;
   }
-  const logout = new URL(`${COGNITO_DOMAIN}/logout`);
-  logout.searchParams.set('client_id', COGNITO_CLIENT_ID);
-  logout.searchParams.set('logout_uri', COGNITO_LOGOUT_URL);
+  const account = activeAuth();
+  const logout = new URL(`${account.domain}/logout`);
+  logout.searchParams.set('client_id', account.clientId);
+  logout.searchParams.set('logout_uri', account.logoutUrl);
   window.location.assign(logout.toString());
 }
 
