@@ -63,7 +63,8 @@
   function resolve(origin, developmentApi) {
     const staging = origin === stagingOrigin;
     const production = productionOrigins.includes(origin);
-    const approved = production ? productionRelease() : null;
+    const canonicalProduction = origin === 'https://globevoy.com' || origin === 'https://www.globevoy.com';
+    const approved = canonicalProduction ? productionRelease() : null;
     let apiBaseUrl = production ? (approved?.apiBaseUrl || productionApi) : staging ? stagingApi : '';
     let local = false;
     try {
