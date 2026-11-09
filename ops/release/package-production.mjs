@@ -53,7 +53,7 @@ fs.writeFileSync(configPath,fs.readFileSync(configPath,'utf8').replace('YOUR_RES
 // frontends resolve the identical public production configuration at runtime.
 const policyPath = path.join(output, 'runtime/environment-policy.js');
 fs.writeFileSync(policyPath,
- 'window.GLOBEVOY_PRODUCTION_RELEASE = Object.freeze(' + JSON.stringify(releaseConfig) + ');\\n' +
+ 'window.GLOBEVOY_PRODUCTION_RELEASE = Object.freeze(' + JSON.stringify(releaseConfig) + ');\n' +
  fs.readFileSync(policyPath,'utf8')
 );
 for (const file of ['index.html','runtime/environment-policy.js','react/index.html','react/account/index.html','react/my-trips/index.html','react/journey/index.html']) {
