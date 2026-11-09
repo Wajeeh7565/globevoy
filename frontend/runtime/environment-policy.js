@@ -1,4 +1,7 @@
-/* Public environment policy shared by the classic website and React bundle. */
+/* Shared public configuration for the classic and React GlobeVoy frontends.
+ * Production feature switches are injected ONLY into the approved deployment artifact.
+ * These are presentation controls, not authorization; the backend must enforce access.
+ */
 (function (root, factory) {
   const policy = factory();
   if (typeof module === 'object' && module.exports) module.exports = policy;
@@ -14,10 +17,53 @@
     issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_MSd9RRHD8',
     domainBaseUrl: 'https://globevoy-stg-76bf9b233a.auth.us-east-2.amazoncognito.com'
   });
+
+  function validProductionApi(value) {
+    if (typeof value !== 'string') return false;
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' &&
+        /^[a-z0-9-]+\.lambda-url\.us-east-2\.on\.aws$/.test(url.hostname) &&
+        (url.pathname === '/' || url.pathname === '') &&
+        !url.username && !url.password && !url.search && !url.hash &&
+        url.origin !== stagingApi;
+    } catch (_) { return false; }
+  }
+
+  function validProductionAuth(auth) {
+    if (!auth || typeof auth !== 'object') return false;
+    if (!/^us-east-2_[A-Za-z0-9]+$/.test(String(auth.userPoolId || '')) ||
+        !/^[a-z0-9]{12,64}$/.test(String(auth.clientId || ''))) return false;
+    const issuer = 'https://cognito-idp.us-east-2.amazonaws.com/' + auth.userPoolId;
+    if (auth.issuer !== issuer || auth.region !== 'us-east-2') return false;
+    try {
+      const url = new URL(auth.domainBaseUrl);
+      return url.protocol === 'https:' &&
+        /^[a-z0-9-]+\.auth\.us-east-2\.amazoncognito\.com$/.test(url.hostname) &&
+        url.origin === url.href.replace(/\/$/, '') &&
+        url.origin !== stagingAuth.domainBaseUrl;
+    } catch (_) { return false; }
+  }
+
+  function productionRelease() {
+    const candidate = typeof window === 'undefined' ? null : window.GLOBEVOY_PRODUCTION_RELEASE;
+    if (!candidate || candidate.environment !== 'production' || candidate.target !== 'globevoy.com') return null;
+    if (!validProductionApi(candidate.apiBaseUrl)) return null;
+    const reactEnabled = candidate.reactEnabled === true;
+    const accountsEnabled = reactEnabled && candidate.accountsEnabled === true && validProductionAuth(candidate.auth);
+    return Object.freeze({
+      apiBaseUrl: new URL(candidate.apiBaseUrl).origin,
+      reactEnabled,
+      accountsEnabled,
+      auth: accountsEnabled ? Object.freeze({ ...candidate.auth }) : null
+    });
+  }
+
   function resolve(origin, developmentApi) {
     const staging = origin === stagingOrigin;
     const production = productionOrigins.includes(origin);
-    let apiBaseUrl = production ? productionApi : staging ? stagingApi : '';
+    const approved = production ? productionRelease() : null;
+    let apiBaseUrl = production ? (approved?.apiBaseUrl || productionApi) : staging ? stagingApi : '';
     let local = false;
     try {
       const url = new URL(origin);
@@ -31,11 +77,12 @@
     } catch (_) { /* Unknown origins stay disabled. */ }
     return Object.freeze({
       environment: production ? 'production' : staging ? 'staging' : local ? 'development' : 'unknown',
-      apiBaseUrl, accountsEnabled: staging, worldwideRegistryEnabled: staging,
+      apiBaseUrl,
+      accountsEnabled: staging || (production && Boolean(approved?.accountsEnabled)),
+      worldwideRegistryEnabled: staging,
       automaticDatesEnabled: staging || (local && Boolean(apiBaseUrl)),
-      // The newer React workflows require backend services not verified in production.
-      reactEnabled: staging || local,
-      auth: staging ? stagingAuth : null
+      reactEnabled: staging || local || (production && Boolean(approved?.reactEnabled)),
+      auth: staging ? stagingAuth : production && approved?.accountsEnabled ? approved.auth : null
     });
   }
   return Object.freeze({ productionApi, stagingApi, stagingOrigin, stagingAuth, resolve });
