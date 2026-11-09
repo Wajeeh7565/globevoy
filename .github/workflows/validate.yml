@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - staging
+      - main
       - 'feature/**'
   pull_request:
     branches:
@@ -46,10 +47,21 @@ jobs:
         run: npm run test:providers
 
       - name: Install React/Web test dependencies
-        run: npm install --prefix web --no-audit --no-fund --no-package-lock
+        run: npm ci --prefix web --no-audit --no-fund
 
       - name: React/Web test group
         run: npm run test:web
+
+      - name: Production configuration and authentication boundaries
+        run: npm run test:release
+
+      - name: React typecheck and static production build
+        run: |
+          npm run typecheck:web
+          npm run build:web
+          test -f web/out/account/index.html
+          test -f web/out/journey/index.html
+          grep -q '/react/_next/' web/out/index.html
 
       - name: Confirm CI is deployment-free
         shell: bash

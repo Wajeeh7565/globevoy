@@ -6,7 +6,7 @@ import type {
   TravelProfile,
   TravelProfileResponse
 } from '@/lib/contracts';
-import { browserApiBaseUrl } from '@/lib/public-config';
+import { browserApiBaseUrl, browserEnvironment } from '@/lib/public-config';
 
 export class GlobevoyApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -83,6 +83,7 @@ function errorMessage(body: unknown, status: number): string {
 }
 
 async function request<T>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', path: string, accessToken: string, payload?: unknown): Promise<T> {
+  if (!browserEnvironment().accountsEnabled) throw new GlobevoyApiError(503, 'Accounts are not available on this website yet.');
   if (!accessToken) throw new GlobevoyApiError(401, 'Sign in required.');
   const response = await fetch(`${requireBaseUrl()}${path}`, {
     method,
@@ -191,6 +192,7 @@ export async function getPublicMultiCityTours(params: Record<string, string | nu
 export async function getPublicMultiCityAutomaticDates(
   params: Record<string, string | number | undefined>
 ): Promise<AutomaticDatesResponse> {
+  if (!browserEnvironment().automaticDatesEnabled) return { ok: true, supported: false, complete: false, reason: 'automatic-dates-unavailable' };
   if (!params.routeId) {
     return { ok: true, supported: false, complete: false, reason: 'routeId-required' };
   }

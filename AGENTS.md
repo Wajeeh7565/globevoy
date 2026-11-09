@@ -1,6 +1,6 @@
 # Working on GlobeVoy
 
-- Read README.md and docs/START_HERE.md before changing code. Start development from the latest staging branch; main records the older canonical release baseline.
+- Read README.md and docs/START_HERE.md before changing code. During promotion, follow docs/releases/MAIN_CONSOLIDATION.md. After its approved merge, start new work from main; until then staging is the integrated source.
 - Keep one task per branch and describe its purpose, changed files, and checks. Do not merge unrelated feature branches to tidy the repository.
 - Put backend services in the existing responsibility-based folders under backend/services. Preserve staging overlay installation order.
 - Keep classic frontend URLs and Lambda entry points stable. A file move must update its imports, consumers, tests, packaging, and workflow references together.

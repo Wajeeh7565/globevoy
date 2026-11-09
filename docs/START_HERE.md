@@ -1,5 +1,6 @@
 # Start here
 
+Promotion preparation: see [releases/MAIN_CONSOLIDATION.md](releases/MAIN_CONSOLIDATION.md). After the approved promotion, use `main` for new work; this does not deploy the website.
 ## Pick the right baseline
 
 As inspected on November 6, 2026, **staging is the development integration branch**.

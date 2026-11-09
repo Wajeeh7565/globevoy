@@ -15,6 +15,7 @@
       : root('react/account/');
 
   function activeAccountSession() {
+    if (!window.GLOBEVOY_ENVIRONMENT_POLICY?.resolve(location.origin).accountsEnabled) return null;
     try {
       const raw = sessionStorage.getItem('globevoy.auth.session.705b-r3');
       if (!raw) return null;
@@ -91,7 +92,7 @@
         </details>
       </nav>`
     : `<nav class="gv-account-nav" aria-label="Account navigation">
-        <button type="button" class="gv-account-nav__signin" data-gv-auth-signin data-return-to="${safeCurrentReturnTo}">Sign in</button>
+        <button type="button" class="gv-account-nav__signin" ${window.GLOBEVOY_ENVIRONMENT_POLICY?.resolve(location.origin).accountsEnabled ? '' : 'disabled title="Accounts are not available yet"'} data-gv-auth-signin data-return-to="${safeCurrentReturnTo}">Sign in</button>
       </nav>`;
 
   const header = `<div class="gv-header__inner">

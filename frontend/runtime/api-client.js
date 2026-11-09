@@ -81,6 +81,7 @@
   // or generated-tour behavior. It only exposes the staging-backed 701B data
   // surface to future frontend consumers.
   async function getWorldwideCityRegistry(params) {
+    if (config().worldwideRegistryEnabled === false) throw new Error('Worldwide city search is unavailable on this website.');
     if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 9000);
     return fetchJson(buildUrl('/api/worldwide-city-registry', params), timeoutMs);

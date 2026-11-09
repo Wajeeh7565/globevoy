@@ -71,6 +71,7 @@
   }
 
   function getSession() {
+    if (!authEnabled()) return null;
     const stored = readJson(SESSION_KEY);
     if (!stored || stored.version !== VERSION || !stored.accessToken || !Number.isFinite(Number(stored.expiresAt))) {
       remove(SESSION_KEY);
@@ -293,6 +294,7 @@
   }
 
   async function reverifySession(session = getSession()) {
+    if (!authEnabled()) return null;
     if (!session) return null;
     if (Date.now() - Number(session.verifiedAt || 0) < REVERIFY_AFTER_MS) return session;
     try {
@@ -353,7 +355,7 @@
     const verified = await reverifySession(initial);
     renderAuthUi(verified);
     if (document.getElementById('gv-account-status')) {
-      if (!authEnabled()) status('Secure account sign-in is available only on the Globevoy staging origin.', 'error');
+      if (!authEnabled()) status('Accounts are not available on this website yet.', 'error');
       else if (verified) status('Signed in securely with Amazon Cognito.', 'success');
       else status('You can sign in or create an account. Guest trip planning still works without signing in.', '');
     }

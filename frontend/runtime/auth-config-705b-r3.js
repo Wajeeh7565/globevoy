@@ -5,27 +5,30 @@
 (function () {
   'use strict';
 
-  const STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
-  const DOMAIN = 'https://globevoy-stg-76bf9b233a.auth.us-east-2.amazoncognito.com';
+  const policy = window.GLOBEVOY_ENVIRONMENT_POLICY;
+  const environment = policy.resolve(window.location.origin);
+  const auth = environment.auth || {};
+  const STAGING_ORIGIN = policy.stagingOrigin;
+  const DOMAIN = auth.domainBaseUrl || '';
 
   window.GLOBEVOY_AUTH_CONFIG = Object.freeze({
     version: 'GV-ACCOUNT-705B-R3',
-    environment: 'staging',
-    enabled: window.location.origin === STAGING_ORIGIN,
+    environment: environment.environment,
+    enabled: environment.accountsEnabled,
     stagingOrigin: STAGING_ORIGIN,
-    region: 'us-east-2',
-    userPoolId: 'us-east-2_MSd9RRHD8',
-    clientId: 'o2ohbv50253hjli5s34rbvv79',
+    region: auth.region || '',
+    userPoolId: auth.userPoolId || '',
+    clientId: auth.clientId || '',
     clientSecretPresent: false,
-    issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_MSd9RRHD8',
+    issuer: auth.issuer || '',
     domainBaseUrl: DOMAIN,
     authorizeEndpoint: `${DOMAIN}/oauth2/authorize`,
     tokenEndpoint: `${DOMAIN}/oauth2/token`,
     userInfoEndpoint: `${DOMAIN}/oauth2/userInfo`,
     logoutEndpoint: `${DOMAIN}/logout`,
-    callbackUrl: `${STAGING_ORIGIN}/auth-callback.html`,
-    logoutUrl: `${STAGING_ORIGIN}/index.html`,
-    apiBaseUrl: 'https://mirksnjcjim4iowstuda4lesrm0ghmfw.lambda-url.us-east-2.on.aws',
+    callbackUrl: environment.accountsEnabled ? `${STAGING_ORIGIN}/auth-callback.html` : '',
+    logoutUrl: environment.accountsEnabled ? `${STAGING_ORIGIN}/index.html` : '',
+    apiBaseUrl: environment.apiBaseUrl,
     sessionEndpoint: '/api/account/session',
     oauth: Object.freeze({
       flow: 'authorization-code-pkce',

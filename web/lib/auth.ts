@@ -72,7 +72,7 @@ export function safeReturnTo(value?: string): string {
 }
 
 export function getAuthSession(): AuthSession | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === 'undefined' || !browserIsStagingOrigin()) return null;
   const stored = readJson<AuthSession>(SESSION_KEY);
   if (!stored || stored.version !== GV_AUTH_VERSION || !stored.accessToken || !Number.isFinite(Number(stored.expiresAt)) || !stored.user?.sub) {
     remove(SESSION_KEY);
@@ -92,7 +92,7 @@ export function clearAuthSession(): void {
 }
 
 export async function beginSignIn(returnTo?: string): Promise<void> {
-  if (!browserIsStagingOrigin()) throw new Error('Secure account sign-in is available only on the Globevoy staging origin.');
+  if (!browserIsStagingOrigin()) throw new Error('Accounts are not available on this website yet.');
   if (!window.crypto?.subtle || !window.crypto?.getRandomValues) throw new Error('This browser does not support the security features required for sign-in.');
 
   const verifier = randomUrlSafe(32);
@@ -125,7 +125,7 @@ interface VerifiedSessionResponse {
 }
 
 export async function reverifyAuthSession(session = getAuthSession()): Promise<AuthSession | null> {
-  if (!session) return null;
+  if (!browserIsStagingOrigin() || !session) return null;
   if (Date.now() - Number(session.verifiedAt || 0) < REVERIFY_AFTER_MS) return session;
   if (!browserIsStagingOrigin()) return null;
   try {

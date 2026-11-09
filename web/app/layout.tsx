@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import { AppShell } from '@/components/app-shell';
+import { ProductionBoundary } from '@/components/production-boundary';
 import '../public/assets/fonts/fonts.css';
 import './globals.css';
 import './account-707a.css';
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
   return (
     <html lang="en">
       <body>
-        <AppShell>{children}</AppShell>
+        <ProductionBoundary><AppShell>{children}</AppShell></ProductionBoundary>
       </body>
     </html>
   );

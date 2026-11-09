@@ -133,7 +133,7 @@ async function expectAuthError(code, token) {
   const account = fs.readFileSync(path.join(ROOT, 'frontend', 'account.html'), 'utf8');
 
   for (const marker of [auth.STAGING_ORIGIN, auth.USER_POOL_ID, auth.CLIENT_ID, auth.ISSUER, auth.REQUIRED_SCOPE]) {
-    assert(authConfig.includes(marker), `public auth config missing ${marker}`);
+    assert((authConfig + fs.readFileSync(path.join(ROOT, 'frontend/runtime/environment-policy.js'), 'utf8')).includes(marker), `public auth config missing ${marker}`);
   }
   assert(authConfig.includes('clientSecretPresent: false'));
   assert(authConfig.includes('persistRefreshToken: false'));

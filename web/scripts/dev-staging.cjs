@@ -3,8 +3,9 @@ const fs = require('fs/promises');
 const path = require('path');
 const { spawn } = require('child_process');
 
-const TARGET = 'https://mirksnjcjim4iowstuda4lesrm0ghmfw.lambda-url.us-east-2.on.aws';
-const STAGING_ORIGIN = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
+const policy = require('../../frontend/runtime/environment-policy.js');
+const TARGET = policy.stagingApi;
+const STAGING_ORIGIN = policy.stagingOrigin;
 const LOCAL_API = 'http://127.0.0.1:8787';
 const LOCAL_ASSET_BASE = `${LOCAL_API}/assets`;
 const LEGACY_IMAGE_DIR = path.resolve(process.cwd(), '..', 'frontend', 'assets', 'images');

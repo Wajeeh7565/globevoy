@@ -17,6 +17,8 @@
     "test:performance": "node scripts/run-tests.mjs performance",
     "test:syntax": "node scripts/run-tests.mjs syntax",
     "typecheck:web": "npm --prefix web run typecheck",
-    "build:web": "npm --prefix web run build"
+    "build:web": "npm --prefix web run build",
+    "test:release": "node scripts/run-tests.mjs release",
+    "package:production": "node ops/release/package-production.mjs"
   }
 }
