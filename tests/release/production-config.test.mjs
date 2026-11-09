@@ -59,3 +59,55 @@ test('classic consumers load shared policy first', () => {
   if (consumer>=0) assert.ok(html.indexOf('runtime/environment-policy.js')>=0 && html.indexOf('runtime/environment-policy.js')<consumer,name);
  }
 });
+
+function configuredProduction(origin, release) {
+ const ctx=browser(origin);
+ ctx.window.GLOBEVOY_PRODUCTION_RELEASE=release;
+ for (const p of ['runtime/environment-policy.js', 'runtime/config.js', 'runtime/auth-config-705b-r3.js', 'scripts/auth-session-705b-r3.js']) {
+  vm.runInContext(source('frontend/'+p), ctx);
+ }
+ return ctx;
+}
+const verifiedProduction = {
+ environment: 'production', target: 'globevoy.com',
+ apiBaseUrl: 'https://prodexample123.lambda-url.us-east-2.on.aws',
+ reactEnabled: true, accountsEnabled: true,
+ auth: {
+  region: 'us-east-2', userPoolId: 'us-east-2_PRODsample',
+  clientId: 'prod1234sample5678',
+  issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_PRODsample',
+  domainBaseUrl: 'https://globevoy-prod-sample.auth.us-east-2.amazoncognito.com'
+ }
+};
+test('separate verified production configuration enables hybrid UI and origin-local sign-in', () => {
+ const ctx=configuredProduction('https://globevoy.com', verifiedProduction);
+ const env=ctx.window.GLOBEVOY_PUBLIC_ENVIRONMENT;
+ assert.equal(env.reactEnabled,true);
+ assert.equal(env.accountsEnabled,true);
+ assert.equal(env.apiBaseUrl,verifiedProduction.apiBaseUrl);
+ assert.equal(ctx.window.GLOBEVOY_AUTH_CONFIG.clientId, verifiedProduction.auth.clientId);
+ assert.equal(ctx.window.GLOBEVOY_AUTH_CONFIG.callbackUrl,'https://globevoy.com/auth-callback.html');
+ assert.equal(ctx.window.GLOBEVOY_AUTH_CONFIG.logoutUrl,'https://globevoy.com/index.html');
+ const config=reactModule('web/lib/public-config.ts',ctx,{'../../frontend/runtime/environment-policy.js':ctx.window.GLOBEVOY_ENVIRONMENT_POLICY});
+ assert.equal(config.browserEnvironment().reactEnabled,true);
+ assert.equal(config.browserEnvironment().accountsEnabled,true);
+ const auth=reactModule('web/lib/auth.ts',ctx,{'@/lib/public-config':config});
+ assert.equal(auth.getAuthSession().accessToken,'test-token');
+});
+test('unapproved or staging-linked production releases fail closed', () => {
+ for (const bad of [
+  {...verifiedProduction,apiBaseUrl:policy.stagingApi},
+  {...verifiedProduction,environment:'staging'},
+  {...verifiedProduction,auth:{...verifiedProduction.auth,domainBaseUrl:policy.stagingAuth.domainBaseUrl}},
+  {...verifiedProduction,auth:{...verifiedProduction.auth,userPoolId:policy.stagingAuth.userPoolId,issuer:policy.stagingAuth.issuer}}
+ ]) {
+  const ctx=configuredProduction('https://globevoy.com',bad);
+  const env=ctx.window.GLOBEVOY_PUBLIC_ENVIRONMENT;
+  if (bad.apiBaseUrl===policy.stagingApi || bad.environment!=='production') {
+   assert.equal(env.apiBaseUrl,policy.productionApi);
+   assert.equal(env.reactEnabled,false);
+  }
+  assert.equal(env.accountsEnabled,false);
+  assert.equal(ctx.window.GLOBEVOY_AUTH_CONFIG.enabled,false);
+ }
+});
