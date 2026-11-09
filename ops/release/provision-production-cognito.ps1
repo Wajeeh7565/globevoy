@@ -70,7 +70,7 @@ if ($answer -cne 'CREATE PRODUCTION COGNITO') { throw 'Not confirmed; no changes
 if ($existing.Count -eq 1) {
   $poolId = [string]$existing[0].Id
   $existingPool = Invoke-Aws -AwsArguments @('cognito-idp','describe-user-pool','--user-pool-id',$poolId)
-  if ($existingPool.UserPool.UserPoolTier -and $existingPool.UserPool.UserPoolTier -ne 'LITE') {
+  if ($existingPool.UserPool.PSObject.Properties.Name -contains 'UserPoolTier' -and $existingPool.UserPool.UserPoolTier -ne 'LITE') {
     throw 'Existing production pool is not Lite; review pricing and configuration before continuing.'
   }
 } else {
