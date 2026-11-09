@@ -26,8 +26,8 @@
     tokenEndpoint: `${DOMAIN}/oauth2/token`,
     userInfoEndpoint: `${DOMAIN}/oauth2/userInfo`,
     logoutEndpoint: `${DOMAIN}/logout`,
-    callbackUrl: environment.accountsEnabled ? `${STAGING_ORIGIN}/auth-callback.html` : '',
-    logoutUrl: environment.accountsEnabled ? `${STAGING_ORIGIN}/index.html` : '',
+    callbackUrl: environment.accountsEnabled ? `${window.location.origin}/auth-callback.html` : '',
+    logoutUrl: environment.accountsEnabled ? `${window.location.origin}/index.html` : '',
     apiBaseUrl: environment.apiBaseUrl,
     sessionEndpoint: '/api/account/session',
     oauth: Object.freeze({
