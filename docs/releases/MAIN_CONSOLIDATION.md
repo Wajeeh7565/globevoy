@@ -95,3 +95,27 @@ Snapshot relative to the integrated release source, before this preparation comm
 | `staging` | 0 | Eligible after main promotion |
 
 The temporary release branch itself becomes eligible only after its final commit is reachable from main. Re-fetch and re-check reachability before any later deletion.
+
+## Hybrid staging-to-production promotion (2026-11-09 follow-up)
+
+**Desired product:** keep the classic HTML/CSS/JavaScript homepage and existing trip pages, with the React account/trip workflow available under `/react/`, matching the current staging design. This is not a full React rewrite. Do not publish a conservative build and represent it as a complete staging-to-production migration.
+
+The source can now read an explicit, **artifact-only** public production release declaration from the top of `runtime/environment-policy.js`. `ops/release/package-production.mjs` injects that declaration into the built site, not into Git, so classic and React use the same origin policy. React loads the browser policy before hydration. No deployment is performed by this change.
+
+Without production release flags, the existing behavior stays: classic uses the established production Lambda, while React and accounts remain unavailable. Staging still has its existing Cognito and staging API integration.
+
+**Do not set the following opt-in variables until the corresponding production infrastructure has been provisioned, tested, and approved:**
+
+- `GLOBEVOY_ENABLE_PRODUCTION_REACT=true` and `GLOBEVOY_PRODUCTION_REACT_VERIFIED=yes` enable the React interface only after public API contract and browser acceptance tests have passed. An authorization check is NOT accomplished by these UI flags.
+- `GLOBEVOY_ENABLE_PRODUCTION_ACCOUNTS=true` and `GLOBEVOY_PRODUCTION_ACCOUNTS_VERIFIED=yes` additionally request account functionality. This requires React enabled and a verified production backend with owner-private APIs and correct token checks.
+- `GLOBEVOY_PRODUCTION_API_BASE_URL` is the dedicated production Lambda Function URL. Never use `globevoy-staging-api` or its URL for production customers.
+- `GLOBEVOY_PRODUCTION_USER_POOL_ID`, `GLOBEVOY_PRODUCTION_COGNITO_CLIENT_ID`, and `GLOBEVOY_PRODUCTION_COGNITO_DOMAIN` are **public identifiers** for a separate production Cognito app client/user pool (no client secret). The generator refuses staging URL/pool identities. Login callback and logout URLs use the actual page origin.
+
+**Remaining production prerequisites:**
+1. Verify/provision a production Lambda handler/package that implements the required React and account API contracts; test authenticated and unauthenticated routes, error handling, quotas, provider boundaries and CORS for `https://globevoy.com` (and `www` only if served without redirect).
+2. Provision and configure production Cognito, including authorization-code PKCE, expected JWT audience/issuer/scope, callback `https://globevoy.com/auth-callback.html`, logout `https://globevoy.com/index.html`, and separate storage and least-privilege IAM. Do not reuse staging users/data implicitly.
+3. Verify account session, saved-trip CRUD, profile, booking revalidation and any newer journey APIs against the *production* backend. Confirm no staging Lambda or Cognito network requests from the production origin.
+4. Resolve the existing production Lambda handler/package discrepancy **before** changing production Lambda code or handler. Preserve the deployed Lambda and hosting rollback artifacts at deployment time.
+5. Build and inspect the candidate, run browser acceptance of the classic homepage, React login/account/saved trip flows, maps and recommendations, then approve a manual Amplify release. Production is still **BLOCKED** for full staging parity until these checks pass.
+
+This is an opt-in mechanism for a future verified release, **not** evidence that the production backend/auth migration is complete. PR #121 remains source-only until approved.
