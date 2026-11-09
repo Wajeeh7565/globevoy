@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>GV-RC-686D all-flight journey fixture</title></head>
+<body>
+<p>Loading the isolated all-flight release-candidate fixture…</p>
+<script>
+(function(){
+  const city=(city,country,code,lat,lng)=>({city,country,code,airportCode:code,lat,lng});
+  const Toronto=city('Toronto','Canada','YYZ',43.6535,-79.3839);
+  const Montreal=city('Montreal','Canada','YUL',45.5019,-73.5674);
+  const NewYork=city('New York','United States','JFK',40.7128,-74.0060);
+  const flight=(from,to,date,amount,type)=>({from,to,mode:'flight',departureDate:date,estimatedDisplayTotal:amount,providerDateEvidence:type?{provider:'Duffel',sourceType:type,providerBacked:type==='LIVE',productionEligible:true,appliedToEstimate:true,departureDate:date,priceEvidence:{sourceType:type}}:null,liveFareVerified:type==='LIVE'});
+  const legs=[
+    flight(Toronto,Montreal,'2026-10-04',190,'LIVE'),
+    flight(Montreal,NewYork,'2026-10-07',240,'CACHED'),
+    flight(NewYork,Toronto,'2026-10-11',260,'')
+  ];
+  const tour={pickRole:'best-balance',origin:Toronto,cities:[
+    {...Montreal,nights:3,selectionReason:'A compact food and culture chapter with a simple onward flight.'},
+    {...NewYork,nights:4,selectionReason:'A high-energy final city chapter before returning home.'}
+  ],legs,backendLegs:legs,stays:[
+    {...Montreal,nights:3,arrivalDate:'2026-10-04',departureDate:'2026-10-07',hotel:{estimatedDisplayTotal:460,priceEvidence:{sourceType:'LIVE'}}},
+    {...NewYork,nights:4,arrivalDate:'2026-10-07',departureDate:'2026-10-11',hotel:{estimatedDisplayTotal:630,priceEvidence:{sourceType:'CACHED'}}}
+  ],budget:{total:{amount:2200,currency:'CAD'},estimatedCoreTotal:{amount:1780,currency:'CAD'},remainingCoreRoom:{amount:420,currency:'CAD'}},canonicalPricing:{canonicalDisplayTotal:1780,totalsMatchVisibleCards:true},passengerPricing:{adults:1,travellers:1,rooms:1},liveProviderVerification:{criticalCount:5,verifiedCount:2,allCriticalVerified:false,budgetClaim:'planning-estimate'},totalNights:7};
+  sessionStorage.setItem('globevoy.multi.selected.v1',JSON.stringify(tour));
+  location.replace('../../multicity-visualizer.html?fixture=rc-686d-all-flight&offline=1&currency=CAD&budget=2200&passengers=1');
+})();
+</script>
+</body>
+</html>
+

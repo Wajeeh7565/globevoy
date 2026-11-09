@@ -60,7 +60,7 @@ The validator requires all of the following:
 
 - `backend/data/gv-rec-702e-promotion-manifest.json`
 - `backend/services/reviewed-activation-promotion-702e.js`
-- `backend/validate-gv-rec-702e.js`
+- `backend/validation/validate-gv-rec-702e.js`
 
 ## Promotion boundary
 

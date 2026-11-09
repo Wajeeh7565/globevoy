@@ -6,8 +6,8 @@ on:
     paths:
       - 'backend/services/accounts/saved-trips/staging-saved-trips-705c.js'
       - 'backend/staging-lambda-702d.js'
-      - 'backend/validate-gv-account-705c.js'
-      - 'backend/validate-gv-account-705c-r2.js'
+      - 'backend/validation/validate-gv-account-705c.js'
+      - 'backend/validation/validate-gv-account-705c-r2.js'
       - 'frontend/account.html'
       - 'frontend/my-trips.html'
       - 'frontend/multi-city-trip.html'
@@ -23,8 +23,8 @@ on:
     paths:
       - 'backend/services/accounts/saved-trips/staging-saved-trips-705c.js'
       - 'backend/staging-lambda-702d.js'
-      - 'backend/validate-gv-account-705c.js'
-      - 'backend/validate-gv-account-705c-r2.js'
+      - 'backend/validation/validate-gv-account-705c.js'
+      - 'backend/validation/validate-gv-account-705c-r2.js'
       - 'frontend/account.html'
       - 'frontend/my-trips.html'
       - 'frontend/multi-city-trip.html'
@@ -57,19 +57,19 @@ jobs:
         run: |
           node --check backend/services/accounts/saved-trips/staging-saved-trips-705c.js
           node --check backend/staging-lambda-702d.js
-          node --check backend/validate-gv-account-705c.js
-          node --check backend/validate-gv-account-705c-r2.js
+          node --check backend/validation/validate-gv-account-705c.js
+          node --check backend/validation/validate-gv-account-705c-r2.js
           node --check frontend/scripts/shell-670f.js
           node --check frontend/scripts/saved-trips-705c.js
           node --check frontend/scripts/saved-trips-705c-r2-route-details.js
           bash -n ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh
       - name: Validate secure saved trips
         run: |
-          node backend/validate-gv-account-705b-r3.js
-          node backend/validate-gv-account-705c.js
-          node backend/validate-gv-account-705c-r2.js
+          node backend/validation/validate-gv-account-705b-r3.js
+          node backend/validation/validate-gv-account-705c.js
+          node backend/validation/validate-gv-account-705c-r2.js
       - name: Preserve repository regressions
         run: |
           node .github/scripts/validate-repo.mjs
-          node backend/validate-gv-flight-703e.js
-          node backend/validate-gv-hotel-704a.js
+          node backend/validation/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-hotel-704a.js

@@ -9,7 +9,7 @@ on:
       - 'frontend/scripts/my-trips-booking-706a.js'
       - 'frontend/scripts/booking-account-bridge-706a.js'
       - 'frontend/scripts/booking-account-snapshot-706a.js'
-      - 'backend/validate-gv-book-706a.js'
+      - 'backend/validation/validate-gv-book-706a.js'
       - '.github/workflows/validate-706a.yml'
   push:
     branches: [staging]
@@ -19,7 +19,7 @@ on:
       - 'frontend/scripts/my-trips-booking-706a.js'
       - 'frontend/scripts/booking-account-bridge-706a.js'
       - 'frontend/scripts/booking-account-snapshot-706a.js'
-      - 'backend/validate-gv-book-706a.js'
+      - 'backend/validation/validate-gv-book-706a.js'
       - '.github/workflows/validate-706a.yml'
   workflow_dispatch:
 
@@ -44,12 +44,12 @@ jobs:
           node --check frontend/scripts/my-trips-booking-706a.js
           node --check frontend/scripts/booking-account-bridge-706a.js
           node --check frontend/scripts/booking-account-snapshot-706a.js
-          node --check backend/validate-gv-book-706a.js
+          node --check backend/validation/validate-gv-book-706a.js
       - name: Validate saved trip booking workspace
-        run: node backend/validate-gv-book-706a.js
+        run: node backend/validation/validate-gv-book-706a.js
       - name: Preserve account and repository regressions
         run: |
-          node backend/validate-gv-account-705b-r3.js
-          node backend/validate-gv-account-705c.js
-          node backend/validate-gv-account-705c-r3.js
+          node backend/validation/validate-gv-account-705b-r3.js
+          node backend/validation/validate-gv-account-705c.js
+          node backend/validation/validate-gv-account-705c-r3.js
           node .github/scripts/validate-repo.mjs

@@ -11,7 +11,7 @@ const exists=name=>fs.existsSync(path.join(root,name));
 const checks=[];
 const check=(name,pass,detail='')=>checks.push({name,pass:Boolean(pass),detail});
 
-const release=JSON.parse(read('GV-RC-686D-RELEASE.json'));
+const release=JSON.parse(read('validation/releases/GV-RC-686D-RELEASE.json'));
 const shell=read('scripts/shell-670f.js');
 const shellCss=read('styles/shell.css');
 const home=read('index.html');
@@ -27,7 +27,7 @@ const bookingHtml=read('booking.html');
 const bookingHubSource=read('scripts/booking-hub-685d.js');
 const workspaceSource=read('scripts/booking-workspace-686c.js');
 const workspaceCss=read('styles/booking-workspace-686c.css');
-const legalNote=read('GV-RC-686D-LEGAL-COMMERCIAL-GATE.md');
+const legalNote=read('validation/releases/GV-RC-686D-LEGAL-COMMERCIAL-GATE.md');
 const journey=require(path.join(root,'scripts/journey-experience-687a.js'));
 const hub=require(path.join(root,'scripts/booking-hub-685d.js'));
 const workspace=require(path.join(root,'scripts/booking-workspace-686c.js'));
@@ -115,7 +115,7 @@ const allPaths=filesUnder(root).map(file=>file.substring(root.length+1).replace(
 const prohibited=allPaths.filter(file=>/(^|\/)(backend|lambda|server|serverless)(\/|$)|(^|\/)template\.ya?ml$|\.env($|\.)/i.test(file));
 check('Package contains no backend, Lambda or runtime-server files',prohibited.length===0,prohibited.join(', '));
 check('Journey and workspace additions make no provider/network request',!/\bfetch\s*\(|XMLHttpRequest|GlobevoyApi\./.test(journeySource+workspaceSource));
-check('All required isolated browser fixtures are present',['gv-journey-686b-browser-fixture.html','gv-book-686c-browser-fixture.html','gv-book-685d-browser-fixture.html','gv-rc-686d-all-flight-browser-fixture.html'].every(exists));
+check('All required isolated browser fixtures are present',['validation/fixtures/gv-journey-686b-browser-fixture.html','validation/fixtures/gv-book-686c-browser-fixture.html','validation/fixtures/gv-book-685d-browser-fixture.html','validation/fixtures/gv-rc-686d-all-flight-browser-fixture.html'].every(exists));
 
 checks.forEach((item,index)=>console.log(`${item.pass?'PASS':'FAIL'} ${String(index+1).padStart(2,'0')} — ${item.name}${item.pass||!item.detail?'':` :: ${item.detail.trim().split(/\r?\n/).slice(-2).join(' | ')}`}`));
 const passed=checks.filter(item=>item.pass).length,failed=checks.length-passed;

@@ -37,6 +37,21 @@ function inspect(directory) {
   }
 }
 inspect(root);
+const layout = JSON.parse(fs.readFileSync(path.join(root, 'docs/refactor/active-layout-moves.json'), 'utf8'));
+for (const [before, after] of Object.entries(layout)) {
+  if (fs.existsSync(path.join(root, before))) failures.push(`Old layout path still exists: ${before}`);
+  if (!fs.existsSync(path.join(root, after))) failures.push(`Moved file missing: ${after}`);
+}
+const entryPoints = new Set(['lambda.js', 'server.js', 'staging-lambda.js', 'staging-lambda-702d.js']);
+for (const name of fs.readdirSync(path.join(root, 'backend'))) {
+  if (name.endsWith('.js') && !entryPoints.has(name)) failures.push(`Backend root is reserved for entry points: ${name}`);
+}
+for (const entry of fs.readdirSync(path.join(root, 'frontend'), { withFileTypes: true })) {
+  if (entry.isFile() && !entry.name.endsWith('.html') && entry.name !== 'favicon.ico') {
+    failures.push(`Frontend root is reserved for public pages and favicon: ${entry.name}`);
+  }
+  if (entry.name.endsWith('-fixture.html')) failures.push(`Move browser fixture under validation/fixtures: ${entry.name}`);
+}
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL ${failure}`);
   process.exitCode = 1;

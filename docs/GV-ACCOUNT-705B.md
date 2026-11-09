@@ -150,7 +150,7 @@ This creates real AWS staging resources. Cognito pricing depends on feature tier
 
 ## Validation
 
-`backend/validate-gv-account-705b.js` verifies the script boundary without contacting AWS.
+`backend/validation/validate-gv-account-705b.js` verifies the script boundary without contacting AWS.
 
 CI additionally runs:
 

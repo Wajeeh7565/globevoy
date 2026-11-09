@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>GV-BOOK-685D-R1 browser fixture</title></head>
+<body>
+<p>Loading the complete-trip booking fixture…</p>
+<script>
+(function(){
+  const origin={city:'New York',country:'United States',countryCode:'US',code:'JFK',airportCode:'JFK'};
+  const resolvedNewYork={...origin,code:'LGA',airportCode:'LGA'};
+  const ottawa={city:'Ottawa',country:'Canada',countryCode:'CA',code:'YOW',airportCode:'YOW'};
+  const legs=[
+    {from:resolvedNewYork,to:ottawa,mode:'flight',departureDate:'2026-09-05',estimatedDisplayTotal:245,liveFareVerified:true,estimateSource:'duffel-public-live-fare-evidence-pilot-684a',metroAirportSubstitution683H:{version:'GV-PROVIDER-683H',sameCityRegistryVerified:true,groundAccessEstimateAdjusted:false},providerDateEvidence:{providerBacked:true,productionEligible:true,appliedToEstimate:true,departureDate:'2026-09-05',provider:'Duffel',sourceType:'LIVE',airline:'AC',stops:0,durationMinutes:95,requestedOrigin:'JFK',resolvedOrigin:'LGA',requestedDestination:'YOW',resolvedDestination:'YOW',airportMode683H:'METRO_ORIGIN_ALTERNATE',metroAirportFallback683H:{version:'GV-PROVIDER-683H',requestedOrigin:'JFK',resolvedOrigin:'LGA',requestedDestination:'YOW',resolvedDestination:'YOW',sameCityRegistryVerified:true,groundAccessEstimateAdjusted:false,caveat:'same-city airport substitution; ground-access estimate is not repriced in the Duffel P2 evaluation'},priceEvidence:{sourceType:'LIVE'},publicLiveFareEvidence684A:{version:'GV-FLIGHT-684A'}}},
+    {from:ottawa,to:resolvedNewYork,mode:'flight',departureDate:'2026-09-08',estimatedDisplayTotal:220,providerDateEvidence:{providerBacked:true,productionEligible:true,appliedToEstimate:true,departureDate:'2026-09-08',provider:'Duffel',sourceType:'CACHED',requestedOrigin:'YOW',resolvedOrigin:'YOW',requestedDestination:'LGA',resolvedDestination:'LGA',airportMode683H:'EXACT',priceEvidence:{sourceType:'CACHED'}},booking:{directSearchUrl:'https://www.aviasales.com/search/YOW0809LGA2?marker=globevoy-fixture'}}
+  ];
+  const tour={origin,cities:[ottawa],legs,backendLegs:legs,stays:[
+    {...ottawa,nights:3,arrivalDate:'2026-09-05',departureDate:'2026-09-08',hotel:{estimatedDisplayTotal:510,providerHotel:{provider:'Agoda',hotelId:'ag_fixture_ottawa',hotelName:'Ottawa Central Hotel',bookingUrl:'https://www.agoda.com/search?city=Ottawa&checkIn=2026-09-05&checkOut=2026-09-08&rooms=1&adults=2&cid=1891461'},providerVerification:{verified:true,productionEligible:true,provider:'Agoda',sourceType:'LIVE'},priceEvidence:{sourceType:'LIVE'}}}
+  ],budget:{total:{amount:1600,currency:'CAD'},estimatedCoreTotal:{amount:975,currency:'CAD'}},canonicalPricing:{canonicalDisplayTotal:975,exchangeRateFromUsd:1.36},passengerPricing:{adults:2,children:0,infants:0,travellers:2,rooms:1},liveProviderVerification:{criticalCount:3,verifiedCount:2,allCriticalVerified:false,budgetClaim:'planning-estimate'}};
+  sessionStorage.setItem('globevoy.multi.selected.v1',JSON.stringify(tour));
+  window.name='globevoy.trip.handoff.v1:'+JSON.stringify({id:'gv-book-685d-r1-browser-fixture',tour});
+  location.replace('../../booking.html?multi=true&snapshot=gv-book-685d-r1-browser-fixture&currency=CAD&budget=1600&total=975&adults=2&children=0&passengers=2&rooms=1');
+})();
+</script>
+</body>
+</html>

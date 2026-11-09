@@ -6,7 +6,7 @@ on:
       - staging
     paths:
       - 'backend/services/accounts/architecture/account-architecture-705a.js'
-      - 'backend/validate-gv-account-705a.js'
+      - 'backend/validation/validate-gv-account-705a.js'
       - 'docs/GV-ACCOUNT-705A.md'
       - '.github/workflows/validate-705a.yml'
   workflow_dispatch:
@@ -32,14 +32,14 @@ jobs:
       - name: Validate repository and current roadmap baseline
         run: |
           node .github/scripts/validate-repo.mjs
-          node backend/validate-gv-flight-703e.js
-          node backend/validate-gv-hotel-704a.js
-          node backend/validate-gv-account-705a.js
+          node backend/validation/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-hotel-704a.js
+          node backend/validation/validate-gv-account-705a.js
 
       - name: Syntax checks
         run: |
           node --check backend/services/accounts/architecture/account-architecture-705a.js
-          node --check backend/validate-gv-account-705a.js
+          node --check backend/validation/validate-gv-account-705a.js
           node --check backend/lambda.js
           node --check frontend/scripts/travel-profile-675a.js
           node --check frontend/scripts/shell-670f.js
@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -Eq 'account-architecture-705a|GV-ACCOUNT-705A' backend/lambda.js backend/generated-tour.js frontend/scripts/shell-670f.js frontend/scripts/travel-profile-675a.js; then
+          if grep -Eq 'account-architecture-705a|GV-ACCOUNT-705A' backend/lambda.js backend/services/domain/tours/generated-tour.js frontend/scripts/shell-670f.js frontend/scripts/travel-profile-675a.js; then
             echo '705A architecture code was wired into an active runtime path.'
             exit 1
           fi
@@ -73,7 +73,7 @@ jobs:
             echo '705A pure architecture module contains runtime provider/AWS credential wiring.'
             exit 1
           fi
-          if grep -E 'aws[[:space:]]+(cognito-idp|dynamodb|lambda|amplify|cloudformation)|amplify[[:space:]]+publish' backend/services/accounts/architecture/account-architecture-705a.js backend/validate-gv-account-705a.js; then
+          if grep -E 'aws[[:space:]]+(cognito-idp|dynamodb|lambda|amplify|cloudformation)|amplify[[:space:]]+publish' backend/services/accounts/architecture/account-architecture-705a.js backend/validation/validate-gv-account-705a.js; then
             echo '705A implementation contains deployment commands.'
             exit 1
           fi

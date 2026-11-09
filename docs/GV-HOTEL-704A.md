@@ -65,7 +65,7 @@ Therefore the correct migration boundary is a **new Agoda Demand adapter**, not 
 - keeps order/payment/booking capabilities false;
 - exposes the migration blockers/status without reading credentials.
 
-`backend/validate-gv-hotel-704a.js` proves the request and response semantics deterministically with no provider call.
+`backend/validation/validate-gv-hotel-704a.js` proves the request and response semantics deterministically with no provider call.
 
 ## User-trust requirements carried into 704B+
 

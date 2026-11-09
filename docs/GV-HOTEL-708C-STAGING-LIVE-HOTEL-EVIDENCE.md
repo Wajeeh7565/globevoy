@@ -142,7 +142,7 @@ Existing Agoda URLs remain comparison/referral handoffs only. When Nuitee eviden
 - `backend/services/nuitee-hotel-708c.js` — bounded server-side Nuitee adapter.
 - `backend/services/staging-booking-revalidation-708c.js` — additive wrapper around 707B-R1.
 - `backend/staging-lambda-702d.js` — staging route delegates to the 708C wrapper.
-- `backend/validate-gv-hotel-708c.js` — no-network credential/provider mocks and regression safety checks.
+- `backend/validation/validate-gv-hotel-708c.js` — no-network credential/provider mocks and regression safety checks.
 - `web/lib/contracts.ts` — optional additive hotel evidence contract.
 - `web/components/booking/booking-workspace-client.tsx` — concise live hotel evidence + image rendering.
 - `.github/workflows/validate-708c.yml` — task CI.

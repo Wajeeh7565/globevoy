@@ -8,7 +8,7 @@ const vm = require('node:vm');
 const { createRequire } = require('node:module');
 
 const backendDir = path.resolve(__dirname, '../../backend');
-const filename = path.join(backendDir, 'generated-tour.js');
+const filename = path.join(backendDir, 'services/domain/tours/generated-tour.js');
 const source = fs.readFileSync(filename, 'utf8');
 const realRequire = createRequire(filename);
 const plain = value => JSON.parse(JSON.stringify(value));
@@ -50,14 +50,14 @@ function harness(config = {}) {
   };
 
   const deps = {
-    './multicity-routes': {
+    '../routing/multicity-routes': {
       getMultiCityTours: async () => {
         calls.push('legacy');
         advance(5);
         return { tours: [first, selected], requested: { origin: 'YYZ' }, diagnostics: { baseline: true } };
       }
     },
-    './services/domain/routing/global-route-graph': {
+    '../routing/global-route-graph': {
       globalRouteGraphEnabled: () => true,
       generateProviderDrivenGlobalRouteCandidates: async () => {
         calls.push('graph');
@@ -68,7 +68,7 @@ function harness(config = {}) {
         };
       }
     },
-    './services/domain/routing/route-feasibility': {
+    '../routing/route-feasibility': {
       guardEnabled: () => false,
       maxStopsForTrip: () => 3,
       guardCandidateTours: rows => ({ tours: rows }),
@@ -78,10 +78,10 @@ function harness(config = {}) {
         return { accepted: true, tour, reasons: [], warnings: [], metrics: {} };
       }
     },
-    './services/domain/eligibility/travel-entry-eligibility': {
+    '../eligibility/travel-entry-eligibility': {
       recommendationEligibility: () => ({ hardBlocked: false, summary: {}, checks: [] })
     },
-    './services/domain/live-fares/affordable-flight-discovery-684b': {
+    '../live-fares/affordable-flight-discovery-684b': {
       discoverAffordableFlightTour684B: async (_rows, tour) => {
         discoveryCalls += 1;
         if (discoveryCalls === 1) {
@@ -111,7 +111,7 @@ function harness(config = {}) {
         return { enabled: true };
       }
     },
-    './services/domain/live-fares/public-live-fare-pilot-684a': {
+    '../live-fares/public-live-fare-pilot-684a': {
       applyPublicLiveFarePilot684A: async tour => {
         calls.push('684A');
         advance(23);
@@ -130,7 +130,7 @@ function harness(config = {}) {
         return { enabled: true };
       }
     },
-    './services/domain/live-fares/live-provider-verification': {
+    '../live-fares/live-provider-verification': {
       verifyTourWithLiveProviders: async tour => {
         verifyCalls += 1;
         calls.push(verifyCalls === 1 ? 'verify-initial' : 'verify-rescue');
@@ -184,7 +184,7 @@ function harness(config = {}) {
   const sandbox = {
     module: { exports: {} },
     exports: {},
-    __dirname: backendDir,
+    __dirname: path.dirname(filename),
     __filename: filename,
     process: { env: {}, hrtime: { bigint: () => now } },
     console,

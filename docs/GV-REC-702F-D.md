@@ -91,7 +91,7 @@ Ukraine operational/airspace holds and all manual gateway-review rows are also u
 
 ## Validation contract
 
-`backend/validate-gv-rec-702f-d.js` requires:
+`backend/validation/validate-gv-rec-702f-d.js` requires:
 
 - exact nine-city manifest;
 - exact source commit/blob provenance;

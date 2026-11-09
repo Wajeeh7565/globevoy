@@ -67,4 +67,5 @@ Feature documents below retain their existing paths because workflows and valida
 - [Service migration](refactor/service-move-plan.md)
 - [Test classification](refactor/test-classification-plan.md)
 - [Remaining cleanup and verification](refactor/remaining-cleanup.md)
+- [Completed active file layout](refactor/active-layout-cleanup.md)
 - [Archived frontend material](../archive/frontend/README.md)

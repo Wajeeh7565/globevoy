@@ -27,10 +27,15 @@ against staging. Promotion to main and production is a separate release decision
 | `backend/staging-lambda*.js` | Staging entry points and ordered overlays |
 | `backend/server.js` | HTTP server entry point |
 | `backend/services/` | Organized accounts, booking, cities, domain, providers, and shared services |
+| `backend/services/domain/tours/` | Generated tours, date controls and fallback logic |
+| `backend/services/domain/recommendations/` | Recommendations, quality and mixed results |
+| `backend/validation/` | All 40 backend validators, invoked by the grouped runner and CI |
 | `backend/data/` | Versioned runtime inputs, fixtures, and review data; inspect consumers before moving |
-| `frontend/` | Classic website, stable page URLs and release validation dependencies |
+| `frontend/` | Public HTML pages and favicon only at the root; website URLs remain stable |
 | `frontend/runtime/`, `scripts/`, `styles/` | Classic configuration/API client, behavior, and CSS |
-| `frontend/validation/` | Current classic frontend validators |
+| `frontend/validation/` | Validators, browser fixtures, release metadata and historical recorded results |
+| `ops/frontend/validation/`, `ops/frontend/smoke/` | PowerShell validation and deployment smoke tools |
+| `.cache/validation/frontend/` | Fresh local validation output; ignored by Git |
 | `web/` | Next.js/React application exported under `/react` |
 | `tests/` | Shared test collections, currently performance and legacy frontend tests |
 | `scripts/` | Repository-wide developer commands |
@@ -66,12 +71,12 @@ npm run build:web
 ```
 
 Current cleanup verification and existing failures are recorded in
-[the cleanup report](refactor/remaining-cleanup.md). Old release hashes or recorded
+[the active-layout cleanup report](refactor/active-layout-cleanup.md). Old release hashes or recorded
 PASS counts are not proof that the current checkout passes today.
 
 ## Continue in small steps
 
-1. Address the current baseline test failures in a focused validation task.
+1. Use the grouped test commands for current work. Investigate older standalone release validators separately; several assert historical behavior that has since changed.
 2. Review the feature inventory and frontend audit branches listed in BRANCHES.md;
    bring over only the changes still wanted after comparing with current staging.
 3. Resume one product feature at a time, with its relevant grouped tests.

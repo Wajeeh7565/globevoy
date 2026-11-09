@@ -37,6 +37,6 @@ jobs:
       - name: Preserve 705B staging-only safety boundary
         shell: bash
         run: |
-          node backend/validate-gv-account-705b.js
+          node backend/validation/validate-gv-account-705b.js
           ! grep -Eq 'aws[[:space:]]+(lambda|amplify|dynamodb|iam|cloudformation)' ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh
           ! grep -Eq 'aws[[:space:]]+cognito-idp[[:space:]]+(delete-|update-)' ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh

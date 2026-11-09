@@ -4,23 +4,23 @@ const {
   buildValidationErrorResponse,
   isInvalidOriginError,
   isRecommendationValidationError
-} = require('./recommendations');
+} = require('./services/domain/recommendations/recommendations');
 const { fetchFlexDateWindows } = require('./services/providers/flights/flexible-dates');
 const { fetchFareCalendar } = require('./services/providers/flights/fare-calendar');
 const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D, duffelStatus683D } = require('./services/providers/flights/flight-provider-router-683c');
 const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/shared/fx-normalization-683g');
 const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
-const { getGeneratedTour } = require('./generated-tour');
-const { getGeneratedTourControl } = require('./generated-tour-controls');
-const { recalculateGeneratedTourDate } = require('./generated-tour-dates');
+const { getGeneratedTour } = require('./services/domain/tours/generated-tour');
+const { getGeneratedTourControl } = require('./services/domain/tours/generated-tour-controls');
+const { recalculateGeneratedTourDate } = require('./services/domain/tours/generated-tour-dates');
 const { evaluateTravelEntryEligibility } = require('./services/domain/eligibility/travel-entry-eligibility');
 const { status: duffelSandboxStatus, runProof: runDuffelSandboxProof, DuffelProofValidationError } = require('./services/providers/flights/duffel/duffel-sandbox-proof');
 const {
   getMultiCityTours,
   buildValidationErrorResponse: buildMultiCityValidationErrorResponse,
   isMultiCityValidationError
-} = require('./multicity-routes');
-const { getMixedResults } = require('./mixed-results');
+} = require('./services/domain/routing/multicity-routes');
+const { getMixedResults } = require('./services/domain/recommendations/mixed-results');
 const { registrySummary, searchRegistry } = require('./services/cities/registry/city-registry');
 const { coverageSummary, searchCoverage } = require('./services/admin/audits/provider-mapping-audit');
 const { snapshotSummary: liveCoverageSummary, searchSnapshot: searchLiveCoverage, verifyBatch: verifyLiveCoverageBatch, isAuthorized: isLiveCoverageAuthorized } = require('./services/admin/audits/provider-live-coverage');

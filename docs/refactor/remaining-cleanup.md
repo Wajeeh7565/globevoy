@@ -1,5 +1,11 @@
 # Remaining directory cleanup — November 6, 2026
 
+**Superseded by [the completed active-layout cleanup](active-layout-cleanup.md).**
+The first pass below archived historical material only. The follow-up also moves
+the remaining active modules, validators, metadata and tools. The five frontend
+gate failures recorded here were caused by CRLF bytes in the Windows checkout;
+the same gate passes on a clean Git export and the corrected LF checkout.
+
 ## Scope and result
 
 Based on staging commit `447fba5` (PR #119), preserving the service migration and

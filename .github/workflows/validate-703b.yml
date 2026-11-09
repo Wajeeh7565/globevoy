@@ -9,7 +9,7 @@ on:
       - 'backend/services/domain/live-fares/public-live-fare-pilot-684a.js'
       - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
       - 'backend/staging-lambda-702d.js'
-      - 'backend/validate-gv-flight-703b.js'
+      - 'backend/validation/validate-gv-flight-703b.js'
       - '.github/workflows/validate-703b.yml'
       - 'docs/GV-FLIGHT-703B.md'
   workflow_dispatch:
@@ -36,8 +36,8 @@ jobs:
         run: |
           node --check backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js
           node --check backend/staging-lambda-702d.js
-          node --check backend/validate-gv-flight-703b.js
-          node backend/validate-gv-flight-703b.js
+          node --check backend/validation/validate-gv-flight-703b.js
+          node backend/validation/validate-gv-flight-703b.js
 
       - name: Confirm production handler has no 703B runtime wiring
         shell: bash

@@ -14,7 +14,7 @@
 // preserve every saved stop-night allocation exactly, and choose the cheapest
 // complete provider-backed chain. No dates are invented or shifted silently.
 
-const { getMultiCityTours } = require('../../../../multicity-routes');
+const { getMultiCityTours } = require('../multicity-routes');
 const {
   fetchCheapestOneWayAcrossMonths,
   selectBestUsableObservation

@@ -21,6 +21,7 @@ historical release. The manifest's baseline commit provides the exact pre-move
 layout, but even that newer staging source may fail older release assertions.
 Do not copy old validators back into the active tree as a routine test step.
 
-Files still used by current package validators remain in `frontend/`, including
-release JSON, checksums, browser fixtures and the inherited trust/booking validators.
-Their migration needs coordinated changes to those consumers.
+Files used by current package validators are now grouped under
+`frontend/validation/`, including release JSON, checksums, browser fixtures and
+inherited trust/booking validators. Their consumers were updated together in the
+[active-layout cleanup](../../docs/refactor/active-layout-cleanup.md).

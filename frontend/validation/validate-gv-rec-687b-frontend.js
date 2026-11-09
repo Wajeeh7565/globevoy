@@ -9,7 +9,7 @@ const html=read('multicity-visualizer.html');
 const engine=read('scripts/multicity-visualizer-687b.js');
 const css=read('styles/journey-experience-687a.css');
 const runtimeConfig=read('runtime/config.js');
-const release=JSON.parse(read('GV-REC-687B-RELEASE.json'));
+const release=JSON.parse(read('validation/releases/GV-REC-687B-RELEASE.json'));
 const run=n=>spawnSync(process.execPath,[path.join(root,n)],{cwd:root,encoding:'utf8'});
 
 check('Release metadata identifies GV-REC-687B',release.release==='GV-REC-687B'&&release.deployment==='NOT_DEPLOYED');

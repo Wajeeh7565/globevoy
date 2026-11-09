@@ -26,7 +26,7 @@ const {
   isPriceAudit610DEnabled,
   auditAgodaHotelSample,
   buildPlanningEstimateEvidence
-} = require('../../../../price-audit');
+} = require('../../../domain/pricing/price-audit');
 
 function normalizeAgodaCurrency(value) {
   const code = String(value || '').trim().toUpperCase();
