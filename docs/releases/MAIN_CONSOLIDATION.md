@@ -13,12 +13,12 @@ Source: staging `721652d0a2feacdcd885076e1c5b863f69f32869`, including merged cle
 - HTML pages using runtime config/auth or the shared shell load the policy before consumers. `frontend/scripts/auth-session-705b-r3.js` and `shell-670f.js` reject cached production sessions and disable sign-in.
 - `web/lib/public-config.ts`, `auth.ts`, `api.ts`: shared selection, reject production cached sessions/private API calls, disable unsupported automatic dates. `web/components/production-boundary.tsx` and `web/app/layout.tsx` keep newer workflows from mounting on production and provide a classic-site link. `web/scripts/dev-staging.cjs` reuses development constants.
 - `tests/release/production-config.test.mjs`, `scripts/run-tests.mjs`, `package.json`: focused environment/auth/load-order tests and release commands. The existing account validator follows the centralized public configuration rather than requiring literals in its old file.
-- `.github/workflows/validate.yml`: main CI, locked dependency installation, environment tests, typecheck and static build. No deployment automation.
+- `.github/workflows/validate.yml` and `web/package-lock.json`: main CI, reproducible dependency installation, environment tests, typecheck and static build. The first CI attempt exposed the missing lockfile; it was generated and committed rather than bypassing the install check. No deployment automation.
 - `ops/release/package-production.mjs`: repeatable composite artifact, required public Maps key supplied outside Git, expected routes/assets checked, evidence/test folders excluded, SHA-256 file manifest. Refuses to overwrite an existing artifact.
 
 ## Verification and production compatibility
 
-Local: all 52 commands across repo, backend, frontend, account, providers, syntax, web and performance passed. Five focused release tests passed, including three production origins, stale-session rejection without network access, staging preservation, hostile override rejection and script order. React typecheck and production static export passed. These are not full live provider/booking or browser acceptance tests.
+Local: all 52 commands across repo, backend, frontend, account, providers, syntax, web and performance passed. Five focused release tests passed, including three production origins, stale-session rejection without network access, staging preservation, hostile override rejection and script order. React typecheck and production static export passed. Composite packaging also passed: 273 files with verified SHA-256 hashes, expected classic/React pages, fallback content, and zero missing local HTML script/style/image references. These are not full live provider/booking or browser acceptance tests.
 
 Read-only AWS inspection on November 9:
 
