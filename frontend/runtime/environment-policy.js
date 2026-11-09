@@ -35,7 +35,8 @@
     if (!/^us-east-2_[A-Za-z0-9]+$/.test(String(auth.userPoolId || '')) ||
         !/^[a-z0-9]{12,64}$/.test(String(auth.clientId || ''))) return false;
     const issuer = 'https://cognito-idp.us-east-2.amazonaws.com/' + auth.userPoolId;
-    if (auth.issuer !== issuer || auth.region !== 'us-east-2') return false;
+    if (auth.issuer !== issuer || auth.region !== 'us-east-2' ||
+        auth.userPoolId === stagingAuth.userPoolId || auth.clientId === stagingAuth.clientId) return false;
     try {
       const url = new URL(auth.domainBaseUrl);
       return url.protocol === 'https:' &&
