@@ -52,7 +52,7 @@ Write-Host "Custom scope: globevoy/trips.write"
 Write-Host "Redirect: $callback and $wwwCallback"
 Write-Host "Logout: $logout and $wwwLogout"
 Write-Host "Cognito hosted-login prefix: $prefix"
-Write-Host 'Email login and verification; password policy min 12+complexity; deletion protection ACTIVE.'
+Write-Host 'Cognito Lite tier, classic hosted UI; email login/verification, 12+complex password and ACTIVE deletion protection.'
 Write-Host 'MFA OFF for initial parity; review MFA, email sending, threat protection and Cognito costs before public launch.'
 Write-Host 'No staging users/data are copied. AWS backend and website are NOT changed.'
 if ($existing.Count -gt 0) { Write-Host "Existing production pool: $($existing[0].Id) (will not update its settings)" }
@@ -69,6 +69,10 @@ if ($answer -cne 'CREATE PRODUCTION COGNITO') { throw 'Not confirmed; no changes
 
 if ($existing.Count -eq 1) {
   $poolId = [string]$existing[0].Id
+  $existingPool = Invoke-Aws -AwsArguments @('cognito-idp','describe-user-pool','--user-pool-id',$poolId)
+  if ($existingPool.UserPool.UserPoolTier -and $existingPool.UserPool.UserPoolTier -ne 'LITE') {
+    throw 'Existing production pool is not Lite; review pricing and configuration before continuing.'
+  }
 } else {
   $newPool = Invoke-Aws -AwsArguments @(
     'cognito-idp','create-user-pool',
@@ -76,6 +80,7 @@ if ($existing.Count -eq 1) {
     '--username-attributes','email',
     '--auto-verified-attributes','email',
     '--deletion-protection','ACTIVE',
+    '--user-pool-tier','LITE',
     '--mfa-configuration','OFF',
     '--policies','PasswordPolicy={MinimumLength=12,RequireUppercase=true,RequireLowercase=true,RequireNumbers=true,RequireSymbols=true,TemporaryPasswordValidityDays=7}',
     '--account-recovery-setting','RecoveryMechanisms=[{Priority=1,Name=verified_email}]'
