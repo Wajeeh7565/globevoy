@@ -129,7 +129,7 @@
 
   async function beginSignIn(options = {}) {
     if (!authEnabled()) {
-      status('Secure staging sign-in is not available on this origin.', 'error');
+      status('Secure sign-in is not available on this website yet.', 'error');
       return false;
     }
     if (!window.crypto?.subtle || !window.crypto?.getRandomValues) {
@@ -202,7 +202,7 @@
 
   async function handleCallback() {
     if (!authEnabled()) {
-      status('This sign-in callback is valid only on the Globevoy staging site.', 'error');
+      status('This sign-in callback is not available on this website.', 'error');
       return false;
     }
 
