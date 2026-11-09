@@ -119,3 +119,19 @@ Without production release flags, the existing behavior stays: classic uses the 
 5. Build and inspect the candidate, run browser acceptance of the classic homepage, React login/account/saved trip flows, maps and recommendations, then approve a manual Amplify release. Production is still **BLOCKED** for full staging parity until these checks pass.
 
 This is an opt-in mechanism for a future verified release, **not** evidence that the production backend/auth migration is complete. PR #121 remains source-only until approved.
+
+### Cognito provisioning automation (preview-first)
+
+The latest staging pool inspection confirmed: email as username and auto-verified attribute; one public OAuth authorization-code client; scope `globevoy/trips.write`; minimum-8 complex passwords; MFA OFF; recovery by verified email; deletion protection INACTIVE. The separate production configuration uses a minimum-12 password and ACTIVE deletion protection.
+
+`ops/release/provision-production-cognito.ps1` consolidates production pool, custom scope, public app client, and prefixed hosted-login domain creation. It is **read-only by default**. The `-Apply` parameter prompts for an exact interactive confirmation before creating AWS resources. The script never touches staging user pools, Lambda, IAM, database, DNS or Amplify. Review Cognito pricing and outgoing verification email limits before launching sign-up.
+
+From a checkout of the approved release branch:
+
+```powershell
+.\ops\release\provision-production-cognito.ps1
+# After AWS account/name/security review and explicit creation approval:
+.\ops\release\provision-production-cognito.ps1 -Apply
+```
+
+The script outputs public pool/client/domain identifiers for later deployment configuration. It configures **hosted UI classic (managed-login version 1)** for lower-complexity setup; verify the authentication page styling against staging before declaring visual parity. Production accounts must remain OFF until the protected API is migrated, dedicated database and IAM prepared, Cognito token validation and browser user flows tested, and production release approved. The code-path toggle never replaces backend authorization.
