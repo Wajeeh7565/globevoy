@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import Script from 'next/script';
 import { AppShell } from '@/components/app-shell';
 import { ProductionBoundary } from '@/components/production-boundary';
 import '../public/assets/fonts/fonts.css';
@@ -36,6 +37,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
+      <head><Script src="/runtime/environment-policy.js" strategy="beforeInteractive" /></head>
       <body>
         <ProductionBoundary><AppShell>{children}</AppShell></ProductionBoundary>
       </body>
