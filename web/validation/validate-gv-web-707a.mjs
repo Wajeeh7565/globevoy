@@ -28,7 +28,7 @@ check('React migration is scoped under /react', nextConfig.includes("basePath: '
 check('React auth reuses exact 705B session key', auth.includes("SESSION_KEY = 'globevoy.auth.session.705b-r3'") && legacyAuth.includes("SESSION_KEY = 'globevoy.auth.session.705b-r3'"));
 check('React auth reuses exact 705B pending key', auth.includes("PENDING_KEY = 'globevoy.auth.pending.705b-r3'") && legacyAuth.includes("PENDING_KEY = 'globevoy.auth.pending.705b-r3'"));
 check('React sign-in remains Authorization Code + PKCE S256', auth.includes("code_challenge_method', 'S256'") && auth.includes('pkceChallenge(verifier)') && auth.includes("response_type', 'code'"));
-check('Existing legacy callback remains authoritative', config.includes("COGNITO_CALLBACK_URL = `${STAGING_ORIGIN}/auth-callback.html`") && auth.includes("redirect_uri', COGNITO_CALLBACK_URL"));
+check('Existing legacy callback remains authoritative', config.includes("COGNITO_CALLBACK_URL = `${STAGING_ORIGIN}/auth-callback.html`") && auth.includes("redirect_uri', account.callbackUrl"));
 check('No auth token is written to localStorage', !/localStorage\.setItem\([^\n]*(token|session|auth)/i.test(auth) && auth.includes('localStorageTokensAllowed: false'));
 check('No refresh or ID token persistence is introduced', auth.includes('refreshTokenPersisted: false') && auth.includes('idTokenPersisted: false'));
 check('Saved Trips API remains bearer authenticated and cookie-free', api.includes('Authorization: `Bearer ${accessToken}`') && api.includes("credentials: 'omit'") && api.includes("cache: 'no-store'"));
