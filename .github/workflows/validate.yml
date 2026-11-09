@@ -63,6 +63,21 @@ jobs:
           test -f web/out/journey/index.html
           grep -q '/react/_next/' web/out/index.html
 
+      - name: Validate production Cognito script syntax without running AWS commands
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'ops/release/provision-production-cognito.ps1'),
+            [ref]$tokens,
+            [ref]$parseErrors
+          )
+          if ($parseErrors.Count -gt 0) {
+            $parseErrors | ForEach-Object { Write-Host $_.ToString() }
+            exit 1
+          }
+
       - name: Confirm CI is deployment-free
         shell: bash
         run: |
