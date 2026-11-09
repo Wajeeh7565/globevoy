@@ -23,7 +23,9 @@ $clientName = 'globevoy-production-web'
 $stagingPoolId = 'us-east-2_MSd9RRHD8'
 $stagingClientId = 'o2ohbv50253hjli5s34rbvv79'
 $callback = 'https://globevoy.com/auth-callback.html'
+$wwwCallback = 'https://www.globevoy.com/auth-callback.html'
 $logout = 'https://globevoy.com/index.html'
+$wwwLogout = 'https://www.globevoy.com/index.html'
 
 function Invoke-Aws {
   param([Parameter(Mandatory=$true)][string[]]$AwsArguments)
@@ -34,10 +36,10 @@ function Invoke-Aws {
   return ($raw | ConvertFrom-Json)
 }
 
-$identity = Invoke-Aws @('sts','get-caller-identity')
+$identity = Invoke-Aws -AwsArguments @('sts','get-caller-identity')
 if ($identity.Account -notmatch '^\d{12}$') { throw 'Could not establish AWS account.' }
 $prefix = 'globevoy-prod-' + $identity.Account.Substring(6)
-$pools = @(Invoke-Aws @('cognito-idp','list-user-pools','--max-results','60'))
+$pools = @(Invoke-Aws -AwsArguments @('cognito-idp','list-user-pools','--max-results','60'))
 # list-user-pools returns an object containing UserPools, not a plain array.
 $pools = @($pools[0].UserPools)
 $existing = @($pools | Where-Object { $_.Name -eq $poolName })
@@ -47,8 +49,8 @@ Write-Host "AWS account: $($identity.Account)   Region: $region"
 Write-Host "Production pool: $poolName"
 Write-Host "Production client: $clientName (public OAuth code+PKCE; no client secret)"
 Write-Host "Custom scope: globevoy/trips.write"
-Write-Host "Redirect: $callback"
-Write-Host "Logout: $logout"
+Write-Host "Redirect: $callback and $wwwCallback"
+Write-Host "Logout: $logout and $wwwLogout"
 Write-Host "Cognito hosted-login prefix: $prefix"
 Write-Host 'Email login and verification; password policy min 12+complexity; deletion protection ACTIVE.'
 Write-Host 'MFA OFF for initial parity; review MFA, email sending, threat protection and Cognito costs before public launch.'
@@ -68,7 +70,7 @@ if ($answer -cne 'CREATE PRODUCTION COGNITO') { throw 'Not confirmed; no changes
 if ($existing.Count -eq 1) {
   $poolId = [string]$existing[0].Id
 } else {
-  $newPool = Invoke-Aws @(
+  $newPool = Invoke-Aws -AwsArguments @(
     'cognito-idp','create-user-pool',
     '--pool-name',$poolName,
     '--username-attributes','email',
@@ -83,10 +85,10 @@ if ($existing.Count -eq 1) {
 }
 if ($poolId -eq $stagingPoolId) { throw 'Refusing to modify staging user pool.' }
 
-$serverList = Invoke-Aws @('cognito-idp','list-resource-servers','--user-pool-id',$poolId,'--page-size','25')
+$serverList = Invoke-Aws -AwsArguments @('cognito-idp','list-resource-servers','--user-pool-id',$poolId,'--page-size','25')
 $servers = @($serverList.ResourceServers | Where-Object { $_.Identifier -eq 'globevoy' })
 if ($servers.Count -eq 0) {
-  $null = Invoke-Aws @(
+  $null = Invoke-Aws -AwsArguments @(
     'cognito-idp','create-resource-server','--user-pool-id',$poolId,
     '--identifier','globevoy','--name','Globevoy production API',
     '--scopes','ScopeName=trips.write,ScopeDescription=Create_and_manage_saved_trips'
@@ -96,26 +98,28 @@ if ($servers.Count -eq 0) {
   throw 'Existing resource server is missing trips.write; inspect manually.'
 }
 
-$clients = Invoke-Aws @('cognito-idp','list-user-pool-clients','--user-pool-id',$poolId,'--max-results','60')
+$clients = Invoke-Aws -AwsArguments @('cognito-idp','list-user-pool-clients','--user-pool-id',$poolId,'--max-results','60')
 $matchingClients = @($clients.UserPoolClients | Where-Object { $_.ClientName -eq $clientName })
 if ($matchingClients.Count -gt 1) { throw 'Duplicate production client names; manual review required.' }
 if ($matchingClients.Count -eq 1) {
   $clientId = [string]$matchingClients[0].ClientId
-  $clientDetail = Invoke-Aws @('cognito-idp','describe-user-pool-client','--user-pool-id',$poolId,'--client-id',$clientId)
+  $clientDetail = Invoke-Aws -AwsArguments @('cognito-idp','describe-user-pool-client','--user-pool-id',$poolId,'--client-id',$clientId)
   $client = $clientDetail.UserPoolClient
-  if (@($client.CallbackURLs) -notcontains $callback -or @($client.LogoutURLs) -notcontains $logout -or
+  if (@($client.CallbackURLs) -notcontains $callback -or @($client.CallbackURLs) -notcontains $wwwCallback -or
+      @($client.LogoutURLs) -notcontains $logout -or @($client.LogoutURLs) -notcontains $wwwLogout -or
       @($client.AllowedOAuthFlows) -notcontains 'code' -or
-      @($client.AllowedOAuthScopes) -notcontains 'globevoy/trips.write' -or $client.ClientSecret) {
+      @($client.AllowedOAuthScopes) -notcontains 'globevoy/trips.write' -or
+      ($client.PSObject.Properties.Name -contains 'ClientSecret' -and [bool]$client.ClientSecret)) {
     throw 'Existing production client differs from approved public OAuth configuration; do not overwrite automatically.'
   }
 } else {
-  $newClient = Invoke-Aws @(
+  $newClient = Invoke-Aws -AwsArguments @(
     'cognito-idp','create-user-pool-client','--user-pool-id',$poolId,
     '--client-name',$clientName,'--no-generate-secret',
     '--allowed-o-auth-flows-user-pool-client',
     '--allowed-o-auth-flows','code',
     '--allowed-o-auth-scopes','openid','email','profile','globevoy/trips.write',
-    '--callback-urls',$callback,'--logout-urls',$logout,
+    '--callback-urls',$callback,$wwwCallback,'--logout-urls',$logout,$wwwLogout,
     '--supported-identity-providers','COGNITO',
     '--prevent-user-existence-errors','ENABLED',
     '--enable-token-revocation'
@@ -125,10 +129,10 @@ if ($matchingClients.Count -eq 1) {
 }
 if ($clientId -eq $stagingClientId) { throw 'Refusing to reuse the staging Cognito client.' }
 
-$poolDetail = Invoke-Aws @('cognito-idp','describe-user-pool','--user-pool-id',$poolId)
-$domain = [string]$poolDetail.UserPool.Domain
+$poolDetail = Invoke-Aws -AwsArguments @('cognito-idp','describe-user-pool','--user-pool-id',$poolId)
+$domain = if ($poolDetail.UserPool.PSObject.Properties.Name -contains 'Domain') { [string]$poolDetail.UserPool.Domain } else { '' }
 if (!$domain) {
-  $null = Invoke-Aws @(
+  $null = Invoke-Aws -AwsArguments @(
     'cognito-idp','create-user-pool-domain','--user-pool-id',$poolId,
     '--domain',$prefix,'--managed-login-version','1'
   )
