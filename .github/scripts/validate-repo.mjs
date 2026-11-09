@@ -31,7 +31,7 @@ for (const [relativePath, type] of [
   ['backend', 'directory'],
   ['frontend/runtime/config.js', 'file'],
   ['frontend/validation/validate-gv-rec-687b-frontend.js', 'file'],
-  ['backend/validate-gv-rec-687b-p3.js', 'file'],
+  ['backend/validation/validate-gv-rec-687b-p3.js', 'file'],
   ['backend/services/domain/routing/route-diversity-687b.js', 'file']
 ]) requirePath(relativePath, type);
 
@@ -87,11 +87,11 @@ const credentialPatterns = [
 // whole repository.
 const scanRoots = [
   'backend/lambda.js',
-  'backend/generated-tour.js',
+  'backend/services/domain/tours/generated-tour.js',
   'backend/server.js',
   'backend/services',
-  'backend/validate-gv-rec-687b-p3.js',
-  'backend/validate-gv-rec-687b.js',
+  'backend/validation/validate-gv-rec-687b-p3.js',
+  'backend/validation/validate-gv-rec-687b.js',
   'frontend/runtime',
   'frontend/scripts',
   'frontend/validation',

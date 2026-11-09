@@ -35,7 +35,7 @@ The last two settings select the curated 1,000-city registry and its reviewed pr
 
 ## CI proof
 
-`backend/validate-gv-rec-702d-r1.js` validates the full route-surface combination without provider credentials or network calls. It checks the actual global route graph diagnostics and requires `verifiedActiveDestinationCount === 441`.
+`backend/validation/validate-gv-rec-702d-r1.js` validates the full route-surface combination without provider credentials or network calls. It checks the actual global route graph diagnostics and requires `verifiedActiveDestinationCount === 441`.
 
 It also flips `ENABLE_STAGING_REVIEWED_RECOVERY_702D=false` in-process and requires the same curated route surface to return immediately to 439.
 

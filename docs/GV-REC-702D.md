@@ -21,7 +21,7 @@ GV-REC-702C-R2 records two fresh recovery candidates and projects 441 only if a 
 
 - `backend/services/staging-reviewed-recovery-702d.js`
 - `backend/staging-lambda-702d.js`
-- `backend/validate-gv-rec-702d.js`
+- `backend/validation/validate-gv-rec-702d.js`
 
 The 702D Lambda wrapper installs the reviewed eligibility overlay before the ordinary staging Lambda loads `backend/lambda.js`. This allows `generated-tour.js` to capture the staging-only `liveRecommendationEligible` function at module-load time while leaving the production handler source unchanged.
 

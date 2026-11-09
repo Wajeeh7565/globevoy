@@ -178,7 +178,7 @@ Therefore Globevoy should preserve **guest discovery**, and introduce secure sig
 - provider-price revalidation policy
 - local-profile migration policy
 
-`backend/validate-gv-account-705a.js` validates the contract and audits the current browser-only profile boundary.
+`backend/validation/validate-gv-account-705a.js` validates the contract and audits the current browser-only profile boundary.
 
 ## Implementation split after 705A
 

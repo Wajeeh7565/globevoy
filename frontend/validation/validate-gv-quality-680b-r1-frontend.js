@@ -1,0 +1,20 @@
+'use strict';
+const FRONTEND_ROOT = require('node:path').resolve(__dirname, '..');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const root = FRONTEND_ROOT;
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+const home = fs.readFileSync(path.join(root, 'scripts/home-live-674a.js'), 'utf8');
+
+assert.doesNotMatch(index, /id="gv-trip-style"/, 'unsupported trip-style control is hidden until it has real backend semantics');
+assert.doesNotMatch(index, /value="Golf"/, 'unsupported Golf priority is not presented as functional');
+assert.match(index, /id="gv-travel-pace"/, 'supported travel pace remains visible');
+assert.match(index, /id="gv-flight-preference"/, 'supported flight preference remains visible');
+assert.match(index, /name="gv-priority" value="Beach"/, 'supported destination priorities remain visible');
+assert.match(home, /floor\.setDate\(floor\.getDate\(\) \+ 14\)/, 'preferred-month list respects the 14-day booking floor');
+assert.doesNotMatch(home, /params\.set\('tripStyle'/, 'frontend no longer submits a no-op tripStyle parameter');
+assert.match(home, /params\.set\('travelPace'/, 'travel pace is submitted');
+assert.match(home, /params\.set\('flightPreference'/, 'flight preference is submitted');
+assert.match(home, /params\.set\('priorities'/, 'destination priorities are submitted');
+console.log('PASS GV-QUALITY-680B-R1 frontend predeployment integrity');

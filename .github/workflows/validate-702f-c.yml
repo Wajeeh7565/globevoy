@@ -7,7 +7,7 @@ on:
     paths:
       - 'backend/data/gateway-review-context-702f-c.json'
       - 'backend/services/cities/gateways/gateway-foundation-triage-702f-c.js'
-      - 'backend/validate-gv-rec-702f-c.js'
+      - 'backend/validation/validate-gv-rec-702f-c.js'
       - 'backend/services/cities/gateways/ourairports-gateway-enrichment-702f-b.js'
       - 'backend/data/ourairports-source-702f-b.json'
       - 'backend/data/unified-city-registry-1000-668b.json'
@@ -36,8 +36,8 @@ jobs:
       - name: Syntax and deterministic fixture validation
         run: |
           node --check backend/services/cities/gateways/gateway-foundation-triage-702f-c.js
-          node --check backend/validate-gv-rec-702f-c.js
-          node backend/validate-gv-rec-702f-c.js
+          node --check backend/validation/validate-gv-rec-702f-c.js
+          node backend/validation/validate-gv-rec-702f-c.js
 
       - name: Download exact pinned OurAirports snapshot
         shell: bash

@@ -4,7 +4,7 @@
 // Header totals, card totals, budget status and evidence counts are derived from
 // this same ledger after provider verification and passenger/room pricing.
 
-const { attachTourPresentation, normalizeCurrency, usdToCurrencyRate } = require('../../../budget-presentation');
+const { attachTourPresentation, normalizeCurrency, usdToCurrencyRate } = require('./budget-presentation');
 const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('./price-evidence-integrity');
 
 const CANONICAL_INTEGRITY_VERSION = 'GV-EVIDENCE-667E';

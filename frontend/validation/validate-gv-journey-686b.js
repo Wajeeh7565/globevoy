@@ -14,7 +14,7 @@ const html = read('multicity-visualizer.html');
 const css = read('styles/journey-experience-686b.css');
 const source = read('scripts/journey-experience-686b.js');
 const engine = read('scripts/multicity-visualizer-674a.js');
-const fixture = read('gv-journey-686b-browser-fixture.html');
+const fixture = read('validation/fixtures/gv-journey-686b-browser-fixture.html');
 const shell = read('scripts/shell-670f.js');
 
 const origin = { city: 'Toronto' };

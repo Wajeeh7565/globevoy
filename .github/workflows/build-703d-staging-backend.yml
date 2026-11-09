@@ -10,9 +10,9 @@ on:
       - 'backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
       - 'backend/services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
       - 'backend/staging-lambda-702d.js'
-      - 'backend/validate-gv-flight-703b.js'
-      - 'backend/validate-gv-flight-703c.js'
-      - 'backend/validate-gv-flight-703d.js'
+      - 'backend/validation/validate-gv-flight-703b.js'
+      - 'backend/validation/validate-gv-flight-703c.js'
+      - 'backend/validation/validate-gv-flight-703d.js'
       - '.github/workflows/build-703d-staging-backend.yml'
       - 'docs/GV-FLIGHT-703D.md'
   workflow_dispatch:
@@ -38,10 +38,10 @@ jobs:
       - name: Validate production baseline and 703 flight gates
         run: |
           node .github/scripts/validate-repo.mjs
-          node backend/validate-gv-rec-687b-p3.js
-          node backend/validate-gv-flight-703b.js
-          node backend/validate-gv-flight-703c.js
-          node backend/validate-gv-flight-703d.js
+          node backend/validation/validate-gv-rec-687b-p3.js
+          node backend/validation/validate-gv-flight-703b.js
+          node backend/validation/validate-gv-flight-703c.js
+          node backend/validation/validate-gv-flight-703d.js
 
       - name: Syntax checks
         run: |
@@ -52,7 +52,7 @@ jobs:
           node --check backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js
           node --check backend/services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js
           node --check backend/services/providers/flights/staging/staging-affordable-flight-five-origin-703d.js
-          node --check backend/validate-gv-flight-703d.js
+          node --check backend/validation/validate-gv-flight-703d.js
 
       - name: Build 703D staging ZIP
         shell: bash
@@ -70,7 +70,7 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
           unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
           unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/staging/staging-affordable-flight-five-origin-703d.js'
-          unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703d.js'
+          unzip -l "dist/${artifact}" | grep -q 'validation/validate-gv-flight-703d.js'
           sha256sum "dist/${artifact}" > "dist/${artifact}.sha256.txt"
           cat > dist/DEPLOYMENT-703D.txt <<EOF
           Globevoy GV-FLIGHT-703D staging backend artifact

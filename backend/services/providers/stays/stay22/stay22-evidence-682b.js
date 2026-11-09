@@ -5,7 +5,7 @@
 // The adapter may attach city-wide benchmark evidence, but only a strong
 // same-property name match is eligible to replace the selected stay estimate.
 
-const { normalizeCurrency, currencyToUsdRate } = require('../../../../budget-presentation');
+const { normalizeCurrency, currencyToUsdRate } = require('../../../domain/pricing/budget-presentation');
 const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity, chooseConfidentMatch, genericPropertyName } = require('../shared/property-identity-682c');
 
 const STAY22_EVIDENCE_VERSION_682B = 'GV-PROVIDER-682B';

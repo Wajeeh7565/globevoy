@@ -9,8 +9,8 @@ on:
       - 'backend/staging-lambda-702d.js'
       - 'backend/services/booking/revalidation/staging-booking-revalidation-707b.js'
       - 'backend/services/booking/revalidation/staging-booking-revalidation-707b-r1.js'
-      - 'backend/validate-gv-web-707b.js'
-      - 'backend/validate-gv-web-707b-r1.js'
+      - 'backend/validation/validate-gv-web-707b.js'
+      - 'backend/validation/validate-gv-web-707b-r1.js'
       - 'docs/GV-WEB-706R-MIGRATION-PLAN.md'
       - '.github/workflows/validate-706r.yml'
       - '.github/workflows/validate-707a.yml'
@@ -45,44 +45,50 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
+          if ! git cat-file -e "$BASE_SHA:docs/refactor/active-layout-moves.json" 2>/dev/null && [ -f docs/refactor/active-layout-moves.json ]; then
+            node scripts/validate-layout-equivalence.mjs "$BASE_SHA"
+            node scripts/validate-organization.mjs
+            echo 'Verified initial directory migration; ordinary feature scope checks resume after integration.'
+            exit 0
+          fi
           changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
           printf '%s\n' "$changed"
           if printf '%s\n' "$changed" | grep -Eq '^frontend/validation/validate-gv-web-fe-r3-1b\.js$'; then
-            unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(frontend/(about|booking|create-account|explore|how-it-works|index|mixed-results|multi-city-trip|multi-city|multicity-visualizer|saved-trips|sign-in|trip|trust)\.html|frontend/scripts/shell-670f\.js|frontend/styles/shell\.css|frontend/validation/validate-gv-shell-686d-r1\.js|frontend/validation/validate-gv-book-686c\.js|frontend/validation/validate-gv-journey-686b\.js|frontend/validation/validate-gv-rc-686d\.js|frontend/validation/validate-gv-ux-687a\.js|frontend/validation/validate-gv-web-fe-r3-1b\.js|web/components/account/account-nav\.tsx|web/validation/validate-gv-web-fe-r3\.mjs|backend/validate-gv-account-705b-r3\.js|\.github/workflows/validate\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
+            unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(frontend/(about|booking|create-account|explore|how-it-works|index|mixed-results|multi-city-trip|multi-city|multicity-visualizer|saved-trips|sign-in|trip|trust)\.html|frontend/scripts/shell-670f\.js|frontend/styles/shell\.css|frontend/validation/validate-gv-shell-686d-r1\.js|frontend/validation/validate-gv-book-686c\.js|frontend/validation/validate-gv-journey-686b\.js|frontend/validation/validate-gv-rc-686d\.js|frontend/validation/validate-gv-ux-687a\.js|frontend/validation/validate-gv-web-fe-r3-1b\.js|web/components/account/account-nav\.tsx|web/validation/validate-gv-web-fe-r3\.mjs|backend/validation/validate-gv-account-705b-r3\.js|\.github/workflows/validate\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
             if [ -n "$unexpected" ]; then
               echo 'GV-WEB-FE-R3.1B may change only the bounded shared classic shell, its cache keys and validators:' >&2
               printf '%s\n' "$unexpected" >&2
               exit 1
             fi
-          elif printf '%s\n' "$changed" | grep -Eq '^(backend/services/providers/stays/nuitee/nuitee-hotel-708c\.js|backend/services/booking/revalidation/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$'; then
+          elif printf '%s\n' "$changed" | grep -Eq '^(backend/services/providers/stays/nuitee/nuitee-hotel-708c\.js|backend/services/booking/revalidation/staging-booking-revalidation-708c\.js|backend/validation/validate-gv-hotel-708c\.js)$'; then
             if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
               echo '708C must not modify the proven legacy frontend.' >&2
               exit 1
             fi
-            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/providers/stays/nuitee/nuitee-hotel-708c\.js|backend/services/booking/revalidation/staging-booking-revalidation-708c\.js|backend/validate-gv-hotel-708c\.js)$' || true)"
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/providers/stays/nuitee/nuitee-hotel-708c\.js|backend/services/booking/revalidation/staging-booking-revalidation-708c\.js|backend/validation/validate-gv-hotel-708c\.js)$' || true)"
             if [ -n "$unexpected_backend" ]; then
               echo '708C may change only its bounded staging hotel adapter/wrapper/validator backend files:' >&2
               printf '%s\n' "$unexpected_backend" >&2
               exit 1
             fi
           elif [ -f web/validation/validate-gv-web-708a.mjs ]; then
-            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validation/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
               echo '708A must not modify the proven legacy frontend or backend.' >&2
               exit 1
             fi
-          elif [ -f backend/validate-gv-web-707b.js ]; then
+          elif [ -f backend/validation/validate-gv-web-707b.js ]; then
             if printf '%s\n' "$changed" | grep -Eq '^frontend/'; then
               echo '707B must not modify the proven legacy frontend.' >&2
               exit 1
             fi
-            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/booking/revalidation/staging-booking-revalidation-707b\.js|backend/services/booking/revalidation/staging-booking-revalidation-707b-r1\.js|backend/validate-gv-web-707b\.js|backend/validate-gv-web-707b-r1\.js)$' || true)"
+            unexpected_backend="$(printf '%s\n' "$changed" | grep '^backend/' | grep -Ev '^(backend/staging-lambda-702d\.js|backend/services/booking/revalidation/staging-booking-revalidation-707b\.js|backend/services/booking/revalidation/staging-booking-revalidation-707b-r1\.js|backend/validation/validate-gv-web-707b\.js|backend/validation/validate-gv-web-707b-r1\.js)$' || true)"
             if [ -n "$unexpected_backend" ]; then
               echo '707B may change only its staging wrapper/service/validator backend files:' >&2
               printf '%s\n' "$unexpected_backend" >&2
               exit 1
             fi
           elif [ -f web/validation/validate-gv-web-707a.mjs ]; then
-            if printf '%s\n' "$changed" | grep -Ev '^backend/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
+            if printf '%s\n' "$changed" | grep -Ev '^backend/validation/validate-gv-account-705b-r3\.js$' | grep -Eq '^(frontend|backend)/'; then
               echo 'React migration must not modify the proven frontend or backend.' >&2
               exit 1
             fi
@@ -143,11 +149,11 @@ jobs:
           if [ -f web/validation/validate-gv-web-707a.mjs ]; then
             node web/validation/validate-gv-web-707a.mjs
           fi
-          if [ -f backend/validate-gv-web-707b.js ]; then
-            node backend/validate-gv-web-707b.js
+          if [ -f backend/validation/validate-gv-web-707b.js ]; then
+            node backend/validation/validate-gv-web-707b.js
           fi
-          if [ -f backend/validate-gv-web-707b-r1.js ]; then
-            node backend/validate-gv-web-707b-r1.js
+          if [ -f backend/validation/validate-gv-web-707b-r1.js ]; then
+            node backend/validation/validate-gv-web-707b-r1.js
           fi
           if [ -f web/validation/validate-gv-web-708a.mjs ]; then
             node web/validation/validate-gv-web-708a.mjs
@@ -227,14 +233,14 @@ jobs:
         working-directory: .
         run: |
           if [ -f web/validation/validate-gv-web-707a.mjs ]; then
-            node backend/validate-gv-account-705b-r3.js
-            node backend/validate-gv-account-705c.js
-            node backend/validate-gv-account-705c-r4.js
-            node backend/validate-gv-book-706a.js
+            node backend/validation/validate-gv-account-705b-r3.js
+            node backend/validation/validate-gv-account-705c.js
+            node backend/validation/validate-gv-account-705c-r4.js
+            node backend/validation/validate-gv-book-706a.js
           fi
-          if [ -f backend/validate-gv-web-707b.js ]; then
-            node backend/validate-gv-flight-703c.js
-            node backend/validate-gv-flight-703e.js
+          if [ -f backend/validation/validate-gv-web-707b.js ]; then
+            node backend/validation/validate-gv-flight-703c.js
+            node backend/validation/validate-gv-flight-703e.js
           fi
 
       - name: Capture generated dependency lock

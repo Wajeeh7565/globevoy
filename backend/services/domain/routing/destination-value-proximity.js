@@ -13,7 +13,7 @@
 
 const foundation = require('../../../data/grouped-city-foundation.json');
 const { _internal: feasibility } = require('./route-feasibility');
-const { currencyToUsdRate, normalizeCurrency } = require('../../../budget-presentation');
+const { currencyToUsdRate, normalizeCurrency } = require('../pricing/budget-presentation');
 
 const DESTINATION_VALUE_PROXIMITY_VERSION_677D = 'GV-REC-677D';
 const ORIGIN_METRO_ADJACENT_KM_677D = 65;

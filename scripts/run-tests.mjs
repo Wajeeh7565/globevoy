@@ -3,26 +3,28 @@ import fs from 'node:fs';
 
 const groups = {
   repo: [
-    ['node', '.github/scripts/validate-repo.mjs']
+    ['node', '.github/scripts/validate-repo.mjs'],
+    ['node', 'scripts/validate-organization.mjs']
   ],
 
   backend: [
-    ['node', 'backend/validate-gv-rec-687b-p3.js'],
-    ['node', 'backend/validate-gv-rec-687b.js'],
-    ['node', 'backend/validate-gv-data-701a.js'],
-    ['node', 'backend/validate-gv-data-701b.js'],
-    ['node', 'backend/validate-gv-rec-702a.js'],
-    ['node', 'backend/validate-gv-rec-702b.js'],
-    ['node', 'backend/validate-gv-rec-702b-r1.js'],
-    ['node', 'backend/validate-gv-rec-702c.js'],
-    ['node', 'backend/validate-gv-rec-702c-r2.js'],
-    ['node', 'backend/validate-gv-rec-702d.js'],
-    ['node', 'backend/validate-gv-rec-702d-r1.js'],
-    ['node', 'backend/validate-gv-rec-702e.js'],
-    ['node', 'backend/validate-gv-web-fe-r2.js']
+    ['node', 'backend/validation/validate-gv-rec-687b-p3.js'],
+    ['node', 'backend/validation/validate-gv-rec-687b.js'],
+    ['node', 'backend/validation/validate-gv-data-701a.js'],
+    ['node', 'backend/validation/validate-gv-data-701b.js'],
+    ['node', 'backend/validation/validate-gv-rec-702a.js'],
+    ['node', 'backend/validation/validate-gv-rec-702b.js'],
+    ['node', 'backend/validation/validate-gv-rec-702b-r1.js'],
+    ['node', 'backend/validation/validate-gv-rec-702c.js'],
+    ['node', 'backend/validation/validate-gv-rec-702c-r2.js'],
+    ['node', 'backend/validation/validate-gv-rec-702d.js'],
+    ['node', 'backend/validation/validate-gv-rec-702d-r1.js'],
+    ['node', 'backend/validation/validate-gv-rec-702e.js'],
+    ['node', 'backend/validation/validate-gv-web-fe-r2.js']
   ],
 
   frontend: [
+    ['node', 'tests/frontend/validate-fixture-paths.mjs'],
     ['node', 'frontend/validation/validate-gv-data-701c.js'],
     ['node', 'frontend/validation/validate-gv-rec-687b-frontend.js'],
     ['node', 'frontend/validation/validate-gv-web-fe-r3-1b.js']
@@ -37,18 +39,18 @@ const groups = {
   ],
 
   account: [
-    ['node', 'backend/validate-gv-account-705b-r3.js'],
-    ['node', 'backend/validate-gv-account-705c.js'],
-    ['node', 'backend/validate-gv-account-705c-r4.js'],
-    ['node', 'backend/validate-gv-book-706a.js']
+    ['node', 'backend/validation/validate-gv-account-705b-r3.js'],
+    ['node', 'backend/validation/validate-gv-account-705c.js'],
+    ['node', 'backend/validation/validate-gv-account-705c-r4.js'],
+    ['node', 'backend/validation/validate-gv-book-706a.js']
   ],
 
   providers: [
-    ['node', 'backend/validate-gv-flight-703c.js'],
-    ['node', 'backend/validate-gv-flight-703e.js'],
-    ['node', 'backend/validate-gv-web-707b.js'],
-    ['node', 'backend/validate-gv-web-707b-r1.js'],
-    ['node', 'backend/validate-gv-hotel-708c.js']
+    ['node', 'backend/validation/validate-gv-flight-703c.js'],
+    ['node', 'backend/validation/validate-gv-flight-703e.js'],
+    ['node', 'backend/validation/validate-gv-web-707b.js'],
+    ['node', 'backend/validation/validate-gv-web-707b-r1.js'],
+    ['node', 'backend/validation/validate-gv-hotel-708c.js']
   ],
 
   performance: [
@@ -62,7 +64,7 @@ const groups = {
     ['node', '--check', 'backend/lambda.js'],
     ['node', '--check', 'backend/staging-lambda.js'],
     ['node', '--check', 'backend/staging-lambda-702d.js'],
-    ['node', '--check', 'backend/generated-tour.js'],
+    ['node', '--check', 'backend/services/domain/tours/generated-tour.js'],
     ['node', '--check', 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'],
     ['node', '--check', 'backend/services/domain/routing/route-diversity-687b.js'],
     ['node', '--check', 'backend/services/cities/registry/worldwide-city-registry-701a.js'],

@@ -40,45 +40,45 @@ jobs:
 
       - name: Validate verified production backend remains green
         run: |
-          node backend/validate-gv-rec-687b-p3.js
-          node backend/validate-gv-rec-687b.js
+          node backend/validation/validate-gv-rec-687b-p3.js
+          node backend/validation/validate-gv-rec-687b.js
 
       - name: Validate isolated staging wrapper
-        run: node backend/validate-gv-platform-700a-staging-api.js
+        run: node backend/validation/validate-gv-platform-700a-staging-api.js
 
       - name: Validate worldwide registry staging API
         run: |
-          node backend/validate-gv-data-701a.js
-          node backend/validate-gv-data-701b.js
+          node backend/validation/validate-gv-data-701a.js
+          node backend/validation/validate-gv-data-701b.js
 
       - name: Validate global recommendation coverage audit
-        run: node backend/validate-gv-rec-702a.js
+        run: node backend/validation/validate-gv-rec-702a.js
 
       - name: Validate freshness-aware global recovery priority
         run: |
-          node backend/validate-gv-rec-702b.js
-          node backend/validate-gv-rec-702b-r1.js
+          node backend/validation/validate-gv-rec-702b.js
+          node backend/validation/validate-gv-rec-702b-r1.js
 
       - name: Validate bounded provider recovery Smoke10 plan
-        run: node backend/validate-gv-rec-702c.js
+        run: node backend/validation/validate-gv-rec-702c.js
 
       - name: Validate reviewed recovery projection
-        run: node backend/validate-gv-rec-702c-r2.js
+        run: node backend/validation/validate-gv-rec-702c-r2.js
 
       - name: Validate staging-only reviewed recovery QA
-        run: node backend/validate-gv-rec-702d.js
+        run: node backend/validation/validate-gv-rec-702d.js
 
       - name: Validate curated 1000-city staging route surface
-        run: node backend/validate-gv-rec-702d-r1.js
+        run: node backend/validation/validate-gv-rec-702d-r1.js
 
       - name: Validate reviewed 439-to-441 activation candidate
-        run: node backend/validate-gv-rec-702e.js
+        run: node backend/validation/validate-gv-rec-702e.js
 
       - name: Validate staging-only high-confidence airport overlay
-        run: node backend/validate-gv-rec-702f-d.js
+        run: node backend/validation/validate-gv-rec-702f-d.js
 
       - name: Validate staging five-origin final-live policy
-        run: node backend/validate-gv-flight-703b.js
+        run: node backend/validation/validate-gv-flight-703b.js
 
       - name: Validate GV-PERF-R5 bounded rescue ordering
         run: node tests/performance/validate-gv-perf-r5.test.js
@@ -88,7 +88,7 @@ jobs:
           node --check backend/lambda.js
           node --check backend/staging-lambda.js
           node --check backend/staging-lambda-702d.js
-          node --check backend/generated-tour.js
+          node --check backend/services/domain/tours/generated-tour.js
           node --check backend/services/domain/live-fares/affordable-flight-discovery-684b.js
           node --check tests/performance/validate-gv-perf-r5.test.js
           node --check backend/services/domain/routing/route-diversity-687b.js
@@ -101,17 +101,17 @@ jobs:
           node --check backend/services/cities/recovery/reviewed-activation-promotion-702e.js
           node --check backend/services/cities/gateways/staging/staging-gateway-foundation-702f-d.js
           node --check backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js
-          node --check backend/validate-gv-data-701b.js
-          node --check backend/validate-gv-rec-702a.js
-          node --check backend/validate-gv-rec-702b.js
-          node --check backend/validate-gv-rec-702b-r1.js
-          node --check backend/validate-gv-rec-702c.js
-          node --check backend/validate-gv-rec-702c-r2.js
-          node --check backend/validate-gv-rec-702d.js
-          node --check backend/validate-gv-rec-702d-r1.js
-          node --check backend/validate-gv-rec-702e.js
-          node --check backend/validate-gv-rec-702f-d.js
-          node --check backend/validate-gv-flight-703b.js
+          node --check backend/validation/validate-gv-data-701b.js
+          node --check backend/validation/validate-gv-rec-702a.js
+          node --check backend/validation/validate-gv-rec-702b.js
+          node --check backend/validation/validate-gv-rec-702b-r1.js
+          node --check backend/validation/validate-gv-rec-702c.js
+          node --check backend/validation/validate-gv-rec-702c-r2.js
+          node --check backend/validation/validate-gv-rec-702d.js
+          node --check backend/validation/validate-gv-rec-702d-r1.js
+          node --check backend/validation/validate-gv-rec-702e.js
+          node --check backend/validation/validate-gv-rec-702f-d.js
+          node --check backend/validation/validate-gv-flight-703b.js
 
       - name: Build Lambda ZIP
         shell: bash
@@ -127,7 +127,7 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'staging-lambda.js'
           unzip -l "dist/${artifact}" | grep -q 'staging-lambda-702d.js'
           unzip -l "dist/${artifact}" | grep -q 'lambda.js'
-          unzip -l "dist/${artifact}" | grep -q 'generated-tour.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/domain/tours/generated-tour.js'
           unzip -l "dist/${artifact}" | grep -q 'services/cities/registry/worldwide-city-registry-701a.js'
           unzip -l "dist/${artifact}" | grep -q 'services/admin/audits/global-recommendation-coverage-702a.js'
           unzip -l "dist/${artifact}" | grep -q 'services/admin/audits/global-recovery-priority-702b.js'
@@ -137,7 +137,7 @@ jobs:
           unzip -l "dist/${artifact}" | grep -q 'services/cities/recovery/reviewed-activation-promotion-702e.js'
           unzip -l "dist/${artifact}" | grep -q 'services/cities/gateways/staging/staging-gateway-foundation-702f-d.js'
           unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
-          unzip -l "dist/${artifact}" | grep -q 'validate-gv-flight-703b.js'
+          unzip -l "dist/${artifact}" | grep -q 'validation/validate-gv-flight-703b.js'
           unzip -l "dist/${artifact}" | grep -q 'data/gv-rec-702c-r2-reviewed-evidence-manifest.json'
           unzip -l "dist/${artifact}" | grep -q 'data/gv-rec-702e-promotion-manifest.json'
           unzip -l "dist/${artifact}" | grep -q 'data/gateway-foundation-corrections-702f-d.json'

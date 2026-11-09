@@ -17,12 +17,12 @@ on:
       - 'backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
       - 'backend/services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
       - 'backend/services/providers/flights/staging/staging-affordable-flight-five-origin-703d.js'
-      - 'backend/generated-tour.js'
+      - 'backend/services/domain/tours/generated-tour.js'
       - 'backend/staging-lambda-702d.js'
-      - 'backend/validate-gv-flight-703b.js'
-      - 'backend/validate-gv-flight-703c.js'
-      - 'backend/validate-gv-flight-703d.js'
-      - 'backend/validate-gv-flight-703e.js'
+      - 'backend/validation/validate-gv-flight-703b.js'
+      - 'backend/validation/validate-gv-flight-703c.js'
+      - 'backend/validation/validate-gv-flight-703d.js'
+      - 'backend/validation/validate-gv-flight-703e.js'
       - '.github/workflows/validate-703e.yml'
       - 'docs/GV-FLIGHT-703E.md'
   workflow_dispatch:
@@ -48,16 +48,16 @@ jobs:
       - name: Validate repository and prior flight safeguards
         run: |
           node .github/scripts/validate-repo.mjs
-          node backend/validate-gv-rec-687b-p3.js
-          node backend/validate-gv-flight-703b.js
-          node backend/validate-gv-flight-703c.js
-          node backend/validate-gv-flight-703d.js
-          node backend/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-rec-687b-p3.js
+          node backend/validation/validate-gv-flight-703b.js
+          node backend/validation/validate-gv-flight-703c.js
+          node backend/validation/validate-gv-flight-703d.js
+          node backend/validation/validate-gv-flight-703e.js
 
       - name: Syntax checks
         run: |
           node --check backend/lambda.js
-          node --check backend/generated-tour.js
+          node --check backend/services/domain/tours/generated-tour.js
           node --check backend/staging-lambda-702d.js
           node --check backend/services/providers/flights/duffel/duffel-adult-scope-703e.js
           node --check backend/services/providers/flights/duffel/staging/staging-duffel-two-adult-703e.js
@@ -66,7 +66,7 @@ jobs:
           node --check backend/services/domain/pricing/traveller-pricing.js
           node --check backend/services/domain/live-fares/public-live-fare-pilot-684a.js
           node --check backend/services/domain/live-fares/affordable-flight-discovery-684b.js
-          node --check backend/validate-gv-flight-703e.js
+          node --check backend/validation/validate-gv-flight-703e.js
 
       - name: Confirm production runtime has no 703E staging wiring
         shell: bash
@@ -99,7 +99,7 @@ jobs:
             echo 'Deployment/provider-call command found in 703E validation workflow.'
             exit 1
           fi
-          if grep -E "https://api\.duffel\.com" backend/validate-gv-flight-703e.js; then
+          if grep -E "https://api\.duffel\.com" backend/validation/validate-gv-flight-703e.js; then
             echo 'Real Duffel endpoint reference found in deterministic 703E validator.'
             exit 1
           fi

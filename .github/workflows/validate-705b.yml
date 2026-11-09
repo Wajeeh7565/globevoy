@@ -6,7 +6,7 @@ on:
       - staging
     paths:
       - 'ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh'
-      - 'backend/validate-gv-account-705b.js'
+      - 'backend/validation/validate-gv-account-705b.js'
       - 'docs/GV-ACCOUNT-705B.md'
       - '.github/workflows/validate-705b.yml'
       - '.github/workflows/build-705b-operator-pack.yml'
@@ -33,10 +33,10 @@ jobs:
       - name: Validate repository and current roadmap baseline
         run: |
           node .github/scripts/validate-repo.mjs
-          node backend/validate-gv-flight-703e.js
-          node backend/validate-gv-hotel-704a.js
-          node backend/validate-gv-account-705a.js
-          node backend/validate-gv-account-705b.js
+          node backend/validation/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-hotel-704a.js
+          node backend/validation/validate-gv-account-705a.js
+          node backend/validation/validate-gv-account-705b.js
 
       - name: Shell syntax
         shell: bash
@@ -59,7 +59,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -Eq 'GV-ACCOUNT-705B|globevoy-staging-users|globevoy-staging-web|/api/account/session' backend/lambda.js backend/generated-tour.js; then
+          if grep -Eq 'GV-ACCOUNT-705B|globevoy-staging-users|globevoy-staging-web|/api/account/session' backend/lambda.js backend/services/domain/tours/generated-tour.js; then
             echo '705B staging account wiring appeared in the shared production backend path.'
             exit 1
           fi

@@ -63,7 +63,7 @@ Staging responses add:
 
 ## Deterministic validation
 
-`backend/validate-gv-flight-703c.js` proves:
+`backend/validation/validate-gv-flight-703c.js` proves:
 
 1. exact staging-origin gating;
 2. shared cap exactly 8;

@@ -15,8 +15,8 @@ const confidence=require(path.join(root,'scripts/budget-confidence-685b.js'));
 const html=read('booking.html');
 const css=read('styles/booking-workspace-686c.css');
 const source=read('scripts/booking-workspace-686c.js');
-const fixture=read('gv-book-686c-browser-fixture.html');
-const partnerFixture=read('gv-book-686c-partner-fixture.html');
+const fixture=read('validation/fixtures/gv-book-686c-browser-fixture.html');
+const partnerFixture=read('validation/fixtures/gv-book-686c-partner-fixture.html');
 
 const toronto={city:'Toronto',code:'YYZ',airportCode:'YYZ'};
 const cleveland={city:'Cleveland',code:'CLE',airportCode:'CLE'};
@@ -57,7 +57,7 @@ check('Mobile summary is collapsible and compact',rendered.includes('<details cl
 check('Reduced motion is respected',css.includes('@media(prefers-reduced-motion:reduce)')&&source.includes("'(prefers-reduced-motion: reduce)'"));
 check('Workspace makes no provider/network request',!/\bfetch\s*\(|XMLHttpRequest|GlobevoyApi\./.test(source));
 check('Browser fixture is isolated from production state',fixture.includes('gv-book-686c-browser-fixture')&&fixture.includes("sessionStorage.setItem('globevoy.multi.selected.v1'")&&fixture.includes('window.name=')&&fixture.includes('must-not-render'));
-check('Reviewed-state browser check uses a portable local non-provider fixture',fixture.includes("groundBookingUrl:location.origin+'/gv-book-686c-partner-fixture.html'")&&partnerFixture.includes('without contacting an external provider'));
+check('Reviewed-state browser check uses a portable local non-provider fixture',fixture.includes("groundBookingUrl:location.origin+'/validation/fixtures/gv-book-686c-partner-fixture.html'")&&partnerFixture.includes('without contacting an external provider'));
 check('HTML loads final RC workspace CSS and 686C script after protected booking engines',html.includes('booking-workspace-686c.css?v=686d-rc')&&html.indexOf('booking-workspace-686c.js?v=686c')>html.indexOf('booking-hub-685d.js?v=685d-r2'));
 check('Booking Hub and booking live engine are byte-identical to 686B',hash('scripts/booking-hub-685d.js')==='6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a'&&hash('scripts/booking-live-673d.js')==='8b39d74dca43f9e00ebc58b20b3ae29a9e53aeaeaeee737aced7d6e4e841e5be');
 check('Trust, API client and runtime config are unchanged; shell is the approved FE-R3.1B successor',hash('scripts/budget-confidence-685b.js')==='3ed77e95f240096f6d241499c1e0b517a1f97c77ae855bb9c85d0098f54eb832'&&read('scripts/shell-670f.js').includes('GV-WEB-FE-R3.1B unified account header')&&hash('runtime/api-client.js')==='d10d716b60d13f36b456a7797c22590ba5ca1c12bec31586d8e0c36242df8af6'&&hash('runtime/config.js')==='191e377fdf5dba312e60f0b2c21c74b6283b729c982bcbff8c7c08fd637ea958');

@@ -12,3 +12,7 @@ release/
 *_provider_feed.*
 cities.json
 airports.json
+web/.next/
+web/out/
+*.tsbuildinfo
+amplify-publish/

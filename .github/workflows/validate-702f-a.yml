@@ -9,7 +9,7 @@ on:
       - staging
     paths:
       - 'backend/services/providers/flights/flight-cache-semantics-702f-a.js'
-      - 'backend/validate-gv-rec-702f-a.js'
+      - 'backend/validation/validate-gv-rec-702f-a.js'
       - 'docs/GV-REC-702F-A.md'
       - '.github/workflows/validate-702f-a.yml'
   workflow_dispatch:
@@ -40,24 +40,24 @@ jobs:
         run: node .github/scripts/validate-repo.mjs
 
       - name: Preserve 702A baseline
-        run: node backend/validate-gv-rec-702a.js
+        run: node backend/validation/validate-gv-rec-702a.js
 
       - name: Preserve reviewed 702E promotion candidate
-        run: node backend/validate-gv-rec-702e.js
+        run: node backend/validation/validate-gv-rec-702e.js
 
       - name: Validate 702F-A cache semantics
-        run: node backend/validate-gv-rec-702f-a.js
+        run: node backend/validation/validate-gv-rec-702f-a.js
 
       - name: Syntax checks
         run: |
           node --check backend/services/providers/flights/flight-cache-semantics-702f-a.js
-          node --check backend/validate-gv-rec-702f-a.js
+          node --check backend/validation/validate-gv-rec-702f-a.js
 
       - name: Confirm 702F-A is not runtime-wired
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R "flight-cache-semantics-702f-a" backend/lambda.js backend/staging-lambda.js backend/staging-lambda-702d.js backend/generated-tour.js backend/services/cities/registry/verified-city-activation.js; then
+          if grep -R "flight-cache-semantics-702f-a" backend/lambda.js backend/staging-lambda.js backend/staging-lambda-702d.js backend/services/domain/tours/generated-tour.js backend/services/cities/registry/verified-city-activation.js; then
             echo "702F-A semantics layer unexpectedly imported by runtime."
             exit 1
           fi

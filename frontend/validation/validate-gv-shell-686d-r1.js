@@ -10,7 +10,7 @@ const hash = (name) => crypto.createHash('sha256').update(fs.readFileSync(path.j
 const exists = (name) => fs.existsSync(path.join(root, name));
 const checks = [];
 const check = (name, pass, detail = '') => checks.push({ name, pass: Boolean(pass), detail });
-const release = JSON.parse(read('GV-SHELL-686D-R1-RELEASE.json'));
+const release = JSON.parse(read('validation/releases/GV-SHELL-686D-R1-RELEASE.json'));
 const shell = read('scripts/shell-670f.js');
 const css = read('styles/shell.css');
 const header = shell.slice(shell.indexOf('const accountNavigation'), shell.indexOf('const footer'));

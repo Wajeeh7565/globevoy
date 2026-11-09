@@ -1,4 +1,5 @@
 'use strict';
+const outputPath = require('../../../frontend/validation/output-path');
 const fs=require('fs');
 const vm=require('vm');
 const path=require('path');
@@ -41,6 +42,6 @@ vm.runInNewContext(cityImages,sandbox,{filename:'city-images-673c.js'});
   check('valid Codex 673F photo cache is reused', result.images[0].includes('example-warsaw.jpg') && fetchCalls===0);
   check('legacy cache is migrated into R2 namespace', store.has('gv-city-images-v12-673f-r2:warsaw|poland'));
   if(process.exitCode)throw new Error('GV-PROD-673F-R2 photo hydration test failed.');
-  fs.writeFileSync(path.join(root,'VALIDATION_GV_PROD_673F_R2_PHOTOS.json'),JSON.stringify({release:'GV-PROD-673F-R2',passed:true,checkCount:checks.length,checks},null,2)+'\n');
+  fs.writeFileSync(outputPath('VALIDATION_GV_PROD_673F_R2_PHOTOS.json'),JSON.stringify({release:'GV-PROD-673F-R2',passed:true,checkCount:checks.length,checks},null,2)+'\n');
   console.log(`GV-PROD-673F-R2 photo hydration validation passed (${checks.length}/${checks.length}).`);
 })().catch(err=>{console.error(err);process.exit(1);});

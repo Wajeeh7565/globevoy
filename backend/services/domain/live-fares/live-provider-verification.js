@@ -10,7 +10,7 @@ const { fetchAgodaStayEstimate, AGODA_PROVIDER_STAY_VERSION_679A, AGODA_PRICE_LI
 const { AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2, agodaHandoffIntegrity679AR2Enabled } = require('../../providers/links/partner-links');
 const { getDestination } = require('../../../data/destination-meta');
 const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
-const { currencyToUsdRate, normalizeCurrency } = require('../../../budget-presentation');
+const { currencyToUsdRate, normalizeCurrency } = require('../pricing/budget-presentation');
 const { applyCanonicalIntegrity, enabled: canonicalIntegrityEnabled, CANONICAL_INTEGRITY_VERSION } = require('../pricing/canonical-total-evidence');
 const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('../pricing/price-evidence-integrity');
 const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, fetchStay22Evidence } = require('../../providers/stays/stay22/stay22-evidence-682b');

@@ -7,7 +7,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const { createRequire } = require('node:module');
 const backendDir = path.resolve(__dirname, '../../backend');
-const filename = path.join(backendDir, 'generated-tour.js');
+const filename = path.join(backendDir, 'services/domain/tours/generated-tour.js');
 const source = fs.readFileSync(filename, 'utf8');
 const realRequire = createRequire(filename);
 const numericFields = ['globalRouteGraphMs', 'legacyRouteEngineMs', 'candidatePreparationMs',
@@ -32,12 +32,12 @@ function harness(config = {}, moduleSource = source) {
   }; };
   let entryChecks = 0;
   const deps = {
-    './multicity-routes': { getMultiCityTours: async () => {
+    '../routing/multicity-routes': { getMultiCityTours: async () => {
       calls.push('legacy'); advance(5);
       if (config.legacyThrows) throw new Error('legacy failure');
       return { tours: [first, selected], requested: { origin: 'YYZ' }, diagnostics: { baseline: true } };
     } },
-    './services/domain/routing/global-route-graph': {
+    '../routing/global-route-graph': {
       globalRouteGraphEnabled: () => config.graph !== false,
       generateProviderDrivenGlobalRouteCandidates: async () => {
         calls.push('graph'); advance(3);
@@ -45,20 +45,20 @@ function harness(config = {}, moduleSource = source) {
         return { tours: config.emptyGraph ? [] : [first], diagnostics: { enabled: true } };
       }
     },
-    './services/domain/routing/route-feasibility': {
+    '../routing/route-feasibility': {
       guardEnabled: () => false, maxStopsForTrip: () => 3,
       guardCandidateTours: rows => ({ tours: rows }),
       evaluateTour: tour => { calls.push('guard'); advance(23); return {
         accepted: !config.guardRejects, tour, reasons: [], warnings: [], metrics: {}
       }; }
     },
-    './services/domain/eligibility/travel-entry-eligibility': {
+    '../eligibility/travel-entry-eligibility': {
       recommendationEligibility: () => {
         calls.push('entry'); advance(7); entryChecks += 1;
         return { hardBlocked: Boolean(config.entryBlocked && entryChecks <= 2), summary: {}, checks: [] };
       }
     },
-    './services/domain/live-fares/affordable-flight-discovery-684b': {
+    '../live-fares/affordable-flight-discovery-684b': {
       discoverAffordableFlightTour684B: async (_rows, tour) => {
         calls.push('684B'); advance(11);
         if (config.discoveryApplies) return { tour: selected,
@@ -68,7 +68,7 @@ function harness(config = {}, moduleSource = source) {
       },
       status684B: () => { advance(3); return { enabled: true }; }
     },
-    './services/domain/live-fares/public-live-fare-pilot-684a': {
+    '../live-fares/public-live-fare-pilot-684a': {
       applyPublicLiveFarePilot684A: async tour => {
         calls.push('684A'); advance(23);
         return { tour, summary: { applied: true, overBudget: Boolean(config.overBudget),
@@ -76,7 +76,7 @@ function harness(config = {}, moduleSource = source) {
       },
       status684A: () => { advance(2); return { enabled: true }; }
     },
-    './services/domain/live-fares/live-provider-verification': {
+    '../live-fares/live-provider-verification': {
       verifyTourWithLiveProviders: async tour => {
         calls.push('verify'); advance(29); return { tour, summary: { overBudget: Boolean(config.overBudget) } };
       }
@@ -114,7 +114,7 @@ function harness(config = {}, moduleSource = source) {
     attemptBudgetSafeRouteRecovery669c: async () => { calls.push('recovery'); advance(37); return null; }
   };
   const sandbox = {
-    module: { exports: {} }, exports: {}, __dirname: backendDir, __filename: filename,
+    module: { exports: {} }, exports: {}, __dirname: path.dirname(filename), __filename: filename,
     process: { env: {}, hrtime: { bigint: () => now } },
     console, URL, Buffer,
     require: id => ({ ...realRequire(id), ...(deps[id] || {}) }),
