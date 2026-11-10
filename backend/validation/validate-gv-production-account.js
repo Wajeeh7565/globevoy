@@ -53,6 +53,16 @@ const db = {
     if (name === 'Query') return {
       Items: [...rows.values()].filter(row => row.PK.S === input.ExpressionAttributeValues[':pk'].S)
     };
+    if (name === 'UpdateItem') {
+      const row = rows.get(key(input.Key));
+      const values = input.ExpressionAttributeValues;
+      if (!row || row.version.N !== values[':expectedVersion'].N) {
+        throw Object.assign(new Error('conflict'), {name:'ConditionalCheckFailedException'});
+      }
+      for (const field of ['name','status','updatedAt','tripSnapshotJson','providerRefsJson','priceSnapshotJson','travelerProfileRefJson']) row[field] = values[':'+field];
+      row.version = values[':nextVersion'];
+      return {Attributes:row};
+    }
     if (name === 'GetItem') return { Item: rows.get(key(input.Key)) };
     if (name === 'DeleteItem') {
       const previous = rows.get(key(input.Key));
@@ -113,6 +123,20 @@ const check = (name, value) => { assert.ok(value, name); console.log('PASS ' + n
   const otherOwner = await gateway.handler(event('/api/saved-trips', 'GET', token({ sub: 'owner-two' }), env.CORS_ORIGIN, null, { tripId: savedTrip.tripId }), opts);
   assert.equal(otherOwner.statusCode, 404);
   check('saved trip is private to token owner', true);
+  const updateBody = {name:'Updated vacation', tripSnapshot:snapshot, version:1};
+  const updated = await gateway.handler(event('/api/saved-trips','PUT',token(),env.CORS_ORIGIN,updateBody,{tripId:savedTrip.tripId}),opts);
+  assert.equal(updated.statusCode,200);
+  assert.equal(result(updated).trip.version,2);
+  assert.equal(result(updated).trip.name,'Updated vacation');
+  assert.equal((await gateway.handler(event('/api/saved-trips','PUT',token(),env.CORS_ORIGIN,updateBody,{tripId:savedTrip.tripId}),opts)).statusCode,409);
+  assert.equal((await gateway.handler(event('/api/saved-trips','PUT',token({sub:'owner-two'}),env.CORS_ORIGIN,updateBody,{tripId:savedTrip.tripId}),opts)).statusCode,409);
+  check('optimistic updates reject stale versions and cross-owner writes',true);
+  const noBearer = event('/api/saved-trips','GET'); delete noBearer.headers.Authorization;
+  assert.equal((await gateway.handler(noBearer,opts)).statusCode,401);
+  const publicEvent=event('/api/recommendations','GET');
+  assert.equal(await gateway.handler(publicEvent,{...opts,publicHandler:e=>e}),publicEvent);
+  check('missing authorization denied and classic public routes delegated unchanged',true);
+
 
   const forbidden = await gateway.handler(event('/api/saved-trips', 'POST', token(), env.CORS_ORIGIN, { name: 'Bad', tripSnapshot: { password: 'not-allowed' } }), opts);
   assert.equal(forbidden.statusCode, 400);

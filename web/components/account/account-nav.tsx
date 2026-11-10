@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/components/account/auth-provider';
-import { browserIsStagingOrigin } from '@/lib/public-config';
+import { browserEnvironment } from '@/lib/public-config';
 
 function currentReturnTo(): string {
   if (typeof window === 'undefined') return '/react/';
@@ -13,10 +13,10 @@ function currentReturnTo(): string {
 
 export function AccountNav() {
   const { session, loading, signIn, signOut } = useAuth();
-  const [stagingOrigin, setStagingOrigin] = useState(false);
+  const [accountsEnabled, setAccountsEnabled] = useState(false);
 
   useEffect(() => {
-    setStagingOrigin(browserIsStagingOrigin());
+    setAccountsEnabled(browserEnvironment().accountsEnabled);
   }, []);
 
   const accountLabel = useMemo(() => {
@@ -82,9 +82,9 @@ export function AccountNav() {
         <button
           type="button"
           className="gv-account-nav__signin"
-          disabled={loading || !stagingOrigin}
-          title={!stagingOrigin ? 'Secure sign-in is available on the Globevoy staging site; localhost keeps authentication disabled.' : undefined}
-          onClick={() => { if (stagingOrigin) void signIn(currentReturnTo()); }}
+          disabled={loading || !accountsEnabled}
+          title={!accountsEnabled ? 'Accounts are not available on this website yet.' : undefined}
+          onClick={() => { if (accountsEnabled) void signIn(currentReturnTo()); }}
         >
           {loading ? 'Checking…' : 'Sign in'}
         </button>

@@ -135,3 +135,22 @@ From a checkout of the approved release branch:
 ```
 
 The script outputs public pool/client/domain identifiers for later deployment configuration. It configures **hosted UI classic (managed-login version 1)** for lower-complexity setup; verify the authentication page styling against staging before declaring visual parity. Production accounts must remain OFF until the protected API is migrated, dedicated database and IAM prepared, Cognito token validation and browser user flows tested, and production release approved. The code-path toggle never replaces backend authorization.
+
+## Launch-first package completion
+
+The current local package resolves the reported handler/layout mismatch by providing `src/lambda.js`, a compatibility entry point exporting the existing production account wrapper. Its expected AWS handler is **src/lambda.handler**. The root `lambda.js` remains the classic public handler and `production-account-lambda.js` remains the account wrapper. Both entry points are import-tested; this fixes the new artifact only and does not establish why the old live package appeared inconsistent.
+
+Backend dependencies are pinned in `ops/release/backend-dependencies/package-lock.json` and installed with `npm ci` into the ignored artifact folder. The package contains services and runtime data, excluding archived evidence and validators. Run `./ops/release/package-launch-first-backend.ps1 -OutputName launch-candidate` from a clean commit. It makes no AWS calls. CI builds and checks the same ZIP.
+
+The React account navigation now follows the shared production accounts configuration. Hosted Cognito supplies sign-in and account creation; classic homepage/navigation stays primary. Production features remain disabled until real production public identifiers and verified API flags are supplied to the site packager.
+
+Storage contract: dedicated DynamoDB table with string partition key `PK` and sort key `SK`; keys are derived from verified Cognito `sub`. Travel profile uses `PROFILE#TRAVEL`; saved trips use the shared saved-trip service keys. Never take an owner ID from a browser payload. PUT saved trips requires integer `version` for optimistic concurrency; stale or foreign-owner writes return 409. GET foreign trips returns 404. Stored prices remain snapshots requiring revalidation. Booking revalidation is outside this account launch and must not be presented as live booking readiness. Use least-privilege Query/GetItem/PutItem/UpdateItem/DeleteItem permissions restricted to this dedicated table; never point production at staging storage.
+
+### Concise approval checklist
+
+1. Locally: run the unified test groups, production account validator, typecheck, both packagers; preserve ZIP SHA-256 hashes and source manifests. Use synthetic public identifiers for offline tests only.
+2. With separate AWS authorization: confirm billing, provision/verify production Cognito and dedicated storage/IAM, preserve original Lambda code/config and Amplify job 240 ZIP. Do not run provisioning `-Apply` during preparation.
+3. Review the backend ZIP with handler `src/lambda.handler`, dependencies, production origin, pool/client/scope/table environment values. A Function URL CORS layer must agree with application CORS: exact canonical origin, Authorization and Content-Type, required CRUD methods, no duplicate contradictory headers. Choose one canonical web origin (redirect www if it is not separately configured).
+4. Authorize backend deployment separately; test real Cognito PKCE login/create-account/logout, rejected staging/expired tokens, owner-private saved-trip CRUD/profile, classic recommendations and CORS. These live tests have not been performed.
+5. Only then enable verified production React/accounts build flags, inspect classic home and `/react/account/`, `/react/my-trips/`, `/react/travel-profile/`, confirm no staging traffic, and approve the manual Amplify deployment described above.
+6. Rollback: restore the preserved hosting ZIP and previous Lambda code **with matching handler and environment**. Disable account feature flags first if rolling back the account backend. Preserve user data; do not delete the production table or Cognito pool. No merge, deployment or branch retirement is automatic.

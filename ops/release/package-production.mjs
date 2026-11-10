@@ -35,7 +35,9 @@ if (accountsEnabled) {
  auth = { region, userPoolId, clientId, issuer: 'https://cognito-idp.us-east-2.amazonaws.com/' + userPoolId, domainBaseUrl };
 }
 const releaseConfig = { environment: 'production', target: 'globevoy.com', apiBaseUrl: apiBaseUrl.replace(/\/$/, ''), reactEnabled, accountsEnabled, auth };
-const output = path.join(root, '.cache/production-site');
+const outputName = process.env.GLOBEVOY_OUTPUT_NAME || 'production-site';
+if (!/^[a-zA-Z0-9_-]+$/.test(outputName)) throw Error('Invalid output name');
+const output = path.join(root, '.cache', outputName);
 if (fs.existsSync(output)) throw Error('Output already exists. Preserve/rename .cache/production-site before rebuilding.');
 const commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 const dirty=Boolean(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim());

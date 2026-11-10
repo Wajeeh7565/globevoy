@@ -66,6 +66,10 @@ jobs:
           [System.Management.Automation.Language.Parser]::ParseFile('ops/release/package-launch-first-backend.ps1', [ref]$tokens, [ref]$errors) | Out-Null
           if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; throw 'Invalid PowerShell package script' }
 
+      - name: Build and import production Lambda ZIP locally
+        shell: pwsh
+        run: ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend
+
       - name: React typecheck and static production build
         run: |
           npm run typecheck:web

@@ -1,0 +1,1 @@
+{"name":"globevoy-launch-first-backend","version":"1.0.0","private":true,"dependencies":{"@aws-sdk/client-dynamodb":"3.922.0"}}

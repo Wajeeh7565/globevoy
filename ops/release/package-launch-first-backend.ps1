@@ -32,16 +32,12 @@ foreach ($folder in @('services','data')) {
 }
 # The package uses the production handler at the ZIP root. The existing public
 # handler remains ./lambda.js and is required by production-account-lambda.js.
-$package = @{
-  name = 'globevoy-launch-first-backend';
-  version = '1.0.0';
-  private = $true;
-  description = 'Local production Lambda packaging; never deployed by this script';
-  dependencies = @{ '@aws-sdk/client-dynamodb' = '^3.0.0' }
-} | ConvertTo-Json -Depth 5
-[System.IO.File]::WriteAllText((Join-Path $stage 'package.json'), $package, (New-Object System.Text.UTF8Encoding($false)))
-Write-Host 'Installing DynamoDB SDK into isolated build folder (not AWS)...'
-& npm install --prefix $stage --omit=dev --ignore-scripts --no-audit --no-fund
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'backend-dependencies/package.json') -Destination $stage
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'backend-dependencies/package-lock.json') -Destination $stage
+New-Item -ItemType Directory -Path (Join-Path $stage 'src') | Out-Null
+[System.IO.File]::WriteAllText((Join-Path $stage 'src/lambda.js'), "'use strict';`nmodule.exports = require('../production-account-lambda');`n", (New-Object System.Text.UTF8Encoding($false)))
+Write-Host 'Installing locked DynamoDB dependencies locally (no AWS calls)...'
+& npm ci --prefix $stage --omit=dev --ignore-scripts --no-audit --no-fund
 if ($LASTEXITCODE -ne 0) { throw 'npm install failed. No ZIP created.' }
 Write-Host 'Verifying packaged entrypoints can be imported...'
 & node --check (Join-Path $stage 'lambda.js')
@@ -50,11 +46,13 @@ if ($LASTEXITCODE -ne 0) { throw 'Public handler syntax invalid.' }
 if ($LASTEXITCODE -ne 0) { throw 'Account handler syntax invalid.' }
 & node -e 'const api=require(process.argv[1]); if(typeof api.handler!=="function") process.exit(3); console.log("Handler export OK")' (Join-Path $stage 'production-account-lambda.js')
 if ($LASTEXITCODE -ne 0) { throw 'Bundled handler import failed.' }
+& node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(a.handler!==b.handler) process.exit(3)' (Join-Path $stage 'src/lambda.js') (Join-Path $stage 'production-account-lambda.js')
+if ($LASTEXITCODE -ne 0) { throw 'Compatibility handler export mismatch.' }
 $sdkVersion = (& node -p 'require(process.argv[1]).version' (Join-Path $stage 'node_modules/@aws-sdk/client-dynamodb/package.json')).Trim()
 if ($LASTEXITCODE -ne 0) { throw 'Bundled DynamoDB SDK version missing.' }
 $manifest = @{
   sourceCommit = $commit
-  expectedLambdaHandler = 'production-account-lambda.handler'
+  expectedLambdaHandler = 'src/lambda.handler'
   legacyLambdaHandler = 'lambda.handler'
   nodeVersion = $nodeVersion
   dynamodbSdkVersion = $sdkVersion
@@ -68,7 +66,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
 try {
   $entries = @($zip.Entries | ForEach-Object { $_.FullName })
-  foreach ($required in @('lambda.js','production-account-lambda.js','launch-manifest.json','package.json')) {
+  foreach ($required in @('lambda.js','production-account-lambda.js','src/lambda.js','launch-manifest.json','package.json')) {
     if ($entries -notcontains $required) { throw "Backend ZIP missing root entry: $required" }
   }
   if (@($entries | Where-Object { $_ -match '(^|/)(archive|validation)/' }).Count -gt 0) { throw 'Backend ZIP unexpectedly includes archive or validation files.' }
@@ -77,6 +75,6 @@ $hash = (Get-FileHash $zipPath -Algorithm SHA256).Hash
 Write-Host ''
 Write-Host ('Local build ready: ' + $zipPath)
 Write-Host ('SHA256: ' + $hash)
-Write-Host 'Expected handler for this ZIP: production-account-lambda.handler'
+Write-Host 'Expected handler for this ZIP: src/lambda.handler'
 Write-Host 'AWS resources/deployments modified: NONE'
 Write-Host 'Do not upload or change Lambda handler before billing authorization, rollback backup and browser acceptance.'
