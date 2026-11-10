@@ -58,7 +58,7 @@ fs.writeFileSync(policyPath,
  'window.GLOBEVOY_PRODUCTION_RELEASE = Object.freeze(' + JSON.stringify(releaseConfig) + ');\n' +
  fs.readFileSync(policyPath,'utf8')
 );
-for (const file of ['index.html','runtime/environment-policy.js','react/index.html','react/account/index.html','react/my-trips/index.html','react/journey/index.html']) {
+for (const file of ['index.html','auth-callback.html','runtime/auth-config-705b-r3.js','scripts/auth-session-705b-r3.js','runtime/environment-policy.js','react/index.html','react/account/index.html','react/my-trips/index.html','react/journey/index.html']) {
  if (!fs.existsSync(path.join(output,file))) throw Error('Missing release file: '+file);
  if(file.startsWith('react/') && !fs.readFileSync(path.join(output,file),'utf8').includes('/react/_next/')) throw Error('Missing React asset prefix: '+file);
 }
