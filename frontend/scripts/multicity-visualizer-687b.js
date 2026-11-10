@@ -632,8 +632,9 @@ function openMemberSignIn711(){
     return;
   }
 
-  if(location.hostname==='127.0.0.1'||location.hostname==='localhost'){
-    location.href='https://staging.dy4fw8gx1ccie.amplifyapp.com/account.html';
+  const stagingOrigin=window.GLOBEVOY_ENVIRONMENT_POLICY?.stagingOrigin;
+  if(stagingOrigin&&(location.hostname==='127.0.0.1'||location.hostname==='localhost')){
+    location.href=`${stagingOrigin}/account.html`;
     return;
   }
 

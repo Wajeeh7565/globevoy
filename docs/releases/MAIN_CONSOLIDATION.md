@@ -5,6 +5,8 @@
 
 **Classic Save correction (source only):** see [CLASSIC_SAVE_FIX.md](CLASSIC_SAVE_FIX.md) for shared compact snapshots and offline browser regression coverage. This is not deployment approval.
 
+**Production-only packaging:** see [PRODUCTION_FRONTEND_PACKAGING.md](PRODUCTION_FRONTEND_PACKAGING.md). The current packager writes and validates the complete ZIP automatically, including React chunks. Source staging behavior is preserved.
+
 ## Status and source
 
 **Full new product: BLOCKED.** Main promotion is prepared; no merge or deployment is authorized by this preparation task. The conservative static candidate retains the classic website and production API, disables production accounts and the React workflow, and keeps both sets of assets in one artifact. It still needs browser acceptance against production before deployment approval. Leaving deployment job 240 untouched is the smallest completely verified way to preserve the current public website while merging source organization.
@@ -46,7 +48,7 @@ npm run typecheck:web
 # Set $env:GLOBEVOY_MAPS_BROWSER_KEY using your approved local environment.
 # Preserve/rename any previous .cache/production-site before this command.
 npm run package:production
-python -c "import shutil; shutil.make_archive('.cache/production-site', 'zip', '.cache/production-site')"
+node ops/release/verify-production-frontend.mjs .cache/production-site.zip
 Get-FileHash .cache/production-site.zip -Algorithm SHA256
 ```
 

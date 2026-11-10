@@ -1,13 +1,8 @@
-/* Shared public configuration for the classic and React GlobeVoy frontends.
- * Production feature switches are injected ONLY into the approved deployment artifact.
- * These are presentation controls, not authorization; the backend must enforce access.
+/* Shared public configuration for classic and React. Production packages reuse
+ * this factory with only their approved destinations; ordinary builds retain staging.
+ * Presentation controls do not replace backend authorization.
  */
 (function (root, factory) {
-  const policy = factory();
-  if (typeof module === 'object' && module.exports) module.exports = policy;
-  else root.GLOBEVOY_ENVIRONMENT_POLICY = policy;
-})(typeof window === 'undefined' ? globalThis : window, function () {
-  'use strict';
   const productionApi = 'https://7pibv4zp7tzx7qcyrymwsh44ta0wtrei.lambda-url.us-east-2.on.aws';
   const stagingApi = 'https://mirksnjcjim4iowstuda4lesrm0ghmfw.lambda-url.us-east-2.on.aws';
   const stagingOrigin = 'https://staging.dy4fw8gx1ccie.amplifyapp.com';
@@ -17,6 +12,15 @@
     issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_MSd9RRHD8',
     domainBaseUrl: 'https://globevoy-stg-76bf9b233a.auth.us-east-2.amazoncognito.com'
   });
+  const policy = factory({ productionApi, productionOrigins, stagingApi, stagingOrigin, stagingAuth });
+  if (typeof module === 'object' && module.exports) {
+    // Build tools serialize this closure-free factory, never the staging defaults.
+    module.exports = Object.freeze({ ...policy, createPolicy: factory });
+  } else root.GLOBEVOY_ENVIRONMENT_POLICY = policy;
+})(typeof window === 'undefined' ? globalThis : window, function createEnvironmentPolicy(configuration) {
+  'use strict';
+  const { productionApi, productionOrigins, stagingApi, stagingOrigin, stagingAuth } = configuration;
+
 
   function validProductionApi(value) {
     if (typeof value !== 'string') return false;
@@ -26,11 +30,14 @@
         /^[a-z0-9-]+\.lambda-url\.us-east-2\.on\.aws$/.test(url.hostname) &&
         (url.pathname === '/' || url.pathname === '') &&
         !url.username && !url.password && !url.search && !url.hash &&
-        url.origin !== stagingApi;
+        url.origin !== stagingApi &&
+        (!configuration.productionOnly || url.origin === productionApi);
     } catch (_) { return false; }
   }
 
   function validProductionAuth(auth) {
+    if (configuration.productionOnly && (!configuration.productionAuth ||
+        Object.keys(configuration.productionAuth).some(key => auth?.[key] !== configuration.productionAuth[key]))) return false;
     if (!auth || typeof auth !== 'object') return false;
     if (!/^us-east-2_[A-Za-z0-9]+$/.test(String(auth.userPoolId || '')) ||
         !/^[a-z0-9]{12,64}$/.test(String(auth.clientId || ''))) return false;
@@ -50,8 +57,10 @@
     const candidate = typeof window === 'undefined' ? null : window.GLOBEVOY_PRODUCTION_RELEASE;
     if (!candidate || candidate.environment !== 'production' || candidate.target !== 'globevoy.com') return null;
     if (!validProductionApi(candidate.apiBaseUrl)) return null;
-    const reactEnabled = candidate.reactEnabled === true;
-    const accountsEnabled = reactEnabled && candidate.accountsEnabled === true && validProductionAuth(candidate.auth);
+    const reactEnabled = candidate.reactEnabled === true &&
+      (!configuration.productionOnly || configuration.reactEnabled === true);
+    const accountsEnabled = reactEnabled && candidate.accountsEnabled === true &&
+      (!configuration.productionOnly || configuration.accountsEnabled === true) && validProductionAuth(candidate.auth);
     return Object.freeze({
       apiBaseUrl: new URL(candidate.apiBaseUrl).origin,
       reactEnabled,
@@ -61,7 +70,7 @@
   }
 
   function resolve(origin, developmentApi) {
-    const staging = origin === stagingOrigin;
+    const staging = Boolean(stagingOrigin) && origin === stagingOrigin;
     const production = productionOrigins.includes(origin);
     const canonicalProduction = origin === 'https://globevoy.com' || origin === 'https://www.globevoy.com';
     const approved = canonicalProduction ? productionRelease() : null;
@@ -69,6 +78,7 @@
     let local = false;
     try {
       const url = new URL(origin);
+      if (configuration.productionOnly) throw new Error('Development overrides are disabled in production packages');
       local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname) && ['http:', 'https:'].includes(url.protocol);
       if (local && developmentApi) {
         const api = new URL(developmentApi);

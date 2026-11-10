@@ -10,7 +10,7 @@ export const COGNITO_LOGOUT_URL = `${STAGING_ORIGIN}/index.html`;
 export const COGNITO_SCOPES = ['openid', 'email', 'profile', 'globevoy/trips.write'] as const;
 
 export function browserIsStagingOrigin(): boolean {
-  return typeof window !== 'undefined' && window.location.origin === STAGING_ORIGIN;
+  return Boolean(STAGING_ORIGIN) && typeof window !== 'undefined' && window.location.origin === STAGING_ORIGIN;
 }
 
 export function browserEnvironment() {

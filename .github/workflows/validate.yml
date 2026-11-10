@@ -72,10 +72,14 @@ jobs:
           ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend
           ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend-enabled -EnableProductionAccounts
 
+      - name: Build production-only frontend ZIP and scan every entry (no AWS)
+        run: node tests/release/build-production-frontend-fixture.mjs
+
       - name: React typecheck and static production build
         run: |
           npm run typecheck:web
           npm run build:web
+          node tests/release/build-production-frontend-fixture.mjs --verify-normal-build
           test -f web/out/account/index.html
           test -f web/out/journey/index.html
           grep -q '/react/_next/' web/out/index.html
@@ -84,6 +88,11 @@ jobs:
         run: node web/node_modules/playwright/cli.js install --with-deps chromium
 
       - name: Classic Save to React My Trips browser regression (network intercepted)
+        run: npm run test:browser
+
+      - name: Browser regression against the production-only packaged assets
+        env:
+          GLOBEVOY_TEST_FRONTEND_ROOT: .cache/ci-production-frontend
         run: npm run test:browser
 
       - name: Validate production Cognito script syntax without running AWS commands
