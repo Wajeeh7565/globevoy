@@ -1,0 +1,72 @@
+name: GV-ACCOUNT-705B Operator Pack
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh'
+      - 'backend/validation/validate-gv-account-705b.js'
+      - 'docs/GV-ACCOUNT-705B.md'
+      - '.github/workflows/validate-705b.yml'
+      - '.github/workflows/build-705b-operator-pack.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Validate and package 705B operator bootstrap
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate operator contract
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validation/validate-gv-account-705a.js
+          node backend/validation/validate-gv-account-705b.js
+          bash -n ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh
+
+      - name: Package operator files without executing AWS mutations
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh dist/
+          cp docs/GV-ACCOUNT-705B.md dist/
+          chmod +x dist/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh
+          sha256sum dist/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh \
+            > dist/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh.sha256.txt
+          cat > dist/README-705B.txt <<'EOF2'
+          Globevoy GV-ACCOUNT-705B staging Cognito operator pack
+
+          This pack creates/reuses staging Cognito identity resources only.
+          It must be run manually by the release operator in authenticated AWS CloudShell.
+
+          It does NOT deploy Lambda/Amplify, create DynamoDB, touch production, create a browser client secret, or execute in GitHub Actions.
+
+          Steps:
+          1. Verify the shell script SHA-256 against its .sha256.txt file.
+          2. Run: bash GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh
+          3. Return only GV-ACCOUNT-705B-Staging-Cognito-Public.json to ChatGPT.
+
+          Do not return AWS access keys, session tokens, passwords or unrelated credentials.
+          EOF2
+
+      - name: Upload operator pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: globevoy-account-705b-operator-pack
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14

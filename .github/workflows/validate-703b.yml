@@ -1,0 +1,59 @@
+name: GV-FLIGHT-703B Five-Origin Final Live Policy
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js'
+      - 'backend/services/domain/live-fares/public-live-fare-pilot-684a.js'
+      - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validation/validate-gv-flight-703b.js'
+      - '.github/workflows/validate-703b.yml'
+      - 'docs/GV-FLIGHT-703B.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate staging five-origin final-live policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Syntax and deterministic policy validation
+        run: |
+          node --check backend/services/providers/flights/duffel/staging/staging-duffel-five-origin-703b.js
+          node --check backend/staging-lambda-702d.js
+          node --check backend/validation/validate-gv-flight-703b.js
+          node backend/validation/validate-gv-flight-703b.js
+
+      - name: Confirm production handler has no 703B runtime wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E "GV-FLIGHT-703B|staging-duffel-five-origin-703b" backend/lambda.js; then
+            echo "703B production runtime wiring detected."
+            exit 1
+          fi
+          echo "PASS - production handler has no 703B runtime wiring."
+
+      - name: Confirm workflow is deployment-free
+        shell: bash
+        run: |
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+api\.duffel\.com" .github/workflows/validate-703b.yml; then
+            echo "Deployment/provider-call command found in 703B workflow."
+            exit 1
+          fi
+          echo "PASS - 703B workflow is deployment-free and provider-call-free."

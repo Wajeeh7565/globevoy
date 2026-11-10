@@ -526,7 +526,6 @@
   startDate.min = today;
   endDate.min = today;
   restore();
-  renderOriginOptions(origin.value);
 
   passengerButton.addEventListener('click', () => passengerPanel.hidden ? openPassengers() : closePassengers());
   $$('[data-counter]').forEach((button) => {
@@ -605,8 +604,6 @@
   aiRequest.addEventListener('input', () => { aiCount.textContent = String(aiRequest.value.length); persist(); });
   submitButton.addEventListener('click', submit);
 
-  const authLink = document.querySelector('.gv-auth');
-  if (authLink) authLink.addEventListener('click', openSignInModal);
   $$('[data-close-signin]').forEach((element) => element.addEventListener('click', closeSignInModal));
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {

@@ -7,8 +7,12 @@ coverage/
 .cache/
 .DS_Store
 Thumbs.db
-release/
+/release/
 *.zip
 *_provider_feed.*
 cities.json
 airports.json
+web/.next/
+web/out/
+*.tsbuildinfo
+amplify-publish/

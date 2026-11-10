@@ -1,0 +1,103 @@
+name: Globevoy Validation
+
+on:
+  push:
+    branches:
+      - staging
+      - main
+      - 'feature/**'
+  pull_request:
+    branches:
+      - staging
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gv-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate current Globevoy baseline
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Show Node version
+        run: node --version
+
+      - name: Unified baseline test suite
+        run: npm test
+
+      - name: Account and auth test group
+        run: npm run test:account
+
+      - name: Provider integration test group
+        run: npm run test:providers
+
+      - name: Install React/Web test dependencies
+        run: npm ci --prefix web --no-audit --no-fund
+
+      - name: React/Web test group
+        run: npm run test:web
+
+      - name: Production configuration and authentication boundaries
+        run: npm run test:release
+
+      - name: Isolated production account API regression tests (no AWS calls)
+        run: node backend/validation/validate-gv-production-account.js
+
+      - name: Validate launch-first PowerShell packager syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('ops/release/package-launch-first-backend.ps1', [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; throw 'Invalid PowerShell package script' }
+
+      - name: Build and import production Lambda ZIP locally
+        shell: pwsh
+        run: ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend
+
+      - name: React typecheck and static production build
+        run: |
+          npm run typecheck:web
+          npm run build:web
+          test -f web/out/account/index.html
+          test -f web/out/journey/index.html
+          grep -q '/react/_next/' web/out/index.html
+
+      - name: Validate production Cognito script syntax without running AWS commands
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $parseErrors = $null
+          [void][System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'ops/release/provision-production-cognito.ps1'),
+            [ref]$tokens,
+            [ref]$parseErrors
+          )
+          if ($parseErrors.Count -gt 0) {
+            $parseErrors | ForEach-Object { Write-Host $_.ToString() }
+            exit 1
+          }
+
+      - name: Confirm CI is deployment-free
+        shell: bash
+        run: |
+          if grep -R -E "aws[[:space:]]+(lambda|amplify|cloudformation)[[:space:]].*(update|create|start-deployment|deploy)|amplify[[:space:]]+publish" .github/workflows .github/scripts; then
+            echo "Deployment command found inside validation automation."
+            exit 1
+          fi
+          echo "PASS - validation workflow contains no AWS deployment command."

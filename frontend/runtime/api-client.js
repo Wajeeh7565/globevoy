@@ -59,37 +59,46 @@
   }
 
   async function getRecommendations(params) {
-    if (!isConfigured()) {
-      throw new Error('Live API is not configured.');
-    }
+    if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 9000);
-    const url = buildUrl('/api/recommendations', params);
-    return fetchJson(url, timeoutMs);
+    return fetchJson(buildUrl('/api/recommendations', params), timeoutMs);
   }
 
-
   async function getGeneratedTour(params) {
-    if (!isConfigured()) {
-      throw new Error('Live API is not configured.');
-    }
+    if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 12000);
-    const url = buildUrl('/api/generated-tour', params);
-    return fetchJson(url, timeoutMs);
+    return fetchJson(buildUrl('/api/generated-tour', params), timeoutMs);
   }
 
   async function getGeneratedTourControl(params) {
-    if (!isConfigured()) {
-      throw new Error('Live API is not configured.');
-    }
+    if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 12000);
-    const url = buildUrl('/api/generated-tour-control', params);
-    return fetchJson(url, timeoutMs);
+    return fetchJson(buildUrl('/api/generated-tour-control', params), timeoutMs);
+  }
+
+  // GV-DATA-701C — read-only worldwide-registry frontend contract.
+  // This does not change autocomplete, destination activation, ranking, pricing,
+  // or generated-tour behavior. It only exposes the staging-backed 701B data
+  // surface to future frontend consumers.
+  async function getWorldwideCityRegistry(params) {
+    if (config().worldwideRegistryEnabled === false) throw new Error('Worldwide city search is unavailable on this website.');
+    if (!isConfigured()) throw new Error('Live API is not configured.');
+    const timeoutMs = Number(config().apiTimeoutMs || 9000);
+    return fetchJson(buildUrl('/api/worldwide-city-registry', params), timeoutMs);
+  }
+
+  async function searchWorldwideCities(params) {
+    return getWorldwideCityRegistry(params || {});
+  }
+
+  async function resolveWorldwideCity(input, countryCode) {
+    const value = String(input || '').trim();
+    if (!value) throw new Error('Worldwide city resolution requires a city or airport.');
+    return getWorldwideCityRegistry({ resolve: value, countryCode: String(countryCode || '').trim().toUpperCase() });
   }
 
   async function recalculateGeneratedTourDate(payload) {
-    if (!isConfigured()) {
-      throw new Error('Live API is not configured.');
-    }
+    if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 18000);
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -111,9 +120,7 @@
   }
 
   async function checkTravelEntry(payload) {
-    if (!isConfigured()) {
-      throw new Error('Live API is not configured.');
-    }
+    if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 12000);
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -134,19 +141,14 @@
     }
   }
 
-
   async function getDuffelSandboxStatus() {
-    if (!isConfigured()) {
-      throw new Error('Live API is not configured.');
-    }
+    if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 12000);
     return fetchJson(buildUrl('/api/duffel-sandbox-proof'), timeoutMs);
   }
 
   async function runDuffelSandboxProof(payload) {
-    if (!isConfigured()) {
-      throw new Error('Live API is not configured.');
-    }
+    if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 30000);
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), timeoutMs);
@@ -168,12 +170,9 @@
   }
 
   async function getMultiCityTours(params) {
-    if (!isConfigured()) {
-      throw new Error('Live API is not configured.');
-    }
+    if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 9000);
-    const url = buildUrl('/api/multicity-tours', params);
-    return fetchJson(url, timeoutMs);
+    return fetchJson(buildUrl('/api/multicity-tours', params), timeoutMs);
   }
 
   window.GlobevoyApi = {
@@ -181,10 +180,14 @@
     getRecommendations,
     getGeneratedTour,
     getGeneratedTourControl,
+    getWorldwideCityRegistry,
+    searchWorldwideCities,
+    resolveWorldwideCity,
     recalculateGeneratedTourDate,
     checkTravelEntry,
     getDuffelSandboxStatus,
     runDuffelSandboxProof,
-    getMultiCityTours
+    getMultiCityTours,
+    worldwideRegistryContractVersion: 'GV-DATA-701C'
   };
 })();

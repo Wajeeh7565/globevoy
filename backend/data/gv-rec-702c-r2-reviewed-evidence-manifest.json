@@ -1,0 +1,75 @@
+{
+  "version": "GV-REC-702C-R2-EVIDENCE-MANIFEST",
+  "sourceEvidenceVersion": "GV-REC-702C-RECOVERY2-REVIEW-EVIDENCE-R1",
+  "sourceEvidenceSha256": "ed35ad8ecd64bc3ea4b90b631bb3229abaf0d7aef758e91859038ba3eccb5ea0",
+  "sourceGeneratedAt": "2026-08-20T09:39:37Z",
+  "activationWritten": false,
+  "thresholdsRelaxed": false,
+  "requiresExactItineraryVerification": true,
+  "cities": [
+    {
+      "cityId": "acapulco-mx",
+      "displayName": "Acapulco",
+      "countryCode": "MX",
+      "historicalPrimaryGap": "retry-queue:missing-flight-observations",
+      "flight": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "providerMappingVerified": true,
+        "productionEligible": true,
+        "inventoryObserved": true,
+        "comfortQualified": true,
+        "destinationCode": "ACA",
+        "checkedAt": "2026-08-20T09:30:30.688Z",
+        "durationMinutes": 62,
+        "transfers": 0,
+        "evidenceMode": "production-provider-response"
+      },
+      "stay": {
+        "provider": "Agoda",
+        "status": "live",
+        "providerMappingVerified": true,
+        "productionEligible": true,
+        "inventoryObserved": true,
+        "qualityQualifiedRate": true,
+        "checkIn": "2026-10-04",
+        "checkOut": "2026-10-06",
+        "rawHotelCount": 30,
+        "pricedHotelCount": 30,
+        "qualityQualifiedCount": 7
+      }
+    },
+    {
+      "cityId": "aalesund-no",
+      "displayName": "Aalesund",
+      "countryCode": "NO",
+      "historicalPrimaryGap": "retry-queue:missing-flight-observations",
+      "flight": {
+        "provider": "Travelpayouts/Aviasales",
+        "status": "live",
+        "providerMappingVerified": true,
+        "productionEligible": true,
+        "inventoryObserved": true,
+        "comfortQualified": true,
+        "destinationCode": "AES",
+        "checkedAt": "2026-08-20T09:30:32.979Z",
+        "durationMinutes": 130,
+        "transfers": 0,
+        "evidenceMode": "production-provider-response"
+      },
+      "stay": {
+        "provider": "Agoda",
+        "status": "live",
+        "providerMappingVerified": true,
+        "productionEligible": true,
+        "inventoryObserved": true,
+        "qualityQualifiedRate": true,
+        "checkIn": "2026-10-04",
+        "checkOut": "2026-10-06",
+        "rawHotelCount": 30,
+        "pricedHotelCount": 30,
+        "qualityQualifiedCount": 7
+      }
+    }
+  ]
+}

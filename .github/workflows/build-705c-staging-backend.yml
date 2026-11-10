@@ -1,0 +1,103 @@
+name: Build GV-ACCOUNT-705C Staging Backend
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'backend/services/accounts/saved-trips/staging-saved-trips-705c.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validation/validate-gv-account-705c.js'
+      - 'ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh'
+      - '.github/workflows/build-705c-staging-backend.yml'
+  push:
+    branches: [staging]
+    paths:
+      - 'backend/services/accounts/saved-trips/staging-saved-trips-705c.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validation/validate-gv-account-705c.js'
+      - 'ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh'
+      - '.github/workflows/build-705c-staging-backend.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gv-account-705c-backend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate saved trips and current baselines
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validation/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-hotel-704a.js
+          node backend/validation/validate-gv-account-705a.js
+          node backend/validation/validate-gv-account-705b.js
+          node backend/validation/validate-gv-account-705b-r3.js
+          node backend/validation/validate-gv-account-705c.js
+
+      - name: Syntax checks
+        run: |
+          node --check backend/services/accounts/saved-trips/staging-saved-trips-705c.js
+          node --check backend/staging-lambda-702d.js
+          node --check backend/validation/validate-gv-account-705c.js
+          bash -n ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh
+
+      - name: Build exact Lambda ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          artifact="globevoy-staging-backend-705c-${GITHUB_SHA::12}.zip"
+          (
+            cd backend
+            zip -q -r "../dist/${artifact}" .
+          )
+          test -f "dist/${artifact}"
+          unzip -l "dist/${artifact}" | grep -q 'staging-lambda-702d.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/accounts/auth/staging-cognito-auth-705b-r3.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/accounts/saved-trips/staging-saved-trips-705c.js'
+          unzip -l "dist/${artifact}" | grep -q 'validation/validate-gv-account-705c.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
+          unzip -l "dist/${artifact}" | grep -q 'services/providers/flights/duffel/staging/staging-duffel-two-adult-703e.js'
+          bytes=$(stat -c%s "dist/${artifact}")
+          test "$bytes" -le 52428800
+          sha256sum "dist/${artifact}" > "dist/${artifact}.sha256.txt"
+          cat > dist/DEPLOYMENT-705C.txt <<EOF
+          Globevoy GV-ACCOUNT-705C staging backend
+          Commit: ${GITHUB_SHA}
+          Handler: staging-lambda-702d.handler
+          Route: /api/saved-trips
+          Required environment: GLOBEVOY_SAVED_TRIPS_TABLE=globevoy-staging-saved-trips
+          Ownership: verified Cognito access-token sub only; client ownership fields are rejected.
+          DynamoDB access: owner-partition Query and exact-key Get/Put/Update/Delete; no table Scan path.
+          Saved prices are snapshots and require revalidation before provider handoff or booking.
+          Existing GV-ACCOUNT-705B-R3 token verification and 703B/703C/703D/703E flight protections remain packaged.
+          No client secret. No payment/card/passport data. No provider credentials or raw provider responses.
+          Production/main is not changed.
+          Run the reviewed 705C staging infrastructure operator before live saved-trip QA.
+          Deployment is code-only after infrastructure bootstrap.
+          Rollback: restore the prior verified staging Lambda ZIP. Retain the DynamoDB table by default to avoid deleting user data.
+          EOF
+          echo "Built ${artifact} (${bytes} bytes)"
+
+      - name: Upload exact staging backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: globevoy-staging-backend-705c
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,87 @@
+name: GV-ACCOUNT-705A Cognito and Saved Trip Architecture
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/accounts/architecture/account-architecture-705a.js'
+      - 'backend/validation/validate-gv-account-705a.js'
+      - 'docs/GV-ACCOUNT-705A.md'
+      - '.github/workflows/validate-705a.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate account security and saved-trip ownership contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate repository and current roadmap baseline
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validation/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-hotel-704a.js
+          node backend/validation/validate-gv-account-705a.js
+
+      - name: Syntax checks
+        run: |
+          node --check backend/services/accounts/architecture/account-architecture-705a.js
+          node --check backend/validation/validate-gv-account-705a.js
+          node --check backend/lambda.js
+          node --check frontend/scripts/travel-profile-675a.js
+          node --check frontend/scripts/shell-670f.js
+
+      - name: Confirm 705A has no runtime wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Eq 'account-architecture-705a|GV-ACCOUNT-705A' backend/lambda.js backend/services/domain/tours/generated-tour.js frontend/scripts/shell-670f.js frontend/scripts/travel-profile-675a.js; then
+            echo '705A architecture code was wired into an active runtime path.'
+            exit 1
+          fi
+          echo 'PASS - 705A remains architecture-only.'
+
+      - name: Confirm current browser profile remains explicitly non-authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq 'It is not a secure Globevoy account' frontend/create-account.html
+          grep -Fq "const KEY='globevoy.travel.profile.v1'" frontend/scripts/travel-profile-675a.js
+          grep -Fq 'localStorage.setItem(KEY,JSON.stringify(profile))' frontend/scripts/travel-profile-675a.js
+          grep -Fq 'You can continue as a guest.' frontend/index.html
+          grep -Fq 'Continue as guest' frontend/index.html
+          echo 'PASS - current local travel profile and guest boundary are preserved.'
+
+      - name: Confirm architecture contract is credential and deployment free
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E "require\(['\"]@aws-sdk/|CognitoIdentityProviderClient\(|DynamoDBClient\(|globalThis\.fetch\(|DUFFEL_ACCESS_TOKEN|AGODA_API_KEY" backend/services/accounts/architecture/account-architecture-705a.js; then
+            echo '705A pure architecture module contains runtime provider/AWS credential wiring.'
+            exit 1
+          fi
+          if grep -E 'aws[[:space:]]+(cognito-idp|dynamodb|lambda|amplify|cloudformation)|amplify[[:space:]]+publish' backend/services/accounts/architecture/account-architecture-705a.js backend/validation/validate-gv-account-705a.js; then
+            echo '705A implementation contains deployment commands.'
+            exit 1
+          fi
+          echo 'PASS - 705A performs no AWS deployment and reads no provider credentials.'
+
+      - name: Confirm backend already permits bearer Authorization header
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "'Access-Control-Allow-Headers': 'Content-Type,X-GV-Admin-Token,X-GV-Provider-Canary,Authorization'" backend/lambda.js
+          echo 'PASS - existing API CORS preflight can carry future access-token Authorization.'

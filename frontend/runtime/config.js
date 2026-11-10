@@ -1,10 +1,12 @@
 // Globevoy browser config
 // Place your restricted Google Maps browser key here.
 // NEVER put Gemini, Amadeus, SearchAPI, or any private keys here.
+window.GLOBEVOY_PUBLIC_ENVIRONMENT = window.GLOBEVOY_ENVIRONMENT_POLICY.resolve(window.location.origin);
 window.GLOBEVOY_CONFIG = {
   googleMapsApiKey: "YOUR_RESTRICTED_GOOGLE_MAPS_BROWSER_KEY",
-  enableLiveApi: true,
-  apiBaseUrl: "https://7pibv4zp7tzx7qcyrymwsh44ta0wtrei.lambda-url.us-east-2.on.aws",
+  enableLiveApi: Boolean(window.GLOBEVOY_PUBLIC_ENVIRONMENT.apiBaseUrl),
+  apiBaseUrl: window.GLOBEVOY_PUBLIC_ENVIRONMENT.apiBaseUrl,
+  worldwideRegistryEnabled: window.GLOBEVOY_PUBLIC_ENVIRONMENT.worldwideRegistryEnabled,
   apiTimeoutMs: 20000,
   mapFirstThreePicksEnabled: true,
   topSwitchThreePicksEnabled: true,

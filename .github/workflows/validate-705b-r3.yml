@@ -1,0 +1,79 @@
+name: GV-ACCOUNT-705B-R3 Secure Staging Auth Runtime
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'backend/services/accounts/auth/staging-cognito-auth-705b-r3.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validation/validate-gv-account-705b-r3.js'
+      - 'frontend/runtime/auth-config-705b-r3.js'
+      - 'frontend/scripts/auth-session-705b-r3.js'
+      - 'frontend/scripts/shell-670f.js'
+      - 'frontend/account.html'
+      - 'frontend/auth-callback.html'
+      - 'frontend/styles/account-705b-r3.css'
+      - '.github/workflows/validate-705b-r3.yml'
+      - 'docs/GV-ACCOUNT-705B-R3.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate PKCE browser flow and Cognito JWT boundary
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Repository and roadmap regressions
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validation/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-hotel-704a.js
+          node backend/validation/validate-gv-account-705a.js
+          node backend/validation/validate-gv-account-705b.js
+
+      - name: Deterministic 705B-R3 verification
+        run: node backend/validation/validate-gv-account-705b-r3.js
+
+      - name: Syntax checks
+        run: |
+          node --check backend/services/accounts/auth/staging-cognito-auth-705b-r3.js
+          node --check backend/staging-lambda-702d.js
+          node --check backend/validation/validate-gv-account-705b-r3.js
+          node --check frontend/runtime/auth-config-705b-r3.js
+          node --check frontend/scripts/auth-session-705b-r3.js
+          node --check frontend/scripts/shell-670f.js
+
+      - name: Keep credentials and production outside 705B-R3
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(
+            backend/services/accounts/auth/staging-cognito-auth-705b-r3.js
+            frontend/runtime/auth-config-705b-r3.js
+            frontend/scripts/auth-session-705b-r3.js
+            frontend/account.html
+            frontend/auth-callback.html
+          )
+          ! grep -Ei '(AWS_SECRET_ACCESS_KEY|AWS_SESSION_TOKEN|DUFFEL_ACCESS_TOKEN|AGODA_API_KEY|STAY22_API_KEY)' "${files[@]}"
+          ! grep -Ei '(clientSecret[^P]|client_secret)' frontend/runtime/auth-config-705b-r3.js frontend/scripts/auth-session-705b-r3.js
+          ! grep -q 'GV-ACCOUNT-705B-R3' backend/lambda.js
+          ! grep -q '/api/account/session' backend/lambda.js
+          ! grep -q 'window.localStorage' frontend/scripts/auth-session-705b-r3.js
+
+      - name: Confirm guest planning remains available
+        shell: bash
+        run: |
+          grep -q 'You can continue as a guest.' frontend/index.html
+          grep -q 'Continue as guest' frontend/account.html
+          grep -q 'It is not a secure Globevoy account' frontend/create-account.html

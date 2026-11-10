@@ -1,0 +1,75 @@
+name: GV-ACCOUNT-705C Saved Trips Safety
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'backend/services/accounts/saved-trips/staging-saved-trips-705c.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validation/validate-gv-account-705c.js'
+      - 'backend/validation/validate-gv-account-705c-r2.js'
+      - 'frontend/account.html'
+      - 'frontend/my-trips.html'
+      - 'frontend/multi-city-trip.html'
+      - 'frontend/scripts/shell-670f.js'
+      - 'frontend/scripts/saved-trips-705c.js'
+      - 'frontend/scripts/saved-trips-705c-r2-route-details.js'
+      - 'frontend/styles/my-trips-705c.css'
+      - 'ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh'
+      - 'docs/GV-ACCOUNT-705C.md'
+      - '.github/workflows/validate-705c.yml'
+  push:
+    branches: [staging]
+    paths:
+      - 'backend/services/accounts/saved-trips/staging-saved-trips-705c.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validation/validate-gv-account-705c.js'
+      - 'backend/validation/validate-gv-account-705c-r2.js'
+      - 'frontend/account.html'
+      - 'frontend/my-trips.html'
+      - 'frontend/multi-city-trip.html'
+      - 'frontend/scripts/shell-670f.js'
+      - 'frontend/scripts/saved-trips-705c.js'
+      - 'frontend/scripts/saved-trips-705c-r2-route-details.js'
+      - 'frontend/styles/my-trips-705c.css'
+      - 'ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh'
+      - 'docs/GV-ACCOUNT-705C.md'
+      - '.github/workflows/validate-705c.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gv-account-705c-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax checks
+        run: |
+          node --check backend/services/accounts/saved-trips/staging-saved-trips-705c.js
+          node --check backend/staging-lambda-702d.js
+          node --check backend/validation/validate-gv-account-705c.js
+          node --check backend/validation/validate-gv-account-705c-r2.js
+          node --check frontend/scripts/shell-670f.js
+          node --check frontend/scripts/saved-trips-705c.js
+          node --check frontend/scripts/saved-trips-705c-r2-route-details.js
+          bash -n ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh
+      - name: Validate secure saved trips
+        run: |
+          node backend/validation/validate-gv-account-705b-r3.js
+          node backend/validation/validate-gv-account-705c.js
+          node backend/validation/validate-gv-account-705c-r2.js
+      - name: Preserve repository regressions
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validation/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-hotel-704a.js

@@ -7,7 +7,7 @@ const root=path.resolve(__dirname,'..');
 const read=n=>fs.readFileSync(path.join(root,n),'utf8');
 const hash=n=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,n))).digest('hex');
 const checks=[]; const check=(name,pass,detail='')=>checks.push({name,pass:Boolean(pass),detail});
-const release=JSON.parse(read('GV-UX-687A-R1-RELEASE.json'));
+const release=JSON.parse(read('validation/releases/GV-UX-687A-R1-RELEASE.json'));
 const html=read('multicity-visualizer.html');
 const engine=read('scripts/multicity-visualizer-687a.js');
 const css=read('styles/journey-experience-687a.css');

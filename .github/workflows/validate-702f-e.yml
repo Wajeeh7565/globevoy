@@ -1,0 +1,87 @@
+name: GV-REC-702F-E Permanent Airport Foundation Candidate
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/data/gateway-foundation-permanent-candidate-702f-e.json'
+      - 'backend/data/gateway-foundation-corrections-702f-d.json'
+      - 'backend/services/cities/gateways/permanent-gateway-foundation-candidate-702f-e.js'
+      - 'backend/services/cities/gateways/staging/staging-gateway-foundation-702f-d.js'
+      - 'backend/validation/validate-gv-rec-702f-e.js'
+      - 'backend/data/unified-city-registry-1000-668b.json'
+      - '.github/workflows/validate-702f-e.yml'
+      - 'docs/GV-REC-702F-E.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate 9-city permanent foundation projection
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Verify pinned 702F-D source manifest identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual=$(git hash-object backend/data/gateway-foundation-corrections-702f-d.json)
+          test "$actual" = "af91dcd1b0e4558710fd030c6a687322a771e2ea"
+          echo "Pinned 702F-D manifest blob verified: $actual"
+
+      - name: Syntax and deterministic candidate validation
+        run: |
+          node --check backend/services/cities/gateways/permanent-gateway-foundation-candidate-702f-e.js
+          node --check backend/validation/validate-gv-rec-702f-e.js
+          ENABLE_VERIFIED_CITY_ACTIVATION_668T=true node backend/validation/validate-gv-rec-702f-e.js
+
+      - name: Generate full candidate registry artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/gv-rec-702f-e
+          node backend/services/cities/gateways/permanent-gateway-foundation-candidate-702f-e.js \
+            --out dist/gv-rec-702f-e/GV-REC-702F-E-Permanent-Foundation-Candidate.json
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'dist/gv-rec-702f-e/GV-REC-702F-E-Permanent-Foundation-Candidate.json';
+          const candidate = JSON.parse(fs.readFileSync(p, 'utf8'));
+          if (candidate.version !== 'GV-REC-702F-E-PERMANENT-FOUNDATION-CANDIDATE-R1') throw new Error('wrong candidate version');
+          if (candidate.summary.recordCount !== 1000) throw new Error('candidate must contain 1000 records');
+          if (candidate.summary.correctionCount !== 9) throw new Error('candidate must contain exactly 9 corrections');
+          if (candidate.summary.unchangedRecordCount !== 991) throw new Error('candidate must preserve exactly 991 unchanged records');
+          if (candidate.policy.runtimeWired !== false) throw new Error('candidate must remain runtime-unwired');
+          if (candidate.policy.productionDeploymentPerformed !== false) throw new Error('candidate must remain undeployed');
+          console.log(JSON.stringify(candidate.summary, null, 2));
+          NODE
+          sha256sum dist/gv-rec-702f-e/GV-REC-702F-E-Permanent-Foundation-Candidate.json \
+            > dist/gv-rec-702f-e/GV-REC-702F-E-Permanent-Foundation-Candidate.json.sha256.txt
+
+      - name: Upload candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gv-rec-702f-e-permanent-airport-foundation-candidate
+          path: dist/gv-rec-702f-e/*
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Confirm workflow is deployment-free
+        shell: bash
+        run: |
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-702f-e.yml; then
+            echo "Deployment command found in 702F-E workflow."
+            exit 1
+          fi
+          echo "PASS - 702F-E workflow is deployment-free."

@@ -1,0 +1,89 @@
+name: GV-WEB-707A React Account My Trips
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'web/**'
+      - 'docs/GV-WEB-706R-MIGRATION-PLAN.md'
+      - '.github/workflows/validate-707a.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package.json
+
+      - name: Enforce migration boundary
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if ! git cat-file -e "$BASE_SHA:docs/refactor/active-layout-moves.json" 2>/dev/null && [ -f docs/refactor/active-layout-moves.json ]; then
+            node scripts/validate-layout-equivalence.mjs "$BASE_SHA"
+            node scripts/validate-organization.mjs
+            echo 'Verified initial directory migration; ordinary feature scope checks resume after integration.'
+            exit 0
+          fi
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed"
+          if printf '%s\n' "$changed" | grep -Eq '^(frontend|backend)/'; then
+            echo 'GV-WEB-707A must not change the proven frontend or backend.' >&2
+            exit 1
+          fi
+
+      - name: Install pinned framework dependencies
+        working-directory: web
+        run: npm install --no-audit --no-fund
+
+      - name: Verify dependency graph lock
+        working-directory: web
+        run: echo '12f0fe80be5db2d1a7e18784eaf7a5e7f04ade17cf84b91c78a2dde5ec20f2c0  package-lock.json' | sha256sum -c -
+
+      - name: TypeScript strict validation
+        working-directory: web
+        run: npm run typecheck
+
+      - name: Validate 707A account privacy and handoff contracts
+        working-directory: web
+        run: node validation/validate-gv-web-707a.mjs
+
+      - name: Build static React application
+        working-directory: web
+        run: npm run build
+
+      - name: Verify exported React routes
+        working-directory: web
+        run: |
+          test -f out/index.html
+          test -f out/account/index.html
+          test -f out/my-trips/index.html
+          grep -q '/react/_next/' out/account/index.html
+          grep -q '/react/_next/' out/my-trips/index.html
+          grep -q "basePath: '/react'" next.config.ts
+          ! grep -R -E 'DUFFEL_ACCESS_TOKEN|AWS_SECRET_ACCESS_KEY|client_secret|BEGIN PRIVATE KEY|sk_live_' app components lib package.json next.config.ts
+
+      - name: Preserve 705B 705C and 706A regressions
+        run: |
+          node backend/validation/validate-gv-account-705b-r3.js
+          node backend/validation/validate-gv-account-705c.js
+          node backend/validation/validate-gv-account-705c-r4.js
+          node backend/validation/validate-gv-book-706a.js
+
+      - name: Confirm workflow has read-only repository permissions
+        run: grep -q '^  contents: read$' .github/workflows/validate-707a.yml

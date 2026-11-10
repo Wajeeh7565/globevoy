@@ -1,0 +1,69 @@
+name: GV-FLIGHT-703C Shared Duffel Request Budget
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js'
+      - 'backend/services/domain/live-fares/public-live-fare-pilot-684a.js'
+      - 'backend/services/domain/live-fares/affordable-flight-discovery-684b.js'
+      - 'backend/services/providers/flights/duffel/duffel-p2-staging-683h.js'
+      - 'backend/services/domain/tours/generated-tour.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validation/validate-gv-flight-703c.js'
+      - '.github/workflows/validate-703c.yml'
+      - 'docs/GV-FLIGHT-703C.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate shared physical-request budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Syntax and deterministic shared-budget validation
+        run: |
+          node --check backend/services/providers/flights/duffel/staging/staging-duffel-shared-budget-703c.js
+          node --check backend/staging-lambda-702d.js
+          node --check backend/validation/validate-gv-flight-703c.js
+          node backend/validation/validate-gv-flight-703c.js
+
+      - name: Confirm production runtime has no 703C wiring
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Eq 'GV-FLIGHT-703C|staging-duffel-shared-budget-703c' backend/lambda.js; then
+            echo '703C production runtime wiring found.'
+            exit 1
+          fi
+          echo 'PASS - production handler has no 703C runtime wiring.'
+
+      - name: Confirm 684B remains YYZ-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -Fq "Object.freeze(['YYZ'])" backend/services/domain/live-fares/affordable-flight-discovery-684b.js
+          echo 'PASS - 684B discovery remains YYZ-only.'
+
+      - name: Confirm workflow is deployment-free and provider-call-free
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish|curl.+api\.duffel\.com" .github/workflows/validate-703c.yml; then
+            echo 'Deployment/provider-call command found in 703C workflow.'
+            exit 1
+          fi
+          echo 'PASS - 703C workflow is deployment-free and provider-call-free.'

@@ -1,0 +1,74 @@
+name: GV-REC-702F-A Cache Semantics
+
+on:
+  push:
+    branches:
+      - 'feature/gv-rec-702f-a-*'
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/services/providers/flights/flight-cache-semantics-702f-a.js'
+      - 'backend/validation/validate-gv-rec-702f-a.js'
+      - 'docs/GV-REC-702F-A.md'
+      - '.github/workflows/validate-702f-a.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gv-702f-a-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Travelpayouts cache semantics
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Repository safety guard
+        run: node .github/scripts/validate-repo.mjs
+
+      - name: Preserve 702A baseline
+        run: node backend/validation/validate-gv-rec-702a.js
+
+      - name: Preserve reviewed 702E promotion candidate
+        run: node backend/validation/validate-gv-rec-702e.js
+
+      - name: Validate 702F-A cache semantics
+        run: node backend/validation/validate-gv-rec-702f-a.js
+
+      - name: Syntax checks
+        run: |
+          node --check backend/services/providers/flights/flight-cache-semantics-702f-a.js
+          node --check backend/validation/validate-gv-rec-702f-a.js
+
+      - name: Confirm 702F-A is not runtime-wired
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R "flight-cache-semantics-702f-a" backend/lambda.js backend/staging-lambda.js backend/staging-lambda-702d.js backend/services/domain/tours/generated-tour.js backend/services/cities/registry/verified-city-activation.js; then
+            echo "702F-A semantics layer unexpectedly imported by runtime."
+            exit 1
+          fi
+          echo "PASS - 702F-A remains review-only and runtime-unwired."
+
+      - name: Confirm workflow is deployment-free
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)[[:space:]].*(update|create|deploy)|amplify[[:space:]]+publish" .github/workflows/validate-702f-a.yml; then
+            echo "Deployment command found in 702F-A workflow."
+            exit 1
+          fi
+          echo "PASS - 702F-A workflow contains no deployment command."

@@ -1,0 +1,161 @@
+name: GV-REC-702F-C Gateway Foundation Triage
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'backend/data/gateway-review-context-702f-c.json'
+      - 'backend/services/cities/gateways/gateway-foundation-triage-702f-c.js'
+      - 'backend/validation/validate-gv-rec-702f-c.js'
+      - 'backend/services/cities/gateways/ourairports-gateway-enrichment-702f-b.js'
+      - 'backend/data/ourairports-source-702f-b.json'
+      - 'backend/data/unified-city-registry-1000-668b.json'
+      - 'docs/GV-REC-702F-C.md'
+      - '.github/workflows/validate-702f-c.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  triage:
+    name: Validate corrected 50-city gateway triage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Syntax and deterministic fixture validation
+        run: |
+          node --check backend/services/cities/gateways/gateway-foundation-triage-702f-c.js
+          node --check backend/validation/validate-gv-rec-702f-c.js
+          node backend/validation/validate-gv-rec-702f-c.js
+
+      - name: Download exact pinned OurAirports snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/gv702fc
+          url="https://raw.githubusercontent.com/davidmegginson/ourairports-data/55fd4071c99668a29f9d3625d72405c44074ef2f/airports.csv"
+          curl -fsSL --retry 3 --retry-delay 2 "$url" -o /tmp/gv702fc/airports.csv
+          test "$(stat -c%s /tmp/gv702fc/airports.csv)" -eq 12703718
+          actual_blob=$(git hash-object /tmp/gv702fc/airports.csv)
+          test "$actual_blob" = "b95a254e2d970ecb37320d645abced90c6d1a95f"
+          echo "Pinned OurAirports blob verified: $actual_blob"
+
+      - name: Regenerate corrected 702F-B review input
+        run: |
+          mkdir -p dist/gv-rec-702f-c
+          node backend/services/cities/gateways/ourairports-gateway-enrichment-702f-b.js \
+            --csv /tmp/gv702fc/airports.csv \
+            --out dist/gv-rec-702f-c/GV-REC-702F-B-R1-Review.json
+
+      - name: Build 702F-C triage
+        run: |
+          node backend/services/cities/gateways/gateway-foundation-triage-702f-c.js \
+            --input dist/gv-rec-702f-c/GV-REC-702F-B-R1-Review.json \
+            --out dist/gv-rec-702f-c/GV-REC-702F-C-Gateway-Foundation-Triage.json
+
+      - name: Validate exact corrected queue and safety boundary
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'dist/gv-rec-702f-c/GV-REC-702F-C-Gateway-Foundation-Triage.json';
+          const report = JSON.parse(fs.readFileSync(p, 'utf8'));
+          const assert = (v, m) => { if (!v) throw new Error(m); };
+          assert(report.version === 'GV-REC-702F-C', 'wrong version');
+          assert(report.summary.inputReviewQueueCount === 50, 'corrected 702F-B-R1 queue must be exactly 50');
+          assert(report.summary.triagedCount === 50, 'must triage exactly 50 records');
+          assert(report.records.length === 50, 'record count mismatch');
+          assert(new Set(report.records.map(r => r.cityId)).size === 50, 'duplicate city IDs');
+          assert(!report.records.some(r => r.cityId === 'tasiilaq-gl'), 'Tasiilaq must remain absent after R1 correction');
+          assert(report.summary.reviewedContextCount === 8, 'expected eight reviewed context overrides');
+          assert(report.summary.bucketCounts['registry-integrity-hold'] === 4, 'expected four registry integrity holds');
+          assert(report.summary.bucketCounts['operational-airspace-hold'] === 4, 'expected four operational airspace holds');
+          assert(report.summary.bucketCounts['strong-replacement-candidate'] === 9, 'expected nine strong replacement candidates');
+          assert(report.summary.bucketCounts['preserve-existing-gateway-review'] === 4, 'expected four preserved gateway reviews');
+          assert(report.summary.bucketCounts['no-nearby-candidate'] === 1, 'expected one no-nearby-candidate row');
+
+          const byId = new Map(report.records.map(r => [r.cityId, r]));
+          for (const id of ['saint-martin-mf','umueri-ng','sun-city-za','khost-af']) {
+            assert(byId.get(id)?.triage?.bucket === 'registry-integrity-hold', `${id} must be registry-integrity-hold`);
+          }
+          for (const id of ['kharkov-ua','kyiv-ua','odessa-ua','vinnytsia-ua']) {
+            assert(byId.get(id)?.triage?.bucket === 'operational-airspace-hold', `${id} must be operational-airspace-hold`);
+          }
+          for (const id of ['beijing-cn','detroit-us','kansas-city-us','orlando-us','sacramento-us']) {
+            assert(byId.get(id)?.triage?.bucket === 'strong-replacement-candidate', `${id} expected strong replacement candidate`);
+          }
+          for (const id of ['cesky-krumlov-cz','muskoka-ca','taos-us','whistler-ca']) {
+            assert(byId.get(id)?.triage?.bucket === 'preserve-existing-gateway-review', `${id} existing gateway must be preserved for review`);
+          }
+          assert(byId.get('kalabo-zm')?.triage?.bucket === 'no-nearby-candidate', 'Kalabo expected no-nearby-candidate');
+
+          for (const row of report.records) {
+            assert(row.safety.routingChanged === false, 'routing change forbidden');
+            assert(row.safety.automaticOverrideAllowed === false, 'automatic override forbidden');
+            assert(row.safety.activationChanged === false, 'activation change forbidden');
+            assert(row.safety.providerCallsPerformed === false, 'provider calls forbidden');
+            assert(row.safety.requiresExactItineraryVerification === true, 'exact itinerary verification must remain required');
+          }
+          assert(report.policy.reviewOnly === true, 'must remain review-only');
+          assert(report.policy.routingChanged === false, 'report routing change forbidden');
+          assert(report.policy.activationChanged === false, 'report activation change forbidden');
+          assert(report.policy.providerCallsPerformed === false, 'report provider calls forbidden');
+          console.log('GV-REC-702F-C real-snapshot validation PASS');
+          console.log(JSON.stringify(report.summary, null, 2));
+          NODE
+
+      - name: Write compact triage summary
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const p = 'dist/gv-rec-702f-c/GV-REC-702F-C-Gateway-Foundation-Triage.json';
+          const report = JSON.parse(fs.readFileSync(p, 'utf8'));
+          const shortlistBuckets = new Set(['registry-integrity-hold','operational-airspace-hold','strong-replacement-candidate','source-disagreement-or-code-retirement','no-nearby-candidate']);
+          const summary = {
+            version: report.version,
+            generatedAt: report.generatedAt,
+            summary: report.summary,
+            shortlist: report.records.filter(r => shortlistBuckets.has(r.triage.bucket)).map(r => ({
+              cityId: r.cityId,
+              displayName: r.displayName,
+              countryCode: r.countryCode,
+              preferredAirportCode: r.currentMapping.preferredAirportCode,
+              bucket: r.triage.bucket,
+              recommendedAction: r.triage.recommendedAction,
+              topCandidate: r.topCandidate
+            }))
+          };
+          fs.writeFileSync('dist/gv-rec-702f-c/SUMMARY.json', JSON.stringify(summary, null, 2));
+          console.log(JSON.stringify(summary.summary, null, 2));
+          NODE
+
+      - name: Upload triage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gv-rec-702f-c-gateway-foundation-triage
+          path: |
+            dist/gv-rec-702f-c/GV-REC-702F-C-Gateway-Foundation-Triage.json
+            dist/gv-rec-702f-c/SUMMARY.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Confirm workflow is deployment-free
+        shell: bash
+        run: |
+          if grep -E "aws[[:space:]]+(lambda|amplify|cloudformation)|amplify[[:space:]]+publish" .github/workflows/validate-702f-c.yml; then
+            echo "Deployment command found in 702F-C workflow."
+            exit 1
+          fi
+          echo "PASS - 702F-C workflow is deployment-free."

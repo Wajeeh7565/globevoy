@@ -1,0 +1,46 @@
+/* GV-ACCOUNT-705B-R3 — public staging Cognito configuration.
+ * This file intentionally contains only public OAuth/OIDC identifiers.
+ * It must never contain a client secret, AWS credential, password or provider key.
+ */
+(function () {
+  'use strict';
+
+  const policy = window.GLOBEVOY_ENVIRONMENT_POLICY;
+  const environment = policy.resolve(window.location.origin);
+  const auth = environment.auth || {};
+  const STAGING_ORIGIN = policy.stagingOrigin;
+  const DOMAIN = auth.domainBaseUrl || '';
+
+  window.GLOBEVOY_AUTH_CONFIG = Object.freeze({
+    version: 'GV-ACCOUNT-705B-R3',
+    environment: environment.environment,
+    enabled: environment.accountsEnabled,
+    stagingOrigin: STAGING_ORIGIN,
+    region: auth.region || '',
+    userPoolId: auth.userPoolId || '',
+    clientId: auth.clientId || '',
+    clientSecretPresent: false,
+    issuer: auth.issuer || '',
+    domainBaseUrl: DOMAIN,
+    authorizeEndpoint: `${DOMAIN}/oauth2/authorize`,
+    tokenEndpoint: `${DOMAIN}/oauth2/token`,
+    userInfoEndpoint: `${DOMAIN}/oauth2/userInfo`,
+    logoutEndpoint: `${DOMAIN}/logout`,
+    callbackUrl: environment.accountsEnabled ? `${window.location.origin}/auth-callback.html` : '',
+    logoutUrl: environment.accountsEnabled ? `${window.location.origin}/index.html` : '',
+    apiBaseUrl: environment.apiBaseUrl,
+    sessionEndpoint: '/api/account/session',
+    oauth: Object.freeze({
+      flow: 'authorization-code-pkce',
+      pkceMethod: 'S256',
+      scopes: Object.freeze(['openid', 'email', 'profile', 'globevoy/trips.write']),
+      accessTokenUse: 'access'
+    }),
+    storage: Object.freeze({
+      sessionOnly: true,
+      persistRefreshToken: false,
+      persistIdToken: false,
+      localStorageTokensAllowed: false
+    })
+  });
+})();

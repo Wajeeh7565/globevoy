@@ -1,8 +1,13 @@
 # Globevoy
 
-This private repository tracks the current validated Globevoy source baseline.
+Promotion preparation: see [docs/releases/MAIN_CONSOLIDATION.md](docs/releases/MAIN_CONSOLIDATION.md). After the approved promotion, use `main` for new work; this does not deploy the website.
+GlobeVoy contains the classic travel website, a React successor, and backend services.
 
-## Current baseline
+**Start with [docs/START_HERE.md](docs/START_HERE.md)** for the folder map, commands, and development workflow. See [docs/BRANCHES.md](docs/BRANCHES.md) before resuming an older branch.
+
+`staging` contains current integrated development and cleanup. `main` remains the older canonical release baseline described below. Branch contents alone do not establish deployment status.
+
+## Recorded release baseline (August 2026)
 
 - Frontend: GV-REC-687B-R1 horizontal journey carousel / route-diversity UI.
 - Backend: GV-REC-687B-P3 production-origin auto-enable Lambda package.

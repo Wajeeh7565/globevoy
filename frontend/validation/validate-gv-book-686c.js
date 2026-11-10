@@ -15,8 +15,8 @@ const confidence=require(path.join(root,'scripts/budget-confidence-685b.js'));
 const html=read('booking.html');
 const css=read('styles/booking-workspace-686c.css');
 const source=read('scripts/booking-workspace-686c.js');
-const fixture=read('gv-book-686c-browser-fixture.html');
-const partnerFixture=read('gv-book-686c-partner-fixture.html');
+const fixture=read('validation/fixtures/gv-book-686c-browser-fixture.html');
+const partnerFixture=read('validation/fixtures/gv-book-686c-partner-fixture.html');
 
 const toronto={city:'Toronto',code:'YYZ',airportCode:'YYZ'};
 const cleveland={city:'Cleveland',code:'CLE',airportCode:'CLE'};
@@ -57,11 +57,11 @@ check('Mobile summary is collapsible and compact',rendered.includes('<details cl
 check('Reduced motion is respected',css.includes('@media(prefers-reduced-motion:reduce)')&&source.includes("'(prefers-reduced-motion: reduce)'"));
 check('Workspace makes no provider/network request',!/\bfetch\s*\(|XMLHttpRequest|GlobevoyApi\./.test(source));
 check('Browser fixture is isolated from production state',fixture.includes('gv-book-686c-browser-fixture')&&fixture.includes("sessionStorage.setItem('globevoy.multi.selected.v1'")&&fixture.includes('window.name=')&&fixture.includes('must-not-render'));
-check('Reviewed-state browser check uses a portable local non-provider fixture',fixture.includes("groundBookingUrl:location.origin+'/gv-book-686c-partner-fixture.html'")&&partnerFixture.includes('without contacting an external provider'));
+check('Reviewed-state browser check uses a portable local non-provider fixture',fixture.includes("groundBookingUrl:location.origin+'/validation/fixtures/gv-book-686c-partner-fixture.html'")&&partnerFixture.includes('without contacting an external provider'));
 check('HTML loads final RC workspace CSS and 686C script after protected booking engines',html.includes('booking-workspace-686c.css?v=686d-rc')&&html.indexOf('booking-workspace-686c.js?v=686c')>html.indexOf('booking-hub-685d.js?v=685d-r2'));
 check('Booking Hub and booking live engine are byte-identical to 686B',hash('scripts/booking-hub-685d.js')==='6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a'&&hash('scripts/booking-live-673d.js')==='8b39d74dca43f9e00ebc58b20b3ae29a9e53aeaeaeee737aced7d6e4e841e5be');
-check('Trust, API client and runtime config are unchanged; shell matches approved 686D-R1',hash('scripts/budget-confidence-685b.js')==='3ed77e95f240096f6d241499c1e0b517a1f97c77ae855bb9c85d0098f54eb832'&&hash('scripts/shell-670f.js')==='4d86b7ae7fd4d1119a852025174781029e9eada7bfcf994d37025d3f2d34f1b1'&&hash('runtime/api-client.js')==='d10d716b60d13f36b456a7797c22590ba5ca1c12bec31586d8e0c36242df8af6'&&hash('runtime/config.js')==='191e377fdf5dba312e60f0b2c21c74b6283b729c982bcbff8c7c08fd637ea958');
-check('Journey runtime remains byte-identical to 686B with approved shell cache reference',read('multicity-visualizer.html').includes('shell-670f.js?v=686d-r1')&&hash('scripts/multicity-visualizer-674a.js')==='7013b0777f21acddf9c01749fe035691f21d89101d81e84a6b7ed1627ca55dd4'&&hash('scripts/journey-experience-686b.js')==='d7b80b586b69e8fc1718dc8f6a785cb30fa11c77e49b79f6c2660f4bdbac0ef7'&&hash('styles/journey-experience-686b.css')==='e5b26ba9c0584be7f4119f229bb57a840d3ed3966f92e3aba328ebacd0ac2998');
+check('Trust, API client and runtime config are unchanged; shell is the approved FE-R3.1B successor',hash('scripts/budget-confidence-685b.js')==='3ed77e95f240096f6d241499c1e0b517a1f97c77ae855bb9c85d0098f54eb832'&&read('scripts/shell-670f.js').includes('GV-WEB-FE-R3.1B unified account header')&&hash('runtime/api-client.js')==='d10d716b60d13f36b456a7797c22590ba5ca1c12bec31586d8e0c36242df8af6'&&hash('runtime/config.js')==='191e377fdf5dba312e60f0b2c21c74b6283b729c982bcbff8c7c08fd637ea958');
+check('Journey runtime remains byte-identical to 686B with approved FE-R3.1B shell cache reference',read('multicity-visualizer.html').includes('shell-670f.js?v=fe-r3-1b')&&hash('scripts/multicity-visualizer-674a.js')==='7013b0777f21acddf9c01749fe035691f21d89101d81e84a6b7ed1627ca55dd4'&&hash('scripts/journey-experience-686b.js')==='d7b80b586b69e8fc1718dc8f6a785cb30fa11c77e49b79f6c2660f4bdbac0ef7'&&hash('styles/journey-experience-686b.css')==='e5b26ba9c0584be7f4119f229bb57a840d3ed3966f92e3aba328ebacd0ac2998');
 
 checks.forEach((item,index)=>console.log(`${item.pass?'PASS':'FAIL'} ${String(index+1).padStart(2,'0')} — ${item.name}`));
 const passed=checks.filter(item=>item.pass).length;

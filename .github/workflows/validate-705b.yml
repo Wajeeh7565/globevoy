@@ -1,0 +1,81 @@
+name: GV-ACCOUNT-705B Cognito Infrastructure Safety
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths:
+      - 'ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh'
+      - 'backend/validation/validate-gv-account-705b.js'
+      - 'docs/GV-ACCOUNT-705B.md'
+      - '.github/workflows/validate-705b.yml'
+      - '.github/workflows/build-705b-operator-pack.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Cognito infrastructure contract without AWS changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate repository and current roadmap baseline
+        run: |
+          node .github/scripts/validate-repo.mjs
+          node backend/validation/validate-gv-flight-703e.js
+          node backend/validation/validate-gv-hotel-704a.js
+          node backend/validation/validate-gv-account-705a.js
+          node backend/validation/validate-gv-account-705b.js
+
+      - name: Shell syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh
+          echo 'PASS - 705B operator shell parses.'
+
+      - name: Confirm CI never executes Cognito bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E '(^|[[:space:]])(bash|sh)[[:space:]]+ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito\.sh' .github/workflows/validate-705b.yml .github/workflows/build-705b-operator-pack.yml; then
+            echo '705B CI attempts to execute the real AWS operator bootstrap.'
+            exit 1
+          fi
+          echo 'PASS - 705B CI validates/packages only; it creates no AWS resources.'
+
+      - name: Confirm production and unrelated runtime remain untouched
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -Eq 'GV-ACCOUNT-705B|globevoy-staging-users|globevoy-staging-web|/api/account/session' backend/lambda.js backend/services/domain/tours/generated-tour.js; then
+            echo '705B staging account wiring appeared in the shared production backend path.'
+            exit 1
+          fi
+          if grep -Eq 'globevoy-staging-users|globevoy-staging-web' frontend/runtime/config.js frontend/scripts/travel-profile-675a.js; then
+            echo 'Staging Cognito identifiers leaked into unrelated legacy runtime configuration.'
+            exit 1
+          fi
+          echo 'PASS - staging auth wiring stays outside production and unrelated runtime surfaces.'
+
+      - name: Confirm no destructive or unrelated AWS command
+        shell: bash
+        run: |
+          set -euo pipefail
+          script='ops/GV-ACCOUNT-705B-Bootstrap-Staging-Cognito.sh'
+          if grep -E 'aws[[:space:]]+(lambda|amplify|dynamodb|iam|cloudformation)|aws[[:space:]]+cognito-idp[[:space:]]+(delete-|update-)' "$script"; then
+            echo '705B operator contains destructive or unrelated AWS mutation.'
+            exit 1
+          fi
+          echo 'PASS - operator is bounded to create/read Cognito staging resources plus STS identity lookup.'

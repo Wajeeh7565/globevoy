@@ -1,0 +1,49 @@
+name: GV-HOTEL-708B Nuitee Evaluation
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'ops/Run-GV-HOTEL-708B-Nuitee-Sandbox.mjs'
+      - 'ops/validate-gv-hotel-708b.mjs'
+      - 'docs/GV-HOTEL-708B-NUITEE-EVALUATION.md'
+      - '.github/workflows/validate-708b.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enforce research-only boundary
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed"
+          unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(ops/Run-GV-HOTEL-708B-Nuitee-Sandbox\.mjs|ops/validate-gv-hotel-708b\.mjs|docs/GV-HOTEL-708B-NUITEE-EVALUATION\.md|\.github/workflows/validate-708b\.yml)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo '708B is research-only and may change only its harness, validator, documentation and CI workflow.' >&2
+            printf '%s\n' "$unexpected" >&2
+            exit 1
+          fi
+
+      - name: Validate Nuitee evaluation package without network or credential
+        run: node ops/validate-gv-hotel-708b.mjs
+
+      - name: Explicit dry run
+        run: node ops/Run-GV-HOTEL-708B-Nuitee-Sandbox.mjs --dry-run --prebook

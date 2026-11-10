@@ -1,0 +1,82 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - echo "GV-WEB-707A-R1 composite staging build"
+        - nvm install 22
+        - nvm use 22
+        - node --version
+        - npm --prefix web install --no-audit --no-fund
+        - |
+          node <<'NODE'
+          const fs = require("fs");
+          const pkg = JSON.parse(fs.readFileSync("web/package.json", "utf8"));
+          const lock = JSON.parse(fs.readFileSync("web/package-lock.json", "utf8"));
+          const expected = {
+            dependencies: {
+              next: "15.5.21",
+              react: "19.2.7",
+              "react-dom": "19.2.7"
+            },
+            devDependencies: {
+              "@types/node": "22.20.1",
+              "@types/react": "19.2.18",
+              "@types/react-dom": "19.2.4",
+              typescript: "5.9.3"
+            }
+          };
+          if (Number(lock.lockfileVersion) < 3) {
+            throw new Error(`Unexpected npm lockfileVersion: ${lock.lockfileVersion}`);
+          }
+          const root = lock.packages && lock.packages[""];
+          if (!root) {
+            throw new Error("Generated package-lock is missing the root package contract.");
+          }
+          for (const [group, entries] of Object.entries(expected)) {
+            for (const [name, version] of Object.entries(entries)) {
+              if (pkg[group]?.[name] !== version) {
+                throw new Error(`package.json ${group}.${name} changed: ${pkg[group]?.[name]} !== ${version}`);
+              }
+              if (root[group]?.[name] !== version) {
+                throw new Error(`package-lock root ${group}.${name} changed: ${root[group]?.[name]} !== ${version}`);
+              }
+            }
+          }
+          console.log("Pinned React dependency contract verified.");
+          NODE
+        - npm --prefix web ls --depth=0
+    build:
+      commands:
+        - echo "Validating existing Globevoy frontend"
+        - test -f frontend/index.html
+        - echo "Validating and building React frontend"
+        - npm --prefix web run typecheck
+        - npm --prefix web run build
+        - test -f web/out/index.html
+        - test -f web/out/account/index.html
+        - test -f web/out/my-trips/index.html
+        - test -f web/out/journey/index.html
+        - echo "Composing legacy frontend plus React under /react"
+        - rm -rf amplify-publish
+        - mkdir -p amplify-publish
+        - cp -a frontend/. amplify-publish/
+        - rm -rf amplify-publish/react
+        - mkdir -p amplify-publish/react
+        - cp -a web/out/. amplify-publish/react/
+        - echo "Validating composite artifact"
+        - test -f amplify-publish/index.html
+        - test -f amplify-publish/react/index.html
+        - test -f amplify-publish/react/account/index.html
+        - test -f amplify-publish/react/my-trips/index.html
+        - test -f amplify-publish/react/journey/index.html
+        - grep -q '/react/_next/' amplify-publish/react/index.html
+        - grep -q '/react/_next/' amplify-publish/react/account/index.html
+        - grep -q '/react/_next/' amplify-publish/react/my-trips/index.html
+        - grep -q '/react/_next/' amplify-publish/react/journey/index.html
+  artifacts:
+    baseDirectory: amplify-publish
+    files:
+      - "**/*"
+  cache:
+    paths: []

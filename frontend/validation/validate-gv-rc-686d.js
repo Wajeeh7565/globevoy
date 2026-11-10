@@ -11,7 +11,7 @@ const exists=name=>fs.existsSync(path.join(root,name));
 const checks=[];
 const check=(name,pass,detail='')=>checks.push({name,pass:Boolean(pass),detail});
 
-const release=JSON.parse(read('GV-RC-686D-RELEASE.json'));
+const release=JSON.parse(read('validation/releases/GV-RC-686D-RELEASE.json'));
 const shell=read('scripts/shell-670f.js');
 const shellCss=read('styles/shell.css');
 const home=read('index.html');
@@ -27,7 +27,7 @@ const bookingHtml=read('booking.html');
 const bookingHubSource=read('scripts/booking-hub-685d.js');
 const workspaceSource=read('scripts/booking-workspace-686c.js');
 const workspaceCss=read('styles/booking-workspace-686c.css');
-const legalNote=read('GV-RC-686D-LEGAL-COMMERCIAL-GATE.md');
+const legalNote=read('validation/releases/GV-RC-686D-LEGAL-COMMERCIAL-GATE.md');
 const journey=require(path.join(root,'scripts/journey-experience-687a.js'));
 const hub=require(path.join(root,'scripts/booking-hub-685d.js'));
 const workspace=require(path.join(root,'scripts/booking-workspace-686c.js'));
@@ -74,10 +74,10 @@ check('Partially verified total is visibly estimated',bookingModel.confidence.es
 check('Partner checkout wording is not restored',!bookingHtml.includes('Partner checkout')&&!workspaceSource.includes('Partner checkout'));
 check('Booking workflow uses honest partner language',renderedWorkspace.includes('Continue with booking partners')&&renderedWorkspace.includes('Complete and pay for each component separately'));
 
-check('Unified shell uses the intentional minimal header',shell.includes('GV-SHELL-686D-R1')&&shell.includes('class="gv-brand"')&&shell.includes('class="gv-auth"')&&!shell.includes('class="gv-nav"')&&!shell.includes('class="gv-burger"')&&!shell.includes('id="gv-mobile-menu"'));
-check('Globevoy shell tokens and shared header/footer survive',shellCss.includes('--gv-navy:')&&shellCss.includes('--gv-teal:')&&['index.html','booking.html','multicity-visualizer.html','how-it-works.html','trust.html','about.html'].every(file=>{const value=read(file);return value.includes('id="gv-header"')&&value.includes('id="gv-footer"')&&value.includes('shell-670f.js?v=686d-r1');}));
-check('Guest-first UI has no fake email/password authentication form',!/<form\b/i.test(signIn)&&!/type=["']password/i.test(signIn)&&!home.includes('>Sign in<'));
-check('Accounts are described honestly as unavailable',signIn.includes('Secure Globevoy accounts are not available yet')&&signIn.includes('Your trip does not need an account'));
+check('Unified shell uses the approved FE-R3.1B account-aware header',shell.includes('GV-SHELL-686D-R1')&&shell.includes('class="gv-brand"')&&shell.includes('class="gv-account-nav"')&&shell.includes('data-gv-auth-signin')&&shell.includes('data-gv-auth-signout')&&!shell.includes('class="gv-nav"')&&!shell.includes('class="gv-burger"')&&!shell.includes('id="gv-mobile-menu"'));
+check('Globevoy shell tokens and shared header/footer survive',shellCss.includes('--gv-navy:')&&shellCss.includes('--gv-teal:')&&['index.html','booking.html','multicity-visualizer.html','how-it-works.html','trust.html','about.html'].every(file=>{const value=read(file);return value.includes('id="gv-header"')&&value.includes('id="gv-footer"')&&value.includes('shell-670f.js?v=fe-r3-1b');}));
+check('Guest-first UI has no fake email/password authentication form',!/<form\b/i.test(signIn)&&!/type=["']password/i.test(signIn)&&!home.includes('type="password"'));
+check('Secure accounts now delegate to Cognito while guest planning remains explicit',signIn.includes('Amazon Cognito')&&signIn.includes('data-gv-auth-signin')&&signIn.includes('Continue as guest')&&!/type=["']password/i.test(signIn));
 check('Travel profile is described as browser-local',profile.includes('stored only in this browser')&&!/type=["']password/i.test(profile));
 check('Legacy multi-city route redirects with query and hash',legacy.includes("'multicity-visualizer.html'+location.search+location.hash"));
 check('Normal shell navigation does not expose obsolete multi-city route',!shell.includes('href="multi-city.html')&&!home.includes('href="multi-city.html'));
@@ -115,7 +115,7 @@ const allPaths=filesUnder(root).map(file=>file.substring(root.length+1).replace(
 const prohibited=allPaths.filter(file=>/(^|\/)(backend|lambda|server|serverless)(\/|$)|(^|\/)template\.ya?ml$|\.env($|\.)/i.test(file));
 check('Package contains no backend, Lambda or runtime-server files',prohibited.length===0,prohibited.join(', '));
 check('Journey and workspace additions make no provider/network request',!/\bfetch\s*\(|XMLHttpRequest|GlobevoyApi\./.test(journeySource+workspaceSource));
-check('All required isolated browser fixtures are present',['gv-journey-686b-browser-fixture.html','gv-book-686c-browser-fixture.html','gv-book-685d-browser-fixture.html','gv-rc-686d-all-flight-browser-fixture.html'].every(exists));
+check('All required isolated browser fixtures are present',['validation/fixtures/gv-journey-686b-browser-fixture.html','validation/fixtures/gv-book-686c-browser-fixture.html','validation/fixtures/gv-book-685d-browser-fixture.html','validation/fixtures/gv-rc-686d-all-flight-browser-fixture.html'].every(exists));
 
 checks.forEach((item,index)=>console.log(`${item.pass?'PASS':'FAIL'} ${String(index+1).padStart(2,'0')} — ${item.name}${item.pass||!item.detail?'':` :: ${item.detail.trim().split(/\r?\n/).slice(-2).join(' | ')}`}`));
 const passed=checks.filter(item=>item.pass).length,failed=checks.length-passed;

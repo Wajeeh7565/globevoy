@@ -1,0 +1,78 @@
+name: GV-HOTEL-708C Staging Hotel Evidence
+
+on:
+  pull_request:
+    branches: [staging]
+    paths:
+      - 'backend/services/providers/stays/nuitee/nuitee-hotel-708c.js'
+      - 'backend/services/booking/revalidation/staging-booking-revalidation-708c.js'
+      - 'backend/staging-lambda-702d.js'
+      - 'backend/validation/validate-gv-hotel-708c.js'
+      - 'web/lib/contracts.ts'
+      - 'web/components/booking/booking-workspace-client.tsx'
+      - 'docs/GV-HOTEL-708C-STAGING-LIVE-HOTEL-EVIDENCE.md'
+      - '.github/workflows/validate-708c.yml'
+      - '.github/workflows/validate-706r.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Enforce exact 708C staging boundary
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if ! git cat-file -e "$BASE_SHA:docs/refactor/active-layout-moves.json" 2>/dev/null && [ -f docs/refactor/active-layout-moves.json ]; then
+            node scripts/validate-layout-equivalence.mjs "$BASE_SHA"
+            node scripts/validate-organization.mjs
+            echo 'Verified initial directory migration; ordinary feature scope checks resume after integration.'
+            exit 0
+          fi
+          changed="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")"
+          printf '%s\n' "$changed"
+          hotel_runtime_changed="$(printf '%s\n' "$changed" | grep -E '^(backend/services/providers/stays/nuitee/nuitee-hotel-708c\.js|backend/services/booking/revalidation/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validation/validate-gv-hotel-708c\.js)$' || true)"
+
+          if [ -n "$hotel_runtime_changed" ]; then
+            unexpected="$(printf '%s\n' "$changed" | grep -Ev '^(backend/services/providers/stays/nuitee/nuitee-hotel-708c\.js|backend/services/booking/revalidation/staging-booking-revalidation-708c\.js|backend/staging-lambda-702d\.js|backend/validation/validate-gv-hotel-708c\.js|web/lib/contracts\.ts|web/components/booking/booking-workspace-client\.tsx|docs/GV-HOTEL-708C-STAGING-LIVE-HOTEL-EVIDENCE\.md|\.github/workflows/validate-708c\.yml|\.github/workflows/validate-706r\.yml)$' || true)"
+            if [ -n "$unexpected" ]; then
+              echo '708C runtime changes must remain inside the bounded hotel task.' >&2
+              printf '%s\n' "$unexpected" >&2
+              exit 1
+            fi
+          else
+            echo 'No 708C backend runtime files changed; running hotel regression checks without task-boundary enforcement.'
+          fi
+
+      - name: Validate 708C with mocked secret and provider responses
+        run: node backend/validation/validate-gv-hotel-708c.js
+
+      - name: Preserve 707B provider and safety regressions
+        run: node backend/validation/validate-gv-web-707b.js
+
+      - name: Preserve 707B-R1 arithmetic regression
+        run: node backend/validation/validate-gv-web-707b-r1.js
+
+      - name: Install React dependencies
+        run: npm install --prefix web --no-audit --no-fund --no-package-lock
+
+      - name: Strict TypeScript
+        run: npm run typecheck --prefix web
+
+      - name: Static React build
+        run: npm run build --prefix web
