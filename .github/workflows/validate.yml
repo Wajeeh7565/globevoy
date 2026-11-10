@@ -58,6 +58,14 @@ jobs:
       - name: Isolated production account API regression tests (no AWS calls)
         run: node backend/validation/validate-gv-production-account.js
 
+      - name: Validate launch-first PowerShell packager syntax
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile('ops/release/package-launch-first-backend.ps1', [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_.Message }; throw 'Invalid PowerShell package script' }
+
       - name: React typecheck and static production build
         run: |
           npm run typecheck:web
