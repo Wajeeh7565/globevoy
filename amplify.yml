@@ -66,6 +66,10 @@ frontend:
         - cp -a web/out/. amplify-publish/react/
         - echo "Validating composite artifact"
         - test -f amplify-publish/index.html
+        - test -f amplify-publish/auth-callback.html
+        - test -f amplify-publish/runtime/environment-policy.js
+        - test -f amplify-publish/runtime/auth-config-705b-r3.js
+        - test -f amplify-publish/scripts/auth-session-705b-r3.js
         - test -f amplify-publish/react/index.html
         - test -f amplify-publish/react/account/index.html
         - test -f amplify-publish/react/my-trips/index.html
