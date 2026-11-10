@@ -5,11 +5,12 @@
   if (window.GlobevoySavedTrips705C) return;
 
   const VERSION = 'GV-ACCOUNT-705C';
+  const MAX_COMPACT_BYTES = 40 * 1024;
   const ROUTE = '/api/saved-trips';
   const MULTI_STORAGE = 'globevoy.multi.selected.v1';
   const MULTI_SNAPSHOT_PREFIX = 'globevoy.generated.snapshot.v1.';
   const SINGLE_STORAGE = 'gv-selected-offer';
-  const pageCloudState = { loaded: false, saving: false, tripId: null, version: null, clientSaveKey: null };
+  const pageCloudState = { loaded: false, saving: false, tripId: null, version: null, clientSaveKey: null, revision: 0 };
 
   function config() { return window.GLOBEVOY_AUTH_CONFIG || null; }
   function session() { return window.GlobevoyAuth705B?.getSession?.() || null; }
@@ -80,6 +81,236 @@
     update: async (tripId, payload) => (await request('PUT', { tripId, body: payload })).trip || null,
     remove: async (tripId) => request('DELETE', { tripId })
   });
+
+  // Shared compact serializer: initialized synchronously before either save bridge.
+  function clone(value, fallback = null) { try { return JSON.parse(JSON.stringify(value)); } catch (_) { return fallback; } }
+  function object(value) { return value && typeof value === 'object' && !Array.isArray(value) ? value : {}; }
+  function compactString(value, max = 600) { const text = clean(value); return text.length > max ? `${text.slice(0, max - 1)}…` : text; }
+  function compactPoint(value = {}) {
+    const point = object(value);
+    const lat = number(point.lat ?? point.latitude, NaN);
+    const lng = number(point.lng ?? point.longitude, NaN);
+    const out = {};
+    if (Number.isFinite(lat) && lat >= -90 && lat <= 90) out.lat = lat;
+    if (Number.isFinite(lng) && lng >= -180 && lng <= 180) out.lng = lng;
+    return out;
+  }
+  function compactAirportNode(value = {}) {
+    const node = object(value);
+    return {
+      city: compactString(node.city, 100),
+      country: compactString(node.country, 100),
+      countryCode: compactString(node.countryCode, 8),
+      code: compactString(node.code, 8).toUpperCase(),
+      airportCode: compactString(node.airportCode, 8).toUpperCase(),
+      displayCode: compactString(node.displayCode, 8).toUpperCase(),
+      ...compactPoint(node)
+    };
+  }
+  function compactTrust(value = {}) {
+    const trust = object(value);
+    return {
+      handoffState: compactString(trust.handoffState, 80),
+      exactItineraryHint: trust.exactItineraryHint === true
+    };
+  }
+  function compactProviderEvidence(value = {}) {
+    const evidence = object(value);
+    return {
+      departureDate: compactString(evidence.departureDate, 20),
+      appliedToEstimate: evidence.appliedToEstimate !== false,
+      providerBacked: evidence.providerBacked === true,
+      productionEligible: evidence.productionEligible !== false,
+      partyTotalAmountDisplay: number(evidence.partyTotalAmountDisplay, 0),
+      partyTotalAmountUsd: number(evidence.partyTotalAmountUsd, 0)
+    };
+  }
+  function compactVerification(value = {}) {
+    const verification = object(value);
+    return {
+      verified: verification.verified === true,
+      exactDateMatch: verification.exactDateMatch === true,
+      exactStayDates: verification.exactStayDates === true,
+      productionEligible: verification.productionEligible === true
+    };
+  }
+  function compactLeg(value = {}) {
+    const leg = object(value);
+    const segments = Array.isArray(leg.segments) ? leg.segments.slice(0, 6).map(segment => ({
+      mode: compactString(segment?.mode, 30),
+      transportType: compactString(segment?.transportType, 30)
+    })) : [];
+    return {
+      from: compactAirportNode(leg.from),
+      to: compactAirportNode(leg.to),
+      mode: compactString(leg.mode, 30),
+      transportType: compactString(leg.transportType, 30),
+      operator: compactString(leg.operator || leg.airline, 120),
+      departureDate: compactString(leg.departureDate, 20),
+      arrivalDate: compactString(leg.arrivalDate, 20),
+      dateLabel: compactString(leg.dateLabel, 40),
+      automaticTourDate: { departureDate: compactString(leg?.automaticTourDate?.departureDate, 20) },
+      estimatedDisplayTotal: number(leg.estimatedDisplayTotal, 0),
+      partyTotalAmountDisplay: number(leg.partyTotalAmountDisplay, 0),
+      partyTotalAmountUsd: number(leg.partyTotalAmountUsd, 0),
+      estimatedTransportUsd: number(leg.estimatedTransportUsd, 0),
+      estimatedFlightUsd: number(leg.estimatedFlightUsd, 0),
+      amountUsd: number(leg.amountUsd, 0),
+      distanceKm: number(leg.distanceKm, 0),
+      segments,
+      providerDateEvidence: compactProviderEvidence(leg.providerDateEvidence || leg.cheapestOneWay),
+      providerVerification: compactVerification(leg.providerVerification),
+      booking: {
+        status: compactString(leg?.booking?.status, 80),
+        exactItineraryHint: leg?.booking?.exactItineraryHint === true,
+        trust: compactTrust(leg?.booking?.trust)
+      }
+    };
+  }
+  function compactHotel(value = {}) {
+    const hotel = object(value);
+    const providerHotel = object(hotel.providerHotel);
+    return {
+      name: compactString(hotel.name || hotel.hotelName, 180),
+      hotelName: compactString(hotel.hotelName || hotel.name, 180),
+      hotelId: compactString(hotel.hotelId || hotel.providerHotelId || providerHotel.hotelId, 120),
+      estimatedDisplayTotal: number(hotel.estimatedDisplayTotal, 0),
+      partyStayDisplayTotal: number(hotel.partyStayDisplayTotal, 0),
+      totalStayDisplay: number(hotel.totalStayDisplay, 0),
+      estimatedStayUsd: number(hotel.estimatedStayUsd, 0),
+      totalStayUsd: number(hotel.totalStayUsd, 0),
+      providerVerification: compactVerification(hotel.providerVerification),
+      priceProvenance: { category: compactString(hotel?.priceProvenance?.category, 80) },
+      providerHotel: { hotelId: compactString(providerHotel.hotelId, 120) }
+    };
+  }
+  function compactCity(value = {}) {
+    const city = object(value);
+    return {
+      id: compactString(city.id || city.cityId, 120),
+      cityId: compactString(city.cityId || city.id, 120),
+      city: compactString(city.city, 120),
+      country: compactString(city.country, 120),
+      countryCode: compactString(city.countryCode, 8),
+      code: compactString(city.code || city.airportCode, 8).toUpperCase(),
+      airportCode: compactString(city.airportCode || city.code, 8).toUpperCase(),
+      nights: Math.max(0, number(city.nights, 0)),
+      arrivalDate: compactString(city.arrivalDate, 20),
+      departureDate: compactString(city.departureDate, 20),
+      ...compactPoint(city),
+      hotel: compactHotel(city.hotel)
+    };
+  }
+  function compactStay(value = {}) {
+    const stay = object(value);
+    return {
+      city: compactString(stay.city, 120),
+      country: compactString(stay.country, 120),
+      nights: Math.max(0, number(stay.nights, 0)),
+      dateLabel: compactString(stay.dateLabel, 60),
+      arrivalDate: compactString(stay.arrivalDate, 20),
+      departureDate: compactString(stay.departureDate, 20),
+      ...compactPoint(stay),
+      estimatedStayUsd: number(stay.estimatedStayUsd, 0),
+      hotel: compactHotel(stay.hotel)
+    };
+  }
+  function compactTour(value = {}) {
+    const tour = object(value);
+    const legs = Array.isArray(tour.backendLegs) ? tour.backendLegs : (Array.isArray(tour.legs) ? tour.legs : []);
+    const stays = Array.isArray(tour.stays) ? tour.stays : [];
+    const budget = object(tour.budget);
+    const displayBudget = object(tour.displayBudget);
+    const pricing = object(tour.canonicalPricing);
+    const passenger = object(tour.passengerPricing);
+    const routeControl = object(tour.routeControl);
+    return {
+      schemaVersion: 1,
+      savedSnapshotMode: 'compact-account-route',
+      title: compactString(tour.title, 180),
+      routeId: compactString(tour.routeId || tour.tourId, 160),
+      tourId: compactString(tour.tourId || tour.routeId, 160),
+      pickRole: compactString(tour.pickRole, 80),
+      pickRoleLabel: compactString(tour.pickRoleLabel, 100),
+      tourRole: compactString(tour.tourRole, 80),
+      tourRoleLabel: compactString(tour.tourRoleLabel, 100),
+      recommendationLabel: compactString(tour.recommendationLabel, 120),
+      recommendationExplanation: compactString(tour.recommendationExplanation, 700),
+      whyCitiesWork: compactString(tour.whyCitiesWork, 700),
+      displayOptionNumber: Math.max(0, number(tour.displayOptionNumber, 0)),
+      departureDate: compactString(tour.departureDate, 20),
+      totalNights: Math.max(0, number(tour.totalNights, 0)),
+      origin: compactAirportNode(tour.origin),
+      cities: (Array.isArray(tour.cities) ? tour.cities : []).slice(0, 12).map(compactCity),
+      backendLegs: legs.slice(0, 16).map(compactLeg),
+      stays: stays.slice(0, 12).map(compactStay),
+      budget: {
+        total: clone(budget.total, {}),
+        personalReserve: clone(budget.personalReserve || budget.personalExpenseReserve, {}),
+        estimatedCoreTotal: clone(budget.estimatedCoreTotal, {}),
+        remainingCoreRoom: clone(budget.remainingCoreRoom, {}),
+        accommodation: clone(budget.accommodation, {}),
+        flightRange: clone(budget.flightRange, {})
+      },
+      displayBudget: {
+        currency: compactString(displayBudget.currency, 8).toUpperCase(),
+        totalBudget: number(displayBudget.totalBudget, 0),
+        tripEstimate: number(displayBudget.tripEstimate, 0),
+        amountLeft: number(displayBudget.amountLeft, 0),
+        reserveAmount: number(displayBudget.reserveAmount, 0),
+        exchangeRateFromUsd: number(displayBudget.exchangeRateFromUsd, 0)
+      },
+      canonicalPricing: {
+        canonicalDisplayTotal: number(pricing.canonicalDisplayTotal, 0),
+        transportDisplayTotal: number(pricing.transportDisplayTotal, 0),
+        stayDisplayTotal: number(pricing.stayDisplayTotal, 0),
+        exchangeRateFromUsd: number(pricing.exchangeRateFromUsd, 0)
+      },
+      passengerPricing: {
+        adults: Math.max(0, number(passenger.adults, 0)),
+        children: Math.max(0, number(passenger.children, 0)),
+        infants: Math.max(0, number(passenger.infants, 0)),
+        travellers: Math.max(1, number(passenger.travellers || passenger.passengers, 1)),
+        passengers: Math.max(1, number(passenger.passengers || passenger.travellers, 1)),
+        rooms: Math.max(1, number(passenger.rooms, 1))
+      },
+      itineraryDatePlan: {
+        canonicalDepartureDate: compactString(tour?.itineraryDatePlan?.canonicalDepartureDate, 20),
+        canonicalReturnDate: compactString(tour?.itineraryDatePlan?.canonicalReturnDate, 20)
+      },
+      routeControl: {
+        action: compactString(routeControl.action, 40),
+        datesAdjusted: routeControl.datesAdjusted === true,
+        restoredFromSharedLink: routeControl.restoredFromSharedLink === true,
+        message: compactString(routeControl.message, 500)
+      }
+    };
+  }
+  function jsonBytes(value) {
+    const raw = JSON.stringify(value);
+    return typeof TextEncoder === 'function' ? new TextEncoder().encode(raw).length : raw.length;
+  }
+  function compactAccountSnapshot(currentSnapshot) {
+    const body = clone(currentSnapshot?.body, null);
+    if (!body?.tripSnapshot?.tour) return currentSnapshot;
+    body.tripSnapshot.tour = compactTour(body.tripSnapshot.tour);
+    body.tripSnapshot.snapshotMode = 'compact-account-route';
+    body.tripSnapshot.savedByVersion = 'GV-ACCOUNT-705C-R3';
+    const compacted = { ...currentSnapshot, body };
+    const bytes = jsonBytes(body.tripSnapshot);
+    if (bytes > MAX_COMPACT_BYTES) {
+      const error = new Error('compact-snapshot-too-large');
+      error.status = 413;
+      error.compactBytes = bytes;
+      throw error;
+    }
+    if (jsonBytes(body) > 60 * 1024) {
+      const error = new Error('compact-request-too-large');
+      error.status = 413;
+      throw error;
+    }
+    return compacted;
+  }
 
   function singleSnapshot() {
     const q = new URLSearchParams(location.search);
@@ -210,7 +441,9 @@
       button.disabled = Boolean(busy);
       button.setAttribute('aria-busy', String(Boolean(busy)));
       button.setAttribute('aria-pressed', String(Boolean(saved)));
-      if (button.id === 'gv-save-trip') button.textContent = saved ? '♥ Saved to account' : '♡ Save trip';
+      button.classList.toggle('is-saved', Boolean(saved));
+      if (busy) button.textContent = 'Saving…';
+      else if (button.id === 'gv-save-trip') button.textContent = saved ? '♥ Saved to account' : '♡ Save trip';
       else if (button.id === 'gv-summary-save') button.textContent = saved ? 'Saved to account' : 'Save trip';
       else if (button.id === 'mcv-save-trip') button.textContent = saved ? 'Saved to account ✓' : 'Save';
     });
@@ -223,11 +456,14 @@
   }
 
   async function refreshPageSaveState() {
+    if (pageCloudState.saving) return null;
     if (!pageButtons().length || !session()) return null;
     const snapshot = currentPageSnapshot();
     if (!snapshot) return null;
+    const revision = pageCloudState.revision;
     try {
       const match = await findCloudMatch(snapshot);
+      if (pageCloudState.saving || revision !== pageCloudState.revision) return null;
       pageCloudState.loaded = true;
       pageCloudState.tripId = match?.tripId || null;
       pageCloudState.version = match?.version || null;
@@ -243,6 +479,7 @@
     if (pageCloudState.saving) return;
     if (!session()) return;
     pageCloudState.saving = true;
+    pageCloudState.revision += 1;
     setButtonState(Boolean(pageCloudState.tripId), true);
     try {
       // Multi-city's pre-existing explicit save builds the authoritative local
@@ -264,7 +501,9 @@
         setButtonState(false);
         announce('Removed from your Globevoy account.', 'success');
       } else {
-        const created = await api.create(snapshot.body);
+        const compactSnapshot = compactAccountSnapshot(snapshot);
+        const created = await api.create(compactSnapshot.body);
+        if (!created?.tripId) throw new Error('invalid-save-response');
         pageCloudState.tripId = created?.tripId || null;
         pageCloudState.version = created?.version || 1;
         pageCloudState.clientSaveKey = snapshot.clientSaveKey;
@@ -434,7 +673,7 @@
     refreshPageSaveState,
     renderMyTrips,
     seedTripForOpen,
-    _internal: Object.freeze({ singleSnapshot, multiSnapshot, sameOriginTripPath })
+    _internal: Object.freeze({ singleSnapshot, multiSnapshot, sameOriginTripPath, compactAccountSnapshot, compactTour, jsonBytes })
   });
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, { once: true });

@@ -8,6 +8,8 @@ const groups = {
     ['node', 'scripts/validate-organization.mjs']
   ],
 
+  browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs']],
+
   backend: [
     ['node', 'backend/validation/validate-gv-rec-687b-p3.js'],
     ['node', 'backend/validation/validate-gv-rec-687b.js'],
@@ -26,6 +28,7 @@ const groups = {
 
   frontend: [
     ['node', 'tests/frontend/validate-fixture-paths.mjs'],
+    ['node', '--test', 'tests/frontend/classic-saved-trip.test.cjs'],
     ['node', 'frontend/validation/validate-gv-data-701c.js'],
     ['node', 'frontend/validation/validate-gv-rec-687b-frontend.js'],
     ['node', 'frontend/validation/validate-gv-web-fe-r3-1b.js']
@@ -42,6 +45,7 @@ const groups = {
   account: [
     ['node', 'backend/validation/validate-gv-account-705b-r3.js'],
     ['node', 'backend/validation/validate-gv-account-705c.js'],
+    ['node', 'backend/validation/validate-gv-account-705c-r3.js'],
     ['node', 'backend/validation/validate-gv-account-705c-r4.js'],
     ['node', 'backend/validation/validate-gv-book-706a.js']
   ],

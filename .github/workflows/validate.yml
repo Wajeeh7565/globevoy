@@ -80,6 +80,12 @@ jobs:
           test -f web/out/journey/index.html
           grep -q '/react/_next/' web/out/index.html
 
+      - name: Install Chromium for offline frontend regression tests
+        run: node web/node_modules/playwright/cli.js install --with-deps chromium
+
+      - name: Classic Save to React My Trips browser regression (network intercepted)
+        run: npm run test:browser
+
       - name: Validate production Cognito script syntax without running AWS commands
         shell: pwsh
         run: |
