@@ -34,7 +34,9 @@ function main() {
 
   assert.match(shell, /root\('react\/account\/'\)/);
   assert.match(shell, /root\('react\/my-trips\/'\)/);
-  assert.match(shell, /staging\.dy4fw8gx1ccie\.amplifyapp\.com\/react\/account\//);
+  assert.match(shell, /window\.GLOBEVOY_ENVIRONMENT_POLICY\?\.stagingOrigin/);
+  assert.match(shell, /\$\{stagingOrigin\}\/react\/account\//);
+  assert.equal(require(path.join(ROOT, 'frontend/runtime/environment-policy.js')).stagingOrigin, 'https://staging.dy4fw8gx1ccie.amplifyapp.com');
   assert.doesNotMatch(shell, /root\('account\.html'\)/);
   assert.doesNotMatch(shell, /root\('my-trips\.html'\)/);
   pass('classic shell links directly to canonical React Account and My Trips');

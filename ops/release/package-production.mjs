@@ -3,6 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { productionPolicySource } from './production-frontend-policy.mjs';
+import { verifyProductionFrontend } from './verify-production-frontend.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const key = process.env.GLOBEVOY_MAPS_BROWSER_KEY;
 if (!key || !/^AIza[\w-]{35}$/.test(key)) throw Error('Set GLOBEVOY_MAPS_BROWSER_KEY to the restricted public browser key. Never use a server credential.');
@@ -38,10 +40,17 @@ const releaseConfig = { environment: 'production', target: 'globevoy.com', apiBa
 const outputName = process.env.GLOBEVOY_OUTPUT_NAME || 'production-site';
 if (!/^[a-zA-Z0-9_-]+$/.test(outputName)) throw Error('Invalid output name');
 const output = path.join(root, '.cache', outputName);
-if (fs.existsSync(output)) throw Error('Output already exists. Preserve/rename .cache/production-site before rebuilding.');
+if ([output, output+'.zip', output+'.zip.sha256'].some(file => fs.existsSync(file))) throw Error('Output already exists. Preserve/rename .cache/production-site before rebuilding.');
 const commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 const dirty=Boolean(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim());
-execFileSync(process.execPath, [path.join(root, 'web/node_modules/next/dist/bin/next'), 'build'], {cwd:path.join(root,'web'), stdio:'inherit'});
+const policySource = productionPolicySource(releaseConfig);
+const policyModule = path.join(root, '.cache', outputName + '-policy.cjs');
+fs.mkdirSync(path.dirname(policyModule), {recursive:true});
+fs.writeFileSync(policyModule, policySource);
+execFileSync(process.execPath, [path.join(root, 'web/node_modules/next/dist/bin/next'), 'build'], {
+ cwd:path.join(root,'web'), stdio:'inherit',
+ env:{...process.env,GLOBEVOY_PRODUCTION_POLICY_MODULE:policyModule,NEXT_PUBLIC_GLOBEVOY_API_BASE_URL:releaseConfig.apiBaseUrl,NEXT_PUBLIC_GLOBEVOY_LEGACY_ASSET_BASE_URL:'/assets'}
+});
 fs.mkdirSync(output, {recursive:true});
 for (const entry of fs.readdirSync(path.join(root,'frontend'),{withFileTypes:true})) {
  if ((!entry.isDirectory() && /\.(html|ico)$/.test(entry.name)) || ['assets','pages','runtime','scripts','styles'].includes(entry.name)) {
@@ -54,10 +63,7 @@ fs.writeFileSync(configPath,fs.readFileSync(configPath,'utf8').replace('YOUR_RES
 // The same file is loaded by classic HTML and by Next before hydration, so both
 // frontends resolve the identical public production configuration at runtime.
 const policyPath = path.join(output, 'runtime/environment-policy.js');
-fs.writeFileSync(policyPath,
- 'window.GLOBEVOY_PRODUCTION_RELEASE = Object.freeze(' + JSON.stringify(releaseConfig) + ');\n' +
- fs.readFileSync(policyPath,'utf8')
-);
+fs.writeFileSync(policyPath, policySource);
 for (const file of ['index.html','auth-callback.html','runtime/auth-config-705b-r3.js','scripts/auth-session-705b-r3.js','runtime/environment-policy.js','react/index.html','react/account/index.html','react/my-trips/index.html','react/journey/index.html']) {
  if (!fs.existsSync(path.join(output,file))) throw Error('Missing release file: '+file);
  if(file.startsWith('react/') && !fs.readFileSync(path.join(output,file),'utf8').includes('/react/_next/')) throw Error('Missing React asset prefix: '+file);
@@ -68,5 +74,16 @@ for (const file of fs.readdirSync(output,{recursive:true}).sort()) {
  const full=path.join(output,file);
  if(fs.statSync(full).isFile()) files[file.replaceAll('\\','/')]=createHash('sha256').update(fs.readFileSync(full)).digest('hex');
 }
-fs.writeFileSync(path.join(output,'release-manifest.json'),JSON.stringify({commit,dirty,builtAt:new Date().toISOString(),productionAccounts:accountsEnabled,productionReact:reactEnabled,files},null,2)+'\n');
+fs.writeFileSync(path.join(output,'release-manifest.json'),JSON.stringify({commit,dirty,productionOnly:true,builtAt:new Date().toISOString(),productionAccounts:accountsEnabled,productionReact:reactEnabled,files},null,2)+'\n');
 console.log('Validated static artifact: '+output+' ('+Object.keys(files).length+' files). No deployment performed.');
+
+console.log('Production directory scan:', verifyProductionFrontend(output));
+const zip = output + '.zip';
+if (fs.existsSync(zip)) throw Error('ZIP already exists; preserve it before rebuilding.');
+execFileSync(process.env.PYTHON || 'python', ['-c',
+ 'import shutil,sys;shutil.make_archive(sys.argv[1],"zip",sys.argv[1])',output], {stdio:'inherit'});
+const verified = verifyProductionFrontend(zip);
+console.log('Actual ZIP scan:', verified);
+const sha256 = createHash('sha256').update(fs.readFileSync(zip)).digest('hex');
+fs.writeFileSync(zip + '.sha256', sha256 + '  ' + path.basename(zip) + '\n');
+console.log('ZIP SHA-256: ' + sha256 + '. No deployment performed.');

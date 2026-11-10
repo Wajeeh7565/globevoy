@@ -6,13 +6,15 @@ const { chromium } = require('../../web/node_modules/playwright');
 const { generatedTours } = require('./generated-tour-fixtures.cjs');
 const saved = require('../../backend/services/accounts/saved-trips/staging-saved-trips-705c');
 const origin = 'https://globevoy.com';
-const api = 'https://offline-test.lambda-url.us-east-2.on.aws';
+const artifactRoot=process.env.GLOBEVOY_TEST_FRONTEND_ROOT ? path.resolve(process.env.GLOBEVOY_TEST_FRONTEND_ROOT) : null;
 const sessionKey = 'globevoy.auth.session.705b-r3';
-const release = { environment: 'production', target: 'globevoy.com', apiBaseUrl: api, reactEnabled: true, accountsEnabled: true,
+const mockRelease = { environment: 'production', target: 'globevoy.com', apiBaseUrl: 'https://offline-test.lambda-url.us-east-2.on.aws', reactEnabled: true, accountsEnabled: true,
   auth: { region: 'us-east-2', userPoolId: 'us-east-2_OfflineTest1', clientId: 'offlineclient1234567890', issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_OfflineTest1', domainBaseUrl: 'https://globevoy-offline-test.auth.us-east-2.amazoncognito.com' } };
+const release=artifactRoot ? JSON.parse(fs.readFileSync(path.join(artifactRoot,'runtime/environment-policy.js'),'utf8').match(/Object\.freeze\((\{[^\n]+\})\);/)[1]) : mockRelease;
+const api=release.apiBaseUrl;
 let browser, tours;
 test.before(async()=> {
-  assert.ok(fs.existsSync('web/out/my-trips/index.html'), 'Run npm run build:web before browser tests');
+  assert.ok(fs.existsSync(artifactRoot ? path.join(artifactRoot,'react/my-trips/index.html') : 'web/out/my-trips/index.html'), 'Run npm run build:web before browser tests');
   tours = await generatedTours();
   browser = await chromium.launch({ headless:true, ...(process.env.GLOBEVOY_TEST_BROWSER_PATH ? {executablePath:process.env.GLOBEVOY_TEST_BROWSER_PATH} : {}) });
 });
@@ -59,7 +61,7 @@ async function site(tour, signedIn=true) {
     }
     if(u.origin===origin){
       const isReact=u.pathname.startsWith('/react/');
-      const root=path.resolve(isReact?'web/out':'frontend');
+      const root=artifactRoot ? (isReact?path.join(artifactRoot,'react'):artifactRoot) : path.resolve(isReact?'web/out':'frontend');
       let file=path.resolve(root,'.'+(isReact?u.pathname.slice(6):u.pathname));
       if(u.pathname.endsWith('/'))file=path.join(file,'index.html');
       if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){missing.push(u.pathname);return route.fulfill({status:404,body:'Missing offline asset'})}
