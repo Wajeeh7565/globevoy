@@ -9,11 +9,11 @@ $stage = Join-Path $cache $OutputName
 $zipPath = Join-Path $cache ($OutputName + '.zip')
 if ($OutputName -notmatch '^[a-zA-Z0-9_-]+$') { throw 'OutputName must be letters, numbers, hyphens or underscores.' }
 if ((Test-Path $stage) -or (Test-Path $zipPath)) { throw "Refusing to overwrite existing output. Move/remove manually after preserving it: $stage or $zipPath" }
-if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'Node.js 24 is required.' }
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) { throw 'Node.js 22 or newer is required (production uses 24).' }
 if (-not (Get-Command npm -ErrorAction SilentlyContinue)) { throw 'npm is required.' }
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) { throw 'git is required.' }
 $nodeVersion = (node -p 'process.versions.node').Trim()
-if ($LASTEXITCODE -ne 0 -or -not $nodeVersion.StartsWith('24.')) { throw "Node.js 24 required; found: $nodeVersion" }
+if ($LASTEXITCODE -ne 0 -or [int]($nodeVersion.Split('.')[0]) -lt 22) { throw "Node.js 22 or newer required; found: $nodeVersion" }
 $commit = (git -C $repo rev-parse HEAD).Trim()
 if ($LASTEXITCODE -ne 0) { throw 'Cannot determine source commit.' }
 $dirty = (git -C $repo status --porcelain)
@@ -39,7 +39,7 @@ $package = @{
   description = 'Local production Lambda packaging; never deployed by this script';
   dependencies = @{ '@aws-sdk/client-dynamodb' = '^3.0.0' }
 } | ConvertTo-Json -Depth 5
-Set-Content -LiteralPath (Join-Path $stage 'package.json') -Value $package -Encoding UTF8
+[System.IO.File]::WriteAllText((Join-Path $stage 'package.json'), $package, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host 'Installing DynamoDB SDK into isolated build folder (not AWS)...'
 & npm install --prefix $stage --omit=dev --ignore-scripts --no-audit --no-fund
 if ($LASTEXITCODE -ne 0) { throw 'npm install failed. No ZIP created.' }
@@ -62,7 +62,7 @@ $manifest = @{
   awsResourcesModified = $false
   outputMode = 'local-zip-only'
 } | ConvertTo-Json -Depth 5
-Set-Content -LiteralPath (Join-Path $stage 'launch-manifest.json') -Value $manifest -Encoding UTF8
+[System.IO.File]::WriteAllText((Join-Path $stage 'launch-manifest.json'), $manifest, (New-Object System.Text.UTF8Encoding($false)))
 Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zipPath -CompressionLevel Optimal
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zip = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
