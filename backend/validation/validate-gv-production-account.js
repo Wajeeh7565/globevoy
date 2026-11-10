@@ -17,6 +17,7 @@ const env = {
   GLOBEVOY_PRODUCTION_COGNITO_CLIENT_ID: 'productionclient1234567890',
   GLOBEVOY_PRODUCTION_SAVED_TRIPS_TABLE: 'globevoy-production-saved-trips'
 };
+const accountConfig = { schemaVersion: 1, enabled: true, origin: env.CORS_ORIGIN, pool: env.GLOBEVOY_PRODUCTION_USER_POOL_ID, client: env.GLOBEVOY_PRODUCTION_COGNITO_CLIENT_ID, table: env.GLOBEVOY_PRODUCTION_SAVED_TRIPS_TABLE };
 const issuer = 'https://cognito-idp.us-east-2.amazonaws.com/' + env.GLOBEVOY_PRODUCTION_USER_POOL_ID;
 const b64 = obj => Buffer.from(JSON.stringify(obj)).toString('base64url');
 function token(overrides = {}, key = privateKey) {
@@ -72,16 +73,16 @@ const db = {
     throw Error('unexpected DynamoDB command ' + name);
   }
 };
-const opts = { env, fetch: fakeFetch, nowMs, ddb: db, commandFactory: (name, input) => ({ name, input }), randomUUID: () => '12345678-1234-4123-8123-123456789abc' };
+const opts = { accountConfig, env, fetch: fakeFetch, nowMs, ddb: db, commandFactory: (name, input) => ({ name, input }), randomUUID: () => '12345678-1234-4123-8123-123456789abc' };
 const check = (name, value) => { assert.ok(value, name); console.log('PASS ' + name); };
 
 (async () => {
-  check('production user pool and dedicated storage are enabled', Boolean(auth.config(env)));
-  check('missing production config fails closed', auth.config({ ...env, GLOBEVOY_PRODUCTION_ACCOUNTS_ENABLED: 'false' }) === null);
-  check('staging pool cannot be selected', auth.config({ ...env, GLOBEVOY_PRODUCTION_USER_POOL_ID: staging.USER_POOL_ID }) === null);
-  check('staging Cognito client cannot be selected', auth.config({ ...env, GLOBEVOY_PRODUCTION_COGNITO_CLIENT_ID: staging.CLIENT_ID }) === null);
-  check('staging table name is forbidden', auth.config({ ...env, GLOBEVOY_PRODUCTION_SAVED_TRIPS_TABLE: 'globevoy-staging-saved-trips' }) === null);
-  check('staging origin is rejected', auth.config({ ...env, CORS_ORIGIN: staging.STAGING_ORIGIN }) === null);
+  check('production user pool and dedicated storage are enabled', Boolean(auth.config(accountConfig)));
+  check('missing production config fails closed', auth.config({ ...accountConfig, enabled: false }) === null);
+  check('staging pool cannot be selected', auth.config({ ...accountConfig, pool: staging.USER_POOL_ID }) === null);
+  check('staging Cognito client cannot be selected', auth.config({ ...accountConfig, client: staging.CLIENT_ID }) === null);
+  check('staging table name is forbidden', auth.config({ ...accountConfig, table: 'globevoy-staging-saved-trips' }) === null);
+  check('staging origin is rejected', auth.config({ ...accountConfig, origin: staging.STAGING_ORIGIN }) === null);
 
   const session = await gateway.handler(event('/api/account/session', 'GET'), opts);
   assert.equal(session.statusCode, 200);
@@ -156,7 +157,7 @@ const check = (name, value) => { assert.ok(value, name); console.log('PASS ' + n
   assert.equal(result(await gateway.handler(event('/api/saved-trips', 'GET'), opts)).count, 0);
   check('saved-trip deletion', true);
 
-  const disabled = await gateway.handler(event('/api/account/session', 'GET'), { ...opts, env: { ...env, GLOBEVOY_PRODUCTION_ACCOUNTS_ENABLED: 'false' } });
+  const disabled = await gateway.handler(event('/api/account/session', 'GET'), { ...opts, accountConfig: { ...accountConfig, enabled: false } });
   assert.equal(disabled.statusCode, 503);
   check('production account handler remains disabled by default', true);
   console.log('GV-PRODUCTION-ACCOUNT: PASS; no AWS network calls or resources created');

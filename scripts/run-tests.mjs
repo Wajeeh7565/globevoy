@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 
 const groups = {
-  release: [['node', '--test', 'tests/release/production-config.test.mjs']],
+  release: [['node', '--test', 'tests/release/production-config.test.mjs'], ['node', '--test', 'tests/release/account-build-config.test.cjs']],
   repo: [
     ['node', '.github/scripts/validate-repo.mjs'],
     ['node', 'scripts/validate-organization.mjs']

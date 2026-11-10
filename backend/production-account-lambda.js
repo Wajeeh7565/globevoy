@@ -47,8 +47,7 @@ function deny(error, origin) {
   return json(401, { ok: false, authenticated: false, error: 'invalid-or-expired-access-token', reason }, origin);
 }
 async function privateHandler(event = {}, options = {}) {
-  const env = options.env || process.env;
-  const cfg = auth.config(env);
+  const cfg = auth.config(options.accountConfig);
   const path = pathOf(event);
   const method = methodOf(event);
   if (!PRIVATE_ROUTES.has(path)) return (options.publicHandler || legacy.handler)(event);
@@ -70,7 +69,7 @@ async function privateHandler(event = {}, options = {}) {
   if (!allowedMethods.split(',').includes(method)) return json(405, { ok: false, error: 'method-not-allowed' }, origin);
 
   let user;
-  try { user = await auth.verifyAccessToken(event, { env, fetch: options.fetch, nowMs: options.nowMs }); }
+  try { user = await auth.verifyAccessToken(event, { accountConfig: options.accountConfig, fetch: options.fetch, nowMs: options.nowMs }); }
   catch (err) { return deny(err, origin); }
 
   if (path === '/api/account/session') return json(200, {
