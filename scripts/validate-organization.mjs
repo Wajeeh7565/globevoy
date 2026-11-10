@@ -42,7 +42,7 @@ for (const [before, after] of Object.entries(layout)) {
   if (fs.existsSync(path.join(root, before))) failures.push(`Old layout path still exists: ${before}`);
   if (!fs.existsSync(path.join(root, after))) failures.push(`Moved file missing: ${after}`);
 }
-const entryPoints = new Set(['lambda.js', 'server.js', 'staging-lambda.js', 'staging-lambda-702d.js']);
+const entryPoints = new Set(['lambda.js', 'server.js', 'staging-lambda.js', 'staging-lambda-702d.js', 'production-account-lambda.js']);
 for (const name of fs.readdirSync(path.join(root, 'backend'))) {
   if (name.endsWith('.js') && !entryPoints.has(name)) failures.push(`Backend root is reserved for entry points: ${name}`);
 }
