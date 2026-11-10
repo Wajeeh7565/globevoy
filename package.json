@@ -19,6 +19,7 @@
     "typecheck:web": "npm --prefix web run typecheck",
     "build:web": "npm --prefix web run build",
     "test:release": "node scripts/run-tests.mjs release",
-    "package:production": "node ops/release/package-production.mjs"
+    "package:production": "node ops/release/package-production.mjs",
+    "test:browser": "node scripts/run-tests.mjs browser"
   }
 }

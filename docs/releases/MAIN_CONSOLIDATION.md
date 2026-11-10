@@ -3,6 +3,8 @@
 **Environment-limit fix:** account activation now uses explicit build-time nonsecret configuration. See [ACCOUNT_BUILD_CONFIG.md](ACCOUNT_BUILD_CONFIG.md); earlier environment-change instructions below are historical and superseded.
 
 
+**Classic Save correction (source only):** see [CLASSIC_SAVE_FIX.md](CLASSIC_SAVE_FIX.md) for shared compact snapshots and offline browser regression coverage. This is not deployment approval.
+
 ## Status and source
 
 **Full new product: BLOCKED.** Main promotion is prepared; no merge or deployment is authorized by this preparation task. The conservative static candidate retains the classic website and production API, disables production accounts and the React workflow, and keeps both sets of assets in one artifact. It still needs browser acceptance against production before deployment approval. Leaving deployment job 240 untouched is the smallest completely verified way to preserve the current public website while merging source organization.
