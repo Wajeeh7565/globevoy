@@ -154,3 +154,13 @@ Storage contract: dedicated DynamoDB table with string partition key `PK` and so
 4. Authorize backend deployment separately; test real Cognito PKCE login/create-account/logout, rejected staging/expired tokens, owner-private saved-trip CRUD/profile, classic recommendations and CORS. These live tests have not been performed.
 5. Only then enable verified production React/accounts build flags, inspect classic home and `/react/account/`, `/react/my-trips/`, `/react/travel-profile/`, confirm no staging traffic, and approve the manual Amplify deployment described above.
 6. Rollback: restore the preserved hosting ZIP and previous Lambda code **with matching handler and environment**. Disable account feature flags first if rolling back the account backend. Preserve user data; do not delete the production table or Cognito pool. No merge, deployment or branch retirement is automatic.
+
+### Latest local verification
+
+All 53 registered commands across nine groups passed, along with the expanded production JWT/storage validator and React typecheck. The actual backend ZIP built successfully and imported both entry points. Static export and composite packaging passed (274 files). Offline Edge browser checks passed for classic homepage rendering, enabled production account sign-in/create-account UI, saved-trips and travel-profile routes, and absence of staging traffic. Synthetic identifiers were injected in the browser harness only; **no real signup, live provider search, AWS database operation or production deployment was performed**.
+
+Reproduce browser checks after packaging: `npm install --prefix .cache/browser-tools playwright --ignore-scripts --no-audit --no-fund`, set `GLOBEVOY_SITE_ARTIFACT` to the artifact directory, then `node tests/release/browser-smoke.cjs`. Requires installed Microsoft Edge at the Windows default path. Every external request is intercepted/blocked, including Maps, Cognito and backend URLs. Backend recommendation regressions are covered by the grouped backend suite, not by a live paid search. Actual hosted authentication and browser CRUD remain deployment acceptance requirements.
+
+One local build attempt failed when two Next builds overlapped in the same checkout. The completed build and browser run were rerun after that overlap ended; do not build simultaneously in a shared checkout. No test assertion was removed to resolve the failure.
+
+See [workflow review](WORKFLOW_REVIEW.md) for the retained historical workflows and retirement criteria.
