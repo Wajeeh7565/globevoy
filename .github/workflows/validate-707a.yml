@@ -86,4 +86,6 @@ jobs:
           node backend/validation/validate-gv-book-706a.js
 
       - name: Confirm workflow has read-only repository permissions
-        run: grep -q '^  contents: read$' .github/workflows/validate-707a.yml
+        run: |
+          grep -q '^  contents: read
+ .github/workflows/validate-707a.yml
