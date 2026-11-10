@@ -55,6 +55,9 @@ jobs:
       - name: Production configuration and authentication boundaries
         run: npm run test:release
 
+      - name: Isolated production account API regression tests (no AWS calls)
+        run: node backend/validation/validate-gv-production-account.js
+
       - name: React typecheck and static production build
         run: |
           npm run typecheck:web
