@@ -15,17 +15,21 @@ class ProductionAuthError extends Error {
   constructor(code) { super(code); this.name = 'ProductionAuthError'; this.code = code; }
 }
 
-function config(env = process.env) {
-  const pool = String(env.GLOBEVOY_PRODUCTION_USER_POOL_ID || '').trim();
-  const client = String(env.GLOBEVOY_PRODUCTION_COGNITO_CLIENT_ID || '').trim();
-  const table = String(env.GLOBEVOY_PRODUCTION_SAVED_TRIPS_TABLE || '').trim();
-  const origin = normalizeHttpsOrigin(env.CORS_ORIGIN);
-  if (env.GLOBEVOY_PRODUCTION_ACCOUNTS_ENABLED !== 'true') return null;
+// Only the release packager may include this nonsecret artifact. Source defaults off.
+let bundledConfig = null;
+try { bundledConfig = require('./production-account-build.json'); } catch (_) { /* Fail closed. */ }
+
+function config(input = bundledConfig) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return null;
+  const fields = ['schemaVersion', 'enabled', 'origin', 'pool', 'client', 'table'];
+  if (Object.keys(input).length !== fields.length || Object.keys(input).some(k => !fields.includes(k))) return null;
+  if (input.schemaVersion !== 1 || input.enabled !== true) return null;
+  if (fields.slice(2).some(k => typeof input[k] !== 'string' || input[k] !== input[k].trim())) return null;
+  const { pool, client, table, origin } = input;
   if (!PROD_ORIGINS.includes(origin)) return null;
   if (!/^us-east-2_[A-Za-z0-9]+$/.test(pool) || pool === staging.USER_POOL_ID) return null;
   if (!/^[a-z0-9]{12,64}$/.test(client) || client === staging.CLIENT_ID) return null;
-  // A separate production table is required; reject obviously staging-labelled tables.
-  if (!/^[A-Za-z0-9_.-]{3,255}$/.test(table) || /(^|[-_.])(staging|stg)([-_.]|$)/i.test(table)) return null;
+  if (table !== 'globevoy-production-saved-trips') return null;
   return Object.freeze({
     origin,
     pool,
@@ -65,7 +69,7 @@ async function jwks(cfg, fetchImpl, nowMs, force) {
 }
 
 async function verifyAccessToken(event, options = {}) {
-  const cfg = config(options.env || process.env);
+  const cfg = config(options.accountConfig);
   if (!cfg) throw new ProductionAuthError('production-auth-not-configured');
   const token = bearerToken(event);
   const decoded = parseJwt(token);

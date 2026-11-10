@@ -68,7 +68,9 @@ jobs:
 
       - name: Build and import production Lambda ZIP locally
         shell: pwsh
-        run: ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend
+        run: |
+          ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend
+          ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend-enabled -EnableProductionAccounts
 
       - name: React typecheck and static production build
         run: |

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "enabled": true,
+  "origin": "https://globevoy.com",
+  "pool": "us-east-2_gr7p2ySyA",
+  "client": "h41vnimofe8dq3rsprjqg7aom",
+  "table": "globevoy-production-saved-trips"
+}

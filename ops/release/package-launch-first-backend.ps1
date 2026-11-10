@@ -1,5 +1,6 @@
 param(
-  [string]$OutputName = 'globevoy-launch-first-backend'
+  [string]$OutputName = 'globevoy-launch-first-backend',
+  [switch]$EnableProductionAccounts
 )
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
@@ -30,6 +31,14 @@ foreach ($folder in @('services','data')) {
     Copy-Item -LiteralPath (Join-Path $source $folder) -Destination (Join-Path $stage $folder) -Recurse
   }
 }
+# Reject an accidentally committed/generated runtime artifact in the source tree.
+if (Test-Path (Join-Path $source 'services/accounts/auth/production-account-build.json')) { throw 'Generated account config must not exist in backend source.' }
+if ($EnableProductionAccounts) {
+  $configFile = Join-Path $PSScriptRoot 'production-account-config.json'
+  & node -e 'const a=require(process.argv[1]),c=require(process.argv[2]);if(!a.config(c))process.exit(2)' (Join-Path $source 'services/accounts/auth/production-cognito-auth.js') $configFile
+  if ($LASTEXITCODE -ne 0) { throw 'Invalid nonsecret production account configuration.' }
+  Copy-Item -LiteralPath $configFile -Destination (Join-Path $stage 'services/accounts/auth/production-account-build.json')
+}
 # The package uses the production handler at the ZIP root. The existing public
 # handler remains ./lambda.js and is required by production-account-lambda.js.
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'backend-dependencies/package.json') -Destination $stage
@@ -48,6 +57,10 @@ if ($LASTEXITCODE -ne 0) { throw 'Account handler syntax invalid.' }
 if ($LASTEXITCODE -ne 0) { throw 'Bundled handler import failed.' }
 & node -e 'const a=require(process.argv[1]),b=require(process.argv[2]); if(a.handler!==b.handler) process.exit(3)' (Join-Path $stage 'src/lambda.js') (Join-Path $stage 'production-account-lambda.js')
 if ($LASTEXITCODE -ne 0) { throw 'Compatibility handler export mismatch.' }
+$packageCheck = @((Join-Path $repo 'tests/release/validate-account-package.cjs'), $stage)
+if ($EnableProductionAccounts) { $packageCheck += '--enabled' }
+& node @packageCheck
+if ($LASTEXITCODE -ne 0) { throw 'Packaged configuration/JWT/CRUD regression failed.' }
 $sdkVersion = (& node -p 'require(process.argv[1]).version' (Join-Path $stage 'node_modules/@aws-sdk/client-dynamodb/package.json')).Trim()
 if ($LASTEXITCODE -ne 0) { throw 'Bundled DynamoDB SDK version missing.' }
 $manifest = @{
@@ -57,6 +70,8 @@ $manifest = @{
   nodeVersion = $nodeVersion
   dynamodbSdkVersion = $sdkVersion
   createdAtUtc = [DateTime]::UtcNow.ToString('o')
+  productionAccountsIncluded = [bool]$EnableProductionAccounts
+  additionalEnvironmentBytes = 0
   awsResourcesModified = $false
   outputMode = 'local-zip-only'
 } | ConvertTo-Json -Depth 5

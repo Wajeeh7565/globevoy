@@ -1,5 +1,8 @@
 # GlobeVoy production accounts release handoff
 
+**Environment-limit fix:** account activation now uses explicit build-time nonsecret configuration. See [ACCOUNT_BUILD_CONFIG.md](ACCOUNT_BUILD_CONFIG.md); earlier environment-change instructions below are historical and superseded.
+
+
 ## Product target
 Keep the classic HTML/CSS/JavaScript homepage and tour/search pages on globevoy.com. Enable the existing React account, My Trips, and Travel Profile screens under /react/ after production backend and Cognito are verified. Do not rebuild the whole site in React.
 
