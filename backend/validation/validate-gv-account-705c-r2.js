@@ -15,7 +15,7 @@ function main() {
   const checks = [];
   const pass = (name) => { checks.push(name); console.log(`[PASS] ${name}`); };
 
-  const html = read('frontend/multi-city-trip.html');
+  const html = read('frontend/pages/multi-city-trip.html');
   const routeDetails = read('frontend/scripts/multi-city-trip-673a.js');
   const savedTrips = read('frontend/scripts/saved-trips-705c.js');
   const bridge = read('frontend/scripts/saved-trips-705c-r2-route-details.js');

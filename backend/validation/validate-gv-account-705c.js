@@ -210,8 +210,8 @@ async function main() {
   pass('705C is wired only into the staging wrapper, not production handler');
 
   const shell = fs.readFileSync(path.join(ROOT, 'frontend/scripts/shell-670f.js'), 'utf8');
-  const account = fs.readFileSync(path.join(ROOT, 'frontend/account.html'), 'utf8');
-  const myTrips = fs.readFileSync(path.join(ROOT, 'frontend/my-trips.html'), 'utf8');
+  const account = fs.readFileSync(path.join(ROOT, 'frontend/pages/account.html'), 'utf8');
+  const myTrips = fs.readFileSync(path.join(ROOT, 'frontend/pages/my-trips.html'), 'utf8');
   const browser = fs.readFileSync(path.join(ROOT, 'frontend/scripts/saved-trips-705c.js'), 'utf8');
   assert.match(shell, /saved-trips-705c\.js/);
   assert.match(account, /my-trips\.html/);

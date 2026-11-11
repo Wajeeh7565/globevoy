@@ -1,4 +1,5 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const { promotedPageContentPreserved } = require('./page-layout-support.cjs');
 
 const fs=require('fs');
@@ -6,9 +7,9 @@ const path=require('path');
 const crypto=require('crypto');
 const {spawnSync}=require('child_process');
 const root=path.resolve(__dirname,'..');
-const read=name=>fs.readFileSync(path.join(root,name),'utf8');
-const hash=name=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex');
-const exists=name=>fs.existsSync(path.join(root,name));
+const read=name=>fs.readFileSync(frontendSourcePath(root,name),'utf8');
+const hash=name=>crypto.createHash('sha256').update(fs.readFileSync(frontendSourcePath(root,name))).digest('hex');
+const exists=name=>fs.existsSync(frontendSourcePath(root,name));
 const checks=[];
 const check=(name,pass,detail='')=>checks.push({name,pass:Boolean(pass),detail});
 
@@ -29,13 +30,13 @@ const bookingHubSource=read('scripts/booking-hub-685d.js');
 const workspaceSource=read('scripts/booking-workspace-686c.js');
 const workspaceCss=read('styles/booking-workspace-686c.css');
 const legalNote=read('validation/releases/GV-RC-686D-LEGAL-COMMERCIAL-GATE.md');
-const journey=require(path.join(root,'scripts/journey-experience-687a.js'));
-const hub=require(path.join(root,'scripts/booking-hub-685d.js'));
-const workspace=require(path.join(root,'scripts/booking-workspace-686c.js'));
-const confidence=require(path.join(root,'scripts/budget-confidence-685b.js'));
+const journey=require(frontendSourcePath(root,'scripts/journey-experience-687a.js'));
+const hub=require(frontendSourcePath(root,'scripts/booking-hub-685d.js'));
+const workspace=require(frontendSourcePath(root,'scripts/booking-workspace-686c.js'));
+const confidence=require(frontendSourcePath(root,'scripts/budget-confidence-685b.js'));
 
 function filesUnder(dir){const out=[];for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const full=path.join(dir,entry.name);if(entry.isDirectory())out.push(...filesUnder(full));else out.push(full);}return out;}
-function runValidator(relative){const result=spawnSync(process.execPath,[path.join(root,relative)],{cwd:root,encoding:'utf8'});return{pass:result.status===0,status:result.status,stdout:String(result.stdout||''),stderr:String(result.stderr||'')};}
+function runValidator(relative){const result=spawnSync(process.execPath,[frontendSourcePath(root,relative)],{cwd:root,encoding:'utf8'});return{pass:result.status===0,status:result.status,stdout:String(result.stdout||''),stderr:String(result.stderr||'')};}
 
 const query=new URLSearchParams('multi=true&currency=CAD&budget=1500&total=1319&adults=2&passengers=2&rooms=1');
 const Toronto={city:'Toronto',code:'YYZ',airportCode:'YYZ'};

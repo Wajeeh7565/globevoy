@@ -137,8 +137,8 @@ assert.equal(/globevoy-staging-users|globevoy-staging-web/.test(runtimeConfig), 
 assert.equal(/globevoy-staging-users|globevoy-staging-web/.test(travelProfileScript), false);
 
 // Guest/local travel profile remains a separate, explicitly non-secure surface.
-const indexHtml = fs.readFileSync(path.join(ROOT, 'frontend', 'index.html'), 'utf8');
-const profileHtml = fs.readFileSync(path.join(ROOT, 'frontend', 'create-account.html'), 'utf8');
+const indexHtml = fs.readFileSync(path.join(ROOT, 'frontend', 'pages', 'index.html'), 'utf8');
+const profileHtml = fs.readFileSync(path.join(ROOT, 'frontend', 'pages', 'create-account.html'), 'utf8');
 assert(indexHtml.includes('You can continue as a guest.'));
 assert(profileHtml.includes('It is not a secure Globevoy account'));
 

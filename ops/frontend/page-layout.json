@@ -268,5 +268,117 @@
     "/pages/trip-detail-partner-unavailable.html": "/trip.html",
     "/pages/trip-detail-single-approval.html": "/trip.html",
     "/pages/trust.html": "/trust.html"
-  }
+  },
+  "publicPageSources": [
+    {
+      "from": "frontend/about.html",
+      "to": "frontend/pages/about.html",
+      "sha256": "542ffad1fe49d096649415c1dd57cab0f2c079427b1fdf7e8681ded19815b482"
+    },
+    {
+      "from": "frontend/account.html",
+      "to": "frontend/pages/account.html",
+      "sha256": "298b5dd1c57db12cad8e1dd3f7e09def493397f57b5a75a4b4be5fc0a2422c77"
+    },
+    {
+      "from": "frontend/affiliate.html",
+      "to": "frontend/pages/affiliate.html",
+      "sha256": "f9ca6e97243a9173632b39719cbb6630a0d90ce1d2cc019a1c1f805f79cde686"
+    },
+    {
+      "from": "frontend/ask.html",
+      "to": "frontend/pages/ask.html",
+      "sha256": "fe0d5564558333e7ada6b91c16b20f05e2fcebf62ba533bb100cd22ffc272294"
+    },
+    {
+      "from": "frontend/auth-callback.html",
+      "to": "frontend/pages/auth-callback.html",
+      "sha256": "b3f3bb87acc8aa597cd4ec95a19358859e1da0d5260f8a3de2f60be2b0246358"
+    },
+    {
+      "from": "frontend/booking.html",
+      "to": "frontend/pages/booking.html",
+      "sha256": "023d43345f9b027789faacbada95df5c1d1b46e39988477cdc2cf5222e22198f"
+    },
+    {
+      "from": "frontend/create-account.html",
+      "to": "frontend/pages/create-account.html",
+      "sha256": "a055ee513ae437e0e18a6a475f360fed8643701cb00d82a17b6ae1f8b663dac4"
+    },
+    {
+      "from": "frontend/explore.html",
+      "to": "frontend/pages/explore.html",
+      "sha256": "8b24fba0573e02637e69e9ebfca1b09a479858bd504e4d46a8ab3c28dbafeea9"
+    },
+    {
+      "from": "frontend/how-it-works.html",
+      "to": "frontend/pages/how-it-works.html",
+      "sha256": "19208d0f802abeeccf1df6e4063f2c323528f1509631121997f804a698915cd8"
+    },
+    {
+      "from": "frontend/index.html",
+      "to": "frontend/pages/index.html",
+      "sha256": "6da03fee36113e7a3e9d6ea149f7e5697e8b877ba233c1cf3fe0626e3e1e3749"
+    },
+    {
+      "from": "frontend/mixed-results.html",
+      "to": "frontend/pages/mixed-results.html",
+      "sha256": "850385d1dadcb2e2e9e3584fcb1cae88e2defc46a31a15639b2635f8ab084e99"
+    },
+    {
+      "from": "frontend/multi-city-trip.html",
+      "to": "frontend/pages/multi-city-trip.html",
+      "sha256": "9e3d3c0563a82c68104130b13202eab39ec7c93222ede53db01db703871e92ee"
+    },
+    {
+      "from": "frontend/multi-city.html",
+      "to": "frontend/pages/multi-city.html",
+      "sha256": "0ab11d9871e5943cdf8eceb86f57e6009acc2cf811aaa240596887705a15d670"
+    },
+    {
+      "from": "frontend/multicity-visualizer.html",
+      "to": "frontend/pages/multicity-visualizer.html",
+      "sha256": "160e2ebb1462983575660d52e75f11f7dba6f33bc8e1677b1a9f462dd916d4fb"
+    },
+    {
+      "from": "frontend/my-trips.html",
+      "to": "frontend/pages/my-trips.html",
+      "sha256": "6b8ae404d69a13fe00f18f2774d2c49fabf83498aa420d7d015551c6e6611e86"
+    },
+    {
+      "from": "frontend/privacy.html",
+      "to": "frontend/pages/privacy.html",
+      "sha256": "1a1e95c296829cd2e4ec9a6f2ae34df542a289526368a0967433bc4f19591f0f"
+    },
+    {
+      "from": "frontend/saved-trips.html",
+      "to": "frontend/pages/saved-trips.html",
+      "sha256": "f79ff2f0dedd6550aba6ab3903e14dbddbea47e8fb3a8654a35d68fda99838b1"
+    },
+    {
+      "from": "frontend/sign-in.html",
+      "to": "frontend/pages/sign-in.html",
+      "sha256": "6709c1dc9f52a4fbff2023f8945e79cf51c9c4ee3d86ed074bb408bc91852dba"
+    },
+    {
+      "from": "frontend/stays.html",
+      "to": "frontend/pages/stays.html",
+      "sha256": "780381bd94beb20db3eefb29ca8798267098e4d7c7bee337ec7405d15795fa92"
+    },
+    {
+      "from": "frontend/terms.html",
+      "to": "frontend/pages/terms.html",
+      "sha256": "404090f9c1d994106c326958bd1c7d3f1d581387f7236a509b5c58cad8bca42b"
+    },
+    {
+      "from": "frontend/trip.html",
+      "to": "frontend/pages/trip.html",
+      "sha256": "caf6f24139b9b8902b98bde7e84ff00c17d2a9f458739598138adf8f3df7a31f"
+    },
+    {
+      "from": "frontend/trust.html",
+      "to": "frontend/pages/trust.html",
+      "sha256": "6bab73f9595263ae987b9136dac90d1371b0890066daf4b5b2ee829b368b3812"
+    }
+  ]
 }

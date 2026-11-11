@@ -92,6 +92,7 @@ const scanRoots = [
   'backend/services',
   'backend/validation/validate-gv-rec-687b-p3.js',
   'backend/validation/validate-gv-rec-687b.js',
+  'frontend/pages',
   'frontend/runtime',
   'frontend/scripts',
   'frontend/validation',

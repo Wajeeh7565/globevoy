@@ -1,17 +1,18 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 
 const fs=require('fs');
 const path=require('path');
 const crypto=require('crypto');
 const root=path.resolve(__dirname,'..');
-const read=name=>fs.readFileSync(path.join(root,name),'utf8');
-const hash=name=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex');
+const read=name=>fs.readFileSync(frontendSourcePath(root,name),'utf8');
+const hash=name=>crypto.createHash('sha256').update(fs.readFileSync(frontendSourcePath(root,name))).digest('hex');
 const checks=[];
 const check=(name,pass)=>checks.push({name,pass:Boolean(pass)});
 
-const workspace=require(path.join(root,'scripts/booking-workspace-686c.js'));
-const hub=require(path.join(root,'scripts/booking-hub-685d.js'));
-const confidence=require(path.join(root,'scripts/budget-confidence-685b.js'));
+const workspace=require(frontendSourcePath(root,'scripts/booking-workspace-686c.js'));
+const hub=require(frontendSourcePath(root,'scripts/booking-hub-685d.js'));
+const confidence=require(frontendSourcePath(root,'scripts/budget-confidence-685b.js'));
 const html=read('booking.html');
 const css=read('styles/booking-workspace-686c.css');
 const source=read('scripts/booking-workspace-686c.js');

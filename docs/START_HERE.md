@@ -25,8 +25,8 @@ Open changes against `main`. Preserve existing staging systems and unmerged bran
 | `backend/services/domain/recommendations/` | Recommendations, quality and mixed results |
 | `backend/validation/` | All 40 backend validators, invoked by the grouped runner and CI |
 | `backend/data/` | Versioned runtime inputs, fixtures, and review data; inspect consumers before moving |
-| `frontend/` | Public HTML entry points, favicon and directory guide; website URLs remain stable |
-| `frontend/pages/` | Three still-linked legacy screens; older design/state pages are archived |
+| `frontend/` | Source folders, favicon and directory guide; website URLs remain stable |
+| `frontend/pages/` | All active classic HTML, including the three still-linked legacy screens |
 | `archive/frontend/design-pages/` | Byte-preserved reference screens, never published |
 | `ops/frontend/page-layout.json` | Promotion/archive inventory and compatibility URL mapping |
 | `frontend/runtime/`, `scripts/`, `styles/` | Classic configuration/API client, behavior, and CSS |

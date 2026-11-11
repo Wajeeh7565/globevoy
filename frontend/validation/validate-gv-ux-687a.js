@@ -1,12 +1,13 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const fs=require('fs');
 const path=require('path');
 const crypto=require('crypto');
 const {spawnSync}=require('child_process');
 const root=path.resolve(__dirname,'..');
-const read=n=>fs.readFileSync(path.join(root,n),'utf8');
-const hash=n=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,n))).digest('hex');
-const exists=n=>fs.existsSync(path.join(root,n));
+const read=n=>fs.readFileSync(frontendSourcePath(root,n),'utf8');
+const hash=n=>crypto.createHash('sha256').update(fs.readFileSync(frontendSourcePath(root,n))).digest('hex');
+const exists=n=>fs.existsSync(frontendSourcePath(root,n));
 const checks=[]; const check=(name,pass,detail='')=>checks.push({name,pass:Boolean(pass),detail});
 const release=JSON.parse(read('validation/releases/GV-UX-687A-RELEASE.json'));
 const html=read('multicity-visualizer.html');
@@ -14,8 +15,8 @@ const engine=read('scripts/multicity-visualizer-687a.js');
 const journey=read('scripts/journey-experience-687a.js');
 const css=read('styles/journey-experience-687a.css');
 const shell=read('scripts/shell-670f.js');
-const journeyModule=require(path.join(root,'scripts/journey-experience-687a.js'));
-const run=n=>spawnSync(process.execPath,[path.join(root,n)],{cwd:root,encoding:'utf8'});
+const journeyModule=require(frontendSourcePath(root,'scripts/journey-experience-687a.js'));
+const run=n=>spawnSync(process.execPath,[frontendSourcePath(root,n)],{cwd:root,encoding:'utf8'});
 check('Release metadata is pinned to GV-SHELL-686D-R1',release.release==='GV-UX-687A'&&release.authoritativeBaselineSha256==='c9f1dba944ee5ece6ba229176c8a5a78bbaabb7c21cc16902df88ebfb9ecb2e5');
 check('Scope is frontend-only with no deploy/provider/backend change',release.scope==='frontend-only'&&!release.deploymentPerformed&&!release.backendChanged&&!release.lambdaChanged&&!release.providerLogicChanged&&!release.liveProviderCallsDuringValidation);
 check('Visualizer activates 687A journey baseline with approved 687B visualizer successor',((html.includes('multicity-visualizer-687a.js?v=687a-r1'))||html.includes('multicity-visualizer-687b.js?v=687b-r1'))&&html.includes('journey-experience-687a.js?v=687a-r2')&&html.includes('journey-experience-687a.css?v=687a-r2')&&!html.includes('multicity-visualizer-674a.js?v=685b')&&!html.includes('journey-experience-686b.js?v=686b'));
@@ -45,7 +46,7 @@ check('687A journey module reports its version',journeyModule.VERSION==='GV-UX-6
 const model=journeyModule.buildJourneyModel({origin:{city:'Toronto'},cities:[{city:'Mexico City',nights:4},{city:'Merida',nights:4}],backendLegs:[{mode:'flight'},{mode:'flight'},{mode:'flight'}],stays:[{nights:4},{nights:4}],liveProviderVerification:{criticalCount:5,verifiedCount:4}});
 check('Journey evidence model uses the new honest wording',model.evidence==='Pricing evidence · 4 of 5 components');
 for(const [label,file,needle] of [['686D master','validation/validate-gv-rc-686d.js','total=51 pass=51 fail=0'],['686D-R1 shell','validation/validate-gv-shell-686d-r1.js','28/28 PASS'],['686C booking','validation/validate-gv-book-686c.js','27/27 PASS'],['686B journey','validation/validate-gv-journey-686b.js','24/24 PASS']]){const r=run(file);check(`${label} regression remains green`,r.status===0&&r.stdout.includes(needle),r.stderr||r.stdout);}
-for(const f of ['scripts/multicity-visualizer-687a.js','scripts/journey-experience-687a.js']){const r=spawnSync(process.execPath,['--check',path.join(root,f)],{cwd:root,encoding:'utf8'});check(`${f} syntax is valid`,r.status===0,r.stderr);}
+for(const f of ['scripts/multicity-visualizer-687a.js','scripts/journey-experience-687a.js']){const r=spawnSync(process.execPath,['--check',frontendSourcePath(root,f)],{cwd:root,encoding:'utf8'});check(`${f} syntax is valid`,r.status===0,r.stderr);}
 check('Package contains no backend/Lambda/server runtime directory',!fs.readdirSync(root,{withFileTypes:true}).some(e=>e.isDirectory()&&/^(backend|lambda|server|serverless)$/i.test(e.name)));
 check('687A runtime makes no new fetch/XHR call',!(/\bfetch\s*\(|XMLHttpRequest/.test(journey)));
 checks.forEach((x,i)=>console.log(`${x.pass?'PASS':'FAIL'} ${String(i+1).padStart(2,'0')} — ${x.name}${x.pass||!x.detail?'':` :: ${String(x.detail).trim().split(/\r?\n/).slice(-1)[0]}`}`));

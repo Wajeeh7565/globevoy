@@ -1,16 +1,17 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const fs=require('fs');
 const path=require('path');
 const {spawnSync}=require('child_process');
 const root=path.resolve(__dirname,'..');
-const read=n=>fs.readFileSync(path.join(root,n),'utf8');
+const read=n=>fs.readFileSync(frontendSourcePath(root,n),'utf8');
 const checks=[];const check=(name,pass,detail='')=>checks.push({name,pass:Boolean(pass),detail});
 const html=read('multicity-visualizer.html');
 const engine=read('scripts/multicity-visualizer-687b.js');
 const css=read('styles/journey-experience-687a.css');
 const runtimeConfig=read('runtime/config.js');
 const release=JSON.parse(read('validation/releases/GV-REC-687B-RELEASE.json'));
-const run=n=>spawnSync(process.execPath,[path.join(root,n)],{cwd:root,encoding:'utf8'});
+const run=n=>spawnSync(process.execPath,[frontendSourcePath(root,n)],{cwd:root,encoding:'utf8'});
 
 check('Release metadata identifies GV-REC-687B',release.release==='GV-REC-687B'&&release.deployment==='NOT_DEPLOYED');
 check('Active page loads 687B visualizer',html.includes('multicity-visualizer-687b.js?v=687b-r1')&&!html.includes('multicity-visualizer-687a.js?v=687a-r1'));
@@ -57,7 +58,7 @@ for(const [label,file,greenNeedle,sanitizedBaselineNeedle] of [
  const knownSanitizedDrift=sanitizedRuntimeConfig&&r.status!==0&&r.stdout.includes(sanitizedBaselineNeedle);
  check(`${label} regression matches approved current baseline`,fullyGreen||knownSanitizedDrift,r.stderr||r.stdout);
 }
-const syntax=spawnSync(process.execPath,['--check',path.join(root,'scripts/multicity-visualizer-687b.js')],{cwd:root,encoding:'utf8'});
+const syntax=spawnSync(process.execPath,['--check',frontendSourcePath(root,'scripts/multicity-visualizer-687b.js')],{cwd:root,encoding:'utf8'});
 check('687B visualizer syntax is valid',syntax.status===0,syntax.stderr);
 check('Package contains no backend/Lambda runtime',!fs.readdirSync(root,{withFileTypes:true}).some(e=>e.isDirectory()&&/^(backend|lambda|server|serverless)$/i.test(e.name)));
 checks.forEach((x,i)=>console.log(`${x.pass?'PASS':'FAIL'} ${String(i+1).padStart(2,'0')} — ${x.name}${x.pass||!x.detail?'':` :: ${String(x.detail).trim().split(/\r?\n/).slice(-1)[0]}`}`));
