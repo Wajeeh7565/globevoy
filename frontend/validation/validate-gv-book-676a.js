@@ -1,15 +1,16 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const outputPath = require('./output-path');
 const FRONTEND_ROOT = require('node:path').resolve(__dirname, '..');
 const fs=require('fs'),path=require('path');
 const checks=[];function check(name,passed,details=null){checks.push({name,passed:Boolean(passed),details});if(!passed)process.exitCode=1;}
 const root=FRONTEND_ROOT;
-const booking=fs.readFileSync(path.join(root,'booking.html'),'utf8');
-const api=fs.readFileSync(path.join(root,'runtime/api-client.js'),'utf8');
-const script=fs.readFileSync(path.join(root,'scripts/booking-duffel-676a.js'),'utf8');
-const entry=fs.readFileSync(path.join(root,'scripts/booking-entry-675a.js'),'utf8');
-const css=fs.readFileSync(path.join(root,'styles/booking-duffel-676a.css'),'utf8');
-const config=fs.readFileSync(path.join(root,'runtime/config.js'),'utf8');
+const booking=fs.readFileSync(frontendSourcePath(root,'booking.html'),'utf8');
+const api=fs.readFileSync(frontendSourcePath(root,'runtime/api-client.js'),'utf8');
+const script=fs.readFileSync(frontendSourcePath(root,'scripts/booking-duffel-676a.js'),'utf8');
+const entry=fs.readFileSync(frontendSourcePath(root,'scripts/booking-entry-675a.js'),'utf8');
+const css=fs.readFileSync(frontendSourcePath(root,'styles/booking-duffel-676a.css'),'utf8');
+const config=fs.readFileSync(frontendSourcePath(root,'runtime/config.js'),'utf8');
 check('booking release meta updated or superseded',booking.includes('content="GV-BOOK-676A"') || booking.includes('content="GV-QUALITY-680A"') || booking.includes('content="GV-BOOK-685D"') || booking.includes('content="GV-BOOK-685D-R1"') || booking.includes('content="GV-BOOK-685D-R2"'));
 check('frontend config version updated or superseded',config.includes('frontendVersion: "GV-BOOK-676A"') || config.includes('frontendVersion: "GV-REC-677A"') || config.includes('frontendVersion: "GV-REC-677A-R1"') || config.includes('frontendVersion: "GV-REC-677B"') || config.includes('bookingTrustVersion: "GV-QUALITY-680A"')); 
 check('Duffel section present',booking.includes('id="gv-duffel-section"')&&booking.includes('id="gv-duffel-run"'));
@@ -34,7 +35,7 @@ check('four-part total layout included',script.includes('flightSandboxSubtotal')
 check('no automatic provider request on load',!script.includes('start(){await run')&&script.includes('button.onclick=run'));
 check('script exports release marker',script.includes('GlobevoyDuffel676A')&&script.includes("VERSION='GV-BOOK-676A'"));
 const files=['scripts/booking-duffel-676a.js','styles/booking-duffel-676a.css'];
-check('new assets exist',files.every(f=>fs.existsSync(path.join(root,f))),files);
+check('new assets exist',files.every(f=>fs.existsSync(frontendSourcePath(root,f))),files);
 const result={release:'GV-BOOK-676A',generatedAt:new Date().toISOString(),checkCount:checks.length,passedCount:checks.filter(x=>x.passed).length,failedCount:checks.filter(x=>!x.passed).length,checks};
 fs.writeFileSync(outputPath('VALIDATION_GV_BOOK_676A_FRONTEND.json'),JSON.stringify(result,null,2)+'\n');
 if(result.failedCount)throw new Error(`GV-BOOK-676A frontend validation failed (${result.failedCount}).`);

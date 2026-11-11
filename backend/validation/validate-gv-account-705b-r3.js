@@ -129,8 +129,8 @@ async function expectAuthError(code, token) {
   const authConfig = fs.readFileSync(path.join(ROOT, 'frontend', 'runtime', 'auth-config-705b-r3.js'), 'utf8');
   const authSession = fs.readFileSync(path.join(ROOT, 'frontend', 'scripts', 'auth-session-705b-r3.js'), 'utf8');
   const shell = fs.readFileSync(path.join(ROOT, 'frontend', 'scripts', 'shell-670f.js'), 'utf8');
-  const callback = fs.readFileSync(path.join(ROOT, 'frontend', 'auth-callback.html'), 'utf8');
-  const account = fs.readFileSync(path.join(ROOT, 'frontend', 'account.html'), 'utf8');
+  const callback = fs.readFileSync(path.join(ROOT, 'frontend', 'pages', 'auth-callback.html'), 'utf8');
+  const account = fs.readFileSync(path.join(ROOT, 'frontend', 'pages', 'account.html'), 'utf8');
 
   for (const marker of [auth.STAGING_ORIGIN, auth.USER_POOL_ID, auth.CLIENT_ID, auth.ISSUER, auth.REQUIRED_SCOPE]) {
     assert((authConfig + fs.readFileSync(path.join(ROOT, 'frontend/runtime/environment-policy.js'), 'utf8')).includes(marker), `public auth config missing ${marker}`);

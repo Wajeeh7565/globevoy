@@ -1,10 +1,11 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const outputPath = require('./output-path');
 const FRONTEND_ROOT = require('node:path').resolve(__dirname, '..');
 const fs = require('fs');
 const path = require('path');
 const root = FRONTEND_ROOT;
-const read = p => fs.readFileSync(path.join(root, p), 'utf8');
+const read = p => fs.readFileSync(frontendSourcePath(root, p), 'utf8');
 const checks = [];
 function check(name, passed) {
   checks.push({ name, passed: Boolean(passed) });

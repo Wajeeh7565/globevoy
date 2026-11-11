@@ -190,8 +190,8 @@ assert.equal(status.recommendedJwtVerifierForNode, 'aws-jwt-verify');
 
 // Audit the current product boundary so 705B does not accidentally treat the
 // existing local travel profile as secure authentication.
-const frontendIndex = fs.readFileSync(path.join(BACKEND_ROOT, '..', 'frontend', 'index.html'), 'utf8');
-const profileHtml = fs.readFileSync(path.join(BACKEND_ROOT, '..', 'frontend', 'create-account.html'), 'utf8');
+const frontendIndex = fs.readFileSync(path.join(BACKEND_ROOT, '..', 'frontend', 'pages', 'index.html'), 'utf8');
+const profileHtml = fs.readFileSync(path.join(BACKEND_ROOT, '..', 'frontend', 'pages', 'create-account.html'), 'utf8');
 const profileJs = fs.readFileSync(path.join(BACKEND_ROOT, '..', 'frontend', 'scripts', 'travel-profile-675a.js'), 'utf8');
 const shellJs = fs.readFileSync(path.join(BACKEND_ROOT, '..', 'frontend', 'scripts', 'shell-670f.js'), 'utf8');
 const lambdaJs = fs.readFileSync(path.join(BACKEND_ROOT, 'lambda.js'), 'utf8');

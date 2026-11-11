@@ -1,11 +1,12 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const FRONTEND_ROOT = require('node:path').resolve(__dirname, '..');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const root = FRONTEND_ROOT;
-const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const home = fs.readFileSync(path.join(root, 'scripts/home-live-674a.js'), 'utf8');
+const index = fs.readFileSync(frontendSourcePath(root, 'index.html'), 'utf8');
+const home = fs.readFileSync(frontendSourcePath(root, 'scripts/home-live-674a.js'), 'utf8');
 
 assert.doesNotMatch(index, /id="gv-trip-style"/, 'unsupported trip-style control is hidden until it has real backend semantics');
 assert.doesNotMatch(index, /value="Golf"/, 'unsupported Golf priority is not presented as functional');

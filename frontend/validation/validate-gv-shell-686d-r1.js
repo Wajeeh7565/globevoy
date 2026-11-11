@@ -1,4 +1,5 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const { promotedPageContentPreserved } = require('./page-layout-support.cjs');
 
 const fs = require('fs');
@@ -6,9 +7,9 @@ const path = require('path');
 const crypto = require('crypto');
 const { spawnSync } = require('child_process');
 const root = path.resolve(__dirname, '..');
-const read = (name) => fs.readFileSync(path.join(root, name), 'utf8');
-const hash = (name) => crypto.createHash('sha256').update(fs.readFileSync(path.join(root, name))).digest('hex');
-const exists = (name) => fs.existsSync(path.join(root, name));
+const read = (name) => fs.readFileSync(frontendSourcePath(root, name), 'utf8');
+const hash = (name) => crypto.createHash('sha256').update(fs.readFileSync(frontendSourcePath(root, name))).digest('hex');
+const exists = (name) => fs.existsSync(frontendSourcePath(root, name));
 const checks = [];
 const check = (name, pass, detail = '') => checks.push({ name, pass: Boolean(pass), detail });
 const release = JSON.parse(read('validation/releases/GV-SHELL-686D-R1-RELEASE.json'));
@@ -51,7 +52,7 @@ check('Shared shell itself makes no network request', !/\bfetch\s*\(|XMLHttpRequ
 check('Required desktop and mobile screenshots are packaged', exists('screenshots/gv-shell-686d-r1-desktop-home.jpg') && exists('screenshots/gv-shell-686d-r1-mobile-home-375.jpg'));
 check('Package contains no backend or Lambda runtime', !fs.readdirSync(root, { withFileTypes: true }).some((entry) => entry.isDirectory() && /^(backend|lambda|server|serverless)$/i.test(entry.name)));
 
-const master = spawnSync(process.execPath, [path.join(root, 'validation/validate-gv-rc-686d.js')], { cwd: root, encoding: 'utf8' });
+const master = spawnSync(process.execPath, [frontendSourcePath(root, 'validation/validate-gv-rc-686d.js')], { cwd: root, encoding: 'utf8' });
 check('Inherited 686D master remains fully green under the 705B-R3 successor', master.status === 0 && master.stdout.includes('total=51 pass=51 fail=0'), master.stderr || master.stdout);
 
 checks.forEach((item, index) => console.log(`${item.pass ? 'PASS' : 'FAIL'} ${String(index + 1).padStart(2, '0')} — ${item.name}${item.pass || !item.detail ? '' : ` :: ${String(item.detail).trim().split(/\r?\n/).slice(-1)[0]}`}`));

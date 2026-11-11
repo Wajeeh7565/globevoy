@@ -49,7 +49,7 @@ frontend:
     build:
       commands:
         - echo "Validating existing Globevoy frontend"
-        - test -f frontend/index.html
+        - test -f frontend/pages/index.html
         - echo "Validating and building React frontend"
         - npm --prefix web run typecheck
         - npm --prefix web run build
@@ -60,10 +60,7 @@ frontend:
         - echo "Composing legacy frontend plus React under /react"
         - rm -rf amplify-publish
         - mkdir -p amplify-publish
-        - cp -a frontend/. amplify-publish/
-        - rm -rf amplify-publish/react
-        - mkdir -p amplify-publish/react
-        - cp -a web/out/. amplify-publish/react/
+        - node ops/frontend/compose-site.mjs amplify-publish
         - echo "Validating composite artifact"
         - test -f amplify-publish/index.html
         - test -f amplify-publish/auth-callback.html

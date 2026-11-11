@@ -47,8 +47,8 @@ for (const name of fs.readdirSync(path.join(root, 'backend'))) {
   if (name.endsWith('.js') && !entryPoints.has(name)) failures.push(`Backend root is reserved for entry points: ${name}`);
 }
 for (const entry of fs.readdirSync(path.join(root, 'frontend'), { withFileTypes: true })) {
-  if (entry.isFile() && !entry.name.endsWith('.html') && !['favicon.ico', 'README.md'].includes(entry.name)) {
-    failures.push(`Frontend root is reserved for public pages, favicon and README: ${entry.name}`);
+  if (entry.isFile() && !['favicon.ico', 'README.md'].includes(entry.name)) {
+    failures.push(`Frontend root is reserved for favicon and README; HTML belongs in pages/: ${entry.name}`);
   }
   if (entry.name.endsWith('-fixture.html')) failures.push(`Move browser fixture under validation/fixtures: ${entry.name}`);
 }

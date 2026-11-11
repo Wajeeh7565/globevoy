@@ -6,24 +6,27 @@ import crypto from 'node:crypto';
 import vm from 'node:vm';
 import os from 'node:os';
 import {readPageLayout,compatibilityRedirectHtml,writeCompatibilityPages} from '../../ops/frontend/page-layout.mjs';
+import sourceLayout from '../../ops/frontend/source-layout.cjs';
 import layoutAssertions from '../../frontend/validation/page-layout-support.cjs';
 const layout=readPageLayout();
 const sha=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 
-test('unused designs are byte-preserved outside active source; only linked legacy screens remain',()=>{
+test('all active HTML is centralized and archived mockups stay byte-preserved',()=>{
  assert.equal(layout.archives.length,31);
- for(const item of layout.archives){assert.equal(fs.existsSync(item.from),false,item.from);assert.equal(sha(item.to),item.sha256,item.to)}
- assert.deepEqual(fs.readdirSync('frontend/pages').filter(n=>n.endsWith('.html')).sort(),layout.retainedLegacyPages);
- const publicNames=new Set(fs.readdirSync('frontend').filter(n=>n.endsWith('.html')));
+ for(const item of layout.archives){assert.equal(sha(item.to),item.sha256,item.to)}
+ assert.deepEqual(fs.readdirSync('frontend/pages').filter(n=>n.endsWith('.html')).sort(), [...layout.retainedLegacyPages,...layout.publicPageSources.map(item=>path.basename(item.to))].sort());
+ assert.equal(fs.readdirSync('frontend').filter(n=>n.endsWith('.html')).length,0);
+ const publicNames=new Set(layout.publicPageSources.map(item=>path.basename(item.to)));
  assert.equal(publicNames.size,22);
+ for(const item of layout.publicPageSources){assert.equal(fs.existsSync(item.from),false);assert.equal(sha(item.to),item.sha256,item.to);}
  for(const name of layout.retainedLegacyPages)assert.equal(publicNames.has(name),false,'Duplicate active page name: '+name);
- assert.ok(fs.readFileSync('frontend/about.html','utf8').includes('About Globevoy'));
+ assert.ok(fs.readFileSync('frontend/pages/about.html','utf8').includes('About Globevoy'));
 });
 
 test('promoted public content is real HTML with correct root asset paths and shell depth',()=>{
  assert.equal(layout.promotions.length,5);
  for(const item of layout.promotions){
-  assert.equal(fs.existsSync(item.from),false);const html=fs.readFileSync(item.to,'utf8');
+  const source=sourceLayout.frontendSourcePath('frontend',path.basename(item.to));const html=fs.readFileSync(source,'utf8');
   assert.equal(layoutAssertions.promotedPageContentPreserved(path.basename(item.to)),true);
   assert.equal(layoutAssertions.promotedPageContentPreserved(path.basename(item.to),html+'<p>Changed content</p>'),false);
   assert.ok(!html.includes('http-equiv="refresh"'),item.to);
@@ -31,7 +34,7 @@ test('promoted public content is real HTML with correct root asset paths and she
   for(const match of html.matchAll(/(?:src|href)=["']([^"']+)["']/g)){
    const value=match[1].split('?')[0].split('#')[0];
    if(!value||/^(?:[a-z]+:|\/\/)/i.test(value))continue;
-   const target=value.startsWith('/')?path.join('frontend',value):path.join(path.dirname(item.to),value);
+   const target=sourceLayout.frontendSourcePath('frontend',value.replace(/^\//,''));
    assert.ok(fs.existsSync(target),item.to+' -> '+value);
   }
  }
@@ -42,7 +45,7 @@ test('every former public URL has a safe compatibility redirect preserving query
  const queries=['','?returnTo=%2Freact%2Fmy-trips%2F&tag=a&tag=b','?code=synthetic-not-real&state=synthetic-not-real'];
  for(const [route,target]of Object.entries(layout.compatibilityRedirects)){
   assert.match(route,/^\/pages\/[a-z0-9-]+\.html$/);
-  assert.ok(target.startsWith('/react/')?fs.existsSync('web/app/'+target.slice(7)+'page.tsx'):fs.existsSync('frontend'+target),target);
+  assert.ok(target.startsWith('/react/')?fs.existsSync('web/app/'+target.slice(7)+'page.tsx'):fs.existsSync(sourceLayout.frontendSourcePath('frontend',target.slice(1))),target);
   const html=compatibilityRedirectHtml(target),script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
   assert.match(html,/compatibility-redirect/);assert.ok(!/<form\b/i.test(html));
   for(const search of queries){let destination;const hash='#saved-section';vm.runInNewContext(script,{window:{location:{search,hash,replace:value=>{destination=value}}}});assert.equal(destination,target+search+hash);assert.ok(!destination.startsWith('//'))}
@@ -53,8 +56,11 @@ test('every former public URL has a safe compatibility redirect preserving query
 test('release generation preserves legacy content, emits redirects and excludes archived designs',()=>{
  const output=fs.mkdtempSync(path.join(os.tmpdir(),'gv-page-layout-'));
  try{
-  fs.cpSync('frontend/pages',path.join(output,'pages'),{recursive:true});
-  for(const target of new Set(Object.values(layout.compatibilityRedirects))){const file=path.join(output,target.slice(1),target.endsWith('/')?'index.html':'');fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,target.startsWith('/react/')?'<h1>React fixture</h1>':fs.readFileSync('frontend'+target));}
+  sourceLayout.copyFrontendSource(output);
+  for(const item of layout.publicPageSources)assert.equal(sha(path.join(output,path.basename(item.to))),item.sha256,item.to);
+  assert.equal(fs.existsSync(path.join(output,'validation')),false);
+  assert.equal(fs.existsSync(path.join(output,'README.md')),false);
+  for(const target of new Set(Object.values(layout.compatibilityRedirects))){const file=path.join(output,target.slice(1),target.endsWith('/')?'index.html':'');fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,target.startsWith('/react/')?'<h1>React fixture</h1>':fs.readFileSync(sourceLayout.frontendSourcePath('frontend',target.slice(1))));}
   assert.equal(writeCompatibilityPages(output),36);
   for(const name of layout.retainedLegacyPages)assert.equal(sha(path.join(output,'pages',name)),sha(path.join('frontend/pages',name)));
   for(const route of Object.keys(layout.compatibilityRedirects)){const html=fs.readFileSync(path.join(output,route.slice(1)),'utf8');assert.match(html,/compatibility-redirect/);assert.ok(!html.includes('original-stitch-code-html'))}
@@ -79,6 +85,6 @@ test('retained legacy button routing still resolves from promoted root and neste
   const buttons=labels.map(textContent=>({textContent,handlers:[],addEventListener(_,fn){this.handlers.push(fn)}}));
   const window={location:{href:''}};
   vm.runInNewContext(script,{window,document:{body:{dataset:{depth:String(depth)}},querySelectorAll:()=>buttons}});
-  for(const button of buttons){assert.equal(button.handlers.length,1);button.handlers[0]();assert.ok(fs.existsSync(path.join('frontend',depth?'pages':'',window.location.href)),window.location.href)}
+  for(const button of buttons){assert.equal(button.handlers.length,1);button.handlers[0]();assert.ok(fs.existsSync(sourceLayout.frontendSourcePath('frontend',path.join(depth?'pages':'',window.location.href))),window.location.href)}
  }
 });

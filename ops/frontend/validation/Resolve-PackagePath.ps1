@@ -36,5 +36,6 @@ function Resolve-GVFrontendPackagePath([string]$RelativePath) {
     }
     $key = $RelativePath -replace '\\', '/'
     if ($movedPaths.ContainsKey($key)) { return Join-Path $repositoryRoot $movedPaths[$key] }
+    if ($key -match '^[^/\\]+\.html$') { return Join-Path (Join-Path $repositoryRoot 'frontend/pages') $key }
     return Join-Path (Join-Path $repositoryRoot 'frontend') $key
 }

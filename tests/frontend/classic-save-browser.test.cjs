@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const { chromium } = require('../../web/node_modules/playwright');
 const { generatedTours } = require('./generated-tour-fixtures.cjs');
 const saved = require('../../backend/services/accounts/saved-trips/staging-saved-trips-705c');
@@ -64,6 +65,7 @@ async function site(tour, signedIn=true) {
       const root=artifactRoot ? (isReact?path.join(artifactRoot,'react'):artifactRoot) : path.resolve(isReact?'web/out':'frontend');
       let file=path.resolve(root,'.'+(isReact?u.pathname.slice(6):u.pathname));
       if(u.pathname.endsWith('/'))file=path.join(file,'index.html');
+      if(!artifactRoot&&!isReact)file=frontendSourcePath(root,path.relative(root,file));
       if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){missing.push(u.pathname);return route.fulfill({status:404,body:'Missing offline asset'})}
       const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon','.woff2':'font/woff2','.txt':'text/plain'};
       return route.fulfill({status:200,contentType:mime[path.extname(file)]||'application/octet-stream',body:fs.readFileSync(file)});

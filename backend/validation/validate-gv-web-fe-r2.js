@@ -12,9 +12,9 @@ function main() {
   const checks = [];
   const pass = (name) => { checks.push(name); console.log(`[PASS] ${name}`); };
 
-  const account = read('frontend/account.html');
-  const myTrips = read('frontend/my-trips.html');
-  const savedTrips = read('frontend/saved-trips.html');
+  const account = read('frontend/pages/account.html');
+  const myTrips = read('frontend/pages/my-trips.html');
+  const savedTrips = read('frontend/pages/saved-trips.html');
   const shell = read('frontend/scripts/shell-670f.js');
   const production = read('backend/lambda.js');
 

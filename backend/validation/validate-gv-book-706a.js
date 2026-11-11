@@ -12,8 +12,8 @@ function main() {
   const checks = [];
   const pass = name => { checks.push(name); console.log(`[PASS] ${name}`); };
 
-  const myTripsHtml = read('frontend/my-trips.html');
-  const bookingHtml = read('frontend/booking.html');
+  const myTripsHtml = read('frontend/pages/my-trips.html');
+  const bookingHtml = read('frontend/pages/booking.html');
   const myTrips = read('frontend/scripts/my-trips-booking-706a.js');
   const bridge = read('frontend/scripts/booking-account-bridge-706a.js');
   const guard = read('frontend/scripts/booking-account-snapshot-706a.js');

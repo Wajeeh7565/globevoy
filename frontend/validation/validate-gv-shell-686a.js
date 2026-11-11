@@ -1,11 +1,12 @@
 'use strict';
+const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const root = path.resolve(__dirname, '..');
-const read = (name) => fs.readFileSync(path.join(root, name), 'utf8');
-const hash = (name) => crypto.createHash('sha256').update(fs.readFileSync(path.join(root, name))).digest('hex');
+const read = (name) => fs.readFileSync(frontendSourcePath(root, name), 'utf8');
+const hash = (name) => crypto.createHash('sha256').update(fs.readFileSync(frontendSourcePath(root, name))).digest('hex');
 const checks = [];
 const check = (name, pass) => checks.push({ name, pass: Boolean(pass) });
 

@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import sourceLayout from '../frontend/source-layout.cjs';
 import { writeCompatibilityPages } from '../frontend/page-layout.mjs';
 import { productionPolicySource } from './production-frontend-policy.mjs';
 import { verifyProductionFrontend } from './verify-production-frontend.mjs';
@@ -53,11 +54,7 @@ execFileSync(process.execPath, [path.join(root, 'web/node_modules/next/dist/bin/
  env:{...process.env,GLOBEVOY_PRODUCTION_POLICY_MODULE:policyModule,NEXT_PUBLIC_GLOBEVOY_API_BASE_URL:releaseConfig.apiBaseUrl,NEXT_PUBLIC_GLOBEVOY_LEGACY_ASSET_BASE_URL:'/assets'}
 });
 fs.mkdirSync(output, {recursive:true});
-for (const entry of fs.readdirSync(path.join(root,'frontend'),{withFileTypes:true})) {
- if ((!entry.isDirectory() && /\.(html|ico)$/.test(entry.name)) || ['assets','pages','runtime','scripts','styles'].includes(entry.name)) {
-  fs.cpSync(path.join(root,'frontend',entry.name),path.join(output,entry.name),{recursive:true,filter:p=>!p.endsWith('.d.ts')});
- }
-}
+sourceLayout.copyFrontendSource(output);
 fs.cpSync(path.join(root,'web/out'),path.join(output,'react'),{recursive:true});
 writeCompatibilityPages(output);
 const configPath=path.join(output,'runtime/config.js');
