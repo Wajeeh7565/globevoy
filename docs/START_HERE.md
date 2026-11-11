@@ -3,22 +3,15 @@
 Promotion preparation: see [releases/MAIN_CONSOLIDATION.md](releases/MAIN_CONSOLIDATION.md). After the approved promotion, use `main` for new work; this does not deploy the website.
 ## Pick the right baseline
 
-As inspected on November 6, 2026, **staging is the development integration branch**.
-It includes the service reorganization, account work, React work, and cleanup
-through PR #119. `main` still records the August 20 release baseline. It is 689
-commits behind staging by ancestry; this is not evidence that every staging feature
-has been deployed. See [branch inventory](BRANCHES.md) before choosing older work.
-
-For the next task, update staging and create one focused branch from it:
+Main promotion and the launch-first frontend fixes have merged. **Start new work from `main`** and use one focused branch per task:
 
 ```sh
 git fetch origin
-git switch -c codex/short-task-name origin/staging
+git switch -c codex/short-task-name origin/main
 npm test
 ```
 
-Use a clean checkout or commit your own work before changing branches. Open changes
-against staging. Promotion to main and production is a separate release decision.
+Open changes against `main`. Preserve existing staging systems and unmerged branches. A source merge does not authorize production publication. See the [frontend directory guide](../frontend/README.md) before moving public HTML or restoring old designs.
 
 ## Where things belong
 
@@ -32,7 +25,10 @@ against staging. Promotion to main and production is a separate release decision
 | `backend/services/domain/recommendations/` | Recommendations, quality and mixed results |
 | `backend/validation/` | All 40 backend validators, invoked by the grouped runner and CI |
 | `backend/data/` | Versioned runtime inputs, fixtures, and review data; inspect consumers before moving |
-| `frontend/` | Public HTML pages and favicon only at the root; website URLs remain stable |
+| `frontend/` | Public HTML entry points, favicon and directory guide; website URLs remain stable |
+| `frontend/pages/` | Three still-linked legacy screens; older design/state pages are archived |
+| `archive/frontend/design-pages/` | Byte-preserved reference screens, never published |
+| `ops/frontend/page-layout.json` | Promotion/archive inventory and compatibility URL mapping |
 | `frontend/runtime/`, `scripts/`, `styles/` | Classic configuration/API client, behavior, and CSS |
 | `frontend/validation/` | Validators, browser fixtures, release metadata and historical recorded results |
 | `ops/frontend/validation/`, `ops/frontend/smoke/` | PowerShell validation and deployment smoke tools |
@@ -65,7 +61,7 @@ stops at the first failed group; it does not include account, providers or web.
 For React checks, install the existing pinned dependencies first:
 
 ```sh
-npm install --prefix web --no-audit --no-fund --no-package-lock
+npm ci --prefix web --no-audit --no-fund
 npm run test:web
 npm run typecheck:web
 npm run build:web

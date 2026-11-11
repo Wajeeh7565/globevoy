@@ -115,3 +115,22 @@ test('Guest Save keeps the full tour locally and never calls the account API',as
     assert.ok(!s.statuses.some(r=>r.path==='/api/saved-trips'));
   }finally{await s.context.close()}
 });
+
+test('public page organization preserves content, assets and packaged legacy URLs',async()=>{
+ const s=await site(tours[0],false);
+ try{
+  for(const name of ['about.html','affiliate.html','privacy.html','terms.html','stays.html','ask.html']){
+   await s.page.goto(origin+'/'+name);await s.page.getByRole('heading',{level:1}).first().waitFor();
+   assert.ok((await s.page.getByRole('heading',{level:1}).first().textContent()).trim().length>0);
+   assert.equal(await s.page.locator('body').getAttribute('data-depth'),'0');
+  }
+  if(artifactRoot){
+   for(const [old,target]of [['about.html','/about.html'],['privacy.html','/privacy.html'],['advanced-search.html','/ask.html'],['account-settings.html','/react/account/']]){
+    const suffix='?returnTo=%2Freact%2Fmy-trips%2F&tag=a&tag=b#saved';
+    await s.page.goto(origin+'/pages/'+old+suffix);await s.page.waitForURL(origin+target+suffix);
+    assert.equal(new URL(s.page.url()).search,'?returnTo=%2Freact%2Fmy-trips%2F&tag=a&tag=b');assert.equal(new URL(s.page.url()).hash,'#saved');
+   }
+  }
+  assert.deepEqual(s.missing,[]);
+ }finally{await s.context.close()}
+});

@@ -1064,7 +1064,7 @@
     if (!modal || !authLink) return;
     const returnTo = `mixed-results.html?${query.toString()}`;
     $('#mx-signin-link').href = `sign-in.html?returnTo=${encodeURIComponent(returnTo)}`;
-    $('#mx-create-link').href = `pages/create-account.html?returnTo=${encodeURIComponent(returnTo)}`;
+    $('#mx-create-link').href = `create-account.html?returnTo=${encodeURIComponent(returnTo)}`;
     const open = (event) => {
       event?.preventDefault();
       modal.hidden = false;

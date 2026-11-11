@@ -1,0 +1,272 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Separate live public content from archived design/state screens while preserving published URLs.",
+  "retainedLegacyPages": [
+    "explore-curated.html",
+    "multi-city-results.html",
+    "trip-detail-single.html"
+  ],
+  "promotions": [
+    {
+      "from": "frontend/pages/advanced-search.html",
+      "to": "frontend/ask.html",
+      "originalSha256": "1f27d09f7a3b330d260e8035dd8635357ea4c34418fd382ba21dfc8ac2036394",
+      "promotedSha256": "fe0d5564558333e7ada6b91c16b20f05e2fcebf62ba533bb100cd22ffc272294",
+      "change": "Only relative asset paths and shell depth changed; original content is preserved."
+    },
+    {
+      "from": "frontend/pages/affiliate.html",
+      "to": "frontend/affiliate.html",
+      "originalSha256": "8e39cbd79e3a0ae3babfffeb1ff4415dee99ea909a28e0367126ff6ca43d6197",
+      "promotedSha256": "f9ca6e97243a9173632b39719cbb6630a0d90ce1d2cc019a1c1f805f79cde686",
+      "change": "Only relative asset paths and shell depth changed; original content is preserved."
+    },
+    {
+      "from": "frontend/pages/privacy.html",
+      "to": "frontend/privacy.html",
+      "originalSha256": "a65250434fcddea4b53ead1625de7090aa5e6364ca781d3117c6638f2c9f93bd",
+      "promotedSha256": "1a1e95c296829cd2e4ec9a6f2ae34df542a289526368a0967433bc4f19591f0f",
+      "change": "Only relative asset paths and shell depth changed; original content is preserved."
+    },
+    {
+      "from": "frontend/pages/stays.html",
+      "to": "frontend/stays.html",
+      "originalSha256": "5ca00820ec182ce09ed909d8b703d851975dceccb5f52cc7be2257f91a23b33b",
+      "promotedSha256": "780381bd94beb20db3eefb29ca8798267098e4d7c7bee337ec7405d15795fa92",
+      "change": "Only relative asset paths and shell depth changed; original content is preserved."
+    },
+    {
+      "from": "frontend/pages/terms.html",
+      "to": "frontend/terms.html",
+      "originalSha256": "2a35494b19c42a3bbb35c612bde30003026cc9af3848aba6ebc599d4bf59e92c",
+      "promotedSha256": "404090f9c1d994106c326958bd1c7d3f1d581387f7236a509b5c58cad8bca42b",
+      "change": "Only relative asset paths and shell depth changed; original content is preserved."
+    }
+  ],
+  "archives": [
+    {
+      "from": "frontend/pages/404-reference.html",
+      "to": "archive/frontend/design-pages/404-reference.html",
+      "sha256": "284065daafdcaca8ff32da1f56c076d97eb62fdae68dd43a3214b6a3b69465fa",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/about.html",
+      "to": "archive/frontend/design-pages/about.html",
+      "sha256": "c9ac34c4842b43a83ab9205bc5d12820d49612ff716c117104baaaf4e4301781",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/account-settings.html",
+      "to": "archive/frontend/design-pages/account-settings.html",
+      "sha256": "322f4459fc64c4cefbb2b90493e04767d48531ebc240a324747acaee88232729",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/account-verification.html",
+      "to": "archive/frontend/design-pages/account-verification.html",
+      "sha256": "522ee5eab33c70a79f10af231f8f85305256d0dc024cde0193d0269a5e7eac31",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/create-account.html",
+      "to": "archive/frontend/design-pages/create-account.html",
+      "sha256": "bf9eab94c674f24d12e75772fc597926b654d3cf7f6dd6b1fc846a8b57a01f2c",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/explore-all-eligible.html",
+      "to": "archive/frontend/design-pages/explore-all-eligible.html",
+      "sha256": "fa4c782a9947930e000f64c3848e628f2637191edf65cf51b95582e4dd128440",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/explore-edit-search-open.html",
+      "to": "archive/frontend/design-pages/explore-edit-search-open.html",
+      "sha256": "1cf0d96a7a8b586333bf077a2b8a5a96d14a74a3047b8d555e63aadd71e80725",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/explore-edit-search.html",
+      "to": "archive/frontend/design-pages/explore-edit-search.html",
+      "sha256": "c754772dc1525bb6a1e92dd3f4db624630feed6270ffd845effc5f105708813c",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/explore-empty-error.html",
+      "to": "archive/frontend/design-pages/explore-empty-error.html",
+      "sha256": "88daa1035edddf837671ad5d9cd59640d1c8ce3ea5be4b7f488a975ca04a6dde",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/explore-loading.html",
+      "to": "archive/frontend/design-pages/explore-loading.html",
+      "sha256": "5702c2327c59ab1757c9b48e956aef3ffb2f3208449f5b0eb49f411e6dce280d",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/flexible-date-states.html",
+      "to": "archive/frontend/design-pages/flexible-date-states.html",
+      "sha256": "ecef5389037a5763e5053ed18f9475f9413d861a34af53dbf020b6999f83a44b",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/flexible-dates.html",
+      "to": "archive/frontend/design-pages/flexible-dates.html",
+      "sha256": "23834ed3ff45e5e20399f7f8493a2cd852ed496c6f358821cda1ee7e0c2a137f",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/home-flexible-dates.html",
+      "to": "archive/frontend/design-pages/home-flexible-dates.html",
+      "sha256": "52802b96bac08acefca665633279fa0dbdf676ef17c842526245f8482d27a31c",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/how-it-works.html",
+      "to": "archive/frontend/design-pages/how-it-works.html",
+      "sha256": "5cae52e640b63e2682fae25d6a1909697bf266af7a2e9f98bd5f19b1d7b4a5ca",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/multi-city-edit-search.html",
+      "to": "archive/frontend/design-pages/multi-city-edit-search.html",
+      "sha256": "739c3d937c25af66ac7a929c0e50647612df831de3dba743cafb4ec86ac2696c",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/multi-city-error.html",
+      "to": "archive/frontend/design-pages/multi-city-error.html",
+      "sha256": "3be7348c023de63e2e11f9c88c01c081371f1c0f4769ae65d5d26ab3eb12044e",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/multi-city-loading.html",
+      "to": "archive/frontend/design-pages/multi-city-loading.html",
+      "sha256": "3c6374cca08c0ee093d04e442f599997dff0b76e2245f439868e919f907483d4",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/multi-city-logged-out.html",
+      "to": "archive/frontend/design-pages/multi-city-logged-out.html",
+      "sha256": "6e756ee96aaa2784e5d116f63f083aface18d4ab2a399737105bf17a4672299a",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/multi-city-no-route.html",
+      "to": "archive/frontend/design-pages/multi-city-no-route.html",
+      "sha256": "52744638c3342955415efe48fe612b8f483d17b5e3350b46799215ebbb052a7d",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/multi-city-signed-in.html",
+      "to": "archive/frontend/design-pages/multi-city-signed-in.html",
+      "sha256": "1c7d11ac999ee1310066b7fb91f07dfe089090bf6600a298c4bf87fb68edb8e0",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/password-reset.html",
+      "to": "archive/frontend/design-pages/password-reset.html",
+      "sha256": "2db9bbd84bc058fa639b3510fc8b01deb77204799109b0cf69d5183427776e0d",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/saved-trips.html",
+      "to": "archive/frontend/design-pages/saved-trips.html",
+      "sha256": "41db56fbf343baf09797960e6c5bb55232308e4e9199370e6f06d7fc53a8592f",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/sign-in.html",
+      "to": "archive/frontend/design-pages/sign-in.html",
+      "sha256": "ea2b6dcd02cd9dfc502a0522984de3f2632753b153e43617d535711132d61ca6",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/stays-empty.html",
+      "to": "archive/frontend/design-pages/stays-empty.html",
+      "sha256": "72ee2a15b933e404692ab49bda7c1db2d9431245f9696047a11a7b45e5bd4368",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/stays-selected-partial.html",
+      "to": "archive/frontend/design-pages/stays-selected-partial.html",
+      "sha256": "ad24ffa1a0343b7b7b239666d546977ee59f0149fcd997bd729e02ed7d5fe13c",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/travel-preferences.html",
+      "to": "archive/frontend/design-pages/travel-preferences.html",
+      "sha256": "04f1ef20e533eb45d53b316434dbcd63623fc1fbc94f59ba6fd898b1d52609cc",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/trip-detail-multi-city.html",
+      "to": "archive/frontend/design-pages/trip-detail-multi-city.html",
+      "sha256": "890aa5af29c39ed3ce93f1a4b59f31c32addbba5f76116f70b746b6d9df1262b",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/trip-detail-partial.html",
+      "to": "archive/frontend/design-pages/trip-detail-partial.html",
+      "sha256": "ffdd2d1d90199be0c14e9fe48c9620c4e6eeac8c9bf4f7ec591a701fae043f1e",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/trip-detail-partner-unavailable.html",
+      "to": "archive/frontend/design-pages/trip-detail-partner-unavailable.html",
+      "sha256": "a03a9a69139c2717af2a309e36a82f5288f1461516c928c273e687efb1c8e6bd",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/trip-detail-single-approval.html",
+      "to": "archive/frontend/design-pages/trip-detail-single-approval.html",
+      "sha256": "1cbd85aee71eb736855ad14bf721cf02518ac013945470d88c300ee1fb961644",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    },
+    {
+      "from": "frontend/pages/trust.html",
+      "to": "archive/frontend/design-pages/trust.html",
+      "sha256": "c783481fa5810f40fc1e51864d3494d94752fef833b8ada1bf99faebf0c94dd4",
+      "reason": "Superseded design/state screen; no active incoming route after consolidation."
+    }
+  ],
+  "compatibilityRedirects": {
+    "/pages/404-reference.html": "/index.html",
+    "/pages/about.html": "/about.html",
+    "/pages/account-settings.html": "/react/account/",
+    "/pages/account-verification.html": "/react/account/",
+    "/pages/advanced-search.html": "/ask.html",
+    "/pages/affiliate.html": "/affiliate.html",
+    "/pages/create-account.html": "/create-account.html",
+    "/pages/explore-all-eligible.html": "/explore.html",
+    "/pages/explore-edit-search-open.html": "/explore.html",
+    "/pages/explore-edit-search.html": "/explore.html",
+    "/pages/explore-empty-error.html": "/explore.html",
+    "/pages/explore-loading.html": "/explore.html",
+    "/pages/flexible-date-states.html": "/index.html",
+    "/pages/flexible-dates.html": "/index.html",
+    "/pages/home-flexible-dates.html": "/index.html",
+    "/pages/how-it-works.html": "/how-it-works.html",
+    "/pages/multi-city-edit-search.html": "/multi-city.html",
+    "/pages/multi-city-error.html": "/multi-city.html",
+    "/pages/multi-city-loading.html": "/multi-city.html",
+    "/pages/multi-city-logged-out.html": "/multi-city.html",
+    "/pages/multi-city-no-route.html": "/multi-city.html",
+    "/pages/multi-city-signed-in.html": "/multi-city.html",
+    "/pages/password-reset.html": "/sign-in.html",
+    "/pages/privacy.html": "/privacy.html",
+    "/pages/saved-trips.html": "/react/my-trips/",
+    "/pages/sign-in.html": "/sign-in.html",
+    "/pages/stays-empty.html": "/stays.html",
+    "/pages/stays-selected-partial.html": "/stays.html",
+    "/pages/stays.html": "/stays.html",
+    "/pages/terms.html": "/terms.html",
+    "/pages/travel-preferences.html": "/react/travel-profile/",
+    "/pages/trip-detail-multi-city.html": "/multi-city-trip.html",
+    "/pages/trip-detail-partial.html": "/trip.html",
+    "/pages/trip-detail-partner-unavailable.html": "/trip.html",
+    "/pages/trip-detail-single-approval.html": "/trip.html",
+    "/pages/trust.html": "/trust.html"
+  }
+}

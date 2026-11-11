@@ -1,4 +1,5 @@
 'use strict';
+const { promotedPageContentPreserved } = require('./page-layout-support.cjs');
 
 const fs = require('fs');
 const path = require('path');
@@ -38,7 +39,7 @@ check('Keyboard focus states are explicit', css.includes('.gv-brand:focus-visibl
 check('Shell still prevents page-level horizontal overflow', css.includes('body.gv-canonical{overflow-x:hidden!important'));
 check('All canonical shell pages load the FE-R3.1B cache-busted shared shell', shellPages.every((name) => { const value = read(name); return value.includes('shell.css?v=fe-r3-1b') && value.includes('shell-670f.js?v=fe-r3-1b'); }));
 check('Footer preserves secondary Plan, Learn and Legal links', ['Start a trip', 'Explore destinations', 'How it works', 'Trust and pricing', 'Privacy', 'Terms', 'Affiliate disclosure'].every((label) => shell.includes(label)));
-check('Legal root redirects remain byte-identical to 686D', hash('privacy.html') === '0632cff0a677b507ab27033e652308880d438ffe47f765b169888fc7c54f388b' && hash('terms.html') === 'a01c4c9013b63343f0d9619a03703e11c15164880c45380f0c0e7f231353b26a' && hash('affiliate.html') === 'e4d1c69ca73faa6e37b4d2639a397a73d085f677ec17ceedaa793754637dcb56');
+check('Legal content is preserved after consolidation into public root pages', ['privacy.html','terms.html','affiliate.html'].every(name => promotedPageContentPreserved(name)));
 check('Travel profile remains browser-local with no password field', read('create-account.html').includes('stored only in this browser') && !/type=["']password/i.test(read('create-account.html')));
 check('Sign-in boundary delegates to Cognito and has no password form', read('sign-in.html').includes('Amazon Cognito') && read('sign-in.html').includes('data-gv-auth-signin') && read('sign-in.html').includes('Continue as guest') && !/<form\b/i.test(read('sign-in.html')) && !/type=["']password/i.test(read('sign-in.html')));
 check('Legacy redirect remains unchanged', read('multi-city.html').includes("'multicity-visualizer.html'+location.search+location.hash"));

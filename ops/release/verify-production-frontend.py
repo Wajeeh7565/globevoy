@@ -19,7 +19,7 @@ def verify(target, configuration):
     for name in files:
         parts=pathlib.PurePosixPath(name).parts
         require(not name.startswith(('/', '\\')) and '..' not in parts and ':' not in name, 'Unsafe artifact path')
-        require(not any(p in ['node_modules','validation','screenshots'] or p.startswith('.env') for p in parts), 'Private/test content in artifact')
+        require(not any(p in ['node_modules','validation','screenshots','archive'] or p.startswith('.env') for p in parts), 'Private/test content in artifact')
     manifest=json.loads(files['release-manifest.json'])
     require(manifest.get('productionOnly') is True, 'Missing production-only build marker')
     require(set(files)==set(manifest['files'])|{'release-manifest.json'}, 'Manifest inventory mismatch')
