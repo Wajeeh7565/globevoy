@@ -1,0 +1,23 @@
+# Only local API runtime inputs enter the build context.
+**
+!Dockerfile
+!.dockerignore
+!package.json
+!backend/
+!backend/server.js
+!backend/services/
+!backend/services/**
+!backend/data/
+!backend/data/**
+
+# Keep local dependencies, generated output and credentials out of allowed trees.
+**/node_modules/**
+**/.cache/**
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*.log
+**/credentials

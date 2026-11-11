@@ -11,6 +11,7 @@ const groups = {
   browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs']],
 
   backend: [
+    ['node', '--test', 'tests/backend/server-http.test.cjs'],
     ['node', 'backend/validation/validate-gv-rec-687b-p3.js'],
     ['node', 'backend/validation/validate-gv-rec-687b.js'],
     ['node', 'backend/validation/validate-gv-data-701a.js'],
