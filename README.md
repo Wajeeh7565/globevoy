@@ -5,7 +5,7 @@ GlobeVoy contains the classic travel website, a React successor, and backend ser
 
 **Start with [docs/START_HERE.md](docs/START_HERE.md)** for the folder map, commands, and development workflow. See [docs/BRANCHES.md](docs/BRANCHES.md) before resuming an older branch.
 
-`staging` contains current integrated development and cleanup. `main` remains the older canonical release baseline described below. Branch contents alone do not establish deployment status.
+`main` is the current base for new work, including the merged classic/React production release fixes. Keep `staging` infrastructure separate. Source changes and production publication are separate decisions. See the [frontend directory guide](frontend/README.md) for public pages, retained legacy screens and archived designs.
 
 ## Recorded release baseline (August 2026)
 

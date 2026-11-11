@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
+import { writeCompatibilityPages } from '../frontend/page-layout.mjs';
 import { productionPolicySource } from './production-frontend-policy.mjs';
 import { verifyProductionFrontend } from './verify-production-frontend.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -58,6 +59,7 @@ for (const entry of fs.readdirSync(path.join(root,'frontend'),{withFileTypes:tru
  }
 }
 fs.cpSync(path.join(root,'web/out'),path.join(output,'react'),{recursive:true});
+writeCompatibilityPages(output);
 const configPath=path.join(output,'runtime/config.js');
 fs.writeFileSync(configPath,fs.readFileSync(configPath,'utf8').replace('YOUR_RESTRICTED_GOOGLE_MAPS_BROWSER_KEY',key));
 // The same file is loaded by classic HTML and by Next before hydration, so both

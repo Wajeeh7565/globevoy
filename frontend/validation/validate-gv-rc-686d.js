@@ -1,4 +1,5 @@
 'use strict';
+const { promotedPageContentPreserved } = require('./page-layout-support.cjs');
 
 const fs=require('fs');
 const path=require('path');
@@ -108,7 +109,7 @@ check('Visible wording distinguishes estimated total and reviewed status',render
 check('Visible boundary keeps booking status unknown to Globevoy',renderedWorkspace.includes('Globevoy stops before checkout')&&renderedWorkspace.includes('does not mean booked, paid or confirmed'));
 check('Primary workspace content avoids release-engineering terminology and hides sandbox proof',!/(GV-BOOK|GV-RC|683H|685B|686C|Lambda|API client)/.test(renderedWorkspace)&&workspaceCss.includes('>#gv-duffel-section,'));
 
-check('Legal pages remain byte-identical to 685D-R1',hash('privacy.html')==='0632cff0a677b507ab27033e652308880d438ffe47f765b169888fc7c54f388b'&&hash('terms.html')==='a01c4c9013b63343f0d9619a03703e11c15164880c45380f0c0e7f231353b26a'&&hash('affiliate.html')==='e4d1c69ca73faa6e37b4d2639a397a73d085f677ec17ceedaa793754637dcb56');
+check('Legal content is preserved after consolidation into public root pages', ['privacy.html','terms.html','affiliate.html'].every(name => promotedPageContentPreserved(name)));
 check('Unresolved legal/commercial gate is explicit',release.legalGate==='LEGAL-CONTENT-APPROVAL-REQUIRED'&&legalNote.includes('**LEGAL-CONTENT-APPROVAL-REQUIRED**')&&legalNote.includes('No approval is asserted'));
 
 const allPaths=filesUnder(root).map(file=>file.substring(root.length+1).replace(/\\/g,'/'));
