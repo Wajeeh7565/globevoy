@@ -44,6 +44,8 @@ Open changes against `main`. Preserve existing staging systems and unmerged bran
 
 ## Check your change
 
+For the local backend container, see [LOCAL_DOCKER.md](LOCAL_DOCKER.md).
+
 Node.js 22 or newer is required; the unified CI uses Node.js 24.
 
 ```sh
