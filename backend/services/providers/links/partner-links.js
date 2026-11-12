@@ -4,6 +4,8 @@ const { getDestination } = require('../../../data/destination-meta');
 const { wrapAviasalesAffiliateLink } = require('../flights/travelpayouts/travelpayouts');
 const { normalizeParty } = require('../../domain/pricing/traveller-pricing');
 const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('../../domain/pricing/price-evidence-integrity');
+const { classifyAgodaLandingUrl679AR1 } = require('../stays/agoda/agoda');
+const { isDuffelEvidence, usableDuffelEvidence } = require('../flights/duffel/live-evidence-integrity-005');
 
 const DEFAULT_AGODA_CID = process.env.AGODA_AFFILIATE_CID || process.env.AGODA_CID || '1963873';
 
@@ -143,7 +145,7 @@ function enrichFlightLeg(leg = {}, query = {}) {
     return next;
   }
   const evidence = providerEvidence(next);
-  const canonicalEvidence = evidence.priceEvidence || normalizeFlightEvidence({ ...evidence, sourceType: evidence.sourceType || SOURCE_TYPES.ESTIMATED }, {
+  let canonicalEvidence = evidence.priceEvidence || normalizeFlightEvidence({ ...evidence, sourceType: evidence.sourceType || SOURCE_TYPES.ESTIMATED }, {
     origin: endpointCode(next.from || {}), destination: endpointCode(next.to || {}),
     departureDate: legDepartureDate(next), currency: currencyFromQuery(query), sourceType: evidence.sourceType || SOURCE_TYPES.ESTIMATED
   });
@@ -151,14 +153,18 @@ function enrichFlightLeg(leg = {}, query = {}) {
   const origin = endpointCode(next.from || {});
   const destination = endpointCode(next.to || {});
   const passengers = passengersFromQuery(query);
-  const providerApplied = providerFareApplied(next);
+  const duffel = isDuffelEvidence(evidence);
+  const usableLive = !duffel || usableDuffelEvidence(evidence, { origin, destination, departureDate, passengers: passengers.travellers });
+  const providerApplied = providerFareApplied(next) && usableLive;
+  if (duffel && !usableLive) canonicalEvidence = { ...canonicalEvidence, sourceType: SOURCE_TYPES.UNAVAILABLE, isBookable: false, productionEligible: false };
   const exactVerified = !!(
     providerApplied
     && next?.providerVerification?.verified
     && next?.providerVerification?.exactDateMatch
     && next?.providerVerification?.productionEligible !== false
   );
-  const existingProviderUrl = exactVerified ? safeHttpsUrl(
+  // Duffel verifies prices; it supplies no Aviasales itinerary referral guarantee.
+  const existingProviderUrl = exactVerified && !duffel ? safeHttpsUrl(
     evidence.bookingLink || evidence.ticketLink || evidence.ticket_link || next.bookingUrl || next.providerUrl
   ) : null;
   const prefilledDirect = buildAviasalesOneWaySearchUrl({
@@ -211,7 +217,7 @@ function enrichFlightLeg(leg = {}, query = {}) {
     sourceType: canonicalEvidence.sourceType,
     evidenceId: canonicalEvidence.evidenceId,
     currentPriceConfirmed: canonicalEvidence.sourceType === SOURCE_TYPES.LIVE && canonicalEvidence.isBookable,
-    provider: providerApplied ? 'Travelpayouts/Aviasales' : 'Globevoy planning model',
+    provider: duffel ? 'Duffel' : providerApplied ? 'Travelpayouts/Aviasales' : 'Globevoy planning model',
     source: providerApplied ? (evidence.source || next.estimateSource || 'travelpayouts-provider-observation') : (next.estimateSource || next.dateSource || 'planning-estimate'),
     amountUsd,
     unitAmountUsd: Number(next?.pricingIntegrity?.unitAmountUsd || evidence.perPassengerAmountUsd || 0) || null,
@@ -240,17 +246,27 @@ function destinationRecordForStop(stop = {}) {
   return null;
 }
 
-function withAgodaAffiliateParams(rawUrl, { checkIn, checkOut, currency, city, adults, children, rooms }) {
-  const urlString = safeHttpsUrl(rawUrl);
+function withAgodaAffiliateParams(rawUrl, { checkIn, checkOut, currency, city, adults, children, rooms, hotelId }) {
+  const classified = classifyAgodaLandingUrl679AR1(rawUrl, hotelId);
+  const urlString = classified.url;
   if (!urlString) return null;
+  if (!checkIn || !checkOut || checkOut <= checkIn) return null;
   try {
     const url = new URL(urlString);
-    if (!/agoda\.com$/i.test(url.hostname) && !/\.agoda\.com$/i.test(url.hostname)) return url.toString();
-    if (checkIn) url.searchParams.set('checkIn', checkIn);
-    if (checkOut) url.searchParams.set('checkOut', checkOut);
-    url.searchParams.set('rooms', String(Math.max(1, Number(rooms) || Number(url.searchParams.get('rooms')) || 1)));
-    url.searchParams.set('adults', String(Math.max(1, Number(adults) || Number(url.searchParams.get('adults')) || 1)));
-    url.searchParams.set('children', String(Math.max(0, Number(children) || Number(url.searchParams.get('children')) || 0)));
+    const partnerSearch = classified.linkType === 'provider-search-results';
+    // Update existing aliases instead of appending contradictory guest/date values.
+    // Partner-search spellings follow Agoda's supplied landingURL contract.
+    function setContext(aliases, fallback, value) {
+      const keys = [...url.searchParams.keys()].filter(key => aliases.includes(key.toLowerCase()));
+      const selected = keys[0] || fallback;
+      for (const key of keys) url.searchParams.delete(key);
+      url.searchParams.set(selected, String(value));
+    }
+    setContext(['checkin'], partnerSearch ? 'checkin' : 'checkIn', checkIn);
+    setContext(['checkout'], partnerSearch ? 'checkout' : 'checkOut', checkOut);
+    setContext(['rooms'], partnerSearch ? 'Rooms' : 'rooms', passengersCount(rooms, 1));
+    setContext(['adults','numberofadults'], partnerSearch ? 'NumberofAdults' : 'adults', passengersCount(adults, 1));
+    setContext(['children','numberofchildren'], partnerSearch ? 'NumberofChildren' : 'children', passengersCount(children, 0));
     url.searchParams.set('currency', currency);
     url.searchParams.set('cid', url.searchParams.get('cid') || DEFAULT_AGODA_CID);
     url.searchParams.set('tag', url.searchParams.get('tag') || `globevoy-tour-${safeText(city).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`);
@@ -260,9 +276,11 @@ function withAgodaAffiliateParams(rawUrl, { checkIn, checkOut, currency, city, a
   }
 }
 
+function passengersCount(value, minimum) { return Math.max(minimum, Math.round(Number(value) || 0)); }
+
 function buildAgodaCitySearchUrl({ cityId, checkIn, checkOut, currency, city, adults, children, rooms }) {
   const numericCityId = Number(cityId);
-  if (!Number.isFinite(numericCityId) || numericCityId <= 0 || !checkIn || !checkOut) return null;
+  if (!Number.isSafeInteger(numericCityId) || numericCityId <= 0 || !checkIn || !checkOut || checkOut <= checkIn) return null;
   const url = new URL('https://www.agoda.com/search');
   url.searchParams.set('city', String(Math.round(numericCityId)));
   url.searchParams.set('checkIn', checkIn);
@@ -290,15 +308,20 @@ function enrichStay(stop = {}, query = {}) {
   const r2AgodaHandoff = agodaHandoffIntegrity679AR2Enabled()
     && String(providerHotel.provider || hotel.provider || hotel.source || '').trim().toLowerCase().includes('agoda')
     && String(providerHotel.priceLinkIntegrityVersion || hotel?.providerVerification?.priceLinkIntegrityVersion || '') === 'GV-HOTEL-679A-R1';
-  const rawHotelUrl = providerHotel.bookingUrl || hotel.hotelUrl || hotel.bookingUrl || hotel.providerUrl || hotel.url || null;
-  const specificHotelUrl = withAgodaAffiliateParams(rawHotelUrl, {
+  const hotelId = hotel.agodaHotelId || (String(providerHotel.provider || '').toLowerCase() === 'agoda' ? providerHotel.hotelId : null)
+    || (String(hotel.provider || '').toLowerCase() === 'agoda' ? hotel.hotelId : null);
+  const referrals = [providerHotel.bookingUrl, hotel.hotelUrl, hotel.bookingUrl, hotel.providerUrl, hotel.url].filter(Boolean)
+    .map(url => classifyAgodaLandingUrl679AR1(url, hotelId)).filter(link => link.url);
+  const selectedReferral = referrals.find(link => link.directPropertyLink) || referrals[0] || null;
+  const specificHotelUrl = withAgodaAffiliateParams(selectedReferral?.url, {
     checkIn,
     checkOut,
     currency,
     city: next.city,
     adults: passengers.adults,
     children: passengers.children,
-    rooms: passengers.rooms
+    rooms: passengers.rooms,
+    hotelId
   });
   const citySearchUrl = buildAgodaCitySearchUrl({
     cityId,
@@ -311,36 +334,48 @@ function enrichStay(stop = {}, query = {}) {
     rooms: passengers.rooms
   });
   const bookingUrl = specificHotelUrl || citySearchUrl;
-  const providerLinkType = r2AgodaHandoff
-    ? safeText(providerHotel.linkType || 'provider-link-unverified')
-    : null;
-  const directPropertyLink = r2AgodaHandoff && providerHotel.directPropertyLink === true;
-  const providerResultsLink = r2AgodaHandoff && providerLinkType === 'provider-search-results';
+  const directPropertyLink = Boolean(specificHotelUrl && selectedReferral?.directPropertyLink);
+  const providerResultsLink = Boolean(specificHotelUrl && selectedReferral?.linkType === 'provider-search-results');
   const sourceText = safeText(hotel.source || hotel.estimateSource || '').toLowerCase();
   const verification = hotel.providerVerification || {};
-  const providerRate = sourceText.includes('agoda')
+  const observationCheckIn = safeIsoDate(verification.checkIn || hotel.priceEvidence?.checkIn || hotel.checkIn);
+  const observationCheckOut = safeIsoDate(verification.checkOut || hotel.priceEvidence?.checkOut || hotel.checkOut);
+  const datesMatch = observationCheckIn === checkIn && observationCheckOut === checkOut;
+  const observedParty = verification.party || hotel.requestEvidence?.party;
+  const partyMatches = observedParty && ['adults', 'children', 'rooms'].every(key =>
+    Number(observedParty[key]) === passengers[key]);
+  const providerRate = sourceText.includes('agoda') && datesMatch && partyMatches
     && Number(hotel.estimatedStayUsd || hotel.totalStayUsd || 0) > 0
     && verification.verified === true
     && verification.exactStayDates === true
     && verification.productionEligible === true;
   const amountUsd = Number(hotel.estimatedStayUsd || hotel.totalStayUsd || 0) || null;
-  const canonicalEvidence = hotel.priceEvidence || normalizeHotelEvidence({ ...hotel, sourceType: providerRate ? SOURCE_TYPES.LIVE : SOURCE_TYPES.ESTIMATED }, {
+  let canonicalEvidence = hotel.priceEvidence || normalizeHotelEvidence({ ...hotel, sourceType: providerRate ? SOURCE_TYPES.LIVE : SOURCE_TYPES.ESTIMATED }, {
     city: next.city, checkIn, checkOut, currency
   });
+  if (canonicalEvidence.sourceType === SOURCE_TYPES.LIVE && !providerRate) {
+    canonicalEvidence = { ...canonicalEvidence, sourceType: SOURCE_TYPES.ESTIMATED, isBookable: false, productionEligible: false };
+  }
 
   hotel.agodaCityId = cityId;
   hotel.bookingUrl = bookingUrl;
   hotel.providerUrl = bookingUrl;
+  // Active classic booking consumers also read these legacy/provider aliases.
+  // Keep one validated destination; a raw/stale URL must not override context or
+  // resurrect a link rejected for identity/date validation.
+  for (const key of ['hotelUrl', 'url']) if (Object.hasOwn(hotel, key)) hotel[key] = bookingUrl;
+  if (hotel.providerHotel) hotel.providerHotel = { ...hotel.providerHotel, bookingUrl: specificHotelUrl };
   hotel.booking = {
     provider: 'Agoda',
     status: r2AgodaHandoff
       ? (directPropertyLink ? 'provider-property-page' : (specificHotelUrl ? (providerResultsLink ? 'provider-search-results' : 'provider-link-unverified') : (citySearchUrl ? 'prefilled-city-search' : 'unavailable')))
-      : (specificHotelUrl ? 'specific-hotel-deep-link' : (citySearchUrl ? 'prefilled-city-search' : 'unavailable')),
+      : (directPropertyLink ? 'specific-hotel-deep-link' : specificHotelUrl ? 'provider-search-results' : (citySearchUrl ? 'prefilled-city-search' : 'unavailable')),
     url: bookingUrl,
     label: r2AgodaHandoff
       ? (directPropertyLink ? 'View this hotel on Agoda' : (specificHotelUrl ? 'View in Agoda results' : (citySearchUrl ? 'View stays in this city' : 'Stay link unavailable')))
-      : (specificHotelUrl ? 'View this stay' : (citySearchUrl ? 'View stays in this city' : 'Stay link unavailable')),
-    specificHotel: r2AgodaHandoff ? directPropertyLink : !!specificHotelUrl,
+      : (directPropertyLink ? 'View this stay' : (specificHotelUrl ? 'View in Agoda results' : citySearchUrl ? 'View stays in this city' : 'Stay link unavailable')),
+    specificHotel: directPropertyLink,
+    selectedProviderHotelId: hotelId || null,
     prefilled: r2AgodaHandoff ? !directPropertyLink && !!bookingUrl : !!citySearchUrl,
     ...(r2AgodaHandoff ? {
       handoffIntegrityVersion: AGODA_HANDOFF_INTEGRITY_VERSION_679A_R2,

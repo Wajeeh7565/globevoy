@@ -135,7 +135,7 @@ function parseReviewCount(hotel) {
 function parseHotelId(hotel = {}) {
   const value = hotel.hotelId ?? hotel.hotel_id ?? hotel.propertyId ?? hotel.property_id ?? hotel.id;
   const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : null;
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
 }
 
 function secureHttpUrl(value) {
@@ -172,7 +172,7 @@ function parseOptionalBoolean(value) {
   return null;
 }
 
-function classifyAgodaLandingUrl679AR1(value) {
+function classifyAgodaLandingUrl679AR1(value, expectedHotelId = null) {
   const url = secureHttpUrl(value);
   if (!url) return {
     url: null,
@@ -182,21 +182,31 @@ function classifyAgodaLandingUrl679AR1(value) {
   };
   try {
     const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    if ((host !== 'agoda.com' && !host.endsWith('.agoda.com')) || parsed.username || parsed.password || (parsed.port && parsed.port !== '443')) {
+      return { url: null, linkType: 'none', directPropertyLink: false, finalDestinationRequiresPartnerConfirmation: true, reason: 'untrusted-agoda-url' };
+    }
     const path = String(parsed.pathname || '').toLowerCase();
     const isPartnerSearch = path.includes('/partners/partnersearch.aspx') || path.includes('/partnersearch.aspx');
-    const hasHotelId = Boolean(parsed.searchParams.get('hid') || parsed.searchParams.get('hotelid') || parsed.searchParams.get('hotel_id'));
-    const looksPropertyPage = !isPartnerSearch && /\.html$/i.test(path) && path.split('/').filter(Boolean).length >= 1;
+    const ids = [...parsed.searchParams].filter(([key]) => ['hid','hotelid','hotel_id'].includes(key.toLowerCase())).map(([,id])=>id);
+    const hasHotelId = ids.length > 0;
+    if (ids.some(id => !/^\d+$/.test(id) || !Number.isSafeInteger(Number(id)) || Number(id) <= 0) ||
+        new Set(ids.map(Number)).size > 1 || (expectedHotelId && ids.some(id => Number(id) !== Number(expectedHotelId)))) {
+      return { url: null, linkType: 'none', directPropertyLink: false, finalDestinationRequiresPartnerConfirmation: true, reason: 'hotel-identity-conflict' };
+    }
+    const looksPropertyPage = !isPartnerSearch && /\/hotel\//i.test(path) && /\.html$/i.test(path);
     return {
       url,
       linkType: looksPropertyPage ? 'provider-property-page' : (isPartnerSearch ? 'provider-search-results' : 'provider-link-unverified'),
       directPropertyLink: looksPropertyPage,
       providerHotelIdInLink: hasHotelId,
+      identityMatch: hasHotelId && expectedHotelId ? 'provider-id-match' : 'provider-supplied-url',
       finalDestinationRequiresPartnerConfirmation: !looksPropertyPage
     };
   } catch (_) {
     return {
-      url,
-      linkType: 'provider-link-unverified',
+      url: null,
+      linkType: 'none',
       directPropertyLink: false,
       finalDestinationRequiresPartnerConfirmation: true
     };
@@ -247,7 +257,9 @@ function buildProviderRateObservation679AR1(audit = null, hotel = {}, requestCur
 function buildProviderHotel679A(hotel = {}, requestCurrency, auditedRate = null) {
   if (!providerStayIntegration679AEnabled() || !hotel || typeof hotel !== 'object') return null;
   const hotelName = hotel.hotelName || hotel.name || hotel.propertyName || null;
-  const landing = classifyAgodaLandingUrl679AR1(hotel.landingURL || hotel.landingUrl || hotel.url);
+  const candidates = [hotel.landingURL, hotel.landingUrl, hotel.url].filter(Boolean)
+    .map(url => classifyAgodaLandingUrl679AR1(url, parseHotelId(hotel))).filter(link => link.url);
+  const landing = candidates.find(link => link.directPropertyLink) || candidates[0] || classifyAgodaLandingUrl679AR1(null);
   const bookingUrl = landing.url;
   const imageUrl = parseHotelImageUrl(hotel);
   const nightlyRate = parseRate(hotel) || null;

@@ -30,7 +30,7 @@ function raw(args, extra = {}) {
       passengers: 1, airline: 'Test Air', stops: 0, transfers: 0, durationMinutes: 120,
       liveMode: true, source: 'duffel-live-683d',
       providerReference: `off_${args.origin}_${args.destination}_${args.departureDate}`,
-      observedAt: '2026-09-15T00:00:00Z', expiresAt: '2026-09-16T00:00:00Z' }],
+      observedAt: new Date().toISOString(), expiresAt: new Date(Date.now()+3600000).toISOString() }],
     rateLimit: { limit: 120, remaining: 100, resetAtMs: 1000 }, ...extra
   };
 }

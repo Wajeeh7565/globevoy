@@ -78,6 +78,31 @@ async function site(tour, signedIn=true) {
   return {context,page,rows,postBodies,statuses,missing,visualizer,fail:v=>{failure=v},hold:p=>{gate=p}};
 }
 
+test('classic hotel CTA uses validated current context instead of the stale provider URL',async()=>{
+  const {enrichStay}=require('../../backend/services/providers/links/partner-links');
+  for(const property of [true,false]) {
+    const tour=structuredClone(tours[0]),stop={...tour.stays[0],arrivalDate:tour.stays[0].hotel.booking.checkIn,departureDate:tour.stays[0].hotel.booking.checkOut};
+    const oldUrl=property?'https://www.agoda.com/example/hotel/selected-city.html?hid=42&checkin=2020-01-01&NumberofChildren=2'
+      :'https://www.agoda.com/partners/partnersearch.aspx?hid=42&checkin=2020-01-01&NumberofChildren=2';
+    const enriched=enrichStay({...stop,hotel:{...stop.hotel,provider:'agoda',agodaHotelId:42,
+      providerHotel:{provider:'Agoda',hotelId:42,bookingUrl:oldUrl}}},{adults:1,children:0,rooms:1,currency:'CAD'});
+    tour.stays[0]=enriched;
+    const s=await site(tour,false);
+    try{
+      await s.visualizer();
+      await s.page.locator('#mcv-save-trip').waitFor();
+      const label=property?'Check this property on Agoda':'View selected property in Agoda results';
+      const button=s.page.locator('.mcv-mini-action').filter({hasText:label}).first();
+      assert.equal(await button.count(),1);
+      const url=new URL(await button.getAttribute('data-url'));
+      assert.equal(url.searchParams.get('hid'),'42');
+      assert.equal(url.searchParams.get('checkin'),enriched.arrivalDate);
+      assert.equal(url.searchParams.get('NumberofChildren'),'0');
+      assert.notEqual(url.href,oldUrl);
+    }finally{await s.context.close()}
+  }
+});
+
 for(const routeDetails of [false,true])test((routeDetails?'Route-details':'Classic visualizer')+' Save -> real React My Trips -> Delete, without network access',async()=>{
   const s=await site(tours[routeDetails?1:0]);
   try{
