@@ -3,6 +3,7 @@
 // One authority for the traveller-facing price badge. Amounts in this ledger
 // are party totals in ONE currency, never sums of rates and saved estimates.
 const VERSION = 'GV-LIVE-712';
+const hotelEvidence = require('../../providers/stays/nuitee/nuitee-hotel-708c')._internal;
 const MAX_AGE_MS = 5 * 60 * 1000; // Product freshness policy, not a price guarantee.
 const clean = (v) => String(v ?? '').trim();
 const currency = (v) => /^[A-Z]{3}$/.test(clean(v).toUpperCase()) ? clean(v).toUpperCase() : '';
@@ -28,6 +29,10 @@ function buildCurrentPricing(payload = {}, trip = {}, options = {}) {
   const displayCurrency = currency(payload.snapshot?.currency || trip.priceSnapshot?.currency || tour.displayBudget?.currency) || 'CAD';
   const party = tour.passengerPricing || {};
   const expectedTravellers = Number(party.travellers || party.passengers || Number(party.adults || 1) + Number(party.children || 0) + Number(party.infants || 0));
+  const hotelQuery = { ...party, adults: party.adults || expectedTravellers, rooms: party.rooms || 1,
+    occupancies: party.occupancies || party.roomOccupancies || trip.tripSnapshot?.occupancies,
+    childrenAges: party.childrenAges || party.childAges || trip.tripSnapshot?.childrenAges,
+    infantAges: party.infantAges || trip.tripSnapshot?.infantAges };
   const flights = Array.isArray(payload.flights) ? payload.flights : [];
   const hotels = Array.isArray(payload.hotels) ? payload.hotels : [];
   const reasons = new Set();
@@ -43,7 +48,7 @@ function buildCurrentPricing(payload = {}, trip = {}, options = {}) {
   }
   for (let index = 0; index < requiredHotels; index += 1) {
     const row = uniqueRow(hotels, index);
-    const valid = row && row.productionEligible === true && row.sandbox === false && row.environment === 'production' && row.availabilityVerified === true && row.priceVerified === true && row.dateConfirmed === true && row.travellerCount === expectedTravellers && Number.isInteger(row.roomCount) && row.roomCount > 0 && row.roomCount === Number(party.rooms || 1) && row.taxesAndFeesPresent === true && row.excludedFeesPresent === false && money(row.freshAmount) !== null && currency(row.currency) === displayCurrency && freshness(row, nowMs) && row.checkin && row.checkout && row.checkout > row.checkin;
+    const valid = row && hotelEvidence.matchesStayEvidence({ ...tour, legs }, stays[index], index, row, hotelQuery) && row.productionEligible === true && row.sandbox === false && row.environment === 'production' && row.availabilityVerified === true && row.priceVerified === true && row.dateConfirmed === true && row.travellerCount === expectedTravellers && Number.isInteger(row.roomCount) && row.roomCount > 0 && row.roomCount === Number(party.rooms || 1) && row.taxesAndFeesPresent === true && row.excludedFeesPresent === false && money(row.freshAmount) !== null && currency(row.currency) === displayCurrency && freshness(row, nowMs) && row.checkin && row.checkout && row.checkout > row.checkin;
     if (valid) eligibleHotels.push(row);
     else reasons.add(row?.providerReason || (!row ? 'hotel-unavailable' : currency(row.currency) !== displayCurrency ? 'hotel-currency-mismatch' : !freshness(row, nowMs) ? 'hotel-price-expired' : 'hotel-verification-incomplete'));
   }
@@ -61,7 +66,7 @@ function buildCurrentPricing(payload = {}, trip = {}, options = {}) {
   const planningTotal = currency(trip.priceSnapshot?.currency || displayCurrency) === displayCurrency ? money(trip.priceSnapshot?.tripEstimate ?? payload.snapshot?.savedTripTotal) : null;
   const budget = money(trip.priceSnapshot?.totalBudget);
   const reserve = Number(trip.priceSnapshot?.reserve || 0);
-  const bookingReady = complete && eligibleFlights.every((row) => row.handoffEnabled === true && /^https:\/\//.test(row.handoffUrl || '')) && eligibleHotels.every((row) => /^https:\/\//.test(row.handoffUrl || ''));
+  const bookingReady = complete && eligibleFlights.every((row) => row.handoffEnabled === true && /^https:\/\//.test(row.handoffUrl || '')) && eligibleHotels.every((row) => row.handoffPropertyVerified === true && /^https:\/\//.test(row.handoffUrl || ''));
   return {
     version: VERSION, status, label: status === 'live' ? 'Live' : status === 'partial' ? 'Partially live' : 'Estimate', currency: displayCurrency,
     currentTotal, planningTotal, flightsTotal, hotelsTotal, currentKnownSubtotal: liveRows.length ? sum(liveRows) : null,

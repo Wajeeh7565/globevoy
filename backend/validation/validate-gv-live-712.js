@@ -10,6 +10,7 @@ const hotel = require('../services/providers/stays/nuitee/nuitee-hotel-708c');
 const ledger = require('../services/domain/pricing/current-trip-total-712');
 const wrapper = require('../services/booking/revalidation/staging-booking-revalidation-708c');
 const base = require('../services/booking/revalidation/staging-booking-revalidation-707b');
+const partnerLinks = require('../services/providers/links/partner-links');
 const { parseHotelGuestContext } = require('../services/booking/context/hotel-guest-context-712');
 
 const NOW = '2026-09-10T12:00:00.000Z';
@@ -17,11 +18,14 @@ const EXPIRY = '2026-09-10T12:05:00.000Z';
 const ENV = { ENABLE_NUITEE_HOTEL_708C: 'true', NUITEE_GUEST_NATIONALITY: 'CA' };
 const response = (payload, status = 200) => ({ status, async text() { return JSON.stringify(payload); } });
 const clone = (x) => structuredClone(x);
+const priorFetch = global.fetch;
+test.before(() => { global.fetch = async () => { throw new Error('Unexpected network request in offline hotel regressions'); }; });
+test.after(() => { global.fetch = priorFetch; });
 function tour() {
   const cities = ['Toronto', 'Dublin'];
   const airports = ['YUL', 'YYZ', 'DUB', 'YUL'];
   return {
-    stops: cities.map((city, index) => ({ city, countryCode: index ? 'IE' : 'CA', nights: 3, checkin: index ? '2026-10-13' : '2026-10-10', checkout: index ? '2026-10-16' : '2026-10-13', hotel: { estimatedStayUsd: 100 } })),
+    stops: cities.map((city, index) => ({ city, countryCode: index ? 'IE' : 'CA', nights: 3, checkin: index ? '2026-10-13' : '2026-10-10', checkout: index ? '2026-10-16' : '2026-10-13', hotel: { nuiteeHotelId: city, estimatedStayUsd: 100 } })),
     legs: ['2026-10-10', '2026-10-13', '2026-10-16'].map((departureDate, index) => ({ mode: 'flight', from: { airportCode: airports[index], city: ['Montreal', ...cities][index] }, to: { airportCode: airports[index + 1], city: [...cities, 'Montreal'][index] }, departureDate, estimatedTransportUsd: 100 })),
     passengerPricing: { adults: 2, children: 0, infants: 0, rooms: 1, travellers: 2 },
     displayBudget: { currency: 'CAD', totalBudget: 2000, reserveAmount: 200, exchangeRateFromUsd: 1.35 }
@@ -44,7 +48,7 @@ function fakeProvider(options = {}) {
     requests.push({ url, body });
     assert.equal(init.method, 'POST');
     assert.ok([hotel.RATE_URL, hotel.PREBOOK_URL].includes(url), 'only Rates and PREBOOK are callable');
-    if (url === hotel.RATE_URL) return response(options.rates ? options.rates(body) : rates(body.cityName));
+    if (url === hotel.RATE_URL) return response(options.rates ? options.rates(body) : rates(body.hotelIds?.[0] || body.cityName));
     assert.equal(body.usePaymentSdk, false);
     const city = body.offerId.replace('private-', '');
     return response(options.prebook ? options.prebook(city) : prebook(city), options.prebookStatus || 200);
@@ -58,7 +62,7 @@ async function verify(options = {}, query = {}) {
 function livePayload() {
   return { ok: true, snapshot: { currency: 'CAD', savedTripTotal: 500 }, revalidation: { provider: 'Duffel' },
     flights: tour().legs.map((leg, index) => ({ index, sourceType: 'LIVE', productionEligible: true, providerPassengerCount: 2, departureDate: leg.departureDate, freshAmount: 100.15, currency: 'CAD', observedAt: NOW, expiresAt: EXPIRY, handoffEnabled: true, handoffUrl: 'https://www.aviasales.com/search/' })),
-    hotels: tour().stops.map((stop, index) => ({ ...stop, index, productionEligible: true, priceVerified: true, availabilityVerified: true, sandbox: false, environment: 'production', dateConfirmed: true, travellerCount: 2, roomCount: 1, taxesAndFeesPresent: true, excludedFeesPresent: false, freshAmount: 200.45, currency: 'CAD', observedAt: NOW, expiresAt: EXPIRY, handoffUrl: 'https://www.agoda.com/search' })) };
+    hotels: tour().stops.map((stop, index) => ({ ...stop, index, hotelId: stop.hotel.nuiteeHotelId, occupancies: [{ adults: 2, children: [] }], productionEligible: true, priceVerified: true, availabilityVerified: true, sandbox: false, environment: 'production', dateConfirmed: true, travellerCount: 2, roomCount: 1, taxesAndFeesPresent: true, excludedFeesPresent: false, freshAmount: 200.45, currency: 'CAD', observedAt: NOW, expiresAt: EXPIRY, handoffUrl: 'https://www.agoda.com/search' })) };
 }
 function price(payload = livePayload(), saved = trip(), now = NOW) { return ledger.buildCurrentPricing(payload, saved, { now }); }
 
@@ -106,6 +110,7 @@ test('overnight arrival sets the correct local hotel check-in; derived nights st
   const t = tour();
   delete t.stops[0].checkin;
   delete t.stops[0].checkout;
+  t.stops[0].nights = 2;
   t.legs[0].providerDateEvidence = { arrivalDate: '2026-10-11', sourceType: 'LIVE', productionEligible: true };
   const stay = hotel._internal.deriveStayWindow(t, t.stops[0], 0);
   assert.equal(stay.checkin, '2026-10-11');
@@ -182,13 +187,13 @@ test('4+ stops are checked; >12 stops are explicitly incomplete with at most two
   assert.ok(maxActive <= 2);
 });
 
-test('whole trip Live uses precise flight + hotel cents and all required handoffs', () => {
+test('whole trip Live uses precise flight + hotel cents without claiming an Agoda comparison is booking-ready', () => {
   const p = price();
   assert.equal(p.status, 'live');
   assert.equal(p.currentTotal, 701.35);
   assert.equal(p.flightsTotal, 300.45);
   assert.equal(p.hotelsTotal, 400.9);
-  assert.equal(p.bookingReady, true);
+  assert.equal(p.bookingReady, false, 'Agoda comparison cannot attest the Nuitee-priced property');
   assert.equal(p.expiresAt, EXPIRY);
   const payload = livePayload(); payload.hotels[1].handoffUrl = null;
   assert.equal(price(payload).currentTotal, 701.35);
@@ -309,4 +314,90 @@ test('no production Lambda activation or new booking/order/payment endpoints', (
   assert.doesNotMatch(production, /nuitee-hotel-708c|current-trip-total-712/);
   const adapter = fs.readFileSync(`${BACKEND_ROOT}/services/providers/stays/nuitee/nuitee-hotel-708c.js`, 'utf8');
   assert.doesNotMatch(adapter, /rates\/book|air\/orders/);
+});
+
+test('invalid explicit dates in every supported alias fail before any provider operation', async () => {
+  for (const key of ['arrivalDate', 'departureDate', 'checkin', 'checkIn', 'checkout', 'checkOut', 'hotel.checkin', 'hotel.checkIn', 'hotel.checkout', 'hotel.checkOut']) {
+    const t = tour();
+    delete t.stops[0].checkin; delete t.stops[0].checkout;
+    t.legs[0].providerDateEvidence = { arrivalDate: '2026-10-10', sourceType: 'LIVE', productionEligible: true };
+    if (key.startsWith('hotel.')) t.stops[0].hotel[key.slice(6)] = '2026-02-30';
+    else t.stops[0][key] = '2026-02-30';
+    assert.equal(hotel._internal.deriveStayWindow(t, t.stops[0], 0).dateConfirmed, false, key);
+    let calls = 0;
+    const result = await hotel.verifyTourHotels({ ...t, stops: [t.stops[0]] }, { adults: 1, rooms: 1, currency: 'CAD' },
+      { env: ENV, apiKey: 'prod_offline_fixture', now: NOW, fetch: async () => { calls++; throw new Error('Invalid date reached provider'); } });
+    assert.equal(calls, 0, key); assert.equal(result.providerRequests, 0);
+  }
+});
+
+test('invalid or contradictory nights and reversed flight stays cannot be recalculated', () => {
+  for (const nights of [0, -1, 1.5, false, 'invalid', 4]) {
+    const t = tour(); t.stops[0].nights = nights;
+    assert.equal(hotel._internal.deriveStayWindow(t, t.stops[0], 0).dateConfirmed, false, String(nights));
+  }
+  const t = tour(); delete t.stops[0].checkin; delete t.stops[0].checkout;
+  t.legs[0].providerDateEvidence = { arrivalDate: '2026-10-14', sourceType: 'LIVE', productionEligible: true };
+  assert.equal(hotel._internal.deriveStayWindow(t, t.stops[0], 0).reason, 'stay-flight-date-mismatch');
+  const aliases = tour(); aliases.stops[0].arrivalDate = '2026-10-11';
+  assert.equal(hotel._internal.deriveStayWindow(aliases, aliases.stops[0], 0).reason, 'stay-dates-invalid');
+});
+
+test('valid leap dates and flight-derived overnight arrivals retain exact stays', () => {
+  const t = { legs: [{ providerDateEvidence: { arrivalDate: '2028-02-29', sourceType: 'LIVE', productionEligible: true } }, { departureDate: '2028-03-02' }] };
+  assert.deepEqual(hotel._internal.deriveStayWindow(t, { nights: 2 }, 0), {
+    checkin: '2028-02-29', checkout: '2028-03-02', nights: 2, dateBasis: 'flight-arrival-and-outbound-date', dateConfirmed: true
+  });
+});
+
+test('selected Nuitee identity survives pricing and wrapper output; Agoda identity is separate', async () => {
+  const { result } = await verify();
+  assert.equal(result.rows[0].hotelId, 'Toronto');
+  assert.equal(result.rows[0].nuiteeHotelId, 'Toronto');
+  assert.equal(result.rows[0].selectedPropertyVerified, true);
+  assert.deepEqual(result.rows[0].occupancies, [{ adults: 2, children: [] }]);
+  const merged = wrapper._internal.mergeHotelRows([{ index: 0, handoffUrl: 'https://www.agoda.com/search' }], result)[0];
+  assert.equal(merged.hotelId, 'Toronto'); assert.equal(merged.handoffPropertyVerified, false);
+  assert.equal(merged.handoffLabel, 'Compare on Agoda');
+  assert.equal(hotel._internal.selectedNuiteeHotelId({ hotel: { provider: 'Agoda', hotelId: 42 } }), '');
+  assert.equal(hotel._internal.selectedNuiteeHotelId({ hotel: { provider: 'nuitee', hotelId: 'selected-42' } }), 'selected-42');
+  assert.throws(() => hotel._internal.selectedNuiteeHotelId({ hotel: { provider: 'Nuitee', hotelId: 'other', nuiteeHotelId: 'selected' } }));
+});
+
+test('wrong property and city discovery cannot attest the selected hotel price', async () => {
+  const wrong = await verify({ rates: () => rates('wrong-property') });
+  assert.equal(wrong.result.allLive, false);
+  assert.ok(wrong.requests.every(request => request.url === hotel.RATE_URL));
+  const t = tour(); t.stops.forEach(stop => { delete stop.hotel.nuiteeHotelId; });
+  const discovered = await verify({ tour: t });
+  assert.equal(discovered.result.allLive, false);
+  assert.equal(discovered.result.rows[0].hotelId, 'Toronto');
+  assert.equal(discovered.result.rows[0].reason, 'nuitee-hotel-identity-unconfirmed');
+});
+
+test('different property, stay dates or occupancy cannot enter the current trip budget', () => {
+  for (const patch of [{ hotelId: 'different-hotel' }, { checkin: '2026-10-11', checkout: '2026-10-14' },
+    { occupancies: [{ adults: 1, children: [] }] }, { occupancies: null }]) {
+    const payload = livePayload(); Object.assign(payload.hotels[0], patch);
+    const current = price(payload);
+    assert.equal(current.currentTotal, null); assert.equal(current.bookingReady, false);
+    assert.equal(current.planningTotal, 500);
+  }
+});
+
+test('conflicting provider occupancy is not accepted as verified availability', async () => {
+  const { result } = await verify({ prebook: city => prebook(city, { occupancies: [{ adults: 1, children: [] }] }) });
+  assert.equal(result.allLive, false);
+  assert.equal(result.rows[0].reason, 'prebook-occupancy-mismatch');
+});
+
+test('Agoda property URLs remain comparison links for Nuitee-priced properties', () => {
+  const output = partnerLinks.enrichStay({ city: 'Toronto', countryCode: 'CA', arrivalDate: '2026-10-10', departureDate: '2026-10-13',
+    hotel: { provider: 'Nuitee', nuiteeHotelId: 'selected-nuitee', hotelId: 'selected-nuitee',
+      bookingUrl: 'https://www.agoda.com/example/hotel/toronto-ca.html?hid=42' } }, { adults: 1, rooms: 1, currency: 'CAD' });
+  assert.equal(output.hotel.nuiteeHotelId, 'selected-nuitee');
+  assert.equal(output.hotel.booking.selectedProviderHotelId, null);
+  assert.equal(output.hotel.booking.specificHotel, false);
+  assert.equal(output.hotel.booking.trust.handoffState, 'comparison-search');
+  assert.equal(output.hotel.booking.trust.ctaLabel, 'Compare stays on Agoda');
 });

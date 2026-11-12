@@ -56,20 +56,36 @@ function departureDate(leg = {}) {
 }
 
 function deriveStayWindow(tour = {}, stop = {}, index = 0) {
-  const explicitCheckin = validIsoDate(stop.checkin || stop.checkIn || stop.arrivalDate || stop.hotel?.checkin);
-  const explicitCheckout = validIsoDate(stop.checkout || stop.checkOut || stop.departureDate || stop.hotel?.checkout);
+  const supplied = (values) => values.filter(value => value != null && value !== '');
+  const checkins = supplied([stop.checkin, stop.checkIn, stop.arrivalDate, stop.hotel?.checkin, stop.hotel?.checkIn]);
+  const checkouts = supplied([stop.checkout, stop.checkOut, stop.departureDate, stop.hotel?.checkout, stop.hotel?.checkOut]);
+  const explicitCheckin = validIsoDate(checkins[0]);
+  const explicitCheckout = validIsoDate(checkouts[0]);
   const nights = finite(stop.nights, null);
   const legs = Array.isArray(tour.legs) ? tour.legs : (Array.isArray(tour.backendLegs) ? tour.backendLegs : []);
-  const inbound = legs[index]?.providerDateEvidence || {};
+  const inbound = legs[index]?.providerDateEvidence || legs[index]?.cheapestOneWay || {};
   const arrival = validIsoDate(inbound.arrivalDate || legs[index]?.arrivalDate);
   const checkout = departureDate(legs[index + 1] || {});
   const invalid = { checkin: '', checkout: '', nights, dateBasis: 'unavailable', dateConfirmed: false };
+  const arrivalValues = supplied([inbound.arrivalDate, legs[index]?.arrivalDate]);
+  const outbound = legs[index + 1] || {};
+  const departureValues = supplied([outbound.providerDateEvidence?.departureDate,
+    outbound.departureDate || outbound.departOn || outbound.date || outbound.dateLabel]);
+  if (arrivalValues.some(value => !validIsoDate(value) || validIsoDate(value) !== arrival)
+      || departureValues.some(value => !validIsoDate(value) || validIsoDate(value) !== checkout)) return { ...invalid, reason: 'stay-flight-date-mismatch' };
+  if (stop.nights != null && (!Number.isInteger(nights) || nights < 1)) return { ...invalid, reason: 'stay-nights-invalid' };
+  if (checkins.some(value => !validIsoDate(value) || validIsoDate(value) !== explicitCheckin)
+      || checkouts.some(value => !validIsoDate(value) || validIsoDate(value) !== explicitCheckout)) return { ...invalid, reason: 'stay-dates-invalid' };
+  const durationMatches = (start, end) => nights === null || (Date.parse(end) - Date.parse(start)) / 86400000 === nights;
   if (explicitCheckin && explicitCheckout && explicitCheckout > explicitCheckin) {
     if ((arrival && arrival !== explicitCheckin) || (checkout && checkout !== explicitCheckout)) return { ...invalid, reason: 'stay-flight-date-mismatch' };
+    if (!durationMatches(explicitCheckin, explicitCheckout)) return { ...invalid, reason: 'stay-night-count-mismatch' };
     return { checkin: explicitCheckin, checkout: explicitCheckout, nights: (Date.parse(explicitCheckout) - Date.parse(explicitCheckin)) / 86400000, dateBasis: 'saved-stay-dates', dateConfirmed: true };
   }
-  if (explicitCheckin || explicitCheckout || clean(stop.checkin || stop.checkIn || stop.checkout || stop.checkOut)) return { ...invalid, reason: 'stay-dates-invalid' };
-  if (arrival && checkout && checkout > arrival) {
+  if (checkins.length || checkouts.length) return { ...invalid, reason: 'stay-dates-invalid' };
+  if (arrival && checkout) {
+    if (checkout <= arrival) return { ...invalid, reason: 'stay-flight-date-mismatch' };
+    if (!durationMatches(arrival, checkout)) return { ...invalid, reason: 'stay-night-count-mismatch' };
     return { checkin: arrival, checkout, nights: (Date.parse(checkout) - Date.parse(arrival)) / 86400000, dateBasis: 'flight-arrival-and-outbound-date', dateConfirmed: inbound.sourceType === 'LIVE' && inbound.productionEligible === true };
   }
   // Historical snapshots omit arrival day. A searched window may be displayed,
@@ -80,6 +96,24 @@ function deriveStayWindow(tour = {}, stop = {}, index = 0) {
     return { checkin, checkout, nights, dateBasis: 'saved-nights-plus-outbound-date', dateConfirmed: false };
   }
   return invalid;
+}
+
+function selectedNuiteeHotelId(stop = {}) {
+  const hotel = stop.hotel || {}, providerHotel = hotel.providerHotel || {};
+  const ids = [stop.nuiteeHotelId, hotel.nuiteeHotelId,
+    clean(hotel.provider).toLowerCase() === 'nuitee' ? hotel.hotelId : null,
+    clean(providerHotel.provider).toLowerCase() === 'nuitee' ? providerHotel.hotelId : null].map(clean).filter(Boolean);
+  if (new Set(ids).size > 1) throw Object.assign(new Error('nuitee-hotel-identity-conflict'), { code: 'nuitee-hotel-identity-conflict' });
+  return ids[0] || '';
+}
+
+function matchesStayEvidence(tour, stop, index, row, query) {
+  try {
+    const id = selectedNuiteeHotelId(stop), dates = deriveStayWindow(tour, stop, index);
+    if (!id || row.hotelId !== id || !dates.checkin || row.checkin !== dates.checkin || row.checkout !== dates.checkout || !Array.isArray(row.occupancies)) return false;
+    const expected = occupancyForQuery(query), observed = occupancyForQuery({ ...query, occupancies: row.occupancies });
+    return JSON.stringify(expected.occupancies) === JSON.stringify(observed.occupancies);
+  } catch (_) { return false; }
 }
 
 function resolveCountryCode(stop = {}) {
@@ -343,7 +377,7 @@ function searchBody(stop, query, stayWindow, countryCode, env = process.env) {
   const occupancy = occupancyForQuery(query);
   const guestNationality = validCountryCode(query.guestNationality || query.nationality || env.NUITEE_GUEST_NATIONALITY);
   if (!guestNationality) throw Object.assign(new Error('guest-nationality-required'), { code: 'guest-nationality-required' });
-  const hotelId = clean(stop.hotel?.nuiteeHotelId || (stop.hotel?.provider === 'Nuitee' ? stop.hotel?.hotelId : ''));
+  const hotelId = selectedNuiteeHotelId(stop);
   return {
     occupancies: occupancy.occupancies,
     currency: upper(query.currency || 'CAD') || 'CAD',
@@ -405,6 +439,9 @@ async function verifyStop(stop = {}, index = 0, tour = {}, query = {}, env = pro
     ...occupancy,
     guestNationality: body.guestNationality,
     provider: 'Nuitee',
+    hotelId: offer.hotelId,
+    nuiteeHotelId: offer.hotelId,
+    selectedPropertyVerified: Boolean(body.hotelIds?.[0] && body.hotelIds[0] === offer.hotelId),
     state: 'provider',
     availabilityVerified: false,
     priceVerified: false,
@@ -442,6 +479,12 @@ async function verifyStop(stop = {}, index = 0, tour = {}, query = {}, env = pro
   if (!clean(data.prebookId)) return { ...providerBacked, reason: 'prebook-confirmation-missing', providerRequests: 2 };
   if ((data.offerId && data.offerId !== offer.offerId) || (data.hotelId && data.hotelId !== offer.hotelId)) return { ...providerBacked, reason: 'prebook-offer-mismatch', providerRequests: 2 };
   if ((data.checkin && validIsoDate(data.checkin) !== body.checkin) || (data.checkout && validIsoDate(data.checkout) !== body.checkout)) return { ...providerBacked, reason: 'prebook-date-mismatch', providerRequests: 2 };
+  if (Object.hasOwn(data, 'occupancies')) {
+    try {
+      if (!Array.isArray(data.occupancies) || !data.occupancies.length
+          || JSON.stringify(occupancyForQuery({ ...query, occupancies: data.occupancies }).occupancies) !== JSON.stringify(body.occupancies)) throw new Error('occupancy-mismatch');
+    } catch (_) { return { ...providerBacked, reason: 'prebook-occupancy-mismatch', providerRequests: 2 }; }
+  }
   if (!(finalPrice.amount > 0) || !finalPrice.currency) {
     return { ...providerBacked, reason: 'prebook-final-price-missing', providerRequests: 2, prebookLatencyMs: prebook.latencyMs };
   }
@@ -451,7 +494,7 @@ async function verifyStop(stop = {}, index = 0, tour = {}, query = {}, env = pro
   const checkedAt = new Date(now()).toISOString();
   const providerExpiry = Date.parse(data.expiresAt || data.expires_at || '');
   const expiresAt = new Date(Math.min(now() + FRESHNESS_MS, Number.isFinite(providerExpiry) ? providerExpiry : Infinity)).toISOString();
-  const productionEligible = !sandbox && keyMode(apiKey) === 'production' && stayWindow.dateConfirmed === true && evidence.taxesAndFeesPresent && !evidence.excludedFeesPresent && Date.parse(expiresAt) > now();
+  const productionEligible = !sandbox && keyMode(apiKey) === 'production' && providerBacked.selectedPropertyVerified && stayWindow.dateConfirmed === true && evidence.taxesAndFeesPresent && !evidence.excludedFeesPresent && Date.parse(expiresAt) > now();
   return {
     ...providerBacked,
     state: 'verified',
@@ -471,7 +514,7 @@ async function verifyStop(stop = {}, index = 0, tour = {}, query = {}, env = pro
     excludedFeesPresent: evidence.excludedFeesPresent,
     roomNames: evidence.roomNames,
     evidence: sandbox ? 'Test rate checked ΓÇö not a live booking price' : 'Price and availability rechecked by provider',
-    reason: sandbox ? 'sandbox-evidence' : !stayWindow.dateConfirmed ? 'hotel-arrival-date-unconfirmed' : !evidence.taxesAndFeesPresent ? 'hotel-fees-unconfirmed' : evidence.excludedFeesPresent ? 'hotel-payable-fees-excluded' : Date.parse(expiresAt) <= now() ? 'prebook-expired' : null,
+    reason: sandbox ? 'sandbox-evidence' : !providerBacked.selectedPropertyVerified ? 'nuitee-hotel-identity-unconfirmed' : !stayWindow.dateConfirmed ? 'hotel-arrival-date-unconfirmed' : !evidence.taxesAndFeesPresent ? 'hotel-fees-unconfirmed' : evidence.excludedFeesPresent ? 'hotel-payable-fees-excluded' : Date.parse(expiresAt) <= now() ? 'prebook-expired' : null,
     providerRequests: 2,
     prebookLatencyMs: prebook.latencyMs
   };
@@ -566,6 +609,8 @@ module.exports = {
     dateMinusDays,
     departureDate,
     deriveStayWindow,
+    selectedNuiteeHotelId,
+    matchesStayEvidence,
     resolveCountryCode,
     firstImageUrl,
     selectOffer,

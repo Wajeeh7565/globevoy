@@ -334,7 +334,8 @@ function enrichStay(stop = {}, query = {}) {
     rooms: passengers.rooms
   });
   const bookingUrl = specificHotelUrl || citySearchUrl;
-  const directPropertyLink = Boolean(specificHotelUrl && selectedReferral?.directPropertyLink);
+  const nuiteePriced = Boolean(hotel.nuiteeHotelId) || [hotel.provider, hotel.source, providerHotel.provider].some(value => String(value || '').toLowerCase() === 'nuitee');
+  const directPropertyLink = !nuiteePriced && Boolean(specificHotelUrl && selectedReferral?.directPropertyLink);
   const providerResultsLink = Boolean(specificHotelUrl && selectedReferral?.linkType === 'provider-search-results');
   const sourceText = safeText(hotel.source || hotel.estimateSource || '').toLowerCase();
   const verification = hotel.providerVerification || {};
@@ -403,6 +404,12 @@ function enrichStay(stop = {}, query = {}) {
       ctaLabel: directPropertyLink ? 'Check this property on Agoda' : (specificHotelUrl ? 'View selected property in Agoda results' : (citySearchUrl ? 'Search stays in this city' : 'Stay link unavailable'))
     }
   };
+  if (nuiteePriced && bookingUrl) {
+    hotel.booking.label = 'Compare stays on Agoda';
+    hotel.booking.handoffPropertyVerified = false;
+    hotel.booking.trust.handoffState = 'comparison-search';
+    hotel.booking.trust.ctaLabel = 'Compare stays on Agoda';
+  }
   hotel.priceProvenance = {
     category: providerRate ? 'provider-rate-evidence' : 'planning-estimate',
     sourceType: canonicalEvidence.sourceType,

@@ -529,6 +529,10 @@ function mergeHotelRows(existingRows = [], hotelResult = {}) {
     return {
       ...saved,
       provider: evidence.provider,
+      hotelId: evidence.hotelId || null,
+      nuiteeHotelId: evidence.nuiteeHotelId || null,
+      selectedPropertyVerified: evidence.selectedPropertyVerified === true,
+      handoffPropertyVerified: false,
       providerState: evidence.state,
       state: evidence.availabilityVerified === true ? 'verified' : 'provider',
       availabilityVerified: evidence.availabilityVerified === true,

@@ -57,6 +57,7 @@ const groups = {
   ],
 
   providers: [
+    ['node', 'backend/validation/validate-gv-live-712.js'],
     ['node', 'backend/validation/validate-gv-flight-703c.js'],
     ['node', 'backend/validation/validate-gv-flight-703e.js'],
     ['node', 'backend/validation/validate-gv-web-707b.js'],
