@@ -1,0 +1,49 @@
+name: Full website Docker demo
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Dockerfile.fargate-demo*'
+      - 'backend/**'
+      - 'frontend/**'
+      - 'web/**'
+      - 'ops/docker/**'
+      - 'ops/frontend/**'
+      - 'tests/backend/full-site-demo.test.cjs'
+      - 'tests/frontend/full-site-demo-browser.test.cjs'
+      - '.github/workflows/docker-demo.yml'
+permissions:
+  contents: read
+jobs:
+  local-container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --prefix web --no-audit --no-fund
+      - run: cd web && npx playwright install --with-deps chromium
+      - run: docker build --platform linux/amd64 -t globevoy-full-demo -f Dockerfile.fargate-demo .
+      - name: Start limited local container
+        run: docker run -d --name gv-full-validation --cpus=0.25 --memory=512m -e GLOBEVOY_DEMO_ORIGIN=http://127.0.0.1:18787 -p 127.0.0.1:18787:8787 globevoy-full-demo
+      - name: Inspect actual composed artifact and HTTP/browser routes
+        env:
+          GLOBEVOY_DEMO_TEST_URL: http://127.0.0.1:18787
+        run: |
+          mkdir -p .cache/fargate-demo-site
+          docker cp gv-full-validation:/app/.cache/fargate-demo-site/. .cache/fargate-demo-site
+          node scripts/run-tests.mjs demo demo-browser
+      - name: Container health and logs
+        run: |
+          docker logs gv-full-validation
+          for i in $(seq 1 20); do
+            status=$(docker inspect --format '{{.State.Health.Status}}' gv-full-validation)
+            [ "$status" = healthy ] && exit 0
+            sleep 2
+          done
+          exit 1
+      - name: Stop local validation container
+        if: always()
+        run: docker rm -f gv-full-validation || true
