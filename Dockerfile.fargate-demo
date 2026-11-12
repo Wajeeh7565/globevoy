@@ -1,0 +1,26 @@
+FROM node:24-bookworm-slim AS build
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY web/package.json web/package-lock.json ./web/
+RUN npm ci --prefix web --no-audit --no-fund
+COPY web/ ./web/
+COPY frontend/ ./frontend/
+COPY ops/frontend/ ./ops/frontend/
+COPY ops/docker/ ./ops/docker/
+ENV GLOBEVOY_PRODUCTION_POLICY_MODULE=/app/ops/docker/demo-policy.cjs
+RUN npm --prefix web run build && node ops/docker/compose-demo.mjs .cache/fargate-demo-site
+
+FROM node:24-bookworm-slim AS runtime
+WORKDIR /app
+ENV NODE_ENV=production PORT=8787 GLOBEVOY_USE_MOCKS=true ENABLE_MULTICITY_ROUTE_610B=true ENABLE_GENERATED_TOUR_651A=true
+COPY package.json ./
+COPY backend/server.js ./backend/server.js
+COPY backend/services/ ./backend/services/
+COPY backend/data/ ./backend/data/
+COPY ops/docker/serve-demo.cjs ./ops/docker/serve-demo.cjs
+COPY --from=build /app/.cache/fargate-demo-site/ ./.cache/fargate-demo-site/
+USER node
+EXPOSE 8787
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+ CMD ["node", "-e", "fetch('http://127.0.0.1:8787/health',{signal:AbortSignal.timeout(3000)}).then(async r=>process.exit(r.status===200&&(await r.json()).ok===true?0:1)).catch(()=>process.exit(1))"]
+CMD ["node", "ops/docker/serve-demo.cjs"]

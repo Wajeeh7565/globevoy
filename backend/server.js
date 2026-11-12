@@ -529,6 +529,8 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, () => {
+if (require.main === module) server.listen(PORT, () => {
   console.log(`Globevoy API prototype listening on port ${PORT}`);
 });
+
+module.exports = server;
