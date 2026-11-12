@@ -10,6 +10,7 @@ on:
     branches:
       - staging
       - main
+      - codex/gv-docker-002-full-website-fargate
   workflow_dispatch:
 
 permissions:

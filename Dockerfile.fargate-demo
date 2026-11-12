@@ -7,7 +7,10 @@ COPY web/ ./web/
 COPY frontend/ ./frontend/
 COPY ops/frontend/ ./ops/frontend/
 COPY ops/docker/ ./ops/docker/
-ENV GLOBEVOY_PRODUCTION_POLICY_MODULE=/app/ops/docker/demo-policy.cjs
+COPY ops/release/production-frontend-policy.mjs ops/release/production-account-config.json ./ops/release/
+ARG GLOBEVOY_LAMBDA_TARGET=isolated
+RUN node ops/docker/prepare-policy.mjs "$GLOBEVOY_LAMBDA_TARGET"
+ENV GLOBEVOY_PRODUCTION_POLICY_MODULE=/app/.cache/docker-policy/environment-policy.cjs
 RUN npm --prefix web run build && node ops/docker/compose-demo.mjs .cache/fargate-demo-site
 
 FROM node:24-bookworm-slim AS runtime

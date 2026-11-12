@@ -3,8 +3,8 @@ import fs from 'node:fs';
 
 const groups = {
   demo: [['node', '--test', 'tests/backend/full-site-demo.test.cjs']],
-  'demo-browser': [['node', '--test', 'tests/frontend/full-site-demo-browser.test.cjs']],
-  release: [['node', '--test', 'tests/release/production-only-frontend.test.mjs'], ['node', '--test', 'tests/release/production-config.test.mjs'], ['node', '--test', 'tests/release/account-build-config.test.cjs']],
+  'demo-browser': [['node', '--test', 'tests/frontend/full-site-demo-browser.test.cjs'], ['node', '--test', 'tests/frontend/leaflet-demo-browser.test.cjs']],
+  release: [['node', '--test', 'tests/release/docker-lambda-targets.test.mjs'], ['node', '--test', 'tests/release/production-only-frontend.test.mjs'], ['node', '--test', 'tests/release/production-config.test.mjs'], ['node', '--test', 'tests/release/account-build-config.test.cjs']],
   repo: [
     ['node', '.github/scripts/validate-repo.mjs'],
     ['node', 'scripts/validate-organization.mjs']
@@ -13,6 +13,7 @@ const groups = {
   browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs']],
 
   backend: [
+    ['node', '--test', 'tests/backend/generated-tour-planning-dates.test.cjs'],
     ['node', '--test', 'tests/backend/server-http.test.cjs'],
     ['node', 'backend/validation/validate-gv-rec-687b-p3.js'],
     ['node', 'backend/validation/validate-gv-rec-687b.js'],

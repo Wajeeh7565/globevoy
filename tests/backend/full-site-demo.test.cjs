@@ -43,8 +43,7 @@ test('representative multi-city route works and generated-tour date guard remain
   for(const route of ['/api/multicity-tours','/api/generated-tour']) {
     const r=await fetch(base+route+query);assert.equal(r.status,200);
     const data=await r.json();if(route==='/api/multicity-tours') { assert.equal(data.supported,true); assert.ok(data.tours?.length); }
-    else if(data.supported) assert.ok(data.tour);
-    else { assert.equal(data.reason,'stale-or-mixed-itinerary-dates'); assert.equal(data.tour,null); assert.deepEqual(data.tours,[]); }
+    else { assert.equal(data.supported,true,data.reason); assert.ok(data.tour); assert.equal(data.tour.itineraryDatePlan.consistent,true); }
   }
 });
 test('API misses, unavailable accounts/admin and methods never become HTML',async()=>{
