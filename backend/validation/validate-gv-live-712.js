@@ -401,3 +401,185 @@ test('Agoda property URLs remain comparison links for Nuitee-priced properties',
   assert.equal(output.hotel.booking.trust.handoffState, 'comparison-search');
   assert.equal(output.hotel.booking.trust.ctaLabel, 'Compare stays on Agoda');
 });
+
+// Synthetic representation of the reported London sandbox search. IDs, names,
+// sessions and credentials below are fictional; no captured provider data is used.
+function londonSandboxRates() {
+  return { sandbox: true, data: [{ hotelId: 'synthetic-london-hotel', roomTypes: [{ offerId: 'synthetic-london-offer', rates: [{
+    name: 'Synthetic single room', retailRate: { total: [{ amount: 601.08, currency: 'USD' }],
+      taxesAndFees: [{ included: true }] }
+  }] }] }], hotels: [{ id: 'synthetic-london-hotel', name: 'Synthetic London Hotel' }] };
+}
+function londonSandboxTour(pinned = true) {
+  return { stops: [{ city: 'London', countryCode: 'GB', nights: 2, checkin: '2027-03-21', checkout: '2027-03-23',
+    hotel: { estimatedStayUsd: 300, ...(pinned ? { nuiteeHotelId: 'synthetic-london-hotel' } : {}) } }],
+  legs: [{ mode: 'flight', departureDate: '2027-03-20', providerDateEvidence: { arrivalDate: '2027-03-21', sourceType: 'LIVE', productionEligible: true } },
+    { mode: 'flight', departureDate: '2027-03-23' }], passengerPricing: { adults: 1, children: 0, infants: 0, travellers: 1, rooms: 1 } };
+}
+function londonMockPrebook() {
+  return { sandbox: true, data: { prebookId: 'private-synthetic-session', offerId: 'synthetic-london-offer', hotelId: 'synthetic-london-hotel',
+    price: 601.08, currency: 'USD', checkin: '2027-03-21', checkout: '2027-03-23', occupancies: [{ adults: 1, children: [] }],
+    roomTypes: clone(londonSandboxRates().data[0].roomTypes) } };
+}
+async function verifyLondonSandbox(options = {}) {
+  const requests = [], t = options.tour || londonSandboxTour(options.pinned !== false);
+  const result = await hotel.verifyTourHotels(t, { adults: 1, children: 0, infants: 0, travellers: 1, rooms: 1, currency: 'USD', guestNationality: 'CA' }, {
+    env: ENV, now: '2026-11-12T12:00:00.000Z', apiKey: options.credentialFailure ? undefined : options.key || 'sand_test',
+    ...(options.credentialFailure ? { secretId: 'synthetic-reference-only', getSecretValue: async () => { throw new Error('Synthetic credential lookup failure'); } } : {}),
+    fetch: async (url, init) => {
+      assert.ok([hotel.RATE_URL, hotel.PREBOOK_URL].includes(url));
+      assert.equal(init.method, 'POST');
+      requests.push({ url, body: JSON.parse(init.body) });
+      assert.ok(requests.length <= 2, 'one Rates and at most one mocked PREBOOK');
+      const phase = url === hotel.RATE_URL ? 'rates' : 'prebook';
+      if (options.throwAt === phase || options.readFailureAt === phase) {
+        const error = new Error('Synthetic transport failure');
+        error.name = options.errorName || 'Error';
+        if (options.errorCode) error.code = options.errorCode;
+        if (options.readFailureAt === phase) return { status: 200, text: async () => { throw error; } };
+        throw error;
+      }
+      if (url === hotel.RATE_URL) return response(options.rates ? options.rates() : londonSandboxRates(), options.ratesStatus || 200);
+      return response(options.prebook ? options.prebook() : londonMockPrebook(), options.prebookStatus || 200);
+    }
+  });
+  return { result, requests, tour: t };
+}
+function londonBudget(result, t) {
+  const saved = { tripSnapshot: { kind: 'multi', tour: { ...t, backendLegs: t.legs } },
+    priceSnapshot: { currency: 'USD', tripEstimate: 800, totalBudget: 1000, stayEstimate: 300 } };
+  const payload = { ok: true, snapshot: { currency: 'USD' }, hotels: [{ index: 0, savedEstimate: 300, currency: 'USD', state: 'estimate' }],
+    flights: t.legs.map((leg, index) => ({ index, sourceType: 'LIVE', productionEligible: true, providerPassengerCount: 1,
+      departureDate: leg.departureDate, freshAmount: 250, currency: 'USD', observedAt: '2026-11-12T12:00:00.000Z', expiresAt: '2026-11-12T12:05:00.000Z' })) };
+  return wrapper._internal.applyHotelEvidence(payload, result, saved, { now: '2026-11-12T12:00:00.000Z' });
+}
+
+test('reported sandbox shape extracts USD 601.08 as the complete stay total and exact property', () => {
+  const payload = londonSandboxRates(), selected = hotel._internal.selectOffer(payload, 'USD', 'synthetic-london-hotel');
+  assert.equal(payload.data.length, 1); assert.equal(payload.data[0].roomTypes.length, 1);
+  assert.equal(payload.data[0].roomTypes[0].rates.length, 1);
+  assert.equal(selected.amount, 601.08); assert.equal(selected.currency, 'USD');
+  assert.equal(selected.hotelId, 'synthetic-london-hotel'); assert.equal(selected.hotelName, 'Synthetic London Hotel');
+  assert.equal(selected.taxesAndFeesPresent, true); assert.equal(selected.excludedFeesPresent, false);
+});
+
+test('sandbox Rates and mocked PREBOOK retain dates, occupancy, fees and sandbox eligibility', async () => {
+  const { result, requests } = await verifyLondonSandbox();
+  assert.equal(requests.length, 2); assert.equal(result.providerRequests, 2);
+  assert.deepEqual(requests[0].body.occupancies, [{ adults: 1, children: [] }]);
+  assert.deepEqual(requests[0].body.hotelIds, ['synthetic-london-hotel']);
+  assert.equal(requests[0].body.checkin, '2027-03-21'); assert.equal(requests[0].body.checkout, '2027-03-23');
+  assert.deepEqual(requests[1].body, { offerId: 'synthetic-london-offer', usePaymentSdk: false });
+  const row = result.rows[0];
+  assert.equal(row.freshAmount, 601.08, 'do not multiply a stay total by nights or guests');
+  assert.equal(row.currency, 'USD'); assert.equal(row.hotelId, 'synthetic-london-hotel');
+  assert.equal(row.roomCount, 1); assert.equal(row.travellerCount, 1);
+  assert.equal(row.taxesAndFeesPresent, true); assert.equal(row.excludedFeesPresent, false);
+  assert.equal(row.selectedPropertyVerified, true); assert.equal(row.sandbox, true);
+  assert.equal(row.productionEligible, false); assert.equal(result.allLive, false); assert.equal(result.freshHotelTotal, null);
+  assert.doesNotMatch(JSON.stringify(result), /private-synthetic|synthetic-london-offer|sand_test|prebookId|offerId|X-API-Key/);
+});
+
+test('sandbox response markers override a production-shaped dummy credential', async () => {
+  const { result } = await verifyLondonSandbox({ key: 'prod_test_fixture' });
+  assert.equal(result.rows[0].sandbox, true); assert.equal(result.rows[0].productionEligible, false);
+  assert.equal(result.allLive, false);
+});
+
+test('successful sandbox hotel evidence preserves the saved budget rather than a live whole-trip total', async () => {
+  const { result, tour: t } = await verifyLondonSandbox();
+  const payload = londonBudget(result, t);
+  assert.equal(payload.hotels[0].freshAmount, 601.08);
+  assert.equal(payload.hotels[0].savedEstimate, 300);
+  assert.equal(payload.currentPricing.status, 'partial');
+  assert.equal(payload.currentPricing.hotelsTotal, null);
+  assert.equal(payload.currentPricing.currentTotal, null);
+  assert.equal(payload.currentPricing.planningTotal, 800);
+  assert.equal(payload.currentPricing.currentKnownSubtotal, 500);
+  assert.equal(payload.currentPricing.bookingReady, false);
+});
+
+test('London city discovery cannot verify a different selected property', async () => {
+  const discovery = await verifyLondonSandbox({ pinned: false, key: 'prod_test_fixture',
+    rates: () => ({ ...londonSandboxRates(), sandbox: false }), prebook: () => ({ ...londonMockPrebook(), sandbox: false }) });
+  assert.equal(discovery.result.rows[0].hotelId, 'synthetic-london-hotel');
+  assert.equal(discovery.result.rows[0].selectedPropertyVerified, false);
+  assert.equal(discovery.result.rows[0].reason, 'nuitee-hotel-identity-unconfirmed');
+  assert.equal(discovery.result.allLive, false);
+  const wrong = await verifyLondonSandbox({ rates: () => { const data = londonSandboxRates(); data.data[0].hotelId = 'different-synthetic-hotel'; return data; } });
+  assert.equal(wrong.requests.length, 1); assert.equal(wrong.result.rows[0].reason, 'no-priced-offer');
+});
+
+test('incomplete London rates never advance to PREBOOK or replace saved hotel estimates', async () => {
+  for (const mutate of [data => { delete data.data[0].roomTypes[0].offerId; },
+    data => { delete data.data[0].roomTypes[0].rates[0].retailRate.total[0].amount; },
+    data => { data.data[0].roomTypes[0].rates[0].retailRate.total[0].currency = 'EUR'; }]) {
+    const { result, requests, tour: t } = await verifyLondonSandbox({ rates: () => { const data = londonSandboxRates(); mutate(data); return data; } });
+    assert.equal(requests.length, 1); assert.equal(result.providerRequests, 1);
+    const payload = londonBudget(result, t);
+    assert.equal(payload.hotels[0].state, 'estimate'); assert.equal(payload.hotels[0].savedEstimate, 300);
+    assert.equal(payload.currentPricing.currentTotal, null); assert.equal(payload.currentPricing.planningTotal, 800);
+  }
+});
+
+test('incorrect mocked PREBOOK responses remain incomplete with accurate request counts', async () => {
+  for (const patch of [{ prebookId: null }, { hotelId: 'different-synthetic-hotel' }, { currency: 'EUR' },
+    { checkout: '2027-03-24' }, { occupancies: [{ adults: 2, children: [] }] }, { price: null, roomTypes: [] },
+    { roomTypes: [{ rates: {} }] }]) {
+    const { result, requests } = await verifyLondonSandbox({ prebook: () => { const data = londonMockPrebook(); Object.assign(data.data, patch); return data; } });
+    assert.equal(requests.length, 2);
+    assert.equal(result.rows[0].availabilityVerified, false); assert.equal(result.rows[0].productionEligible, false);
+    assert.equal(result.allLive, false); assert.equal(result.freshHotelTotal, null);
+    const budget = londonBudget(result, londonSandboxTour());
+    assert.equal(budget.currentPricing.currentTotal, null); assert.equal(budget.currentPricing.planningTotal, 800);
+    assert.equal(result.providerRequests, 2, JSON.stringify(patch));
+  }
+});
+
+test('malformed room, rate, total and fee collections return unavailable prices without throwing', async () => {
+  const malformed = [null, {}, [null], [{ rates: {} }], [{ rates: [null] }],
+    [{ rates: [{ retailRate: { total: { amount: 601.08, currency: 'USD' } } }] }],
+    [{ rates: [{ retailRate: { total: [], taxesAndFees: [] } }] }],
+    [{ rates: [{ retailRate: { total: [{ amount: 601.08, currency: 'USD' }], taxesAndFees: {} } }] }],
+    [{ rates: [{ retailRate: { total: [{ amount: 601.08, currency: 'USD' }], taxesAndFees: [null] } }] }]];
+  for (const roomTypes of malformed) {
+    const payload = londonMockPrebook(); payload.data.roomTypes = roomTypes;
+    assert.equal(hotel._internal.prebookPrice(payload).amount, null);
+    assert.equal(hotel._internal.prebookEvidence(payload).taxesAndFeesPresent, false);
+    const { result, requests } = await verifyLondonSandbox({ prebook: () => payload });
+    assert.equal(requests.length, 2); assert.equal(result.providerRequests, 2);
+    assert.equal(result.rows[0].priceVerified, false); assert.equal(result.rows[0].availabilityVerified, false);
+    assert.equal(result.allLive, false); assert.equal(result.freshHotelTotal, null);
+  }
+});
+
+test('transport errors and response-read failures count attempts independently of error codes', async () => {
+  for (const phase of ['rates', 'prebook']) for (const failure of [
+    { throwAt: phase, errorName: 'AbortError' }, { throwAt: phase, errorCode: 'ECONNRESET' }, { readFailureAt: phase }
+  ]) {
+    const { result, requests } = await verifyLondonSandbox(failure);
+    const count = phase === 'rates' ? 1 : 2;
+    assert.equal(requests.length, count); assert.equal(result.providerRequests, count);
+    assert.equal(result.rows[0].providerRequests, count); assert.equal(result.rows[0].attempted, true);
+    assert.equal(result.rows[0].availabilityVerified, false); assert.equal(result.allLive, false);
+    if (failure.errorName === 'AbortError') assert.equal(result.rows[0].reason, phase + '-timeout');
+  }
+});
+
+test('HTTP failures preserve Rates-only and Rates-plus-PREBOOK request counts', async () => {
+  for (const status of [401, 429, 500]) for (const phase of ['rates', 'prebook']) {
+    const { result, requests } = await verifyLondonSandbox({ [phase + 'Status']: status });
+    const count = phase === 'rates' ? 1 : 2;
+    assert.equal(requests.length, count); assert.equal(result.providerRequests, count);
+    assert.equal(result.rows[0].availabilityVerified, false); assert.equal(result.allLive, false);
+  }
+});
+
+test('date validation and mocked credential failures before transport report zero provider requests', async () => {
+  const invalid = londonSandboxTour(); invalid.stops[0].checkin = '2027-02-30';
+  for (const options of [{ tour: invalid }, { credentialFailure: true }]) {
+    const { result, requests } = await verifyLondonSandbox(options);
+    assert.equal(requests.length, 0); assert.equal(result.providerRequests, 0);
+    assert.equal(result.rows[0].attempted, false); assert.equal(result.rows[0].availabilityVerified, false);
+  }
+});

@@ -212,8 +212,20 @@ function selectOffer(payload = {}, currency = '', hotelId = '') {
   return valid.find((offer) => offer.refundableTag === 'RFN') || valid[0] || null;
 }
 
+function validRateCollections(data = {}) {
+  const record = value => value && typeof value === 'object' && !Array.isArray(value);
+  if (!record(data) || !Array.isArray(data.roomTypes) || !data.roomTypes.length) return false;
+  return data.roomTypes.every(room => record(room) && Array.isArray(room.rates) && room.rates.length > 0
+    && room.rates.every(rate => record(rate) && record(rate.retailRate)
+      && (rate.retailRate.total === undefined || (Array.isArray(rate.retailRate.total)
+        && rate.retailRate.total.length === 1 && record(rate.retailRate.total[0])))
+      && (rate.retailRate.taxesAndFees === undefined || (Array.isArray(rate.retailRate.taxesAndFees)
+        && rate.retailRate.taxesAndFees.every(record)))));
+}
+
 function prebookPrice(payload = {}) {
   const data = payload.data || {};
+  if (!validRateCollections(data)) return { amount: null, currency: '' };
   const direct = finite(data.price, null);
   if (direct !== null) {
     const currencies = (Array.isArray(data.roomTypes) ? data.roomTypes : []).flatMap((room) => [room.offerRetailRate?.currency, ...(room.rates || []).flatMap((rate) => (rate.retailRate?.total || []).map((total) => total.currency))]).filter(Boolean).map(upper);
@@ -251,6 +263,8 @@ function prebookPrice(payload = {}) {
 
 function prebookEvidence(payload = {}) {
   const data = payload.data || {};
+  if (!validRateCollections(data)) return { refundableTag: 'UNKNOWN', cancellationDetailsPresent: false,
+    taxesAndFeesPresent: false, excludedFeesPresent: false, roomNames: [] };
   let refundableTag = '';
   let cancellationDetailsPresent = false;
   let taxesAndFeesPresent = true;
@@ -319,6 +333,9 @@ async function postJson(url, body, apiKey, options = {}) {
   const timer = setTimeout(() => controller.abort(), finite(options.timeoutMs, TIMEOUT_MS) || TIMEOUT_MS);
   const started = Date.now();
   try {
+    // Count at the transport boundary, including attempts that time out or fail
+    // while reading/parsing a response. Validation/credential failures stay at zero.
+    if (options.requestAccounting) options.requestAccounting.count += 1;
     const response = await fetchImpl(url, {
       method: 'POST',
       headers: { accept: 'application/json', 'content-type': 'application/json', 'X-API-Key': apiKey },
@@ -533,18 +550,20 @@ async function verifyTourHotels(tour = {}, query = {}, options = {}) {
   const rows = new Array(stops.length);
   const deadline = Date.now() + Math.max(0, Math.min(55000, finite(options.totalTimeoutMs, 55000)));
   let nextIndex = 0;
-  const unavailable = (index, reason, attempted = false) => ({ index, city: clean(stops[index]?.city), provider: 'Nuitee', state: 'unavailable', availabilityVerified: false, productionEligible: false, attempted, reason, providerRequests: attempted ? 1 : 0, observedAt: new Date(options.now || Date.now()).toISOString() });
+  const unavailable = (index, reason, providerRequests = 0) => ({ index, city: clean(stops[index]?.city), provider: 'Nuitee', state: 'unavailable', availabilityVerified: false, productionEligible: false, attempted: providerRequests > 0, reason, providerRequests, observedAt: new Date(options.now || Date.now()).toISOString() });
   // Two bounded workers keep long routes responsive; every required stay gets
   // an explicit result even when it exceeds the provider-call budget.
   async function worker() {
     while (nextIndex < stops.length) {
       const index = nextIndex++;
       if (index >= MAX_STOPS || Date.now() >= deadline) { rows[index] = unavailable(index, index >= MAX_STOPS ? 'hotel-stop-limit-exceeded' : 'hotel-time-budget-exceeded'); continue; }
+      const requestAccounting = { count: 0 };
       try {
-        rows[index] = await verifyStop(stops[index], index, tour, query, env, { ...options, timeoutMs: Math.min(finite(options.timeoutMs, TIMEOUT_MS), Math.max(1, (deadline - Date.now()) / 2)) });
+        const row = await verifyStop(stops[index], index, tour, query, env, { ...options, requestAccounting, timeoutMs: Math.min(finite(options.timeoutMs, TIMEOUT_MS), Math.max(1, (deadline - Date.now()) / 2)) });
+        rows[index] = { ...row, attempted: requestAccounting.count > 0, providerRequests: requestAccounting.count };
       } catch (error) {
-        const reason = error?.name === 'AbortError' ? 'rates-timeout' : clean(error?.code || 'provider-unavailable');
-        rows[index] = unavailable(index, reason, error?.name === 'AbortError' || !error?.code);
+        const reason = error?.name === 'AbortError' ? (requestAccounting.count > 1 ? 'prebook-timeout' : 'rates-timeout') : clean(error?.code || 'provider-unavailable');
+        rows[index] = unavailable(index, reason, requestAccounting.count);
       }
     }
   }
