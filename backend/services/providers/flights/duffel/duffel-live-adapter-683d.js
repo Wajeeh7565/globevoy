@@ -278,6 +278,7 @@ async function searchExactDate683D(args = {}, options = {}) {
   try {
     response = await fetchImpl(endpoint, {
       method: 'POST',
+      redirect: 'error',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',

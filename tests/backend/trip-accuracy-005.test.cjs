@@ -6,6 +6,7 @@ const pilot = require('../../backend/services/domain/live-fares/public-live-fare
 const { usableDuffelEvidence } = require('../../backend/services/providers/flights/duffel/live-evidence-integrity-005');
 const { classifyAgodaLandingUrl679AR1: classify } = require('../../backend/services/providers/stays/agoda/agoda');
 const { enrichStay, enrichFlightLeg } = require('../../backend/services/providers/links/partner-links');
+const nativeFetch = globalThis.fetch;
 global.fetch = async () => { throw Error('Network forbidden in trip-accuracy tests'); };
 const env = { ENABLE_DUFFEL_LIVE_683D:'true', ENABLE_DUFFEL_SHADOW_683D:'true',
   DUFFEL_ACCESS_TOKEN:'duffel_live_offline', ENABLE_BOC_FX_683G:'true',
@@ -283,4 +284,72 @@ test('hotel observation identity and expiry cannot certify another selected prop
  input.hotel.providerVerification.hotelId=42;input.hotel.providerVerification.expiresAt='2020-01-01T00:00:00Z';assert.equal(enrichStay(input,query()).hotel.booking.trust.sourceType,'ESTIMATED');
  const valid=structuredClone(input);delete valid.hotel.providerVerification.expiresAt;assert.equal(enrichStay(valid,query()).hotel.booking.trust.sourceType,'LIVE');assert.equal(enrichStay(valid,query()).hotel.booking.handoffPropertyVerified,true);
  for(const patch of [{propertyId:43},{checkIn:'2027-03-19'},{checkOut:'2027-03-24'},{currency:'EUR'}]){const conflicting=structuredClone(valid);conflicting.hotel.priceEvidence={sourceType:'LIVE',...patch};assert.equal(enrichStay(conflicting,query()).hotel.booking.trust.sourceType,'ESTIMATED');}
+});
+
+
+// Local HTTP only: exercise native Node fetch rather than a mock that ignores redirects.
+test('Duffel redirects fail closed without following Location or disclosing credentials', async () => {
+  const http = require('node:http');
+  const adapter = require('../../backend/services/providers/flights/duffel/duffel-live-adapter-683d');
+  let status, initialRequests = 0, redirectedRequests = 0;
+  const server = http.createServer((req, res) => {
+    if (req.url.startsWith('/redirect-target')) {
+      redirectedRequests++;
+      res.writeHead(200, {'Content-Type':'application/json'});
+      res.end(JSON.stringify({data:{offers:[]}}));
+      return;
+    }
+    initialRequests++;
+    res.writeHead(status, {Location:'/redirect-target?private-marker=offline-secret-marker'});
+    res.end();
+  });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    for (status of [301, 302, 303, 307, 308]) {
+      let calls = 0;
+      const response = await adapter.searchExactDate683D({origin:'YYZ',destination:'LHR',departureDate:'2027-03-20',passengers:1,currency:'USD'}, {
+        env,
+        fetch:async (url, options) => {
+          calls++;
+          assert.equal(new URL(url).hostname, 'api.duffel.com');
+          assert.equal(options.method, 'POST');
+          assert.equal(options.redirect, 'error');
+          return nativeFetch('http://127.0.0.1:'+server.address().port+'/provider', options);
+        }
+      });
+      assert.equal(calls, 1);
+      assert.equal(response.supported, false);
+      assert.equal(response.requestCount, 1);
+      assert.deepEqual(response.observations, []);
+      assert.doesNotMatch(JSON.stringify(response), /duffel_live_offline|offline-secret-marker|redirect-target|Authorization/);
+    }
+    assert.equal(initialRequests, 5);
+    assert.equal(redirectedRequests, 0);
+  } finally {
+    server.closeAllConnections();
+    await new Promise(resolve => server.close(resolve));
+  }
+});
+
+test('three-flight pilot retains six total requests including its single 429 retry and metro fallback', async () => {
+  let calls = 0, time = Date.now();
+  const outbound = [];
+  const t = tour(), exactKeys = new Set(t.legs.map(l=>l.from.airportCode+'>'+l.to.airportCode));
+  const h = harness({
+    now683MR3:()=>time,
+    sleep683MR3:async ms=>{time+=ms;},
+    searchExact:async args=>{
+      calls++;outbound.push(args.origin+'>'+args.destination+'|'+args.departureDate);
+      if(calls===1)return {supported:false,statusCode:429,reason:'duffel-http-429',observations:[],rateLimit:{limit:100,remaining:0,resetAtMs:time+100}};
+      const exact=exactKeys.has(args.origin+'>'+args.destination);
+      return {...raw(args,{durationMinutes:exact?9999:120}),rateLimit:{limit:100,remaining:90,resetAtMs:time+60000}};
+    }
+  });
+  const result = await pilot.applyPublicLiveFarePilot684A(t,query(),h.options);
+  assert.equal(calls, 6, JSON.stringify(result.summary));
+  assert.equal(result.summary.providerRequests, 6);
+  assert.ok(result.summary.metroRequests>0, 'quality-triggered metro fallback exercised');
+  assert.equal(outbound.filter(key=>key===outbound[0]).length,2,'one initial attempt plus exactly one 429 retry');
+  assert.equal(result.summary.applied,false,'incomplete budget-limited evidence is not applied');
+  assert.notEqual(result.summary.allFlightLegsLive,true,'exhausted budget cannot become a fully verified itinerary');
 });
