@@ -7,6 +7,7 @@ function usableDuffelEvidence(evidence = {}, request = {}, nowMs = Date.now()) {
       evidence.appliedToEstimate === false || evidence.fareAmountBasis !== 'party-total') return false;
   const amount = Number(evidence.providerPartyTotalAmount ?? evidence.totalPrice ?? evidence.price);
   if (!(amount > 0) || !Number.isFinite(amount) || !/^[A-Z]{3}$/.test(evidence.providerCurrency || evidence.currency || '')) return false;
+  if (request.currency && (evidence.displayCurrency || evidence.currency || evidence.providerCurrency) !== request.currency) return false;
   for (const field of ['origin','destination','departureDate']) {
     const actual = field === 'origin' ? evidence.resolvedOrigin || evidence.origin
       : field === 'destination' ? evidence.resolvedDestination || evidence.destination : evidence.departureDate;

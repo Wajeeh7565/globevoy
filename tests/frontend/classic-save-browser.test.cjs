@@ -161,3 +161,22 @@ test('public page organization preserves content, assets and packaged legacy URL
   assert.deepEqual(s.missing,[]);
  }finally{await s.context.close()}
 });
+
+
+for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`Home -> itinerary -> booking workspace with honest referrals at ${viewport.width}px`,async()=>{
+ const s=await site(tours[0],false);
+ try{
+  await s.page.setViewportSize(viewport);await s.page.emulateMedia({reducedMotion:'reduce'});await s.page.goto(origin+'/');await s.page.locator('#gv-origin').fill('Toronto');await s.page.locator('.gv-origin-option').first().click();await s.page.locator('#gv-budget').fill('2500');await s.page.locator('#gv-search-submit').click();await s.page.locator('#mcv-save-trip').waitFor();
+  await s.page.locator('#mcv-flight-options').click();await s.page.waitForURL('**/multi-city-trip.html?**');await s.page.locator('#gv-mtd-booking').click();await s.page.waitForURL('**/booking.html?**');
+  await s.page.locator('#gv-booking-workspace').waitFor();
+  const model=await s.page.evaluate(()=>{const t=window.GlobevoyBooking673FR1?.tour;return window.GlobevoyBookingHub685D.buildJourney(t,new URLSearchParams(location.search))});
+  assert.ok(model.flightCount>=2);assert.ok(model.stayCount>=1);assert.ok(model.items.filter(i=>i.kind==='flight').every(i=>i.action==='Compare flights on Aviasales'));
+  assert.ok(model.items.filter(i=>i.kind==='stay'&&!i.evidence.propertyMatched).every(i=>!/Check this property/.test(i.action)));
+  if(viewport.width<660)await s.page.locator('.gv-workspace-summary > summary').click();
+  await s.page.getByRole('tab',{name:/Verify flights/}).click();const flightLink=s.page.locator('.gv-workspace-item a').first();await flightLink.waitFor();assert.match(await flightLink.innerText(),/Compare flights on Aviasales/);assert.match(await flightLink.getAttribute('href'),/^https:\/\/www.aviasales.com\/search\//);
+  assert.equal(await s.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
+  await s.page.evaluate(()=>document.addEventListener('click',e=>{if(e.target.closest('.gv-workspace-partner'))e.preventDefault();},true));await flightLink.click();assert.match(await s.page.locator('#gv-workspace-panel-2').innerText(),/Provider result reviewed/);assert.doesNotMatch(await s.page.locator('#gv-booking-workspace').innerText(),/Booking confirmed|Payment successful/);
+  await s.page.getByRole('tab',{name:/Verify stays/}).click();assert.match(await s.page.locator('#gv-booking-workspace').innerText(),/Estimated stay cost|Current rate unavailable/i);
+  assert.equal(s.postBodies.length,0,'reviewing referrals does not create an account save, reservation or payment');assert.deepEqual(s.missing,[]);
+ }finally{await s.context.close()}
+});

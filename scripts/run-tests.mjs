@@ -32,6 +32,7 @@ const groups = {
   ],
 
   frontend: [
+    ['node', 'frontend/validation/validate-gv-book-685d-frontend.js'],
     ['node', 'tests/frontend/validate-fixture-paths.mjs'],
     ['node', '--test', 'tests/frontend/page-layout.test.mjs'],
     ['node', '--test', 'tests/frontend/classic-saved-trip.test.cjs'],

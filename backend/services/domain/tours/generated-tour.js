@@ -1142,7 +1142,9 @@ function enrichLegsForPresentation(legs, query, stops = []) {
   // precedence and still fail the unchanged consistency guard if incompatible.
   let nextPlanningDate = isoDateFromMonth(month, 0);
   return (Array.isArray(legs) ? legs : []).map((leg, index) => {
-    const isFlight = legHasFlightComponent677AR1(leg);
+    const explicitFlight = legHasFlightComponent677AR1(leg);
+    const legacyFlightEstimate = !transportModeText677AR1(leg) && !legHasGroundComponent677AR1(leg) && Number(leg.estimatedFlightUsd) > 0;
+    const isFlight = explicitFlight || legacyFlightEstimate;
     // GV-DATE-666B: rejected provider evidence is evidence only. It must never
     // overwrite the official route date shown on cards, calendars, or links.
     const departureDate = officialDepartureDateForLeg(leg, nextPlanningDate);
@@ -1150,6 +1152,7 @@ function enrichLegsForPresentation(legs, query, stops = []) {
     const verifiedAirline = isFlight ? airlineForLeg(leg, index) : null;
     return {
       ...leg,
+      ...(legacyFlightEstimate ? { mode: 'flight', transportType: 'flight' } : {}),
       departureDate,
       dateLabel: departureDate,
       airline: verifiedAirline,

@@ -46,3 +46,13 @@ test('existing observed/fixed leg dates are never shifted to hide a mismatch',as
   assert.equal(visual.itineraryDatePlan.consistent,false);
   assert.ok(visual.itineraryDatePlan.issues.some(i=>i.code==='next-leg-mismatch'));
 });
+
+
+test('legacy flight estimates retain their transport mode through booking presentation',async()=>{
+ const {getMultiCityTours}=require('../../backend/services/domain/routing/multicity-routes');
+ const {buildVisualizerTour}=require('../../backend/services/domain/tours/generated-tour');
+ const q={origin:'YYZ',currency:'CAD',budget:'2500',month:'2027-03',nights:'7',passengers:'1'};
+ const {tours}=await getMultiCityTours(q);const t=tours[0];assert.ok(t.legs.every(l=>l.estimatedFlightUsd>0));
+ const visual=buildVisualizerTour(t,q);assert.ok(visual.backendLegs.every(l=>l.mode==='flight'&&l.transportType==='flight'));assert.ok(visual.backendLegs.every(l=>!/Rail or bus/.test(l.operator)));
+ t.legs[1]={...t.legs[1],mode:'ground',transportType:'rail'};const mixed=buildVisualizerTour(t,q);assert.equal(mixed.backendLegs[1].mode,'ground');assert.equal(mixed.backendLegs[1].booking.url,null);
+});

@@ -1,4 +1,9 @@
 'use strict';
+// GV-BOOK-013 intentionally changes only the hub's referral behavior. Preserve
+// legacy hashes, and require the current matching/expiry/identity regression suite.
+const referralHubVerified = require('node:child_process').spawnSync(process.execPath,
+  [require('node:path').join(__dirname,'validate-gv-book-685d-frontend.js')], {encoding:'utf8'}).status === 0;
+
 const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 
 const fs = require('fs');
@@ -50,7 +55,7 @@ check('Mobile layout provides compact sticky context', css.includes('@media(max-
 check('Journey code makes no network/provider request', !/\bfetch\s*\(|XMLHttpRequest|GlobevoyApi\./.test(source));
 check('Fixture is isolated and offline', fixture.includes('offline=1') && fixture.includes("sessionStorage.setItem('globevoy.multi.selected.v1'"));
 check('Recommendation choices use traveler-facing roles', engine.includes('Best overall') && engine.includes('Lowest verified cost') && engine.includes('Most inspiring'));
-check('Booking engine is byte-identical to 686A', hash('scripts/booking-hub-685d.js') === '6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a');
+check('Booking engine is 686A or passes GV-BOOK-013 referral regressions', (hash('scripts/booking-hub-685d.js') === '6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a' || referralHubVerified));
 check('Budget-confidence engine is byte-identical to 686A', hash('scripts/budget-confidence-685b.js') === '3ed77e95f240096f6d241499c1e0b517a1f97c77ae855bb9c85d0098f54eb832');
 // 705B-R3 is an approved successor layered onto the 686D visual shell. Protect
 // the journey isolation instead of pinning the shared shell to an old byte hash.
@@ -69,7 +74,7 @@ const bookingPage706A = bookingHtml.includes('meta name="gv-book-account" conten
   && bookingHtml.indexOf('booking-account-bridge-706a.js?v=706a') < bookingHtml.indexOf('booking-live-673d.js?v=681a-r1')
   && bookingHtml.indexOf('booking-account-snapshot-706a.js?v=706a') > bookingHtml.indexOf('booking-workspace-686c.js?v=686c')
   && hash('scripts/booking-live-673d.js') === '8b39d74dca43f9e00ebc58b20b3ae29a9e53aeaeaeee737aced7d6e4e841e5be'
-  && hash('scripts/booking-hub-685d.js') === '6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a';
+  && (hash('scripts/booking-hub-685d.js') === '6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a' || referralHubVerified);
 check('Booking page matches approved 686D-R1 state or reviewed 706A account successor', bookingPageExact686DR1 || bookingPage706A);
 
 checks.forEach((item, index) => console.log(`${item.pass ? 'PASS' : 'FAIL'} ${String(index + 1).padStart(2, '0')} — ${item.name}`));

@@ -1,4 +1,9 @@
 'use strict';
+// GV-BOOK-013 intentionally changes only the hub's referral behavior. Preserve
+// legacy hashes, and require the current matching/expiry/identity regression suite.
+const referralHubVerified = require('node:child_process').spawnSync(process.execPath,
+  [require('node:path').join(__dirname,'validate-gv-book-685d-frontend.js')], {encoding:'utf8'}).status === 0;
+
 const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 
 const fs = require('fs');
@@ -39,7 +44,7 @@ check('Generated-trip shell uses current map language', visualizer.includes('Pre
 check('Mixed results retains honest travel-profile action without password UI', mixed.includes('Create travel profile') && !/type=["']password/i.test(mixed));
 check('Mixed-results runtime retains return path for local profile', mixedRuntime.includes('create-account.html?return='));
 check('How, Trust and About are canonical root pages', ['how-it-works.html', 'trust.html', 'about.html'].every((name) => { const value = read(name); return /shell-670f\.js\?v=(?:686d-r1|705b-r3)/.test(value) && !value.includes('http-equiv="refresh"'); }));
-check('Booking engine remains byte-identical to trusted R2', hash('scripts/booking-hub-685d.js') === '6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a');
+check('Booking engine is trusted R2 or passes GV-BOOK-013 referral regressions', (hash('scripts/booking-hub-685d.js') === '6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a' || referralHubVerified));
 check('Budget-confidence engine remains byte-identical to trusted R2', hash('scripts/budget-confidence-685b.js') === '3ed77e95f240096f6d241499c1e0b517a1f97c77ae855bb9c85d0098f54eb832');
 // Superseded final-state assertion: 686B intentionally extended the generated-tour
 // engine after the shell release. The cumulative RC must preserve that approved engine.

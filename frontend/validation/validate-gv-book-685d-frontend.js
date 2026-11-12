@@ -28,7 +28,7 @@ function twoCityTour(){
   const first=flight(toronto,mexicoCity,'2026-11-01',420,{
     liveFareVerified:true,
     estimateSource:'duffel-public-live-fare-evidence-pilot-684a',
-    providerDateEvidence:{providerBacked:true,productionEligible:true,appliedToEstimate:true,departureDate:'2026-11-01',airline:'AC',stops:0,durationMinutes:300,providerReference:'duffel_offer_1',source:'duffel-live-683d',priceEvidence:{sourceType:'LIVE'},publicLiveFareEvidence684A:{version:'GV-FLIGHT-684A'}},
+    providerDateEvidence:{providerBacked:true,productionEligible:true,appliedToEstimate:true,departureDate:'2026-11-01',airline:'AC',stops:0,durationMinutes:300,providerReference:'duffel_offer_1',source:'duffel-live-683d',sourceType:'LIVE',liveMode:true,fareAmountBasis:'party-total',providerPartyTotalAmount:420,providerCurrency:'CAD',currency:'CAD',providerPassengerCount:2,origin:'YYZ',destination:'MEX',expiresAt:new Date(Date.now()+3600000).toISOString(),priceEvidence:{sourceType:'LIVE'},publicLiveFareEvidence684A:{version:'GV-FLIGHT-684A'}},
     booking:{directSearchUrl:aviasalesOne}
   });
   const second=flight(mexicoCity,merida,'2026-11-05',180,{booking:{directSearchUrl:'https://www.aviasales.com/search/MEX0511MID2?marker=globevoy-test'}});
@@ -83,25 +83,25 @@ check('7: total budget and current total are evaluated and shown',()=>{
   const state=hub.confidenceFor(two,params({currency:'CAD'}),confidence);assert.equal(state.budget,2500);assert.equal(state.total,2020);assert.equal(state.currency,'CAD');
 });
 check('8: whole-group budget wording is explicit',()=>{
-  const html=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'booking.html'),'utf8');const script=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'scripts/booking-hub-685d.js'),'utf8');assert.match(html,/Whole-group budget/);assert.match(html,/whole travelling group/i);assert.match(script,/not per-person/);
+  const html=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'pages/booking.html'),'utf8');const script=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'scripts/booking-hub-685d.js'),'utf8');assert.match(html,/Whole-group budget/);assert.match(html,/whole travelling group/i);assert.match(script,/not per-person/);
 });
 check('9: Duffel evidence stays distinct from Aviasales fulfilment',()=>{
-  const item=twoModel.items[0],html=hub.componentHtml(item,1);assert.equal(item.evidence.label,'Fare observed via Duffel');assert.equal(item.partner,'Aviasales');assert.match(html,/Fare observed via Duffel/);assert.match(html,/External fulfilment · Aviasales/);assert.doesNotMatch(html,/fare observed via Aviasales/i);
+  const item=twoModel.items[0],html=hub.componentHtml(item,1);assert.equal(item.evidence.label,'Fare observed via Duffel — not reserved');assert.equal(item.partner,'Aviasales');assert.match(html,/Fare observed via Duffel/);assert.match(html,/External fulfilment · Aviasales/);assert.doesNotMatch(html,/fare observed via Aviasales/i);
 });
 check('10: Aviasales links retain exact routes, dates and tracking',()=>{
   const urls=twoModel.items.filter(item=>item.kind==='flight').map(item=>item.url);assert.equal(urls[0],aviasalesOne);assert.match(urls[1],/MEX0511MID2/);assert.match(urls[2],/MID0811YYZ2/);assert.ok(urls.every(url=>url.includes('marker=globevoy-test')));
 });
 check('11: Agoda links retain city, dates, rooms, guests and CID',()=>{
-  const urls=twoModel.items.filter(item=>item.kind==='stay').map(item=>item.url);assert.equal(urls[0],agodaMexico);assert.equal(urls[1],agodaMerida);for(const url of urls){assert.match(url,/checkIn=2026-11-0[15]/);assert.match(url,/checkOut=2026-11-0[58]/);assert.match(url,/rooms=1/);assert.match(url,/adults=2/);assert.match(url,/cid=1891461/);}
+  const urls=twoModel.items.filter(item=>item.kind==='stay').map(item=>item.url);assert.equal(new URL(urls[0]).searchParams.get('city'),'Mexico City');assert.equal(new URL(urls[1]).searchParams.get('city'),'Merida');for(const url of urls){assert.match(url,/checkIn=2026-11-0[15]/);assert.match(url,/checkOut=2026-11-0[58]/);assert.match(url,/rooms=1/);assert.match(url,/adults=2/);assert.match(url,/cid=1891461/);}
 });
 check('12: provider-backed, partial and verification-required 685B labels survive',()=>{
   const partial=hub.confidenceFor(two,params(),confidence);assert.equal(partial.label,'Planning estimate — verify price');
-  const providerTour={...two,liveProviderVerification:{criticalCount:5,verifiedCount:5,allCriticalVerified:true,budgetClaim:'provider-backed-fit'}};assert.equal(hub.confidenceFor(providerTour,params(),confidence).label,'Provider-backed fit');
+  const providerTour={...two,liveProviderVerification:{criticalCount:5,verifiedCount:5,allCriticalVerified:true,budgetClaim:'provider-backed-fit'}};assert.equal(hub.confidenceFor(providerTour,params(),confidence).estimated,true,'summary flags cannot certify estimated hotels');
   const unverified={...two,liveProviderVerification:{criticalCount:5,verifiedCount:0}};assert.equal(hub.confidenceFor(unverified,params(),confidence).label,'Price verification required');
   const over={...providerTour,canonicalPricing:{...providerTour.canonicalPricing,canonicalDisplayTotal:2600}};assert.equal(hub.confidenceFor(over,params(),confidence).label,'Over budget');
 });
 check('13: active booking hub never says Estimated to fit budget',()=>{
-  const source=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'scripts/booking-hub-685d.js'),'utf8')+fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'booking.html'),'utf8');assert.doesNotMatch(source,/Estimated to fit budget/);
+  const source=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'scripts/booking-hub-685d.js'),'utf8')+fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'pages/booking.html'),'utf8');assert.doesNotMatch(source,/Estimated to fit budget/);
 });
 check('14: mobile layout has bounded single-column cards and no horizontal table',()=>{
   const css=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'styles/booking-hub-685d.css'),'utf8');assert.match(css,/@media\(max-width:760px\)/);assert.match(css,/\.gv-booking-journey-card\{grid-template-columns:1fr/);assert.match(css,/min-width:0/);assert.doesNotMatch(css,/table-layout|overflow-x:\s*(auto|scroll)/);
@@ -111,10 +111,31 @@ check('15: malformed optional provider details degrade safely',()=>{
 });
 
 check('integration: booking HTML loads 685B confidence before 685D and keeps semantic timeline',()=>{
-  const html=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'booking.html'),'utf8'),trustIndex=html.indexOf('budget-confidence-685b.js?v=685b'),hubIndex=html.indexOf('booking-hub-685d.js?v=685d');assert.ok(trustIndex>=0&&hubIndex>trustIndex);assert.match(html,/<ol id="gv-booking-timeline"/);assert.match(html,/Book with partners/);
+  const html=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'pages/booking.html'),'utf8'),trustIndex=html.indexOf('budget-confidence-685b.js?v=685b'),hubIndex=html.indexOf('booking-hub-685d.js?v=685d');assert.ok(trustIndex>=0&&hubIndex>trustIndex);assert.match(html,/<ol id="gv-booking-timeline"/);assert.match(html,/Book with partners/);
 });
 check('scope: no payment, order, backend, credential or one-click checkout expansion',()=>{
   const source=fs.readFileSync(require('node:path').join(FRONTEND_ROOT, 'scripts/booking-hub-685d.js'),'utf8');assert.doesNotMatch(source,/fetch\s*\(|XMLHttpRequest|\/air\/orders|createOrder\s*\(|createBooking\s*\(|payment_intent|DUFFEL_ACCESS_TOKEN|AGODA_[A-Z_]+/i);assert.doesNotMatch(source,/book everything|one.click/i);
+});
+
+check('16: expiry/matching checks cannot promote malformed Duffel evidence',()=>{
+ const original=twoCityTour().legs[0];for(const patch of [{expiresAt:'2020-01-01T00:00:00Z'},{departureDate:'2027-01-01'},{origin:'JFK'},{providerPassengerCount:3},{displayCurrency:'USD'},{liveMode:false}]){
+  const leg={...original,providerDateEvidence:{...original.providerDateEvidence,...patch}};const e=hub.flightEvidence(leg,{travellers:2,children:0,infants:0,currency:'CAD'});assert.equal(e.observed,false);assert.equal(e.sourceType,'UNAVAILABLE');assert.doesNotMatch(e.label,/not reserved/);
+ }
+ assert.equal(hub.safeDate('2027-02-30'),'');
+ const airport={...original,from:{city:'Toronto',displayCode:'YTO',airportCode:'YYZ'}};assert.equal(hub.flightEvidence(airport,{travellers:2,children:0,infants:0,currency:'CAD'}).observed,true,'display metro code must not replace the priced airport');
+});
+check('17: property handoffs differ from comparison searches and raw saved URLs cannot override context',()=>{
+ const stay={arrivalDate:'2027-03-20',departureDate:'2027-03-23',hotel:{provider:'Agoda',agodaHotelId:42,providerHotel:{provider:'Agoda',hotelId:42,bookingUrl:'https://www.agoda.com/wrong/hotel/old.html?hid=43'},booking:{url:'https://www.agoda.com/exact/hotel/toronto.html?hid=42&checkIn=2020-01-01&NumberofAdults=1&adults=4'}}};
+ const group={adults:2,children:1,rooms:2,currency:'USD'};const referral=hub.stayReferral(stay,group);assert.equal(referral.exact,true);const url=new URL(referral.url);assert.equal(url.searchParams.get('checkIn'),'2027-03-20');assert.equal(url.searchParams.get('NumberofAdults'),'2');assert.equal(url.searchParams.has('adults'),false);assert.equal(url.searchParams.get('rooms'),'2');
+ assert.equal(hub.hotelEvidence(stay).propertyMatched,true);
+ const search=structuredClone(stay);search.hotel.booking.url='https://www.agoda.com/partners/partnersearch.aspx?hid=42';assert.equal(hub.hotelEvidence(search).propertyMatched,false);
+ const nuitee=structuredClone(stay);nuitee.hotel.nuiteeHotelId='nuitee-42';assert.equal(hub.hotelEvidence(nuitee).propertyMatched,false);
+ for(const value of [null,'javascript:alert(1)','https://agoda.com.evil.test/x/hotel/test.html?hid=42','https://www.agoda.com/x/hotel/test.html?hid=43']){const bad=structuredClone(stay);bad.hotel.booking.url=value;assert.equal(hub.stayUrl(bad,group),'');}
+ const invalid=structuredClone(stay);invalid.departureDate='2027-02-30';assert.equal(hub.stayUrl(invalid,group),'');
+});
+check('18: flight comparison ignores stale or arbitrary raw provider links',()=>{
+ const t=twoCityTour(),leg=t.legs[0];leg.providerDateEvidence.bookingLink='https://evil.example/pay';leg.booking.directSearchUrl='https://www.aviasales.com/search/JFK0101MEX1';const url=hub.flightUrl(leg,0,t,2);assert.match(url,/YYZ0111MEX2$/);assert.doesNotMatch(url,/evil|JFK/);
+ const comparison=twoModel.items.find(item=>item.kind==='stay');assert.equal(comparison.action,'Compare stays on Agoda');assert.match(hub.componentHtml(twoModel.items[0],1),/Compare flights on Aviasales|Final fare and availability confirmed by the booking provider/);
 });
 
 const report={version:hub.VERSION,generatedAt:new Date().toISOString(),passed,failed:0,checks};

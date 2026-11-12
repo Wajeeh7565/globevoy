@@ -36,7 +36,7 @@ export function loadSource(relative, mocks = {}, cache = new Map()) {
   return module.exports;
 }
 
-const { formatReviewMoney, reviewPricing, flightComparisonLabel } = loadSource('lib/trip-review-pricing-712c.ts');
+const { formatReviewMoney, reviewPricing, flightComparisonLabel, flightReferral, hotelReferral } = loadSource('lib/trip-review-pricing-712c.ts');
 const now = Date.parse('2026-09-11T04:00:00Z');
 const session = { accessToken: 'test-only', user: { sub: 'owner-a' } };
 const trip = {
@@ -54,7 +54,7 @@ export function fixture() {
       requiredHotels: 2, liveHotels: 0, checkedAt: new Date(now).toISOString(), expiresAt: new Date(now + 300000).toISOString(), withinBudget: null
     },
     hotelRevalidation: { allVerified: true, hotelAdjustedTripEstimate: null, totalCount: 2, verifiedCount: 2, liveCount: 0, attempted: true },
-    flights: [{ index: 0, origin: 'YYZ', destination: 'CUN', departureDate: '2026-11-10', freshAmount: 236, currency: 'CAD', sourceType: 'LIVE', handoffEnabled: true, handoffUrl: 'https://www.aviasales.com/search' }],
+    flights: [{ index: 0, origin: 'YYZ', destination: 'CUN', departureDate: '2026-11-10', freshAmount: 236, currency: 'CAD', sourceType: 'LIVE', productionEligible:true, expiresAt:new Date(now+300000).toISOString(), handoffEnabled: true, handoffUrl: 'https://www.aviasales.com/search/YYZ1011CUN1' }],
     hotels: ['Cancún', 'Philadelphia'].map((city, index) => ({ index, city, nights: index ? 3 : 4, currency: 'CAD', savedEstimate: 400, freshAmount: 300,
       state: 'verified', availabilityVerified: true, sandbox: true, environment: 'sandbox', productionEligible: false, handoffUrl: 'https://www.agoda.com/test-only' }))
   };
@@ -100,7 +100,7 @@ test('rendered 712B case never shows a zero full total or a sandbox hotel bookin
   assert.match(html, /Partially live/);
   assert.match(html, /\$1,051/);
   assert.match(html, /Sandbox test rate/);
-  assert.match(html, /Compare on Aviasales/);
+  assert.match(html, /Compare flights on Aviasales/);
   assert.match(html, /its flights and prices may differ/);
   assert.doesNotMatch(html, />\$0<|Fresh trip evidence|Within saved budget|href="https:\/\/www.agoda.com\/test-only"/);
 });
@@ -145,7 +145,7 @@ test('initial review asks for a check without claiming unavailable or zero price
 });
 
 test('comparison labels distinguish Aviasales hosts from unrelated hosts', () => {
-  assert.equal(flightComparisonLabel('https://www.aviasales.com/search'), 'Compare on Aviasales');
+  assert.equal(flightComparisonLabel('https://www.aviasales.com/search'), 'Compare flights on Aviasales');
   assert.equal(flightComparisonLabel('https://aviasales.com.example.org'), 'Compare with flight partner');
   assert.equal(flightComparisonLabel(null), 'Compare with flight partner');
 });
@@ -209,4 +209,20 @@ test('rendered saved trip cards retain estimate status and current-price action'
   assert.match(view.html, /gv-evidence--estimate/);
   assert.match(view.html, /Check current prices/);
   assert.match(view.html, /checks current provider evidence before partner handoff/);
+});
+
+
+test('flight handoffs require fresh matching validated evidence and a separate Aviasales comparison',()=>{
+ const flight=fixture().flights[0];assert.equal(flightReferral(flight,now),flight.handoffUrl);
+ for(const patch of [{expiresAt:null},{expiresAt:new Date(now-1).toISOString()},{productionEligible:false},{handoffUrl:'https://www.aviasales.com/search/JFK1011CUN1'},{handoffUrl:'https://duffel.com/pay/offer'},{freshAmount:0},{departureDate:'2026-02-30'}])assert.equal(flightReferral({...flight,...patch},now),null);
+ const html=renderReview(fixture());assert.match(html,/Fare observed via Duffel — not reserved/);assert.match(html,/Final fare and availability confirmed by the booking provider/);
+ const stale=fixture();stale.flights[0].expiresAt=new Date(now-1).toISOString();assert.doesNotMatch(renderReview(stale),/href="https:\/\/www.aviasales.com/);
+});
+
+test('hotel handoff never turns a Nuitee identity into an exact Agoda property claim',()=>{
+ const h={...fixture().hotels[0],sandbox:false,environment:'production',provider:'Agoda',hotelId:42,handoffPropertyVerified:true,checkin:'2027-03-21',checkout:'2027-03-23',handoffUrl:'https://www.agoda.com/uk/hotel/selected.html?hid=42&checkIn=2027-03-21&checkOut=2027-03-23'};
+ assert.equal(hotelReferral(h).label,'Check this property on Agoda');
+ assert.equal(hotelReferral({...h,provider:'Nuitee'}).label,'Compare stays on Agoda');
+ assert.equal(hotelReferral({...h,handoffUrl:'https://www.agoda.com/partners/partnersearch.aspx?hid=42'}).label,'Compare stays on Agoda');
+ for(const patch of [{sandbox:true},{handoffUrl:'https://agoda.com.evil.test/hotel/test.html'},{handoffUrl:h.handoffUrl.replace('hid=42','hid=43')},{checkin:'2027-03-22'},{handoffUrl:null}])assert.equal(hotelReferral({...h,...patch}),null);
 });

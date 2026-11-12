@@ -144,7 +144,9 @@ export interface BookingRevalidationHotel {
   currency: string;
   state: 'estimate' | 'provider' | 'verified';
   providerState?: 'unavailable' | 'provider' | 'verified';
-  provider?: 'Nuitee' | null;
+  provider?: 'Nuitee' | 'Agoda' | null;
+  hotelId?: string | number | null;
+  handoffPropertyVerified?: boolean;
   providerReason?: string | null;
   availabilityVerified: boolean;
   productionEligible?: boolean;

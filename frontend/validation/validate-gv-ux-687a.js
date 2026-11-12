@@ -1,4 +1,9 @@
 'use strict';
+// GV-BOOK-013 intentionally changes only the hub's referral behavior. Preserve
+// legacy hashes, and require the current matching/expiry/identity regression suite.
+const referralHubVerified = require('node:child_process').spawnSync(process.execPath,
+  [require('node:path').join(__dirname,'validate-gv-book-685d-frontend.js')], {encoding:'utf8'}).status === 0;
+
 const { frontendSourcePath } = require('../../ops/frontend/source-layout.cjs');
 const fs=require('fs');
 const path=require('path');
@@ -39,7 +44,7 @@ check('Agoda/stay action behavior remains available',engine.includes('stayAction
 check('Journey player remains manual and non-autoplaying',html.includes('Play your journey')&&journey.includes('playButton.onclick = play')&&!journey.includes('playButton.click()'));
 check('Map/card synchronization remains in the active engine',engine.includes('window.__gvJourneyMapFocus')&&engine.includes('data-journey-marker')&&journey.includes('dataset.journeyStep'));
 check('Reduced motion remains supported',journey.includes("'(prefers-reduced-motion: reduce)'")&&css.includes('@media(prefers-reduced-motion:reduce)'));
-check('Booking workspace runtime is untouched',hash('scripts/booking-workspace-686c.js')==='ce9ac87a8cd091becf202bf25edc3e0364025b88690a478e365ad9982fafce01'&&hash('scripts/booking-hub-685d.js')==='6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a');
+check('Booking workspace is untouched; hub passes GV-BOOK-013',hash('scripts/booking-workspace-686c.js')==='ce9ac87a8cd091becf202bf25edc3e0364025b88690a478e365ad9982fafce01'&&(hash('scripts/booking-hub-685d.js')==='6344ffad400d52dbce0d5d104ea41b86e6bd39394377e028936ba5be7809236a' || referralHubVerified));
 check('Budget evidence runtime is untouched',hash('scripts/budget-confidence-685b.js')==='3ed77e95f240096f6d241499c1e0b517a1f97c77ae855bb9c85d0098f54eb832');
 check('API client and runtime configuration are untouched',hash('runtime/api-client.js')==='d10d716b60d13f36b456a7797c22590ba5ca1c12bec31586d8e0c36242df8af6'&&hash('runtime/config.js')==='191e377fdf5dba312e60f0b2c21c74b6283b729c982bcbff8c7c08fd637ea958');
 check('687A journey module reports its version',journeyModule.VERSION==='GV-UX-687A');

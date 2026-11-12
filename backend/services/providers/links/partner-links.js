@@ -85,7 +85,12 @@ function aviasalesDatePart(value) {
 }
 
 function providerEvidence(leg = {}) {
-  return leg.cheapestOneWay || leg.providerDateEvidence || {};
+  const selectedDate = safeIsoDate(leg.automaticTourDate?.departureDate || leg.departureDate || leg.dateLabel);
+  const candidates = [leg.providerDateEvidence, leg.cheapestOneWay].filter(Boolean);
+  // A current matching Duffel observation outranks a cached discovery fare.
+  return candidates.find(e => isDuffelEvidence(e) && usableDuffelEvidence(e, {
+    origin: endpointCode(leg.from), destination: endpointCode(leg.to), departureDate: selectedDate
+  })) || leg.providerDateEvidence || leg.cheapestOneWay || {};
 }
 
 function providerFareApplied(leg = {}) {
@@ -98,23 +103,23 @@ function providerFareApplied(leg = {}) {
 function legDepartureDate(leg = {}) {
   const evidence = providerEvidence(leg);
   const auto = leg.automaticTourDate || {};
-  return safeIsoDate(providerFareApplied(leg) ? evidence.departureDate : null)
-    || safeIsoDate(auto.departureDate)
-    || safeIsoDate(leg.departureDate)
-    || safeIsoDate(leg.dateLabel);
+  const selected = auto.departureDate || leg.departureDate || leg.dateLabel;
+  return selected ? safeIsoDate(selected) : safeIsoDate(providerFareApplied(leg) ? evidence.departureDate : null);
 }
 
 function endpointCode(node = {}) {
   return safeCode(node.airportCode || node.code || node.displayCode);
 }
 
-function buildAviasalesOneWaySearchUrl({ origin, destination, departureDate, adults }) {
+function buildAviasalesOneWaySearchUrl({ origin, destination, departureDate, adults, children = 0, infants = 0 }) {
   const from = safeCode(origin);
   const to = safeCode(destination);
   const datePart = aviasalesDatePart(departureDate);
   if (!from || !to || !datePart) return null;
-  const travellerCount = Math.max(1, Math.min(9, Math.round(Number(adults) || 1)));
-  return `https://www.aviasales.com/search/${from}${datePart}${to}${travellerCount}`;
+  const counts = [Number(adults ?? 1), Number(children), Number(infants)];
+  if (counts.some(n => !Number.isInteger(n) || n < 0 || n > 9) || counts[0] < 1 || counts[2] > counts[0] || counts.reduce((a,b)=>a+b,0) > 9) return null;
+  const party = counts[2] ? counts.join('') : counts[1] ? counts.slice(0,2).join('') : String(counts[0]);
+  return `https://www.aviasales.com/search/${from}${datePart}${to}${party}`;
 }
 
 function enrichFlightLeg(leg = {}, query = {}) {
@@ -154,9 +159,11 @@ function enrichFlightLeg(leg = {}, query = {}) {
   const destination = endpointCode(next.to || {});
   const passengers = passengersFromQuery(query);
   const duffel = isDuffelEvidence(evidence);
-  const usableLive = !duffel || usableDuffelEvidence(evidence, { origin, destination, departureDate, passengers: passengers.travellers });
+  const usableLive = !duffel || (passengers.children === 0 && passengers.infants === 0 && usableDuffelEvidence(evidence, { origin, destination, departureDate, passengers: passengers.travellers, currency: currencyFromQuery(query) }));
   const providerApplied = providerFareApplied(next) && usableLive;
+  if (duffel && usableLive) next.providerDateEvidence = evidence;
   if (duffel && !usableLive) canonicalEvidence = { ...canonicalEvidence, sourceType: SOURCE_TYPES.UNAVAILABLE, isBookable: false, productionEligible: false };
+  if (duffel) canonicalEvidence = { ...canonicalEvidence, isBookable: false };
   const exactVerified = !!(
     providerApplied
     && next?.providerVerification?.verified
@@ -171,7 +178,7 @@ function enrichFlightLeg(leg = {}, query = {}) {
     origin,
     destination,
     departureDate,
-    adults: passengers.seatCount
+    adults: passengers.adults, children: passengers.children, infants: passengers.infants
   });
   const bookingUrl = existingProviderUrl || (prefilledDirect ? wrapAviasalesAffiliateLink(prefilledDirect) : null);
   const observedAt = evidence.observedAt || evidence.updatedAt || next?.providerVerification?.observedAt || next?.providerVerification?.checkedAt || null;
@@ -189,7 +196,9 @@ function enrichFlightLeg(leg = {}, query = {}) {
     status: bookingStatus,
     url: bookingUrl,
     directSearchUrl: prefilledDirect,
-    label: itineraryHint ? 'View provider fare' : 'Compare this flight',
+    label: 'Compare flights on Aviasales',
+    evidenceProvider: duffel ? 'Duffel' : null,
+    referralPriceGuaranteed: false,
     exactTicketClaimed: false,
     exactItineraryHint: itineraryHint,
     prefilled: !!prefilledDirect,
@@ -209,7 +218,7 @@ function enrichFlightLeg(leg = {}, query = {}) {
       observedAt,
       observedAgeSeconds: ageSeconds,
       freshness: observationFreshness(ageSeconds),
-      ctaLabel: itineraryHint ? 'Check this itinerary on Aviasales' : 'Search this route on Aviasales'
+      ctaLabel: 'Compare flights on Aviasales'
     }
   };
   next.priceProvenance = {
@@ -335,17 +344,24 @@ function enrichStay(stop = {}, query = {}) {
   });
   const bookingUrl = specificHotelUrl || citySearchUrl;
   const nuiteePriced = Boolean(hotel.nuiteeHotelId) || [hotel.provider, hotel.source, providerHotel.provider].some(value => String(value || '').toLowerCase() === 'nuitee');
-  const directPropertyLink = !nuiteePriced && Boolean(specificHotelUrl && selectedReferral?.directPropertyLink);
+  const directPropertyLink = !nuiteePriced && Number.isSafeInteger(Number(hotelId)) && Number(hotelId) > 0 && Boolean(specificHotelUrl && selectedReferral?.directPropertyLink);
   const providerResultsLink = Boolean(specificHotelUrl && selectedReferral?.linkType === 'provider-search-results');
   const sourceText = safeText(hotel.source || hotel.estimateSource || '').toLowerCase();
   const verification = hotel.providerVerification || {};
   const observationCheckIn = safeIsoDate(verification.checkIn || hotel.priceEvidence?.checkIn || hotel.checkIn);
   const observationCheckOut = safeIsoDate(verification.checkOut || hotel.priceEvidence?.checkOut || hotel.checkOut);
-  const datesMatch = observationCheckIn === checkIn && observationCheckOut === checkOut;
+  const datesMatch = observationCheckIn === checkIn && observationCheckOut === checkOut
+    && (!hotel.priceEvidence?.checkIn || safeIsoDate(hotel.priceEvidence.checkIn) === checkIn)
+    && (!hotel.priceEvidence?.checkOut || safeIsoDate(hotel.priceEvidence.checkOut) === checkOut);
   const observedParty = verification.party || hotel.requestEvidence?.party;
   const partyMatches = observedParty && ['adults', 'children', 'rooms'].every(key =>
     Number(observedParty[key]) === passengers[key]);
-  const providerRate = sourceText.includes('agoda') && datesMatch && partyMatches
+  const observedHotelIds = [verification.hotelId, hotel.priceEvidence?.hotelId, hotel.priceEvidence?.propertyId, providerHotel.hotelId].filter(id => id != null);
+  const propertyMatches = !nuiteePriced && hotelId && observedHotelIds.length > 0
+    && observedHotelIds.every(id => String(hotelId) === String(id));
+  const fresh = [hotel.priceEvidence?.expiresAt, verification.expiresAt].filter(Boolean).every(expiry => Date.parse(expiry) > Date.now());
+  const currencyMatches = !hotel.priceEvidence?.currency || hotel.priceEvidence.currency === currency;
+  const providerRate = propertyMatches && fresh && currencyMatches && sourceText.includes('agoda') && datesMatch && partyMatches
     && Number(hotel.estimatedStayUsd || hotel.totalStayUsd || 0) > 0
     && verification.verified === true
     && verification.exactStayDates === true
@@ -376,6 +392,9 @@ function enrichStay(stop = {}, query = {}) {
       ? (directPropertyLink ? 'View this hotel on Agoda' : (specificHotelUrl ? 'View in Agoda results' : (citySearchUrl ? 'View stays in this city' : 'Stay link unavailable')))
       : (directPropertyLink ? 'View this stay' : (specificHotelUrl ? 'View in Agoda results' : citySearchUrl ? 'View stays in this city' : 'Stay link unavailable')),
     specificHotel: directPropertyLink,
+    directPropertyLink,
+    handoffPropertyVerified: directPropertyLink,
+    linkType: directPropertyLink ? 'provider-property-page' : (providerResultsLink ? 'provider-search-results' : (bookingUrl ? 'comparison-search' : 'none')),
     selectedProviderHotelId: hotelId || null,
     prefilled: r2AgodaHandoff ? !directPropertyLink && !!bookingUrl : !!citySearchUrl,
     ...(r2AgodaHandoff ? {

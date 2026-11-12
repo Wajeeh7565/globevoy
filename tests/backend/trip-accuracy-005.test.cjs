@@ -147,7 +147,7 @@ test('Nuitee identity is retained without inventing an Agoda mapping or property
 test('hotel LIVE evidence requires the same observed stay and room occupancy',()=>{
   const url='https://www.agoda.com/partners/partnersearch.aspx?hid=42';
   const observation={source:'agoda',checkIn:'2027-03-20',checkOut:'2027-03-23',
-    providerVerification:{verified:true,exactStayDates:true,productionEligible:true,party:{adults:1,children:0,rooms:1}}};
+    providerVerification:{hotelId:42,verified:true,exactStayDates:true,productionEligible:true,party:{adults:1,children:0,rooms:1}}};
   const input=stay(url,observation);
   assert.equal(enrichStay(input,query()).hotel.booking.trust.sourceType,'LIVE');
   assert.equal(enrichStay(input,{...query(),adults:2,rooms:2}).hotel.booking.trust.sourceType,'ESTIMATED');
@@ -255,4 +255,32 @@ test('two adults require the existing staging scope and retain party-total arith
     assert.equal(leg.providerDateEvidence.providerPassengerCount,2);
     assert.equal(leg.providerDateEvidence.providerPartyTotalAmount,120);
   }
+});
+
+
+test('Duffel referral uses selected dates and fresh matching evidence ahead of cached discovery',async()=>{
+  const q=query(),r=await preferSelectedExactFlights(tour(),q,harness().options),leg=r.tour.legs[0],e=leg.providerDateEvidence;
+  const enriched=enrichFlightLeg({...leg,cheapestOneWay:{source:'travelpayouts-cache',sourceType:'CACHED',departureDate:'2027-03-19'},providerDateEvidence:e},q);
+  assert.equal(enriched.priceProvenance.provider,'Duffel');assert.equal(enriched.booking.label,'Compare flights on Aviasales');
+  assert.equal(enriched.booking.referralPriceGuaranteed,false);assert.equal(enriched.booking.exactTicketClaimed,false);
+  assert.match(enriched.booking.directSearchUrl,/YYZ2003LHR1/);
+  for(const patch of [{departureDate:'2027-03-19'},{resolvedDestination:'JFK'},{providerPassengerCount:2},{displayCurrency:'EUR'},{expiresAt:'2020-01-01T00:00:00Z'}]){
+    const bad=enrichFlightLeg({...leg,providerDateEvidence:{...e,...patch},cheapestOneWay:{...e,...patch}},q);
+    assert.equal(bad.booking.trust.sourceType,'UNAVAILABLE');assert.equal(bad.priceProvenance.currentPriceConfirmed,false);
+    assert.match(bad.booking.directSearchUrl,/YYZ2003LHR1/,'independent comparison retains SELECTED itinerary');
+  }
+});
+
+test('comparison links preserve adult/child/infant counts and never silently clamp unsupported parties',()=>{
+ const {buildAviasalesOneWaySearchUrl:build}=require('../../backend/services/providers/links/partner-links');
+ const request={origin:'YYZ',destination:'LHR',departureDate:'2027-03-20',adults:2,children:1,infants:1};
+ assert.match(build(request),/YYZ2003LHR211$/);assert.equal(build({...request,adults:10}),null);assert.equal(build({...request,adults:1,infants:2}),null);assert.equal(build({...request,departureDate:'2027-02-30'}),null);
+});
+
+test('hotel observation identity and expiry cannot certify another selected property',()=>{
+ const input=stay('https://www.agoda.com/exact/hotel/toronto-ca.html?hid=42',{source:'agoda',checkIn:'2027-03-20',checkOut:'2027-03-23',priceEvidence:{sourceType:'LIVE'},providerVerification:{hotelId:43,verified:true,exactStayDates:true,productionEligible:true,party:{adults:1,children:0,rooms:1}}});
+ assert.equal(enrichStay(input,query()).hotel.booking.trust.sourceType,'ESTIMATED');
+ input.hotel.providerVerification.hotelId=42;input.hotel.providerVerification.expiresAt='2020-01-01T00:00:00Z';assert.equal(enrichStay(input,query()).hotel.booking.trust.sourceType,'ESTIMATED');
+ const valid=structuredClone(input);delete valid.hotel.providerVerification.expiresAt;assert.equal(enrichStay(valid,query()).hotel.booking.trust.sourceType,'LIVE');assert.equal(enrichStay(valid,query()).hotel.booking.handoffPropertyVerified,true);
+ for(const patch of [{propertyId:43},{checkIn:'2027-03-19'},{checkOut:'2027-03-24'},{currency:'EUR'}]){const conflicting=structuredClone(valid);conflicting.hotel.priceEvidence={sourceType:'LIVE',...patch};assert.equal(enrichStay(conflicting,query()).hotel.booking.trust.sourceType,'ESTIMATED');}
 });
