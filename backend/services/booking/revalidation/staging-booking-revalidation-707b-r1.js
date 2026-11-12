@@ -141,6 +141,10 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
   return withR1Header({ ...response, body: JSON.stringify(corrected) });
 }
 
+async function revalidateOwnedTrip(trip, options = {}) {
+  return correctSuccessfulPayload(await base707B.revalidateOwnedTrip(trip, options), trip);
+}
+
 function preflight(event = {}) {
   return withR1Header(base707B.preflight(event));
 }
@@ -158,6 +162,7 @@ module.exports = {
   ROUTE_PATH,
   STAGING_ORIGIN,
   handleBookingRevalidation707B,
+  revalidateOwnedTrip,
   preflight,
   status707B,
   _internal: {

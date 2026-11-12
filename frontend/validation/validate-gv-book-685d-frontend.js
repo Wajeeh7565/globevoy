@@ -138,6 +138,20 @@ check('18: flight comparison ignores stale or arbitrary raw provider links',()=>
  const comparison=twoModel.items.find(item=>item.kind==='stay');assert.equal(comparison.action,'Compare stays on Agoda');assert.match(hub.componentHtml(twoModel.items[0],1),/Compare flights on Aviasales|Final fare and availability confirmed by the booking provider/);
 });
 
+const workspace=require('../scripts/booking-workspace-686c');
+check('19: production live panel accepts only complete fresh owner-matching Duffel evidence',()=>{
+ const time=Date.now(),row={index:0,provider:'Duffel',sourceType:'LIVE',productionEligible:true,exactMatch:true,origin:'YYZ',destination:'LHR',resolvedOrigin:'YYZ',resolvedDestination:'LHR',departureDate:'2027-03-20',providerPassengerCount:1,providerAmount:123.45,providerCurrency:'USD',freshAmount:170.2,currency:'CAD',savedAmount:160,observedAt:new Date(time).toISOString(),expiresAt:new Date(time+300000).toISOString(),airlineName:'Offline Airline'};
+ const payload={ok:true,trip:{tripId:'offline-trip-123'},snapshot:{currency:'CAD'},revalidation:{provider:'Duffel',applied:true,allFlightLegsLive:true,requiredFlightLegCount:1,liveFlightLegCount:1,passengers:1,providerRequests:2},flights:[row]};
+ const html=workspace.liveEvidenceHtml(payload,'offline-trip-123',time);assert.match(html,/LIVE — not reserved/);assert.match(html,/123.45.*USD/);assert.match(html,/Saved\/cached estimate/);assert.match(html,/Provider requests: 2/);assert.match(html,/whole-trip total remain estimates/);
+ for(const patch of [{sourceType:'CACHED'},{expiresAt:new Date(time-1).toISOString()},{productionEligible:false},{exactMatch:false},{provider:'Sandbox'},{providerPassengerCount:2},{departureDate:'2027-02-30'},{providerAmount:null},{currency:'USD'},{resolvedOrigin:'JFK'}]){const bad={...payload,flights:[{...row,...patch}]};assert.doesNotMatch(workspace.liveEvidenceHtml(bad,'offline-trip-123',time),/LIVE — not reserved/);}
+ assert.doesNotMatch(workspace.liveEvidenceHtml(payload,'another-trip-123',time),/LIVE — not reserved/);
+ assert.doesNotMatch(workspace.liveEvidenceHtml({...payload,revalidation:{...payload.revalidation,allFlightLegsLive:false}},'offline-trip-123',time),/LIVE — not reserved/);
+ assert.match(workspace.liveEvidenceHtml({...payload,revalidation:{reason:'quota-exhausted'}},'offline-trip-123',time),/quota or rate limit/);
+});
+check('20: live button is explicit and only authenticated Saved Trip ID reaches the account route',()=>{
+ const src=fs.readFileSync(require('node:path').join(FRONTEND_ROOT,'scripts/booking-workspace-686c.js'),'utf8');assert.match(workspace.liveCheckMarkup(),/Check live Duffel prices/);assert.match(src,/button.addEventListener\('click'/);assert.match(src,/if\(busy\)return/);assert.match(src,/capabilities\?\.bookingRevalidation/);assert.match(src,/saved.api.get\(tripId\)/);assert.match(src,/request\('\/api\/account\/booking-revalidate','POST',\{tripId\}\)/);assert.doesNotMatch(src,/api.duffel.com|DUFFEL_ACCESS_TOKEN|localStorage.setItem/);
+});
+
 const report={version:hub.VERSION,generatedAt:new Date().toISOString(),passed,failed:0,checks};
 fs.writeFileSync(outputPath('VALIDATION_GV_BOOK_685D_FRONTEND.json'),JSON.stringify(report,null,2)+'\n');
 console.log(`PASS ${passed}/${passed} — GV-BOOK-685D frontend`);

@@ -226,6 +226,9 @@ function sanitizeFlightRows(beforeTour = {}, afterTour = {}, query = {}, handoff
       airportMode: clean(evidence.airportMode683H || 'EXACT'),
       sourceType: clean(evidence.sourceType || '').toUpperCase(),
       productionEligible: evidence.productionEligible === true,
+      provider: 'Duffel',
+      providerAmount: finite(evidence.providerPartyTotalAmount, 0),
+      providerCurrency: clean(evidence.providerCurrency || evidence.currency).toUpperCase(),
       providerPassengerCount: Number.isInteger(Number(evidence.providerPassengerCount)) && Number(evidence.providerPassengerCount) > 0 ? Number(evidence.providerPassengerCount) : null,
       airlineName: clean(evidence.airline) || null,
       airlineLogoUrl: /^https:\/\//i.test(clean(evidence.airlineLogoUrl)) ? clean(evidence.airlineLogoUrl) : null,
@@ -287,6 +290,9 @@ function unavailablePayload(trip, tour, summary, query) {
       reason: clean(summary?.reason || 'fresh-provider-verification-unavailable'),
       provider: 'Duffel',
       allFlightLegsLive: false,
+      requiredFlightLegCount: (tour.legs || []).filter(flightLike).length,
+      liveFlightLegCount: 0,
+      ...(Number.isFinite(Number(summary?.providerRequests)) ? {providerRequests:Number(summary.providerRequests)} : {}),
       handoffEnabled: false,
       orderCapability: false,
       paymentCapability: false,
@@ -299,50 +305,33 @@ function unavailablePayload(trip, tour, summary, query) {
   };
 }
 
-async function handleBookingRevalidation707B(event = {}, options = {}) {
-  const requestOrigin = normalizeOrigin(headerValue(event.headers || {}, 'origin'));
+// Trusted core: caller must authenticate and load the owner-private trip first.
+// No HTTP origin, token parsing or client route data is accepted here.
+async function revalidateOwnedTrip(trip, options = {}) {
   const env = options.env || process.env;
-  if (requestOrigin !== STAGING_ORIGIN) return response(403, { ok: false, error: 'staging-origin-not-allowed' }, '');
-  if (pathOf(event) !== ROUTE_PATH) return response(404, { ok: false, error: 'not-found' }, requestOrigin);
-  if (methodOf(event) !== 'POST') return response(405, { ok: false, error: 'method-not-allowed' }, requestOrigin);
-  if (!savedTrips705C.enabled(env)) return response(503, { ok: false, error: 'saved-trips-or-auth-not-configured' }, requestOrigin);
-
-  let parsed;
-  try { parsed = parseBody(event); } catch (error) { return response(error.statusCode || 400, { ok: false, error: error.message }, requestOrigin); }
-
-  let verified;
-  try { verified = await authenticate(event, options); }
-  catch (error) {
-    const reason = error instanceof auth705B.CognitoAuthError705B ? error.code : 'verification-failed';
-    return response(401, { ok: false, error: 'invalid-or-expired-access-token', reason }, requestOrigin);
-  }
-
-  try {
-    const getTrip = options.getTrip || ((sub, tripId) => savedTrips705C._internal.getTrip(sub, tripId, { ...options, env }));
-    const trip = await getTrip(clean(verified.sub), parsed.tripId);
-    if (!trip) return response(404, { ok: false, error: 'saved-trip-not-found' }, requestOrigin);
     if (trip?.tripSnapshot?.kind !== 'multi') {
-      return response(200, {
+      return {
         ok: true,
         version: VERSION,
         trip: { tripId: trip.tripId, name: trip.name, kind: trip?.tripSnapshot?.kind || null, updatedAt: trip.updatedAt || null },
         snapshot: { capturedAt: trip?.priceSnapshot?.capturedAt || trip.updatedAt || null, currency: clean(trip?.priceSnapshot?.currency || 'CAD').toUpperCase(), savedTripTotal: Math.round(finite(trip?.priceSnapshot?.tripEstimate, 0)) },
         revalidation: { state: 'unavailable', attempted: false, applied: false, reason: '707b-multi-city-live-revalidation-pilot-only', provider: 'Duffel', allFlightLegsLive: false, handoffEnabled: false, orderCapability: false, paymentCapability: false, bookingCapability: false, ticketingCapability: false },
         flights: [], hotels: [], trust: { savedPricesAreSnapshots: true, hotelAvailabilityVerified: false, finalPartnerConfirmationRequired: true }
-      }, requestOrigin);
+      };
     }
 
     const tour = hydrateSavedTour(trip);
-    if (!tour) return response(422, { ok: false, error: 'saved-trip-route-not-revalidatable' }, requestOrigin);
+    if (!tour) throw Object.assign(new Error('saved-trip-route-not-revalidatable'), {statusCode:422,code:'saved-trip-route-not-revalidatable'});
     const query = queryForTrip(trip, tour);
     const applyLiveFarePilot = options.applyLiveFarePilot || liveFare684A.applyPublicLiveFarePilot684A;
     const result = await applyLiveFarePilot(tour, query, { ...options, env, fetch: options.providerFetch || globalThis.fetch });
     const summary = result?.summary || {};
     if (summary.applied !== true || summary.allFlightLegsLive !== true) {
-      return response(200, unavailablePayload(trip, tour, summary, query), requestOrigin);
+      return unavailablePayload(trip, tour, summary, query);
     }
 
     const freshTour = result.tour || tour;
+    if (options.validateLiveTour && !options.validateLiveTour(tour, freshTour, query, summary)) return unavailablePayload(trip, tour, {...summary,reason:'incomplete-or-mismatched-live-evidence'}, query);
     const savedFlight = savedFlightDisplayTotal(trip, tour);
     const freshFlight = liveFlightDisplayTotal(freshTour, query.currency);
     const savedTrip = savedTripDisplayTotal(trip, tour);
@@ -353,7 +342,7 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
     const flights = sanitizeFlightRows(tour, freshTour, query, handoffEnabled, options);
     const allHandoffsSafe = flights.length > 0 && flights.every((row) => row.sourceType === 'LIVE' && row.productionEligible === true);
 
-    return response(200, {
+    return {
       ok: true,
       version: VERSION,
       trip: { tripId: trip.tripId, name: trip.name, kind: 'multi', updatedAt: trip.updatedAt || null },
@@ -395,8 +384,34 @@ async function handleBookingRevalidation707B(event = {}, options = {}) {
         partnerHandoffIsComparisonOnly: true,
         finalPartnerConfirmationRequired: true
       }
-    }, requestOrigin);
+    };
+}
+
+async function handleBookingRevalidation707B(event = {}, options = {}) {
+  const requestOrigin = normalizeOrigin(headerValue(event.headers || {}, 'origin'));
+  const env = options.env || process.env;
+  if (requestOrigin !== STAGING_ORIGIN) return response(403, { ok: false, error: 'staging-origin-not-allowed' }, '');
+  if (pathOf(event) !== ROUTE_PATH) return response(404, { ok: false, error: 'not-found' }, requestOrigin);
+  if (methodOf(event) !== 'POST') return response(405, { ok: false, error: 'method-not-allowed' }, requestOrigin);
+  if (!savedTrips705C.enabled(env)) return response(503, { ok: false, error: 'saved-trips-or-auth-not-configured' }, requestOrigin);
+
+  let parsed;
+  try { parsed = parseBody(event); } catch (error) { return response(error.statusCode || 400, { ok: false, error: error.message }, requestOrigin); }
+
+  let verified;
+  try { verified = await authenticate(event, options); }
+  catch (error) {
+    const reason = error instanceof auth705B.CognitoAuthError705B ? error.code : 'verification-failed';
+    return response(401, { ok: false, error: 'invalid-or-expired-access-token', reason }, requestOrigin);
+  }
+
+  try {
+    const getTrip = options.getTrip || ((sub, tripId) => savedTrips705C._internal.getTrip(sub, tripId, { ...options, env }));
+    const trip = await getTrip(clean(verified.sub), parsed.tripId);
+    if (!trip) return response(404, { ok: false, error: 'saved-trip-not-found' }, requestOrigin);
+    return response(200, await revalidateOwnedTrip(trip, options), requestOrigin);
   } catch (error) {
+    if (error?.statusCode === 422) return response(422, {ok:false,error:error.code},requestOrigin);
     if (error?.code === 'hotel-guest-context-mismatch') return response(422, { ok: false, error: 'hotel-guest-context-mismatch', reason: 'Hotel guests must match the travellers and rooms in this saved trip.' }, requestOrigin);
     console.error('GV-WEB-707B booking revalidation error', { name: error?.name, message: error?.message });
     return response(503, { ok: false, error: 'fresh-revalidation-temporarily-unavailable' }, requestOrigin);
@@ -424,6 +439,7 @@ module.exports = {
   ROUTE_PATH,
   STAGING_ORIGIN,
   handleBookingRevalidation707B,
+  revalidateOwnedTrip,
   preflight,
   status707B,
   _internal: {

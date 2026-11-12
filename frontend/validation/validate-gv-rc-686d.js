@@ -116,7 +116,7 @@ check('Unresolved legal/commercial gate is explicit',release.legalGate==='LEGAL-
 const allPaths=filesUnder(root).map(file=>file.substring(root.length+1).replace(/\\/g,'/'));
 const prohibited=allPaths.filter(file=>/(^|\/)(backend|lambda|server|serverless)(\/|$)|(^|\/)template\.ya?ml$|\.env($|\.)/i.test(file));
 check('Package contains no backend, Lambda or runtime-server files',prohibited.length===0,prohibited.join(', '));
-check('Journey and workspace additions make no provider/network request',!/\bfetch\s*\(|XMLHttpRequest|GlobevoyApi\./.test(journeySource+workspaceSource));
+check('Journey makes no network requests; workspace uses explicit authenticated revalidation only',!/\bfetch\s*\(|XMLHttpRequest|GlobevoyApi\./.test(journeySource)&&! /api\.duffel\.com|DUFFEL_ACCESS_TOKEN|XMLHttpRequest/.test(workspaceSource)&&typeof workspace.liveEvidenceHtml==='function');
 check('All required isolated browser fixtures are present',['validation/fixtures/gv-journey-686b-browser-fixture.html','validation/fixtures/gv-book-686c-browser-fixture.html','validation/fixtures/gv-book-685d-browser-fixture.html','validation/fixtures/gv-rc-686d-all-flight-browser-fixture.html'].every(exists));
 
 checks.forEach((item,index)=>console.log(`${item.pass?'PASS':'FAIL'} ${String(index+1).padStart(2,'0')} — ${item.name}${item.pass||!item.detail?'':` :: ${item.detail.trim().split(/\r?\n/).slice(-2).join(' | ')}`}`));

@@ -50,6 +50,7 @@ const groups = {
   ],
 
   account: [
+    ['node', 'backend/validation/validate-gv-production-account.js'],
     ['node', 'backend/validation/validate-gv-account-705b-r3.js'],
     ['node', 'backend/validation/validate-gv-account-705c.js'],
     ['node', 'backend/validation/validate-gv-account-705c-r3.js'],

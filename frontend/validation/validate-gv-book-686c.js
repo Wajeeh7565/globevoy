@@ -61,7 +61,7 @@ check('Desktop information architecture is approximately 70/30',css.includes('gr
 check('Trip summary and stepper remain sticky',css.includes('.gv-workspace-stepper{position:sticky')&&css.includes('.gv-workspace-sidebar{position:sticky'));
 check('Mobile summary is collapsible and compact',rendered.includes('<details class="gv-workspace-summary" open>')&&css.includes('.gv-workspace-summary>summary{display:flex')&&css.includes('@media(max-width:660px)'));
 check('Reduced motion is respected',css.includes('@media(prefers-reduced-motion:reduce)')&&source.includes("'(prefers-reduced-motion: reduce)'"));
-check('Workspace makes no provider/network request',!/\bfetch\s*\(|XMLHttpRequest|GlobevoyApi\./.test(source));
+check('Workspace uses only explicit authenticated account revalidation, never a direct provider',referralHubVerified&&!/api\.duffel\.com|DUFFEL_ACCESS_TOKEN|XMLHttpRequest/.test(source));
 check('Browser fixture is isolated from production state',fixture.includes('gv-book-686c-browser-fixture')&&fixture.includes("sessionStorage.setItem('globevoy.multi.selected.v1'")&&fixture.includes('window.name=')&&fixture.includes('must-not-render'));
 check('Reviewed-state browser check uses a portable local non-provider fixture',fixture.includes("groundBookingUrl:location.origin+'/validation/fixtures/gv-book-686c-partner-fixture.html'")&&partnerFixture.includes('without contacting an external provider'));
 check('HTML loads final RC workspace CSS and 686C script after protected booking engines',html.includes('booking-workspace-686c.css?v=686d-rc')&&html.indexOf('booking-workspace-686c.js?v=686c')>html.indexOf('booking-hub-685d.js?v=685d-r2'));

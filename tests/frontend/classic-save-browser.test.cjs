@@ -23,7 +23,7 @@ test.after(async()=>{ await browser?.close(); });
 
 async function site(tour, signedIn=true) {
   const context = await browser.newContext({serviceWorkers:'block'});
-  const rows = new Map(), postBodies = [], statuses = [], missing = [];
+  const rows = new Map(), postBodies = [], statuses = [], missing = [], livePosts=[];let liveOptions={};
   let failure = '', gate;
   const options = { env:{GLOBEVOY_SAVED_TRIPS_TABLE:'offline-test-table'}, commandFactory:(name,input)=>({name,input}), ddb:{send:async ({name,input})=>{
     if(name==='PutItem'){rows.set(input.Item.SK.S,input.Item);return {}}
@@ -42,10 +42,10 @@ async function site(tour, signedIn=true) {
       try{
         if(method==='OPTIONS')return route.fulfill({status:204,headers});
         if(u.pathname==='/api/generated-tour')data={ok:true,supported:true,tour,tours:[tour]};
-        else if(u.pathname==='/api/account/session')data={ok:true,authenticated:true,user:{sub:'synthetic-offline-owner'}};
+        else if(u.pathname==='/api/account/session')data={ok:true,authenticated:true,user:{sub:'synthetic-offline-owner'},capabilities:{bookingRevalidation:liveOptions.supported===true}};
         else if(u.pathname==='/api/saved-trips'){
           assert.equal(request.headers().authorization,'Bearer offline-browser-test-token');
-          if(method==='GET')data={trips:[...rows.values()].map(saved._internal.toPublicItem)};
+          if(method==='GET'){const all=[...rows.values()].map(saved._internal.toPublicItem),id=u.searchParams.get('tripId');if(id){const trip=all.find(t=>t.tripId===id);status=trip?200:404;data=trip?{trip}:{error:'not-found'};}else data={trips:all};}
           else if(method==='POST'){
             postBodies.push(request.postData());
             if(gate)await gate;
@@ -55,6 +55,17 @@ async function site(tour, signedIn=true) {
             else {status=201;const body=saved._internal.parseBody({body:request.postData()});data={ok:true,trip:await saved._internal.createTrip('synthetic-offline-owner',body,options)}}
           }else if(method==='DELETE'){await saved._internal.deleteTrip('synthetic-offline-owner',u.searchParams.get('tripId'),options);data={ok:true}}
           else throw Error('Unexpected private method');
+        }else if(u.pathname==='/api/account/booking-revalidate'){
+          assert.equal(method,'POST');assert.equal(request.headers().authorization,'Bearer offline-browser-test-token');const body=JSON.parse(request.postData());assert.deepEqual(Object.keys(body),['tripId']);livePosts.push(body);
+          if(liveOptions.hold)await liveOptions.hold;
+          if(liveOptions.failure==='network')return route.abort('failed');
+          if(liveOptions.failure===401){status=401;data={error:'invalid-access-token'};}
+          else{const trip=[...rows.values()].map(saved._internal.toPublicItem).find(t=>t.tripId===body.tripId);assert.ok(trip);const legs=trip.tripSnapshot.tour.backendLegs;
+           const flights=legs.map((leg,index)=>({index,provider:'Duffel',sourceType:'LIVE',productionEligible:true,exactMatch:true,origin:leg.from.airportCode||leg.from.code,destination:leg.to.airportCode||leg.to.code,resolvedOrigin:leg.from.airportCode||leg.from.code,resolvedDestination:leg.to.airportCode||leg.to.code,departureDate:leg.departureDate,providerPassengerCount:1,providerAmount:123.45,providerCurrency:'USD',freshAmount:170.2,currency:'CAD',savedAmount:160,airlineName:'Offline Airline',observedAt:new Date().toISOString(),expiresAt:new Date(Date.now()+(liveOptions.expiresIn||60000)).toISOString()}));
+           data={ok:true,trip:{tripId:body.tripId},snapshot:{currency:'CAD'},revalidation:{provider:'Duffel',applied:true,allFlightLegsLive:true,requiredFlightLegCount:flights.length,liveFlightLegCount:flights.length,passengers:1,providerRequests:flights.length},flights};
+           if(liveOptions.failure==='quota')data={...data,revalidation:{...data.revalidation,applied:false,reason:'quota-exhausted'},flights:[]};
+           if(liveOptions.failure==='partial')data.revalidation.allFlightLegsLive=false;
+          }
         }else {status=404;data={ok:false,error:'offline-route-not-found'}}
       }catch(e){status=e.statusCode||500;data={ok:false,error:e.code||'offline-test-error'}}
       statuses.push({method,path:u.pathname,status});
@@ -75,7 +86,7 @@ async function site(tour, signedIn=true) {
   });
   const page=await context.newPage();
   async function visualizer(){const query=new URLSearchParams({generated:'true',origin:tour.origin.airportCode||tour.origin.code,budget:String(tour.budget.total.amount),currency:tour.budget.total.currency,month:tour.itineraryDatePlan.scanStartMonth,passengers:String(tour.passengerPricing?.travellers||1)});await page.goto(origin+'/multicity-visualizer.html?'+query);await page.locator('#mcv-app:visible').waitFor();await page.waitForFunction(()=>Boolean(window.GlobevoySavedTrips705C));}
-  return {context,page,rows,postBodies,statuses,missing,visualizer,fail:v=>{failure=v},hold:p=>{gate=p}};
+  return {context,page,rows,postBodies,statuses,missing,visualizer,livePosts,live:v=>{liveOptions=v},fail:v=>{failure=v},hold:p=>{gate=p}};
 }
 
 test('classic hotel CTA uses validated current context instead of the stale provider URL',async()=>{
@@ -179,4 +190,28 @@ for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`Ho
   await s.page.getByRole('tab',{name:/Verify stays/}).click();assert.match(await s.page.locator('#gv-booking-workspace').innerText(),/Estimated stay cost|Current rate unavailable/i);
   assert.equal(s.postBodies.length,0,'reviewing referrals does not create an account save, reservation or payment');assert.deepEqual(s.missing,[]);
  }finally{await s.context.close()}
+});
+
+
+async function bookingPage(s,save=true){
+ await s.visualizer();if(save){await s.page.locator('#mcv-save-trip').click();await s.page.locator('#mcv-save-trip').filter({hasText:'Saved to account'}).waitFor();}
+ await s.page.locator('#mcv-flight-options').click();await s.page.waitForURL('**/multi-city-trip.html?**');await s.page.locator('#gv-mtd-booking').click();await s.page.waitForURL('**/booking.html?**');await s.page.locator('#gv-booking-workspace').waitFor();
+ if((await s.page.viewportSize()).width<660)await s.page.locator('.gv-workspace-summary > summary').click();
+ await s.page.getByRole('tab',{name:/Verify flights/}).click();await s.page.locator('#gv-live-duffel-check').waitFor();
+}
+for(const width of [1440,390])test(`Classic explicit live Duffel verification, double-click and expiry at ${width}px`,async()=>{
+ const s=await site(tours[0]);try{
+  await s.page.setViewportSize({width,height:1000});await s.page.emulateMedia({reducedMotion:'reduce'});let releasePost;s.live({supported:true,hold:new Promise(r=>{releasePost=r}),expiresIn:1500});
+  await bookingPage(s);await s.page.waitForTimeout(100);assert.equal(s.livePosts.length,0,'no provider searches on load');
+  await s.page.locator('#gv-live-duffel-check').click();await s.page.waitForFunction(()=>document.querySelector('#gv-live-duffel-check').disabled);await s.page.locator('#gv-live-duffel-check').evaluate(b=>b.click());
+  for(let i=0;i<100&&s.livePosts.length===0;i++)await new Promise(r=>setTimeout(r,10));assert.equal(s.livePosts.length,1);releasePost();
+  const panel=s.page.locator('#gv-live-duffel-result');await panel.getByText('Duffel · LIVE — not reserved',{exact:true}).first().waitFor();assert.match(await panel.innerText(),/123.45.*USD/);assert.match(await panel.innerText(),/Saved\/cached estimate/);assert.match(await panel.innerText(),/Provider requests: 3/);assert.match(await panel.innerText(),/Offer expires/);assert.match(await panel.innerText(),/whole-trip total remain estimates/);assert.equal(await s.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
+  await s.page.waitForTimeout(2400);assert.doesNotMatch(await panel.innerText(),/LIVE — not reserved/);assert.equal(s.livePosts.length,1,'expiry never auto-searches');assert.deepEqual(s.missing,[]);
+ }finally{await s.context.close()}
+});
+for(const failure of ['quota','partial','network',401])test('Classic live verification preserves estimates on '+failure,async()=>{
+ const s=await site(tours[0]);try{s.live({supported:true,failure});await bookingPage(s);await s.page.locator('#gv-live-duffel-check').click();await s.page.waitForFunction(()=>document.querySelector('#gv-live-duffel-check').getAttribute('aria-busy')==='false');assert.equal(s.livePosts.length,1);assert.doesNotMatch(await s.page.locator('#gv-live-duffel-result').innerText(),/LIVE — not reserved/);assert.match(await s.page.locator('#gv-booking-workspace').innerText(),/Estimated trip total/);}finally{await s.context.close()}
+});
+for(const scenario of ['guest','not-saved','old-backend'])test('Classic live verification blocks '+scenario+' without a provider POST',async()=>{
+ const s=await site(tours[0],scenario!=='guest');try{s.live({supported:scenario!=='old-backend'});await bookingPage(s,scenario==='old-backend');await s.page.locator('#gv-live-duffel-check').click();if(scenario!=='guest')await s.page.waitForFunction(()=>document.querySelector('#gv-live-duffel-check').getAttribute('aria-busy')==='false');assert.equal(s.livePosts.length,0);assert.match(await s.page.locator('#gv-live-duffel-result').innerText(),/Sign in|Save this trip|not available on this backend/);}finally{await s.context.close()}
 });
