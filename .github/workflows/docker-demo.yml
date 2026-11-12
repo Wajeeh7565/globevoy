@@ -1,7 +1,7 @@
 name: Full website Docker demo
 on:
   pull_request:
-    branches: [main]
+    branches: [main, codex/gv-docker-002-full-website-fargate]
     paths:
       - 'Dockerfile.fargate-demo*'
       - 'backend/**'
@@ -11,6 +11,8 @@ on:
       - 'ops/frontend/**'
       - 'tests/backend/full-site-demo.test.cjs'
       - 'tests/frontend/full-site-demo-browser.test.cjs'
+      - 'tests/frontend/leaflet-demo-browser.test.cjs'
+      - 'tests/release/docker*.test.mjs'
       - '.github/workflows/docker-demo.yml'
 permissions:
   contents: read
@@ -18,6 +20,10 @@ jobs:
   local-container:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [isolated, production, staging]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,16 +31,30 @@ jobs:
           node-version: '24'
       - run: npm ci --prefix web --no-audit --no-fund
       - run: cd web && npx playwright install --with-deps chromium
-      - run: docker build --platform linux/amd64 -t globevoy-full-demo -f Dockerfile.fargate-demo .
+      - run: node ops/docker/cache-map-test-assets.mjs
+        if: matrix.target == 'isolated'
+      - run: docker build --platform linux/amd64 --build-arg GLOBEVOY_LAMBDA_TARGET=${{ matrix.target }} -t globevoy-full-demo -f Dockerfile.fargate-demo .
       - name: Start limited local container
-        run: docker run -d --name gv-full-validation --cpus=0.25 --memory=512m -e GLOBEVOY_DEMO_ORIGIN=http://127.0.0.1:18787 -p 127.0.0.1:18787:8787 globevoy-full-demo
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          case "$TARGET" in
+            production) origin=https://globevoy.com ;;
+            staging) origin=https://staging.dy4fw8gx1ccie.amplifyapp.com ;;
+            isolated) origin=http://127.0.0.1:18787 ;;
+          esac
+          docker run -d --name gv-full-validation --cpus=0.25 --memory=512m -e GLOBEVOY_DEMO_ORIGIN="$origin" -p 127.0.0.1:18787:8787 globevoy-full-demo
       - name: Inspect actual composed artifact and HTTP/browser routes
         env:
           GLOBEVOY_DEMO_TEST_URL: http://127.0.0.1:18787
+          GLOBEVOY_DOCKER_ARTIFACT: .cache/fargate-demo-site
+          TARGET: ${{ matrix.target }}
         run: |
           mkdir -p .cache/fargate-demo-site
           docker cp gv-full-validation:/app/.cache/fargate-demo-site/. .cache/fargate-demo-site
-          node scripts/run-tests.mjs demo demo-browser
+          node --test tests/release/docker-artifact.test.mjs
+          if [ "$TARGET" = isolated ]; then node scripts/run-tests.mjs demo demo-browser; fi
+          if [ "$TARGET" = production ]; then GLOBEVOY_TEST_FRONTEND_ROOT=.cache/fargate-demo-site node scripts/run-tests.mjs browser; fi
       - name: Container health and logs
         run: |
           docker logs gv-full-validation

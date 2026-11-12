@@ -26,6 +26,9 @@
 !ops/frontend/**
 !ops/docker/
 !ops/docker/**
+!ops/release/
+!ops/release/production-frontend-policy.mjs
+!ops/release/production-account-config.json
 **/node_modules
 **/.next
 **/out

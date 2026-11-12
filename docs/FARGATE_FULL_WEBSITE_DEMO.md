@@ -29,6 +29,7 @@ try {
   # npm ci --prefix web --no-audit --no-fund; install Playwright Chromium if needed.
   # Or use an installed Edge browser:
   $env:GLOBEVOY_DEMO_BROWSER_CHANNEL='msedge'
+  node ops/docker/cache-map-test-assets.mjs
   node scripts/run-tests.mjs demo-browser
   if ($LASTEXITCODE -ne 0) { throw 'Browser test failed' }
   docker inspect --format '{{.State.Health.Status}}' globevoy-full-demo
@@ -54,10 +55,11 @@ It advertises exactly `GLOBEVOY_DEMO_ORIGIN`, never an arbitrary Host/Origin hea
 Other origins fail closed. No wildcard origin or automatic production/staging fallback.
 The static artifact and React chunks contain no production/staging API/Cognito destinations.
 
-Accounts, Cognito login, saved-trip API, profile storage, worldwide registry, booking,
-fare calendar and provider/admin APIs are unavailable. Existing disabled-account UI and
-an explicit demo notice explain this. Guest browser storage remains available.
-No production tokens, identities or data are used. Google Maps remains unconfigured
+In the default isolated target, account, booking and provider APIs are unavailable
+in-place. The notice links to the secure canonical account site without transferring
+trips or tokens. Guest storage remains available. See [FARGATE_LAMBDA_PARITY.md](FARGATE_LAMBDA_PARITY.md)
+for explicit Lambda profiles and current CORS/origin limitations. No production tokens,
+identities or data are used. React Leaflet/OSM is tested with fixture tiles; classic Google Maps remains unconfigured
 (the existing public-key placeholder); do not inject a production key into this demo.
 External fonts/images may need internet and are not guaranteed offline.
 
@@ -65,9 +67,10 @@ Recommendations, registry and multi-city planning use the local Node prototype;
 this is not Lambda parity. Only the existing multi-city and generated-tour feature
 flags are enabled in the image; provider credentials are absent. A representative
 YYZ / CAD 2500 / March 2027 / 1 passenger / 7 nights query produced multi-city routes.
-Generated-tour returned HTTP 200 with `supported:false` and
-`stale-or-mixed-itinerary-dates`. Its itinerary safety guard is preserved, not bypassed.
-Do not present this query as a successfully generated/price-validated tour.
+Earlier GV-DOCKER-002 testing returned `stale-or-mixed-itinerary-dates`.
+GV-DOCKER-004 fixes missing planning dates to follow actual stay lengths; the local
+query now succeeds with consistent dates. Provider dates and the rejection guard are
+preserved. Deployed Lambda is unchanged pending a separate approved backend release.
 Some date/provider-dependent queries will not work without separate backend work.
 
 ## Evidence and sizing
