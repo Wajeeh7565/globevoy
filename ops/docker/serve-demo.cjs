@@ -10,6 +10,25 @@ const parsed = new URL(origin);
 if (!['http:', 'https:'].includes(parsed.protocol) || parsed.origin !== origin || parsed.username || parsed.password) {
   throw Error('GLOBEVOY_DEMO_ORIGIN must be one exact HTTP(S) origin, without credentials, path or query');
 }
+const target = JSON.parse(fs.readFileSync(path.join(root, 'runtime/docker-target.json'), 'utf8'));
+if (!['isolated','production','staging'].includes(target.target) ||
+    Object.keys(target).sort().join(',') !== 'origin,target' ||
+    (target.target === 'isolated' ? target.origin !== null :
+      target.origin !== origin || parsed.protocol !== 'https:')) {
+  throw Error('Selected Lambda target requires its existing approved HTTPS website origin; demo hostnames cannot enable remote authentication.');
+}
+const connected = target.target !== 'isolated';
+if (connected) {
+  const packagedPolicy = require(path.join(root, 'runtime/environment-policy.js'));
+  if ((target.target === 'production' && origin !== 'https://globevoy.com') ||
+      (target.target === 'staging' && origin !== packagedPolicy.stagingOrigin) ||
+      packagedPolicy.resolve(origin).environment !== target.target) {
+    throw Error('Docker manifest does not match the packaged Lambda environment policy.');
+  }
+}
+const notice = connected
+  ? 'Lambda connection profile selected. Browser origin, Cognito and provider safety checks still apply. Prices require revalidation before booking.'
+  : 'Isolated demo: accounts and booking are unavailable here. React uses Leaflet/OpenStreetMap; classic Google Maps is unconfigured. Prices require revalidation. <a href="https://globevoy.com/react/account/" target="_blank" rel="noopener noreferrer">Open your secure GlobeVoy account</a> (separate website; no trip or token transfer).';
 const publicRoutes = new Set(['/health', '/api/city-registry', '/api/recommendations',
   '/api/generated-tour', '/api/multicity-tours', '/api/mixed-results', '/api/generated-tour-control', '/api/flex-windows']);
 const mime = {'.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8',
@@ -26,6 +45,9 @@ http.createServer(async (req, res) => {
   catch { return json(res, 400, 'Invalid URL'); }
   // Never expose prototype administrative/provider routes or route an API miss to HTML.
   if (pathname === '/health' || pathname === '/api' || pathname.startsWith('/api/')) {
+    // Remote profiles use the existing browser API/auth clients directly. Never
+    // spoof Origin, forward tokens server-side, or fall back to another backend.
+    if (connected && pathname !== '/health') return json(res, 409, 'Use the selected Lambda directly; no API proxy or local fallback');
     if (!publicRoutes.has(pathname)) return json(res, 404, 'API unavailable in isolated demo');
     if (req.method !== 'GET') return json(res, 405, 'GET required');
     const requestOrigin = req.headers.origin;
@@ -36,6 +58,13 @@ http.createServer(async (req, res) => {
       return writeHead.call(this, status, {...headers, 'Access-Control-Allow-Origin':origin, Vary:'Origin'});
     };
     return api.emit('request', req, res);
+  }
+  if (connected && req.headers.host !== parsed.host) {
+    if (target.target === 'production' && req.headers.host === 'www.globevoy.com') {
+      res.writeHead(302, { Location: origin + new URL(req.url, origin).pathname + new URL(req.url, origin).search });
+      return res.end();
+    }
+    return json(res, 403, 'Host is not the approved Lambda frontend origin');
   }
   if (!['GET','HEAD'].includes(req.method)) return json(res, 405, 'GET or HEAD required');
   if (pathname === '/runtime/demo-config.js') {
@@ -52,7 +81,7 @@ http.createServer(async (req, res) => {
     if (path.extname(file) === '.html') {
       body = Buffer.from(body.toString().replace(/<head([^>]*)>/i,
         '<head$1><script src="/runtime/demo-config.js"></script>')
-        .replace(/<body([^>]*)>/i, '<body$1><aside role="note">Isolated demo: accounts, booking and live Maps are unavailable. Prices require revalidation.</aside>'));
+        .replace(/<body([^>]*)>/i, '<body$1><aside role="note">'+notice+'</aside>'));
     }
     res.writeHead(200, {'Content-Type':mime[path.extname(file)] || 'application/octet-stream',
       'Content-Length':body.length, 'X-Content-Type-Options':'nosniff', 'Cache-Control':'no-store'});

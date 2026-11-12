@@ -1127,13 +1127,17 @@ function enrichStopsForPresentation(stops, query) {
   }));
 }
 
-function enrichLegsForPresentation(legs, query) {
+function enrichLegsForPresentation(legs, query, stops = []) {
   const month = safeMonth(query.month || query.preferredMonth);
+  // Only synthesize missing planning dates. Fixed/provider-observed dates retain
+  // precedence and still fail the unchanged consistency guard if incompatible.
+  let nextPlanningDate = isoDateFromMonth(month, 0);
   return (Array.isArray(legs) ? legs : []).map((leg, index) => {
     const isFlight = legHasFlightComponent677AR1(leg);
     // GV-DATE-666B: rejected provider evidence is evidence only. It must never
     // overwrite the official route date shown on cards, calendars, or links.
-    const departureDate = officialDepartureDateForLeg(leg, isoDateFromMonth(month, index * 2));
+    const departureDate = officialDepartureDateForLeg(leg, nextPlanningDate);
+    if (index < stops.length) nextPlanningDate = addDaysIso(departureDate, stopNightsForLeg(stops, index));
     const verifiedAirline = isFlight ? airlineForLeg(leg, index) : null;
     return {
       ...leg,
@@ -1220,7 +1224,7 @@ function buildVisualizerTour(tour, query = {}, enrichment = {}) {
   const currency = displayCurrency(query);
   const displayOrigin = canonicalizeOriginForDisplay(tour.origin || {});
   const integrityLegs = canonicalizeLegsForDisplay(Array.isArray(tour.legs) ? tour.legs : []).map(normalizeTransportModeIntegrity677AR1);
-  const presentationLegs = enrichLegsForPresentation(integrityLegs, query);
+  const presentationLegs = enrichLegsForPresentation(integrityLegs, query, Array.isArray(tour.stops) ? tour.stops : []);
   const dateAlignedStops = synchronizeStopsWithLegDates(Array.isArray(tour.stops) ? tour.stops : [], presentationLegs);
   const presentationStops = enrichStopsForPresentation(dateAlignedStops, query);
   const stops = presentationStops.map(stop => enrichStay(stop, query));
