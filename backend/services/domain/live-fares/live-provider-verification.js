@@ -15,6 +15,7 @@ const { applyCanonicalIntegrity, enabled: canonicalIntegrityEnabled, CANONICAL_I
 const { SOURCE_TYPES, normalizeFlightEvidence, normalizeHotelEvidence } = require('../pricing/price-evidence-integrity');
 const { STAY22_EVIDENCE_VERSION_682B, enabled: stay22EvidenceEnabled682B, fetchStay22Evidence } = require('../../providers/stays/stay22/stay22-evidence-682b');
 const { PROPERTY_IDENTITY_VERSION_682C, buildPropertyIdentity } = require('../../providers/stays/shared/property-identity-682c');
+const { isDuffelEvidence, usableDuffelEvidence } = require('../../providers/flights/duffel/live-evidence-integrity-005');
 
 const LIVE_PROVIDER_VERIFICATION_VERSION = 'GV-EVIDENCE-667E';
 const DEFAULT_MAX_FLIGHT_LEGS = 4;
@@ -232,6 +233,19 @@ async function verifyFlightLeg(leg, query = {}, options = {}) {
   // LIVE/DECISION_GRADE observation, later legacy/default-provider verification may
   // not overwrite it with cached/planning evidence. Preserve it and skip the
   // redundant provider lookup entirely.
+  const priorEvidence = leg.providerDateEvidence || leg.cheapestOneWay || {};
+  if (isDuffelEvidence(priorEvidence) && !usableDuffelEvidence(priorEvidence, {
+    origin: endpointCode(leg.from), destination: endpointCode(leg.to),
+    departureDate: safeDate(leg.departureDate || leg.dateLabel), passengers: normalizeParty(query).travellers
+  }, options.nowMs ?? Date.now())) {
+    const unavailable = { ...priorEvidence, sourceType: SOURCE_TYPES.UNAVAILABLE,
+      productionEligible: false, appliedToEstimate: false,
+      priceEvidence: { ...priorEvidence.priceEvidence, sourceType: SOURCE_TYPES.UNAVAILABLE, amount: null, isBookable: false } };
+    return { leg: { ...leg, liveFareVerified: false, providerVerificationRequired: true,
+      providerDateEvidence: unavailable, cheapestOneWay: unavailable,
+      providerVerification: { verified: false, productionEligible: false, critical: true, status: 'duffel-offer-unusable-refresh-required' } },
+      outcome: 'unusable-live-evidence' };
+  }
   const preserved683JR2 = preserveExistingLiveDecisionGrade683JR2(leg, query);
   if (preserved683JR2) return preserved683JR2;
 

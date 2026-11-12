@@ -16,6 +16,7 @@ const { GLOBAL_ROUTE_GRAPH_VERSION, globalRouteGraphEnabled, generateProviderDri
 const { PRICING_INTEGRITY_VERSION, normalizeParty, providerFarePartyTotalUsd, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
 const { LIVE_PROVIDER_VERIFICATION_VERSION, enabled: liveProviderVerificationEnabled, verifyTourWithLiveProviders } = require('../live-fares/live-provider-verification');
 const { VERSION_684A, applyPublicLiveFarePilot684A, status684A } = require('../live-fares/public-live-fare-pilot-684a');
+const { preferSelectedExactFlights } = require('../live-fares/selected-flight-policy-005');
 const { VERSION_684B, discoverAffordableFlightTour684B, status684B } = require('../live-fares/affordable-flight-discovery-684b');
 const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('../../cities/registry/verified-city-activation');
 const { ENTRY_ELIGIBILITY_VERSION, recommendationEligibility } = require('../eligibility/travel-entry-eligibility');
@@ -1032,7 +1033,7 @@ function synchronizeStopsWithLegDates(stops, legs) {
   const nextStops = (Array.isArray(stops) ? stops : []).map((stop) => ({ ...stop }));
   for (let index = 0; index < nextStops.length; index += 1) {
     const inboundLeg = Array.isArray(legs) ? legs[index] : null;
-    const arrival = safeIsoDate(inboundLeg?.departureDate || inboundLeg?.cheapestOneWay?.departureDate);
+    const arrival = officialArrivalDateForLeg(inboundLeg || {});
     if (!arrival) continue;
     const nights = stopNightsForLeg(nextStops, index);
     nextStops[index].arrivalDate = arrival;
@@ -1067,12 +1068,20 @@ function officialDepartureDateForLeg(leg = {}, fallbackDate = null) {
     || safeIsoDate(fallbackDate);
 }
 
+function officialArrivalDateForLeg(leg = {}) {
+  // Hotel check-in follows destination-local arrival, not the previous day's
+  // takeoff. Never move the following priced leg to hide a shorter stay.
+  const evidence = providerEvidenceForLeg(leg);
+  return (providerFareAppliedForLeg(leg) ? safeIsoDate(evidence.arrivalDate || leg.arrivalDate) : null)
+    || officialDepartureDateForLeg(leg);
+}
+
 function itineraryDateConsistency(stops = [], legs = []) {
   const issues = [];
   const safeStops = Array.isArray(stops) ? stops : [];
   const safeLegs = Array.isArray(legs) ? legs : [];
   for (let index = 0; index < safeStops.length; index += 1) {
-    const legDate = officialDepartureDateForLeg(safeLegs[index]);
+    const legDate = officialArrivalDateForLeg(safeLegs[index]);
     const arrival = safeIsoDate(safeStops[index]?.arrivalDate);
     const departure = safeIsoDate(safeStops[index]?.departureDate);
     const expectedDeparture = arrival ? addDaysIso(arrival, stopNightsForLeg(safeStops, index)) : null;
@@ -2066,6 +2075,14 @@ async function fetchCheapDateEvidenceForLeg({ origin, destination, currency, que
   return fetchFlightDates683C({ origin, destination, currency, month: safeMonth(startMonth || query.month || query.preferredMonth), limit: 8 });
 }
 
+async function enrichFinalSelectedSchedule(tour, query, priorEnrichment = null) {
+  const exactDates = Boolean(exactDateWindow669d(query));
+  return preferSelectedExactFlights(exactDates ? applyExactDateWindow669d(tour, query) : tour, query, {
+    exactDates,
+    fallback: priorEnrichment ? async () => priorEnrichment : enrichTourWithCheapFlights
+  });
+}
+
 async function enrichTourWithCheapFlights(tour, query = {}) {
   if (!scannerEnabled()) {
     const exactTour = exactDateWindow669d(query) ? applyExactDateWindow669d(tour, query) : tour;
@@ -2437,9 +2454,10 @@ async function globalFallbackResponse(routeQuery, reason, details = {}) {
       diagnostics: { generatedTourSelected: false, entryEligibilityVersion: ENTRY_ELIGIBILITY_VERSION, entryRestrictedFallback: true }
     };
   }
-  let enrichment = await enrichTourWithCheapFlights(fallbackGuard.tour, routeQuery);
-  if (isOverUserBudget(enrichment.tour, routeQuery)) {
+  let enrichment = await enrichFinalSelectedSchedule(fallbackGuard.tour, routeQuery);
+  if (isOverUserBudget(enrichment.tour, routeQuery) && !enrichment.selectedScheduleLiveFare?.summary?.applied) {
     enrichment = {
+      selectedScheduleLiveFare: enrichment.selectedScheduleLiveFare ? { ...enrichment.selectedScheduleLiveFare, tour: fallback.tour } : null,
       tour: fallback.tour,
       summary: {
         enabled: scannerEnabled(),
@@ -2453,7 +2471,7 @@ async function globalFallbackResponse(routeQuery, reason, details = {}) {
       }
     };
   }
-  const publicLiveFare684A = await applyPublicLiveFarePilot684A(enrichment.tour, routeQuery);
+  const publicLiveFare684A = enrichment.selectedScheduleLiveFare || await applyPublicLiveFarePilot684A(enrichment.tour, routeQuery);
   const liveVerification = await verifyTourWithLiveProviders(publicLiveFare684A.tour, routeQuery);
   enrichment = {
     ...enrichment,
@@ -3049,13 +3067,18 @@ async function getGeneratedTour(query = {}) {
 
   let enrichment = selection?.enrichment;
   performanceR3.cheapFlightEnrichmentReused = Boolean(enrichment);
+  if (enrichment && exactDateWindow669d(routeQuery)) {
+    enrichment = await enrichFinalSelectedSchedule(enrichment.tour, routeQuery, enrichment);
+  }
   if (!enrichment) {
     const enrichmentStartedR3 = process.hrtime.bigint();
-    enrichment = await enrichTourWithCheapFlights(selectedTour, routeQuery);
+    enrichment = await enrichFinalSelectedSchedule(selectedTour, routeQuery);
     performanceR3.cheapFlightEnrichmentMs = elapsedR3(enrichmentStartedR3);
   }
-  if (isOverUserBudget(enrichment.tour, routeQuery)) {
+  if (isOverUserBudget(enrichment.tour, routeQuery) && !enrichment.selectedScheduleLiveFare?.summary?.applied) {
     enrichment = {
+      selectedScheduleLiveFare: enrichment.selectedScheduleLiveFare ? { ...enrichment.selectedScheduleLiveFare,
+        tour: exactDateWindow669d(routeQuery) ? applyExactDateWindow669d(selectedTour, routeQuery) : selectedTour } : null,
       tour: exactDateWindow669d(routeQuery) ? applyExactDateWindow669d(selectedTour, routeQuery) : selectedTour,
       summary: {
         enabled: scannerEnabled(),
@@ -3070,7 +3093,7 @@ async function getGeneratedTour(query = {}) {
     };
   }
   const publicLiveFareStartedR3 = process.hrtime.bigint();
-  const publicLiveFare684A = await applyPublicLiveFarePilot684A(enrichment.tour, routeQuery);
+  const publicLiveFare684A = enrichment.selectedScheduleLiveFare || await applyPublicLiveFarePilot684A(enrichment.tour, routeQuery);
   performanceR3.publicLiveFare684AMs = elapsedR3(publicLiveFareStartedR3);
   const verificationStartedR3 = process.hrtime.bigint();
   const liveVerification = await verifyTourWithLiveProviders(publicLiveFare684A.tour, routeQuery);

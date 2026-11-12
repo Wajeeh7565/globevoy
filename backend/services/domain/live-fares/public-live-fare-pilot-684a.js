@@ -36,6 +36,7 @@ const {
 const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
 const adultScope703E = require('../../providers/flights/duffel/duffel-adult-scope-703e');
 const { currencyToUsdRate, normalizeCurrency } = require('../pricing/budget-presentation');
+const { usableDuffelEvidence } = require('../../providers/flights/duffel/live-evidence-integrity-005');
 
 const VERSION_684A = 'GV-FLIGHT-684A';
 const VERSION_685C_R3 = 'GV-FLIGHT-685C-R3';
@@ -170,7 +171,7 @@ function eligibility684A(tour = {}, query = {}, env = process.env) {
   return { eligible: true, reason: null, party, tasks, firstOrigin, allowedOrigins, maxAdults: adultScope.maxAdults };
 }
 
-function completeAppliedEvidence684A(tour = {}) {
+function completeAppliedEvidence684A(tour = {}, query = {}, nowMs = Date.now()) {
   const tasks = buildTasks684A(tour);
   if (!tasks.length) return { complete: false, tasks, liveCount: 0, selectionCount: 0, currencySafetyCount: 0, reconciliationCount: 0, metroCount: 0 };
   let liveCount = 0;
@@ -182,7 +183,7 @@ function completeAppliedEvidence684A(tour = {}) {
     const leg = Array.isArray(tour.legs) ? tour.legs[task.index] : null;
     const evidence = leg?.providerDateEvidence || leg?.cheapestOneWay || {};
     const marker = evidence?.publicLiveFareEvidence684A || leg?.publicLiveFarePilot684A || {};
-    if (marker?.version === VERSION_684A && evidence?.sourceType === 'LIVE' && evidence?.productionEligible === true) liveCount += 1;
+    if (marker?.version === VERSION_684A && usableDuffelEvidence(evidence, { ...task, passengers: normalizeParty(query).travellers }, nowMs)) liveCount += 1;
     if (evidence?.fareSelection685C?.version === VERSION_685C || marker?.fareSelectionVersion === VERSION_685C) selectionCount += 1;
     if (evidence?.fareSelection685C?.providerCurrencySafetyVersion === VERSION_685C_R2 || marker?.providerCurrencySafetyVersion === VERSION_685C_R2) currencySafetyCount += 1;
     if (evidence?.wholeTripFareReconciliation685CR1?.version === VERSION_685C_R1 || marker?.wholeTripFareReconciliationVersion === VERSION_685C_R1) reconciliationCount += 1;
@@ -317,7 +318,7 @@ async function applyPublicLiveFarePilot684A(tour = {}, query = {}, options = {})
   };
   const beforeTotalUsd = totalUsd684A(tour);
   const budgetCeilingUsd = budgetCeilingUsd684A(tour, query);
-  const reused = completeAppliedEvidence684A(tour);
+  const reused = completeAppliedEvidence684A(tour, query, options.nowMs ?? Date.now());
   if (reused.complete) {
     const reusedStrictBudgetFit = strictBudgetFit685CR1(beforeTotalUsd, tour, query);
     return {
