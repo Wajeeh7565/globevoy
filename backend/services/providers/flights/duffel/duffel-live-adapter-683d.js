@@ -89,7 +89,9 @@ function safeIata(value) {
 
 function safeIsoDate(value) {
   const s = String(value || '').slice(0, 10);
-  return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  const parsed = new Date(s + 'T00:00:00Z');
+  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === s ? s : null;
 }
 
 function safeCurrency(value) {
@@ -184,6 +186,12 @@ function normalizeLiveOffer683D(offer = {}, request = {}, context = {}) {
   if (offer?.live_mode !== true || context.requestLiveMode !== true) return null;
   if (!exactOfferMatch683D(offer, request)) return null;
   if (!notExpired683D(offer?.expires_at, context.nowMs)) return null;
+  // The adapter requests adults only. Do not overwrite conflicting provider
+  // passenger records with the requested count.
+  if (Object.hasOwn(offer, 'passengers') && (!Array.isArray(offer.passengers)
+      || offer.passengers.length !== request.passengers
+      || offer.passengers.some(passenger => !passenger || typeof passenger !== 'object' || Array.isArray(passenger)
+        || (passenger.type && passenger.type !== 'adult')))) return null;
 
   const slices = Array.isArray(offer?.slices) ? offer.slices : [];
   const endpoint = sliceEndpoints(slices[0] || {});

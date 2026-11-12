@@ -22,6 +22,8 @@ const fx = async input => ({supported:input.providerCurrency==='USD' && input.di
   providerCurrency:input.providerCurrency,displayAmount:input.providerAmount,displayCurrency:input.displayCurrency,
   crossRate:1,rateDate:null,conversionApplied:false,originalProviderEvidencePreserved:true});
 function raw(args, extra={}) { return {supported:true, observations:[{...args,currency:'USD',totalPrice:120,price:120,
+  fareAmountBasis:'party-total',providerPartyTotalAmount:Object.hasOwn(extra,'totalPrice')?extra.totalPrice:120,
+  providerPassengerCount:extra.passengers||args.passengers||1,
   passengers:1,airline:'Offline fixture',stops:0,transfers:0,durationMinutes:120,liveMode:true,
   source:'duffel-live-683d',providerReference:'offline-offer',observedAt:new Date().toISOString(),
   expiresAt:new Date(Date.now()+3600000).toISOString(),...extra}]}; }
@@ -53,6 +55,8 @@ for(const [name,options,q,t] of [
   ['flexible discovery',{exactDates:false},query(),tour()],
   ['disabled gate',{env:{...env,ENABLE_DUFFEL_PUBLIC_LIVE_FARE_PILOT_684A:'false'}},query(),tour()],
   ['children',{}, {...query(),children:1},tour()],
+  ['infants',{}, {...query(),infants:1},tour()],
+  ['two production adults',{}, {...query(),adults:2},tour()],
   ['unapproved origin',{},query(),tour('LHR')]
 ]) test(name+' preserves existing fallback without provider calls',async()=>{
   const h=harness(options),r=await preferSelectedExactFlights(t,q,h.options);
@@ -168,4 +172,87 @@ test('overnight arrival sets hotel check-in without shifting the onward priced f
   assert.equal(dates.itineraryDateConsistency(valid,legs).consistent,true);
   const handoff=enrichStay({...stay('https://www.agoda.com/partners/partnersearch.aspx?hid=42'),...valid[0]},query());
   assert.equal(new URL(handoff.hotel.booking.url).searchParams.get('checkin'),'2027-03-21');
+});
+
+test('impossible flight dates are rejected before any provider request',async()=>{
+  const adapter=require('../../backend/services/providers/flights/duffel/duffel-live-adapter-683d');
+  for(const departureDate of ['2027-02-29','2027-02-30','2027-04-31','2027-13-01']) {
+    let requests=0;
+    const result=await adapter.searchExactDate683D({origin:'YYZ',destination:'LHR',departureDate,passengers:1,currency:'USD'},
+      {env,fetch:async()=>{requests++;throw Error('Invalid date reached provider')}});
+    assert.equal(requests,0,departureDate);assert.equal(result.supported,false);
+  }
+  assert.equal(adapter.validateExactSearch683D({origin:'YYZ',destination:'LHR',departureDate:'2028-02-29',passengers:1,currency:'USD'}).valid,true);
+});
+
+test('invalid explicit hotel checkout is not silently replaced with a calculated date',()=>{
+  const input=stay('https://www.agoda.com/partners/partnersearch.aspx?hid=42');
+  assert.equal(enrichStay({...input,departureDate:'2027-02-30'},query()).hotel.booking.url,null);
+  const missing={...input,departureDate:null};
+  assert.equal(enrichStay(missing,query()).hotel.booking.checkOut,'2027-03-23');
+});
+
+for(const statusCode of [401,429,500])test('mock HTTP '+statusCode+' cannot become successful live pricing',async()=>{
+  let calls=0;
+  const h=harness({searchExact:async()=>{calls++;return {supported:false,statusCode,observations:[],
+    reason:'mock-provider-failure',errorCode:statusCode===401?'expired_access_token':statusCode===429?'rate_limit_exceeded':'api_error'};}});
+  const result=await preferSelectedExactFlights(tour(),query(),h.options);
+  assert.equal(result.selectedScheduleLiveFare.summary.applied,false);
+  assert.equal(result.summary.providerSelection.priceSource,'cached-or-estimated');
+  assert.ok(calls<=12,'failures remain inside the shared request ceiling');
+  if(statusCode===401||statusCode===429)assert.ok(calls<=2,'no requests beyond the initially dispatched bounded batch');
+});
+
+test('missing and zero provider prices remain planning estimates',async()=>{
+  for(const patch of [{price:null,totalPrice:null},{price:0,totalPrice:0},{price:-1,totalPrice:-1}]) {
+    const h=harness({searchExact:async args=>raw(args,patch)});
+    const result=await preferSelectedExactFlights(tour(),query(),h.options);
+    assert.equal(result.selectedScheduleLiveFare.summary.applied,false);
+    assert.equal(result.summary.providerSelection.priceSource,'cached-or-estimated');
+  }
+});
+
+test('explicit provider passenger mismatches cannot masquerade as the requested party',()=>{
+  const adapter=require('../../backend/services/providers/flights/duffel/duffel-live-adapter-683d');
+  const request={origin:'YYZ',destination:'LHR',departureDate:'2027-03-20',passengers:1,currency:'USD'};
+  const context={requestLiveMode:true,nowMs:Date.now(),retrievedAt:new Date().toISOString()};
+  const offer={live_mode:true,total_amount:'500.00',total_currency:'USD',expires_at:new Date(Date.now()+3600000).toISOString(),
+    slices:[{origin:{iata_code:'YYZ'},destination:{iata_code:'LHR'},segments:[{departing_at:'2027-03-20T18:00:00',arriving_at:'2027-03-21T06:00:00'}]}]};
+  assert.ok(adapter.normalizeLiveOffer683D({...offer,passengers:[{id:'one',type:'adult'}]},request,context));
+  const twoAdults=adapter.normalizeLiveOffer683D({...offer,passengers:[{id:'one',type:'adult'},{id:'two',type:'adult'}]},
+    {...request,passengers:2},context);
+  assert.equal(twoAdults.providerPassengerCount,2);
+  assert.equal(twoAdults.providerPartyTotalAmount,500);
+  assert.equal(twoAdults.arrivalDate,'2027-03-21');
+  for(const passengers of [[],null,[null],['adult'],[42],[[]],[{id:'one'},{id:'two'}],[{id:'one',type:'child'}]])
+    assert.equal(adapter.normalizeLiveOffer683D({...offer,passengers},request,context),null);
+});
+
+test('additional approved origins and display currencies retain consistent itinerary totals',async()=>{
+  for(const [origin,currency] of [['YYZ','USD'],['JFK','CAD'],['LAX','EUR'],['DUB','GBP'],['DXB','AUD']]) {
+    const h=harness({normalizeFx:async input=>{
+      const rate={USD:1,CAD:1.4,EUR:0.95,GBP:0.8,AUD:1.5}[input.displayCurrency];
+      return {supported:true,provider:'offline-fx',providerAmount:input.providerAmount,
+        providerCurrency:input.providerCurrency,displayAmount:input.providerAmount*rate,displayCurrency:input.displayCurrency,
+        crossRate:rate,rateDate:'2026-11-12',conversionApplied:input.displayCurrency!=='USD',originalProviderEvidencePreserved:true};
+    }});
+    const q={...query(),currency},t=tour(origin);
+    const result=await preferSelectedExactFlights(t,q,h.options);
+    assert.equal(result.selectedScheduleLiveFare.summary.applied,true,origin+'/'+currency);
+    assert.equal(usableTour(result.tour,q),true);assert.equal(result.tour.estimatedTotalUsd,360);
+    for(const leg of result.tour.legs)assert.equal(leg.providerDateEvidence.providerCurrency,'USD');
+  }
+});
+
+test('two adults require the existing staging scope and retain party-total arithmetic',async()=>{
+  const q={...query(),adults:2};
+  const h=harness({env:{...env,CORS_ORIGIN:'https://staging.dy4fw8gx1ccie.amplifyapp.com',GV_DUFFEL_MAX_ADULTS_703E:'2'},
+    searchExact:async args=>raw(args,{passengers:2})});
+  const result=await preferSelectedExactFlights(tour(),q,h.options);
+  assert.equal(result.selectedScheduleLiveFare.summary.applied,true);
+  assert.equal(result.tour.estimatedTotalUsd,360);
+  for(const leg of result.tour.legs) {
+    assert.equal(leg.providerDateEvidence.providerPassengerCount,2);
+    assert.equal(leg.providerDateEvidence.providerPartyTotalAmount,120);
+  }
 });

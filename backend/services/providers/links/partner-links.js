@@ -301,8 +301,8 @@ function enrichStay(stop = {}, query = {}) {
   const passengers = passengersFromQuery(query);
   const currency = currencyFromQuery(query);
   const checkIn = safeIsoDate(next.arrivalDate || next.checkIn || hotel.checkIn);
-  const checkOut = safeIsoDate(next.departureDate || next.checkOut || hotel.checkOut)
-    || addDays(checkIn, next.nights || 1);
+  const explicitCheckOut = next.departureDate || next.checkOut || hotel.checkOut;
+  const checkOut = explicitCheckOut ? safeIsoDate(explicitCheckOut) : addDays(checkIn, next.nights || 1);
   const cityId = Number(next.agodaCityId || hotel.agodaCityId || hotel.providerCityId || record.agodaCityId || 0) || null;
   const providerHotel = hotel.providerHotel || {};
   const r2AgodaHandoff = agodaHandoffIntegrity679AR2Enabled()
