@@ -26,7 +26,7 @@ function sanitize({category,response,durationMs,requestId,now=Date.now()},cfg){
  const arrays=[data.recommendations,data.tours,data.singleRecommendations,data.multiCityTours,data.observations,data.windows].filter(Array.isArray);
  const count=arrays.length?arrays.reduce((n,a)=>n+a.length,0):(data.tour?1:0);
  const status=Number(response.statusCode)||500;
- const outcome=status>=500?'error':status>=400?'rejected':data.supported===false?'unavailable':count?'results':'empty';
+ const outcome=status>=500?'error':status>=400?'rejected':data.ok===false?'error':data.supported===false?'unavailable':count?'results':'empty';
  // Do not infer LIVE from arbitrary response diagnostics or client data.
  const utcDate=new Date(now).toISOString().slice(0,10);
  return {schemaVersion:1,eventId:crypto.createHash('sha256').update(String(requestId||crypto.randomUUID())).digest('hex'),utcDate,category,outcome,resultCountBand:band(count),durationBand:durationMs<1000?'under_1s':durationMs<3000?'1_3s':durationMs<10000?'3_10s':'10s_plus',priceEvidence:evidence(data,now),expiresAt:Math.floor(Date.parse(utcDate+'T00:00:00Z')/1000)+cfg.retentionDays*86400};
