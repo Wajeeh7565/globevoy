@@ -14,6 +14,7 @@ const groups = {
 
   backend: [
     ['node', '--test', 'tests/backend/search-activity.test.cjs'],
+    ['python', '-B', 'tests/backend/search_activity_reporting_test.py'],
     ['node', '--test', 'tests/backend/trip-accuracy-005.test.cjs'],
     ['node', '--test', 'tests/backend/generated-tour-planning-dates.test.cjs'],
     ['node', '--test', 'tests/backend/server-http.test.cjs'],

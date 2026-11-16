@@ -44,14 +44,19 @@ function sanitize({category,response,durationMs,requestId,now=Date.now()},cfg){
  const outcome=status>=500?'error':status>=400?'rejected':data.ok===false?'error':data.supported===false?'unavailable':count?'results':'empty';
  // Do not infer LIVE from arbitrary response diagnostics or client data.
  const utcDate=new Date(now).toISOString().slice(0,10);
- return {schemaVersion:1,eventId:crypto.createHash('sha256').update(String(requestId||crypto.randomUUID())).digest('hex'),utcDate,category,outcome,resultCountBand:band(count),durationBand:durationMs<1000?'under_1s':durationMs<3000?'1_3s':durationMs<10000?'3_10s':'10s_plus',priceEvidence:evidence(data,now),expiresAt:Math.floor(Date.parse(utcDate+'T00:00:00Z')/1000)+cfg.retentionDays*86400};
+ return {schemaVersion:1,eventId:crypto.createHash('sha256').update(String(requestId||crypto.randomUUID())).digest('hex'),utcDate,utcHour:new Date(now).getUTCHours(),category,outcome,resultCountBand:band(count),durationBand:durationMs<1000?'under_1s':durationMs<3000?'1_3s':durationMs<10000?'3_10s':'10s_plus',priceEvidence:evidence(data,now),expiresAt:Math.floor(Date.parse(utcDate+'T00:00:00Z')/1000)+cfg.retentionDays*86400};
 }
 let client;
 async function persist(event,cfg,{send}={}){
  if(!send){const sdk=require('@aws-sdk/client-dynamodb');client ||= new sdk.DynamoDBClient({region:'us-east-2',maxAttempts:1});send=(input,opts)=>client.send(new sdk.TransactWriteItemsCommand(input),opts);}
  const item=Object.fromEntries(Object.entries(event).map(([k,v])=>[k,typeof v==='number'?{N:String(v)}:{S:v}]));
  const PK={S:'DAY#'+event.utcDate};
- const input={TransactItems:[{Put:{TableName:cfg.table,Item:{...item,PK,SK:{S:'EVENT#'+event.eventId}},ConditionExpression:'attribute_not_exists(PK) AND attribute_not_exists(SK)'}},{Update:{TableName:cfg.table,Key:{PK,SK:{S:'COUNT#'+event.category+'#'+event.outcome}},UpdateExpression:'SET expiresAt = :ttl ADD #count :one',ExpressionAttributeNames:{'#count':'count'},ExpressionAttributeValues:{':one':{N:'1'},':ttl':{N:String(event.expiresAt)}}}}]};
+ const counter=SK=>({Update:{TableName:cfg.table,Key:{PK,SK:{S:SK}},UpdateExpression:'SET expiresAt = :ttl ADD #count :one',ExpressionAttributeNames:{'#count':'count'},ExpressionAttributeValues:{':one':{N:'1'},':ttl':{N:String(event.expiresAt)}}}});
+ const input={TransactItems:[
+  {Put:{TableName:cfg.table,Item:{...item,PK,SK:{S:'EVENT#'+event.eventId}},ConditionExpression:'attribute_not_exists(PK) AND attribute_not_exists(SK)'}},
+  counter('COUNT#'+event.category+'#'+event.outcome),
+  counter('HOUR#'+String(event.utcHour).padStart(2,'0')+'#'+event.category+'#'+event.outcome)
+ ]};
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),200);
  try{await send(input,{abortSignal:controller.signal});return 'recorded';}catch(error){if(error.name==='TransactionCanceledException'&&error.CancellationReasons?.[0]?.Code==='ConditionalCheckFailed'&&error.CancellationReasons.slice(1).every(r=>r.Code==='None'))return 'duplicate';throw error;}finally{clearTimeout(timer);}
 }
