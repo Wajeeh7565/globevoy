@@ -139,7 +139,7 @@
       "Type": "AWS::Logs::MetricFilter",
       "Properties": {
         "LogGroupName": "/aws/lambda/globevoy-recommendations",
-        "FilterPattern": "{ $.component = \"search_activity\" && $.status = \"write_failed\" }",
+        "FilterPattern": "\"search_activity\" \"write_failed\"",
         "MetricTransformations": [
           {
             "MetricNamespace": "GlobeVoy/SearchActivity",
