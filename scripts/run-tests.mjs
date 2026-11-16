@@ -50,6 +50,8 @@ const groups = {
   ],
 
   account: [
+    ['node', '--test', 'tests/backend/login-history.test.cjs'],
+    ['python', '-B', 'tests/backend/login-history-report.test.py'],
     ['node', 'backend/validation/validate-gv-production-account.js'],
     ['node', 'backend/validation/validate-gv-account-705b-r3.js'],
     ['node', 'backend/validation/validate-gv-account-705c.js'],
