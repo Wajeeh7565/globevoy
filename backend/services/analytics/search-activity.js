@@ -38,7 +38,7 @@ async function persist(event,cfg,{send}={}){
  const PK={S:'DAY#'+event.utcDate};
  const input={TransactItems:[{Put:{TableName:cfg.table,Item:{...item,PK,SK:{S:'EVENT#'+event.eventId}},ConditionExpression:'attribute_not_exists(PK) AND attribute_not_exists(SK)'}},{Update:{TableName:cfg.table,Key:{PK,SK:{S:'COUNT#'+event.category+'#'+event.outcome}},UpdateExpression:'SET expiresAt = :ttl ADD #count :one',ExpressionAttributeNames:{'#count':'count'},ExpressionAttributeValues:{':one':{N:'1'},':ttl':{N:String(event.expiresAt)}}}}]};
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),200);
- try{await send(input,{abortSignal:controller.signal});}finally{clearTimeout(timer);}
+ try{await send(input,{abortSignal:controller.signal});return 'recorded';}catch(error){if(error.name==='TransactionCanceledException'&&error.CancellationReasons?.[0]?.Code==='ConditionalCheckFailed'&&error.CancellationReasons.slice(1).every(r=>r.Code==='None'))return 'duplicate';throw error;}finally{clearTimeout(timer);}
 }
 function wrap(handler,options={}){
  return async function(event={},context={}){
@@ -52,8 +52,8 @@ function wrap(handler,options={}){
     const cfg=configuration(options.config===undefined?loadConfig():options.config);if(!cfg)return;
     if(context.getRemainingTimeInMillis&&context.getRemainingTimeInMillis()<400)return;
     const sanitized=sanitize({category:routes[path],response:result,durationMs:Date.now()-started,requestId:context.awsRequestId||event.requestContext?.requestId},cfg);
-    await (options.persist||persist)(sanitized,cfg);
-    try{(options.log||console.log)(JSON.stringify({component:'search_activity',status:'recorded'}));}catch{}
+    const result=await (options.persist||persist)(sanitized,cfg);
+    try{(options.log||console.log)(JSON.stringify({component:'search_activity',status:result==='duplicate'?'duplicate':'recorded'}));}catch{}
     return sanitized.eventId;
    }catch(_){try{(options.log||console.log)(JSON.stringify({component:'search_activity',status:'write_failed'}));}catch{}}
   }
