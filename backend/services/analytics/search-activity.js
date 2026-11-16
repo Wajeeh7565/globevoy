@@ -11,11 +11,12 @@ function band(n){return n===0?'0':n<=5?'1-5':n<=20?'6-20':'21+';}
 function evidence(data,now){
  const found=new Set();let visited=0;
  function walk(value,depth=0){if(!value||typeof value!=='object'||depth>12||++visited>10000)return;
+  if(Array.isArray(value.stays)&&value.stays.some(stay=>{const e=stay?.hotel?.priceEvidence||stay?.priceEvidence;return !(e?.sourceType==='LIVE'&&e.productionEligible===true&&Date.parse(e.expiresAt)>now);}))found.add('estimated');
   for(const key of ['priceEvidence','priceProvenance','providerDateEvidence']){const e=value[key];if(!e)continue;const t=String(e.sourceType||'').toUpperCase();
    if(t==='ESTIMATED'||t==='CACHED'||t==='UNAVAILABLE')found.add(t.toLowerCase());
    else if(t==='LIVE'&&e.productionEligible===true&&Date.parse(e.expiresAt)>now)found.add('live');
   }
-  for(const [key,v]of Object.entries(value))if(!['priceEvidence','priceProvenance','providerDateEvidence'].includes(key))walk(v,depth+1);
+  for(const [key,v]of Object.entries(value))if(!['priceEvidence','priceProvenance','providerDateEvidence','diagnostics','cheapFlightScanner','candidateEvidence','monthlyObservations'].includes(key))walk(v,depth+1);
  }
  walk(data);return found.size>1?'mixed':[...found][0]||'not_assessed';
 }
