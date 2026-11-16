@@ -10,15 +10,30 @@ function loadConfig(){try{return configuration(require('./activity-build.json'))
 function band(n){return n===0?'0':n<=5?'1-5':n<=20?'6-20':'21+';}
 function evidence(data,now){
  const found=new Set();let visited=0;
- function walk(value,depth=0){if(!value||typeof value!=='object'||depth>12||++visited>10000)return;
-  if(Array.isArray(value.stays)&&value.stays.some(stay=>{const e=stay?.hotel?.priceEvidence||stay?.priceEvidence;return !(e?.sourceType==='LIVE'&&e.productionEligible===true&&Date.parse(e.expiresAt)>now);}))found.add('estimated');
-  for(const key of ['priceEvidence','priceProvenance','providerDateEvidence']){const e=value[key];if(!e)continue;const t=String(e.sourceType||'').toUpperCase();
-   if(t==='ESTIMATED'||t==='CACHED'||t==='UNAVAILABLE')found.add(t.toLowerCase());
-   else if(t==='LIVE'&&e.productionEligible===true&&Date.parse(e.expiresAt)>now)found.add('live');
-  }
-  for(const [key,v]of Object.entries(value))if(!['priceEvidence','priceProvenance','providerDateEvidence','diagnostics','cheapFlightScanner','candidateEvidence','monthlyObservations'].includes(key))walk(v,depth+1);
+ const fresh=e=>e?.sourceType==='LIVE'&&e.productionEligible===true&&Date.parse(e.expiresAt)>now;
+ function classify(value,hotel=false){
+  const e=value?.providerDateEvidence||value?.priceEvidence||value?.priceProvenance;
+  if(fresh(e)&&(!hotel||(value.providerVerification?.verified===true&&value.providerVerification?.productionEligible===true&&value.providerVerification?.exactStayDates===true)))return 'live';
+  const t=String(e?.sourceType||'').toLowerCase();
+  if(['cached','estimated','unavailable'].includes(t))return t;
+  if(hotel||Object.keys(value||{}).some(k=>/^estimated/.test(k)&&Number(value[k])>0))return 'estimated';
+  return 'not_assessed';
  }
- walk(data);return found.size>1?'mixed':[...found][0]||'not_assessed';
+ function product(value,depth=0){
+  if(!value||typeof value!=='object'||depth>8||++visited>10000)return;
+  if(Array.isArray(value)){for(const v of value)product(v,depth+1);return;}
+  if(value.hotel)found.add(classify(value.hotel,true));
+  const coverage=value.publicLiveFarePilot684A||value.revalidation;
+  if(coverage&&(coverage.allFlightLegsLive===false||coverage.applied===false||Number(coverage.requiredFlightLegCount)>Number(coverage.liveFlightLegCount)))found.add('not_assessed');
+  const legs=Array.isArray(value.backendLegs)&&value.backendLegs.length?value.backendLegs:value.legs;
+  const stops=Array.isArray(value.stops)&&value.stops.length?value.stops:value.stays;
+  if(Array.isArray(legs)&&legs.length)for(const leg of legs)found.add(classify(leg));
+  if(Array.isArray(stops)&&stops.length)for(const stop of stops)found.add(classify(stop?.hotel||stop,true));
+  if(!legs?.length&&!stops?.length)found.add(classify(value));
+ }
+ // Only returned products, never discovery candidates or response diagnostics.
+ for(const key of ['tour','tours','recommendations','singleRecommendations','multiCityTours','observations','windows'])product(data?.[key]);
+ return found.size>1?'mixed':[...found][0]||'not_assessed';
 }
 function sanitize({category,response,durationMs,requestId,now=Date.now()},cfg){
  if(!Object.values(routes).includes(category))throw Error('Invalid search category');

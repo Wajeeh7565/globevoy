@@ -17,3 +17,35 @@ test('TTL cannot expose precise search time within a UTC day',()=>{const args={c
 test('live flights with estimated hotels remain mixed and diagnostics cannot certify live',()=>{const live={sourceType:'LIVE',productionEligible:true,expiresAt:'2099-01-01'};const r={statusCode:200,body:JSON.stringify({tour:{legs:[{providerDateEvidence:live}],stays:[{hotel:{estimatedStayUsd:100}}]}})};assert.equal(a.sanitize({category:'generated_tour',response:r,durationMs:1},cfg).priceEvidence,'mixed');assert.equal(a.sanitize({category:'generated_tour',response:{statusCode:200,body:JSON.stringify({diagnostics:{priceEvidence:live}})},durationMs:1},cfg).priceEvidence,'not_assessed');});
 
 test('an application-level failure is not counted as an empty successful search',()=>assert.equal(a.sanitize({category:'generated_tour',response:{statusCode:200,body:JSON.stringify({ok:false,error:'private error'})},durationMs:1},cfg).outcome,'error'));
+
+test('real generated-tour response shapes with stops cannot certify partial flight or hotel estimates',async()=>{
+ const tours=await require('../frontend/generated-tour-fixtures.cjs').generatedTours();
+ for(const raw of tours){
+  const tour=structuredClone(raw);assert.ok(tour.stops.length);delete tour.stays;
+  const legs=tour.backendLegs||tour.legs;assert.ok(legs.length>1);
+  const quote={sourceType:'LIVE',productionEligible:true,expiresAt:'2099-01-01'};
+  for(const leg of legs){delete leg.priceProvenance;leg.providerDateEvidence={...quote};}
+  const response=()=>({statusCode:200,body:JSON.stringify({ok:true,tour,tours:[tour]})});
+  assert.equal(a.sanitize({category:'generated_tour',response:response(),durationMs:1},cfg).priceEvidence,'mixed');
+  delete legs[1].providerDateEvidence;delete legs[1].priceEvidence;
+  assert.notEqual(a.sanitize({category:'generated_tour',response:response(),durationMs:1},cfg).priceEvidence,'live');
+  delete tour.stops;assert.notEqual(a.sanitize({category:'generated_tour',response:response(),durationMs:1},cfg).priceEvidence,'live');
+ }
+});
+test('TTL uses UTC day start plus 30 days, including month boundaries',()=>{
+ for(const now of [Date.UTC(2026,10,16,0),Date.UTC(2026,10,16,23,59,59)])assert.equal(a.sanitize({category:'recommendations',response,durationMs:1,now},cfg).expiresAt,Date.UTC(2026,11,16)/1000);
+});
+
+test('actual public generated-tour handler response with stops is classified conservatively',async()=>{
+ const keys=['GLOBEVOY_USE_MOCKS','ENABLE_MULTICITY_ROUTE_610B','ENABLE_GENERATED_TOUR_651A'];const prior=keys.map(k=>process.env[k]);
+ try{for(const k of keys)process.env[k]='true';const result=await require('../../backend/lambda').handler({rawPath:'/api/generated-tour',requestContext:{http:{method:'GET'}},queryStringParameters:{origin:'YYZ',budget:'5000',currency:'CAD',month:'2027-03',passengers:'1',nights:'7'},headers:{origin:'https://globevoy.com'}});assert.equal(result.statusCode,200);const body=JSON.parse(result.body);const tour=body.tour||body.tours?.[0];assert.ok(tour?.stops?.length,'real handler must return a selected tour with stops');assert.notEqual(a.sanitize({category:'generated_tour',response:result,durationMs:1},cfg).priceEvidence,'live');}
+ finally{keys.forEach((k,i)=>prior[i]===undefined?delete process.env[k]:process.env[k]=prior[i]);}
+});
+
+test('declared partial coverage and single recommendation hotel estimates cannot be all-live',()=>{
+ const live={sourceType:'LIVE',productionEligible:true,expiresAt:'2099-01-01'};
+ for(const tour of [{legs:[{providerDateEvidence:live}],publicLiveFarePilot684A:{allFlightLegsLive:false,requiredFlightLegCount:3,liveFlightLegCount:1}},{priceEvidence:live,hotel:{estimatedStayUsd:100}}])assert.notEqual(a.sanitize({category:'generated_tour',response:{statusCode:200,body:JSON.stringify({tour})},durationMs:1},cfg).priceEvidence,'live');
+});
+test('operator reads hide expired rows even before DynamoDB TTL deletion',()=>{const fs=require('node:fs'),script=fs.readFileSync('ops/analytics/daily-counts.py','utf8');assert.ok(script.includes("'--filter-expression','expiresAt > :now'"));assert.ok(script.includes("':now':{'N':str(int(time.time()))}"));});
+
+test('billing proposal is email-only and does not claim analytics-only attribution',()=>{const fs=require('node:fs'),t=JSON.parse(fs.readFileSync('ops/analytics/billing-alert-stack.json'));assert.equal(t.Parameters.MonthlyLimitUsd.Default,10);assert.equal(t.Parameters.AlertEmail.NoEcho,true);const budget=t.Resources.ServiceBudget.Properties;assert.deepEqual(budget.Budget.CostFilters.Service,['Amazon DynamoDB','AWS Lambda','AmazonCloudWatch']);assert.deepEqual(budget.NotificationsWithSubscribers.map(x=>[x.Notification.NotificationType,x.Notification.Threshold]),[['ACTUAL',80],['FORECASTED',100]]);assert.ok(budget.NotificationsWithSubscribers.every(x=>x.Subscribers[0].SubscriptionType==='EMAIL'));});

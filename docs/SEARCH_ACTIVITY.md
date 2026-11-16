@@ -45,3 +45,25 @@ Rollback stops new collection by restoring verified prior code without activity 
 
 ## Tests and current completion boundary
 Focused sanitizer/route/default-off/timeout/failure/idempotency/IaC tests plus existing backend/account/frontend/release groups are required. SDK and real DynamoDB integration, IAM transactional permissions,  CloudFormation application and real guest event verification remain deployment-stage gates, not claimed offline passes. No real DynamoDB acceptance yet. This PR is for review; production approval remains outstanding.
+
+
+## PR 135 review clarification
+Counts measure backend search actions, NOT unique users, sessions, human visits or confirmed bookings. A single person can generate several initial requests, calendar lookups and adjustments; bots also count. Auxiliary categories must not be summed as unique initial searches. No durable identifier links events to a person.
+
+Price classification now inspects returned products and actual legs/backendLegs plus stops/stays. Every component contributes a category: missing flight evidence and estimated hotels prevent an all-live label. Discovery diagnostics are not authoritative. Tests exercise maintained route-planner/buildVisualizerTour outputs and the actual public generated-tour handler offline, not only hand-written stays fixtures.
+
+Exact retention: expiresAt = midnight UTC of utcDate + retentionDays*86400. For November 16, 2026, expiry is December 16, 2026 at 00:00 UTC for ALL events that day. This is approximately 29–30 elapsed days, not a per-event rolling 720-hour guarantee; actual physical deletion is eventual. Operator queries filter expiresAt > current epoch time, even while expired rows remain physically present. See https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/TTL.html .
+
+Privacy publication is a launch gate: docs/SEARCH_ACTIVITY_PRIVACY_REVIEW.md identifies the existing public draft and provides proposed disclosure for owner/legal review. The HTML and production site have not been changed.
+
+Billing alert proposal: ops/analytics/billing-alert-stack.json prepares a separate US$10/month AWS Budgets COST budget with email notifications above 80% actual and 100% forecast. It covers all account DynamoDB, Lambda and CloudWatch service costs, including existing applications, not only incremental analytics costs. It is an alert, not an enforcement cap; data/notifications are delayed. Recipient approval is required; no budget, email subscription or notification was created. The main activity change set excludes this separate, unapproved billing stack. No SNS topic or budget action is introduced. Analytics-only attribution of shared Lambda cost is not available without a separately reviewed allocation method.
+
+
+### Exact unexecuted change set
+Stack: globevoy-search-activity (review metadata only, REVIEW_IN_PROGRESS).
+Change set: pr135-review-20261116T075315Z, CREATE_COMPLETE / AVAILABLE; NOT executed.
+Parameters: LambdaRoleName=globevoy-recommendations-role-tdjd59uh; RetentionDays=30; PrivacyRetentionApproved=true is the proposed preview configuration only, not authority to enable collection or a legal approval.
+Adds exactly ActivityTable, WriterPolicy, ReaderPolicy, ThrottleAlarm, WriteFailureFilter, WriteFailureAlarm. No Lambda, Saved Trips table, Cognito or hosting resource appears in this change set. Billing budget is a separate prepared template, excluded until recipient and scope approval. Change-set preparation created only CloudFormation metadata, not workload resources.
+Inspect with: aws cloudformation describe-change-set --stack-name globevoy-search-activity --change-set-name pr135-review-20261116T075315Z --region us-east-2 . Do not execute it before explicit approval. Any template/parameter edit requires a fresh reviewed change set.
+
+Ohio pricing checked against https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDynamoDB/current/us-east-2/index.json : Standard on-demand WRU $0.625/million, RRU $0.125/million, storage $0.25/GB-month beyond applicable free allowance. Two transactional <=1KB items consume four WRUs per action: 10k actions ~$0.025; 1m ~$2.50 in writes. Monitoring, Lambda duration, logs and storage are additional; previous illustrative ~$1/month at 10k or $5–10 at 1m remains a budget estimate, not a cap. Do not attribute all service-budget alerts to analytics; the budget includes other applications' existing usage.
