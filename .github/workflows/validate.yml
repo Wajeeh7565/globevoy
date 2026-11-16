@@ -44,6 +44,11 @@ jobs:
       - name: Account and auth test group
         run: npm run test:account
 
+      - name: Build isolated disabled Cognito login-history package (no AWS)
+        run: |
+          node ops/login-history/package.mjs
+          node -e "require('./.cache/login-history-package/index.cjs').handler({disabled:true}).then(e=>{if(!e.disabled)process.exit(1)})"
+
       - name: Provider integration test group
         run: npm run test:providers
 
