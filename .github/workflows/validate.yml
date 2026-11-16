@@ -77,6 +77,12 @@ jobs:
         run: |
           ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend
           ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend-enabled -EnableProductionAccounts
+          New-Item -ItemType Directory -Path .cache -Force | Out-Null
+          $activity = '{"schemaVersion":1,"enabled":true,"privacyApproved":true,"table":"globevoy-production-activity-events","retentionDays":30}'
+          [System.IO.File]::WriteAllText((Join-Path (Get-Location) '.cache/activity-test.json'), $activity, (New-Object System.Text.UTF8Encoding($false)))
+          ./ops/release/package-launch-first-backend.ps1 -OutputName ci-activity-offline-only -EnableProductionAccounts -ActivityConfigPath .cache/activity-test.json
+          node tests/release/search-activity-package.cjs .cache/ci-activity-offline-only
+
 
       - name: Build production-only frontend ZIP and scan every entry (no AWS)
         run: node tests/release/build-production-frontend-fixture.mjs

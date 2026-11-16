@@ -1,0 +1,185 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Dedicated anonymous search activity; existing Lambda code/config not managed by this stack",
+  "Parameters": {
+    "LambdaRoleName": {
+      "Type": "String"
+    },
+    "PrivacyRetentionApproved": {
+      "Type": "String",
+      "AllowedValues": [
+        "true"
+      ]
+    },
+    "RetentionDays": {
+      "Type": "Number",
+      "Default": 30,
+      "MinValue": 1,
+      "MaxValue": 90
+    }
+  },
+  "Resources": {
+    "ActivityTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "DeletionPolicy": "Retain",
+      "UpdateReplacePolicy": "Retain",
+      "Properties": {
+        "TableName": "globevoy-production-activity-events",
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "PK",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "SK",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "PK",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "SK",
+            "KeyType": "RANGE"
+          }
+        ],
+        "TimeToLiveSpecification": {
+          "AttributeName": "expiresAt",
+          "Enabled": true
+        },
+        "SSESpecification": {
+          "SSEEnabled": true
+        },
+        "DeletionProtectionEnabled": true
+      }
+    },
+    "WriterPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "GlobeVoyActivityWrite",
+        "Roles": [
+          {
+            "Ref": "LambdaRoleName"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem"
+              ],
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ActivityTable",
+                  "Arn"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ReaderPolicy": {
+      "Type": "AWS::IAM::ManagedPolicy",
+      "Properties": {
+        "Description": "Attach separately to approved analyst role; never to public API",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": "dynamodb:Query",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ActivityTable",
+                  "Arn"
+                ]
+              },
+              "Condition": {
+                "ForAllValues:StringLike": {
+                  "dynamodb:LeadingKeys": [
+                    "DAY#*"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ThrottleAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "AlarmDescription": "Activity writes throttled; check fixed search_activity write_failed logs as well",
+        "Namespace": "AWS/DynamoDB",
+        "MetricName": "WriteThrottleEvents",
+        "Dimensions": [
+          {
+            "Name": "TableName",
+            "Value": {
+              "Ref": "ActivityTable"
+            }
+          }
+        ],
+        "Statistic": "Sum",
+        "Period": 300,
+        "EvaluationPeriods": 1,
+        "Threshold": 0,
+        "ComparisonOperator": "GreaterThanThreshold",
+        "TreatMissingData": "notBreaching"
+      }
+    },
+    "WriteFailureFilter": {
+      "Type": "AWS::Logs::MetricFilter",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/globevoy-recommendations",
+        "FilterPattern": "\"search_activity\" \"write_failed\"",
+        "MetricTransformations": [
+          {
+            "MetricNamespace": "GlobeVoy/SearchActivity",
+            "MetricName": "WriteFailures",
+            "MetricValue": "1",
+            "DefaultValue": 0
+          }
+        ]
+      }
+    },
+    "WriteFailureAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "Namespace": "GlobeVoy/SearchActivity",
+        "MetricName": "WriteFailures",
+        "Statistic": "Sum",
+        "Period": 300,
+        "EvaluationPeriods": 1,
+        "Threshold": 0,
+        "ComparisonOperator": "GreaterThanThreshold",
+        "TreatMissingData": "notBreaching",
+        "AlarmDescription": "Analytics failed; customer search remains unaffected. Review fixed failure logs; no raw request data."
+      }
+    }
+  },
+  "Outputs": {
+    "TableName": {
+      "Value": {
+        "Ref": "ActivityTable"
+      }
+    },
+    "ReaderPolicyArn": {
+      "Value": {
+        "Ref": "ReaderPolicy"
+      }
+    },
+    "BuildConfiguration": {
+      "Value": {
+        "Fn::Sub": "{\"schemaVersion\":1,\"enabled\":true,\"privacyApproved\":true,\"table\":\"${ActivityTable}\",\"retentionDays\":${RetentionDays}}"
+      }
+    }
+  }
+}

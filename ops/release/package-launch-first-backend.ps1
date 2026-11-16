@@ -1,6 +1,7 @@
 param(
   [string]$OutputName = 'globevoy-launch-first-backend',
-  [switch]$EnableProductionAccounts
+  [switch]$EnableProductionAccounts,
+  [string]$ActivityConfigPath
 )
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
@@ -38,6 +39,13 @@ if ($EnableProductionAccounts) {
   & node -e 'const a=require(process.argv[1]),c=require(process.argv[2]);if(!a.config(c))process.exit(2)' (Join-Path $source 'services/accounts/auth/production-cognito-auth.js') $configFile
   if ($LASTEXITCODE -ne 0) { throw 'Invalid nonsecret production account configuration.' }
   Copy-Item -LiteralPath $configFile -Destination (Join-Path $stage 'services/accounts/auth/production-account-build.json')
+}
+if (Test-Path (Join-Path $source 'services/analytics/activity-build.json')) { throw 'Generated activity config must not exist in source.' }
+# Optional nonsecret build-time activation avoids the existing 4 KB environment limit.
+if ($ActivityConfigPath) {
+  & node -e 'const fs=require("fs"),a=require(process.argv[1]),c=JSON.parse(fs.readFileSync(process.argv[2]));if(!a.configuration(c))process.exit(2)' (Join-Path $source 'services/analytics/search-activity.js') $ActivityConfigPath
+  if ($LASTEXITCODE -ne 0) { throw 'Activity configuration requires explicit privacy approval.' }
+  Copy-Item -LiteralPath $ActivityConfigPath -Destination (Join-Path $stage 'services/analytics/activity-build.json')
 }
 # The package uses the production handler at the ZIP root. The existing public
 # handler remains ./lambda.js and is required by production-account-lambda.js.

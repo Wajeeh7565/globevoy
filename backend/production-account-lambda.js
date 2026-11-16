@@ -94,7 +94,7 @@ async function privateHandler(event = {}, options = {}) {
   const cfg = auth.config(options.accountConfig);
   const path = pathOf(event);
   const method = methodOf(event);
-  if (!PRIVATE_ROUTES.has(path)) return (options.publicHandler || legacy.handler)(event);
+  if (!PRIVATE_ROUTES.has(path)) return (options.publicHandler || legacy.handler)(event, options.lambdaContext);
   if (!cfg) return json(503, { ok: false, error: 'production-accounts-not-configured' });
   const origin = auth.allowedOrigin(event, cfg);
   if (!origin) return json(403, { ok: false, error: 'origin-not-allowed' });
@@ -180,4 +180,4 @@ async function privateHandler(event = {}, options = {}) {
   }
 }
 
-module.exports = { handler: privateHandler, _internal: { parseProfileBody } };
+module.exports = { handler: (event, context) => privateHandler(event, context && typeof context.getRemainingTimeInMillis === 'function' ? {lambdaContext:context} : context), _internal: { parseProfileBody } };
