@@ -645,3 +645,6 @@ exports.handler = async function handler(event) {
     };
   }
 };
+
+// One event at the public request boundary; internal/provider calls are not wrapped.
+exports.handler = require('./services/analytics/search-activity').wrap(exports.handler);
