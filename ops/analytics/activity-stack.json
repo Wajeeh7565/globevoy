@@ -134,6 +134,35 @@
         "ComparisonOperator": "GreaterThanThreshold",
         "TreatMissingData": "notBreaching"
       }
+    },
+    "WriteFailureFilter": {
+      "Type": "AWS::Logs::MetricFilter",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/globevoy-recommendations",
+        "FilterPattern": "{ $.component = \"search_activity\" && $.status = \"write_failed\" }",
+        "MetricTransformations": [
+          {
+            "MetricNamespace": "GlobeVoy/SearchActivity",
+            "MetricName": "WriteFailures",
+            "MetricValue": "1",
+            "DefaultValue": 0
+          }
+        ]
+      }
+    },
+    "WriteFailureAlarm": {
+      "Type": "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "Namespace": "GlobeVoy/SearchActivity",
+        "MetricName": "WriteFailures",
+        "Statistic": "Sum",
+        "Period": 300,
+        "EvaluationPeriods": 1,
+        "Threshold": 0,
+        "ComparisonOperator": "GreaterThanThreshold",
+        "TreatMissingData": "notBreaching",
+        "AlarmDescription": "Analytics failed; customer search remains unaffected. Review fixed failure logs; no raw request data."
+      }
     }
   },
   "Outputs": {
