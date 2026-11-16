@@ -52,8 +52,8 @@ function wrap(handler,options={}){
     const cfg=configuration(options.config===undefined?loadConfig():options.config);if(!cfg)return;
     if(context.getRemainingTimeInMillis&&context.getRemainingTimeInMillis()<400)return;
     const sanitized=sanitize({category:routes[path],response:result,durationMs:Date.now()-started,requestId:context.awsRequestId||event.requestContext?.requestId},cfg);
-    const result=await (options.persist||persist)(sanitized,cfg);
-    try{(options.log||console.log)(JSON.stringify({component:'search_activity',status:result==='duplicate'?'duplicate':'recorded'}));}catch{}
+    const writeStatus=await (options.persist||persist)(sanitized,cfg);
+    try{(options.log||console.log)(JSON.stringify({component:'search_activity',status:writeStatus==='duplicate'?'duplicate':'recorded'}));}catch{}
     return sanitized.eventId;
    }catch(_){try{(options.log||console.log)(JSON.stringify({component:'search_activity',status:'write_failed'}));}catch{}}
   }
