@@ -222,7 +222,12 @@ async function search(query={},options={}){
     // Then prefer second cities the origin itself flies to: a route out almost always
     // has one back, while far-flung cities often have no fare home (Montreal: 0 of 13).
     const connected=st=>homeLinked.has(st.lastCode);
-    const warm=next.filter(cachedReturn),cold=next.filter(st=>!cachedReturn(st));
+    // A second city already read as a first stop shows whether it has a fare home:
+    // keep those that do, drop those that cannot complete a trip (LAX has no YMQ fare).
+    const returnMonths=st=>months(st.edges.at(-1).departureDate,plus(st.edges[0].departureDate,nights));
+    const homeKnown=st=>returnMonths(st).some(m=>(cache.get(st.lastCode+'#'+m)||[]).some(f=>homeCodes.has(f.destination)));
+    const warm=next.filter(st=>cachedReturn(st)&&homeKnown(st)),cold=next.filter(st=>!cachedReturn(st));
+    diagnostics.secondCitiesWithoutHome=next.length-warm.length-cold.length;
     const warmPick=temporalBeam(warm,Math.min(warm.length,Math.ceil(width*.75)));
     const coldLinked=cold.filter(connected),coldOther=cold.filter(st=>!connected(st));
     const linkedPick=temporalBeam(coldLinked,Math.min(coldLinked.length,Math.max(0,width-warmPick.length)));
