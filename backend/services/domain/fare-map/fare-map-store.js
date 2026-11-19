@@ -12,7 +12,7 @@ const TTL_DAYS = 14;
 function client(options = {}) {
   if (options.dynamo) return options.dynamo;
   const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-  return new DynamoDBClient({ region: process.env.AWS_REGION || 'us-east-2' });
+  return new DynamoDBClient({ region: process.env.AWS_REGION || 'us-east-2', maxAttempts: 1, requestHandler: { connectionTimeout: 1000, requestTimeout: 2000 } });
 }
 function cmd(name, input) {
   let sdk = null;
@@ -63,12 +63,20 @@ async function writeRecords(records, options = {}) {
   for (let i = 0; i < records.length; i += 25) {
     let request = { [table]: records.slice(i, i + 25).map(r => ({ PutRequest: { Item: toItem(r, options.nowMs) } })) };
     for (let attempt = 0; attempt < 5 && request && Object.keys(request).length; attempt += 1) {
-      const out = await db.send(cmd('BatchWriteItemCommand', { RequestItems: request }));
+      let out;
+      try { out = await db.send(cmd('BatchWriteItemCommand', { RequestItems: request })); }
+      catch(error) {
+        const transient=['ThrottlingException','ProvisionedThroughputExceededException','InternalServerError','RequestLimitExceeded'].includes(error.name);
+        if(!transient||attempt===4)throw Object.assign(new Error('DynamoDB batch failed'),{code:'dynamodb-error',written});
+        if(options.stats)options.stats.dynamoRetries++;
+        await (options.sleepFn|| (ms=>new Promise(r=>setTimeout(r,ms))))(100*2**attempt);continue;
+      }
       const left = out?.UnprocessedItems && out.UnprocessedItems[table] ? out.UnprocessedItems : null;
       written += (request[table].length - (left ? left[table].length : 0));
       request = left;
-      if (request && options.sleep !== false) await new Promise(r => setTimeout(r, 200 * (attempt + 1)));
+      if(request){if(options.stats)options.stats.dynamoRetries++;if(options.sleep!==false)await (options.sleepFn|| (ms=>new Promise(r=>setTimeout(r,ms))))(100*2**attempt);}
     }
+    if(request)throw Object.assign(new Error('Unprocessed fare records remain'),{code:'dynamodb-unprocessed',written});
   }
   return written;
 }
@@ -78,33 +86,44 @@ async function readRoutesFrom(origin, month, options = {}) {
   if (!table) return [];
   const db = client(options);
   const out = [];
-  let key;
+  let key, pages = 0;
   do {
     const res = await db.send(cmd('QueryCommand', {
       TableName: table,
       KeyConditionExpression: 'pk = :pk',
-      ExpressionAttributeValues: { ':pk': { S: `F#${origin}#${month}` } },
-      ExclusiveStartKey: key
-    }));
-    (res?.Items || []).forEach(i => out.push(fromItem(i)));
+      ExpressionAttributeValues: { ':pk': { S: `F#${origin}#${month}` }, ':now': { N: String(Math.floor((options.nowMs ?? Date.now()) / 1000)) } },
+      FilterExpression: '#ttl > :now',
+      ExpressionAttributeNames: { '#ttl': 'ttl' },
+      ExclusiveStartKey: key,
+      Limit: options.limit || 1000
+    }), { abortSignal: options.abortSignal });
+    pages++;
+    (res?.Items || []).forEach(i => {
+      const now=options.nowMs??Date.now(),observed=Date.parse(i.observedAt?.S);
+      if(Number(i.ttl?.N)>now/1000&&Number.isFinite(observed)&&observed<=now+60000&&observed>=now-TTL_DAYS*86400000)out.push(fromItem(i));
+    });
     key = res?.LastEvaluatedKey;
-  } while (key);
+    if(options.maxRecords&&out.length>=options.maxRecords)return out.slice(0,options.maxRecords);
+  } while (key && pages < (options.maxPages || Infinity));
   return out;
 }
 
 async function readCursor(options = {}) {
-  const table = tableName(options.env);
-  const db = client(options);
-  const res = await db.send(cmd('GetItemCommand', { TableName: table, Key: { pk: { S: 'META#job' }, sk: { S: 'cursor' } } }));
-  return res?.Item ? { index: Number(res.Item.index?.N || 0), cycleStartedAt: res.Item.cycleStartedAt?.S || null } : { index: 0, cycleStartedAt: null };
+  const res=await client(options).send(cmd('GetItemCommand',{TableName:tableName(options.env),Key:{pk:{S:'META#job'},sk:{S:'cursor'}},ConsistentRead:true}));
+  const i=res?.Item||{};
+  return {index:Number(i.index?.N||0),cycleStartedAt:i.cycleStartedAt?.S||null,revision:Number(i.revision?.N||0),leaseUntil:Number(i.leaseUntil?.N||0),owner:i.owner?.S||null,taskKey:i.taskKey?.S||null,offset:Number(i.offset?.N||0),retryAt:Number(i.retryAt?.N||0)};
 }
-async function writeCursor(cursor, options = {}) {
-  const table = tableName(options.env);
-  const db = client(options);
-  const item = { pk: { S: 'META#job' }, sk: { S: 'cursor' }, index: { N: String(cursor.index) }, updatedAt: { S: new Date(options.nowMs || Date.now()).toISOString() } };
-  if (cursor.cycleStartedAt) item.cycleStartedAt = { S: cursor.cycleStartedAt };
-  if (cursor.lastRun) item.lastRun = { S: JSON.stringify(cursor.lastRun).slice(0, 2000) };
-  await db.send(cmd('PutItemCommand', { TableName: table, Item: item }));
+async function writeCursor(cursor,options={}) {
+  const now=options.nowMs??Date.now();
+  const item={pk:{S:'META#job'},sk:{S:'cursor'},index:{N:String(cursor.index)},updatedAt:{S:new Date(now).toISOString()},revision:{N:String((cursor.revision||0)+1)},leaseUntil:{N:String(cursor.leaseUntil||0)},offset:{N:String(cursor.offset||0)},retryAt:{N:String(cursor.retryAt||0)}};
+  for(const k of ['cycleStartedAt','taskKey','owner'])if(cursor[k])item[k]={S:cursor[k]};
+  if(cursor.lastRun)item.lastRun={S:JSON.stringify(cursor.lastRun).slice(0,8000)};
+  const condition=options.acquire
+    ? '(attribute_not_exists(pk) OR ((attribute_not_exists(leaseUntil) OR leaseUntil < :now) AND (attribute_not_exists(revision) OR revision = :revision)))'
+    : options.owner ? 'owner = :owner AND leaseUntil > :now' : 'attribute_not_exists(leaseUntil) OR leaseUntil < :now';
+  const values={':now':{N:String(now)}};
+  if(options.acquire)values[':revision']={N:String(cursor.revision||0)};
+  else if(options.owner)values[':owner']={S:options.owner};
+  await client(options).send(cmd('PutItemCommand',{TableName:tableName(options.env),Item:item,ConditionExpression:condition,ExpressionAttributeValues:values}));
 }
-
 module.exports = { TTL_DAYS, tableName, writeRecords, readRoutesFrom, readCursor, writeCursor, _internal: { toItem, fromItem } };
