@@ -298,7 +298,7 @@
     {
       "from": "frontend/booking.html",
       "to": "frontend/pages/booking.html",
-      "sha256": "0012e27de584c81224b9578c436cc83a8d41ac7977a6ec91adbfc7d3314b8a9b"
+      "sha256": "6909984b9449e57a730ff956a6a0cd823e2c28656231d84ad75977434b745451"
     },
     {
       "from": "frontend/create-account.html",
