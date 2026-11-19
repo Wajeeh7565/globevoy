@@ -35,6 +35,14 @@ function status(env = process.env) {
   return { version: VERSION, enabled: enabled(env), provider: 'Nuitee', handoff: 'whitelabel', whitelabelDomain: whitelabelDomain(env) || null, prebook: false, bookingCapability: false, maxStops: MAX_STOPS };
 }
 
+// Nuitee White Label checkout deep link: /booking?offerId=… (offers expire, so
+// the page only uses it while the rate is fresh; the hotel page is the fallback).
+function checkoutUrl(domain, offerId) {
+  const id = clean(offerId);
+  if (!domain || !/^[A-Za-z0-9._~-]{6,2048}$/.test(id)) return '';
+  return `https://${domain}/booking?offerId=${encodeURIComponent(id)}`;
+}
+
 function whitelabelUrl(domain, hotelId, checkin, checkout, occupancies) {
   if (!domain || !/^[A-Za-z0-9_-]{2,64}$/.test(hotelId)) return '';
   const url = new URL(`https://${domain}/hotels/${encodeURIComponent(hotelId)}`);
@@ -155,7 +163,7 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
         reserved: false,
         finalPriceRequiresPartnerConfirmation: true
       },
-      nuiteeWhitelabel: { url, domain, hotelId: row.offer.hotelId, label: 'Book this hotel', merchant: 'Nuitee' }
+      nuiteeWhitelabel: { url, checkoutUrl: checkoutUrl(domain, row.offer.offerId), offerObservedAt: observedAt, domain, hotelId: row.offer.hotelId, label: 'Book this hotel', merchant: 'Nuitee' }
     };
   }
   const appliedCount = rows.filter(r => r.applied).length;
@@ -176,4 +184,4 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
   };
 }
 
-module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl } };
+module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl } };

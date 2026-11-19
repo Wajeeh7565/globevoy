@@ -89,3 +89,17 @@ test('total matches the site total: extras line and reserve', () => {
   assert.ok(s.extras > 0);
   assert.equal(Math.round(s.left), 5000 - 250 - 2000);
 });
+
+test('fresh Nuitee offer: Book this room → checkout; stale offer: hotel page', () => {
+  const t = tour();
+  t.cities[0].hotel.nuiteeWhitelabel.checkoutUrl = 'https://wajeeh-4443-racp8.nuitee.link/booking?offerId=offer-1';
+  t.cities[0].hotel.nuiteeWhitelabel.offerObservedAt = '2026-11-19T09:00:00Z';
+  let { items } = v2.buildItems(t, now); // 10 min old
+  assert.equal(items[1].mainLabel, 'Book this room');
+  assert.match(items[1].mainUrl, /\/booking\?offerId=offer-1$/);
+  assert.match(items[1].altUrl, /\/hotels\/lp57def/);
+  ({ items } = v2.buildItems(t, Date.parse('2026-11-19T10:30:00Z'))); // 90 min old
+  assert.equal(items[1].mainLabel, 'Book this hotel');
+  assert.match(items[1].mainUrl, /\/hotels\/lp57def/);
+  assert.equal(items[1].altUrl, '');
+});
