@@ -163,8 +163,19 @@ test('local rate guard reserves before fetch and fails closed; 429 cooldown work
 
 
 test('stale, missing and future observations cannot become live evidence', async () => {
-  for(const observed_at of [null, new Date(Date.now()-900001).toISOString(), new Date(Date.now()+120000).toISOString()]) {
+  for(const observed_at of [null, new Date(Date.now()-3*3600000-1).toISOString(), new Date(Date.now()+120000).toISOString()]) {
     const result = await ignav.searchOneWay({origin:'YYZ',destination:'LIS',departureDate:'2027-03-12'}, {env:ENV,requestGuard:ignav._internal.createGuard(),fetchFn:mockFetch(200,{...ONE_WAY,observed_at})});
     assert.equal(result.ok,false); assert.equal(result.reason,'ignav-stale-or-missing-observation');
   }
+});
+
+
+test('observations up to 3 hours old are accepted; the local cap follows IGNAV_MAX_PER_* settings', async () => {
+  const r = await ignav.searchOneWay({origin:'YYZ',destination:'LIS',departureDate:'2027-03-12'}, {env:ENV,requestGuard:ignav._internal.createGuard(),fetchFn:mockFetch(200,{...ONE_WAY,observed_at:new Date(Date.now()-2*3600000).toISOString()})});
+  assert.equal(r.ok, true);
+  const old = { m: process.env.IGNAV_MAX_PER_MINUTE };
+  process.env.IGNAV_MAX_PER_MINUTE = '3';
+  try { const g = ignav._internal.createGuard(() => 0); assert.deepEqual([g.reserve(), g.reserve(), g.reserve(), g.reserve()], [true, true, true, false]); }
+  finally { if (old.m === undefined) delete process.env.IGNAV_MAX_PER_MINUTE; else process.env.IGNAV_MAX_PER_MINUTE = old.m; }
+  const d = ignav._internal.createGuard(() => 0); for (let i = 0; i < 10; i++) assert.equal(d.reserve(), true); assert.equal(d.reserve(), false);
 });

@@ -3584,34 +3584,45 @@ async function getFareMapGeneratedTour(query,options) {
   const env=options.env||process.env,liveSetting=String(env.FARE_MAP_REQUIRE_LIVE||'').trim().toLowerCase();
   const requireLive=liveSetting==='true'||(liveSetting!=='false'&&options.fareMapPreview===true);
   const party=normalizeParty(query),pricingQuery={...query,adults:party.adults,children:party.children,infants:party.infants,rooms:party.rooms,passengers:party.travellers};delete pricingQuery.travellers;
-  const started=Date.now(),deadlineMs=Number(options.liveCheckDeadlineMs)||35000;
-  const finish=async(candidateTour)=>{
-    const outcome=await attempt(candidateTour);
-    if(outcome.reason)return outcome;
-    if(requireLive&&!outcome.arrivalVerified)return {reason:'fare-map-flights-not-all-live'};
-    const chosen=outcome.selected;
+  const started=Date.now(),deadlineMs=Number(options.liveCheckDeadlineMs)||25000;
+  const liveCount=t=>(t?.legs||[]).filter(l=>l?.providerDateEvidence?.sourceType==='LIVE').length+(t?.stops||[]).filter(st=>st?.hotel?.nuiteeLiveRate).length;
+  // Turn one flight-checked candidate into a page tour; with strict=true hotels must also come back live.
+  const build=async(candidateTour,flights,strict)=>{
+    const chosen=flights.selected;
     const visual=buildVisualizerTour(chosen,{...query,month:chosen.legs[0].departureDate.slice(0,7)},{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
-    visual.fareMap={...(chosen.fareMap||{}),arrivalDatesVerified:outcome.arrivalVerified,hotelDatesRequireVerification:!outcome.arrivalVerified};
+    visual.fareMap={...(chosen.fareMap||{}),arrivalDatesVerified:flights.arrivalVerified,hotelDatesRequireVerification:!flights.arrivalVerified};
     const guard=evaluateTour(visual,query);
     if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return {reason:'fare-map-final-business-or-date-guard'};
     let tour=guard.tour;
-    if(requireLive){
+    if(strict){
+      if(!flights.arrivalVerified)return {reason:'fare-map-flights-not-all-live',tour};
       const priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,options);
       diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
       const stops=priced?.tour?.stops||[];
-      if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live'};
+      if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};
       tour=priced.tour;
     }
-    return {tour,arrivalVerified:outcome.arrivalVerified,source:candidateTour};
+    return {tour,arrivalVerified:flights.arrivalVerified,source:candidateTour};
   };
-  let outcome=null;const liveAttempts=[];
-  for(const candidateTour of result.tours.slice(0,requireLive?3:2)){
+  let outcome=null;const liveAttempts=[],checked=[];
+  for(const candidateTour of result.tours.slice(0,requireLive?2:2)){
     if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
-    outcome=await finish(candidateTour);liveAttempts.push(outcome.reason||'ok');
+    const flights=await attempt(candidateTour);
+    if(flights.reason){liveAttempts.push(flights.reason);continue;}
+    outcome=await build(candidateTour,flights,requireLive);liveAttempts.push(outcome.reason||'ok');
     if(!outcome.reason)break;
+    if(outcome.tour)checked.push({candidateTour,flights,partial:outcome.tour});
+    outcome=null;
+  }
+  if(!outcome&&requireLive&&checked.length){
+    // None came back fully live: show the checked trip with the most live prices (its
+    // estimates stay labelled) instead of a slow second search. No extra provider calls.
+    const best=checked.slice().sort((x,y)=>liveCount(y.partial)-liveCount(x.partial))[0];
+    outcome={tour:best.partial,arrivalVerified:best.flights.arrivalVerified,source:best.candidateTour};
+    diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-most-live-trip');
   }
   diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;
-  if(!outcome||outcome.reason)return {...empty(outcome?.reason||'fare-map-no-route'),diagnostics:{...result.diagnostics,...diagnostics}};
+  if(!outcome||outcome.reason)return {...empty(outcome?.reason||liveAttempts.at(-1)||'fare-map-no-route'),diagnostics:{...result.diagnostics,...diagnostics}};
   diagnostics.arrivalDatesVerified=outcome.arrivalVerified;
   const tours=[outcome.tour,...result.tours.filter(t=>t!==outcome.source).map(t=>buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}))];
   return {...result,tour:outcome.tour,tours,diagnostics};

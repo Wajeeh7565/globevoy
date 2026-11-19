@@ -64,12 +64,20 @@ class IgnavError extends Error {
 }
 
 // Local circuit breaker, not an account-wide billing cap. Limits reset on cold start.
-function createGuard(clock = Date.now) {
+// Local safety cap per Lambda instance. Defaults 10/min and 60/hour; set
+// IGNAV_MAX_PER_MINUTE / IGNAV_MAX_PER_HOUR to match the Ignav plan.
+const MAX_OBSERVATION_AGE_MS = 3 * 60 * 60 * 1000;
+function capFromEnv(name, fallback, env = process.env) {
+  const n = Number(env[name]);
+  return Number.isInteger(n) && n > 0 && n <= 10000 ? n : fallback;
+}
+function createGuard(clock = Date.now, limits = {}) {
   let minute = [], hour = [], blockedUntil = 0;
   return {
     reserve() {
       const now = clock(); minute = minute.filter(t => t > now - 60000); hour = hour.filter(t => t > now - 3600000);
-      if (now < blockedUntil || minute.length >= 10 || hour.length >= 60) return false;
+      const perMinute = limits.perMinute ?? capFromEnv('IGNAV_MAX_PER_MINUTE', 10), perHour = limits.perHour ?? capFromEnv('IGNAV_MAX_PER_HOUR', 60);
+      if (now < blockedUntil || minute.length >= perMinute || hour.length >= perHour) return false;
       minute.push(now); hour.push(now); return true;
     },
     block() { blockedUntil = clock() + 60000; }
@@ -200,7 +208,9 @@ async function searchOneWay(input = {}, options = {}) {
   catch (error) { return { ok: false, version: VERSION, reason: error.code || 'ignav-error', status: error.status || null }; }
 
   const observed = Date.parse(payload.observed_at);
-  if (!Number.isFinite(observed) || Date.now() - observed > 900000 || observed - Date.now() > 60000)
+  // Ignav serves cached observations; 15 minutes rejected most real fares as stale.
+  // Up to 3 hours is accepted and the page shows the age ("checked 2 h ago").
+  if (!Number.isFinite(observed) || Date.now() - observed > MAX_OBSERVATION_AGE_MS || observed - Date.now() > 60000)
     return { ok: false, reason: 'ignav-stale-or-missing-observation' };
   const request = { origin, destination, departureDate, adults, children, passengers: adults + children };
   if ((payload.origin != null && iata(payload.origin) !== origin) ||
