@@ -956,7 +956,112 @@ async function fetchAgodaCoverageProbe({
   };
 }
 
+// GV-HOTEL-AGODA-ID-001 — price specific, already-chosen Agoda hotels.
+// Affiliate Lite "Hotel List Search" sends criteria.hotelId (array) instead of
+// criteria.cityId. Each returned hotel is priced for the exact stay dates and
+// party, and its landingURL comes from the same response, so the shown price and
+// the referral link describe the same property. Read-only; never books.
+const AGODA_HOTEL_LIST_VERSION = 'GV-HOTEL-AGODA-ID-001';
+const AGODA_HOTEL_LIST_MAX_IDS = 50;
+
+function isoDay(value) {
+  const text = String(value || '').trim().slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text)) return null;
+  const parsed = new Date(`${text}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === text ? text : null;
+}
+
+function buildAgodaHotelListBody({ hotelIds, checkIn, checkOut, currency, adults = 1, children = 0, rooms = 1 }) {
+  const roomCount = Math.max(1, Math.round(Number(rooms) || 1));
+  return {
+    criteria: {
+      additional: {
+        currency: normalizeAgodaCurrency(currency),
+        maxResult: Math.min(AGODA_HOTEL_LIST_MAX_IDS, hotelIds.length),
+        occupancy: {
+          numberOfAdult: Math.max(1, Math.ceil((Number(adults) || 1) / roomCount)),
+          numberOfChildren: Math.max(0, Math.ceil((Number(children) || 0) / roomCount))
+        }
+      },
+      checkInDate: checkIn,
+      checkOutDate: checkOut,
+      hotelId: hotelIds
+    }
+  };
+}
+
+async function fetchAgodaHotelListRates({ hotelIds = [], checkIn, checkOut, currency, adults = 1, children = 0, rooms = 1, _fetchFn } = {}) {
+  const ids = [...new Set((Array.isArray(hotelIds) ? hotelIds : [hotelIds])
+    .map(Number).filter(id => Number.isSafeInteger(id) && id > 0))].slice(0, AGODA_HOTEL_LIST_MAX_IDS);
+  const inDate = isoDay(checkIn);
+  const outDate = isoDay(checkOut);
+  if (!ids.length) return { ok: false, version: AGODA_HOTEL_LIST_VERSION, reason: 'no-valid-hotel-ids' };
+  if (!inDate || !outDate || outDate <= inDate) return { ok: false, version: AGODA_HOTEL_LIST_VERSION, reason: 'invalid-stay-dates' };
+  const siteId = process.env.AGODA_SITE_ID;
+  const apiKey = process.env.AGODA_API_KEY;
+  if (!siteId || !apiKey || String(process.env.GLOBEVOY_USE_MOCKS || '').toLowerCase() === 'true') {
+    return { ok: false, version: AGODA_HOTEL_LIST_VERSION, reason: 'agoda-not-configured' };
+  }
+  const nights = Math.round((Date.parse(`${outDate}T00:00:00Z`) - Date.parse(`${inDate}T00:00:00Z`)) / 86400000);
+  const requestCurrency = normalizeAgodaCurrency(currency);
+  const roomCount = Math.max(1, Math.round(Number(rooms) || 1));
+  let payload;
+  try {
+    payload = await requestAgoda({
+      endpoint: process.env.AGODA_ENDPOINT || 'https://affiliateapi7643.agoda.com/affiliateservice/lt_v1',
+      siteId,
+      apiKey,
+      body: buildAgodaHotelListBody({ hotelIds: ids, checkIn: inDate, checkOut: outDate, currency: requestCurrency, adults, children, rooms: roomCount }),
+      _fetchFn
+    });
+  } catch (error) {
+    // requestAgoda messages never include credentials.
+    return { ok: false, version: AGODA_HOTEL_LIST_VERSION, reason: 'agoda-request-failed', detail: String(error?.message || '').slice(0, 120) };
+  }
+  const observedAt = new Date().toISOString();
+  const hotels = findHotelArrays(payload).flat().map(hotel => {
+    const hotelId = parseHotelId(hotel);
+    if (!ids.includes(Number(hotelId))) return null; // never accept a property we didn't ask for
+    const nightlyRate = parseRate(hotel);
+    const link = classifyAgodaLandingUrl679AR1(hotel.landingURL || hotel.url, hotelId);
+    return {
+      provider: 'agoda',
+      hotelId: Number(hotelId),
+      hotelName: hotel.hotelName || hotel.name || null,
+      currency: requestCurrency,
+      nightlyRate: nightlyRate > 0 ? Math.round(nightlyRate * 100) / 100 : null,
+      // dailyRate is per room per night; multiply by nights and rooms for the stay.
+      stayTotal: nightlyRate > 0 ? Math.round(nightlyRate * nights * roomCount * 100) / 100 : null,
+      stayTotalUsd: nightlyRate > 0 ? Math.round(convertToUsd(nightlyRate * nights * roomCount, requestCurrency)) : null,
+      nights,
+      rooms: roomCount,
+      reviewScore: parseReviewScore(hotel),
+      starRating: parseStarRating(hotel),
+      landingUrl: link.url,
+      linkType: link.linkType,
+      linkHasHotelId: link.providerHotelIdInLink === true,
+      sourceType: nightlyRate > 0 && link.url ? 'live' : 'unavailable',
+      availabilityStatus: 'observed-not-guaranteed',
+      observedAt,
+      requestEvidence: { checkIn: inDate, checkOut: outDate, currency: requestCurrency, adults: Math.max(1, Number(adults) || 1), children: Math.max(0, Number(children) || 0), rooms: roomCount }
+    };
+  }).filter(Boolean);
+  const byId = new Map();
+  for (const hotel of hotels) if (!byId.has(hotel.hotelId)) byId.set(hotel.hotelId, hotel);
+  return {
+    ok: true,
+    version: AGODA_HOTEL_LIST_VERSION,
+    requestedCount: ids.length,
+    pricedCount: [...byId.values()].filter(h => h.sourceType === 'live').length,
+    unavailableHotelIds: ids.filter(id => !byId.has(id)),
+    hotels: [...byId.values()]
+  };
+}
+
 module.exports = {
+  AGODA_HOTEL_LIST_VERSION,
+  fetchAgodaHotelListRates,
+  buildAgodaHotelListBody,
   AGODA_PROVIDER_STAY_VERSION_679A,
   AGODA_PRICE_LINK_INTEGRITY_VERSION_679A_R1,
   BOOKING_TRUST_VERSION_680A,
