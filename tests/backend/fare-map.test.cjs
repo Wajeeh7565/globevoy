@@ -240,3 +240,26 @@ test('job against a DynamoDB that enforces reserved words: checkpoints, records 
   const again = await job.runFareMapJob({ env: ENV, dynamo, fetch, origins: ['YTO', 'YMQ'], pauseMs: 0, sleep: async () => {}, maxTasks: 1, now: Date.parse('2026-11-19T00:00:00Z') });
   assert.equal(again.ran, true);
 });
+
+test('a permanent 4xx for one origin is skipped (recorded), not retried forever; 5xx/429 still stop the run', async () => {
+  const dynamo = strictDynamo();
+  const ok = tpFetch([[{ destination_city_iata: 'MDE', value: 30000, departure_at: '2026-12-10T10:00:00Z' }]]);
+  const fetch = async (url, init) => /origin: "YVA"/.test(JSON.parse(init.body).query)
+    ? { ok: false, status: 400, headers: { get: () => null }, text: async () => '{"error":"bad origin"}' }
+    : ok(url, init);
+  const r = await job.runFareMapJob({ env: ENV, dynamo, fetch, origins: ['YVA', 'YTO'], pauseMs: 0, sleep: async () => {}, maxTasks: 2, now: Date.parse('2026-11-19T00:00:00Z') });
+  assert.equal(r.done, 2, JSON.stringify(r));
+  assert.equal(r.skipped, 1);
+  assert.ok(r.written > 0, 'next origin collected');
+  assert.match(r.skippedTasks[0], /^YVA#2026-11:400$/);
+  assert.equal(r.ok, true);
+  const cur = dynamo.items.get('META#job|cursor');
+  assert.equal(cur.leaseUntil.N, '0');
+  assert.match(cur.taskKey.S, /^YVA#2026-12$/, 'cursor moved past the skipped task');
+
+  const d2 = strictDynamo();
+  const down = async () => ({ ok: false, status: 503, headers: { get: () => null }, text: async () => 'down' });
+  const r2 = await job.runFareMapJob({ env: ENV, dynamo: d2, fetch: down, origins: ['YTO', 'YMQ'], pauseMs: 0, sleep: async () => {}, maxTasks: 2, now: Date.parse('2026-11-19T00:00:00Z') });
+  assert.equal(r2.done, 0, 'server errors keep the task for the next run');
+  assert.equal(r2.lastReason, 'provider-server-error');
+});
