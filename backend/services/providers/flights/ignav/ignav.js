@@ -15,6 +15,7 @@
 // - Disabled unless ENABLE_IGNAV_FLIGHTS=true, so deploying this file changes
 //   nothing until the flag is set.
 
+const { createHmac, timingSafeEqual } = require('node:crypto');
 const VERSION = 'GV-FLIGHT-IGNAV-001';
 const BASE_URL = 'https://ignav.com/api';
 const DEFAULT_TIMEOUT_MS = 15000;
@@ -62,25 +63,52 @@ class IgnavError extends Error {
   }
 }
 
-async function postJson(path, body, { env = process.env, fetchFn = globalThis.fetch, timeoutMs } = {}) {
+// Local circuit breaker, not an account-wide billing cap. Limits reset on cold start.
+function createGuard(clock = Date.now) {
+  let minute = [], hour = [], blockedUntil = 0;
+  return {
+    reserve() {
+      const now = clock(); minute = minute.filter(t => t > now - 60000); hour = hour.filter(t => t > now - 3600000);
+      if (now < blockedUntil || minute.length >= 10 || hour.length >= 60) return false;
+      minute.push(now); hour.push(now); return true;
+    },
+    block() { blockedUntil = clock() + 60000; }
+  };
+}
+const guard = createGuard();
+function bookingProof(id, env, seconds = Math.floor(Date.now() / 1000)) {
+  const signature = createHmac('sha256', clean(env.IGNAV_API_KEY)).update(`ignav-booking:${id}:${seconds}`).digest('hex');
+  return `${seconds}.${signature}`;
+}
+function validProof(id, proof, env) {
+  if (typeof proof !== 'string' || !/^\d{10}\.[a-f0-9]{64}$/.test(proof)) return false;
+  const seconds = Number(proof.split('.')[0]);
+  const age = Math.floor(Date.now() / 1000) - seconds;
+  return age >= 0 && age <= 900 && timingSafeEqual(Buffer.from(proof), Buffer.from(bookingProof(id, env, seconds)));
+}
+
+async function postJson(path, body, { env = process.env, fetchFn = globalThis.fetch, timeoutMs, requestGuard = guard } = {}) {
   if (!configured(env)) throw new IgnavError('ignav-not-configured', 'Ignav is disabled or IGNAV_API_KEY is missing.');
   if (typeof fetchFn !== 'function') throw new IgnavError('fetch-unavailable', 'fetch is not available.');
+  if (!requestGuard.reserve()) throw new IgnavError('ignav-local-quota-exhausted', 'Live prices are temporarily limited.');
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), boundedInt(timeoutMs ?? env.IGNAV_TIMEOUT_MS, DEFAULT_TIMEOUT_MS, 1000, 30000));
   let response;
   try {
     response = await fetchFn(`${BASE_URL}${path}`, {
       method: 'POST',
+      redirect: 'error',
       headers: { 'Content-Type': 'application/json', 'X-Api-Key': clean(env.IGNAV_API_KEY) },
       body: JSON.stringify(body),
       signal: controller.signal
     });
   } catch (error) {
-    throw new IgnavError(error?.name === 'AbortError' ? 'ignav-timeout' : 'ignav-network-error', 'Ignav request failed.');
-  } finally {
     clearTimeout(timer);
+    throw new IgnavError(error?.name === 'AbortError' ? 'ignav-timeout' : 'ignav-network-error', 'Ignav request failed.');
   }
-  const text = await response.text();
+  if (response.status === 429) requestGuard.block();
+  let text;
+  try { text = await response.text(); } catch (_) { throw new IgnavError('ignav-invalid-response', 'Ignav response could not be read.'); } finally { clearTimeout(timer); }
   let payload = null;
   try { payload = text ? JSON.parse(text) : null; } catch (_) { payload = null; }
   if (!response.ok) {
@@ -102,10 +130,10 @@ function normalizeSegment(segment = {}) {
     carrierCode: upper(segment.marketing_carrier_code || segment.carrier_code || segment.marketing_carrier) || null,
     flightNumber: clean(segment.flight_number) || null,
     operatingCarrier: clean(segment.operating_carrier_name || segment.operating_carrier) || null,
-    from: iata(dep.airport || dep.airport_code || segment.origin) || null,
-    to: iata(arr.airport || arr.airport_code || segment.destination) || null,
-    departLocal: clean(dep.local_time || dep.time || segment.departure_time) || null,
-    arriveLocal: clean(arr.local_time || arr.time || segment.arrival_time) || null,
+    from: iata(segment.departure_airport || dep.airport || dep.airport_code || segment.origin) || null,
+    to: iata(segment.arrival_airport || arr.airport || arr.airport_code || segment.destination) || null,
+    departLocal: clean(segment.departure_time_local || dep.local_time || dep.time || segment.departure_time) || null,
+    arriveLocal: clean(segment.arrival_time_local || arr.local_time || arr.time || segment.arrival_time) || null,
     durationMinutes: Number.isFinite(Number(segment.duration_minutes)) ? Number(segment.duration_minutes) : null
   };
 }
@@ -115,8 +143,15 @@ function normalizeItinerary(itinerary = {}, request = {}) {
   const amount = Number(price.amount);
   const status = clean(price.status).toLowerCase() || 'unknown';
   const outbound = itinerary.outbound || (Array.isArray(itinerary.legs) ? itinerary.legs[0] : null) || {};
-  const segments = (Array.isArray(outbound.segments) ? outbound.segments : []).map(normalizeSegment);
-  const usable = status === 'verified' && Number.isFinite(amount) && amount > 0 && segments.length > 0;
+  const segments = (Array.isArray(outbound.segments) ? outbound.segments : []).map(segment => normalizeSegment(segment || {}));
+  const matched = segments.length > 0 && segments[0].from === request.origin && segments.at(-1).to === request.destination &&
+    isoDate(segments[0].departLocal) === request.departureDate &&
+    segments.every((segment, i) => segment.from && segment.to && segment.from !== segment.to &&
+      (!i || segments[i-1].to === segment.from));
+  const party = itinerary.adults == null && itinerary.children == null && itinerary.passengers == null ||
+    (itinerary.passengers != null ? Number(itinerary.passengers) === request.passengers :
+      Number(itinerary.adults || 0) === request.adults && Number(itinerary.children || 0) === request.children);
+  const usable = !itinerary.inbound && (!Array.isArray(itinerary.legs) || itinerary.legs.length === 1) && status === 'verified' && Number.isFinite(amount) && amount > 0 && /^[A-Z]{3}$/.test(upper(price.currency)) && matched && party;
   return {
     provider: 'ignav',
     version: VERSION,
@@ -164,8 +199,17 @@ async function searchOneWay(input = {}, options = {}) {
   try { payload = await postJson('/fares/one-way', body, options); }
   catch (error) { return { ok: false, version: VERSION, reason: error.code || 'ignav-error', status: error.status || null }; }
 
-  const request = { origin, destination, departureDate, passengers: adults + children };
-  const itineraries = (Array.isArray(payload.itineraries) ? payload.itineraries : []).map(row => normalizeItinerary(row, request));
+  const observed = Date.parse(payload.observed_at);
+  if (!Number.isFinite(observed) || Date.now() - observed > 900000 || observed - Date.now() > 60000)
+    return { ok: false, reason: 'ignav-stale-or-missing-observation' };
+  const request = { origin, destination, departureDate, adults, children, passengers: adults + children };
+  if ((payload.origin != null && iata(payload.origin) !== origin) ||
+      (payload.destination != null && iata(payload.destination) !== destination) ||
+      (payload.departure_date != null && isoDate(payload.departure_date) !== departureDate) ||
+      (payload.adults != null && Number(payload.adults) !== adults) ||
+      (payload.children != null && Number(payload.children) !== children))
+    return { ok: false, reason: 'ignav-response-identity-mismatch' };
+  const itineraries = (Array.isArray(payload.itineraries) ? payload.itineraries : []).filter(row => row && typeof row === 'object').map(row => { const fare = normalizeItinerary(row, request); if (fare.usableFare && fare.ignavId) fare.bookingProof = bookingProof(fare.ignavId, options.env || process.env); return fare; });
   const usable = itineraries.filter(row => row.usableFare).sort((a, b) => a.partyTotalAmount - b.partyTotalAmount);
   return {
     ok: true,
@@ -200,6 +244,7 @@ function normalizeBookingLink(link = {}) {
 /** Booking links for one itinerary returned by searchOneWay (same account). */
 async function getBookingLinks(ignavId, options = {}) {
   const id = clean(ignavId);
+  if (!validProof(id, options.proof, options.env || process.env)) return { ok: false, reason: 'invalid-or-expired-booking-proof' };
   if (!/^[A-Za-z0-9_-]{8,128}$/.test(id)) return { ok: false, version: VERSION, reason: 'invalid-ignav-id' };
   let payload;
   try { payload = await postJson('/fares/booking-links', { ignav_id: id }, options); }
@@ -246,5 +291,5 @@ module.exports = {
   searchOneWay,
   getBookingLinks,
   IgnavError,
-  _internal: { marketFor, normalizeItinerary, normalizeBookingLink, normalizeSegment }
+  _internal: { createGuard, bookingProof, validProof, marketFor, normalizeItinerary, normalizeBookingLink, normalizeSegment }
 };

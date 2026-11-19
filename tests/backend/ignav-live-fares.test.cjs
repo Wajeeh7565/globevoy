@@ -3,7 +3,9 @@
 // Offline: Ignav is mocked; any real network call fails the test.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { applyIgnavLiveFares } = require('../../backend/services/domain/live-fares/ignav-live-fares');
+const { applyIgnavLiveFares: applyRaw } = require('../../backend/services/domain/live-fares/ignav-live-fares');
+const ignav = require('../../backend/services/providers/flights/ignav/ignav');
+const applyIgnavLiveFares = (tour, query, options) => applyRaw(tour, query, { ...options, requestGuard: ignav._internal.createGuard() });
 const { enrichFlightLeg } = require('../../backend/services/providers/links/partner-links');
 
 const ENV = { ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'test-not-real' };
@@ -26,8 +28,8 @@ function fareFetch({ failRoute, currency = 'CAD' } = {}) {
     const body = JSON.parse(init.body); calls.push(body);
     const key = `${body.origin}-${body.destination}`;
     if (key === failRoute) return { ok: true, status: 200, text: async () => JSON.stringify({ itineraries: [] }) };
-    return { ok: true, status: 200, text: async () => JSON.stringify({ observed_at: '2026-11-19T05:00:00Z', itineraries: [
-      { ignav_id: `id${key.replace('-', '')}00`, price: { amount: FARES[key], currency, status: 'verified' }, outbound: { carrier: 'X', duration_minutes: 300, segments: [{ marketing_carrier_code: 'XX', flight_number: '1', departure: { airport: body.origin }, arrival: { airport: body.destination } }] } }
+    return { ok: true, status: 200, text: async () => JSON.stringify({ observed_at: new Date().toISOString(), itineraries: [
+      { ignav_id: `id${key.replace('-', '')}00`, price: { amount: FARES[key], currency, status: 'verified' }, outbound: { carrier: 'X', duration_minutes: 300, segments: [{ marketing_carrier_code: 'XX', flight_number: '1', departure: { airport: body.origin, local_time: body.departure_date + 'T10:00:00' }, arrival: { airport: body.destination } }] } }
     ] }) };
   };
   fn.calls = calls;

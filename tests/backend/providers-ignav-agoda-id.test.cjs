@@ -16,10 +16,10 @@ function mockFetch(status, payload, seen = []) {
 }
 
 const ONE_WAY = {
-  observed_at: '2027-01-10T12:00:00Z',
+  observed_at: new Date().toISOString(),
   itineraries: [
-    { ignav_id: 'expensive0001', price: { amount: 640, currency: 'CAD', status: 'verified' }, outbound: { carrier: 'Air Canada', duration_minutes: 420, segments: [{ marketing_carrier_code: 'AC', flight_number: '834', departure: { airport: 'YYZ' }, arrival: { airport: 'LIS' }, duration_minutes: 420 }] } },
-    { ignav_id: 'cheapest0001', price: { amount: 512.4, currency: 'CAD', status: 'verified' }, outbound: { carrier: 'TAP', duration_minutes: 610, segments: [{ marketing_carrier_code: 'TP', flight_number: '260', departure: { airport: 'YYZ' }, arrival: { airport: 'OPO' } }, { marketing_carrier_code: 'TP', flight_number: '1943', departure: { airport: 'OPO' }, arrival: { airport: 'LIS' } }] } },
+    { ignav_id: 'expensive0001', price: { amount: 640, currency: 'CAD', status: 'verified' }, outbound: { carrier: 'Air Canada', duration_minutes: 420, segments: [{ marketing_carrier_code: 'AC', flight_number: '834', departure: { airport: 'YYZ', local_time: '2027-03-12T10:00:00' }, arrival: { airport: 'LIS' }, duration_minutes: 420 }] } },
+    { ignav_id: 'cheapest0001', price: { amount: 512.4, currency: 'CAD', status: 'verified' }, outbound: { carrier: 'TAP', duration_minutes: 610, segments: [{ marketing_carrier_code: 'TP', flight_number: '260', departure: { airport: 'YYZ', local_time: '2027-03-12T10:00:00' }, arrival: { airport: 'OPO' } }, { marketing_carrier_code: 'TP', flight_number: '1943', departure: { airport: 'OPO' }, arrival: { airport: 'LIS' } }] } },
     { ignav_id: 'placeholder01', price: { amount: 0, currency: 'CAD', status: 'unverified' }, outbound: { segments: [] } }
   ]
 };
@@ -34,7 +34,7 @@ test('Ignav is off unless explicitly enabled and keyed', async () => {
 
 test('Ignav one-way: picks cheapest verified fare, ignores unverified placeholders, maps CAD to CA market', async () => {
   const seen = [];
-  const result = await ignav.searchOneWay({ origin: 'yyz', destination: 'LIS', departureDate: '2027-03-12', currency: 'CAD' }, { env: ENV, fetchFn: mockFetch(200, ONE_WAY, seen) });
+  const result = await ignav.searchOneWay({ origin: 'yyz', destination: 'LIS', departureDate: '2027-03-12', currency: 'CAD' }, { env: ENV, requestGuard: ignav._internal.createGuard(), fetchFn: mockFetch(200, ONE_WAY, seen) });
   assert.equal(result.ok, true);
   assert.equal(result.market, 'CA');
   assert.equal(result.usableCount, 2);
@@ -49,17 +49,17 @@ test('Ignav one-way: picks cheapest verified fare, ignores unverified placeholde
 
 test('Ignav rejects bad input without calling the API', async () => {
   const seen = [];
-  const bad = await ignav.searchOneWay({ origin: 'YYZ', destination: 'YYZ', departureDate: '2027-03-12' }, { env: ENV, fetchFn: mockFetch(200, ONE_WAY, seen) });
+  const bad = await ignav.searchOneWay({ origin: 'YYZ', destination: 'YYZ', departureDate: '2027-03-12' }, { env: ENV, requestGuard: ignav._internal.createGuard(), fetchFn: mockFetch(200, ONE_WAY, seen) });
   assert.equal(bad.reason, 'invalid-route-or-date');
-  const badDate = await ignav.searchOneWay({ origin: 'YYZ', destination: 'LIS', departureDate: '2027-02-30' }, { env: ENV, fetchFn: mockFetch(200, ONE_WAY, seen) });
+  const badDate = await ignav.searchOneWay({ origin: 'YYZ', destination: 'LIS', departureDate: '2027-02-30' }, { env: ENV, requestGuard: ignav._internal.createGuard(), fetchFn: mockFetch(200, ONE_WAY, seen) });
   assert.equal(badDate.reason, 'invalid-route-or-date');
   assert.equal(seen.length, 0);
 });
 
 test('Ignav HTTP errors become safe reasons (no body echo)', async () => {
-  const r402 = await ignav.searchOneWay({ origin: 'YYZ', destination: 'LIS', departureDate: '2027-03-12' }, { env: ENV, fetchFn: mockFetch(402, { secret: 'x' }) });
+  const r402 = await ignav.searchOneWay({ origin: 'YYZ', destination: 'LIS', departureDate: '2027-03-12' }, { env: ENV, requestGuard: ignav._internal.createGuard(), fetchFn: mockFetch(402, { secret: 'x' }) });
   assert.deepEqual([r402.ok, r402.reason, r402.status], [false, 'ignav-billing-required', 402]);
-  const r429 = await ignav.searchOneWay({ origin: 'YYZ', destination: 'LIS', departureDate: '2027-03-12' }, { env: ENV, fetchFn: mockFetch(429, {}) });
+  const r429 = await ignav.searchOneWay({ origin: 'YYZ', destination: 'LIS', departureDate: '2027-03-12' }, { env: ENV, requestGuard: ignav._internal.createGuard(), fetchFn: mockFetch(429, {}) });
   assert.equal(r429.reason, 'ignav-rate-limited');
 });
 
@@ -69,7 +69,7 @@ test('Ignav booking links: exact-flight first, https only, no commission claim',
     { provider_name: 'TAP', provider_type: 'airline', price: { amount: 512.4, currency: 'CAD' }, url: 'https://www.flytap.com/book?f=1', specificity: 'exact_flight' },
     { provider_name: 'Bad', url: 'http://insecure.example/' }
   ] }] };
-  const result = await ignav.getBookingLinks('cheapest0001', { env: ENV, fetchFn: mockFetch(200, payload) });
+  const result = await ignav.getBookingLinks('cheapest0001', { env: ENV, requestGuard: ignav._internal.createGuard(), proof: ignav._internal.bookingProof('cheapest0001', ENV), fetchFn: mockFetch(200, payload) });
   assert.equal(result.ok, true);
   assert.equal(result.linkCount, 2);
   assert.equal(result.links[0].providerName, 'TAP');
@@ -78,12 +78,12 @@ test('Ignav booking links: exact-flight first, https only, no commission claim',
   assert.equal(result.unknownSpecificityCount, 0);
   assert.equal(result.airlineDirectCount, 1);
   assert.equal(result.cheapestLink.providerName, 'Some OTA');
-  const noSpec = await ignav.getBookingLinks('cheapest0001', { env: ENV, fetchFn: mockFetch(200, { booking_options: [{ links: [{ provider_name: 'FlightHub', provider_type: 'third_party', price: { amount: 482, currency: 'CAD' }, url: 'https://www.flighthub.com/x' }] }] }) });
+  const noSpec = await ignav.getBookingLinks('cheapest0001', { env: ENV, requestGuard: ignav._internal.createGuard(), proof: ignav._internal.bookingProof('cheapest0001', ENV), fetchFn: mockFetch(200, { booking_options: [{ links: [{ provider_name: 'FlightHub', provider_type: 'third_party', price: { amount: 482, currency: 'CAD' }, url: 'https://www.flighthub.com/x' }] }] }) });
   assert.equal(noSpec.exactFlightLinkCount, 0);
   assert.equal(noSpec.unknownSpecificityCount, 1);
   assert.equal(noSpec.cheapestLink.amount, 482);
-  const invalid = await ignav.getBookingLinks('bad id!', { env: ENV, fetchFn: mockFetch(200, payload) });
-  assert.equal(invalid.reason, 'invalid-ignav-id');
+  const invalid = await ignav.getBookingLinks('bad id!', { env: ENV, requestGuard: ignav._internal.createGuard(), proof: ignav._internal.bookingProof('cheapest0001', ENV), fetchFn: mockFetch(200, payload) });
+  assert.equal(invalid.reason, 'invalid-or-expired-booking-proof');
 });
 
 function withAgodaEnv(fn) {
@@ -124,3 +124,47 @@ test('Agoda hotel-ID search validates input and fails closed', () => withAgodaEn
   assert.equal(failed.ok, false);
   assert.equal(failed.reason, 'agoda-request-failed');
 }));
+
+
+test('documented flat segments validate route/date and preserve actual airports', () => {
+  const request = { origin: 'YUL', destination: 'LHR', departureDate: '2027-03-20', adults: 1, children: 0, passengers: 1 };
+  const row = { price: { amount: 123, currency: 'CAD', status: 'verified' }, outbound: { segments: [{ departure_airport: 'YUL', arrival_airport: 'LHR', departure_time_local: '2027-03-20T10:00:00' }] } };
+  const normalize = value => ignav._internal.normalizeItinerary(value, request);
+  assert.equal(normalize(row).usableFare, true);
+  for (const mutate of [r => r.outbound.segments[0].departure_airport = 'JFK', r => r.outbound.segments[0].arrival_airport = 'LAX', r => r.outbound.segments[0].departure_time_local = '2027-03-21T10:00:00', r => r.outbound.segments.push(null), r => r.passengers = 2, r => r.inbound = {}, r => r.price.currency = '']) {
+    const bad = structuredClone(row); mutate(bad); assert.equal(normalize(bad).usableFare, false);
+  }
+});
+test('provider redirects fail closed; no retry and sanitized errors', async () => {
+  let calls = 0;
+  const result = await ignav.searchOneWay({ origin:'YUL', destination:'LHR', departureDate:'2027-03-20' }, { env: ENV, requestGuard: ignav._internal.createGuard(), fetchFn: async (_, init) => {
+    calls++; assert.equal(init.redirect, 'error'); throw new TypeError('private-provider-key');
+  }});
+  assert.equal(calls, 1); assert.equal(result.ok, false);
+  assert.ok(!JSON.stringify(result).includes('private-provider-key'));
+});
+test('booking proof rejects missing, modified, expired and different-ID requests without provider calls', async () => {
+  for (const proof of [undefined, 'bad', ignav._internal.bookingProof('cheapest0001', ENV, Math.floor(Date.now()/1000)-901), ignav._internal.bookingProof('another0001', ENV)]) {
+    const result = await ignav.getBookingLinks('cheapest0001', { env:ENV, proof, fetchFn: () => { assert.fail('No provider request allowed'); } });
+    assert.equal(result.reason, 'invalid-or-expired-booking-proof');
+  }
+});
+test('local rate guard reserves before fetch and fails closed; 429 cooldown works', async () => {
+  let time = 1000000;
+  const guard = ignav._internal.createGuard(() => time);
+  for(let i=0;i<10;i++) assert.equal(guard.reserve(), true);
+  assert.equal(guard.reserve(), false); time += 60001; assert.equal(guard.reserve(), true);
+  guard.block(); assert.equal(guard.reserve(), false); time += 60001; assert.equal(guard.reserve(), true);
+  for(let i=0;i<5;i++) { time += 60001; for(let j=0;j<10;j++) guard.reserve(); }
+  assert.equal(guard.reserve(), false);
+  const result = await ignav.searchOneWay({origin:'YUL',destination:'LHR',departureDate:'2027-03-20'}, {env:ENV,requestGuard:{reserve:()=>false},fetchFn:()=>assert.fail('No provider call after quota')});
+  assert.equal(result.reason,'ignav-local-quota-exhausted');
+});
+
+
+test('stale, missing and future observations cannot become live evidence', async () => {
+  for(const observed_at of [null, new Date(Date.now()-900001).toISOString(), new Date(Date.now()+120000).toISOString()]) {
+    const result = await ignav.searchOneWay({origin:'YYZ',destination:'LIS',departureDate:'2027-03-12'}, {env:ENV,requestGuard:ignav._internal.createGuard(),fetchFn:mockFetch(200,{...ONE_WAY,observed_at})});
+    assert.equal(result.ok,false); assert.equal(result.reason,'ignav-stale-or-missing-observation');
+  }
+});

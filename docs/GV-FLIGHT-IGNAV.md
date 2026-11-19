@@ -9,7 +9,7 @@ Status: merged to `main`, **off by default**. No booking, payment or ticketing.
 - `POST /api/flight-booking-links` with `{"ignavId": "..."}` returns booking links for one priced leg. Each Ignav-priced leg carries `booking.liveBookingLinks.ignavId`.
 - Ignav booking links **do not earn commission**; the existing Aviasales affiliate comparison link stays on each leg.
 
-## Enable (staging first)
+## Enable (approved production release)
 Lambda environment:
 - `ENABLE_IGNAV_FLIGHTS=true`
 - `IGNAV_API_KEY` (prefer Secrets Manager; never commit)
@@ -23,4 +23,10 @@ One Ignav request per flight leg of the final tour (about 3 per search), plus on
 ## Known limits
 - Multi-city trips are priced as separate one-way legs.
 - Ignav often omits link `specificity`; links may open a search page rather than the exact flight.
-- `/api/flight-booking-links` is public and spends one request per call; add rate limiting before wide traffic.
+- Booking lookups require a server-issued HMAC proof valid for 15 minutes; arbitrary IDs and expired proofs make zero provider calls. The rotated server API key signs proofs and is never returned.
+- Shared adapter guard limits each warm Lambda instance to 10 provider requests/minute and 60/hour, with a 60-second cooldown after 429. No retries or redirects. This is NOT a distributed/global billing cap: cold starts and parallel instances have separate budgets. Provider-account billing limits remain necessary for a hard spending ceiling.
+- Returned segment endpoints, connecting airports and first local departure date must match before prices are applied. Missing dates fail closed. Standard flat Ignav segment fields and legacy nested fields are supported.
+- A three-flight tour makes at most three Ignav search requests (four for a four-flight tour); each explicit booking lookup can make one extra request. No additional live verification is implied by offline tests.
+- Existing saved trips without a fresh proof must be regenerated to obtain booking links. Aviasales comparisons remain available.
+
+Provider observations older than 15 minutes, missing or more than 60 seconds in the future fail closed. Retrieval timestamps are not airline quote-expiry guarantees; prices remain subject to confirmation on the booking site.

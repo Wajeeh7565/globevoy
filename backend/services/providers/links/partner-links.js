@@ -228,6 +228,7 @@ function enrichFlightLeg(leg = {}, query = {}) {
     next.booking.liveBookingLinks = {
       provider: 'Ignav',
       ignavId: String(evidence.ignavId),
+      bookingProof: evidence.bookingProof,
       endpoint: '/api/flight-booking-links',
       method: 'POST',
       commissionEarned: false,

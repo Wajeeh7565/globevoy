@@ -6,14 +6,14 @@ const path = require('node:path');
 const mod = require('../../frontend/scripts/booking-ignav-links.js');
 
 const tour = { backendLegs: [
-  { mode: 'flight', booking: { liveBookingLinks: { ignavId: 'idYYZLIS00', endpoint: '/api/flight-booking-links' } } },
+  { mode: 'flight', booking: { liveBookingLinks: { ignavId: 'idYYZLIS00', bookingProof: 'proof-fixture', endpoint: '/api/flight-booking-links' } } },
   { mode: 'ground', transportType: 'rail' },
   { mode: 'flight', booking: {} },
   { mode: 'flight', booking: { liveBookingLinks: { ignavId: 'bad id!' } } }
 ] };
 
 test('lookups follow Booking Hub flight order and reject bad ids', () => {
-  assert.deepEqual(mod.flightLookups(tour), [{ ignavId: 'idYYZLIS00', endpoint: '/api/flight-booking-links' }, null, null]);
+  assert.deepEqual(mod.flightLookups(tour), [{ ignavId: 'idYYZLIS00', bookingProof: 'proof-fixture', endpoint: '/api/flight-booking-links' }, null, null]);
 });
 
 test('links render escaped, https-only, honest labels', () => {
@@ -30,13 +30,13 @@ test('links render escaped, https-only, honest labels', () => {
   assert.doesNotMatch(html, /javascript:/);
 });
 
-test('fetchLinks posts only the ignavId to GlobeVoy backend', async () => {
+test('fetchLinks posts only the id and server-issued proof to GlobeVoy backend', async () => {
   const seen = [];
   globalThis.GLOBEVOY_CONFIG = { apiBaseUrl: 'https://api.example.test/' };
-  const r = await mod.fetchLinks({ ignavId: 'idYYZLIS00', endpoint: '/api/flight-booking-links' }, async (url, init) => { seen.push({ url, init }); return { json: async () => ({ ok: true, links: [] }) }; });
+  const r = await mod.fetchLinks({ ignavId: 'idYYZLIS00', bookingProof: 'proof-fixture', endpoint: '/api/flight-booking-links' }, async (url, init) => { seen.push({ url, init }); return { json: async () => ({ ok: true, links: [] }) }; });
   assert.equal(r.ok, true);
   assert.equal(seen[0].url, 'https://api.example.test/api/flight-booking-links');
-  assert.deepEqual(JSON.parse(seen[0].init.body), { ignavId: 'idYYZLIS00' });
+  assert.deepEqual(JSON.parse(seen[0].init.body), { ignavId: 'idYYZLIS00', bookingProof: 'proof-fixture' });
   delete globalThis.GLOBEVOY_CONFIG;
 });
 

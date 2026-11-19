@@ -46,7 +46,7 @@
     return legsOf(tour).filter(leg => !isGround(leg)).map(leg => {
       const live = leg?.booking?.liveBookingLinks;
       const id = String(live?.ignavId || '');
-      return live && /^[A-Za-z0-9_-]{8,128}$/.test(id) ? { ignavId: id, endpoint: '/api/flight-booking-links' } : null;
+      return live && /^[A-Za-z0-9_-]{8,128}$/.test(id) ? { ignavId: id, bookingProof: live.bookingProof, endpoint: '/api/flight-booking-links' } : null;
     });
   }
   function apiBase() {
@@ -73,7 +73,7 @@
       const response = await fetchFn(base + lookup.endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ignavId: lookup.ignavId })
+        body: JSON.stringify({ ignavId: lookup.ignavId, bookingProof: lookup.bookingProof })
       });
       return await response.json();
     } catch (_) {

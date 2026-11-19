@@ -67,6 +67,7 @@ function buildEvidence(task, fare, currency, partyTotalUsd, observedAt) {
     rankingPriceUsd: Math.round(partyTotalUsd),
     passengers: fare.passengers,
     ignavId: fare.ignavId,
+    bookingProof: fare.bookingProof,
     carrier: fare.carrier,
     stops: fare.stops,
     durationMinutes: fare.durationMinutes,
@@ -110,7 +111,7 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
   const results = await Promise.all(tasks.map(task => ignav.searchOneWay({
     origin: task.origin, destination: task.destination, departureDate: task.departureDate,
     adults: party.adults, children: party.children, currency
-  }, { env, fetchFn: options.fetchFn })));
+  }, { env, fetchFn: options.fetchFn, requestGuard: options.requestGuard })));
 
   const failed = results.map((r, i) => ({ r, task: tasks[i] }))
     .filter(({ r }) => !r.ok || !r.cheapest || r.cheapest.currency !== currency);
