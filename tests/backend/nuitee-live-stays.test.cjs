@@ -156,3 +156,15 @@ test('chooseOffer: cheapest 7.0+ hotel wins over pricier refundable; low-rated c
   ]), 'CAD');
   assert.equal(pick.hotelId, 'b');
 });
+
+test('White Label checkout link uses the offerId; unsafe ids are rejected', async () => {
+  assert.equal(_internal.checkoutUrl('x.nuitee.link', 'offer-abc123'), 'https://x.nuitee.link/booking?offerId=offer-abc123');
+  assert.equal(_internal.checkoutUrl('x.nuitee.link', 'a b<script>'), '');
+  const fetch = mockFetch({ Lisbon: [rateHotel('lpB', 'Good Value', 8.4, 520)], Budapest: [] });
+  const r = await applyNuiteeLiveStays(tour(), QUERY, { env: ENV, getSecretValue: prodSecret, fetch });
+  const wl = r.tour.stops[0].hotel.nuiteeWhitelabel;
+  assert.equal(wl.checkoutUrl, 'https://wajeeh-4443-racp8.nuitee.link/booking?offerId=offer-lpB');
+  assert.ok(wl.offerObservedAt);
+  const stay = enrichStay({ ...r.tour.stops[0], arrivalDate: '2027-03-12', departureDate: '2027-03-16' }, QUERY);
+  assert.equal(stay.hotel.booking.whitelabel.checkoutUrl, wl.checkoutUrl);
+});

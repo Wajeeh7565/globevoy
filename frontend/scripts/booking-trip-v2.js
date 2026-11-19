@@ -10,10 +10,13 @@
 // the older booking sections. "Show detailed view" brings them back.
 (function (root) {
   'use strict';
-  const VERSION = 'GV-BOOK-V2-002';
+  const VERSION = 'GV-BOOK-V2-003';
   const OLD_SECTIONS = ['.gv-booking-hero', '#gv-booking-workspace', '.gv-booking-summary', '#gv-booking-journey-section',
     '#gv-booking-profile-section', '#gv-booking-transport-section', '#gv-booking-stays-section', '.gv-booking-section'];
   const AGODA_CID = '1963873';
+  // How long a Nuitee offerId is trusted for one-click checkout. Older than
+  // this, the main button opens the hotel page (current price) instead.
+  const OFFER_FRESH_MINUTES = 30;
 
   function safeUrl(value) {
     try { const u = new URL(String(value || '')); return u.protocol === 'https:' ? u.href : ''; } catch (_) { return ''; }
@@ -114,6 +117,11 @@
     else if (num(hotel.estimatedStayUsd) != null && cur.fx) price = num(hotel.estimatedStayUsd) * cur.fx;
     const live = Boolean(rate && rate.sourceType === 'LIVE');
     const agoda = safeUrl(hotel.booking?.url || hotel.bookingUrl || hotel.hotelUrl || hotel.providerUrl) || agodaCityUrl(hotel, checkIn, checkOut, party.rooms, party.adults);
+    const wlInfo = hotel.nuiteeWhitelabel || hotel.booking?.whitelabel || {};
+    const checkout = safeUrl(wlInfo.checkoutUrl);
+    const checkoutOk = checkout && /(\.nuitee\.link|globevoy\.com)$/i.test(new URL(checkout).hostname) && /\/booking$/.test(new URL(checkout).pathname);
+    const offerAge = (now || Date.now()) - Date.parse(wlInfo.offerObservedAt || rate?.observedAt || '');
+    const fresh = checkoutOk && Number.isFinite(offerAge) && offerAge >= 0 && offerAge <= OFFER_FRESH_MINUTES * 60000;
     const refundable = rate?.refundableTag === 'RFN' ? 'Free cancellation' : rate?.refundableTag === 'NRFN' ? 'Non-refundable' : '';
     const detailBits = [
       checkIn && checkOut ? `${dateLabel(checkIn)} – ${dateLabel(checkOut)}` : '',
@@ -131,10 +139,12 @@
       live,
       age: live ? (refundable || ageLabel(rate.observedAt, now)) : 'choose a hotel on Agoda',
       ignav: null,
-      mainUrl: wlOk ? wl : agoda,
-      mainLabel: wlOk ? 'Book this hotel' : 'Find a hotel',
+      mainUrl: fresh ? checkout : (wlOk ? wl : agoda),
+      mainLabel: fresh ? 'Book this room' : (wlOk ? 'Book this hotel' : 'Find a hotel'),
       compareUrl: wlOk ? agoda : '',
-      compareLabel: 'Compare on Agoda'
+      compareLabel: 'Compare on Agoda',
+      altUrl: fresh && wlOk ? wl : '',
+      altLabel: 'See hotel page'
     };
   }
 
@@ -262,6 +272,7 @@
           ? el(doc, 'a', { class: 'gvb2-main', href: mainUrl, target: '_blank', rel: 'noopener nofollow' }, [`${mainLabel} ↗`])
           : el(doc, 'span', { class: 'gvb2-main gvb2-disabled', text: 'Link unavailable' });
         const right = el(doc, 'div', { class: 'gvb2-right' }, [el(doc, 'div', { class: 'gvb2-price', text: money(it.price, cur) }), main]);
+        if (it.altUrl) right.appendChild(el(doc, 'a', { class: 'gvb2-compare', href: it.altUrl, target: '_blank', rel: 'noopener nofollow', text: it.altLabel }));
         if (it.compareUrl && it.compareUrl !== it.mainUrl) right.appendChild(el(doc, 'a', { class: 'gvb2-compare', href: it.compareUrl, target: '_blank', rel: 'noopener nofollow', text: it.compareLabel }));
         const optionsBox = el(doc, 'div', { class: 'gvb2-options', hidden: true });
         if (it.ignav && it.links && it.links.length > 1) {

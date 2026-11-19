@@ -441,7 +441,7 @@ function enrichStay(stop = {}, query = {}) {
   // Nuitee White Label hotel page (same rate source); Agoda stays as comparison.
   const wl = hotel.nuiteeWhitelabel;
   if (nuiteePriced && wl && /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+\/hotels\/[A-Za-z0-9_-]+\?/.test(String(wl.url || ''))) {
-    hotel.booking.whitelabel = { url: wl.url, label: 'Book this hotel', provider: 'Nuitee', merchant: 'Nuitee', hotelId: wl.hotelId, checkIn, checkOut, finalPriceRequiresPartnerConfirmation: true };
+    hotel.booking.whitelabel = { url: wl.url, checkoutUrl: /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+\/booking\?offerId=[A-Za-z0-9._~%-]+$/.test(String(wl.checkoutUrl || '')) ? wl.checkoutUrl : '', offerObservedAt: wl.offerObservedAt || null, label: 'Book this hotel', provider: 'Nuitee', merchant: 'Nuitee', hotelId: wl.hotelId, checkIn, checkOut, finalPriceRequiresPartnerConfirmation: true };
   }
   if (nuiteePriced && bookingUrl) {
     hotel.booking.label = 'Compare stays on Agoda';

@@ -7,7 +7,7 @@ Status: on `main`, **off by default**. Search only: no Prebook, no booking, no p
 - Picks the cheapest hotel rated 7.0+ (when any are rated) from up to 50 results; refundable only breaks exact ties; skips offers with excluded/payable-at-hotel fees.
 - Per stop, fail-closed: no usable production rate → the stop keeps its previous hotel, estimate and Agoda link.
 - The stay gets `hotel.nuiteeWhitelabel.url` → `https://<whitelabel>/hotels/{hotelId}?checkin&checkout&occupancies=<base64>`; `partner-links.js` exposes it as `hotel.booking.whitelabel`. Agoda remains as "Compare stays on Agoda".
-- Booking page (`frontend/scripts/booking-ignav-links.js`) adds **Book this hotel ↗** on those stays.
+- Booking page v2 (`frontend/scripts/booking-trip-v2.js`): **Book this room ↗** opens White Label checkout (`/booking?offerId=…`) while the rate is under 30 minutes old; otherwise **Book this hotel ↗** opens the hotel page. "See hotel page" and "Compare on Agoda" stay as secondary links.
 - Nuitee is merchant of record on the White Label; GlobeVoy earns its configured commission.
 
 ## Enable
