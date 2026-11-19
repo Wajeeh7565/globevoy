@@ -203,3 +203,21 @@ test('rate search asks for 20 hotels, allows 12 s, and records per-stop timing (
     assert.ok(rows.some(row => row.applied === true));
   } finally { global.setTimeout = realSetTimeout; }
 });
+
+test('after live hotel rates, the page total (displayBudget) is rebuilt from the live prices', async () => {
+  const { _priceFinalTourWithNuitee } = require('../../backend/services/domain/tours/generated-tour');
+  const { attachTourPresentation } = require('../../backend/services/domain/pricing/budget-presentation');
+  const q = { currency: 'CAD', budget: 3500, adults: 1, rooms: 1 };
+  const base = attachTourPresentation({ totalBudgetUsd: 2573, reservePercent: 0.1, totalFlightEstimateUsd: 451, totalHotelEstimateUsd: 940, estimatedTotalUsd: 1391,
+    legs: [], stops: [{ city: 'A', hotel: { estimatedStayUsd: 430 } }, { city: 'B', hotel: { estimatedStayUsd: 510 } }] }, q);
+  const stale = base.displayBudget.tripEstimate;
+  const live = { ...base, totalHotelEstimateUsd: 959, estimatedTotalUsd: 1410,
+    stops: [{ city: 'A', hotel: { estimatedStayUsd: 434, nuiteeLiveRate: { amount: 590, currency: 'CAD' } } }, { city: 'B', hotel: { estimatedStayUsd: 525, nuiteeLiveRate: { amount: 714, currency: 'CAD' } } }] };
+  const r = await _priceFinalTourWithNuitee({ ok: true, tour: base, tours: [base], diagnostics: {} }, q,
+    { env: ENV, applyNuiteeLiveStays: async () => ({ tour: live, summary: { applied: true, appliedCount: 2, stopCount: 2 } }) });
+  const db = r.tour.displayBudget;
+  assert.notEqual(db.tripEstimate, stale);
+  assert.equal(db.tripEstimate, db.flightEstimate + db.accommodationEstimate);
+  assert.ok(Math.abs(db.accommodationEstimate - Math.round(959 * db.exchangeRateFromUsd)) <= 1);
+  assert.equal(r.tours[0], r.tour);
+});
