@@ -177,3 +177,22 @@ test('pagination checkpoint resumes next offset without skipping incomplete orig
  assert.equal(first.done,0);const c=await store.readCursor({env:ENV,dynamo});assert.equal(c.offset,90);assert.equal(c.index,0);
  const seen=[];const second=await job.runFareMapJob({env:ENV,dynamo,origins:['YTO'],clock:()=>200000,now:100000,maxTasks:1,pace:async()=>{},fetch:tpFetch(pages,seen),log:()=>{}});assert.match(seen[0],/offset: 90/);assert.equal(second.done,1);
 });
+
+test('partial batch retries only pending items, accepts an empty unprocessed table and counts once',async()=>{
+ const records=['LON','PAR'].map(destination=>({origin:'YTO',month:'2027-01',destination,priceUsd:100,observedAt:new Date().toISOString()}));
+ const sizes=[];
+ const written=await store.writeRecords(records,{env:ENV,sleep:false,dynamo:{send:async c=>{
+  const pending=c.input.RequestItems[ENV.FARE_MAP_TABLE];sizes.push(pending.length);
+  return {UnprocessedItems:{[ENV.FARE_MAP_TABLE]:sizes.length===1?[pending[1]]:[]}};
+ }}});
+ assert.equal(written,2);assert.deepEqual(sizes,[2,1]);
+});
+
+test('reader follows filtered empty pages and enforces logical TTL and freshness locally',async()=>{
+ const now=Date.parse('2027-01-01T00:00:00Z'),rec={origin:'YTO',month:'2027-01',destination:'LON',priceUsd:100,observedAt:new Date(now).toISOString()};
+ const fresh=store._internal.toItem(rec,now),expired=structuredClone(fresh),stale=structuredClone(fresh);
+ expired.ttl.N=String(now/1000);stale.observedAt.S='2026-01-01';let calls=0;
+ const dynamo={send:async c=>{calls++;assert.equal(c.input.ExclusiveStartKey?.sk?.S,calls===1?undefined:'page1');return calls===1?{Items:[],LastEvaluatedKey:{sk:{S:'page1'}}}:{Items:[fresh,expired,stale]}}};
+ const result=await store.readRoutesFrom('YTO','2027-01',{env:ENV,dynamo,nowMs:now,maxPages:2});
+ assert.equal(calls,2);assert.equal(result.length,1);
+});

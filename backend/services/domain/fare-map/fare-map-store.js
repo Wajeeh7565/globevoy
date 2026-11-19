@@ -71,7 +71,8 @@ async function writeRecords(records, options = {}) {
         if(options.stats)options.stats.dynamoRetries++;
         await (options.sleepFn|| (ms=>new Promise(r=>setTimeout(r,ms))))(100*2**attempt);continue;
       }
-      const left = out?.UnprocessedItems && out.UnprocessedItems[table] ? out.UnprocessedItems : null;
+      const pending = out?.UnprocessedItems?.[table];
+      const left = Array.isArray(pending) && pending.length ? { [table]: pending } : null;
       written += (request[table].length - (left ? left[table].length : 0));
       request = left;
       if(request){if(options.stats)options.stats.dynamoRetries++;if(options.sleep!==false)await (options.sleepFn|| (ms=>new Promise(r=>setTimeout(r,ms))))(100*2**attempt);}
