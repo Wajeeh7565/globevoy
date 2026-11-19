@@ -213,8 +213,9 @@ $env:GLOBEVOY_TEST_FRONTEND_ROOT='.cache/ci-production-frontend'
 npm run test:browser
 Remove-Item Env:GLOBEVOY_TEST_FRONTEND_ROOT
 # Clean committed source required. These commands make no AWS calls.
-./ops/release/package-launch-first-backend.ps1 -OutputName next-cycle-backend
-Get-FileHash .cache/next-cycle-backend.zip -Algorithm SHA256
+# Production runs with accounts ON: always pass -EnableProductionAccounts.
+./ops/release/package-launch-first-backend.ps1 -OutputName next-cycle-backend -EnableProductionAccounts
+# (equivalent on any OS: node ops/release/package-backend.cjs --output next-cycle-backend --enable-production-accounts)
 ```
 
 ## Rollback and remaining gaps

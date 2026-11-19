@@ -17,14 +17,14 @@ Use Node 24, npm, PowerShell, a clean commit, and existing locked dependencies:
 ```powershell
 node scripts/run-tests.mjs repo backend frontend account providers syntax web performance release
 node backend/validation/validate-gv-production-account.js
-# Default off / rollback build:
-./ops/release/package-launch-first-backend.ps1 -OutputName accounts-disabled
+# Accounts-off build (CI/testing only — never deploy to production):
+./ops/release/package-launch-first-backend.ps1 -OutputName accounts-disabled -AccountsDisabledForTesting
 # Explicitly enabled production candidate:
 ./ops/release/package-launch-first-backend.ps1 -OutputName accounts-build-config -EnableProductionAccounts
 Get-FileHash .cache/accounts-build-config.zip -Algorithm SHA256
 ```
 
-Both ZIPs use src/lambda.handler and include the pinned SDK. The packager runs the full production JWT/CRUD regression against assembled modules, checks expected opt-in status and public API delegation, and asserts the process environment is unchanged. CI builds both variants. Tests exercise missing config, malformed/extra fields, staging rejection, auth/security, owner-private CRUD, stale versions, profiles and default-off rollback behavior. Existing public regression groups remain enabled.
+The packager refuses to run unless exactly one of -EnableProductionAccounts / -AccountsDisabledForTesting is given. All checks and the ZIP are produced by `ops/release/package-backend.cjs` (Node, no shell quoting, `/` entry separators), so Windows PowerShell 5.1, pwsh, macOS and Linux behave the same. The script prints the SHA-256 in hex and in base64 (the form the Lambda console shows). Both ZIPs use src/lambda.handler and include the pinned SDK. The packager runs the full production JWT/CRUD regression against assembled modules, checks expected opt-in status and public API delegation, and asserts the process environment is unchanged. CI builds both variants. Tests exercise missing config, malformed/extra fields, staging rejection, auth/security, owner-private CRUD, stale versions, profiles and default-off rollback behavior. Existing public regression groups remain enabled.
 
 The manifest records source commit, inclusion status and **additionalEnvironmentBytes: 0**. Generated timestamps mean a new build can have a different ZIP checksum; record the exact approved ZIP hash. Existing Lambda configuration, environment and provider credentials must remain byte-for-byte unchanged at deployment. This fixes the 4 KB issue with a **code-only** update; do not issue update-function-configuration or add any environment setting.
 

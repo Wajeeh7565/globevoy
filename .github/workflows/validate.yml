@@ -77,7 +77,7 @@ jobs:
       - name: Build and import production Lambda ZIP locally
         shell: pwsh
         run: |
-          ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend
+          ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend -AccountsDisabledForTesting
           ./ops/release/package-launch-first-backend.ps1 -OutputName ci-launch-backend-enabled -EnableProductionAccounts
           New-Item -ItemType Directory -Path .cache -Force | Out-Null
           $activity = '{"schemaVersion":1,"enabled":true,"privacyApproved":true,"table":"globevoy-production-activity-events","retentionDays":30}'
