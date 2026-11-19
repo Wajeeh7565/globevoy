@@ -11,6 +11,7 @@ const { fetchFlightDates683C, fetchFlightAcrossMonths683C, fetchDuffelShadow683D
 const { normalizeAmount683G, normalizeObservation683G, status683G } = require('./services/shared/fx-normalization-683g');
 const { simulateTour683H, status683H, seedCandidateStarts683H } = require('./services/providers/flights/duffel/duffel-p2-staging-683h');
 const { getGeneratedTour } = require('./services/domain/tours/generated-tour');
+const { getBookingLinks: getIgnavBookingLinks, configured: ignavConfigured } = require('./services/providers/flights/ignav/ignav');
 const { getGeneratedTourControl } = require('./services/domain/tours/generated-tour-controls');
 const { recalculateGeneratedTourDate } = require('./services/domain/tours/generated-tour-dates');
 const { evaluateTravelEntryEligibility } = require('./services/domain/eligibility/travel-entry-eligibility');
@@ -520,6 +521,23 @@ exports.handler = async function handler(event) {
         return { statusCode: 400, headers: corsHeaders(), body: JSON.stringify(buildInvalidOriginResponse()) };
       }
       return { statusCode: 500, headers: corsHeaders(), body: JSON.stringify({ ok: false, error: error.message || 'Generated tour failed', tour: null, tours: [] }) };
+    }
+  }
+
+  if (path === '/api/flight-booking-links') {
+    // GV-FLIGHT-IGNAV-002: user-click lookup of booking links for one Ignav itinerary.
+    if (method !== 'POST') {
+      return { statusCode: 405, headers: corsHeaders(), body: JSON.stringify({ ok: false, error: 'POST required' }) };
+    }
+    if (!ignavConfigured()) {
+      return { statusCode: 200, headers: corsHeaders(), body: JSON.stringify({ ok: false, supported: false, reason: 'feature-disabled', links: [] }) };
+    }
+    try {
+      const payload = parseJsonBody(event);
+      const result = await getIgnavBookingLinks(String(payload.ignavId || ''));
+      return { statusCode: result.ok ? 200 : 400, headers: corsHeaders(), body: JSON.stringify(result) };
+    } catch (_) {
+      return { statusCode: 400, headers: corsHeaders(), body: JSON.stringify({ ok: false, reason: 'invalid-request', links: [] }) };
     }
   }
 

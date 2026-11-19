@@ -221,12 +221,25 @@ function enrichFlightLeg(leg = {}, query = {}) {
       ctaLabel: 'Compare flights on Aviasales'
     }
   };
+  // GV-FLIGHT-IGNAV-002: Ignav-priced legs expose a booking-links lookup the
+  // browser calls on click. Ignav links earn no referral commission.
+  if (/^ignav(?:-|$)/i.test(String(evidence.source || '')) && evidence.ignavId && providerApplied) {
+    next.booking.evidenceProvider = 'Ignav';
+    next.booking.liveBookingLinks = {
+      provider: 'Ignav',
+      ignavId: String(evidence.ignavId),
+      endpoint: '/api/flight-booking-links',
+      method: 'POST',
+      commissionEarned: false,
+      label: 'See booking options for this flight'
+    };
+  }
   next.priceProvenance = {
     category: providerApplied ? 'provider-observation' : 'planning-estimate',
     sourceType: canonicalEvidence.sourceType,
     evidenceId: canonicalEvidence.evidenceId,
     currentPriceConfirmed: canonicalEvidence.sourceType === SOURCE_TYPES.LIVE && canonicalEvidence.isBookable,
-    provider: duffel ? 'Duffel' : providerApplied ? 'Travelpayouts/Aviasales' : 'Globevoy planning model',
+    provider: duffel ? 'Duffel' : /^ignav(?:-|$)/i.test(String(evidence.source || '')) && providerApplied ? 'Ignav' : providerApplied ? 'Travelpayouts/Aviasales' : 'Globevoy planning model',
     source: providerApplied ? (evidence.source || next.estimateSource || 'travelpayouts-provider-observation') : (next.estimateSource || next.dateSource || 'planning-estimate'),
     amountUsd,
     unitAmountUsd: Number(next?.pricingIntegrity?.unitAmountUsd || evidence.perPassengerAmountUsd || 0) || null,

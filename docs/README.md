@@ -24,6 +24,7 @@ Feature documents below retain their existing paths because workflows and valida
 - [GV-FLIGHT-703C](GV-FLIGHT-703C.md)
 - [GV-FLIGHT-703D](GV-FLIGHT-703D.md)
 - [GV-FLIGHT-703E](GV-FLIGHT-703E.md)
+- [GV-FLIGHT-IGNAV](GV-FLIGHT-IGNAV.md)
 
 ## Stay providers
 
