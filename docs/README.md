@@ -26,6 +26,7 @@ Feature documents below retain their existing paths because workflows and valida
 - [GV-FLIGHT-703E](GV-FLIGHT-703E.md)
 - [GV-FLIGHT-IGNAV](GV-FLIGHT-IGNAV.md)
 - [GV-HOTEL-NUITEE-WL](GV-HOTEL-NUITEE-WL.md)
+- [GV-FAREMAP](GV-FAREMAP.md)
 
 ## Stay providers
 
