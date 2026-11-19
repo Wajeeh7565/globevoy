@@ -56,6 +56,17 @@ async function runFareMapJob(options={}) {
       let reason=result.reason;
       try{if(result.records.length){summary.written+=await store.writeRecords(result.records,{...opts,nowMs:clock(),sleepFn:options.sleep,stats:summary});result.records.forEach(r=>destinations.add(r.destination))}}
       catch(e){summary.written+=e.written||0;reason=e.code||'dynamodb-error';}
+      if(reason==='provider-http-error'){
+        // A 4xx other than 401/403/429 is permanent for this origin/month (e.g. a
+        // city code Travelpayouts does not accept). Retrying it every run would
+        // block the whole cycle, so record it and move on to the next task.
+        summary.failures++;summary.skipped=(summary.skipped||0)+1;summary.lastReason=reason;
+        summary.failureCategories[reason]=(summary.failureCategories[reason]||0)+1;
+        summary.skippedTasks=[...(summary.skippedTasks||[]),`${task.origin}#${task.month}:${result.httpStatus||'4xx'}`].slice(-20);
+        summary.done++;offset=0;index++;
+        await store.writeCursor({...lease,index,taskKey:tasks[index]?`${tasks[index].origin}#${tasks[index].month}`:null,offset,lastRun:summary},{...opts,nowMs:clock(),owner});
+        continue;
+      }
       if(reason){
         // Keep task/offset on failure. Replaying successful writes is idempotent by existing fare keys.
         summary.failures+=reason==='time-budget'||reason==='pagination-budget'?0:1;
@@ -76,7 +87,7 @@ async function runFareMapJob(options={}) {
     }
   }catch{summary.ok=false;summary.lastReason='dynamodb-checkpoint-error';summary.failures++;}
   summary.coveredDestinations=destinations.size;
-  summary.ok=summary.ok&&summary.failures===0;
+  summary.ok=summary.ok&&summary.failures-(summary.skipped||0)===0;
   summary.successRate=summary.done+summary.failures?summary.done/(summary.done+summary.failures):null;
   const finishedCycle=index>=tasks.length;
   try{await store.writeCursor({...lease,index:finishedCycle?0:index,taskKey:finishedCycle?null:`${tasks[index]?.origin}#${tasks[index]?.month}`,offset,retryAt,owner:null,leaseUntil:0,lastRun:summary},{...opts,nowMs:clock(),owner})}
