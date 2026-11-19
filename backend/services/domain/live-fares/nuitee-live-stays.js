@@ -11,6 +11,8 @@
 //   Otherwise the stop keeps its previous hotel/price and Agoda link.
 // - Off unless ENABLE_NUITEE_LIVE_STAYS=true and NUITEE_SECRET_ID is set.
 
+const HOTEL_LIMIT = 20;
+const RATE_TIMEOUT_MS = 12000;
 const nuitee = require('../../providers/stays/nuitee/nuitee-hotel-708c');
 const { applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
 const { currencyToUsdRate, normalizeCurrency } = require('../pricing/budget-presentation');
@@ -85,7 +87,9 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   } catch (error) {
     return { index, applied: false, reason: clean(error.code || 'occupancy-invalid') };
   }
-  body.limit = 50;
+  // Big markets (London, New York, Cancun) timed out at 50 hotels within 9 s;
+  // 20 still leaves a well-rated, cheap choice and returns faster.
+  body.limit = HOTEL_LIMIT;
   body.maxRatesPerHotel = 1;
   const result = await nuitee.postJson(RATE_URL, body, apiKey, options);
   if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: 1 };
@@ -113,8 +117,12 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
   const usdRate = currencyToUsdRate(currency);
   const targets = stops.slice(0, MAX_STOPS).map((stop, index) => ({ stop, index })).filter(({ stop }) => Number(stop.nights || 0) > 0);
   const rows = await Promise.all(targets.map(({ stop, index }) =>
-    priceStop(stop, index, tour, query, env, { ...options, timeoutMs: options.timeoutMs || 9000 }, apiKey, currency)
-      .catch(error => ({ index, applied: false, reason: error?.name === 'AbortError' ? 'rates-timeout' : 'rates-error', providerRequests: 1 }))));
+    (async () => {
+      const started = Date.now();
+      const row = await priceStop(stop, index, tour, query, env, { ...options, timeoutMs: options.timeoutMs || RATE_TIMEOUT_MS }, apiKey, currency)
+        .catch(error => ({ index, applied: false, reason: error?.name === 'AbortError' ? 'rates-timeout' : 'rates-error', providerRequests: 1 }));
+      return { ...row, ms: Date.now() - started };
+    })()));
 
   const nextStops = stops.map(stop => ({ ...stop }));
   const observedAt = new Date().toISOString();
@@ -179,7 +187,7 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
       providerRequests: rows.reduce((s, r) => s + (r.providerRequests || 0), 0),
       currency,
       reason: appliedCount === targets.length ? null : 'partial-hotel-coverage',
-      rows: rows.map(r => ({ index: r.index, applied: r.applied, reason: r.reason || null, hotelId: r.offer?.hotelId || null }))
+      rows: rows.map(r => ({ index: r.index, applied: r.applied, reason: r.reason || null, hotelId: r.offer?.hotelId || null, ms: r.ms ?? null }))
     }
   };
 }

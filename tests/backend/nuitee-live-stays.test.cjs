@@ -181,3 +181,25 @@ test('final pass keeps live rates when they are cheaper than estimates, even if 
   assert.equal(r.tour.stops[0].hotel.name, 'Cheap Good');
   assert.notEqual(r.diagnostics.nuiteeLiveStays.reason, 'nuitee-final-tour-over-budget-kept-estimate');
 });
+
+test('rate search asks for 20 hotels, allows 12 s, and records per-stop timing (timeouts included)', async () => {
+  const seen = [];
+  const ok = mockFetch({ Lisbon: [rateHotel('lpB', 'Good Value', 8.4, 520)] }, seen);
+  let timeoutMs = null;
+  const fetch = async (url, init) => {
+    const body = JSON.parse(init.body);
+    if (body.cityName === 'Budapest') { const e = new Error('aborted'); e.name = 'AbortError'; throw e; }
+    return ok(url, init);
+  };
+  const realSetTimeout = global.setTimeout;
+  global.setTimeout = (fn, ms, ...a) => { if (ms >= 1000) timeoutMs = Math.max(timeoutMs || 0, ms); return realSetTimeout(fn, ms, ...a); };
+  try {
+    const r = await applyNuiteeLiveStays(tour(), QUERY, { env: ENV, getSecretValue: prodSecret, fetch });
+    assert.equal(seen[0].body.limit, 20);
+    assert.equal(timeoutMs, 12000);
+    const rows = r.summary.rows;
+    assert.ok(rows.every(row => Number.isFinite(row.ms)));
+    assert.ok(rows.some(row => row.reason === 'rates-timeout'));
+    assert.ok(rows.some(row => row.applied === true));
+  } finally { global.setTimeout = realSetTimeout; }
+});
