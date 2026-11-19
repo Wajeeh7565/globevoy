@@ -10,7 +10,7 @@
 // the older booking sections. "Show detailed view" brings them back.
 (function (root) {
   'use strict';
-  const VERSION = 'GV-BOOK-V2-001';
+  const VERSION = 'GV-BOOK-V2-002';
   const OLD_SECTIONS = ['.gv-booking-hero', '#gv-booking-workspace', '.gv-booking-summary', '#gv-booking-journey-section',
     '#gv-booking-profile-section', '#gv-booking-transport-section', '#gv-booking-stays-section', '.gv-booking-section'];
   const AGODA_CID = '1963873';
@@ -138,6 +138,15 @@
     };
   }
 
+  // Prefer the airline itself, then an exact-flight booking site, then the cheapest.
+  function bestLink(links) {
+    const ok = (Array.isArray(links) ? links : []).map(l => ({ ...l, url: safeUrl(l.url) })).filter(l => l.url);
+    if (!ok.length) return null;
+    const price = l => (num(l.amount) == null ? Infinity : num(l.amount));
+    const rank = l => (l.providerType === 'airline' ? 0 : l.specificity === 'exact_flight' ? 1 : 2);
+    return ok.slice().sort((a, b) => rank(a) - rank(b) || price(a) - price(b))[0];
+  }
+
   function buildItems(tour, now) {
     const cur = currencyOf(tour);
     const legs = legsOf(tour);
@@ -161,8 +170,14 @@
     const d = tour?.displayBudget || {};
     const flights = items.filter(x => x.kind !== 'hotel').reduce((s, x) => s + (x.price || 0), 0);
     const hotels = items.filter(x => x.kind === 'hotel').reduce((s, x) => s + (x.price || 0), 0);
-    const total = flights + hotels;
+    // The trip total the rest of the site shows also includes airport-access /
+    // transfer estimates and other extras; show those as their own line so the
+    // two pages agree.
+    const siteTotal = num(d.tripEstimate);
+    const extras = siteTotal != null && siteTotal - (flights + hotels) > 1 ? siteTotal - (flights + hotels) : 0;
+    const total = flights + hotels + extras;
     const budget = num(d.totalBudget) ?? num(tour?.budget?.total?.amount);
+    const reserve = num(d.reserveAmount) || 0;
     const cities = (Array.isArray(tour?.cities) ? tour.cities : []).map(cityName).filter(Boolean);
     const origin = cityName(tour?.origin) || cityName(legsOf(tour)[0]?.from);
     const legs = legsOf(tour);
@@ -172,8 +187,8 @@
       route: [origin, ...cities, origin].filter(Boolean).join(' → '),
       dates: [start && end ? `${dateLabel(start)} – ${dateLabel(end)}, ${end.slice(0, 4)}` : '', nights ? `${nights} nights` : '',
         `${tour?.passengerPricing?.travellers || 1} traveller${(tour?.passengerPricing?.travellers || 1) === 1 ? '' : 's'}`].filter(Boolean).join(' · '),
-      flights, hotels, total, budget,
-      left: budget != null ? budget - total : null,
+      flights, hotels, extras, total, budget, reserve,
+      left: budget != null ? budget - reserve - total : null,
       flightCount: items.filter(x => x.kind !== 'hotel').length,
       hotelCount: items.filter(x => x.kind === 'hotel').length,
       liveCount: items.filter(x => x.live).length,
@@ -238,26 +253,26 @@
 
       items.forEach(it => {
         const booked = !!state.booked[it.id];
-        const main = it.mainUrl
-          ? el(doc, 'a', { class: 'gvb2-main', href: it.mainUrl, target: '_blank', rel: 'noopener nofollow' }, [`${it.mainLabel} ↗`])
+        const best = it.ignav && it.links ? bestLink(it.links) : null;
+        const mainUrl = best ? best.url : (it.ignav && !it.links ? '' : it.mainUrl);
+        const mainLabel = best ? `Book on ${best.providerName || 'partner'}` : it.mainLabel;
+        const main = it.ignav && !it.links
+          ? el(doc, 'span', { class: 'gvb2-main gvb2-disabled', text: 'Finding live options…' })
+          : mainUrl
+          ? el(doc, 'a', { class: 'gvb2-main', href: mainUrl, target: '_blank', rel: 'noopener nofollow' }, [`${mainLabel} ↗`])
           : el(doc, 'span', { class: 'gvb2-main gvb2-disabled', text: 'Link unavailable' });
         const right = el(doc, 'div', { class: 'gvb2-right' }, [el(doc, 'div', { class: 'gvb2-price', text: money(it.price, cur) }), main]);
         if (it.compareUrl && it.compareUrl !== it.mainUrl) right.appendChild(el(doc, 'a', { class: 'gvb2-compare', href: it.compareUrl, target: '_blank', rel: 'noopener nofollow', text: it.compareLabel }));
         const optionsBox = el(doc, 'div', { class: 'gvb2-options', hidden: true });
-        if (it.ignav) {
-          right.appendChild(el(doc, 'button', { type: 'button', class: 'gvb2-compare gvb2-linkbtn', onclick: async (e) => {
-            const btn = e.currentTarget; btn.disabled = true; btn.textContent = 'Checking live options…';
-            const api = root.GlobevoyBookingIgnavLinks;
-            const result = api && api.fetchLinks ? await api.fetchLinks({ ...it.ignav, endpoint: '/api/flight-booking-links' }) : { ok: false };
-            optionsBox.hidden = false; optionsBox.textContent = '';
-            const links = (Array.isArray(result?.links) ? result.links : []).map(l => ({ ...l, url: safeUrl(l.url) })).filter(l => l.url).slice(0, 6);
-            if (!links.length) optionsBox.appendChild(el(doc, 'p', { text: 'No live booking options right now. Use the comparison link.' }));
-            else optionsBox.appendChild(el(doc, 'ul', {}, links.map(l => el(doc, 'li', {}, [
+        if (it.ignav && it.links && it.links.length > 1) {
+          right.appendChild(el(doc, 'button', { type: 'button', class: 'gvb2-compare gvb2-linkbtn', 'aria-expanded': it.open ? 'true' : 'false', onclick: () => { it.open = !it.open; draw(); } }, [it.open ? 'Hide other options' : `${it.links.length - 1} more option${it.links.length > 2 ? 's' : ''}`]));
+          if (it.open) {
+            optionsBox.hidden = false;
+            optionsBox.appendChild(el(doc, 'ul', {}, it.links.map(l => ({ ...l, url: safeUrl(l.url) })).filter(l => l.url).slice(0, 6).map(l => el(doc, 'li', {}, [
               el(doc, 'a', { href: l.url, target: '_blank', rel: 'noopener nofollow', text: `${l.providerName || 'Booking site'} ↗` }),
               ` ${l.providerType === 'airline' ? 'Airline' : 'Booking site'}${num(l.amount) != null ? ` · ${l.currency || ''} ${Math.round(l.amount)}` : ''}${l.specificity === 'exact_flight' ? ' · flight preselected' : ''}`
             ]))));
-            btn.textContent = 'Live booking options (Ignav)';
-          } }, ['See live booking options']));
+          }
         }
         right.appendChild(el(doc, 'label', { class: 'gvb2-tick' }, [
           el(doc, 'input', { type: 'checkbox', checked: booked, onchange: () => { state.booked[it.id] = !booked; saveBooked(key, state.booked); draw(); } }),
@@ -285,9 +300,11 @@
         el(doc, 'div', { class: 'gvb2-kicker gvb2-kicker-dark', text: 'TRIP TOTAL' }),
         el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: `Flights (${s.flightCount})` }), el(doc, 'strong', { text: money(s.flights, cur) })]),
         el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: `Hotels (${s.hotelCount})` }), el(doc, 'strong', { text: money(s.hotels, cur) })]),
+        s.extras ? el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: 'Airport transfers & extras (estimate)' }), el(doc, 'strong', { text: money(s.extras, cur) })]) : null,
         el(doc, 'div', { class: 'gvb2-rule' }),
         el(doc, 'div', { class: 'gvb2-line gvb2-total' }, [el(doc, 'span', { text: 'Total' }), el(doc, 'strong', { text: money(s.total, cur) })]),
         s.budget != null ? el(doc, 'div', { class: 'gvb2-line gvb2-muted' }, [el(doc, 'span', { text: 'Your budget' }), el(doc, 'span', { text: money(s.budget, cur) })]) : null,
+        s.reserve ? el(doc, 'div', { class: 'gvb2-line gvb2-muted' }, [el(doc, 'span', { text: 'Safety reserve' }), el(doc, 'span', { text: money(s.reserve, cur) })]) : null,
         s.left != null ? el(doc, 'div', { class: `gvb2-line ${s.left >= 0 ? 'gvb2-good' : 'gvb2-bad'}` }, [el(doc, 'span', { text: s.left >= 0 ? 'Left for extras' : 'Over budget' }), el(doc, 'strong', { text: money(Math.abs(s.left), cur) })]) : null,
         el(doc, 'div', { class: 'gvb2-note', text: s.liveCount === items.length
           ? `All ${items.length} prices are live. Prices can change until you book.`
@@ -298,10 +315,19 @@
       host.appendChild(el(doc, 'div', { class: 'gvb2-wrap' }, [list, aside]));
     }
     draw();
+    const api = root.GlobevoyBookingIgnavLinks;
+    items.filter(it => it.ignav).forEach(async it => {
+      let result = { ok: false };
+      try { result = api && api.fetchLinks ? await api.fetchLinks({ ...it.ignav, endpoint: '/api/flight-booking-links' }) : { ok: false }; } catch (_) {}
+      it.links = Array.isArray(result?.links) ? result.links : [];
+      if (!bestLink(it.links)) it.ignav = null; // fall back to the Aviasales link
+      draw();
+    });
     return true;
   }
 
   function toggleClassic(doc, show) {
+    doc.body?.classList?.[show ? 'remove' : 'add']('gvb2-on');
     OLD_SECTIONS.forEach(sel => doc.querySelectorAll(sel).forEach(node => {
       if (node.id === 'gv-booking-v2' || node.closest('#gv-booking-v2')) return;
       if (show) { if (node.dataset.gvb2Hidden) { node.style.display = ''; delete node.dataset.gvb2Hidden; } }
@@ -336,7 +362,7 @@
     }
   }
 
-  const api = { VERSION, buildItems, summaryOf, render, safeUrl, ageLabel, start };
+  const api = { VERSION, bestLink, buildItems, summaryOf, render, safeUrl, ageLabel, start };
   root.GlobevoyBookingV2 = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (root.document) {
