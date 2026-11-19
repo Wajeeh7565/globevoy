@@ -11,7 +11,7 @@ const ingest = require('./fare-map-ingest');
 const store = require('./fare-map-store');
 
 const FLAG = 'ENABLE_FARE_MAP_JOB';
-const MONTHS = 6;
+const {collectionMonthCount}=require('./search-window');
 const DEFAULT_TIME_BUDGET_MS = 45 * 1000;        // inside the shared Lambda's 60 s timeout
 const DEFAULT_PAUSE_MS = 250;                    // polite pacing between Travelpayouts requests
 
@@ -31,7 +31,7 @@ async function runFareMapJob(options={}) {
   const {randomUUID}=require('node:crypto'),owner=randomUUID(),clock=options.clock||Date.now;
   const started=clock(),deadline=started+Math.min(45000,Math.max(1000,Number(options.timeBudgetMs||env.FARE_MAP_TIME_BUDGET_MS)||DEFAULT_TIME_BUDGET_MS));
   const origins=options.origins||ingest.originCodesFromRegistry(options.registry||require('../../../data/unified-city-registry-1000.json'));
-  const tasks=buildTasks(origins,ingest.upcomingMonths(MONTHS,options.now??clock()));
+  const tasks=buildTasks(origins,ingest.upcomingMonths(collectionMonthCount(options.now??clock()),options.now??clock()));
   const opts={env,dynamo:options.dynamo,nowMs:clock()};
   let cursor;
   try{cursor=await store.readCursor(opts)}catch{return {ok:false,ran:false,reason:'dynamodb-cursor-read-error'}}

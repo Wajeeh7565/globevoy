@@ -11,6 +11,8 @@ on:
       - staging
       - main
       - codex/gv-docker-002-full-website-fargate
+      - codex/fare-map-integration
+      - codex/booking-v2-ci
   workflow_dispatch:
 
 permissions:
