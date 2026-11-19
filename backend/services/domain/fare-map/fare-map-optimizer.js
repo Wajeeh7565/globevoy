@@ -23,6 +23,7 @@ function plus(s,n){return new Date(Date.parse(s+'T00:00:00Z')+n*day).toISOString
 function days(a,b){return Math.round((Date.parse(b)-Date.parse(a))/day);}
 function months(a,b){const out=[];for(let m=a.slice(0,7);m<=b.slice(0,7)&&out.length<9;){out.push(m);const d=new Date(m+'-01T00:00:00Z');d.setUTCMonth(d.getUTCMonth()+1);m=d.toISOString().slice(0,7)}return out;}
 const {sixMonthsAfter}=require('./search-window');
+function anyRegion(value){const v=String(value??'').trim().toLowerCase();return !v||['any','anywhere','all','all continents','all regions','everywhere','worldwide','no preference'].includes(v);}
 function durationChoices(query){
  const explicit=query.totalNights??query.nights;
  if(explicit!=null){const n=Number(explicit);if(!Number.isInteger(n)||n<4||n>35)throw new legacy.MultiCityValidationError('INVALID_DURATION','Choose 4 to 35 nights.');return [n];}
@@ -116,6 +117,8 @@ async function search(query={},options={}){
  const map=new Map();for(const r of candidates)if(!map.has(code(r)))map.set(code(r),r);
  diagnostics.eligibleCities=map.size;
  const originRow=originRegistryRow(all,origin);
+ // The site sends "All continents"; that and similar wording mean no region filter.
+ const regionFilter=anyRegion(query.region)?null:String(query.region).trim().toLowerCase();
  const originCode=code(originRow)||origin.airportCode,cache=new Map();
  // Flights home can be filed under the city code (YMQ) while searches start from the
  // airport row (YUL), or the reverse; any of the origin's codes counts as home.
@@ -192,7 +195,7 @@ async function search(query={},options={}){
      if(depth===1)diagnostics.expandedPairs++;
      const record=row.unifiedRegistry;
      if(preferred.length===2&&!preferred.includes(record.cityId.toLowerCase()))continue;
-     if(query.region&&!['any','anywhere','all'].includes(String(query.region).toLowerCase())&&String(record.worldRegion).toLowerCase()!==String(query.region).toLowerCase())continue;
+     if(regionFilter&&String(record.worldRegion).toLowerCase()!==regionFilter)continue;
      const hotel=depth?(options.accommodationProvider?0:graph._internal.nightlyUsd(state.cities.at(-1)))*party.rooms*days(state.edges.at(-1).departureDate,fare.departureDate):0;
      const cost=state.cost+Math.round(fare.priceUsd*party.flightFareUnits)+hotel;
      if(cost>budget*.9)continue;
@@ -244,4 +247,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,_internal:{date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,_internal:{date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};

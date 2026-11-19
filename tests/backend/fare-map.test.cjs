@@ -348,3 +348,14 @@ test('flights home filed under the city code (YMQ) complete a Montreal (YUL) tri
   assert.ok(r.tours.length > 0, JSON.stringify(r.reason));
   for (const t of r.tours) assert.ok(t.stops.every(s => !/montreal/i.test(s.city || '')), 'Montreal is never a middle stop');
 });
+
+test('"All continents" from the site means no region filter', async () => {
+  const opt = require('../../backend/services/domain/fare-map/fare-map-optimizer');
+  for (const v of ['All continents', 'all', 'Any', '', undefined, 'No preference']) assert.equal(opt._anyRegion(v), true, String(v));
+  assert.equal(opt._anyRegion('Europe'), false);
+  const all = opt._internal.rows(), codes = [...new Set(all.filter(opt._internal.eligible).map(opt._internal.code).filter(Boolean))];
+  const now = Date.parse('2026-11-19T15:00:00Z'); let seed = 11; const R = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const readRoutes = async (o, m) => codes.filter(d => d !== o && R() < 0.4).map(d => ({ origin: o, month: m, destination: d, priceUsd: 80 + Math.round(R() * 600), departureDate: `${m}-${String(1 + Math.floor(R() * 27)).padStart(2, '0')}`, observedAt: new Date(now - 3600e3).toISOString(), source: 'travelpayouts-cached' }));
+  const run = region => opt.search({ origin: 'Toronto (YYZ)', budget: 3500, currency: 'CAD', adults: 1, region }, { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'x' }, readRoutes, now });
+  assert.ok((await run('All continents')).tours.length > 0);
+});
