@@ -30,6 +30,13 @@ function temporalBeam(states,width){
  return [...anchors,...pickDiverse(states.filter(s=>!keys.has(s.key)),Math.max(0,width-anchors.length))].slice(0,width);
 }
 function code(row){return row?.unifiedRegistry?.origin?.providerLocationCode||row?.providerMetroCode||row?.cityCode;}
+// Several registry rows can share an airport (Niagara Falls also lists YYZ). Use the
+// origin city's own row so reads hit the partition the collector writes (YTO, LON).
+function originRegistryRow(all,origin){
+ const matches=all.filter(r=>(r.unifiedRegistry?.origin?.airportCodes||[]).includes(origin.airportCode));
+ const own=String(origin.cityId||'').replace(/^global-city-/,'').toUpperCase();
+ return matches.find(r=>code(r)===own)||matches.find(r=>code(r)===origin.airportCode)||matches[0];
+}
 function rows(){return registry.routeGraphSelection(require('../../../data/global-destination-catalogue.json').destinations);}
 function eligible(row){const r=row?.unifiedRegistry;return r?.destination?.eligible===true&&r.validation?.bothProvidersMapped===true&&!r.origin?.requiresGatewayTransfer&&graph._internal.productionDestinationEligible(row)&&activation.liveRecommendationEligible(row);}
 function pickDiverse(states,width){
@@ -100,7 +107,7 @@ async function search(query={},options={}){
  const candidates=all.filter(r=>eligible(r)&&code(r)&&r.unifiedRegistry.cityId!==origin.cityId&&!(r.unifiedRegistry.origin?.airportCodes||[]).includes(origin.airportCode));
  const map=new Map();for(const r of candidates)if(!map.has(code(r)))map.set(code(r),r);
  diagnostics.eligibleCities=map.size;
- const originRow=all.find(r=>(r.unifiedRegistry?.origin?.airportCodes||[]).includes(origin.airportCode));
+ const originRow=originRegistryRow(all,origin);
  const originCode=code(originRow)||origin.airportCode,cache=new Map();
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeBudget);
  const read=options.readRoutes||((o,m)=>store.readRoutesFrom(o,m,{env,dynamo:options.dynamo,abortSignal:controller.signal,maxPages:2,limit:1000,nowMs:now,includeDated:true,diagnostics}));
@@ -190,4 +197,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={VERSION,FLAG,enabled,search,_internal:{date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,_internal:{date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};

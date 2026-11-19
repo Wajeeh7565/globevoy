@@ -22,7 +22,7 @@ function enabled(env = process.env) {
 // Main starting cities are refreshed across every month first (24 tasks for 3
 // origins x 8 months), at most once per PRIORITY_REFRESH_MS, so the optimizer
 // has complete data for them long before the full rolling pass finishes.
-const DEFAULT_PRIORITY_ORIGINS=['YTO','YMQ','YVR'];
+const DEFAULT_PRIORITY_ORIGINS=['YTO','YUL','YVR'];
 const PRIORITY_REFRESH_MS=20*3600*1000;
 function priorityOrigins(env=process.env){
   const raw=String(env.FARE_MAP_PRIORITY_ORIGINS||'').trim();
@@ -66,7 +66,7 @@ async function runFareMapJob(options={}) {
   let stopAll=false;
   if(pTasks.length){
     let p=null;try{p=await store.readMeta('priority',opts)}catch{p=null}
-    const due=!p||!p.completedAt||clock()-Date.parse(p.completedAt)>PRIORITY_REFRESH_MS||p.index>0;
+    const due=!p||!p.completedAt||String(p.origins||'')!==String(pOrigins)||clock()-Date.parse(p.completedAt)>PRIORITY_REFRESH_MS||p.index>0;
     if(due){
       let pi=p&&p.index>0&&p.index<pTasks.length?p.index:0;
       summary.priority={startIndex:pi,done:0,written:0,total:pTasks.length};
