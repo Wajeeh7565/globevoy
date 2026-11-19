@@ -503,6 +503,8 @@
     }
     params.set('generated', 'true');
     params.set('returnTo', 'index.html');
+    // Fare-map optimizer demo: keep farePreview=1 from the home page URL.
+    try { if (new URLSearchParams(window.location.search).get('farePreview') === '1') params.set('farePreview', '1'); } catch (_) {}
     window.location.href = `multicity-visualizer.html?${params.toString()}`;
   }
 

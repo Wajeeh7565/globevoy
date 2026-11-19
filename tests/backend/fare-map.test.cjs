@@ -263,3 +263,39 @@ test('a permanent 4xx for one origin is skipped (recorded), not retried forever;
   assert.equal(r2.done, 0, 'server errors keep the task for the next run');
   assert.equal(r2.lastReason, 'provider-server-error');
 });
+
+test('priority origins are collected for every month first, then not again until 20 h later', async () => {
+  const dynamo = strictDynamo(); const seen = [];
+  const fetch = tpFetch([[{ destination_city_iata: 'MDE', value: 30000, departure_at: '2026-12-10T10:00:00Z' }]], seen);
+  let now = Date.parse('2026-11-19T15:00:00Z');
+  const base = { env: ENV, dynamo, fetch, origins: ['AAA', 'BBB'], priorityOrigins: ['YTO'], pauseMs: 0, sleep: async () => {}, clock: () => now, now };
+  const r = await job.runFareMapJob({ ...base, maxTasks: 1 });
+  assert.equal(r.priority.finished, true, JSON.stringify(r.priority));
+  assert.equal(r.priority.done, r.priority.total);
+  assert.ok(r.priority.total >= 6);
+  const ytoQueries = seen.filter(q => /origin: "YTO"/.test(q));
+  assert.equal(ytoQueries.length, r.priority.total, 'one request per YTO month');
+  assert.equal(r.done, 1, 'rolling pass continues after the priority pass');
+  // Next run soon after: priority not repeated.
+  now += 5 * 60 * 1000; seen.length = 0;
+  const r2 = await job.runFareMapJob({ ...base, clock: () => now, now, maxTasks: 1 });
+  assert.equal(r2.priority, undefined);
+  assert.equal(seen.filter(q => /origin: "YTO"/.test(q)).length, 0);
+  // A day later: refreshed again.
+  now += 21 * 3600 * 1000;
+  const r3 = await job.runFareMapJob({ ...base, clock: () => now, now, maxTasks: 1 });
+  assert.equal(r3.priority.finished, true);
+});
+
+test('priority origins: env override is validated; defaults to Toronto, Montreal, Vancouver', () => {
+  assert.deepEqual(job.priorityOrigins({}), ['YTO', 'YMQ', 'YVR']);
+  assert.deepEqual(job.priorityOrigins({ FARE_MAP_PRIORITY_ORIGINS: 'yto, bad1,LON,LON' }), ['YTO', 'LON']);
+});
+
+test('fare-map preview only for farePreview=1 when the preview flag is on', () => {
+  const { _fareMapPreviewRequested: p } = require('../../backend/services/domain/tours/generated-tour');
+  assert.equal(p({ farePreview: '1' }, {}), false);
+  assert.equal(p({ farePreview: '1' }, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), true);
+  assert.equal(p({}, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), false);
+  assert.equal(p({ farePreview: 'yes' }, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), false);
+});

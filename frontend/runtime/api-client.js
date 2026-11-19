@@ -64,10 +64,20 @@
     return fetchJson(buildUrl('/api/recommendations', params), timeoutMs);
   }
 
+  // Demo preview of the fare-map optimizer: only when the page URL itself has
+  // farePreview=1 (the backend also needs ENABLE_FARE_MAP_OPTIMIZER_PREVIEW).
+  function withFarePreview(params) {
+    try {
+      const flag = new URLSearchParams(window.location.search).get('farePreview');
+      if (flag === '1') return { ...(params || {}), farePreview: '1' };
+    } catch (_) {}
+    return params;
+  }
+
   async function getGeneratedTour(params) {
     if (!isConfigured()) throw new Error('Live API is not configured.');
     const timeoutMs = Number(config().apiTimeoutMs || 12000);
-    return fetchJson(buildUrl('/api/generated-tour', params), timeoutMs);
+    return fetchJson(buildUrl('/api/generated-tour', withFarePreview(params)), timeoutMs);
   }
 
   async function getGeneratedTourControl(params) {

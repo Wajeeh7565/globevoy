@@ -19,6 +19,17 @@ function enabled(env = process.env) {
   return String(env[FLAG] || '').trim().toLowerCase() === 'true' && Boolean(store.tableName(env)) && Boolean(String(env.TRAVELPAYOUTS_TOKEN || '').trim());
 }
 
+// Main starting cities are refreshed across every month first (24 tasks for 3
+// origins x 8 months), at most once per PRIORITY_REFRESH_MS, so the optimizer
+// has complete data for them long before the full rolling pass finishes.
+const DEFAULT_PRIORITY_ORIGINS=['YTO','YMQ','YVR'];
+const PRIORITY_REFRESH_MS=20*3600*1000;
+function priorityOrigins(env=process.env){
+  const raw=String(env.FARE_MAP_PRIORITY_ORIGINS||'').trim();
+  const list=raw?raw.split(',').map(x=>x.trim().toUpperCase()).filter(x=>/^[A-Z]{3}$/.test(x)):DEFAULT_PRIORITY_ORIGINS;
+  return [...new Set(list)].slice(0,10);
+}
+
 function buildTasks(origins, months) {
   const tasks = [];
   for (const m of months) for (const o of origins) tasks.push({ origin: o, month: m });
@@ -48,8 +59,35 @@ async function runFareMapJob(options={}) {
   const pace=options.pace||ingest.createPacer({clock,sleep:options.sleep,intervalMs:Math.max(1100,options.pauseMs||DEFAULT_PAUSE_MS)});
   const log=options.log|| (event=>console.log(JSON.stringify(event)));
   const destinations=new Set();
+  // ---- priority pass (runs before the rolling pass, inside the same lease) ----
+  const months=ingest.upcomingMonths(collectionMonthCount(options.now??clock()),options.now??clock());
+  const pOrigins=options.priorityOrigins||(options.origins?[]:priorityOrigins(env));
+  const pTasks=[];for(const o of pOrigins)for(const m of months)pTasks.push({origin:o,month:m});
+  let stopAll=false;
+  if(pTasks.length){
+    let p=null;try{p=await store.readMeta('priority',opts)}catch{p=null}
+    const due=!p||!p.completedAt||clock()-Date.parse(p.completedAt)>PRIORITY_REFRESH_MS||p.index>0;
+    if(due){
+      let pi=p&&p.index>0&&p.index<pTasks.length?p.index:0;
+      summary.priority={startIndex:pi,done:0,written:0,total:pTasks.length};
+      while(pi<pTasks.length&&clock()+1500<deadline){
+        const task=pTasks[pi];
+        const result=await ingest.ingestOriginMonth({...task,token:env.TRAVELPAYOUTS_TOKEN,fetch:options.fetch,now:options.now,clock,sleep:options.sleep,pace,deadline:deadline-5000,maxPages:3,offset:0});
+        summary.requests+=result.requests;summary.retries+=result.retries||0;
+        if(result.reason==='rate-limited'){summary.rateLimited=true;retryAt=clock()+(result.retryAfterSeconds||60)*1000;stopAll=true;break;}
+        if(result.reason==='provider-server-error'||result.reason==='provider-auth-error'||result.reason==='time-budget'){summary.lastReason=result.reason;stopAll=result.reason!=='time-budget';break;}
+        // Cheapest pages come first (VALUE_ASC): a pagination cap still leaves useful data.
+        try{if(result.records.length){const w=await store.writeRecords(result.records,{...opts,nowMs:clock(),sleepFn:options.sleep,stats:summary});summary.written+=w;summary.priority.written+=w;result.records.forEach(r=>destinations.add(r.destination))}}
+        catch(e){summary.lastReason=e.code||'dynamodb-error';summary.failures++;stopAll=true;break;}
+        pi++;summary.priority.done++;
+      }
+      const finished=pi>=pTasks.length;
+      try{await store.writeMeta('priority',{index:finished?0:pi,completedAt:finished?new Date(clock()).toISOString():(p&&p.completedAt)||null,origins:pOrigins},{...opts,nowMs:clock()})}catch{}
+      summary.priority.finished=finished;
+    }
+  }
   try {
-    while(index<tasks.length&&summary.done<(options.maxTasks||Infinity)&&clock()+1500<deadline){
+    while(!stopAll&&index<tasks.length&&summary.done<(options.maxTasks||Infinity)&&clock()+1500<deadline){
       const task=tasks[index];
       const result=await ingest.ingestOriginMonth({...task,token:env.TRAVELPAYOUTS_TOKEN,fetch:options.fetch,now:options.now,clock,sleep:options.sleep,pace,deadline:deadline-5000,maxPages:3,offset});
       summary.requests+=result.requests;summary.retries+=result.retries||0;
@@ -106,4 +144,4 @@ function isFareMapEvent(event) {
     && Array.isArray(event.resources) && event.resources.some(r => /:rule\/globevoy-fare-map[A-Za-z0-9_.-]*$/.test(String(r)));
 }
 
-module.exports = { FLAG, enabled, runFareMapJob, isFareMapEvent, _internal: { buildTasks } };
+module.exports = { FLAG, enabled, runFareMapJob, isFareMapEvent, priorityOrigins, _internal: { buildTasks } };
