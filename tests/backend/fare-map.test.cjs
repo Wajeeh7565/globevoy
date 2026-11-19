@@ -337,3 +337,14 @@ test('fare map default time budget is 5 s and the site waits 55 s for trip searc
   assert.match(fs.readFileSync(path.join(root, 'frontend/runtime/api-client.js'), 'utf8'), /generatedTourTimeoutMs \|\| 55000\);\n    return fetchJson\(buildUrl\('\/api\/generated-tour'/);
   assert.match(fs.readFileSync(path.join(root, 'frontend/runtime/config.js'), 'utf8'), /generatedTourTimeoutMs: 55000/);
 });
+
+test('flights home filed under the city code (YMQ) complete a Montreal (YUL) trip', async () => {
+  const opt = require('../../backend/services/domain/fare-map/fare-map-optimizer');
+  const all = opt._internal.rows(), codes = [...new Set(all.filter(opt._internal.eligible).map(opt._internal.code).filter(Boolean))];
+  const now = Date.parse('2026-11-19T15:00:00Z'); let seed = 7; const R = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const readRoutes = async (o, m) => codes.filter(d => d !== o && R() < 0.4).map(d0 => ({ origin: o, month: m, destination: d0 === 'YUL' ? 'YMQ' : d0, priceUsd: 80 + Math.round(R() * 600), departureDate: `${m}-${String(1 + Math.floor(R() * 27)).padStart(2, '0')}`, observedAt: new Date(now - 3600e3).toISOString(), source: 'travelpayouts-cached' }));
+  const r = await opt.search({ origin: 'Montreal (YUL)', budget: 3500, currency: 'CAD', adults: 1 }, { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'x' }, readRoutes, now });
+  assert.ok(r.diagnostics.returnFares > 0, 'YMQ return fares are recognised');
+  assert.ok(r.tours.length > 0, JSON.stringify(r.reason));
+  for (const t of r.tours) assert.ok(t.stops.every(s => !/montreal/i.test(s.city || '')), 'Montreal is never a middle stop');
+});
