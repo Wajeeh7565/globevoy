@@ -3494,7 +3494,11 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
 
 async function getGeneratedTour(query = {}, options = {}) {
   const result = await getGeneratedTourCore(query);
-  return priceFinalTourWithNuitee(result, query, options);
+  // Same party normalisation the pipeline uses (string counts, rooms default).
+  const party = normalizeParty(query);
+  const pricingQuery = { ...query, adults: party.adults, children: party.children, infants: party.infants, rooms: party.rooms, passengers: party.travellers };
+  delete pricingQuery.travellers;
+  return priceFinalTourWithNuitee(result, pricingQuery, options);
 }
 
 module.exports = {

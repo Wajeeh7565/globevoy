@@ -124,3 +124,10 @@ test('final-tour pass does not re-price an already priced tour, and is off when 
   assert.equal(calls, 0);
   assert.equal(r, off);
 });
+
+test('website query shape (travellers="1 adult", no rooms) still prices the final tour', async () => {
+  const { getGeneratedTour } = require('../../backend/services/domain/tours/generated-tour');
+  assert.equal(typeof getGeneratedTour, 'function');
+  const { _internal: { occupancyForQuery } } = require('../../backend/services/providers/stays/nuitee/nuitee-hotel-708c');
+  assert.throws(() => occupancyForQuery({ adults: '1', children: '0', travellers: '1 adult' }));
+});
