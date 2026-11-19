@@ -15,6 +15,8 @@ const day=86400000;
 // Live reads of month partitions take ~250-400 ms each on this Lambda; 1.8 s ran out
 // after the first stop. 5 s reaches the return leg (verified in simulation at 300-400 ms).
 const DEFAULT_TIME_BUDGET_MS=5000;
+// 64 reads left ~13 for the return leg; live reads finish well inside the time budget.
+const MAX_READS=96;
 function enabled(env=process.env){return String(env[FLAG]||'').toLowerCase()==='true';}
 function date(s){s=String(s||'').slice(0,10);const t=Date.parse(s+'T00:00:00Z');return /^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFinite(t)&&new Date(t).toISOString().slice(0,10)===s?s:null;}
 function plus(s,n){return new Date(Date.parse(s+'T00:00:00Z')+n*day).toISOString().slice(0,10);}
@@ -120,7 +122,7 @@ async function search(query={},options={}){
  const homeCodes=new Set([originCode,origin.airportCode,String(origin.cityId||'').replace(/^global-city-/,'').toUpperCase(),...(originRow?.unifiedRegistry?.origin?.airportCodes||[])].filter(Boolean));
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeBudget);
  const read=options.readRoutes||((o,m)=>store.readRoutesFrom(o,m,{env,dynamo:options.dynamo,abortSignal:controller.signal,maxPages:2,limit:1000,nowMs:now,includeDated:true,diagnostics}));
- let readCeiling=Math.min(64,options.maxReads||64);
+ let readCeiling=Math.min(MAX_READS,options.maxReads||MAX_READS);
  const stopped=()=>{if(clock()>=deadline||controller.signal.aborted||diagnostics.examinedEdges>=Math.min(100000,options.maxEdges||100000)){diagnostics.bounded=true;return true}return false};
  async function cancellableRead(o,m){
   if(controller.signal.aborted)throw Error('deadline');
@@ -163,10 +165,11 @@ async function search(query={},options={}){
       return true;
   }
  let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[];
+ const homeLinked=new Set();
  try {
   for(let depth=0;depth<=DESTINATION_COUNT&&beam.length;depth++){
-   const readLimit=Math.min(64,options.maxReads||64);
-   readCeiling=depth===1?Math.max(diagnostics.reads,readLimit-Math.min(16,Math.floor(readLimit/3))):readLimit;
+   const readLimit=Math.min(MAX_READS,options.maxReads||MAX_READS);
+   readCeiling=depth===1?Math.max(diagnostics.reads,readLimit-Math.min(32,Math.floor(readLimit/3))):readLimit;
    // Independent partitions at one depth may be prefetched with a small fixed pool.
    // Never fan out to the full registry, and never make provider calls here.
    const concurrency=Math.max(1,Math.min(4,options.readConcurrency||4));
@@ -177,6 +180,7 @@ async function search(query={},options={}){
     const ms=depth?months(state.edges.at(-1).departureDate,plus(state.edges[0].departureDate,nights)):firstMonths;
     for(const fare of await fares(state.lastCode,ms)){
      if(stopped())break;diagnostics.examinedEdges++;
+     if(depth===0)homeLinked.add(fare.destination);
      if(depth===0&&query.departureDate&&fare.departureDate!==query.departureDate)continue;
      if(depth===0&&(fare.departureDate<windowStart||fare.departureDate>=windowEnd))continue;
      const first=depth?state.edges[0].departureDate:fare.departureDate;
@@ -215,9 +219,14 @@ async function search(query={},options={}){
     // The return leg needs the second city's partitions. Under a fixed read budget, keep
     // routes whose second city was already read as a first stop (cache hits) alongside new ones.
     const cachedReturn=s=>months(s.edges.at(-1).departureDate,plus(s.edges[0].departureDate,nights)).every(m=>cache.has(s.lastCode+'#'+m));
-    const warm=next.filter(cachedReturn),cold=next.filter(s=>!cachedReturn(s));
+    // Then prefer second cities the origin itself flies to: a route out almost always
+    // has one back, while far-flung cities often have no fare home (Montreal: 0 of 13).
+    const connected=st=>homeLinked.has(st.lastCode);
+    const warm=next.filter(cachedReturn),cold=next.filter(st=>!cachedReturn(st));
     const warmPick=temporalBeam(warm,Math.min(warm.length,Math.ceil(width*.75)));
-    beam=[...warmPick,...temporalBeam(cold,Math.max(0,width-warmPick.length))];
+    const coldLinked=cold.filter(connected),coldOther=cold.filter(st=>!connected(st));
+    const linkedPick=temporalBeam(coldLinked,Math.min(coldLinked.length,Math.max(0,width-warmPick.length)));
+    beam=[...warmPick,...linkedPick,...temporalBeam(coldOther,Math.max(0,width-warmPick.length-linkedPick.length))];
    } else beam=temporalBeam(next,width);
    diagnostics.peakRetainedComplete=Math.max(diagnostics.peakRetainedComplete||0,complete.length);
   }
