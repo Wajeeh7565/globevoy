@@ -12,6 +12,9 @@ const {attachTourPresentation,presentationPolicy,buildDisplayBudget}=require('..
 const accommodation=require('./accommodation-cost-map');
 const VERSION='GV-FAREMAP-BEAM-002',FLAG='ENABLE_FARE_MAP_OPTIMIZER',DESTINATION_COUNT=2;
 const day=86400000;
+// Live reads of month partitions take ~250-400 ms each on this Lambda; 1.8 s ran out
+// after the first stop. 5 s reaches the return leg (verified in simulation at 300-400 ms).
+const DEFAULT_TIME_BUDGET_MS=5000;
 function enabled(env=process.env){return String(env[FLAG]||'').toLowerCase()==='true';}
 function date(s){s=String(s||'').slice(0,10);const t=Date.parse(s+'T00:00:00Z');return /^\d{4}-\d{2}-\d{2}$/.test(s)&&Number.isFinite(t)&&new Date(t).toISOString().slice(0,10)===s?s:null;}
 function plus(s,n){return new Date(Date.parse(s+'T00:00:00Z')+n*day).toISOString().slice(0,10);}
@@ -93,7 +96,7 @@ async function search(query={},options={}){
   durationOk=n=>durations.length===1?n===durations[0]:n>=Math.min(...durations)&&n<=nights,budget=legacy._internal.normalizeBudgetUsd(query),party=normalizeParty(query);
  if(!Number.isFinite(budget)||budget<=0)return response([],'invalid-fx-configuration');
  requested={origin,budgetUsd:budget,reservePercent:.1,reserveAmountUsd:Math.round(budget*.1),usableTripBudgetUsd:budget-Math.round(budget*.1),totalNights:durations.length===1?nights:null,durationChoices:durations,maxStops:2,theme:query.theme||query.preference||null,displayBudget:buildDisplayBudget({query,totalBudgetUsd:budget,reservePercent:.1,tripUsd:0})};
- const now=options.now??Date.now(),clock=options.clock||Date.now,started=clock(),timeBudget=Math.min(5000,options.timeBudgetMs||1800),deadline=started+timeBudget;
+ const now=options.now??Date.now(),clock=options.clock||Date.now,started=clock(),timeBudget=Math.min(5000,options.timeBudgetMs||DEFAULT_TIME_BUDGET_MS),deadline=started+timeBudget;
  const today=new Date(now).toISOString().slice(0,10),horizon=sixMonthsAfter(today);
  const explicitMonth=query.month||query.departureMonth;
  if(explicitMonth&&!/^\d{4}-(0[1-9]|1[0-2])$/.test(explicitMonth))throw new legacy.MultiCityValidationError('INVALID_DATE','Use YYYY-MM.');

@@ -76,7 +76,9 @@
 
   async function getGeneratedTour(params) {
     if (!isConfigured()) throw new Error('Live API is not configured.');
-    const timeoutMs = Number(config().apiTimeoutMs || 12000);
+    // Trip searches price flights and hotels live and can take 20-50 s; the general
+    // API timeout (20 s) cut them off and the page showed no trips.
+    const timeoutMs = Number(config().generatedTourTimeoutMs || 55000);
     return fetchJson(buildUrl('/api/generated-tour', withFarePreview(params)), timeoutMs);
   }
 
