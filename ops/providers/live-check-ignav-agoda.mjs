@@ -25,7 +25,7 @@ const ROUTES = [
   ['JFK', 'MEX', 50], ['YVR', 'NRT', 100]
 ].map(([origin, destination, days]) => ({ origin, destination, departureDate: futureDate(days) }));
 
-const rows = [['type', 'origin', 'destination', 'date', 'ok', 'reason', 'amount', 'currency', 'stops', 'carrier', 'exact_links', 'top_link_provider', 'top_link_specificity']];
+const rows = [['type', 'origin', 'destination', 'date', 'ok', 'reason', 'amount', 'currency', 'stops', 'carrier', 'exact_links', 'unknown_specificity_links', 'airline_direct_links', 'cheapest_link_provider', 'cheapest_link_amount']];
 
 if (!ignav.configured()) {
   console.log('Ignav not configured: set ENABLE_IGNAV_FLIGHTS=true and IGNAV_API_KEY. Skipping flights.');
@@ -36,8 +36,8 @@ if (!ignav.configured()) {
     if (result.ok && result.cheapest?.ignavId) links = await ignav.getBookingLinks(result.cheapest.ignavId);
     const c = result.cheapest || {};
     rows.push(['flight', route.origin, route.destination, route.departureDate, result.ok, result.reason || '', c.partyTotalAmount ?? '', c.currency ?? '', c.stops ?? '', c.carrier ?? '',
-      links?.exactFlightLinkCount ?? '', links?.links?.[0]?.providerName ?? '', links?.links?.[0]?.specificity ?? '']);
-    console.log(`${route.origin}->${route.destination} ${route.departureDate}: ${result.ok ? `${c.partyTotalAmount ?? 'no fare'} ${c.currency ?? ''} (${c.stops ?? '?'} stops), exact links: ${links?.exactFlightLinkCount ?? 0}` : `FAILED ${result.reason}`}`);
+      links?.exactFlightLinkCount ?? '', links?.unknownSpecificityCount ?? '', links?.airlineDirectCount ?? '', links?.cheapestLink?.providerName ?? '', links?.cheapestLink?.amount ?? '']);
+    console.log(`${route.origin}->${route.destination} ${route.departureDate}: ${result.ok ? `${c.partyTotalAmount ?? 'no fare'} ${c.currency ?? ''} (${c.stops ?? '?'} stops), links: ${links?.linkCount ?? 0} (exact ${links?.exactFlightLinkCount ?? 0}, unknown ${links?.unknownSpecificityCount ?? 0}, airline-direct ${links?.airlineDirectCount ?? 0}), cheapest link: ${links?.cheapestLink ? `${links.cheapestLink.amount} on ${links.cheapestLink.providerName}` : 'n/a'}` : `FAILED ${result.reason}`}`);
   }
 }
 
@@ -46,7 +46,7 @@ if (hotelIds.length) {
   const result = await agoda.fetchAgodaHotelListRates({ hotelIds, checkIn: futureDate(76), checkOut: futureDate(79), currency: 'CAD', adults: 1 });
   if (!result.ok) console.log(`Agoda hotel-ID search FAILED: ${result.reason}`);
   for (const h of result.hotels || []) {
-    rows.push(['hotel', h.hotelId, h.hotelName, h.requestEvidence.checkIn, true, '', h.stayTotal, h.currency, '', '', '', h.linkType, h.linkHasHotelId ? 'hotel-id-in-link' : 'no-hotel-id']);
+    rows.push(['hotel', h.hotelId, h.hotelName, h.requestEvidence.checkIn, true, '', h.stayTotal, h.currency, '', '', '', '', '', h.linkType, h.linkHasHotelId ? 'hotel-id-in-link' : 'no-hotel-id']);
     console.log(`Agoda ${h.hotelId} ${h.hotelName}: ${h.stayTotal} ${h.currency} for ${h.nights} nights, link: ${h.linkType}`);
   }
   if (result.unavailableHotelIds?.length) console.log(`No rate returned for: ${result.unavailableHotelIds.join(', ')}`);

@@ -216,6 +216,10 @@ async function getBookingLinks(ignavId, options = {}) {
     version: VERSION,
     linkCount: links.length,
     exactFlightLinkCount: links.filter(link => link.specificity === 'exact_flight').length,
+    // Ignav's `specificity` is optional; when omitted we cannot claim the link preselects the flight.
+    unknownSpecificityCount: links.filter(link => link.specificity === 'unknown').length,
+    airlineDirectCount: links.filter(link => link.providerType === 'airline').length,
+    cheapestLink: links.filter(link => link.amount != null).sort((a, b) => a.amount - b.amount)[0] || null,
     links,
     disclosure: 'Booking links come from Ignav and do not earn a referral commission; final price is confirmed on the booking site.'
   };
