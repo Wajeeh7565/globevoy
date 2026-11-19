@@ -53,3 +53,17 @@ test('provider compare: plain Lambda events only, at most 12 routes, both provid
   assert.match(r.rows[0].ignav, /CAD 500/);
   assert.match(r.rows[0].jinko, /failed: jinko-http-402/);
 });
+
+test('jinko result count: default 10, adjustable per comparison run, capped at 300', async () => {
+  const bodies = [];
+  const fetchFn = async (url, init) => { bodies.push(JSON.parse(init.body)); return { status: 200, text: async () => '{"offers":[]}' }; };
+  await jinko.searchOneWay({ origin: 'YYZ', destination: 'MDE', departureDate: '2026-12-03' }, { env: {}, apiKey: 'jnk_x', fetchFn });
+  await jinko.searchOneWay({ origin: 'YYZ', destination: 'MDE', departureDate: '2026-12-03', limit: 999 }, { env: {}, apiKey: 'jnk_x', fetchFn });
+  assert.deepEqual(bodies.map(b => b.limit), [10, 300]);
+  let seen = null;
+  const r = await compare.runProviderCompare({ routes: [['YYZ', 'MDE', '2026-12-03']], jinkoLimit: 100 }, {
+    ignav: { searchOneWay: async () => ({ ok: false, reason: 'x' }) },
+    jinko: { searchOneWay: async input => { seen = input.limit; return { ok: false, reason: 'y' }; } }
+  });
+  assert.equal(seen, 100); assert.equal(r.jinkoLimit, 100);
+});
