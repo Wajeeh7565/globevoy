@@ -88,3 +88,26 @@ test('when live prices rule out the cheapest trip, the next fare-map trip is liv
   else assert.ok(calls<=2);
  }finally{if(old===undefined)delete process.env.ENABLE_GENERATED_TOUR_651A;else process.env.ENABLE_GENERATED_TOUR_651A=old}
 });
+test('live-only: a trip is shown only when every flight and hotel is live; otherwise the next trip is checked',async()=>{
+ const f=fixture(),old=process.env.ENABLE_GENERATED_TOUR_651A;process.env.ENABLE_GENERATED_TOUR_651A='true';
+ const plus=require('../../backend/services/domain/fare-map/fare-map-optimizer')._internal.plus;
+ const env={...f.options.env,FARE_MAP_REQUIRE_LIVE:'true',ENABLE_IGNAV_FLIGHTS:'true',IGNAV_API_KEY:'offline',ENABLE_NUITEE_LIVE_STAYS:'true',NUITEE_SECRET_ID:'offline-reference'};
+ const liveFlights=t=>{const tour=structuredClone(t);tour.legs.forEach(l=>{l.liveFareVerified=true;l.providerDateEvidence={...l.providerDateEvidence,provider:'ignav',sourceType:'LIVE',productionEligible:true,segments:[{arriveLocal:plus(l.departureDate,1)+'T09:00:00'}]}});return {tour,summary:{applied:true,partial:false,providerRequests:3}}};
+ const liveHotels=async t=>{const tour=structuredClone(t);tour.stops.forEach(st=>{st.hotel={...st.hotel,nuiteeLiveRate:{amount:100,currency:'USD',totalUsd:100}}});return {tour,summary:{applied:true,appliedCount:tour.stops.length,stopCount:tour.stops.length}}};
+ const gt=require('../../backend/services/domain/tours/generated-tour');
+ try{
+  // 1) first trip has one estimated flight -> skipped; second is fully live -> shown with live hotels
+  let calls=0;
+  const r=await gt.getGeneratedTour(f.query,{env,fareMap:{...f.options,rows:f.rows},applyNuiteeLiveStays:liveHotels,applyIgnavLiveFares:async t=>{calls++;if(calls===1){const tour=structuredClone(t);tour.legs[0].liveFareVerified=true;return {tour,summary:{applied:true,partial:true,liveFlightLegCount:1}}}return liveFlights(t)}});
+  assert.ok(r.tour,'second trip passes live-only: '+r.reason);
+  if(r.tour){assert.equal(r.diagnostics.fareMapRequireLive,true);assert.equal(r.diagnostics.fareMapLiveAttempts[0],'fare-map-flights-not-all-live');
+   assert.ok(r.tour.stops.every(st=>st.hotel?.nuiteeLiveRate),'every hotel live');assert.equal(r.tour.fareMap.arrivalDatesVerified,true);}
+  else assert.equal(r.reason,'fare-map-flights-not-all-live');
+  // 2) flights live but hotels not -> never shown
+  const h=await gt.getGeneratedTour(f.query,{env,fareMap:{...f.options,rows:f.rows},applyIgnavLiveFares:async t=>liveFlights(t),applyNuiteeLiveStays:async t=>({tour:t,summary:{applied:false,reason:'offline'}})});
+  assert.equal(h.tour,null);assert.equal(h.reason,'fare-map-hotels-not-all-live');assert.ok(h.diagnostics.fareMapLiveAttempts.length<=3);
+  // 3) with live-only off, the estimate path is unchanged
+  const off=await gt.getGeneratedTour(f.query,{env:{...env,FARE_MAP_REQUIRE_LIVE:'false'},fareMap:{...f.options,rows:f.rows},applyIgnavLiveFares:async t=>({tour:t,summary:{applied:false,reason:'offline'}}),applyNuiteeLiveStays:()=>assert.fail('no hotel check without live arrivals')});
+  assert.ok(off.tour);assert.equal(off.diagnostics.fareMapRequireLive,false);
+ }finally{if(old===undefined)delete process.env.ENABLE_GENERATED_TOUR_651A;else process.env.ENABLE_GENERATED_TOUR_651A=old}
+});
