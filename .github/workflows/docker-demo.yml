@@ -11,6 +11,7 @@ on:
       - 'ops/frontend/**'
       - 'tests/backend/full-site-demo.test.cjs'
       - 'tests/frontend/full-site-demo-browser.test.cjs'
+      - 'tests/frontend/classic-save-browser.test.cjs'
       - 'tests/frontend/leaflet-demo-browser.test.cjs'
       - 'tests/release/docker*.test.mjs'
       - '.github/workflows/docker-demo.yml'
@@ -18,7 +19,7 @@ permissions:
   contents: read
 jobs:
   local-container:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     strategy:
       fail-fast: false

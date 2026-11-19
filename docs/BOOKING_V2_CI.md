@@ -23,3 +23,15 @@ Follow CI build order: build the isolated production fixture, then restore the
 normal web export before source browser tests. A production-only web/out cannot
 serve the synthetic mock release used by source tests. This changes no runtime
 code, authentication policy or provider gate.
+
+GitHub run 44522788369 passed code, auth, packaging and web builds but failed
+before browser execution: ubuntu-latest selected Ubuntu 26.04, whose apt mirror
+returned network/503 errors installing fonts. Pin the two active browser
+workflows to Ubuntu 24.04, already used by the account workflows and supported
+by Playwright (https://playwright.dev/docs/intro#system-requirements). This is a
+runner reproducibility fix, not proof the mirror outage cannot recur. The Docker
+workflow now also triggers when the shared browser test changes.
+
+Fresh local source and production-artifact browser runs both passed all 20
+checks using Edge; with the integrated optimizer guest regression, both pass
+21 checks. CI remains required on the exact pushed commits.
