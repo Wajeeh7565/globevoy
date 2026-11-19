@@ -40,6 +40,7 @@ const groups = {
     ['node', 'tests/frontend/validate-fixture-paths.mjs'],
     ['node', '--test', 'tests/frontend/page-layout.test.mjs'],
     ['node', '--test', 'tests/frontend/classic-saved-trip.test.cjs'],
+    ['node', '--test', 'tests/frontend/booking-ignav-links.test.cjs'],
     ['node', 'frontend/validation/validate-gv-data-701c.js'],
     ['node', 'frontend/validation/validate-gv-rec-687b-frontend.js'],
     ['node', 'frontend/validation/validate-gv-web-fe-r3-1b.js']
