@@ -130,3 +130,23 @@ test('667A live verification preserves Ignav evidence without re-querying flight
     global.fetch = saved.fetch;
   }
 });
+
+test('city codes are searched at the main airport, and untyped long legs count as flights', async () => {
+  const seen = [];
+  const fetchFn = async (url, init) => {
+    const body = init?.body ? JSON.parse(init.body) : {};
+    seen.push(JSON.stringify(body) + ' ' + url);
+    return { ok: true, status: 200, text: async () => JSON.stringify({ itineraries: [] }) };
+  };
+  const n = (code, lat, lng) => ({ code, airportCode: code, city: code, latitude: lat, longitude: lng });
+  const t = { estimatedTotalUsd: 1000, stops: [{ city: 'London' }, { city: 'Amsterdam' }], legs: [
+    { mode: 'flight', from: n('YYZ', 43.7, -79.6), to: n('LON', 51.5, -0.1), departureDate: '2027-02-02', estimatedTransportUsd: 400 },
+    { from: n('LON', 51.5, -0.1), to: n('AMS', 52.4, 4.9), departureDate: '2027-02-06', estimatedTransportUsd: 100 },
+    { mode: 'train', from: n('AMS', 52.4, 4.9), to: n('BRU', 50.8, 4.4), departureDate: '2027-02-09', estimatedTransportUsd: 60 },
+    { from: n('AMS', 52.4, 4.9), to: n('RTM', 51.9, 4.4), departureDate: '2027-02-09', estimatedTransportUsd: 20 }
+  ] };
+  const r = await applyIgnavLiveFares(t, QUERY, { env: ENV, fetchFn });
+  assert.equal(r.summary.requiredFlightLegCount, 2, 'flight + untyped 360 km leg; train and short untyped leg excluded');
+  const all = seen.join('\n');
+  assert.match(all, /LHR/); assert.doesNotMatch(all, /"LON"|origin=LON|destination=LON/);
+});
