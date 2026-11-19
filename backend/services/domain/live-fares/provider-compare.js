@@ -25,7 +25,7 @@ function toRoute(r, now) {
 async function runProviderCompare(event = {}, options = {}) {
   const now = options.now || Date.now();
   const routes = (Array.isArray(event.routes) && event.routes.length ? event.routes : DEFAULT_ROUTES).slice(0, 12).map(r => toRoute(r, now));
-  const currency = event.currency || 'CAD';
+  const currency = event.currency || 'CAD', jinkoLimit = Math.min(300, Math.max(1, Number(event.jinkoLimit) || 10));
   const ig = options.ignav || ignav, jk = options.jinko || jinko;
   const rows = await Promise.all(routes.map(async route => {
     const [igRes, jkRes] = await Promise.all([
@@ -34,7 +34,7 @@ async function runProviderCompare(event = {}, options = {}) {
         const r = await Promise.resolve(ig.searchOneWay({ ...route, currency }, options)).catch(() => ({ ok: false, reason: 'ignav-error' }));
         return { r, ms: Date.now() - t };
       })(),
-      Promise.resolve(jk.searchOneWay({ ...route, currency }, options)).catch(() => ({ ok: false, reason: 'jinko-error' }))
+      Promise.resolve(jk.searchOneWay({ ...route, currency, limit: jinkoLimit }, options)).catch(() => ({ ok: false, reason: 'jinko-error' }))
     ]);
     const c = igRes.r?.ok ? igRes.r.cheapest : null;
     const igFare = c ? Number(c.partyTotalAmount ?? c.totalAmount ?? c.amount) : null;
@@ -51,7 +51,7 @@ async function runProviderCompare(event = {}, options = {}) {
     };
   }));
   return {
-    ok: true, job: 'provider-compare', currency, routes: rows.length,
+    ok: true, job: 'provider-compare', currency, jinkoLimit, routes: rows.length,
     summary: { ignavPriced: rows.filter(r => r.ignavLive).length, jinkoPriced: rows.filter(r => r.jinkoLive).length },
     rows
   };

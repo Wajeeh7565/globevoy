@@ -44,7 +44,7 @@ async function searchOneWay(input = {}, options = {}) {
     const res = await fetchFn(`${BASE}/flight_search`, {
       method: 'POST', signal: controller.signal,
       headers: { 'content-type': 'application/json', accept: 'application/json', 'X-API-Key': key },
-      body: JSON.stringify({ origin, destination, departure_date: date, trip_type: 'oneway', adults: Number(input.adults) || 1, currency: clean(input.currency) || 'CAD', limit: 10 })
+      body: JSON.stringify({ origin, destination, departure_date: date, trip_type: 'oneway', adults: Number(input.adults) || 1, currency: clean(input.currency) || 'CAD', limit: Math.min(300, Math.max(1, Number(input.limit) || 10)) })
     });
     const ms = Date.now() - started, text = await res.text();
     let body = null; try { body = JSON.parse(text); } catch (_) {}
