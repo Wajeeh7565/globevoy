@@ -53,3 +53,4 @@
 .gvb2-note{background:#f1f5f9;border-radius:12px;padding:12px;font-size:13px;color:#334155;line-height:1.5}
 .gvb2-classic{background:none;border:1px solid #cbd5e1;border-radius:10px;padding:10px;font:inherit;font-size:13px;cursor:pointer;color:#334155;min-height:44px}
 @media (max-width:640px){.gvb2-right{align-items:stretch;width:100%;margin-left:0}.gvb2-main{justify-content:center}.gvb2-aside{position:static}.gvb2-title{font-size:23px}}
+body.gvb2-on .gv-booking-hero,body.gvb2-on #gv-booking-workspace,body.gvb2-on .gv-booking-summary,body.gvb2-on .gv-booking-section,body.gvb2-on #gv-booking-journey-section{display:none !important}

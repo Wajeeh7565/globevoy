@@ -69,3 +69,23 @@ test('Ignav evidence in canonicalPricing/providerVerification shows as live with
   assert.equal(items[2].age, 'checked 2 min ago');
   assert.equal(items[2].mainLabel, 'Book flight');
 });
+
+test('bestLink prefers the airline, then exact flight, then cheapest; drops non-https', () => {
+  const pick = v2.bestLink([
+    { providerName: 'Waya', providerType: 'ota', amount: 250, url: 'https://waya.example/x' },
+    { providerName: 'Evil', providerType: 'airline', amount: 1, url: 'http://evil.example' },
+    { providerName: 'United', providerType: 'airline', amount: 280, url: 'https://united.com/x' },
+    { providerName: 'United', providerType: 'airline', amount: 274, url: 'https://united.com/y' }
+  ]);
+  assert.equal(pick.url, 'https://united.com/y');
+  assert.equal(v2.bestLink([]), null);
+});
+
+test('total matches the site total: extras line and reserve', () => {
+  const t = tour(); t.displayBudget.tripEstimate = 2000; t.displayBudget.reserveAmount = 250;
+  const { items, cur } = v2.buildItems(t, now);
+  const s = v2.summaryOf(t, items, cur);
+  assert.equal(Math.round(s.total), 2000);
+  assert.ok(s.extras > 0);
+  assert.equal(Math.round(s.left), 5000 - 250 - 2000);
+});
