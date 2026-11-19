@@ -3527,6 +3527,10 @@ async function getFareMapGeneratedTour(query,options) {
   if(!result.tours.length)return {...result,tour:null};
   let selected=result.tours[0],arrivalVerified=false;
   const diagnostics={...result.diagnostics};
+  // Live-check the cheapest trip; if live prices or dates rule it out, try the next
+  // fare-map trip once before giving up (each check is a few provider calls).
+  const attempt=async(candidateTour)=>{
+  let selected=candidateTour,arrivalVerified=false;const fail=reason=>({reason});
   // Reuse the existing gated adapter ONCE, on the selected itinerary, never during expansion.
   const ignav=require('../../providers/flights/ignav/ignav');
   if(ignav.configured(options.env||process.env)){
@@ -3540,41 +3544,51 @@ async function getFareMapGeneratedTour(query,options) {
       const repriced=checked.tour;
       if(repriced?.legs?.length===selected.legs.length&&repriced.legs.every((l,i)=>l.departureDate===selected.legs[i].departureDate)){
         selected=attachTourPresentation(repriced,query);
-        if(selected.estimatedTotalUsd>selected.usableTripBudgetUsd)return empty('fare-map-live-total-exceeds-protected-budget');
+        if(selected.estimatedTotalUsd>selected.usableTripBudgetUsd)return fail('fare-map-live-total-exceeds-protected-budget');
       }
     } else if(checked?.summary?.applied){
       const candidate=checked.tour,stops=[],legs=candidate?.legs||[];
-      if(legs.length!==3||candidate?.stops?.length!==2)return empty('fare-map-incomplete-live-itinerary');
+      if(legs.length!==3||candidate?.stops?.length!==2)return fail('fare-map-incomplete-live-itinerary');
       const airport=node=>node?.airportCode||node?.code;
       if(!legs.every((leg,i)=>leg.liveFareVerified===true&&leg.providerDateEvidence?.sourceType==='LIVE'
-        &&leg.departureDate===selected.legs[i].departureDate&&airport(leg.from)===airport(selected.legs[i].from)&&airport(leg.to)===airport(selected.legs[i].to)))return empty('fare-map-incomplete-or-mismatched-live-evidence');
+        &&leg.departureDate===selected.legs[i].departureDate&&airport(leg.from)===airport(selected.legs[i].from)&&airport(leg.to)===airport(selected.legs[i].to)))return fail('fare-map-incomplete-or-mismatched-live-evidence');
       for(let i=0;i<2;i++){
         const evidence=legs[i].providerDateEvidence||{},segments=evidence.segments||[];
         const arrival=optimizer._internal.date(segments.at(-1)?.arriveLocal),departure=optimizer._internal.date(legs[i+1].departureDate);
         const firstDate=optimizer._internal.date(legs[i].departureDate);
-        if(!arrival||!departure||!firstDate||arrival<firstDate||optimizer._internal.days(arrival,departure)<2)return empty('fare-map-live-arrival-or-stay-conflict');
+        if(!arrival||!departure||!firstDate||arrival<firstDate||optimizer._internal.days(arrival,departure)<2)return fail('fare-map-live-arrival-or-stay-conflict');
         legs[i]={...legs[i],arrivalDate:arrival,providerDateEvidence:{...evidence,arrivalDate:arrival}};
         if(legs[i].cheapestOneWay)legs[i].cheapestOneWay={...legs[i].cheapestOneWay,arrivalDate:arrival};
         const prior=candidate.stops[i],rooms=normalizeParty(query).rooms;
         const hotelCost=require('../fare-map/accommodation-cost-map').quote({cityId:prior.cityId,checkIn:arrival,checkOut:departure,rooms,quality:prior.hotel.costEvidence?.quality?.requested||{}},
           {provider:options.fareMap?.accommodationProvider,regionalNightlyUsd:prior.hotel.costEvidence?.nightlyPerRoomUsd||prior.hotel.estimatedNightlyUsd,now:options.fareMap?.now});
-        if(!hotelCost)return empty('fare-map-hotel-cost-unavailable-for-verified-dates');
+        if(!hotelCost)return fail('fare-map-hotel-cost-unavailable-for-verified-dates');
         const priced=require('../pricing/traveller-pricing').priceStopStay({...prior,arrivalDate:arrival,departureDate:departure,nights:optimizer._internal.days(arrival,departure),arrivalDateVerified:true},query,
           {nightlyPerRoomUsd:hotelCost.nightlyPerRoomUsd+(hotelCost.taxesAndFeesUsd||0)/(rooms*hotelCost.nights)});
         priced.hotel.costEvidence=hotelCost;stops.push(priced);
       }
       selected=require('../pricing/traveller-pricing').applyTravellerPricingToTour({...candidate,legs,stops,totalNights:stops.reduce((s,t)=>s+t.nights,0)},query);
       arrivalVerified=true;
-      if(selected.estimatedTotalUsd>selected.usableTripBudgetUsd)return empty('fare-map-live-total-exceeds-protected-budget');
+      if(selected.estimatedTotalUsd>selected.usableTripBudgetUsd)return fail('fare-map-live-total-exceeds-protected-budget');
       selected=attachTourPresentation(selected,query);
     }
   }
+  return {selected,arrivalVerified,source:candidateTour};
+  };
+  let outcome=null;const liveAttempts=[];
+  for(const candidateTour of result.tours.slice(0,2)){
+    outcome=await attempt(candidateTour);liveAttempts.push(outcome.reason||'ok');
+    if(!outcome.reason)break;
+  }
+  diagnostics.fareMapLiveAttempts=liveAttempts;
+  if(outcome.reason)return {...empty(outcome.reason),diagnostics:{...result.diagnostics,...diagnostics}};
+  selected=outcome.selected;arrivalVerified=outcome.arrivalVerified;
   const visual=buildVisualizerTour(selected,{...query,month:selected.legs[0].departureDate.slice(0,7)},{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
   visual.fareMap={...(selected.fareMap||{}),arrivalDatesVerified:arrivalVerified,hotelDatesRequireVerification:!arrivalVerified};
   const guard=evaluateTour(visual,query);
   if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return empty('fare-map-final-business-or-date-guard');
   diagnostics.arrivalDatesVerified=arrivalVerified;
-  const tours=[guard.tour,...result.tours.slice(1).map(t=>buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}))];
+  const tours=[guard.tour,...result.tours.filter(t=>t!==outcome.source).map(t=>buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}))];
   return {...result,tour:guard.tour,tours,diagnostics};
 }
 
@@ -3606,6 +3620,7 @@ async function getGeneratedTour(query = {}, options = {}) {
   const party = normalizeParty(query);
   const pricingQuery = { ...query, adults: party.adults, children: party.children, infants: party.infants, rooms: party.rooms, passengers: party.travellers };
   delete pricingQuery.travellers;
+  // Hotel rates need live-confirmed arrival dates (overnight flights shift check-in).
   if(mapEnabled&&!result.diagnostics?.arrivalDatesVerified)return result;
   return priceFinalTourWithNuitee(result, pricingQuery, options);
 }

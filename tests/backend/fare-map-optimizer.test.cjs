@@ -74,3 +74,17 @@ test('partition prefetch is bounded, identical partitions coalesce, and the comp
  assert.ok(result.tours.length);assert.ok(peak<=4);assert.ok(peak>1);assert.ok([...calls.values()].every(n=>n===1));
  assert.equal(optimizer._internal.rows().length,1000);
 });
+test('when live prices rule out the cheapest trip, the next fare-map trip is live-checked before giving up',async()=>{
+ const f=fixture(),old=process.env.ENABLE_GENERATED_TOUR_651A;process.env.ENABLE_GENERATED_TOUR_651A='true';
+ const plus=require('../../backend/services/domain/fare-map/fare-map-optimizer')._internal.plus;let calls=0,firstKey=null;
+ const key=t=>t.stops.map(s=>s.cityId||s.city).join('>');
+ const applyIgnavLiveFares=async t=>{calls++;const tour=structuredClone(t);if(calls===1){firstKey=key(t);tour.legs[1].departureDate=plus(tour.legs[1].departureDate,1);}
+  tour.legs.forEach(l=>{l.liveFareVerified=true;l.providerDateEvidence={...l.providerDateEvidence,provider:'ignav',sourceType:'LIVE',productionEligible:true,segments:[{arriveLocal:plus(l.departureDate,1)+'T09:00:00'}]}});
+  return {tour:require('../../backend/services/domain/pricing/traveller-pricing').applyTravellerPricingToTour(tour,f.query),summary:{applied:true,providerRequests:3}}};
+ try{
+  const r=await require('../../backend/services/domain/tours/generated-tour').getGeneratedTour(f.query,{env:{...f.options.env,ENABLE_IGNAV_FLIGHTS:'true',IGNAV_API_KEY:'offline'},fareMap:{...f.options,rows:f.rows},applyIgnavLiveFares});
+  if(r.tours?.length){assert.equal(calls,2);assert.deepEqual(r.diagnostics.fareMapLiveAttempts,['fare-map-incomplete-or-mismatched-live-evidence','ok']);assert.notEqual(key(r.tour),firstKey);
+   assert.equal(new Set(r.tours.map(key)).size,r.tours.length,'no duplicate trips');}
+  else assert.ok(calls<=2);
+ }finally{if(old===undefined)delete process.env.ENABLE_GENERATED_TOUR_651A;else process.env.ENABLE_GENERATED_TOUR_651A=old}
+});
