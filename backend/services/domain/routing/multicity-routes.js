@@ -964,8 +964,10 @@ async function getLegacyMultiCityTours(query = {}) {
 }
 
 
-async function getMultiCityTours(query = {}) {
+async function getMultiCityTours(query = {}, options = {}) {
   if (!isMultiCityRoute610BEnabled()) return buildFeatureDisabledResponse();
+  const fareMap = require('../fare-map/fare-map-optimizer');
+  if(fareMap.enabled(options.env))return fareMap.search(query,options.fareMap||options);
   const adaptive = require('./budget-adaptive-routes');
   if (adaptive.enabled()) return adaptive.getBudgetAdaptiveMultiCityTours(query, getLegacyMultiCityTours);
   return getLegacyMultiCityTours(query);

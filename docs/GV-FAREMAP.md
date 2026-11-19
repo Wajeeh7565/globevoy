@@ -1,6 +1,6 @@
 # GV-FAREMAP — nightly fare map (step 1: data collection)
 
-Status: on `main`, **off by default**. Collects planning fares only; the route search does not read it yet (step 2).
+Source default: **off**. Existing deployed settings have not been changed. Collects planning fares only; the separate opt-in optimizer PR adds the read path. See FARE_MAP_RELIABILITY.md for the reliability follow-up and controlled staging gate.
 
 ## What it stores
 DynamoDB table `FARE_MAP_TABLE` (partition key `pk` String, sort key `sk` String, TTL attribute `ttl`):
@@ -14,9 +14,9 @@ Travelpayouts Data API (GraphQL `prices_one_way`, grouped by direction): cached 
 
 ## How it runs
 `backend/services/domain/fare-map/fare-map-job.js`, called from the existing Lambda when it receives a scheduled event `{"globevoyJob":"fare-map"}` (never an HTTP route).
-- Tasks: every origin-eligible city's Travelpayouts code (972) × next 6 months = 5,832 requests per cycle.
-- Each run works ~45 s (`FARE_MAP_TIME_BUDGET_MS`), saves its cursor, the next run continues. Every 5 minutes → a full cycle in ~12 h.
-- Stops early on HTTP 429 and resumes next run.
+- Tasks: every origin-eligible city's Travelpayouts code × next 6 months. The original 972-origin example gives 5,832 tasks, NOT requests: pagination and retries add HTTP attempts.
+- Each run works within a 45 s budget (`FARE_MAP_TIME_BUDGET_MS`) and checkpoints its task/page offset. Cycle time depends on actual page counts, provider throttling and database latency; the old 12-hour estimate was not measured. Measure a controlled staging cycle before relying on freshness/coverage targets.
+- Stops on HTTP 429 and persists cooldown before resuming. Failed tasks remain retryable; overlapping new workers use an owner-fenced cursor lease.
 
 ## Enable (AWS)
 1. Create DynamoDB table `globevoy-fare-map` (us-east-2), keys `pk` (S) / `sk` (S), on-demand capacity, TTL on `ttl`.

@@ -9,8 +9,8 @@
 
 const VERSION = 'GV-FAREMAP-001';
 const DEFAULT_ENDPOINT = 'https://api.travelpayouts.com/graphql/v1/query';
-const PAGE_SIZE = 250;           // Travelpayouts GraphQL max per page
-const MAX_PAGES = 4;             // up to 1,000 destinations per origin+month
+const PAGE_SIZE = 30;           // Travelpayouts GraphQL max per page
+const MAX_PAGES = 34;             // up to 1,000 destinations per origin+month
 
 function code(value) {
   const s = String(value || '').trim().toUpperCase();
@@ -22,7 +22,8 @@ function month(value) {
 }
 function isoDate(value) {
   const s = String(value || '').slice(0, 10);
-  return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : '';
+  const d = new Date(s + 'T00:00:00Z');
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(d.getTime()) && d.toISOString().slice(0,10) === s ? s : '';
 }
 
 function buildQuery(origin, departMonth, offset) {
@@ -49,13 +50,14 @@ const { convertFlightValueToUsd } = require('../../providers/flights/travelpayou
 function toRecord(origin, departMonth, row, observedAt, toUsd = convertFlightValueToUsd) {
   const destination = code(row?.destination_city_iata);
   const priceUsd = Number(toUsd(row?.value));
+  if (!['USD','CAD','RUB'].includes(String(process.env.TRAVELPAYOUTS_PRICE_CURRENCY || 'RUB').toUpperCase()) && toUsd === convertFlightValueToUsd) return null;
   if (!destination || destination === origin || !Number.isFinite(priceUsd) || priceUsd <= 0) return null;
   const date = isoDate(row?.departure_at);
   return {
     origin,
     month: departMonth,
     destination,
-    priceUsd: Math.round(priceUsd),
+    priceUsd: Math.round(priceUsd * 100) / 100,
     departureDate: date && date.startsWith(departMonth) ? date : null,
     stops: Number.isFinite(Number(row?.number_of_changes)) ? Number(row.number_of_changes) : null,
     durationMinutes: Number.isFinite(Number(row?.duration)) ? Number(row.duration) : null,
@@ -64,38 +66,65 @@ function toRecord(origin, departMonth, row, observedAt, toUsd = convertFlightVal
   };
 }
 
-async function ingestOriginMonth({ origin, month: departMonth, token, fetch: fetchFn = globalThis.fetch, endpoint, now, toUsd } = {}) {
-  const o = code(origin);
-  const m = month(departMonth);
-  if (!o || !m) return { ok: false, reason: 'invalid-origin-or-month', records: [], requests: 0 };
-  if (!token) return { ok: false, reason: 'travelpayouts-token-missing', records: [], requests: 0 };
-  const observedAt = (now ? new Date(now) : new Date()).toISOString();
-  const seen = new Map();
-  let requests = 0;
-  for (let page = 0; page < MAX_PAGES; page += 1) {
-    requests += 1;
+// One shared request pacer is passed by the job, including pages and retries.
+function createPacer({ clock = Date.now, sleep = ms => new Promise(r => setTimeout(r,ms)), intervalMs = 1100 } = {}) {
+  let next = 0;
+  return async deadline => {
+    const delay = Math.max(0,next-clock());
+    if (clock()+delay+1000 >= deadline) throw Object.assign(new Error('deadline'),{code:'time-budget'});
+    if(delay) await sleep(delay);
+    next=clock()+intervalMs;
+  };
+}
+async function ingestOriginMonth(options = {}) {
+  const { origin, month: departMonth, token, fetch: fetchFn = globalThis.fetch, endpoint, now, toUsd } = options;
+  const o=code(origin),m=month(departMonth);
+  if(!o||!m)return {ok:false,reason:'invalid-origin-or-month',records:[],requests:0,retries:0};
+  if(!token)return {ok:false,reason:'travelpayouts-token-missing',records:[],requests:0,retries:0};
+  if(!toUsd&&(!['USD','CAD','RUB'].includes(String(process.env.TRAVELPAYOUTS_PRICE_CURRENCY||'RUB').toUpperCase())||!Number.isFinite(convertFlightValueToUsd(1))||convertFlightValueToUsd(1)<=0))return {ok:false,reason:'invalid-fx-configuration',records:[],requests:0,retries:0};
+  const clock=options.clock||Date.now,sleep=options.sleep|| (ms=>new Promise(r=>setTimeout(r,ms)));
+  const pace=options.pace||createPacer({clock,sleep});
+  const deadline=options.deadline||clock()+43000,seen=new Map();
+  let requests=0,retries=0,offset=Number(options.offset)||0;
+  const finish=(ok,reason,extra={})=>({ok,reason,records:[...seen.values()],requests,retries,nextOffset:offset,...extra});
+  for(let page=0;page<Math.min(MAX_PAGES,options.maxPages||MAX_PAGES);page++) {
     let payload;
-    try {
-      const response = await fetchFn(endpoint || DEFAULT_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Access-Token': token },
-        body: JSON.stringify({ query: buildQuery(o, m, page * PAGE_SIZE) })
-      });
-      const text = await response.text();
-      payload = JSON.parse(text);
-      if (response.status === 429) return { ok: false, reason: 'rate-limited', records: [...seen.values()], requests };
-      if (!response.ok || payload?.errors) return { ok: seen.size > 0, reason: `travelpayouts-${response.status}${payload?.errors ? '-graphql-error' : ''}`, detail: JSON.stringify(payload?.errors || '').slice(0, 300), records: [...seen.values()], requests };
-    } catch (_) {
-      return { ok: seen.size > 0, reason: 'travelpayouts-request-failed', records: [...seen.values()], requests };
+    for(let attempt=0;attempt<3;attempt++) {
+      let reason,status=0,transient=false;
+      try {
+        await pace(deadline);
+        const remaining=Math.min(7000,deadline-clock()-500);
+        if(remaining<1000)return finish(false,'time-budget');
+        const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),remaining);
+        try {
+          requests++;
+          const response=await fetchFn(endpoint||DEFAULT_ENDPOINT,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json','X-Access-Token':token},body:JSON.stringify({query:buildQuery(o,m,offset)}),signal:controller.signal});
+          status=response.status;
+          // 429 bodies are often HTML, so classify before parsing JSON. No immediate retry.
+          if(status===429) return finish(false,'rate-limited',{retryAfterSeconds:Math.min(3600,Math.max(60,Number(response.headers?.get?.('retry-after'))||60))});
+          const text=await response.text();
+          if(!response.ok){reason=status>=500?'provider-server-error':status===401||status===403?'provider-auth-error':'provider-http-error';transient=status>=500;}
+          else {
+            try{payload=JSON.parse(text)}catch{reason='provider-invalid-json';}
+            if(payload?.errors?.length){reason='provider-graphql-error';payload=null;}
+            else if(!reason&&!Array.isArray(payload?.data?.prices_one_way)){reason='provider-invalid-schema';payload=null;}
+          }
+        } finally{clearTimeout(timer)}
+      }catch(e){reason=e.code==='time-budget'?'time-budget':e.name==='AbortError'?'provider-timeout':'provider-network-error';transient=reason==='provider-timeout'||reason==='provider-network-error';}
+      if(!reason)break;
+      if(!transient||attempt===2)return finish(false,reason,{httpStatus:status});
+      const backoff=500*2**attempt;
+      if(clock()+backoff+1000>=deadline)return finish(false,'time-budget');
+      retries++;await sleep(backoff);
     }
-    const rows = Array.isArray(payload?.data?.prices_one_way) ? payload.data.prices_one_way : [];
-    for (const row of rows) {
-      const rec = toRecord(o, m, row, observedAt, toUsd);
-      if (rec && (!seen.has(rec.destination) || seen.get(rec.destination).priceUsd > rec.priceUsd)) seen.set(rec.destination, rec);
+    for(const row of payload.data.prices_one_way){
+      const rec=toRecord(o,m,row,new Date(now??clock()).toISOString(),toUsd);
+      if(rec&&(!seen.has(rec.destination)||seen.get(rec.destination).priceUsd>rec.priceUsd))seen.set(rec.destination,rec);
     }
-    if (rows.length < PAGE_SIZE) break;
+    if(payload.data.prices_one_way.length<PAGE_SIZE)return finish(true,null,{nextOffset:0});
+    offset+=PAGE_SIZE;
   }
-  return { ok: true, reason: null, records: [...seen.values()], requests };
+  return finish(false,'pagination-budget');
 }
 
 // The next N months starting from `now` (current month included), YYYY-MM.
@@ -121,4 +150,4 @@ function originCodesFromRegistry(registry) {
   return [...codes].sort();
 }
 
-module.exports = { VERSION, ingestOriginMonth, upcomingMonths, originCodesFromRegistry, _internal: { buildQuery, toRecord, code, month } };
+module.exports = { VERSION, ingestOriginMonth, upcomingMonths, originCodesFromRegistry, createPacer, _internal: { buildQuery, toRecord, code, month } };

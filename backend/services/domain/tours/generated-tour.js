@@ -3519,12 +3519,58 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
   return { ...result, tour: live.tour, tours, diagnostics };
 }
 
+async function getFareMapGeneratedTour(query,options) {
+  const optimizer=require('../fare-map/fare-map-optimizer');
+  if(!generatedTourEnabled())return {ok:true,supported:false,reason:'feature-disabled',tour:null,tours:[]};
+  const result=await optimizer.search(query,options.fareMap||options);
+  const empty=reason=>({...result,tour:null,tours:[],reason});
+  if(!result.tours.length)return {...result,tour:null};
+  let selected=result.tours[0],arrivalVerified=false;
+  const diagnostics={...result.diagnostics};
+  // Reuse the existing gated adapter ONCE, on the selected itinerary, never during expansion.
+  const ignav=require('../../providers/flights/ignav/ignav');
+  if(ignav.configured(options.env||process.env)){
+    let checked;
+    try{checked=await (options.applyIgnavLiveFares||applyIgnavLiveFares)(selected,query,options)}
+    catch{checked={summary:{applied:false,reason:'provider-unavailable'}}}
+    diagnostics.ignavLiveFares=checked?.summary||{applied:false,reason:'provider-invalid-response'};
+    if(checked?.summary?.applied){
+      const candidate=checked.tour,stops=[],legs=candidate?.legs||[];
+      if(legs.length!==3)return empty('fare-map-incomplete-live-itinerary');
+      for(let i=0;i<2;i++){
+        const evidence=legs[i].providerDateEvidence||{},segments=evidence.segments||[];
+        const arrival=optimizer._internal.date(segments.at(-1)?.arriveLocal),departure=optimizer._internal.date(legs[i+1].departureDate);
+        const firstDate=optimizer._internal.date(legs[i].departureDate);
+        if(!arrival||!departure||!firstDate||arrival<firstDate||optimizer._internal.days(arrival,departure)<2)return empty('fare-map-live-arrival-or-stay-conflict');
+        legs[i]={...legs[i],arrivalDate:arrival,providerDateEvidence:{...evidence,arrivalDate:arrival}};
+        if(legs[i].cheapestOneWay)legs[i].cheapestOneWay={...legs[i].cheapestOneWay,arrivalDate:arrival};
+        stops.push(require('../pricing/traveller-pricing').priceStopStay({...candidate.stops[i],arrivalDate:arrival,departureDate:departure,nights:optimizer._internal.days(arrival,departure),arrivalDateVerified:true},query));
+      }
+      selected=require('../pricing/traveller-pricing').applyTravellerPricingToTour({...candidate,legs,stops,totalNights:stops.reduce((s,t)=>s+t.nights,0)},query);
+      arrivalVerified=true;
+      if(selected.estimatedTotalUsd>selected.usableTripBudgetUsd)return empty('fare-map-live-total-exceeds-protected-budget');
+      selected=attachTourPresentation(selected,query);
+    }
+  }
+  const visual=buildVisualizerTour(selected,query,{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
+  visual.fareMap={...(selected.fareMap||{}),arrivalDatesVerified:arrivalVerified,hotelDatesRequireVerification:!arrivalVerified};
+  const guard=evaluateTour(visual,query);
+  if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return empty('fare-map-final-business-or-date-guard');
+  diagnostics.arrivalDatesVerified=arrivalVerified;
+  const tours=[guard.tour,...result.tours.slice(1).map(t=>buildVisualizerTour(t,query))];
+  return {...result,tour:guard.tour,tours,diagnostics};
+}
+
 async function getGeneratedTour(query = {}, options = {}) {
-  const result = await getGeneratedTourCore(query);
+  const fareMap=require('../fare-map/fare-map-optimizer');
+  const mapEnabled=fareMap.enabled(options.env);
+  const result=mapEnabled?await getFareMapGeneratedTour(query,options):await getGeneratedTourCore(query);
+
   // Same party normalisation the pipeline uses (string counts, rooms default).
   const party = normalizeParty(query);
   const pricingQuery = { ...query, adults: party.adults, children: party.children, infants: party.infants, rooms: party.rooms, passengers: party.travellers };
   delete pricingQuery.travellers;
+  if(mapEnabled&&!result.diagnostics?.arrivalDatesVerified)return result;
   return priceFinalTourWithNuitee(result, pricingQuery, options);
 }
 
