@@ -3514,9 +3514,12 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
   }
   diagnostics.nuiteeLiveStays = summary;
   syncNuiteeHotelsIntoViews(live.tour);
+  // The page's total (displayBudget) was built from the hotel estimates; rebuild it
+  // from the live rates so the trip page matches the booking page's line items.
+  const repriced = live.tour.displayBudget ? attachTourPresentation(live.tour, query) : live.tour;
   const original = result.tour;
-  const tours = Array.isArray(result.tours) ? result.tours.map(t => (t === original ? live.tour : t)) : result.tours;
-  return { ...result, tour: live.tour, tours, diagnostics };
+  const tours = Array.isArray(result.tours) ? result.tours.map(t => (t === original ? repriced : t)) : result.tours;
+  return { ...result, tour: repriced, tours, diagnostics };
 }
 
 async function getFareMapGeneratedTour(query,options) {
