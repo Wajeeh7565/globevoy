@@ -22,11 +22,42 @@ const MAX_FLIGHT_LEGS = 4;
 
 function safeIata(value) { const c = String(value || '').trim().toUpperCase(); return /^[A-Z]{3}$/.test(c) ? c : null; }
 function safeDate(value) { const t = String(value || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(t) ? t : null; }
-function endpointCode(node = {}) { return safeIata(node.airportCode || node.code || node.displayCode || node.iata || node.iataCode); }
+// City (metro) codes such as LON, PAR or NYC return no Ignav fares; search the
+// city's main airport from the registry instead (LON -> LHR, NYC -> JFK).
+let metroAirports = null;
+function metroAirport(code) {
+  if (!metroAirports) {
+    metroAirports = new Map();
+    try {
+      for (const r of require('../../../data/unified-city-registry-1000.json').records || []) {
+        const o = r.origin || {}, metro = safeIata(o.providerLocationCode), main = safeIata(o.preferredAirportCode);
+        if (metro && main && metro !== main && !(o.airportCodes || []).includes(metro)) metroAirports.set(metro, main);
+      }
+    } catch (_) { /* registry unavailable: keep codes as given */ }
+  }
+  return metroAirports.get(code) || code;
+}
+function endpointCode(node = {}) {
+  const code = safeIata(node.airportCode || node.code || node.displayCode || node.iata || node.iataCode);
+  return code ? metroAirport(code) : null;
+}
+function km(a = {}, b = {}) {
+  const [la1, lo1, la2, lo2] = [a.latitude ?? a.lat, a.longitude ?? a.lng ?? a.lon, b.latitude ?? b.lat, b.longitude ?? b.lng ?? b.lon].map(Number);
+  if (![la1, lo1, la2, lo2].every(Number.isFinite)) return null;
+  const r = Math.PI / 180, h = Math.sin((la2 - la1) * r / 2) ** 2 + Math.cos(la1 * r) * Math.cos(la2 * r) * Math.sin((lo2 - lo1) * r / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
 function isFlightLeg(leg = {}) {
   const text = `${leg.mode || ''} ${leg.transportType || ''}`.toLowerCase();
   if (text.includes('flight')) return true;
-  return (Array.isArray(leg.segments) ? leg.segments : []).some(s => `${s?.mode || ''} ${s?.transportType || ''}`.toLowerCase().includes('flight'));
+  const segments = Array.isArray(leg.segments) ? leg.segments : [];
+  if (segments.some(s => `${s?.mode || ''} ${s?.transportType || ''}`.toLowerCase().includes('flight'))) return true;
+  // Some generated legs carry no mode at all. Ground legs always name theirs (train,
+  // bus, drive), so an untyped leg between two airports at least 300 km apart is a flight.
+  if (text.trim() || segments.some(s => `${s?.mode || ''}${s?.transportType || ''}`.trim())) return false;
+  if (!endpointCode(leg.from) || !endpointCode(leg.to)) return false;
+  const distance = Number(leg.distanceKm) || km(leg.from, leg.to);
+  return distance == null || distance >= 300;
 }
 function legDate(leg = {}) {
   const evidence = leg.providerDateEvidence || leg.cheapestOneWay || {};
