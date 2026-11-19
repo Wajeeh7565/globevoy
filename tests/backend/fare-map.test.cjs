@@ -94,7 +94,7 @@ test('job: off by default; resumes from its cursor and wraps at the end of a cyc
   const rest = await job.runFareMapJob({ ...opts, timeBudgetMs: 60000 });
   assert.equal(rest.startIndex, 1);
   assert.equal(rest.finishedCycle, true);
-  assert.equal(first.done + rest.done, 12, '2 origins × 6 months');
+  assert.equal(first.done + rest.done, 16, '2 origins across eight departure and return months');
   assert.equal((await store.readCursor({ env: ENV, dynamo })).index, 0);
   assert.equal((await store.readRoutesFrom('YMQ', '2027-04', { env: ENV, dynamo, nowMs:opts.now })).length, 1);
 });
@@ -195,4 +195,14 @@ test('reader follows filtered empty pages and enforces logical TTL and freshness
  const dynamo={send:async c=>{calls++;assert.equal(c.input.ExclusiveStartKey?.sk?.S,calls===1?undefined:'page1');return calls===1?{Items:[],LastEvaluatedKey:{sk:{S:'page1'}}}:{Items:[fresh,expired,stale]}}};
  const result=await store.readRoutesFrom('YTO','2027-01',{env:ENV,dynamo,nowMs:now,maxPages:2});
  assert.equal(calls,2);assert.equal(result.length,1);
+});
+
+test('opt-in dated samples preserve legacy monthly reads and accumulate only observed dates',async()=>{
+ const dynamo=fakeDynamo(),now=Date.parse('2027-01-01T00:00:00Z'),base={origin:'YTO',month:'2027-02',destination:'LON',priceUsd:100,observedAt:new Date(now).toISOString()};
+ const opts={env:{...ENV,FARE_MAP_RETAIN_DATED_OBSERVATIONS:'true'},dynamo,nowMs:now};
+ await store.writeRecords([{...base,departureDate:'2027-02-03'}],opts);
+ await store.writeRecords([{...base,departureDate:'2027-02-09',priceUsd:110}],opts);
+ const legacy=await store.readRoutesFrom('YTO','2027-02',opts);assert.equal(legacy.length,1);assert.equal(legacy[0].departureDate,'2027-02-09');
+ const sampled=await store.readRoutesFrom('YTO','2027-02',{...opts,includeDated:true});
+ assert.deepEqual(sampled.map(f=>f.departureDate).sort(),['2027-02-03','2027-02-09']);assert.ok(sampled.every(f=>f.destination==='LON'));
 });

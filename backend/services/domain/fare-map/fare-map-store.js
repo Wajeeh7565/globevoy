@@ -30,7 +30,7 @@ function tableName(env = process.env) {
 function toItem(rec, nowMs = Date.now()) {
   const item = {
     pk: { S: `F#${rec.origin}#${rec.month}` },
-    sk: { S: rec.destination },
+    sk: { S: rec.datedObservation ? rec.destination+'#'+rec.departureDate : rec.destination },
     priceUsd: { N: String(rec.priceUsd) },
     source: { S: rec.source || 'travelpayouts-cached' },
     observedAt: { S: rec.observedAt },
@@ -45,7 +45,7 @@ function fromItem(item) {
   const [, origin, month] = String(item?.pk?.S || '').split('#');
   return {
     origin, month,
-    destination: item?.sk?.S,
+    destination: item?.sk?.S?.split('#')[0],
     priceUsd: Number(item?.priceUsd?.N),
     departureDate: item?.departureDate?.S || null,
     stops: item?.stops ? Number(item.stops.N) : null,
@@ -59,6 +59,8 @@ async function writeRecords(records, options = {}) {
   const table = tableName(options.env);
   if (!table) throw new Error('FARE_MAP_TABLE not configured');
   const db = client(options);
+  // Additive, opt-in sampling of dates already observed by the existing collector.
+  if(String(options.env?.FARE_MAP_RETAIN_DATED_OBSERVATIONS||'').toLowerCase()==='true')records=records.flatMap(r=>r.departureDate?[r,{...r,datedObservation:true}]:[r]);
   let written = 0;
   for (let i = 0; i < records.length; i += 25) {
     let request = { [table]: records.slice(i, i + 25).map(r => ({ PutRequest: { Item: toItem(r, options.nowMs) } })) };
@@ -101,11 +103,13 @@ async function readRoutesFrom(origin, month, options = {}) {
     pages++;
     (res?.Items || []).forEach(i => {
       const now=options.nowMs??Date.now(),observed=Date.parse(i.observedAt?.S);
-      if(Number(i.ttl?.N)>now/1000&&Number.isFinite(observed)&&observed<=now+60000&&observed>=now-TTL_DAYS*86400000)out.push(fromItem(i));
+      if((options.includeDated||!i.sk?.S?.includes('#'))&&Number(i.ttl?.N)>now/1000&&Number.isFinite(observed)&&observed<=now+60000&&observed>=now-TTL_DAYS*86400000)out.push(fromItem(i));
     });
     key = res?.LastEvaluatedKey;
     if(options.maxRecords&&out.length>=options.maxRecords)return out.slice(0,options.maxRecords);
   } while (key && pages < (options.maxPages || Infinity));
+  if(key&&options.diagnostics){options.diagnostics.bounded=true;options.diagnostics.truncatedPartitions=(options.diagnostics.truncatedPartitions||0)+1;}
+  if(options.includeDated){const dates=new Map();for(const fare of out){const k=fare.destination+'#'+fare.departureDate;const prev=dates.get(k);if(!prev||fare.observedAt>prev.observedAt)dates.set(k,fare);}return [...dates.values()];}
   return out;
 }
 

@@ -3536,7 +3536,10 @@ async function getFareMapGeneratedTour(query,options) {
     diagnostics.ignavLiveFares=checked?.summary||{applied:false,reason:'provider-invalid-response'};
     if(checked?.summary?.applied){
       const candidate=checked.tour,stops=[],legs=candidate?.legs||[];
-      if(legs.length!==3)return empty('fare-map-incomplete-live-itinerary');
+      if(legs.length!==3||candidate?.stops?.length!==2)return empty('fare-map-incomplete-live-itinerary');
+      const airport=node=>node?.airportCode||node?.code;
+      if(!legs.every((leg,i)=>leg.liveFareVerified===true&&leg.providerDateEvidence?.sourceType==='LIVE'
+        &&leg.departureDate===selected.legs[i].departureDate&&airport(leg.from)===airport(selected.legs[i].from)&&airport(leg.to)===airport(selected.legs[i].to)))return empty('fare-map-incomplete-or-mismatched-live-evidence');
       for(let i=0;i<2;i++){
         const evidence=legs[i].providerDateEvidence||{},segments=evidence.segments||[];
         const arrival=optimizer._internal.date(segments.at(-1)?.arriveLocal),departure=optimizer._internal.date(legs[i+1].departureDate);
@@ -3544,7 +3547,13 @@ async function getFareMapGeneratedTour(query,options) {
         if(!arrival||!departure||!firstDate||arrival<firstDate||optimizer._internal.days(arrival,departure)<2)return empty('fare-map-live-arrival-or-stay-conflict');
         legs[i]={...legs[i],arrivalDate:arrival,providerDateEvidence:{...evidence,arrivalDate:arrival}};
         if(legs[i].cheapestOneWay)legs[i].cheapestOneWay={...legs[i].cheapestOneWay,arrivalDate:arrival};
-        stops.push(require('../pricing/traveller-pricing').priceStopStay({...candidate.stops[i],arrivalDate:arrival,departureDate:departure,nights:optimizer._internal.days(arrival,departure),arrivalDateVerified:true},query));
+        const prior=candidate.stops[i],rooms=normalizeParty(query).rooms;
+        const hotelCost=require('../fare-map/accommodation-cost-map').quote({cityId:prior.cityId,checkIn:arrival,checkOut:departure,rooms,quality:prior.hotel.costEvidence?.quality?.requested||{}},
+          {provider:options.fareMap?.accommodationProvider,regionalNightlyUsd:prior.hotel.costEvidence?.nightlyPerRoomUsd||prior.hotel.estimatedNightlyUsd,now:options.fareMap?.now});
+        if(!hotelCost)return empty('fare-map-hotel-cost-unavailable-for-verified-dates');
+        const priced=require('../pricing/traveller-pricing').priceStopStay({...prior,arrivalDate:arrival,departureDate:departure,nights:optimizer._internal.days(arrival,departure),arrivalDateVerified:true},query,
+          {nightlyPerRoomUsd:hotelCost.nightlyPerRoomUsd+(hotelCost.taxesAndFeesUsd||0)/(rooms*hotelCost.nights)});
+        priced.hotel.costEvidence=hotelCost;stops.push(priced);
       }
       selected=require('../pricing/traveller-pricing').applyTravellerPricingToTour({...candidate,legs,stops,totalNights:stops.reduce((s,t)=>s+t.nights,0)},query);
       arrivalVerified=true;
@@ -3552,12 +3561,12 @@ async function getFareMapGeneratedTour(query,options) {
       selected=attachTourPresentation(selected,query);
     }
   }
-  const visual=buildVisualizerTour(selected,query,{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
+  const visual=buildVisualizerTour(selected,{...query,month:selected.legs[0].departureDate.slice(0,7)},{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
   visual.fareMap={...(selected.fareMap||{}),arrivalDatesVerified:arrivalVerified,hotelDatesRequireVerification:!arrivalVerified};
   const guard=evaluateTour(visual,query);
   if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return empty('fare-map-final-business-or-date-guard');
   diagnostics.arrivalDatesVerified=arrivalVerified;
-  const tours=[guard.tour,...result.tours.slice(1).map(t=>buildVisualizerTour(t,query))];
+  const tours=[guard.tour,...result.tours.slice(1).map(t=>buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}))];
   return {...result,tour:guard.tour,tours,diagnostics};
 }
 
