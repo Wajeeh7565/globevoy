@@ -39,7 +39,7 @@ function status(env = process.env) {
 // the page only uses it while the rate is fresh; the hotel page is the fallback).
 function checkoutUrl(domain, offerId) {
   const id = clean(offerId);
-  if (!domain || !/^[A-Za-z0-9._~-]{6,2048}$/.test(id)) return '';
+  if (!domain || !/^[A-Za-z0-9._~+\/=-]{6,4096}$/.test(id)) return '';
   return `https://${domain}/booking?offerId=${encodeURIComponent(id)}`;
 }
 

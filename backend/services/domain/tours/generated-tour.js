@@ -3503,7 +3503,12 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
     diagnostics.nuiteeLiveStays = summary;
     return { ...result, diagnostics };
   }
-  if (isOverUserBudgetStrict684BR3(live.tour, query)) {
+  // Keep live rates when the trip still fits the budget, or when the live
+  // hotels are no more expensive than the estimates they replace (the trip's
+  // budget status then doesn't get worse, and real prices beat guesses).
+  const hotelUsd = tour => (tour?.stops || []).reduce((sum, stop) => sum + (Number(stop?.hotel?.estimatedStayUsd ?? stop?.hotel?.totalStayUsd) || 0), 0);
+  const liveHotelsNotPricier = hotelUsd(live.tour) <= hotelUsd(result.tour) + 1;
+  if (isOverUserBudgetStrict684BR3(live.tour, query) && !liveHotelsNotPricier) {
     diagnostics.nuiteeLiveStays = { ...summary, applied: false, appliedCount: 0, reason: 'nuitee-final-tour-over-budget-kept-estimate' };
     return { ...result, diagnostics };
   }

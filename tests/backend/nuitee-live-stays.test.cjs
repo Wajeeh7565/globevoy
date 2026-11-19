@@ -168,3 +168,16 @@ test('White Label checkout link uses the offerId; unsafe ids are rejected', asyn
   const stay = enrichStay({ ...r.tour.stops[0], arrivalDate: '2027-03-12', departureDate: '2027-03-16' }, QUERY);
   assert.equal(stay.hotel.booking.whitelabel.checkoutUrl, wl.checkoutUrl);
 });
+
+test('checkout link accepts base64-style offer ids (+ / =) and encodes them', () => {
+  const u = _internal.checkoutUrl('x.nuitee.link', '3gAYonJz+kd4/AEa==');
+  assert.equal(u, 'https://x.nuitee.link/booking?offerId=3gAYonJz%2Bkd4%2FAEa%3D%3D');
+});
+
+test('final pass keeps live rates when they are cheaper than estimates, even if the trip is over budget', async () => {
+  const fetch = mockFetch({ Lisbon: [rateHotel('lpB', 'Cheap Good', 8.0, 100)], Budapest: [] });
+  const base = finalResult(); // flights alone already exceed C$1,000
+  const r = await _priceFinalTourWithNuitee(base, { ...QUERY, budget: '1000' }, { env: ENV, getSecretValue: prodSecret, fetch });
+  assert.equal(r.tour.stops[0].hotel.name, 'Cheap Good');
+  assert.notEqual(r.diagnostics.nuiteeLiveStays.reason, 'nuitee-final-tour-over-budget-kept-estimate');
+});
