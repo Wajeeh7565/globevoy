@@ -29,7 +29,7 @@ function buildQuery(origin, departMonth, offset) {
   // origin/month are validated to [A-Z]{3} / YYYY-MM before interpolation.
   return `{
   prices_one_way(
-    params: { origin: "${origin}", depart_months: "${departMonth}", no_lowcost: false }
+    params: { origin: "${origin}", depart_months: "${departMonth}-01", no_lowcost: false }
     grouping: DIRECTIONS
     paging: { limit: ${PAGE_SIZE} offset: ${Number(offset) || 0} }
     sorting: VALUE_ASC
@@ -41,12 +41,14 @@ function buildQuery(origin, departMonth, offset) {
 }`;
 }
 
-// Travelpayouts GraphQL returns `value` in USD for this query. Only fields the
-// existing production query already uses are requested (an unknown field
-// would fail the whole request); stops/duration stay null for now.
-function toRecord(origin, departMonth, row, observedAt) {
+// Travelpayouts returns `value` in the account's price currency (RUB by
+// default), converted with the same rule as the existing production code.
+// Only fields that query already uses are requested (an unknown field would
+// fail the whole request); stops/duration stay null for now.
+const { convertFlightValueToUsd } = require('../../providers/flights/travelpayouts/travelpayouts');
+function toRecord(origin, departMonth, row, observedAt, toUsd = convertFlightValueToUsd) {
   const destination = code(row?.destination_city_iata);
-  const priceUsd = Number(row?.value);
+  const priceUsd = Number(toUsd(row?.value));
   if (!destination || destination === origin || !Number.isFinite(priceUsd) || priceUsd <= 0) return null;
   const date = isoDate(row?.departure_at);
   return {
@@ -62,7 +64,7 @@ function toRecord(origin, departMonth, row, observedAt) {
   };
 }
 
-async function ingestOriginMonth({ origin, month: departMonth, token, fetch: fetchFn = globalThis.fetch, endpoint, now } = {}) {
+async function ingestOriginMonth({ origin, month: departMonth, token, fetch: fetchFn = globalThis.fetch, endpoint, now, toUsd } = {}) {
   const o = code(origin);
   const m = month(departMonth);
   if (!o || !m) return { ok: false, reason: 'invalid-origin-or-month', records: [], requests: 0 };
@@ -82,13 +84,13 @@ async function ingestOriginMonth({ origin, month: departMonth, token, fetch: fet
       const text = await response.text();
       payload = JSON.parse(text);
       if (response.status === 429) return { ok: false, reason: 'rate-limited', records: [...seen.values()], requests };
-      if (!response.ok || payload?.errors) return { ok: seen.size > 0, reason: `travelpayouts-${response.status}`, records: [...seen.values()], requests };
+      if (!response.ok || payload?.errors) return { ok: seen.size > 0, reason: `travelpayouts-${response.status}${payload?.errors ? '-graphql-error' : ''}`, detail: JSON.stringify(payload?.errors || '').slice(0, 300), records: [...seen.values()], requests };
     } catch (_) {
       return { ok: seen.size > 0, reason: 'travelpayouts-request-failed', records: [...seen.values()], requests };
     }
     const rows = Array.isArray(payload?.data?.prices_one_way) ? payload.data.prices_one_way : [];
     for (const row of rows) {
-      const rec = toRecord(o, m, row, observedAt);
+      const rec = toRecord(o, m, row, observedAt, toUsd);
       if (rec && (!seen.has(rec.destination) || seen.get(rec.destination).priceUsd > rec.priceUsd)) seen.set(rec.destination, rec);
     }
     if (rows.length < PAGE_SIZE) break;

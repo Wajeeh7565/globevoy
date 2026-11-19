@@ -103,6 +103,7 @@ async function writeCursor(cursor, options = {}) {
   const db = client(options);
   const item = { pk: { S: 'META#job' }, sk: { S: 'cursor' }, index: { N: String(cursor.index) }, updatedAt: { S: new Date(options.nowMs || Date.now()).toISOString() } };
   if (cursor.cycleStartedAt) item.cycleStartedAt = { S: cursor.cycleStartedAt };
+  if (cursor.lastRun) item.lastRun = { S: JSON.stringify(cursor.lastRun).slice(0, 2000) };
   await db.send(cmd('PutItemCommand', { TableName: table, Item: item }));
 }
 

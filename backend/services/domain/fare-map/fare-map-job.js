@@ -46,14 +46,15 @@ async function runFareMapJob(options = {}) {
     const result = await ingest.ingestOriginMonth({ ...task, token: env.TRAVELPAYOUTS_TOKEN, fetch: options.fetch, now: options.now });
     summary.requests += result.requests;
     if (result.reason === 'rate-limited') { summary.rateLimited = true; break; }
-    if (!result.ok) summary.failures += 1;
+    if (!result.ok) { summary.failures += 1; summary.lastReason = result.reason; summary.lastDetail = result.detail || null; }
     if (result.records.length) summary.written += await store.writeRecords(result.records, storeOpts);
     index += 1;
     summary.done += 1;
     if (pause) await new Promise(r => setTimeout(r, pause));
   }
   const finishedCycle = index >= tasks.length;
-  await store.writeCursor({ index: finishedCycle ? 0 : index, cycleStartedAt: finishedCycle ? null : cycleStartedAt }, storeOpts);
+  await store.writeCursor({ index: finishedCycle ? 0 : index, cycleStartedAt: finishedCycle ? null : cycleStartedAt,
+    lastRun: { done: summary.done, written: summary.written, failures: summary.failures, rateLimited: summary.rateLimited, lastReason: summary.lastReason || null, lastDetail: summary.lastDetail || null } }, storeOpts);
   return { ...summary, endIndex: index, finishedCycle, ms: Date.now() - started };
 }
 

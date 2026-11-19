@@ -29,7 +29,7 @@ const ENV = { ENABLE_FARE_MAP_JOB: 'true', FARE_MAP_TABLE: 'globevoy-fare-map', 
 
 test('ingest: one origin+month → cheapest fare per destination, validated', async () => {
   const seen = [];
-  const r = await ingest.ingestOriginMonth({ origin: 'yto', month: '2026-12', token: 't', now: Date.parse('2026-11-19T00:00:00Z'), fetch: tpFetch([[
+  const r = await ingest.ingestOriginMonth({ origin: 'yto', month: '2026-12', token: 't', toUsd: v => Number(v), now: Date.parse('2026-11-19T00:00:00Z'), fetch: tpFetch([[
     { destination_city_iata: 'MDE', departure_at: '2026-12-03T10:00:00Z', value: 320, number_of_changes: 1, duration: 410 },
     { destination_city_iata: 'MDE', departure_at: '2026-12-09T10:00:00Z', value: 300 },
     { destination_city_iata: 'LIS', departure_at: '2027-01-02T10:00:00Z', value: 450 },
@@ -39,7 +39,7 @@ test('ingest: one origin+month → cheapest fare per destination, validated', as
   ]], seen) });
   assert.equal(r.ok, true);
   assert.equal(r.requests, 1);
-  assert.match(seen[0], /origin: "YTO", depart_months: "2026-12"/);
+  assert.match(seen[0], /origin: "YTO", depart_months: "2026-12-01"/);
   const by = Object.fromEntries(r.records.map(x => [x.destination, x]));
   assert.deepEqual(Object.keys(by).sort(), ['LIS', 'MDE']);
   assert.equal(by.MDE.priceUsd, 300);
@@ -103,4 +103,19 @@ test('standard scheduled event from the globevoy-fare-map rule is recognised; ot
   const ev = (rule) => ({ source: 'aws.events', 'detail-type': 'Scheduled Event', resources: [`arn:aws:events:us-east-2:216241083409:rule/${rule}`], detail: {} });
   assert.equal(job.isFareMapEvent(ev('globevoy-fare-map-every-5-min')), true);
   assert.equal(job.isFareMapEvent(ev('some-other-rule')), false);
+});
+
+test('prices are converted from the Travelpayouts currency (RUB by default) like the existing code', async () => {
+  const r = await ingest.ingestOriginMonth({ origin: 'YTO', month: '2026-12', token: 't', fetch: tpFetch([[{ destination_city_iata: 'MDE', value: 30000 }]]) });
+  assert.equal(r.records[0].priceUsd, Math.round(30000 * 0.011));
+});
+
+test('GraphQL errors are reported with detail and recorded on the cursor', async () => {
+  const dynamo = fakeDynamo();
+  const fetch = async () => ({ ok: true, status: 200, text: async () => JSON.stringify({ errors: [{ message: 'bad depart_months' }] }) });
+  const r = await job.runFareMapJob({ env: ENV, dynamo, fetch, origins: ['YTO'], pauseMs: 0, maxTasks: 1 });
+  assert.equal(r.failures, 1);
+  assert.equal(r.lastReason, 'travelpayouts-200-graphql-error');
+  const cur = dynamo.items.get('META#job|cursor');
+  assert.match(cur.lastRun.S, /bad depart_months/);
 });
