@@ -75,6 +75,13 @@ test('Ignav booking links: exact-flight first, https only, no commission claim',
   assert.equal(result.links[0].providerName, 'TAP');
   assert.equal(result.links[0].specificity, 'exact_flight');
   assert.equal(result.links.every(link => link.commissionEarned === false), true);
+  assert.equal(result.unknownSpecificityCount, 0);
+  assert.equal(result.airlineDirectCount, 1);
+  assert.equal(result.cheapestLink.providerName, 'Some OTA');
+  const noSpec = await ignav.getBookingLinks('cheapest0001', { env: ENV, fetchFn: mockFetch(200, { booking_options: [{ links: [{ provider_name: 'FlightHub', provider_type: 'third_party', price: { amount: 482, currency: 'CAD' }, url: 'https://www.flighthub.com/x' }] }] }) });
+  assert.equal(noSpec.exactFlightLinkCount, 0);
+  assert.equal(noSpec.unknownSpecificityCount, 1);
+  assert.equal(noSpec.cheapestLink.amount, 482);
   const invalid = await ignav.getBookingLinks('bad id!', { env: ENV, fetchFn: mockFetch(200, payload) });
   assert.equal(invalid.reason, 'invalid-ignav-id');
 });
