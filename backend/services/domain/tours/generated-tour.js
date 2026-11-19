@@ -3596,9 +3596,9 @@ async function getGeneratedTour(query = {}, options = {}) {
   if(preview&&!(Array.isArray(result?.tours)&&result.tours.length)){
     // Preview only: while the fare map is still filling, fall back to the existing
     // search rather than an empty page, and say so in the response.
-    const reason=result?.reason||'fare-map-no-route';
+    const reason=result?.reason||'fare-map-no-route',fareMapDiagnostics=result?.diagnostics||null;
     result=await getGeneratedTourCore(query);mapEnabled=false;
-    if(result&&typeof result==='object')result.fareMapFallback=reason;
+    if(result&&typeof result==='object'){result.fareMapFallback=reason;result.fareMapDiagnostics=fareMapDiagnostics;}
   }
   if(preview&&result&&typeof result==='object')result.fareMapPreview=true;
 
