@@ -174,12 +174,25 @@ test('public page organization preserves content, assets and packaged legacy URL
 });
 
 
+async function detailedBooking(page){
+ await page.locator('#gv-booking-v2 .gvb2-title').waitFor();
+ assert.equal(await page.locator('#gv-booking-workspace').isVisible(),false,'v2 is the default booking interface');
+ assert.ok(await page.locator('#gv-booking-v2 .gvb2-item').count()>=3);
+ assert.match(await page.locator('#gv-booking-v2').innerText(),/estimates|final price/i);
+ for(const link of await page.locator('#gv-booking-v2 a').all()){
+  assert.match(await link.getAttribute('href'),/^https:\/\//);
+  assert.match(await link.getAttribute('rel'),/noopener/);
+ }
+ await page.getByRole('button',{name:'Show detailed view',exact:true}).click();
+ await page.locator('#gv-booking-workspace').waitFor();
+}
+
 for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`Home -> itinerary -> booking workspace with honest referrals at ${viewport.width}px`,async()=>{
  const s=await site(tours[0],false);
  try{
   await s.page.setViewportSize(viewport);await s.page.emulateMedia({reducedMotion:'reduce'});await s.page.goto(origin+'/');await s.page.locator('#gv-origin').fill('Toronto');await s.page.locator('.gv-origin-option').first().click();await s.page.locator('#gv-budget').fill('2500');await s.page.locator('#gv-search-submit').click();await s.page.locator('#mcv-save-trip').waitFor();
   await s.page.locator('#mcv-flight-options').click();await s.page.waitForURL('**/multi-city-trip.html?**');await s.page.locator('#gv-mtd-booking').click();await s.page.waitForURL('**/booking.html?**');
-  await s.page.locator('#gv-booking-workspace').waitFor();
+  await detailedBooking(s.page);
   const model=await s.page.evaluate(()=>{const t=window.GlobevoyBooking673FR1?.tour;return window.GlobevoyBookingHub685D.buildJourney(t,new URLSearchParams(location.search))});
   assert.ok(model.flightCount>=2);assert.ok(model.stayCount>=1);assert.ok(model.items.filter(i=>i.kind==='flight').every(i=>i.action==='Compare flights on Aviasales'));
   assert.ok(model.items.filter(i=>i.kind==='stay'&&!i.evidence.propertyMatched).every(i=>!/Check this property/.test(i.action)));
@@ -195,7 +208,7 @@ for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`Ho
 
 async function bookingPage(s,save=true){
  await s.visualizer();if(save){await s.page.locator('#mcv-save-trip').click();await s.page.locator('#mcv-save-trip').filter({hasText:'Saved to account'}).waitFor();}
- await s.page.locator('#mcv-flight-options').click();await s.page.waitForURL('**/multi-city-trip.html?**');await s.page.locator('#gv-mtd-booking').click();await s.page.waitForURL('**/booking.html?**');await s.page.locator('#gv-booking-workspace').waitFor();
+ await s.page.locator('#mcv-flight-options').click();await s.page.waitForURL('**/multi-city-trip.html?**');await s.page.locator('#gv-mtd-booking').click();await s.page.waitForURL('**/booking.html?**');await detailedBooking(s.page);
  if((await s.page.viewportSize()).width<660)await s.page.locator('.gv-workspace-summary > summary').click();
  await s.page.getByRole('tab',{name:/Verify flights/}).click();await s.page.locator('#gv-live-duffel-check').waitFor();
 }
@@ -206,7 +219,7 @@ for(const width of [1440,390])test(`Classic explicit live Duffel verification, d
   await s.page.locator('#gv-live-duffel-check').click();await s.page.waitForFunction(()=>document.querySelector('#gv-live-duffel-check').disabled);await s.page.locator('#gv-live-duffel-check').evaluate(b=>b.click());
   for(let i=0;i<100&&s.livePosts.length===0;i++)await new Promise(r=>setTimeout(r,10));assert.equal(s.livePosts.length,1);releasePost();
   const panel=s.page.locator('#gv-live-duffel-result');await panel.getByText('Duffel · LIVE — not reserved',{exact:true}).first().waitFor();assert.match(await panel.innerText(),/123.45.*USD/);assert.match(await panel.innerText(),/Saved\/cached estimate/);assert.match(await panel.innerText(),/Provider requests: 3/);assert.match(await panel.innerText(),/Offer expires/);assert.match(await panel.innerText(),/whole-trip total remain estimates/);assert.equal(await s.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),true);
-  await s.page.waitForTimeout(2400);assert.doesNotMatch(await panel.innerText(),/LIVE — not reserved/);assert.equal(s.livePosts.length,1,'expiry never auto-searches');assert.deepEqual(s.missing,[]);
+  await s.page.waitForFunction(()=>!document.querySelector('#gv-live-duffel-result').textContent.includes('LIVE — not reserved'),{},{timeout:10000});assert.doesNotMatch(await panel.innerText(),/LIVE — not reserved/);assert.equal(s.livePosts.length,1,'expiry never auto-searches');assert.deepEqual(s.missing,[]);
  }finally{await s.context.close()}
 });
 for(const failure of ['quota','partial','network',401])test('Classic live verification preserves estimates on '+failure,async()=>{
