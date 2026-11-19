@@ -1,7 +1,7 @@
 name: Full website Docker demo
 on:
   pull_request:
-    branches: [main, codex/gv-docker-002-full-website-fargate]
+    branches: [main, codex/fare-map-integration, codex/gv-docker-002-full-website-fargate]
     paths:
       - 'Dockerfile.fargate-demo*'
       - 'backend/**'
