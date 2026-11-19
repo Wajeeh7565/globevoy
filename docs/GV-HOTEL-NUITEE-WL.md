@@ -4,7 +4,7 @@ Status: on `main`, **off by default**. Search only: no Prebook, no booking, no p
 
 ## What it does
 - `backend/services/domain/live-fares/nuitee-live-stays.js` prices each stay of the **final selected tour** with Nuitee `POST /hotels/rates` (city + exact stay dates + occupancy, request currency).
-- Picks a well-rated hotel (review ≥ 7.5 when available), preferring refundable if within 15% of the cheapest; skips offers with excluded/payable-at-hotel fees.
+- Picks the cheapest hotel rated 7.0+ (when any are rated) from up to 50 results; refundable only breaks exact ties; skips offers with excluded/payable-at-hotel fees.
 - Per stop, fail-closed: no usable production rate → the stop keeps its previous hotel, estimate and Agoda link.
 - The stay gets `hotel.nuiteeWhitelabel.url` → `https://<whitelabel>/hotels/{hotelId}?checkin&checkout&occupancies=<base64>`; `partner-links.js` exposes it as `hotel.booking.whitelabel`. Agoda remains as "Compare stays on Agoda".
 - Booking page (`frontend/scripts/booking-ignav-links.js`) adds **Book this hotel ↗** on those stays.

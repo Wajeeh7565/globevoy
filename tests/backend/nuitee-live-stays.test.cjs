@@ -146,3 +146,13 @@ test('final-tour pass copies live hotels into cities/stays/legs views', async ()
   assert.equal(r.tour.legs[1].from.hotel.name, 'Good Value');
   assert.equal(r.tour.cities[1].hotel.name, 'stale');
 });
+
+test('chooseOffer: cheapest 7.0+ hotel wins over pricier refundable; low-rated cheap is skipped', () => {
+  const payload = (rows) => ({ data: rows.map(r => r.rate), hotels: rows.map(r => r.hotel) });
+  const pick = _internal.chooseOffer(payload([
+    rateHotel('a', 'Cheap bad', 6.2, 300, 'NRFN'),
+    rateHotel('b', 'OK value', 7.3, 600, 'NRFN'),
+    rateHotel('c', 'Refundable', 8.6, 650, 'RFN')
+  ]), 'CAD');
+  assert.equal(pick.hotelId, 'b');
+});
