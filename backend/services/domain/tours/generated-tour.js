@@ -3583,8 +3583,15 @@ async function getGeneratedTour(query = {}, options = {}) {
   const baseEnv=options.env||process.env;
   const preview=!fareMap.enabled(baseEnv)&&fareMapPreviewRequested(query,baseEnv);
   if(preview)options={...options,env:{...baseEnv,ENABLE_FARE_MAP_OPTIMIZER:'true'}};
-  const mapEnabled=fareMap.enabled(options.env);
-  const result=mapEnabled?await getFareMapGeneratedTour(query,options):await getGeneratedTourCore(query);
+  let mapEnabled=fareMap.enabled(options.env);
+  let result=mapEnabled?await getFareMapGeneratedTour(query,options):await getGeneratedTourCore(query);
+  if(preview&&!(Array.isArray(result?.tours)&&result.tours.length)){
+    // Preview only: while the fare map is still filling, fall back to the existing
+    // search rather than an empty page, and say so in the response.
+    const reason=result?.reason||'fare-map-no-route';
+    result=await getGeneratedTourCore(query);mapEnabled=false;
+    if(result&&typeof result==='object')result.fareMapFallback=reason;
+  }
   if(preview&&result&&typeof result==='object')result.fareMapPreview=true;
 
   // Same party normalisation the pipeline uses (string counts, rooms default).

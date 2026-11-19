@@ -67,7 +67,7 @@ function makeTour(state,origin,budget,query,options={}){
   stops.push(stop);
  }
  const nodes=[origin,...stops,origin];
- const legs=state.edges.map((f,i)=>priceTransportLeg({legNumber:i+1,from:nodes[i],to:nodes[i+1],mode:'flight',transportType:'flight',departureDate:f.departureDate,dateLabel:f.departureDate,distanceKm:Math.round(legacy._internal.haversineKm(nodes[i],nodes[i+1])),durationMinutes:f.durationMinutes,estimateSource:'fare-map-cached-per-passenger',estimatedFlightUsd:f.priceUsd,estimatedTransportUsd:f.priceUsd,providerVerificationRequired:true,liveFareVerified:false,providerDateEvidence:{source:'travelpayouts-cached',sourceType:'CACHED',provider:'travelpayouts',origin:f.origin,destination:f.destination,departureDate:f.departureDate,observedAt:f.observedAt,amountUsd:f.priceUsd,currency:'USD',appliedToEstimate:true,productionEligible:false,exactAirportMatch:false,providerBacked:false}},query,{unitAmountUsd:f.priceUsd}));
+ const legs=state.edges.map((f,i)=>priceTransportLeg({legNumber:i+1,from:nodes[i],to:nodes[i+1],mode:'flight',transportType:'flight',departureDate:f.departureDate,dateLabel:f.departureDate,distanceKm:Math.round(legacy._internal.haversineKm(nodes[i],nodes[i+1])),durationMinutes:f.durationMinutes,estimateSource:'fare-map-cached-per-passenger',estimatedFlightUsd:f.priceUsd,estimatedTransportUsd:f.priceUsd,providerVerificationRequired:true,liveFareVerified:false,providerDateEvidence:{...(f.dateEstimated?{dateEstimated:true,basis:'month-cheapest-plus-buffer',monthCheapestUsd:f.monthCheapestUsd}:{}),source:'travelpayouts-cached',sourceType:'CACHED',provider:'travelpayouts',origin:f.origin,destination:f.destination,departureDate:f.departureDate,observedAt:f.observedAt,amountUsd:f.priceUsd,currency:'USD',appliedToEstimate:true,productionEligible:false,exactAirportMatch:false,providerBacked:false}},query,{unitAmountUsd:f.priceUsd}));
  const flights=legs.reduce((s,l)=>s+l.estimatedTransportUsd,0),hotels=stops.reduce((s,t)=>s+t.hotel.estimatedStayUsd,0),reserve=Math.round(budget*.10),total=flights+hotels;
  return attachTourPresentation({tourId:'gv-fare-map-'+state.key.replace(/[^A-Za-z0-9-]/g,'-'),origin,stops,legs,passengerPricing:normalizeParty(query),totalNights:stops.reduce((s,t)=>s+t.nights,0),tripDurationNights:days(state.edges[0].departureDate,state.edges.at(-1).departureDate),estimatedTotalUsd:total,totalFlightEstimateUsd:flights,totalTransportEstimateUsd:flights,totalHotelEstimateUsd:hotels,totalBudgetUsd:budget,reservePercent:.1,reserveAmountUsd:reserve,usableTripBudgetUsd:budget-reserve,amountLeftUsd:budget-reserve-total,affordabilityStatus:total<=budget-reserve?'within-protected-budget':'over-protected-budget',selectionSource:'fare-map-beam',pricingStatus:'cached-flight-and-estimated-hotel-planning',providerVerificationRequired:true,routeExplanation:['All three route/date observations exist in the fare map; cached fares do not establish available flights.','Hotel nights conservatively cover the entire departure-to-departure interval. Actual arrival dates and hotel check-in must be verified before booking.','A 10% personal expense reserve remains protected.'],fareMap:{version:VERSION,completeCachedLegs:3,arrivalDatesVerified:false,hotelDatesRequireVerification:true,durationChoices:options.durationChoices||[days(state.edges[0].departureDate,state.edges.at(-1).departureDate)]},editableActions:{removeStop:false,replaceStop:true,addStop:false,reorderStops:false,undo:true}},query);
 }
@@ -87,7 +87,10 @@ async function search(query={},options={}){
  const preferred=(Array.isArray(query.preferredStops)?query.preferredStops:String(query.preferredStops||'').split(',')).map(x=>String(x).trim().toLowerCase()).filter(Boolean);
  if(preferred.length>2)return response([],'two-destination-mvp-only');
  if(query.destinationCount&&Number(query.destinationCount)!==2)return response([],'two-destination-mvp-only');
- const durations=durationChoices(query),nights=Math.max(...durations),budget=legacy._internal.normalizeBudgetUsd(query),party=normalizeParty(query);
+ const durations=durationChoices(query),nights=Math.max(...durations),
+  // One cached date per city pair per month: an exact-length match is rare, so flexible
+  // searches accept any length in the range; an explicit night count stays exact.
+  durationOk=n=>durations.length===1?n===durations[0]:n>=Math.min(...durations)&&n<=nights,budget=legacy._internal.normalizeBudgetUsd(query),party=normalizeParty(query);
  if(!Number.isFinite(budget)||budget<=0)return response([],'invalid-fx-configuration');
  requested={origin,budgetUsd:budget,reservePercent:.1,reserveAmountUsd:Math.round(budget*.1),usableTripBudgetUsd:budget-Math.round(budget*.1),totalNights:durations.length===1?nights:null,durationChoices:durations,maxStops:2,theme:query.theme||query.preference||null,displayBudget:buildDisplayBudget({query,totalBudgetUsd:budget,reservePercent:.1,tripUsd:0})};
  const now=options.now??Date.now(),clock=options.clock||Date.now,started=clock(),timeBudget=Math.min(5000,options.timeBudgetMs||1800),deadline=started+timeBudget;
@@ -137,7 +140,22 @@ async function search(query={},options={}){
   })();
   pending.set(key,work);try{return await work}finally{pending.delete(key)}
  }
- async function fares(o,ms){const result=[];for(const m of ms)result.push(...await partition(o,m));return result;}
+ async function fares(o,ms){return (await Promise.all(ms.map(m=>partition(o,m)))).flat();}
+  function completeRoute(state,fare,first){
+      if(fare.destination!==originCode||!durationOk(days(first,fare.departureDate))||query.returnDate&&fare.departureDate!==query.returnDate)return false;
+      if(preferred.some(id=>!state.cities.some(c=>c.unifiedRegistry.cityId.toLowerCase()===id)))return false;
+      diagnostics.completeRoutes++;
+      const candidate={...state,edges:[...state.edges,fare]};const tour=makeTour(candidate,origin,budget,query,{...options,now,durationChoices:durations});
+      if(!tour){diagnostics.missingHotelEvidence=(diagnostics.missingHotelEvidence||0)+1;return false;}
+      if(tour.estimatedTotalUsd>tour.usableTripBudgetUsd)return false;
+      const evaluated=evaluateTour(tour,query);if(!evaluated.accepted||recommendationEligibility(evaluated.tour,query).hardBlocked){diagnostics.rejectedRules++;return false}
+      const comfortPenalty=String(query.flightComfort||'').toLowerCase()==='comfortable'?candidate.edges.reduce((sum,f)=>sum+(Number.isFinite(f.stops)?f.stops*25:25)+(Number.isFinite(f.durationMinutes)?f.durationMinutes/60:12),0):0;
+      const qualityPenalty=tour.stops.reduce((sum,s)=>sum+(s.hotel.costEvidence.quality.verified?-(s.hotel.costEvidence.quality.reviewScore||0)*2:0),0);
+      tour.fareMap.scoreEvidence={costUsd:tour.estimatedTotalUsd,comfortPenalty,hotelQualityPenalty:qualityPenalty,unknownFlightComfort:candidate.edges.some(f=>f.stops==null||f.durationMinutes==null)};
+      complete.push({estimatedDate:!!fare.dateEstimated,cities:state.cities,cost:tour.estimatedTotalUsd,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}});
+      if(complete.length>128)complete=pickDiverse(complete,64);
+      return true;
+  }
  let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[];
  try {
   for(let depth=0;depth<=DESTINATION_COUNT&&beam.length;depth++){
@@ -157,22 +175,9 @@ async function search(query={},options={}){
      if(depth===0&&(fare.departureDate<windowStart||fare.departureDate>=windowEnd))continue;
      const first=depth?state.edges[0].departureDate:fare.departureDate;
      if(days(first,fare.departureDate)>nights)continue;
-     if(depth){const previous=state.edges.at(-1),transitDays=Math.max(1,Math.ceil((previous.durationMinutes||0)/1440));if(!stayValid(state.cities.at(-1),days(previous.departureDate,fare.departureDate)-transitDays))continue;}
-     if(depth===DESTINATION_COUNT){
-      if(fare.destination!==originCode||!durations.includes(days(first,fare.departureDate))||query.returnDate&&fare.departureDate!==query.returnDate)continue;
-      if(preferred.some(id=>!state.cities.some(c=>c.unifiedRegistry.cityId.toLowerCase()===id)))continue;
-      diagnostics.completeRoutes++;
-      const candidate={...state,edges:[...state.edges,fare]};const tour=makeTour(candidate,origin,budget,query,{...options,now,durationChoices:durations});
-      if(!tour){diagnostics.missingHotelEvidence=(diagnostics.missingHotelEvidence||0)+1;continue;}
-      if(tour.estimatedTotalUsd>tour.usableTripBudgetUsd)continue;
-      const evaluated=evaluateTour(tour,query);if(!evaluated.accepted||recommendationEligibility(evaluated.tour,query).hardBlocked){diagnostics.rejectedRules++;continue}
-      const comfortPenalty=String(query.flightComfort||'').toLowerCase()==='comfortable'?candidate.edges.reduce((sum,f)=>sum+(Number.isFinite(f.stops)?f.stops*25:25)+(Number.isFinite(f.durationMinutes)?f.durationMinutes/60:12),0):0;
-      const qualityPenalty=tour.stops.reduce((sum,s)=>sum+(s.hotel.costEvidence.quality.verified?-(s.hotel.costEvidence.quality.reviewScore||0)*2:0),0);
-      tour.fareMap.scoreEvidence={costUsd:tour.estimatedTotalUsd,comfortPenalty,hotelQualityPenalty:qualityPenalty,unknownFlightComfort:candidate.edges.some(f=>f.stops==null||f.durationMinutes==null)};
-      complete.push({cities:state.cities,cost:tour.estimatedTotalUsd,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}});
-      if(complete.length>128)complete=pickDiverse(complete,64);
-      continue;
-     }
+     if(depth===DESTINATION_COUNT&&fare.destination===originCode){diagnostics.returnFares=(diagnostics.returnFares||0)+1;if(!state.returnSeed||fare.priceUsd<state.returnSeed.priceUsd)state.returnSeed=fare;}
+     if(depth){const previous=state.edges.at(-1),transitDays=Math.max(1,Math.ceil((previous.durationMinutes||0)/1440));if(!stayValid(state.cities.at(-1),days(previous.departureDate,fare.departureDate)-transitDays)){if(depth===DESTINATION_COUNT&&fare.destination===originCode)diagnostics.returnStayRejected=(diagnostics.returnStayRejected||0)+1;continue;}}
+     if(depth===DESTINATION_COUNT){if(completeRoute(state,fare,first))state.completed=true;continue;}
      const row=map.get(fare.destination);if(!row||state.cities.some(c=>code(c)===fare.destination))continue;
      if(depth===1)diagnostics.expandedPairs++;
      const record=row.unifiedRegistry;
@@ -184,14 +189,36 @@ async function search(query={},options={}){
      const theme=String(query.theme||query.preference||'').toLowerCase(),themeScore=Number(row.unifiedRegistry?.cityIntelligence?.themeScores?.[theme]||row.cityIntelligence?.themeScores?.[theme]||0);
      next.push({preferencePenalty:([ ...state.cities,row ].some(c=>preferred.includes(c.unifiedRegistry.cityId.toLowerCase()))?-budget:0)-themeScore*2,cities:[...state.cities,row],edges:[...state.edges,fare],lastCode:fare.destination,cost,key:state.key+'>'+record.cityId+'@'+fare.departureDate});
     }
+    if(depth===DESTINATION_COUNT&&!state.completed&&state.returnSeed&&!stopped()){
+     // The fare map keeps one cheapest date per pair and month, so the cached return date
+     // rarely fits the stay. Plan the return inside the city's recommended stay instead,
+     // priced from that month's cheapest fare plus a buffer, and label it an estimate;
+     // the selected trip is live-checked on these exact dates before it is verified.
+     const previous=state.edges.at(-1),seed=state.returnSeed,first=state.edges[0].departureDate,d=state.cities.at(-1)?.unifiedRegistry?.destination||{};
+     const transit=Math.max(1,Math.ceil((previous.durationMinutes||0)/1440)),lo=Math.max(2,Number(d.minimumRecommendedNights)||2),hi=Math.min(35,Number(d.maximumRecommendedNights)||35);
+     for(const n of [Math.round((lo+hi)/2),lo,hi]){
+      const ret=plus(previous.departureDate,transit+n);
+      if(ret.slice(0,7)!==seed.departureDate.slice(0,7)||ret>=horizon||!durationOk(days(first,ret))||query.returnDate&&ret!==query.returnDate)continue;
+      diagnostics.estimatedReturnDates=(diagnostics.estimatedReturnDates||0)+1;
+      if(completeRoute(state,{...seed,departureDate:ret,priceUsd:Math.round(seed.priceUsd*1.3),monthCheapestUsd:seed.priceUsd,dateEstimated:true},first))break;
+     }
+    }
    }
-   beam=temporalBeam(next,Math.min(64,Math.max(7,options.beamWidth||32)));
+   const width=Math.min(64,Math.max(7,options.beamWidth||32));
+   if(depth===DESTINATION_COUNT-1){
+    // The return leg needs the second city's partitions. Under a fixed read budget, keep
+    // routes whose second city was already read as a first stop (cache hits) alongside new ones.
+    const cachedReturn=s=>months(s.edges.at(-1).departureDate,plus(s.edges[0].departureDate,nights)).every(m=>cache.has(s.lastCode+'#'+m));
+    const warm=next.filter(cachedReturn),cold=next.filter(s=>!cachedReturn(s));
+    const warmPick=temporalBeam(warm,Math.min(warm.length,Math.ceil(width*.75)));
+    beam=[...warmPick,...temporalBeam(cold,Math.max(0,width-warmPick.length))];
+   } else beam=temporalBeam(next,width);
    diagnostics.peakRetainedComplete=Math.max(diagnostics.peakRetainedComplete||0,complete.length);
   }
  }finally{clearTimeout(timer)}
  if(controller.signal.aborted)diagnostics.bounded=true;
- const distinct=new Map();for(const s of complete){const key=s.cities.map(code).join('>');const old=distinct.get(key);if(!old||s.cost+s.preferencePenalty<old.cost+old.preferencePenalty)distinct.set(key,s);}
- const ranked=[...distinct.values()].sort((a,b)=>a.cost-b.cost||a.key.localeCompare(b.key)),cheapest=ranked[0];
+ const distinct=new Map();for(const s of complete){const key=s.cities.map(code).join('>');const old=distinct.get(key);if(!old||old.estimatedDate&&!s.estimatedDate||old.estimatedDate===s.estimatedDate&&s.cost+s.preferencePenalty<old.cost+old.preferencePenalty)distinct.set(key,s);}
+ const ranked=[...distinct.values()].sort((a,b)=>a.estimatedDate-b.estimatedDate||a.cost-b.cost||a.key.localeCompare(b.key)),cheapest=ranked[0];
  const alternatives=cheapest?ranked.slice(1).map(s=>({...s,preferencePenalty:(s.preferencePenalty||0)+s.cities.reduce((sum,c)=>sum+(cheapest.cities.some(x=>code(x)===code(c))?75:0),0)})):[];
  const picked=(cheapest?[cheapest,...pickDiverse(alternatives,2)]:[]).map((s,i)=>({...s.tour,tourRole:['lowest-cost','best-balance','most-memorable'][i],tourRoleLabel:['Lowest cost','Diverse alternative','Another route idea'][i]}));
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
