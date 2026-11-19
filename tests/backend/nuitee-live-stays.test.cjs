@@ -93,3 +93,34 @@ test('booking data exposes the White Label link and keeps Agoda as comparison', 
 test('whitelabelUrl rejects unsafe ids', () => {
   assert.equal(_internal.whitelabelUrl('x.nuitee.link', '../evil', '2027-01-01', '2027-01-02', []), '');
 });
+
+// R1: the tour the user sees may come from rescue/recovery; price it at the end.
+const { _priceFinalTourWithNuitee } = require('../../backend/services/domain/tours/generated-tour');
+function finalResult() { const t = tour(); return { ok: true, tour: t, tours: [t], diagnostics: {} }; }
+
+test('final-tour pass prices the returned (shown) tour and its tours[] entry', async () => {
+  const fetch = mockFetch({ Lisbon: [rateHotel('lpB', 'Good Value', 8.4, 520)], Budapest: [rateHotel('lpD', 'Danube Inn', 8.0, 410)] });
+  const r = await _priceFinalTourWithNuitee(finalResult(), { ...QUERY, budget: '20000' }, { env: ENV, getSecretValue: prodSecret, fetch });
+  assert.equal(r.diagnostics.nuiteeLiveStays.appliedCount, 2);
+  assert.equal(r.diagnostics.nuiteeLiveStays.finalTourPass, true);
+  assert.equal(r.tours[0], r.tour);
+  assert.ok(r.tour.stops[0].hotel.nuiteeWhitelabel.url);
+});
+
+test('final-tour pass keeps estimates when live rates break the budget', async () => {
+  const fetch = mockFetch({ Lisbon: [rateHotel('lpC', 'Luxury', 9.5, 9000)], Budapest: [] });
+  const base = finalResult();
+  const r = await _priceFinalTourWithNuitee(base, { ...QUERY, budget: '2500' }, { env: ENV, getSecretValue: prodSecret, fetch });
+  assert.equal(r.tour, base.tour);
+  assert.equal(r.diagnostics.nuiteeLiveStays.reason, 'nuitee-final-tour-over-budget-kept-estimate');
+});
+
+test('final-tour pass does not re-price an already priced tour, and is off when disabled', async () => {
+  let calls = 0; const spy = async () => { calls++; return { tour: null, summary: {} }; };
+  const priced = finalResult(); priced.tour.stops[0].hotel.nuiteeLiveRate = { amount: 1 };
+  await _priceFinalTourWithNuitee(priced, QUERY, { env: ENV, applyNuiteeLiveStays: spy });
+  const off = finalResult();
+  const r = await _priceFinalTourWithNuitee(off, QUERY, { env: {}, applyNuiteeLiveStays: spy });
+  assert.equal(calls, 0);
+  assert.equal(r, off);
+});

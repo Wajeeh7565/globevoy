@@ -2795,7 +2795,7 @@ async function attemptBudgetSafeRouteRecovery669c(routeQuery = {}, liveVerificat
   };
 }
 
-async function getGeneratedTour(query = {}) {
+async function getGeneratedTourCore(query = {}) {
   // GV-PERF-R3: request-local response diagnostics only. Stage durations are
   // monotonic wall time; selection may already include provider/date enrichment.
   const startedR3 = process.hrtime.bigint();
@@ -3460,6 +3460,43 @@ async function getGeneratedTour(query = {}) {
   return responseR3;
 }
 
+
+// GV-HOTEL-NUITEE-WL-001-R1: the trip the user actually sees can come from a
+// rescue, budget recovery or fallback path that never ran the in-pipeline
+// Nuitee step. Price the FINAL returned tour here, once, and keep the live
+// rates only when the trip still fits the user's budget (otherwise keep the
+// estimate + Agoda link, unchanged).
+function hasNuiteeRates(tour) {
+  return Boolean((tour?.stops || []).some(stop => stop?.hotel?.nuiteeLiveRate));
+}
+
+async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
+  if (!result || result.ok !== true || !result.tour || !nuiteeLiveStaysStatus(options.env).enabled) return result;
+  if (hasNuiteeRates(result.tour)) return result;
+  let live;
+  try { live = await (options.applyNuiteeLiveStays || applyNuiteeLiveStays)(result.tour, query, options); }
+  catch (_) { live = { tour: result.tour, summary: { ...nuiteeLiveStaysStatus(options.env), attempted: true, applied: false, reason: 'nuitee-unexpected-error' } }; }
+  const summary = { ...(live?.summary || {}), finalTourPass: true };
+  const diagnostics = { ...(result.diagnostics || {}) };
+  if (!summary.applied || !live.tour) {
+    diagnostics.nuiteeLiveStays = summary;
+    return { ...result, diagnostics };
+  }
+  if (isOverUserBudgetStrict684BR3(live.tour, query)) {
+    diagnostics.nuiteeLiveStays = { ...summary, applied: false, appliedCount: 0, reason: 'nuitee-final-tour-over-budget-kept-estimate' };
+    return { ...result, diagnostics };
+  }
+  diagnostics.nuiteeLiveStays = summary;
+  const original = result.tour;
+  const tours = Array.isArray(result.tours) ? result.tours.map(t => (t === original ? live.tour : t)) : result.tours;
+  return { ...result, tour: live.tour, tours, diagnostics };
+}
+
+async function getGeneratedTour(query = {}, options = {}) {
+  const result = await getGeneratedTourCore(query);
+  return priceFinalTourWithNuitee(result, query, options);
+}
+
 module.exports = {
   GENERATED_TOUR_VERSION,
   FLEXIBLE_DATE_ENGINE_VERSION_681B_P1,
@@ -3482,6 +3519,7 @@ module.exports = {
   automaticCheapDateTourBuilderEnabled,
   generatedTourEnabled,
   getGeneratedTour,
+  _priceFinalTourWithNuitee: priceFinalTourWithNuitee,
   buildVisualizerTour,
   enrichTourWithCheapFlights,
   automaticMinimumLeadDays680B,
