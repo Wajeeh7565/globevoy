@@ -57,3 +57,15 @@ test('estimate hotel without White Label falls back to Agoda', () => {
   assert.equal(items[1].mainLabel, 'Find a hotel');
   assert.match(items[1].mainUrl, /agoda\.com/);
 });
+
+test('Ignav evidence in canonicalPricing/providerVerification shows as live with the shown amount', () => {
+  const t = tour();
+  t.backendLegs[1] = { from: { city: 'Bogota', code: 'BOG' }, to: { city: 'Toronto', code: 'YYZ' }, departureDate: '2026-12-09',
+    providerVerification: { sourceType: 'LIVE', provider: 'ignav-live-one-way', observedAt: '2026-11-19T09:08:00Z' },
+    canonicalPricing: { kind: 'flight', amountUsd: 151, amountDisplay: 205, currency: 'CAD', evidence: { sourceType: 'LIVE', provider: 'ignav-live-one-way', observedAt: '2026-11-19T09:08:00Z' } } };
+  const { items } = v2.buildItems(t, now);
+  assert.equal(items[2].source, 'Live price · Ignav');
+  assert.equal(items[2].price, 205);
+  assert.equal(items[2].age, 'checked 2 min ago');
+  assert.equal(items[2].mainLabel, 'Book flight');
+});

@@ -59,14 +59,19 @@
     const legs = Array.isArray(tour?.backendLegs) && tour.backendLegs.length ? tour.backendLegs : (Array.isArray(tour?.legs) ? tour.legs : []);
     return legs;
   }
-  function isGround(leg) { return /ground|bus|train|rail|ferry|drive/i.test(String(leg?.mode || leg?.transportType || '')); }
+  function isGround(leg) { return /ground|bus|train|rail|ferry|drive/i.test(String(leg?.mode || leg?.transportType || leg?.canonicalPricing?.kind || '')); }
   function cityName(x) { return String(x?.city || x?.name || x?.code || '').trim(); }
   function code(x) { return String(x?.code || x?.airportCode || x?.iata || '').toUpperCase(); }
 
   function flightRow(leg, cur, now) {
-    const prov = leg?.priceProvenance || {};
-    const live = String(prov.sourceType || '').toUpperCase() === 'LIVE' || leg?.liveFareVerified === true;
-    const usd = num(prov.partyTotalAmountUsd) ?? num(leg?.estimatedTransportUsd) ?? num(leg?.amountUsd);
+    // Evidence can sit in canonicalPricing (shown amount), providerVerification
+    // (667A/Ignav) or priceProvenance (Duffel); use the first that says LIVE.
+    const cp = leg?.canonicalPricing || {};
+    const sources = [cp.evidence, leg?.providerVerification, leg?.priceProvenance].filter(Boolean);
+    const prov = sources.find(x => String(x.sourceType || '').toUpperCase() === 'LIVE') || leg?.priceProvenance || {};
+    const live = String(prov.sourceType || '').toUpperCase() === 'LIVE';
+    const usd = num(cp.amountUsd) ?? num(leg?.priceProvenance?.partyTotalAmountUsd) ?? num(leg?.estimatedTransportUsd) ?? num(leg?.amountUsd);
+    const shown = String(cp.currency || '').toUpperCase() === cur.code ? num(cp.amountDisplay) : null;
     const from = leg?.from || {}, to = leg?.to || {};
     const date = isoDate(leg?.departureDate);
     const liveLinks = leg?.booking?.liveBookingLinks;
@@ -77,7 +82,7 @@
       kind: ground ? 'ground' : 'flight',
       title: `${cityName(from)}${code(from) ? ` (${code(from)})` : ''} → ${cityName(to)}${code(to) ? ` (${code(to)})` : ''}`,
       detail: [dateLabel(date, true), leg?.airline || leg?.operator || ''].filter(Boolean).join(' · '),
-      price: usd != null && cur.fx ? usd * cur.fx : null,
+      price: shown != null ? shown : (usd != null && cur.fx ? usd * cur.fx : null),
       source: live ? `Live price · ${providerName(prov.provider || prov.source) || 'provider'}` : 'Estimated price',
       live,
       age: live ? ageLabel(prov.observedAt || prov.checkedAt, now) : 'confirm on partner site',
