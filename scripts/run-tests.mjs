@@ -19,6 +19,7 @@ const groups = {
     ['node', '--test', 'tests/backend/providers-ignav-agoda-id.test.cjs'],
     ['node', '--test', 'tests/backend/ignav-live-fares.test.cjs'],
     ['node', '--test', 'tests/backend/nuitee-live-stays.test.cjs'],
+    ['node', '--test', 'tests/backend/jinko-compare.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map-optimizer.test.cjs'],
     ['node', '--test', 'tests/backend/six-month-optimizer.test.cjs'],
