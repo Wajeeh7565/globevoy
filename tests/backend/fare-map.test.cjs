@@ -80,7 +80,7 @@ test('job: off by default; resumes from its cursor and wraps at the end of a cyc
   const dynamo = fakeDynamo();
   const fetch = tpFetch([[{ destination_city_iata: 'MDE', value: 300 }]]);
   const opts = { env: ENV, dynamo, fetch, origins: ['YTO', 'YMQ'], pauseMs: 0, now: Date.parse('2026-11-19T00:00:00Z') };
-  const first = await job.runFareMapJob({ ...opts, timeBudgetMs: 1 }); // stops after the first task
+  const first = await job.runFareMapJob({ ...opts, maxTasks: 1 }); // stops after the first task
   assert.equal(first.done, 1);
   assert.equal(first.finishedCycle, false);
   const rest = await job.runFareMapJob({ ...opts, timeBudgetMs: 60000 });
@@ -97,4 +97,10 @@ test('lambda: scheduled fare-map event runs the job (disabled → no-op), HTTP e
   const { handler } = require('../../backend/lambda');
   const r = await handler({ globevoyJob: 'fare-map' });
   assert.equal(r.reason, 'disabled');
+});
+
+test('standard scheduled event from the globevoy-fare-map rule is recognised; other rules are not', () => {
+  const ev = (rule) => ({ source: 'aws.events', 'detail-type': 'Scheduled Event', resources: [`arn:aws:events:us-east-2:216241083409:rule/${rule}`], detail: {} });
+  assert.equal(job.isFareMapEvent(ev('globevoy-fare-map-every-5-min')), true);
+  assert.equal(job.isFareMapEvent(ev('some-other-rule')), false);
 });

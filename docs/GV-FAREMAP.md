@@ -22,7 +22,7 @@ Travelpayouts Data API (GraphQL `prices_one_way`, grouped by direction): cached 
 1. Create DynamoDB table `globevoy-fare-map` (us-east-2), keys `pk` (S) / `sk` (S), on-demand capacity, TTL on `ttl`.
 2. Lambda role: `dynamodb:BatchWriteItem`, `PutItem`, `GetItem`, `Query` on that table.
 3. Lambda env: `FARE_MAP_TABLE=globevoy-fare-map`, `ENABLE_FARE_MAP_JOB=true`.
-4. EventBridge Scheduler: every 5 minutes → Lambda `globevoy-recommendations`, input `{"globevoyJob":"fare-map"}`.
+4. Schedule every 5 minutes: either an EventBridge rule named `globevoy-fare-map…` (Lambda → Add trigger → EventBridge, `rate(5 minutes)`), or EventBridge Scheduler with input `{"globevoyJob":"fare-map"}`.
 
 Cost: a few dollars/month (on-demand writes of ~100k rows/cycle, small storage).
 

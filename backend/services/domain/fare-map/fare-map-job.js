@@ -31,6 +31,7 @@ async function runFareMapJob(options = {}) {
   const started = Date.now();
   const timeBudget = Number(options.timeBudgetMs) || Number(env.FARE_MAP_TIME_BUDGET_MS) || DEFAULT_TIME_BUDGET_MS;
   const pause = options.pauseMs ?? DEFAULT_PAUSE_MS;
+  const maxTasks = Number(options.maxTasks) || Infinity;
   const registry = options.registry || require('../../../data/unified-city-registry-1000.json');
   const origins = options.origins || ingest.originCodesFromRegistry(registry);
   const tasks = buildTasks(origins, ingest.upcomingMonths(MONTHS, options.now || Date.now()));
@@ -40,7 +41,7 @@ async function runFareMapJob(options = {}) {
   let cycleStartedAt = index === 0 || !cursor.cycleStartedAt ? new Date(options.now || Date.now()).toISOString() : cursor.cycleStartedAt;
   const summary = { ok: true, ran: true, tasksTotal: tasks.length, startIndex: index, done: 0, written: 0, requests: 0, failures: 0, rateLimited: false };
 
-  while (index < tasks.length && (summary.done === 0 || Date.now() - started < timeBudget)) {
+  while (index < tasks.length && summary.done < maxTasks && (summary.done === 0 || Date.now() - started < timeBudget)) {
     const task = tasks[index];
     const result = await ingest.ingestOriginMonth({ ...task, token: env.TRAVELPAYOUTS_TOKEN, fetch: options.fetch, now: options.now });
     summary.requests += result.requests;
@@ -57,8 +58,13 @@ async function runFareMapJob(options = {}) {
 }
 
 // Scheduled events reach the normal Lambda handler; this recognises them.
+// Either a custom input {"globevoyJob":"fare-map"} (EventBridge Scheduler), or a
+// standard EventBridge "Scheduled Event" from a rule named globevoy-fare-map….
 function isFareMapEvent(event) {
-  return Boolean(event && (event.globevoyJob === 'fare-map' || event?.detail?.globevoyJob === 'fare-map'));
+  if (!event) return false;
+  if (event.globevoyJob === 'fare-map' || event?.detail?.globevoyJob === 'fare-map') return true;
+  return event.source === 'aws.events' && event['detail-type'] === 'Scheduled Event'
+    && Array.isArray(event.resources) && event.resources.some(r => /:rule\/globevoy-fare-map[A-Za-z0-9_.-]*$/.test(String(r)));
 }
 
 module.exports = { FLAG, enabled, runFareMapJob, isFareMapEvent, _internal: { buildTasks } };
