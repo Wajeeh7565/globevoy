@@ -3575,21 +3575,43 @@ async function getFareMapGeneratedTour(query,options) {
   }
   return {selected,arrivalVerified,source:candidateTour};
   };
+  // Live-only (on for farePreview searches; FARE_MAP_REQUIRE_LIVE=true|false overrides): a trip is shown only
+  // when every flight and every hotel came back live. Up to 3 trips are checked,
+  // stopping after ~35 s so the page stays inside the site's 55 s wait.
+  const env=options.env||process.env,liveSetting=String(env.FARE_MAP_REQUIRE_LIVE||'').trim().toLowerCase();
+  const requireLive=liveSetting==='true'||(liveSetting!=='false'&&options.fareMapPreview===true);
+  const party=normalizeParty(query),pricingQuery={...query,adults:party.adults,children:party.children,infants:party.infants,rooms:party.rooms,passengers:party.travellers};delete pricingQuery.travellers;
+  const started=Date.now(),deadlineMs=Number(options.liveCheckDeadlineMs)||35000;
+  const finish=async(candidateTour)=>{
+    const outcome=await attempt(candidateTour);
+    if(outcome.reason)return outcome;
+    if(requireLive&&!outcome.arrivalVerified)return {reason:'fare-map-flights-not-all-live'};
+    const chosen=outcome.selected;
+    const visual=buildVisualizerTour(chosen,{...query,month:chosen.legs[0].departureDate.slice(0,7)},{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
+    visual.fareMap={...(chosen.fareMap||{}),arrivalDatesVerified:outcome.arrivalVerified,hotelDatesRequireVerification:!outcome.arrivalVerified};
+    const guard=evaluateTour(visual,query);
+    if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return {reason:'fare-map-final-business-or-date-guard'};
+    let tour=guard.tour;
+    if(requireLive){
+      const priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,options);
+      diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
+      const stops=priced?.tour?.stops||[];
+      if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live'};
+      tour=priced.tour;
+    }
+    return {tour,arrivalVerified:outcome.arrivalVerified,source:candidateTour};
+  };
   let outcome=null;const liveAttempts=[];
-  for(const candidateTour of result.tours.slice(0,2)){
-    outcome=await attempt(candidateTour);liveAttempts.push(outcome.reason||'ok');
+  for(const candidateTour of result.tours.slice(0,requireLive?3:2)){
+    if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
+    outcome=await finish(candidateTour);liveAttempts.push(outcome.reason||'ok');
     if(!outcome.reason)break;
   }
-  diagnostics.fareMapLiveAttempts=liveAttempts;
-  if(outcome.reason)return {...empty(outcome.reason),diagnostics:{...result.diagnostics,...diagnostics}};
-  selected=outcome.selected;arrivalVerified=outcome.arrivalVerified;
-  const visual=buildVisualizerTour(selected,{...query,month:selected.legs[0].departureDate.slice(0,7)},{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
-  visual.fareMap={...(selected.fareMap||{}),arrivalDatesVerified:arrivalVerified,hotelDatesRequireVerification:!arrivalVerified};
-  const guard=evaluateTour(visual,query);
-  if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return empty('fare-map-final-business-or-date-guard');
-  diagnostics.arrivalDatesVerified=arrivalVerified;
-  const tours=[guard.tour,...result.tours.filter(t=>t!==outcome.source).map(t=>buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}))];
-  return {...result,tour:guard.tour,tours,diagnostics};
+  diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;
+  if(!outcome||outcome.reason)return {...empty(outcome?.reason||'fare-map-no-route'),diagnostics:{...result.diagnostics,...diagnostics}};
+  diagnostics.arrivalDatesVerified=outcome.arrivalVerified;
+  const tours=[outcome.tour,...result.tours.filter(t=>t!==outcome.source).map(t=>buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}))];
+  return {...result,tour:outcome.tour,tours,diagnostics};
 }
 
 // Demo/preview: with ENABLE_FARE_MAP_OPTIMIZER_PREVIEW=true, a request that
@@ -3604,7 +3626,7 @@ async function getGeneratedTour(query = {}, options = {}) {
   const fareMap=require('../fare-map/fare-map-optimizer');
   const baseEnv=options.env||process.env;
   const preview=!fareMap.enabled(baseEnv)&&fareMapPreviewRequested(query,baseEnv);
-  if(preview)options={...options,env:{...baseEnv,ENABLE_FARE_MAP_OPTIMIZER:'true'}};
+  if(preview)options={...options,fareMapPreview:true,env:{...baseEnv,ENABLE_FARE_MAP_OPTIMIZER:'true'}};
   let mapEnabled=fareMap.enabled(options.env);
   let result=mapEnabled?await getFareMapGeneratedTour(query,options):await getGeneratedTourCore(query);
   if(preview&&!(Array.isArray(result?.tours)&&result.tours.length)){
