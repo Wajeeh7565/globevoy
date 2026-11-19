@@ -82,15 +82,15 @@
   }
 
   function decorate(document, tour, fetchFn) {
-    const timeline = document.querySelector('#gv-booking-timeline');
+    const timeline = document.querySelector('#gv-booking-workspace') || document.querySelector('#gv-booking-timeline');
     if (!timeline) return 0;
     const lookups = flightLookups(tour);
-    const flightItems = [...timeline.querySelectorAll('li[data-kind="flight"]')];
+    const flightItems = [...timeline.querySelectorAll('#gv-workspace-panel-2 .gv-workspace-item[data-workspace-item^="flight-"],li[data-kind="flight"]')];
     let added = 0;
     flightItems.forEach((li, i) => {
       const lookup = lookups[i];
       if (!lookup || li.querySelector('.gv-booking-live-options')) return;
-      const side = li.querySelector('.gv-booking-journey-side') || li;
+      const side = li.querySelector('.gv-workspace-item-side,.gv-booking-journey-side') || li;
       const wrap = document.createElement('div');
       wrap.className = 'gv-booking-live-options';
       wrap.innerHTML = '<button type="button" class="gv-booking-journey-action">See live booking options</button><div class="gv-booking-live-result" aria-live="polite"></div>';
@@ -113,17 +113,20 @@
   function start() {
     const document = root.document;
     if (!document) return;
-    let done = false;
     const tryRun = () => {
       const tour = root.GlobevoyBooking673FR1?.tour;
-      if (done || !tour) return false;
-      const timeline = document.querySelector('#gv-booking-timeline');
-      if (!timeline || !timeline.querySelector('li[data-kind="flight"]')) return false;
+      if (!tour) return false;
+      const host = document.querySelector('#gv-booking-workspace') || document.querySelector('#gv-booking-timeline');
+      if (!host || !host.querySelector('[data-workspace-item^="flight-"],li[data-kind="flight"]')) return false;
       decorate(document, tour);
-      done = true;
       return true;
     };
+    // Workspace rendering can replace the legacy cards after tour-ready fires.
+    // Decoration is idempotent; observe actual visible-card insertions, not page loads.
+    const host = document.querySelector('#gv-booking-workspace') || document.querySelector('#gv-booking-timeline');
+    if (host && root.MutationObserver) new root.MutationObserver(tryRun).observe(host, { childList: true, subtree: true });
     root.addEventListener?.('globevoy:booking-tour-ready', () => root.setTimeout?.(tryRun, 0));
+    tryRun();
     let attempts = 0;
     const timer = root.setInterval?.(() => { if (tryRun() || ++attempts > 80) root.clearInterval?.(timer); }, 250);
   }

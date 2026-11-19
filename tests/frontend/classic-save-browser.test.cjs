@@ -215,3 +215,18 @@ for(const failure of ['quota','partial','network',401])test('Classic live verifi
 for(const scenario of ['guest','not-saved','old-backend'])test('Classic live verification blocks '+scenario+' without a provider POST',async()=>{
  const s=await site(tours[0],scenario!=='guest');try{s.live({supported:scenario!=='old-backend'});await bookingPage(s,scenario==='old-backend');await s.page.locator('#gv-live-duffel-check').click();if(scenario!=='guest')await s.page.waitForFunction(()=>document.querySelector('#gv-live-duffel-check').getAttribute('aria-busy')==='false');assert.equal(s.livePosts.length,0);assert.match(await s.page.locator('#gv-live-duffel-result').innerText(),/Sign in|Save this trip|not available on this backend/);}finally{await s.context.close()}
 });
+
+
+test('Ignav options decorate visible Step 2 cards after late render and rerender, without automatic provider calls', async()=>{
+ const context=await browser.newContext(),page=await context.newPage();
+ try {
+  await page.setContent('<div id="gv-booking-workspace"></div><ol id="gv-booking-timeline"><li data-kind="flight"></li></ol>');
+  await page.evaluate(()=>{window.calls=0;window.GLOBEVOY_CONFIG={apiBaseUrl:'https://offline.invalid'};window.GlobevoyBooking673FR1={tour:{backendLegs:[{mode:'flight',booking:{liveBookingLinks:{ignavId:'offlinefixture0',bookingProof:'fixture-proof'}}}]}};window.fetch=async()=>{window.calls++;await new Promise(r=>setTimeout(r,50));return {json:async()=>({ok:true,links:[{providerName:'OFFLINE IGNAV FIXTURE',url:'https://example.invalid/compare',specificity:'unknown'}]})}};});
+  await page.addScriptTag({path:path.resolve('frontend/scripts/booking-ignav-links.js')});
+  for(let render=0;render<2;render++) {
+   await page.evaluate(()=>document.querySelector('#gv-booking-workspace').innerHTML='<section id="gv-workspace-panel-2"><article class="gv-workspace-item" data-workspace-item="flight-0"><div class="gv-workspace-item-side"></div></article></section>');
+   const button=page.getByRole('button',{name:'See live booking options'});await button.waitFor();assert.equal(await button.count(),1);assert.equal(await page.evaluate(()=>window.calls),render);
+   await button.click();await button.evaluate(b=>b.click());await page.getByText('OFFLINE IGNAV FIXTURE',{exact:false}).waitFor();assert.equal(await page.evaluate(()=>window.calls),render+1);
+  }
+ } finally {await context.close()}
+});
