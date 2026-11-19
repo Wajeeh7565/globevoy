@@ -86,21 +86,25 @@ async function readRoutesFrom(origin, month, options = {}) {
   if (!table) return [];
   const db = client(options);
   const out = [];
-  let key;
+  let key, pages = 0;
   do {
     const res = await db.send(cmd('QueryCommand', {
       TableName: table,
       KeyConditionExpression: 'pk = :pk',
-      ExpressionAttributeValues: { ':pk': { S: `F#${origin}#${month}` } },
-      ExclusiveStartKey: key
-    }));
+      ExpressionAttributeValues: { ':pk': { S: `F#${origin}#${month}` }, ':now': { N: String(Math.floor((options.nowMs ?? Date.now()) / 1000)) } },
+      FilterExpression: '#ttl > :now',
+      ExpressionAttributeNames: { '#ttl': 'ttl' },
+      ExclusiveStartKey: key,
+      Limit: options.limit || 1000
+    }), { abortSignal: options.abortSignal });
+    pages++;
     (res?.Items || []).forEach(i => {
       const now=options.nowMs??Date.now(),observed=Date.parse(i.observedAt?.S);
       if(Number(i.ttl?.N)>now/1000&&Number.isFinite(observed)&&observed<=now+60000&&observed>=now-TTL_DAYS*86400000)out.push(fromItem(i));
     });
     key = res?.LastEvaluatedKey;
     if(options.maxRecords&&out.length>=options.maxRecords)return out.slice(0,options.maxRecords);
-  } while (key);
+  } while (key && pages < (options.maxPages || Infinity));
   return out;
 }
 
