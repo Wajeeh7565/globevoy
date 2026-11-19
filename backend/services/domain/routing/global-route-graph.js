@@ -1013,6 +1013,7 @@ async function generateProviderDrivenCandidates(query = {}) {
     .slice(0, MAX_PROVIDER_FIRST_DESTINATIONS);
 
   const candidates = [];
+  let evaluatedProviderPairs = 0;
   const seen = new Set();
   const pairAllocations = allocateNights(nights, 2);
 
@@ -1060,6 +1061,7 @@ async function generateProviderDrivenCandidates(query = {}) {
       .slice(0, 8);
 
     for (const second of secondOptions) {
+      evaluatedProviderPairs += 1;
       const rows = [first.row, second.row];
       const estimate = estimateRoute(origin, rows, pairAllocations, query);
       estimate.transport = Math.round(providerFarePartyTotalUsd(first.observation.fareUsd, query) + providerFarePartyTotalUsd(second.observation.fareUsd, query) + estimate.legs[2].costUsd);
@@ -1091,6 +1093,7 @@ async function generateProviderDrivenCandidates(query = {}) {
       scannedMonths: firstScan.scannedMonths,
       firstLegObservationCount: firstScan.observations.length,
       firstDestinationCount: firstOptions.length,
+      evaluatedProviderPairs,
       feasibleProviderConnectedRouteCount: candidates.length,
       fallbackRequired: candidates.length === 0,
       performanceR4

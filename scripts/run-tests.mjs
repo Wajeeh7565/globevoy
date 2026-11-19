@@ -20,6 +20,7 @@ const groups = {
     ['node', '--test', 'tests/backend/ignav-live-fares.test.cjs'],
     ['node', '--test', 'tests/backend/nuitee-live-stays.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map.test.cjs'],
+    ['node', '--test', 'tests/backend/fare-map-optimizer.test.cjs'],
     ['node', '--test', 'tests/backend/generated-tour-planning-dates.test.cjs'],
     ['node', '--test', 'tests/backend/server-http.test.cjs'],
     ['node', 'backend/validation/validate-gv-rec-687b-p3.js'],

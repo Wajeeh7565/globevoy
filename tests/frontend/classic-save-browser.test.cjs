@@ -230,3 +230,12 @@ test('Ignav options decorate visible Step 2 cards after late render and rerender
   }
  } finally {await context.close()}
 });
+
+
+test('fare-map two-stop MVP renders in the existing guest visualizer without account or provider requests',async()=>{
+ const {fixture}=require('../backend/fare-map-fixtures.cjs'),f=fixture(),prior=process.env.ENABLE_GENERATED_TOUR_651A;
+ process.env.ENABLE_GENERATED_TOUR_651A='true';let result;
+ try{result=await require('../../backend/services/domain/tours/generated-tour').getGeneratedTour(f.query,{env:f.options.env,fareMap:{...f.options,rows:f.rows}})}finally{if(prior===undefined)delete process.env.ENABLE_GENERATED_TOUR_651A;else process.env.ENABLE_GENERATED_TOUR_651A=prior}
+ assert.ok(result.tour);const s=await site(result.tour,false);
+ try{await s.visualizer();await s.page.locator('#mcv-app').waitFor();const actual=await s.page.evaluate(()=>({legs:window.__gvGeneratedTour.backendLegs.length,cities:window.__gvGeneratedTour.cities.length,dates:window.__gvGeneratedTour.itineraryDatePlan,live:window.__gvGeneratedTour.backendLegs.some(l=>l.liveFareVerified)}));assert.equal(actual.legs,3);assert.equal(actual.cities,2);assert.equal(actual.dates.consistent,true);assert.equal(actual.live,false);assert.equal(s.postBodies.length,0)}finally{await s.context.close()}
+});
