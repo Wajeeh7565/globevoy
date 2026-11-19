@@ -88,7 +88,7 @@ test('when live prices rule out the cheapest trip, the next fare-map trip is liv
   else assert.ok(calls<=2);
  }finally{if(old===undefined)delete process.env.ENABLE_GENERATED_TOUR_651A;else process.env.ENABLE_GENERATED_TOUR_651A=old}
 });
-test('live-only: a trip is shown only when every flight and hotel is live; otherwise the next trip is checked',async()=>{
+test('live-only: a fully live trip is preferred; otherwise the next is checked, then the most-live trip is shown',async()=>{
  const f=fixture(),old=process.env.ENABLE_GENERATED_TOUR_651A;process.env.ENABLE_GENERATED_TOUR_651A='true';
  const plus=require('../../backend/services/domain/fare-map/fare-map-optimizer')._internal.plus;
  const env={...f.options.env,FARE_MAP_REQUIRE_LIVE:'true',ENABLE_IGNAV_FLIGHTS:'true',IGNAV_API_KEY:'offline',ENABLE_NUITEE_LIVE_STAYS:'true',NUITEE_SECRET_ID:'offline-reference'};
@@ -106,7 +106,10 @@ test('live-only: a trip is shown only when every flight and hotel is live; other
   else assert.equal(r.reason,'fare-map-flights-not-all-live');
   // 2) flights live but hotels not -> never shown
   const h=await gt.getGeneratedTour(f.query,{env,fareMap:{...f.options,rows:f.rows},applyIgnavLiveFares:async t=>liveFlights(t),applyNuiteeLiveStays:async t=>({tour:t,summary:{applied:false,reason:'offline'}})});
-  assert.equal(h.tour,null);assert.equal(h.reason,'fare-map-hotels-not-all-live');assert.ok(h.diagnostics.fareMapLiveAttempts.length<=3);
+  // none fully live -> the most-live checked trip is shown (flagged), no second slow search
+  assert.ok(h.tour,'most-live trip shown');assert.equal(h.diagnostics.fareMapLiveOnlyUnmet,true);
+  assert.equal(h.diagnostics.fareMapLiveAttempts.at(-1),'shown-most-live-trip');assert.ok(h.diagnostics.fareMapLiveAttempts.length<=3);
+  assert.ok(h.tour.backendLegs.every(l=>l.liveFareVerified),'its flights are the live ones already fetched');
   // 3) with live-only off, the estimate path is unchanged
   const off=await gt.getGeneratedTour(f.query,{env:{...env,FARE_MAP_REQUIRE_LIVE:'false'},fareMap:{...f.options,rows:f.rows},applyIgnavLiveFares:async t=>({tour:t,summary:{applied:false,reason:'offline'}}),applyNuiteeLiveStays:()=>assert.fail('no hotel check without live arrivals')});
   assert.ok(off.tour);assert.equal(off.diagnostics.fareMapRequireLive,false);
