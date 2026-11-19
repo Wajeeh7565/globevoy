@@ -115,6 +115,9 @@ async function search(query={},options={}){
  diagnostics.eligibleCities=map.size;
  const originRow=originRegistryRow(all,origin);
  const originCode=code(originRow)||origin.airportCode,cache=new Map();
+ // Flights home can be filed under the city code (YMQ) while searches start from the
+ // airport row (YUL), or the reverse; any of the origin's codes counts as home.
+ const homeCodes=new Set([originCode,origin.airportCode,String(origin.cityId||'').replace(/^global-city-/,'').toUpperCase(),...(originRow?.unifiedRegistry?.origin?.airportCodes||[])].filter(Boolean));
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeBudget);
  const read=options.readRoutes||((o,m)=>store.readRoutesFrom(o,m,{env,dynamo:options.dynamo,abortSignal:controller.signal,maxPages:2,limit:1000,nowMs:now,includeDated:true,diagnostics}));
  let readCeiling=Math.min(64,options.maxReads||64);
@@ -145,7 +148,7 @@ async function search(query={},options={}){
  }
  async function fares(o,ms){return (await Promise.all(ms.map(m=>partition(o,m)))).flat();}
   function completeRoute(state,fare,first){
-      if(fare.destination!==originCode||!durationOk(days(first,fare.departureDate))||query.returnDate&&fare.departureDate!==query.returnDate)return false;
+      if(!homeCodes.has(fare.destination)||!durationOk(days(first,fare.departureDate))||query.returnDate&&fare.departureDate!==query.returnDate)return false;
       if(preferred.some(id=>!state.cities.some(c=>c.unifiedRegistry.cityId.toLowerCase()===id)))return false;
       diagnostics.completeRoutes++;
       const candidate={...state,edges:[...state.edges,fare]};const tour=makeTour(candidate,origin,budget,query,{...options,now,durationChoices:durations});
@@ -178,10 +181,10 @@ async function search(query={},options={}){
      if(depth===0&&(fare.departureDate<windowStart||fare.departureDate>=windowEnd))continue;
      const first=depth?state.edges[0].departureDate:fare.departureDate;
      if(days(first,fare.departureDate)>nights)continue;
-     if(depth===DESTINATION_COUNT&&fare.destination===originCode){diagnostics.returnFares=(diagnostics.returnFares||0)+1;if(!state.returnSeed||fare.priceUsd<state.returnSeed.priceUsd)state.returnSeed=fare;}
+     if(depth===DESTINATION_COUNT&&homeCodes.has(fare.destination)){diagnostics.returnFares=(diagnostics.returnFares||0)+1;if(!state.returnSeed||fare.priceUsd<state.returnSeed.priceUsd)state.returnSeed=fare;}
      if(depth){const previous=state.edges.at(-1),transitDays=Math.max(1,Math.ceil((previous.durationMinutes||0)/1440));if(!stayValid(state.cities.at(-1),days(previous.departureDate,fare.departureDate)-transitDays)){if(depth===DESTINATION_COUNT&&fare.destination===originCode)diagnostics.returnStayRejected=(diagnostics.returnStayRejected||0)+1;continue;}}
      if(depth===DESTINATION_COUNT){if(completeRoute(state,fare,first))state.completed=true;continue;}
-     const row=map.get(fare.destination);if(!row||state.cities.some(c=>code(c)===fare.destination))continue;
+     const row=map.get(fare.destination);if(!row||homeCodes.has(fare.destination)||state.cities.some(c=>code(c)===fare.destination))continue;
      if(depth===1)diagnostics.expandedPairs++;
      const record=row.unifiedRegistry;
      if(preferred.length===2&&!preferred.includes(record.cityId.toLowerCase()))continue;
