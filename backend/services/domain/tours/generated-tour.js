@@ -17,6 +17,7 @@ const { PRICING_INTEGRITY_VERSION, normalizeParty, providerFarePartyTotalUsd, pr
 const { LIVE_PROVIDER_VERIFICATION_VERSION, enabled: liveProviderVerificationEnabled, verifyTourWithLiveProviders } = require('../live-fares/live-provider-verification');
 const { VERSION_684A, applyPublicLiveFarePilot684A, status684A } = require('../live-fares/public-live-fare-pilot-684a');
 const { preferSelectedExactFlights } = require('../live-fares/selected-flight-policy-005');
+const { applyIgnavLiveFares, status: ignavLiveFareStatus } = require('../live-fares/ignav-live-fares');
 const { VERSION_684B, discoverAffordableFlightTour684B, status684B } = require('../live-fares/affordable-flight-discovery-684b');
 const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('../../cities/registry/verified-city-activation');
 const { ENTRY_ELIGIBILITY_VERSION, recommendationEligibility } = require('../eligibility/travel-entry-eligibility');
@@ -2607,6 +2608,7 @@ async function globalFallbackResponse(routeQuery, reason, details = {}) {
       liveProviderCallsMade: enrichment.summary.liveProviderCallsMade || 0,
       liveProviderVerification: enrichment.liveProviderVerification || null,
       publicLiveFarePilot684A: enrichment.publicLiveFarePilot684A || { ...status684A(), attempted: false, applied: false, reason: 'not-run' },
+      ignavLiveFares: enrichment.ignavLiveFares || { ...ignavLiveFareStatus(), attempted: false, applied: false, reason: 'not-run' },
       affordableFlightDiscovery684B: enrichment.affordableFlightDiscovery684B || { ...status684B(), attempted: false, applied: false, reason: 'not-run' },
       scannedLegCount: enrichment.summary.scannedLegCount || 0,
       routeFeasibilityGuard: {
@@ -3098,8 +3100,15 @@ async function getGeneratedTour(query = {}) {
   const publicLiveFareStartedR3 = process.hrtime.bigint();
   const publicLiveFare684A = enrichment.selectedScheduleLiveFare || await applyPublicLiveFarePilot684A(enrichment.tour, routeQuery);
   performanceR3.publicLiveFare684AMs = elapsedR3(publicLiveFareStartedR3);
+  // GV-FLIGHT-IGNAV-002: when Duffel 684A did not price the final schedule
+  // (e.g. a non-pilot origin), try atomic Ignav live fares before verification.
+  let ignavLiveFares = { tour: publicLiveFare684A.tour, summary: { ...ignavLiveFareStatus(), attempted: false, applied: false, reason: 'duffel-684a-applied-or-ignav-disabled' } };
+  if (publicLiveFare684A.summary?.applied !== true && ignavLiveFareStatus().enabled) {
+    try { ignavLiveFares = await applyIgnavLiveFares(publicLiveFare684A.tour, routeQuery); }
+    catch (_) { ignavLiveFares = { tour: publicLiveFare684A.tour, summary: { ...ignavLiveFareStatus(), attempted: true, applied: false, reason: 'ignav-unexpected-error-fail-closed' } }; }
+  }
   const verificationStartedR3 = process.hrtime.bigint();
-  const liveVerification = await verifyTourWithLiveProviders(publicLiveFare684A.tour, routeQuery);
+  const liveVerification = await verifyTourWithLiveProviders(ignavLiveFares.tour, routeQuery);
   performanceR3.liveProviderVerificationMs = elapsedR3(verificationStartedR3);
   // Includes existing post-verification rescue/recovery, when taken, as well as
   // budget checks, visualizer, guard, entry decoration and response assembly.
@@ -3108,13 +3117,15 @@ async function getGeneratedTour(query = {}) {
     ...enrichment,
     tour: liveVerification.tour,
     liveProviderVerification: liveVerification.summary,
-    publicLiveFarePilot684A: publicLiveFare684A.summary
+    publicLiveFarePilot684A: publicLiveFare684A.summary,
+    ignavLiveFares: ignavLiveFares.summary
   };
   const strictLiveBudgetFit684BR3 = strictBudgetFit684BR3(enrichment.tour, routeQuery);
   let routeStillOverBudgetAfterLive684B = Boolean(
     liveVerification.summary?.overBudget
       || publicLiveFare684A.summary?.overBudget
       || (publicLiveFare684A.summary?.applied === true && strictLiveBudgetFit684BR3.overBudget === true)
+      || (ignavLiveFares.summary?.applied === true && strictLiveBudgetFit684BR3.overBudget === true)
   );
   if (routeStillOverBudgetAfterLive684B && affordableFlightDiscovery684B.summary?.reason === '684b-selected-route-already-has-flight') {
     const postLive684BRescueStartedR4 = process.hrtime.bigint();
@@ -3406,6 +3417,7 @@ async function getGeneratedTour(query = {}) {
       liveProviderCallsMade: enrichment.summary.liveProviderCallsMade || 0,
       liveProviderVerification: enrichment.liveProviderVerification || null,
       publicLiveFarePilot684A: enrichment.publicLiveFarePilot684A || { ...status684A(), attempted: false, applied: false, reason: 'not-run' },
+      ignavLiveFares: enrichment.ignavLiveFares || { ...ignavLiveFareStatus(), attempted: false, applied: false, reason: 'not-run' },
       affordableFlightDiscovery684B: enrichment.affordableFlightDiscovery684B || affordableFlightDiscovery684B?.summary || { ...status684B(), attempted: false, applied: false, reason: 'not-run' },
       scannedLegCount: enrichment.summary.scannedLegCount || 0,
       routeFeasibilityGuard: {
