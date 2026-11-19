@@ -19,7 +19,7 @@ const VERSION = 'GV-HOTEL-NUITEE-WL-001';
 const FLAG = 'ENABLE_NUITEE_LIVE_STAYS';
 const DEFAULT_WL_DOMAIN = 'wajeeh-4443-racp8.nuitee.link';
 const MAX_STOPS = 4;
-const GOOD_RATING = 7.5;
+const GOOD_RATING = 7.0;
 const RATE_URL = nuitee.RATE_URL;
 const internal = nuitee._internal;
 
@@ -57,12 +57,11 @@ function chooseOffer(payload = {}, currency) {
   }
   const valid = offers.filter(o => o.hotelId && o.amount > 0 && o.currency === currency && o.excludedFeesPresent !== true);
   if (!valid.length) return null;
+  // Cheapest offer from a hotel rated 7.0+ (if any are rated); refundable only
+  // breaks exact ties. Budget-first: price matters more than free cancellation.
   const good = valid.filter(o => Number(o.rating) >= GOOD_RATING);
   const pool = good.length ? good : valid;
-  pool.sort((a, b) => (a.refundableTag === 'RFN' ? 0 : 1) - (b.refundableTag === 'RFN' ? 0 : 1) || a.amount - b.amount);
-  // Refundable only wins if it is within 15% of the cheapest.
-  const cheapest = [...pool].sort((a, b) => a.amount - b.amount)[0];
-  return pool[0].amount <= cheapest.amount * 1.15 ? pool[0] : cheapest;
+  return pool.slice().sort((a, b) => a.amount - b.amount || (a.refundableTag === 'RFN' ? 0 : 1) - (b.refundableTag === 'RFN' ? 0 : 1))[0];
 }
 
 async function priceStop(stop, index, tour, query, env, options, apiKey, currency) {
@@ -78,7 +77,7 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   } catch (error) {
     return { index, applied: false, reason: clean(error.code || 'occupancy-invalid') };
   }
-  body.limit = 20;
+  body.limit = 50;
   body.maxRatesPerHotel = 1;
   const result = await nuitee.postJson(RATE_URL, body, apiKey, options);
   if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: 1 };
