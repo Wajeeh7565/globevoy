@@ -135,4 +135,13 @@ async function writeCursor(cursor,options={}) {
   if(condition.includes('#owner'))input.ExpressionAttributeNames={'#owner':'owner'};
   await client(options).send(cmd('PutItemCommand',input));
 }
-module.exports = { TTL_DAYS, tableName, writeRecords, readRoutesFrom, readCursor, writeCursor, _internal: { toItem, fromItem } };
+// Small side record for the priority-origin pass (written only while the main
+// lease is held, so no condition is needed).
+async function readMeta(sk,options={}){
+  const res=await client(options).send(cmd('GetItemCommand',{TableName:tableName(options.env),Key:{pk:{S:'META#job'},sk:{S:sk}}}));
+  try{return res?.Item?.state?.S?JSON.parse(res.Item.state.S):null}catch{return null}
+}
+async function writeMeta(sk,state,options={}){
+  await client(options).send(cmd('PutItemCommand',{TableName:tableName(options.env),Item:{pk:{S:'META#job'},sk:{S:sk},state:{S:JSON.stringify(state).slice(0,8000)},updatedAt:{S:new Date(options.nowMs??Date.now()).toISOString()}}}));
+}
+module.exports = { TTL_DAYS, tableName, writeRecords, readRoutesFrom, readCursor, writeCursor, readMeta, writeMeta, _internal: { toItem, fromItem } };

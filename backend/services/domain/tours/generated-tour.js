@@ -3570,10 +3570,22 @@ async function getFareMapGeneratedTour(query,options) {
   return {...result,tour:guard.tour,tours,diagnostics};
 }
 
+// Demo/preview: with ENABLE_FARE_MAP_OPTIMIZER_PREVIEW=true, a request that
+// carries farePreview=1 uses the fare-map optimizer; every other request keeps
+// the existing search. ENABLE_FARE_MAP_OPTIMIZER=true still turns it on for all.
+function fareMapPreviewRequested(query = {}, env = process.env) {
+  return String(env.ENABLE_FARE_MAP_OPTIMIZER_PREVIEW || '').trim().toLowerCase() === 'true'
+    && String(query.farePreview || '').trim() === '1';
+}
+
 async function getGeneratedTour(query = {}, options = {}) {
   const fareMap=require('../fare-map/fare-map-optimizer');
+  const baseEnv=options.env||process.env;
+  const preview=!fareMap.enabled(baseEnv)&&fareMapPreviewRequested(query,baseEnv);
+  if(preview)options={...options,env:{...baseEnv,ENABLE_FARE_MAP_OPTIMIZER:'true'}};
   const mapEnabled=fareMap.enabled(options.env);
   const result=mapEnabled?await getFareMapGeneratedTour(query,options):await getGeneratedTourCore(query);
+  if(preview&&result&&typeof result==='object')result.fareMapPreview=true;
 
   // Same party normalisation the pipeline uses (string counts, rooms default).
   const party = normalizeParty(query);
@@ -3605,6 +3617,7 @@ module.exports = {
   automaticCheapDateTourBuilderEnabled,
   generatedTourEnabled,
   getGeneratedTour,
+  _fareMapPreviewRequested: fareMapPreviewRequested,
   _priceFinalTourWithNuitee: priceFinalTourWithNuitee,
   buildVisualizerTour,
   enrichTourWithCheapFlights,
