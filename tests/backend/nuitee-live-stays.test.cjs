@@ -131,3 +131,18 @@ test('website query shape (travellers="1 adult", no rooms) still prices the fina
   const { _internal: { occupancyForQuery } } = require('../../backend/services/providers/stays/nuitee/nuitee-hotel-708c');
   assert.throws(() => occupancyForQuery({ adults: '1', children: '0', travellers: '1 adult' }));
 });
+
+test('final-tour pass copies live hotels into cities/stays/legs views', async () => {
+  const fetch = mockFetch({ Lisbon: [rateHotel('lpB', 'Good Value', 8.4, 520)], Budapest: [] });
+  const base = finalResult();
+  base.tour.cities = base.tour.stops.map(s => ({ city: s.city, hotel: { name: 'stale' } }));
+  base.tour.stays = base.tour.stops.map(s => ({ city: s.city, hotel: { name: 'stale' } }));
+  base.tour.legs.forEach(l => { l.to = { ...l.to, hotel: { name: 'stale' } }; l.from = { ...l.from, hotel: { name: 'stale' } }; });
+  const r = await _priceFinalTourWithNuitee(base, { ...QUERY, budget: '20000' }, { env: ENV, getSecretValue: prodSecret, fetch });
+  assert.equal(r.tour.cities[0].hotel.name, 'Good Value');
+  assert.ok(r.tour.cities[0].hotel.nuiteeWhitelabel.url);
+  assert.equal(r.tour.stays[0].hotel.name, 'Good Value');
+  assert.equal(r.tour.legs[0].to.hotel.name, 'Good Value');
+  assert.equal(r.tour.legs[1].from.hotel.name, 'Good Value');
+  assert.equal(r.tour.cities[1].hotel.name, 'stale');
+});

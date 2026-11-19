@@ -3470,6 +3470,27 @@ function hasNuiteeRates(tour) {
   return Boolean((tour?.stops || []).some(stop => stop?.hotel?.nuiteeLiveRate));
 }
 
+
+// The visualizer/booking pages read tour.cities / stays / legs, which on the
+// final (already assembled) tour are separate copies of each stop's hotel.
+function syncNuiteeHotelsIntoViews(tour) {
+  const stops = Array.isArray(tour?.stops) ? tour.stops : [];
+  stops.forEach((stop, index) => {
+    const hotel = stop?.hotel;
+    if (!hotel?.nuiteeLiveRate) return;
+    for (const key of ['cities', 'stays']) {
+      const row = Array.isArray(tour[key]) ? tour[key][index] : null;
+      if (row && typeof row === 'object') row.hotel = hotel;
+    }
+    for (const key of ['legs', 'backendLegs']) {
+      const legs = Array.isArray(tour[key]) ? tour[key] : [];
+      if (legs[index]?.to && typeof legs[index].to === 'object') legs[index].to.hotel = hotel;
+      if (legs[index + 1]?.from && typeof legs[index + 1].from === 'object') legs[index + 1].from.hotel = hotel;
+    }
+  });
+  return tour;
+}
+
 async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
   if (!result || result.ok !== true || !result.tour || !nuiteeLiveStaysStatus(options.env).enabled) return result;
   if (hasNuiteeRates(result.tour)) return result;
@@ -3487,6 +3508,7 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
     return { ...result, diagnostics };
   }
   diagnostics.nuiteeLiveStays = summary;
+  syncNuiteeHotelsIntoViews(live.tour);
   const original = result.tour;
   const tours = Array.isArray(result.tours) ? result.tours.map(t => (t === original ? live.tour : t)) : result.tours;
   return { ...result, tour: live.tour, tours, diagnostics };
