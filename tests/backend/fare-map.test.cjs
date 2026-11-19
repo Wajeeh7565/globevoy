@@ -288,7 +288,7 @@ test('priority origins are collected for every month first, then not again until
 });
 
 test('priority origins: env override is validated; defaults to Toronto, Montreal, Vancouver', () => {
-  assert.deepEqual(job.priorityOrigins({}), ['YTO', 'YMQ', 'YVR']);
+  assert.deepEqual(job.priorityOrigins({}), ['YTO', 'YUL', 'YVR']);
   assert.deepEqual(job.priorityOrigins({ FARE_MAP_PRIORITY_ORIGINS: 'yto, bad1,LON,LON' }), ['YTO', 'LON']);
 });
 
@@ -298,4 +298,29 @@ test('fare-map preview only for farePreview=1 when the preview flag is on', () =
   assert.equal(p({ farePreview: '1' }, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), true);
   assert.equal(p({}, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), false);
   assert.equal(p({ farePreview: 'yes' }, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), false);
+});
+
+test('priority pass re-runs when the priority origin list changes', async () => {
+  const dynamo = strictDynamo(); const seen = [];
+  const fetch = tpFetch([[{ destination_city_iata: 'MDE', value: 30000, departure_at: '2026-12-10T10:00:00Z' }]], seen);
+  let now = Date.parse('2026-11-19T15:00:00Z');
+  const base = { env: ENV, dynamo, fetch, origins: ['AAA'], pauseMs: 0, sleep: async () => {}, clock: () => now, now, maxTasks: 1 };
+  await job.runFareMapJob({ ...base, priorityOrigins: ['YMQ'] });
+  now += 5 * 60 * 1000;
+  const r = await job.runFareMapJob({ ...base, clock: () => now, now, priorityOrigins: ['YUL'] });
+  assert.equal(r.priority.finished, true);
+});
+
+test('optimizer reads the origin city partition the collector writes, not a neighbour sharing the airport', () => {
+  const opt = require('../../backend/services/domain/fare-map/fare-map-optimizer');
+  const graph = require('../../backend/services/domain/routing/global-route-graph');
+  const all = opt._internal.rows();
+  const codeFor = q => opt._internal.code(opt._originRegistryRow(all, graph.resolveAnyOrigin(q)));
+  assert.equal(codeFor('Toronto (YYZ)'), 'YTO'); // Niagara Falls also lists YYZ
+  assert.equal(codeFor('London (LHR)'), 'LON');  // Brighton also lists LHR
+  assert.equal(codeFor('Montreal (YUL)'), 'YUL');
+  assert.equal(codeFor('Vancouver (YVR)'), 'YVR');
+  const collected = new Set(require('../../backend/services/domain/fare-map/fare-map-ingest').originCodesFromRegistry(require('../../backend/data/unified-city-registry-1000.json')));
+  for (const o of job.priorityOrigins({})) assert.ok(collected.has(o), o + ' is a collector origin');
+  for (const q of ['Toronto (YYZ)', 'Montreal (YUL)', 'Vancouver (YVR)']) assert.ok(job.priorityOrigins({}).includes(codeFor(q)), q + ' is a priority origin');
 });
