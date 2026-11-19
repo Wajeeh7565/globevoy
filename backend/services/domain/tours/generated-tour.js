@@ -18,6 +18,7 @@ const { LIVE_PROVIDER_VERIFICATION_VERSION, enabled: liveProviderVerificationEna
 const { VERSION_684A, applyPublicLiveFarePilot684A, status684A } = require('../live-fares/public-live-fare-pilot-684a');
 const { preferSelectedExactFlights } = require('../live-fares/selected-flight-policy-005');
 const { applyIgnavLiveFares, status: ignavLiveFareStatus } = require('../live-fares/ignav-live-fares');
+const { applyNuiteeLiveStays, status: nuiteeLiveStaysStatus } = require('../live-fares/nuitee-live-stays');
 const { VERSION_684B, discoverAffordableFlightTour684B, status684B } = require('../live-fares/affordable-flight-discovery-684b');
 const { enabled: verifiedActivationEnabled, liveRecommendationEligible } = require('../../cities/registry/verified-city-activation');
 const { ENTRY_ELIGIBILITY_VERSION, recommendationEligibility } = require('../eligibility/travel-entry-eligibility');
@@ -2609,6 +2610,7 @@ async function globalFallbackResponse(routeQuery, reason, details = {}) {
       liveProviderVerification: enrichment.liveProviderVerification || null,
       publicLiveFarePilot684A: enrichment.publicLiveFarePilot684A || { ...status684A(), attempted: false, applied: false, reason: 'not-run' },
       ignavLiveFares: enrichment.ignavLiveFares || { ...ignavLiveFareStatus(), attempted: false, applied: false, reason: 'not-run' },
+      nuiteeLiveStays: enrichment.nuiteeLiveStays || { ...nuiteeLiveStaysStatus(), attempted: false, applied: false, reason: 'not-run' },
       affordableFlightDiscovery684B: enrichment.affordableFlightDiscovery684B || { ...status684B(), attempted: false, applied: false, reason: 'not-run' },
       scannedLegCount: enrichment.summary.scannedLegCount || 0,
       routeFeasibilityGuard: {
@@ -3109,16 +3111,24 @@ async function getGeneratedTour(query = {}) {
   }
   const verificationStartedR3 = process.hrtime.bigint();
   const liveVerification = await verifyTourWithLiveProviders(ignavLiveFares.tour, routeQuery);
+  // GV-HOTEL-NUITEE-WL-001: live Nuitee hotel rates + White Label hand-off,
+  // applied per stop after Agoda verification; failures keep prior stays.
+  let nuiteeLiveStays = { tour: liveVerification.tour, summary: { ...nuiteeLiveStaysStatus(), attempted: false, applied: false, reason: 'disabled' } };
+  if (nuiteeLiveStaysStatus().enabled) {
+    try { nuiteeLiveStays = await applyNuiteeLiveStays(liveVerification.tour, routeQuery); }
+    catch (_) { nuiteeLiveStays = { tour: liveVerification.tour, summary: { ...nuiteeLiveStaysStatus(), attempted: true, applied: false, reason: 'nuitee-unexpected-error' } }; }
+  }
   performanceR3.liveProviderVerificationMs = elapsedR3(verificationStartedR3);
   // Includes existing post-verification rescue/recovery, when taken, as well as
   // budget checks, visualizer, guard, entry decoration and response assembly.
   finalizationStartedR3 = process.hrtime.bigint();
   enrichment = {
     ...enrichment,
-    tour: liveVerification.tour,
+    tour: nuiteeLiveStays.tour,
     liveProviderVerification: liveVerification.summary,
     publicLiveFarePilot684A: publicLiveFare684A.summary,
-    ignavLiveFares: ignavLiveFares.summary
+    ignavLiveFares: ignavLiveFares.summary,
+    nuiteeLiveStays: nuiteeLiveStays.summary
   };
   const strictLiveBudgetFit684BR3 = strictBudgetFit684BR3(enrichment.tour, routeQuery);
   let routeStillOverBudgetAfterLive684B = Boolean(
@@ -3126,6 +3136,7 @@ async function getGeneratedTour(query = {}) {
       || publicLiveFare684A.summary?.overBudget
       || (publicLiveFare684A.summary?.applied === true && strictLiveBudgetFit684BR3.overBudget === true)
       || (ignavLiveFares.summary?.applied === true && strictLiveBudgetFit684BR3.overBudget === true)
+      || (nuiteeLiveStays.summary?.applied === true && strictLiveBudgetFit684BR3.overBudget === true)
   );
   if (routeStillOverBudgetAfterLive684B && affordableFlightDiscovery684B.summary?.reason === '684b-selected-route-already-has-flight') {
     const postLive684BRescueStartedR4 = process.hrtime.bigint();
@@ -3418,6 +3429,7 @@ async function getGeneratedTour(query = {}) {
       liveProviderVerification: enrichment.liveProviderVerification || null,
       publicLiveFarePilot684A: enrichment.publicLiveFarePilot684A || { ...status684A(), attempted: false, applied: false, reason: 'not-run' },
       ignavLiveFares: enrichment.ignavLiveFares || { ...ignavLiveFareStatus(), attempted: false, applied: false, reason: 'not-run' },
+      nuiteeLiveStays: enrichment.nuiteeLiveStays || { ...nuiteeLiveStaysStatus(), attempted: false, applied: false, reason: 'not-run' },
       affordableFlightDiscovery684B: enrichment.affordableFlightDiscovery684B || affordableFlightDiscovery684B?.summary || { ...status684B(), attempted: false, applied: false, reason: 'not-run' },
       scannedLegCount: enrichment.summary.scannedLegCount || 0,
       routeFeasibilityGuard: {

@@ -44,3 +44,15 @@ test('booking page loads the script after the Booking Hub', () => {
   const html = fs.readFileSync(path.join(__dirname, '../../frontend/pages/booking.html'), 'utf8');
   assert.ok(html.indexOf('booking-ignav-links.js') > html.indexOf('booking-hub-685d.js'));
 });
+
+test('stay White Label links: only https Nuitee/GlobeVoy hosts are accepted', () => {
+  const links = mod.stayWhitelabels({ cities: [
+    { hotel: { name: 'Good Value', booking: { whitelabel: { url: 'https://wajeeh-4443-racp8.nuitee.link/hotels/lpB?checkin=2027-03-12' } } } },
+    { hotel: { booking: { whitelabel: { url: 'https://evil.example.com/hotels/x' } } } },
+    { hotel: {} }
+  ] });
+  assert.equal(links[0].name, 'Good Value');
+  assert.match(links[0].url, /nuitee\.link\/hotels\/lpB/);
+  assert.equal(links[1], null);
+  assert.equal(links[2], null);
+});

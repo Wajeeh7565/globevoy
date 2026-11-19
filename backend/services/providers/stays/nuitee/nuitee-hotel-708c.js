@@ -622,7 +622,10 @@ module.exports = {
   enabled,
   verifyTourHotels,
   status708C,
+  getApiKey,
+  postJson,
   _internal: {
+    offerFromRoomType,
     validCountryCode,
     validIsoDate,
     dateMinusDays,

@@ -110,6 +110,44 @@
     return added;
   }
 
+  // GV-HOTEL-NUITEE-WL-001: "Book this hotel" on stays priced live by Nuitee.
+  function stayWhitelabels(tour) {
+    const direct = Array.isArray(tour?.stays) ? tour.stays : [];
+    const cities = Array.isArray(tour?.cities) ? tour.cities : [];
+    const list = (direct.length ? direct : cities);
+    return list.map((stay, i) => {
+      const hotel = stay?.hotel || cities[i]?.hotel || {};
+      const wl = hotel?.booking?.whitelabel || hotel?.nuiteeWhitelabel;
+      const url = safeUrl(wl?.url);
+      if (!url) return null;
+      let host = '';
+      try { host = new URL(url).hostname; } catch (_) { return null; }
+      if (!/\.nuitee\.link$/.test(host) && !/(^|\.)globevoy\.com$/.test(host)) return null;
+      return { url, name: String(hotel.name || hotel.hotelName || '').trim() };
+    });
+  }
+  function decorateStays(document, tour) {
+    const host = document.querySelector('#gv-booking-workspace') || document.querySelector('#gv-booking-timeline');
+    if (!host) return 0;
+    const links = stayWhitelabels(tour);
+    if (!links.some(Boolean)) return 0;
+    const items = [...host.querySelectorAll('#gv-workspace-panel-3 .gv-workspace-item,li[data-kind="stay"]')];
+    let added = 0;
+    items.forEach((item, i) => {
+      if (item.querySelector('.gv-booking-whitelabel')) return;
+      const title = String(item.querySelector('h3')?.textContent || '').trim().toLowerCase();
+      const link = links.find(l => l && l.name && title.includes(l.name.toLowerCase())) || links[i];
+      if (!link) return;
+      const side = item.querySelector('.gv-workspace-item-side,.gv-booking-journey-side') || item;
+      const wrap = document.createElement('div');
+      wrap.className = 'gv-booking-whitelabel';
+      wrap.innerHTML = `<a class="gv-booking-journey-action gv-booking-link" href="${esc(link.url)}" target="_blank" rel="noopener">Book this hotel ↗</a><p class="gv-booking-evidence-note">Opens GlobeVoy's hotel booking site (powered by Nuitee) with your dates and guests. The final price is confirmed there before you pay.</p>`;
+      side.appendChild(wrap);
+      added += 1;
+    });
+    return added;
+  }
+
   function start() {
     const document = root.document;
     if (!document) return;
@@ -119,6 +157,7 @@
       const host = document.querySelector('#gv-booking-workspace') || document.querySelector('#gv-booking-timeline');
       if (!host || !host.querySelector('[data-workspace-item^="flight-"],li[data-kind="flight"]')) return false;
       decorate(document, tour);
+      decorateStays(document, tour);
       return true;
     };
     // Workspace rendering can replace the legacy cards after tour-ready fires.
@@ -131,5 +170,5 @@
     const timer = root.setInterval?.(() => { if (tryRun() || ++attempts > 80) root.clearInterval?.(timer); }, 250);
   }
 
-  return { VERSION, start, decorate, flightLookups, linksHtml, fetchLinks };
+  return { VERSION, start, decorate, decorateStays, stayWhitelabels, flightLookups, linksHtml, fetchLinks };
 });

@@ -437,6 +437,12 @@ function enrichStay(stop = {}, query = {}) {
       ctaLabel: directPropertyLink ? 'Check this property on Agoda' : (specificHotelUrl ? 'View selected property in Agoda results' : (citySearchUrl ? 'Search stays in this city' : 'Stay link unavailable'))
     }
   };
+  // GV-HOTEL-NUITEE-WL-001: Nuitee live-rate stays hand off to GlobeVoy's
+  // Nuitee White Label hotel page (same rate source); Agoda stays as comparison.
+  const wl = hotel.nuiteeWhitelabel;
+  if (nuiteePriced && wl && /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)+\/hotels\/[A-Za-z0-9_-]+\?/.test(String(wl.url || ''))) {
+    hotel.booking.whitelabel = { url: wl.url, label: 'Book this hotel', provider: 'Nuitee', merchant: 'Nuitee', hotelId: wl.hotelId, checkIn, checkOut, finalPriceRequiresPartnerConfirmation: true };
+  }
   if (nuiteePriced && bookingUrl) {
     hotel.booking.label = 'Compare stays on Agoda';
     hotel.booking.handoffPropertyVerified = false;
