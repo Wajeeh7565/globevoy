@@ -70,7 +70,7 @@ test('store round-trips records and reads one origin+month with a single query',
   const dynamo = fakeDynamo();
   const rec = { origin: 'YTO', month: '2026-12', destination: 'MDE', priceUsd: 300, departureDate: '2026-12-09', stops: 1, durationMinutes: 410, source: 'travelpayouts-cached', observedAt: '2026-11-19T00:00:00.000Z' };
   assert.equal(await store.writeRecords([rec], { env: ENV, dynamo, sleep: false }), 1);
-  const back = await store.readRoutesFrom('YTO', '2026-12', { env: ENV, dynamo });
+  const back = await store.readRoutesFrom('YTO', '2026-12', { env: ENV, dynamo, nowMs:Date.parse(rec.observedAt) });
   assert.deepEqual(back, [{ ...rec }].map(({ ...x }) => x));
   assert.ok(Number(dynamo.items.get('F#YTO#2026-12|MDE').ttl.N) > Date.now() / 1000);
 });
@@ -88,7 +88,7 @@ test('job: off by default; resumes from its cursor and wraps at the end of a cyc
   assert.equal(rest.finishedCycle, true);
   assert.equal(first.done + rest.done, 12, '2 origins × 6 months');
   assert.equal((await store.readCursor({ env: ENV, dynamo })).index, 0);
-  assert.equal((await store.readRoutesFrom('YMQ', '2027-04', { env: ENV, dynamo })).length, 1);
+  assert.equal((await store.readRoutesFrom('YMQ', '2027-04', { env: ENV, dynamo, nowMs:opts.now })).length, 1);
 });
 
 test('lambda: scheduled fare-map event runs the job (disabled → no-op), HTTP events are untouched', async () => {

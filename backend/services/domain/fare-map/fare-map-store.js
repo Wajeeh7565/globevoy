@@ -90,8 +90,12 @@ async function readRoutesFrom(origin, month, options = {}) {
       Limit: options.limit || 1000
     }), { abortSignal: options.abortSignal });
     pages++;
-    (res?.Items || []).forEach(i => out.push(fromItem(i)));
+    (res?.Items || []).forEach(i => {
+      const now=options.nowMs??Date.now(),observed=Date.parse(i.observedAt?.S);
+      if(Number(i.ttl?.N)>now/1000&&Number.isFinite(observed)&&observed<=now+60000&&observed>=now-TTL_DAYS*86400000)out.push(fromItem(i));
+    });
     key = res?.LastEvaluatedKey;
+    if(options.maxRecords&&out.length>=options.maxRecords)return out.slice(0,options.maxRecords);
   } while (key && pages < (options.maxPages || Infinity));
   return out;
 }
