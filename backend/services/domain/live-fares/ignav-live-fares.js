@@ -3,9 +3,9 @@
 // GV-FLIGHT-IGNAV-002 — apply Ignav live fares to the FINAL selected tour.
 //
 // Runs only after the existing Duffel 684A pilot did not price the tour (for
-// example, a non-YYZ origin). Like 684A it is atomic: every flight leg must get
-// a verified Ignav fare in the requested currency, or no Ignav price is applied
-// and the tour keeps its previous evidence. It never books or pays.
+// example, a non-YYZ origin). Per leg: each flight leg with a verified Ignav fare in the requested currency
+// gets live evidence; legs without one keep their previous estimate
+// (summary.partial). A fully live tour has partial=false. It never books or pays.
 //
 // Applied evidence is marked LIVE / DECISION_GRADE with an exact route/date
 // canonical record, so the later 667A verification preserves it instead of
@@ -44,7 +44,7 @@ function tourTotalUsd(tour = {}) {
 function enabled(env = process.env) { return ignav.configured(env); }
 
 function status(env = process.env) {
-  return { version: VERSION, enabled: enabled(env), provider: 'ignav', atomic: true, maxFlightLegs: MAX_FLIGHT_LEGS, runsWhenDuffel684ANotApplied: true, bookingCapability: false };
+  return { version: VERSION, enabled: enabled(env), provider: 'ignav', atomic: false, perLeg: true, maxFlightLegs: MAX_FLIGHT_LEGS, runsWhenDuffel684ANotApplied: true, bookingCapability: false };
 }
 
 function buildEvidence(task, fare, currency, partyTotalUsd, observedAt) {
@@ -116,15 +116,20 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
   const failed = results.map((r, i) => ({ r, task: tasks[i] }))
     .filter(({ r }) => !r.ok || !r.cheapest || r.cheapest.currency !== currency);
   const summaryBase = { ...baseSummary, attempted: true, providerRequests: tasks.length, requiredFlightLegCount: tasks.length, currency };
-  if (failed.length) {
-    return { tour, summary: { ...summaryBase, reason: 'ignav-incomplete-live-coverage-fail-closed',
-      failedLegs: failed.map(({ r, task }) => ({ origin: task.origin, destination: task.destination, departureDate: task.departureDate,
-        reason: !r.ok ? r.reason : !r.cheapest ? 'no-verified-fare' : 'currency-mismatch' })) } };
+  const failedLegs = failed.map(({ r, task }) => ({ origin: task.origin, destination: task.destination, departureDate: task.departureDate,
+    reason: !r.ok ? r.reason : !r.cheapest ? 'no-verified-fare' : 'currency-mismatch' }));
+  // Per-leg: legs with a verified fare in the requested currency get live evidence;
+  // the rest keep their existing estimate and are labelled as such. With no live leg
+  // at all the tour is unchanged.
+  if (failed.length === tasks.length) {
+    return { tour, summary: { ...summaryBase, reason: 'ignav-no-live-coverage', liveFlightLegCount: 0, failedLegs } };
   }
 
   const beforeTotalUsd = tourTotalUsd(tour);
   const nextLegs = legs.map(leg => ({ ...leg }));
-  tasks.forEach((task, i) => {
+  const failedIndexes = new Set(failed.map(({ task }) => task.index));
+  const liveTasks = tasks.map((task, i) => ({ task, i })).filter(({ task }) => !failedIndexes.has(task.index));
+  liveTasks.forEach(({ task, i }) => {
     const fare = results[i].cheapest;
     const partyTotalUsd = fare.partyTotalAmount * usdRate;
     const evidence = buildEvidence(task, fare, currency, partyTotalUsd, results[i].observedAt);
@@ -146,13 +151,16 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
   const patched = applyTravellerPricingToTour({ ...tour, legs: nextLegs }, query);
   const afterTotalUsd = tourTotalUsd(patched);
   const strictBudgetFit = strictBudgetFit685CR1(afterTotalUsd, tour, query);
+  const partial = liveTasks.length < tasks.length;
   return {
-    tour: { ...patched, ignavLiveFares: { version: VERSION, applied: true, liveFlightLegCount: tasks.length, currency } },
+    tour: { ...patched, ignavLiveFares: { version: VERSION, applied: true, partial, liveFlightLegCount: liveTasks.length, flightLegCount: tasks.length, currency } },
     summary: {
       ...summaryBase,
       applied: true,
-      reason: null,
-      liveFlightLegCount: tasks.length,
+      partial,
+      reason: partial ? 'ignav-partial-live-coverage' : null,
+      liveFlightLegCount: liveTasks.length,
+      ...(partial ? { failedLegs } : {}),
       beforeTotalUsd: Math.round(beforeTotalUsd),
       afterTotalUsd: Math.round(afterTotalUsd),
       priceDeltaUsd: Math.round(afterTotalUsd - beforeTotalUsd),

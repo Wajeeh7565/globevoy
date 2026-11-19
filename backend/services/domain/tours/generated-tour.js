@@ -3534,7 +3534,15 @@ async function getFareMapGeneratedTour(query,options) {
     try{checked=await (options.applyIgnavLiveFares||applyIgnavLiveFares)(selected,query,options)}
     catch{checked={summary:{applied:false,reason:'provider-unavailable'}}}
     diagnostics.ignavLiveFares=checked?.summary||{applied:false,reason:'provider-invalid-response'};
-    if(checked?.summary?.applied){
+    if(checked?.summary?.applied&&checked.summary.partial){
+      // Some legs live, some estimated: keep the live legs, but without every arrival
+      // time the hotel nights cannot be re-dated, so stays remain planning estimates.
+      const repriced=checked.tour;
+      if(repriced?.legs?.length===selected.legs.length&&repriced.legs.every((l,i)=>l.departureDate===selected.legs[i].departureDate)){
+        selected=attachTourPresentation(repriced,query);
+        if(selected.estimatedTotalUsd>selected.usableTripBudgetUsd)return empty('fare-map-live-total-exceeds-protected-budget');
+      }
+    } else if(checked?.summary?.applied){
       const candidate=checked.tour,stops=[],legs=candidate?.legs||[];
       if(legs.length!==3||candidate?.stops?.length!==2)return empty('fare-map-incomplete-live-itinerary');
       const airport=node=>node?.airportCode||node?.code;

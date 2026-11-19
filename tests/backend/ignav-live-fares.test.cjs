@@ -63,12 +63,29 @@ test('all legs priced atomically in CAD, evidence is LIVE decision-grade with ig
   assert.equal(typeof r.summary.overBudget, 'boolean');
 });
 
-test('one missing leg fails closed: no Ignav price applied anywhere', async () => {
+test('one missing leg: the other legs get live prices, the missing leg keeps its estimate', async () => {
   const t = tour();
   const r = await applyIgnavLiveFares(t, QUERY, { env: ENV, fetchFn: fareFetch({ failRoute: 'LIS-BUD' }) });
-  assert.equal(r.summary.applied, false);
-  assert.equal(r.summary.reason, 'ignav-incomplete-live-coverage-fail-closed');
+  assert.equal(r.summary.applied, true);
+  assert.equal(r.summary.partial, true);
+  assert.equal(r.summary.reason, 'ignav-partial-live-coverage');
+  assert.equal(r.summary.failedLegs.length, 1);
   assert.equal(r.summary.failedLegs[0].destination, 'BUD');
+  const flights = t.legs.map((l, i) => ({ l, i })).filter(({ l }) => /flight/.test(l.mode || l.transportType || ''));
+  assert.equal(r.summary.liveFlightLegCount, flights.length - 1);
+  for (const { l, i } of flights) {
+    const out = r.tour.legs[i], missing = `${l.from.airportCode || l.from.code}-${l.to.airportCode || l.to.code}` === 'LIS-BUD';
+    assert.equal(out.liveFareVerified === true, !missing);
+    if (missing) { assert.equal(out.estimatedTransportUsd, l.estimatedTransportUsd); assert.notEqual(out.providerDateEvidence?.sourceType, 'LIVE'); } else assert.equal(out.providerDateEvidence.sourceType, 'LIVE');
+  }
+  assert.equal(typeof r.summary.overBudget, 'boolean');
+});
+
+test('no live leg at all leaves the tour unchanged', async () => {
+  const t = tour();
+  const r = await applyIgnavLiveFares(t, QUERY, { env: ENV, fetchFn: fareFetch({ currency: 'USD' }) });
+  assert.equal(r.summary.applied, false);
+  assert.equal(r.summary.reason, 'ignav-no-live-coverage');
   assert.equal(r.tour, t);
 });
 
