@@ -206,3 +206,37 @@ test('opt-in dated samples preserve legacy monthly reads and accumulate only obs
  const sampled=await store.readRoutesFrom('YTO','2027-02',{...opts,includeDated:true});
  assert.deepEqual(sampled.map(f=>f.departureDate).sort(),['2027-02-03','2027-02-09']);assert.ok(sampled.every(f=>f.destination==='LON'));
 });
+
+// Real DynamoDB rejects reserved words used bare in expressions (ValidationException).
+// The plain fake above does not, which hid a production bug: `owner = :owner`.
+const RESERVED = ['owner', 'ttl', 'index', 'name', 'status', 'date', 'source', 'month', 'origin', 'destination'];
+function strictDynamo() {
+  const inner = fakeDynamo();
+  const send = inner.send;
+  inner.send = async (c) => {
+    const i = c.input || {};
+    for (const expr of [i.ConditionExpression, i.FilterExpression, i.KeyConditionExpression, i.ProjectionExpression, i.UpdateExpression].filter(Boolean)) {
+      const bare = expr.replace(/[#:][A-Za-z0-9_]+/g, ' ').toLowerCase().match(/[a-z_][a-z0-9_]*/g) || [];
+      const hit = bare.find(w => RESERVED.includes(w));
+      if (hit) throw Object.assign(new Error(`Attribute name is a reserved keyword; reserved keyword: ${hit}`), { name: 'ValidationException' });
+      for (const ref of expr.match(/#[A-Za-z0-9_]+/g) || []) if (!i.ExpressionAttributeNames || !(ref in i.ExpressionAttributeNames)) throw Object.assign(new Error(`unresolved ${ref}`), { name: 'ValidationException' });
+    }
+    return send(c);
+  };
+  return inner;
+}
+
+test('job against a DynamoDB that enforces reserved words: checkpoints, records lastRun and releases its lease', async () => {
+  const dynamo = strictDynamo();
+  const fetch = tpFetch([[{ destination_city_iata: 'MDE', value: 30000, departure_at: '2026-12-10T10:00:00Z' }]]);
+  const r = await job.runFareMapJob({ env: ENV, dynamo, fetch, origins: ['YTO', 'YMQ'], pauseMs: 0, sleep: async () => {}, maxTasks: 2, now: Date.parse('2026-11-19T00:00:00Z') });
+  assert.equal(r.ok, true, JSON.stringify(r));
+  assert.notEqual(r.lastReason, 'dynamodb-checkpoint-error');
+  assert.equal(r.done, 2);
+  const cur = dynamo.items.get('META#job|cursor');
+  assert.equal(cur.leaseUntil.N, '0', 'lease released');
+  assert.ok(cur.lastRun && JSON.parse(cur.lastRun.S).done === 2);
+  // A second run can start immediately (no stale lease).
+  const again = await job.runFareMapJob({ env: ENV, dynamo, fetch, origins: ['YTO', 'YMQ'], pauseMs: 0, sleep: async () => {}, maxTasks: 1, now: Date.parse('2026-11-19T00:00:00Z') });
+  assert.equal(again.ran, true);
+});
