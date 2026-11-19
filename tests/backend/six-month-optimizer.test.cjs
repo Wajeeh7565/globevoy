@@ -100,3 +100,14 @@ test('an applied summary with cached or mismatched leg evidence cannot start hot
   assert.equal(r.tour,null);assert.equal(r.reason,'fare-map-incomplete-or-mismatched-live-evidence');
  }}finally{if(before===undefined)delete process.env.ENABLE_GENERATED_TOUR_651A;else process.env.ENABLE_GENERATED_TOUR_651A=before;}
 });
+test('a return date that does not fit the stay is planned as a labelled, buffered estimate; observed dates still rank first',async()=>{
+ // Return observation 1 day after reaching the second city: too short for any stay.
+ const f=fixture(8);move(f,'2027-03-01','2027-03-05','2027-03-06');
+ const r=await run(f,minimum);assert.ok(r.tours.length,JSON.stringify(r.reason));
+ const last=r.tours[0].legs.at(-1),ev=last.providerDateEvidence;
+ assert.equal(ev.dateEstimated,true);assert.equal(ev.basis,'month-cheapest-plus-buffer');
+ assert.ok(last.departureDate>'2027-03-06');assert.equal(ev.amountUsd,Math.round(ev.monthCheapestUsd*1.3));
+ assert.ok(r.diagnostics.estimatedReturnDates>0);
+ // When the observed date fits, no estimate is used.
+ const g=fixture(8),q=await run(g,minimum);assert.ok(q.tours.length);assert.ok(q.tours.every(t=>!t.legs.at(-1).providerDateEvidence.dateEstimated));
+});

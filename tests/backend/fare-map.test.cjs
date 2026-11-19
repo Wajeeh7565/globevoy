@@ -324,3 +324,9 @@ test('optimizer reads the origin city partition the collector writes, not a neig
   for (const o of job.priorityOrigins({})) assert.ok(collected.has(o), o + ' is a collector origin');
   for (const q of ['Toronto (YYZ)', 'Montreal (YUL)', 'Vancouver (YVR)']) assert.ok(job.priorityOrigins({}).includes(codeFor(q)), q + ' is a priority origin');
 });
+
+test('preview falls back to the existing search when the fare map has no route yet', async () => {
+  const src = require('node:fs').readFileSync(require.resolve('../../backend/services/domain/tours/generated-tour.js'), 'utf8');
+  assert.match(src, /fareMapFallback=reason/);
+  assert.match(src, /if\(preview&&!\(Array\.isArray\(result\?\.tours\)&&result\.tours\.length\)\)/);
+});
