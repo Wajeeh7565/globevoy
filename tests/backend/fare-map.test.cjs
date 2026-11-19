@@ -330,3 +330,10 @@ test('preview falls back to the existing search when the fare map has no route y
   assert.match(src, /result.fareMapFallback=reason;result.fareMapDiagnostics=fareMapDiagnostics/);
   assert.match(src, /if\(preview&&!\(Array\.isArray\(result\?\.tours\)&&result\.tours\.length\)\)/);
 });
+
+test('fare map default time budget is 5 s and the site waits 55 s for trip searches', () => {
+  const fs = require('node:fs'), path = require('node:path'), root = path.join(__dirname, '..', '..');
+  assert.match(fs.readFileSync(path.join(root, 'backend/services/domain/fare-map/fare-map-optimizer.js'), 'utf8'), /const DEFAULT_TIME_BUDGET_MS=5000;/);
+  assert.match(fs.readFileSync(path.join(root, 'frontend/runtime/api-client.js'), 'utf8'), /generatedTourTimeoutMs \|\| 55000\);\n    return fetchJson\(buildUrl\('\/api\/generated-tour'/);
+  assert.match(fs.readFileSync(path.join(root, 'frontend/runtime/config.js'), 'utf8'), /generatedTourTimeoutMs: 55000/);
+});

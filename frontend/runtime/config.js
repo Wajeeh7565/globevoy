@@ -8,6 +8,7 @@ window.GLOBEVOY_CONFIG = {
   apiBaseUrl: window.GLOBEVOY_PUBLIC_ENVIRONMENT.apiBaseUrl,
   worldwideRegistryEnabled: window.GLOBEVOY_PUBLIC_ENVIRONMENT.worldwideRegistryEnabled,
   apiTimeoutMs: 20000,
+  generatedTourTimeoutMs: 55000,
   mapFirstThreePicksEnabled: true,
   topSwitchThreePicksEnabled: true,
   selectedTripDetailHandoffEnabled: true,
