@@ -125,10 +125,14 @@ async function writeCursor(cursor,options={}) {
   if(cursor.lastRun)item.lastRun={S:JSON.stringify(cursor.lastRun).slice(0,8000)};
   const condition=options.acquire
     ? '(attribute_not_exists(pk) OR ((attribute_not_exists(leaseUntil) OR leaseUntil < :now) AND (attribute_not_exists(revision) OR revision = :revision)))'
-    : options.owner ? 'owner = :owner AND leaseUntil > :now' : 'attribute_not_exists(leaseUntil) OR leaseUntil < :now';
+    : options.owner ? '#owner = :owner AND leaseUntil > :now' : 'attribute_not_exists(leaseUntil) OR leaseUntil < :now';
   const values={':now':{N:String(now)}};
   if(options.acquire)values[':revision']={N:String(cursor.revision||0)};
   else if(options.owner)values[':owner']={S:options.owner};
-  await client(options).send(cmd('PutItemCommand',{TableName:tableName(options.env),Item:item,ConditionExpression:condition,ExpressionAttributeValues:values}));
+  // OWNER is a DynamoDB reserved word: it must go through ExpressionAttributeNames,
+  // otherwise every lease-holding checkpoint/release fails with ValidationException.
+  const input={TableName:tableName(options.env),Item:item,ConditionExpression:condition,ExpressionAttributeValues:values};
+  if(condition.includes('#owner'))input.ExpressionAttributeNames={'#owner':'owner'};
+  await client(options).send(cmd('PutItemCommand',input));
 }
 module.exports = { TTL_DAYS, tableName, writeRecords, readRoutesFrom, readCursor, writeCursor, _internal: { toItem, fromItem } };
