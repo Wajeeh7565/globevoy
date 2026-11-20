@@ -359,3 +359,17 @@ test('"All continents" from the site means no region filter', async () => {
   const run = region => opt.search({ origin: 'Toronto (YYZ)', budget: 3500, currency: 'CAD', adults: 1, region }, { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'x' }, readRoutes, now });
   assert.ok((await run('All continents')).tours.length > 0);
 });
+
+test('fare-map routes report: console events only, ranked list without live calls', async () => {
+  const report = require('../../backend/services/domain/fare-map/fare-map-routes-report');
+  assert.equal(report.isFareMapRoutesEvent({ globevoyJob: 'fare-map-routes' }), true);
+  assert.equal(report.isFareMapRoutesEvent({ globevoyJob: 'fare-map-routes', rawPath: '/x', requestContext: {} }), false);
+  const opt = require('../../backend/services/domain/fare-map/fare-map-optimizer');
+  const all = opt._internal.rows(), codes = [...new Set(all.filter(opt._internal.eligible).map(opt._internal.code).filter(Boolean))];
+  const now = Date.parse('2026-11-19T15:00:00Z'); let seed = 5; const R = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const readRoutes = async (o, m) => codes.filter(d => d !== o && R() < 0.4).map(d => ({ origin: o, month: m, destination: d, priceUsd: 80 + Math.round(R() * 600), departureDate: `${m}-${String(1 + Math.floor(R() * 27)).padStart(2, '0')}`, observedAt: new Date(now - 3600e3).toISOString(), source: 'travelpayouts-cached' }));
+  const r = await report.runFareMapRoutesReport({ globevoyJob: 'fare-map-routes', budget: 3500, limit: 30 }, { env: { FARE_MAP_TABLE: 'x' }, readRoutes, now });
+  assert.equal(r.ok, true);
+  assert.ok(r.listed > 3 && r.listed <= 30, String(r.listed));
+  assert.match(r.routes[0], /^ 1\. .+ > .+ \| C\$\d+ \| \d+ nights \| \d{4}-\d{2}-\d{2}/);
+});

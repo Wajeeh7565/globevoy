@@ -112,6 +112,8 @@ exports.handler = async function handler(event) {
   if (fareMapJob.isFareMapEvent(event) && !event.rawPath && !event.requestContext) return fareMapJob.runFareMapJob();
   const providerCompare = require('./services/domain/live-fares/provider-compare');
   if (providerCompare.isProviderCompareEvent(event)) return providerCompare.runProviderCompare(event);
+  const fareMapRoutes = require('./services/domain/fare-map/fare-map-routes-report');
+  if (fareMapRoutes.isFareMapRoutesEvent(event)) return fareMapRoutes.runFareMapRoutesReport(event);
   const corsHeaders = () => buildCorsHeaders686DP1(event);
   const path = String(event.rawPath || event.path || '/api/recommendations').split('?')[0];
   const method = String(
