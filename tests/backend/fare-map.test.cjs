@@ -325,10 +325,10 @@ test('optimizer reads the origin city partition the collector writes, not a neig
   for (const q of ['Toronto (YYZ)', 'Montreal (YUL)', 'Vancouver (YVR)']) assert.ok(job.priorityOrigins({}).includes(codeFor(q)), q + ' is a priority origin');
 });
 
-test('preview falls back to the existing search when the fare map has no route yet', async () => {
+test('preview falls back to the existing search only when the fare map had no route to check', async () => {
   const src = require('node:fs').readFileSync(require.resolve('../../backend/services/domain/tours/generated-tour.js'), 'utf8');
   assert.match(src, /result.fareMapFallback=reason;result.fareMapDiagnostics=fareMapDiagnostics/);
-  assert.match(src, /if\(preview&&!\(Array\.isArray\(result\?\.tours\)&&result\.tours\.length\)\)/);
+  assert.match(src, /if\(preview&&!fareMapChecked&&!\(Array\.isArray\(result\?\.tours\)&&result\.tours\.length\)\)/);
 });
 
 test('fare map default time budget is 5 s and the site waits 55 s for trip searches', () => {

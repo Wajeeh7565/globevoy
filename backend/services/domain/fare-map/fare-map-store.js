@@ -144,4 +144,4 @@ async function readMeta(sk,options={}){
 async function writeMeta(sk,state,options={}){
   await client(options).send(cmd('PutItemCommand',{TableName:tableName(options.env),Item:{pk:{S:'META#job'},sk:{S:sk},state:{S:JSON.stringify(state).slice(0,8000)},updatedAt:{S:new Date(options.nowMs??Date.now()).toISOString()}}}));
 }
-module.exports = { TTL_DAYS, tableName, writeRecords, readRoutesFrom, readCursor, writeCursor, readMeta, writeMeta, _internal: { toItem, fromItem } };
+module.exports = { TTL_DAYS, tableName, writeRecords, readRoutesFrom, readCursor, writeCursor, readMeta, writeMeta, _internal: { toItem, fromItem, client, cmd } };

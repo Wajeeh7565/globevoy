@@ -3541,6 +3541,9 @@ async function getFareMapGeneratedTour(query,options) {
     try{checked=await (options.applyIgnavLiveFares||applyIgnavLiveFares)(selected,query,options)}
     catch{checked={summary:{applied:false,reason:'provider-unavailable'}}}
     diagnostics.ignavLiveFares=checked?.summary||{applied:false,reason:'provider-invalid-response'};
+    // Exact usage per search: Ignav calls made and flights reused from the 15-minute memory.
+    diagnostics.ignavCalls=(diagnostics.ignavCalls||0)+(Number(checked?.summary?.providerRequests)||0);
+    diagnostics.ignavCacheHits=(diagnostics.ignavCacheHits||0)+(Number(checked?.summary?.cacheHits)||0);
     if(checked?.summary?.applied&&checked.summary.partial){
       // Some legs live, some estimated: keep the live legs, but without every arrival
       // time the hotel nights cannot be re-dated, so stays remain planning estimates.
@@ -3632,6 +3635,12 @@ async function getFareMapGeneratedTour(query,options) {
     outcome={tour:best.partial,arrivalVerified:best.flights.arrivalVerified,source:best.candidateTour};
     diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-most-live-trip');
   }
+  if(!outcome&&requireLive&&liveAttempts.length&&candidates.length){
+    // Every check failed before hotels: show the first trip with its estimates labelled
+    // (what the old fallback search ended up showing), without another round of calls.
+    const first=candidates[0],shown=await build(first,{selected:first,arrivalVerified:false},false);
+    if(!shown.reason){outcome=shown;diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-estimate-no-live-trip');}
+  }
   diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;
   if(!outcome||outcome.reason)return {...empty(outcome?.reason||liveAttempts.at(-1)||'fare-map-no-route'),diagnostics:{...result.diagnostics,...diagnostics}};
   diagnostics.arrivalDatesVerified=outcome.arrivalVerified;
@@ -3655,7 +3664,11 @@ async function getGeneratedTour(query = {}, options = {}) {
   if(preview)options={...options,fareMapPreview:true,env:{...baseEnv,ENABLE_FARE_MAP_OPTIMIZER:'true'}};
   let mapEnabled=fareMap.enabled(options.env);
   let result=mapEnabled?await getFareMapGeneratedTour(query,options):await getGeneratedTourCore(query);
-  if(preview&&!(Array.isArray(result?.tours)&&result.tours.length)){
+  // Once the fare map has live-checked trips, never start the old search as well: it
+  // ran its own live checks and retries (about 12 more Ignav calls) and took 20+ s.
+  // The old search only runs when the fare map had no route to check at all.
+  const fareMapChecked=Array.isArray(result?.diagnostics?.fareMapLiveAttempts)&&result.diagnostics.fareMapLiveAttempts.length>0;
+  if(preview&&!fareMapChecked&&!(Array.isArray(result?.tours)&&result.tours.length)){
     // Preview only: while the fare map is still filling, fall back to the existing
     // search rather than an empty page, and say so in the response.
     const reason=result?.reason||'fare-map-no-route',fareMapDiagnostics=result?.diagnostics||null;
