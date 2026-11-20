@@ -152,10 +152,11 @@ test('booking proof rejects missing, modified, expired and different-ID requests
 test('local rate guard reserves before fetch and fails closed; 429 cooldown works', async () => {
   let time = 1000000;
   const guard = ignav._internal.createGuard(() => time);
-  for(let i=0;i<10;i++) assert.equal(guard.reserve(), true);
+  // Defaults: 60 a minute, 1000 an hour (Ignav has no cap on our key; this stops runaway bugs).
+  for(let i=0;i<60;i++) assert.equal(guard.reserve(), true);
   assert.equal(guard.reserve(), false); time += 60001; assert.equal(guard.reserve(), true);
   guard.block(); assert.equal(guard.reserve(), false); time += 60001; assert.equal(guard.reserve(), true);
-  for(let i=0;i<5;i++) { time += 60001; for(let j=0;j<10;j++) guard.reserve(); }
+  for(let i=0;i<16;i++) { time += 60001; for(let j=0;j<60;j++) guard.reserve(); }
   assert.equal(guard.reserve(), false);
   const result = await ignav.searchOneWay({origin:'YUL',destination:'LHR',departureDate:'2027-03-20'}, {env:ENV,requestGuard:{reserve:()=>false},fetchFn:()=>assert.fail('No provider call after quota')});
   assert.equal(result.reason,'ignav-local-quota-exhausted');
@@ -177,5 +178,5 @@ test('observations up to 3 hours old are accepted; the local cap follows IGNAV_M
   process.env.IGNAV_MAX_PER_MINUTE = '3';
   try { const g = ignav._internal.createGuard(() => 0); assert.deepEqual([g.reserve(), g.reserve(), g.reserve(), g.reserve()], [true, true, true, false]); }
   finally { if (old.m === undefined) delete process.env.IGNAV_MAX_PER_MINUTE; else process.env.IGNAV_MAX_PER_MINUTE = old.m; }
-  const d = ignav._internal.createGuard(() => 0); for (let i = 0; i < 10; i++) assert.equal(d.reserve(), true); assert.equal(d.reserve(), false);
+  const d = ignav._internal.createGuard(() => 0); for (let i = 0; i < 60; i++) assert.equal(d.reserve(), true); assert.equal(d.reserve(), false);
 });

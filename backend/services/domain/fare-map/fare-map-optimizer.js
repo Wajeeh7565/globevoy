@@ -77,12 +77,37 @@ function makeTour(state,origin,budget,query,options={}){
  const flights=legs.reduce((s,l)=>s+l.estimatedTransportUsd,0),hotels=stops.reduce((s,t)=>s+t.hotel.estimatedStayUsd,0),reserve=Math.round(budget*.10),total=flights+hotels;
  return attachTourPresentation({tourId:'gv-fare-map-'+state.key.replace(/[^A-Za-z0-9-]/g,'-'),origin,stops,legs,passengerPricing:normalizeParty(query),totalNights:stops.reduce((s,t)=>s+t.nights,0),tripDurationNights:days(state.edges[0].departureDate,state.edges.at(-1).departureDate),estimatedTotalUsd:total,totalFlightEstimateUsd:flights,totalTransportEstimateUsd:flights,totalHotelEstimateUsd:hotels,totalBudgetUsd:budget,reservePercent:.1,reserveAmountUsd:reserve,usableTripBudgetUsd:budget-reserve,amountLeftUsd:budget-reserve-total,affordabilityStatus:total<=budget-reserve?'within-protected-budget':'over-protected-budget',selectionSource:'fare-map-beam',pricingStatus:'cached-flight-and-estimated-hotel-planning',providerVerificationRequired:true,routeExplanation:['All three route/date observations exist in the fare map; cached fares do not establish available flights.','Hotel nights conservatively cover the entire departure-to-departure interval. Actual arrival dates and hotel check-in must be verified before booking.','A 10% personal expense reserve remains protected.'],fareMap:{version:VERSION,completeCachedLegs:3,arrivalDatesVerified:false,hotelDatesRequireVerification:true,durationChoices:options.durationChoices||[days(state.edges[0].departureDate,state.edges.at(-1).departureDate)]},editableActions:{removeStop:false,replaceStop:true,addStop:false,reorderStops:false,undo:true}},query);
 }
+// Best use of the budget (GV-FAREMAP-BEST-USE-001). The site asks for three trips in
+// parallel by role; each role gets its own route so the page can show three different trips.
+// best-balance: the route that spends 80-95% of the spendable budget (headroom for live
+// price drift), most nights first; when none reach 80%, the route closest to it.
+// lowest-cost: the cheapest route. most-memorable: a route sharing the fewest cities.
+// Real return dates always outrank estimated ones. Each role keeps one backup route.
+const USE_BAND=[.8,.95];
+function bestUseOrder(states,spendable){
+ const use=s=>s.cost/spendable,inBand=s=>use(s)>=USE_BAND[0]&&use(s)<=USE_BAND[1];
+ const nights=s=>Number(s.tour?.totalNights)||0;
+ return states.slice().sort((a,b)=>a.estimatedDate-b.estimatedDate||inBand(b)-inBand(a)
+  ||(inBand(a)&&inBand(b)?nights(b)-nights(a)||b.cost-a.cost:Math.abs(use(a)-USE_BAND[0])-Math.abs(use(b)-USE_BAND[0]))
+  ||a.key.localeCompare(b.key));
+}
+function roleCandidates(ranked,spendable){
+ if(!ranked.length||!(spendable>0))return null;
+ const key=s=>s.cities.map(code).join('>'),taken=new Set(),out={};
+ const tag=(s,role,label)=>({...s.tour,tourRole:role,tourRoleLabel:label,fareMapRole:role,budgetUse:Number((s.cost/spendable).toFixed(3))});
+ const take=(order,role,label)=>{const fresh=order.filter(s=>!taken.has(key(s)));const list=(fresh.length?fresh:order).slice(0,2);if(fresh.length)taken.add(key(fresh[0]));out[role]=list.map(s=>tag(s,role,label));};
+ take(bestUseOrder(ranked,spendable),'best-balance','Best use of budget');
+ take(ranked,'lowest-cost','Lowest cost');
+ const used=new Map();for(const k of taken)for(const c of k.split('>'))used.set(c,(used.get(c)||0)+1);
+ take(ranked.slice().sort((a,b)=>a.estimatedDate-b.estimatedDate||a.cities.reduce((n,c)=>n+(used.get(code(c))||0),0)-b.cities.reduce((n,c)=>n+(used.get(code(c))||0),0)||a.cost-b.cost),'most-memorable','Another route idea');
+ return out;
+}
 async function search(query={},options={}){
  const env=options.env||process.env;
  if(!enabled(env))return {ok:true,supported:false,reason:'feature-disabled',requiredFlag:FLAG+'=true',tours:[]};
  const diagnostics={engine:VERSION,reads:0,examinedEdges:0,completeRoutes:0,expandedPairs:0,eligibleCities:0,cacheHits:0,rejectedFares:0,rejectedRules:0,bounded:false,liveProviderCallsMade:0};
- let requested=null;
- const response=(tours,reason)=>({ok:true,supported:true,version:VERSION,mode:'guarded-planning-estimate',requested,tours,reason:reason||null,presentationPolicy:presentationPolicy(),pricingPolicy:{flights:'fare-map-cached-estimates',hotels:'accommodation-cost-map-planning-evidence',providerVerificationRequiredBeforeBooking:true,liveProviderCallsMade:0},diagnostics});
+ let requested=null,result_roleCandidates=null;
+ const response=(tours,reason)=>({ok:true,supported:true,version:VERSION,mode:'guarded-planning-estimate',requested,tours,...(result_roleCandidates?{roleCandidates:result_roleCandidates}:{}),reason:reason||null,presentationPolicy:presentationPolicy(),pricingPolicy:{flights:'fare-map-cached-estimates',hotels:'accommodation-cost-map-planning-evidence',providerVerificationRequiredBeforeBooking:true,liveProviderCallsMade:0},diagnostics});
  if(!store.tableName(env)&&!options.readRoutes)return response([],'fare-map-not-configured');
  const origin=graph.resolveAnyOrigin(query.origin||query.originCode);
  if(!origin)throw new legacy.MultiCityValidationError('INVALID_ORIGIN','Please enter a supported origin city or airport.');
@@ -164,7 +189,8 @@ async function search(query={},options={}){
       const qualityPenalty=tour.stops.reduce((sum,s)=>sum+(s.hotel.costEvidence.quality.verified?-(s.hotel.costEvidence.quality.reviewScore||0)*2:0),0);
       tour.fareMap.scoreEvidence={costUsd:tour.estimatedTotalUsd,comfortPenalty,hotelQualityPenalty:qualityPenalty,unknownFlightComfort:candidate.edges.some(f=>f.stops==null||f.durationMinutes==null)};
       complete.push({estimatedDate:!!fare.dateEstimated,cities:state.cities,cost:tour.estimatedTotalUsd,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}});
-      if(complete.length>128)complete=pickDiverse(complete,64);
+      // Keep cheap, diverse routes and the routes that use the budget best.
+      if(complete.length>128){const keep=pickDiverse(complete,48),ids=new Set(keep.map(x=>x.key+'|'+x.cost));complete=[...keep,...bestUseOrder(complete.filter(x=>!ids.has(x.key+'|'+x.cost)),budget-Math.round(budget*.1)).slice(0,16)];}
       return true;
   }
  let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[];
@@ -244,8 +270,9 @@ async function search(query={},options={}){
  const ranked=[...distinct.values()].sort((a,b)=>a.estimatedDate-b.estimatedDate||a.cost-b.cost||a.key.localeCompare(b.key)),cheapest=ranked[0];
  const alternatives=cheapest?ranked.slice(1).map(s=>({...s,preferencePenalty:(s.preferencePenalty||0)+s.cities.reduce((sum,c)=>sum+(cheapest.cities.some(x=>code(x)===code(c))?75:0),0)})):[];
  const picked=(cheapest?[cheapest,...pickDiverse(alternatives,2)]:[]).map((s,i)=>({...s.tour,tourRole:['lowest-cost','best-balance','most-memorable'][i],tourRoleLabel:['Lowest cost','Diverse alternative','Another route idea'][i]}));
+ result_roleCandidates=roleCandidates(ranked,budget-Math.round(budget*.1));
  if(options.listRanked)diagnostics.ranked=ranked.slice(0,Math.min(100,Number(options.listLimit)||50)).map(x=>({route:(x.tour?.stops||[]).map(s=>s.city||s.name||s.cityId).join(' > '),totalUsd:Math.round(x.cost),nights:x.tour?.totalNights??null,dates:(x.tour?.legs||[]).map(l=>l.departureDate),estimatedReturnDate:Boolean(x.estimatedDate)}));
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,_internal:{date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,_internal:{bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
