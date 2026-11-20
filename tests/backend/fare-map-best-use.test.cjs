@@ -19,7 +19,7 @@ test('best-use order: in-band (80-95% of spendable) first, most nights first, re
   assert.equal(bestUseOrder([state(['AAA', 'BBB'], 400, 7), state(['CCC', 'DDD'], 700, 7)], 1000)[0].key, 'CCC>DDD');
 });
 
-test('role candidates: three different routes, lowest cost really is the cheapest left, one backup each', () => {
+test('role candidates: three different routes, lowest cost really is the cheapest left, up to two backups each', () => {
   const { roleCandidates } = optimizer._internal;
   const ranked = [state(['AAA', 'BBB'], 500, 7), state(['AAA', 'CCC'], 600, 7), state(['DDD', 'EEE'], 850, 8), state(['FFF', 'GGG'], 700, 7)];
   const out = roleCandidates(ranked, 1000);
@@ -27,7 +27,7 @@ test('role candidates: three different routes, lowest cost really is the cheapes
   assert.equal(first('best-balance'), 'best-balance:0.85');
   assert.equal(first('lowest-cost'), 'lowest-cost:0.5');
   assert.equal(out['most-memorable'][0].budgetUse, 0.7, 'shares no city with the other two picks');
-  for (const list of Object.values(out)) assert.ok(list.length >= 1 && list.length <= 2);
+  for (const list of Object.values(out)) assert.ok(list.length >= 1 && list.length <= 3);
   assert.equal(roleCandidates([], 1000), null);
 });
 
@@ -103,4 +103,21 @@ test('live hotel pass: with a hotel budget it upgrades and labels the change; wi
   assert.equal(up.tour.stops[0].hotel.budgetUpgrade.fromHotelId, 'lis-ok');
   assert.ok(up.tour.stops.reduce((s, st) => s + st.hotel.totalStayUsd, 0) <= 900);
   assert.equal(up.summary.budgetUpgrade.upgradedCount, 1);
+});
+
+test('when every live check fails, the checked trip is shown as an estimate and the old search never runs', async () => {
+  const f = fixture(), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline' };
+  let calls = 0;
+  const gt = require('../../backend/services/domain/tours/generated-tour');
+  try {
+    const r = await gt.getGeneratedTour({ ...f.query, routeRole: 'best-balance' }, { env, fareMap: { ...f.options, rows: f.rows },
+      applyIgnavLiveFares: async t => { calls++; return { tour: { ...t, legs: t.legs.slice(0, 1) }, summary: { applied: true, providerRequests: 3 } }; } });
+    assert.ok(r.tour, 'a trip is shown instead of an empty page');
+    assert.equal(r.fareMapFallback, undefined, 'no second (old-engine) search');
+    assert.equal(r.diagnostics.fareMapLiveOnlyUnmet, true);
+    assert.equal(r.diagnostics.fareMapLiveAttempts.at(-1), 'shown-estimate-no-live-trip');
+    assert.ok(calls <= 3, 'at most three trips checked: ' + calls);
+    assert.equal(r.diagnostics.ignavCalls, calls * 3, 'the response reports exactly how many Ignav calls were made');
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
 });

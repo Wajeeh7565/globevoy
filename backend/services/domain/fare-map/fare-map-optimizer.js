@@ -82,7 +82,7 @@ function makeTour(state,origin,budget,query,options={}){
 // best-balance: the route that spends 80-95% of the spendable budget (headroom for live
 // price drift), most nights first; when none reach 80%, the route closest to it.
 // lowest-cost: the cheapest route. most-memorable: a route sharing the fewest cities.
-// Real return dates always outrank estimated ones. Each role keeps one backup route.
+// Real return dates always outrank estimated ones. Each role keeps two backup routes.
 const USE_BAND=[.8,.95];
 function bestUseOrder(states,spendable){
  const use=s=>s.cost/spendable,inBand=s=>use(s)>=USE_BAND[0]&&use(s)<=USE_BAND[1];
@@ -95,7 +95,7 @@ function roleCandidates(ranked,spendable){
  if(!ranked.length||!(spendable>0))return null;
  const key=s=>s.cities.map(code).join('>'),taken=new Set(),out={};
  const tag=(s,role,label)=>({...s.tour,tourRole:role,tourRoleLabel:label,fareMapRole:role,budgetUse:Number((s.cost/spendable).toFixed(3))});
- const take=(order,role,label)=>{const fresh=order.filter(s=>!taken.has(key(s)));const list=(fresh.length?fresh:order).slice(0,2);if(fresh.length)taken.add(key(fresh[0]));out[role]=list.map(s=>tag(s,role,label));};
+ const take=(order,role,label)=>{const fresh=order.filter(s=>!taken.has(key(s)));const list=(fresh.length?fresh:order).slice(0,3);if(fresh.length)taken.add(key(fresh[0]));out[role]=list.map(s=>tag(s,role,label));};
  take(bestUseOrder(ranked,spendable),'best-balance','Best use of budget');
  take(ranked,'lowest-cost','Lowest cost');
  const used=new Map();for(const k of taken)for(const c of k.split('>'))used.set(c,(used.get(c)||0)+1);

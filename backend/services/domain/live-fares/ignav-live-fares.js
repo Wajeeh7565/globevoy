@@ -12,6 +12,7 @@
 // downgrading it to cached Travelpayouts data.
 
 const ignav = require('../../providers/flights/ignav/ignav');
+const { searchOneWayCached } = require('./ignav-fare-cache');
 const { normalizeParty, priceTransportLeg, applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
 const { currencyToUsdRate, normalizeCurrency } = require('../pricing/budget-presentation');
 const { SOURCE_TYPES, normalizeFlightEvidence } = require('../pricing/price-evidence-integrity');
@@ -139,14 +140,20 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
   if (tasks.length > MAX_FLIGHT_LEGS) return { tour, summary: { ...baseSummary, reason: 'too-many-flight-legs', flightLegCount: tasks.length } };
   if (tasks.some(t => !t.origin || !t.destination || !t.departureDate)) return { tour, summary: { ...baseSummary, reason: 'flight-leg-missing-airport-or-date' } };
 
-  const results = await Promise.all(tasks.map(task => ignav.searchOneWay({
+  // Results are remembered for 15 minutes (ignav-fare-cache), so the page's three
+  // parallel trips, retries and a return visit don't pay for the same flight twice.
+  // Tests that inject fetchFn without a cache option keep calling Ignav directly.
+  const counter = { calls: 0, cacheHits: 0 };
+  const search = options.fareCache === false || (options.fetchFn && options.fareCache !== true) ? ignav.searchOneWay : searchOneWayCached;
+  const results = await Promise.all(tasks.map(task => search({
     origin: task.origin, destination: task.destination, departureDate: task.departureDate,
     adults: party.adults, children: party.children, currency
-  }, { env, fetchFn: options.fetchFn, requestGuard: options.requestGuard })));
+  }, { env, fetchFn: options.fetchFn, requestGuard: options.requestGuard, dynamo: options.dynamo, counter })));
+  if (search === ignav.searchOneWay) counter.calls = tasks.length;
 
   const failed = results.map((r, i) => ({ r, task: tasks[i] }))
     .filter(({ r }) => !r.ok || !r.cheapest || r.cheapest.currency !== currency);
-  const summaryBase = { ...baseSummary, attempted: true, providerRequests: tasks.length, requiredFlightLegCount: tasks.length, currency };
+  const summaryBase = { ...baseSummary, attempted: true, providerRequests: counter.calls, cacheHits: counter.cacheHits, requiredFlightLegCount: tasks.length, currency };
   const failedLegs = failed.map(({ r, task }) => ({ origin: task.origin, destination: task.destination, departureDate: task.departureDate,
     reason: !r.ok ? r.reason : !r.cheapest ? 'no-verified-fare' : 'currency-mismatch' }));
   // Per-leg: legs with a verified fare in the requested currency get live evidence;
