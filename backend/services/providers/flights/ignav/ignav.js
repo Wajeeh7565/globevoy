@@ -64,8 +64,9 @@ class IgnavError extends Error {
 }
 
 // Local circuit breaker, not an account-wide billing cap. Limits reset on cold start.
-// Local safety cap per Lambda instance. Defaults 10/min and 60/hour; set
-// IGNAV_MAX_PER_MINUTE / IGNAV_MAX_PER_HOUR to match the Ignav plan.
+// Local safety cap per Lambda instance. Ignav confirmed (Nov 19, 2026) that our key has
+// no per-minute or per-hour cap, so this only stops a runaway bug: 60/min, 1000/hour
+// (at most about US$2 an hour). IGNAV_MAX_PER_MINUTE / IGNAV_MAX_PER_HOUR override.
 const MAX_OBSERVATION_AGE_MS = 3 * 60 * 60 * 1000;
 function capFromEnv(name, fallback, env = process.env) {
   const n = Number(env[name]);
@@ -76,7 +77,7 @@ function createGuard(clock = Date.now, limits = {}) {
   return {
     reserve() {
       const now = clock(); minute = minute.filter(t => t > now - 60000); hour = hour.filter(t => t > now - 3600000);
-      const perMinute = limits.perMinute ?? capFromEnv('IGNAV_MAX_PER_MINUTE', 10), perHour = limits.perHour ?? capFromEnv('IGNAV_MAX_PER_HOUR', 60);
+      const perMinute = limits.perMinute ?? capFromEnv('IGNAV_MAX_PER_MINUTE', 60), perHour = limits.perHour ?? capFromEnv('IGNAV_MAX_PER_HOUR', 1000);
       if (now < blockedUntil || minute.length >= perMinute || hour.length >= perHour) return false;
       minute.push(now); hour.push(now); return true;
     },

@@ -56,7 +56,7 @@ function whitelabelUrl(domain, hotelId, checkin, checkout, occupancies) {
 
 // "Cheap but good": among offers with a decent review score, prefer refundable,
 // then cheapest. Fall back to all valid offers when none are well rated.
-function chooseOffer(payload = {}, currency) {
+function chooseOffer(payload = {}, currency, options = {}) {
   const rateHotels = Array.isArray(payload.data) ? payload.data : [];
   const content = new Map((Array.isArray(payload.hotels) ? payload.hotels : []).map(h => [clean(h.hotelId || h.id), h]));
   const offers = [];
@@ -67,6 +67,7 @@ function chooseOffer(payload = {}, currency) {
   }
   const valid = offers.filter(o => o.hotelId && o.amount > 0 && o.currency === currency && o.excludedFeesPresent !== true);
   if (!valid.length) return null;
+  if (options.all) return valid;
   // Cheapest offer from a hotel rated 7.0+ (if any are rated); refundable only
   // breaks exact ties. Budget-first: price matters more than free cancellation.
   const good = valid.filter(o => Number(o.rating) >= GOOD_RATING);
@@ -96,7 +97,34 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   if (result.payload?.sandbox === true) return { index, applied: false, reason: 'sandbox-response', providerRequests: 1 };
   const offer = chooseOffer(result.payload || {}, currency);
   if (!offer) return { index, applied: false, reason: 'no-usable-offer', providerRequests: 1 };
-  return { index, applied: true, offer, stayWindow, occupancies: body.occupancies, roomCount: body.occupancies.length, providerRequests: 1 };
+  const pool = chooseOffer(result.payload || {}, currency, { all: true }) || [];
+  return { index, applied: true, offer, pool, stayWindow, occupancies: body.occupancies, roomCount: body.occupancies.length, providerRequests: 1 };
+}
+
+// Best use of budget (GV-HOTEL-BUDGET-UPGRADE-001): when the caller passes the most the
+// trip's hotels may cost (hotelBudgetUsd), spend what the cheap-but-good picks leave over on
+// better-rated hotels, longest stays first. Each upgrade must raise the review score and fit
+// the money left; without a hotel budget the cheap-but-good pick is unchanged.
+function upgradeHotels(rows, hotelBudgetUsd, usdRate) {
+  const cap = Number(hotelBudgetUsd);
+  if (!Number.isFinite(cap) || cap <= 0) return null;
+  const applied = rows.filter(r => r.applied && r.offer);
+  if (!applied.length || applied.length !== rows.length) return { attempted: false, reason: 'not-all-hotels-priced' };
+  const usd = o => Math.round(o.amount * usdRate);
+  let left = cap - applied.reduce((sum, r) => sum + usd(r.offer), 0);
+  const startLeft = left;
+  if (left <= 0) return { attempted: true, upgradedCount: 0, leftUsd: Math.round(left) };
+  let upgradedCount = 0;
+  for (const row of applied.slice().sort((a, b) => (b.stayWindow?.nights || 0) - (a.stayWindow?.nights || 0))) {
+    const base = row.offer, baseRating = Number(base.rating) || 0;
+    const better = (row.pool || []).filter(o => Number(o.rating) > baseRating && usd(o) - usd(base) <= left)
+      .sort((a, b) => Number(b.rating) - Number(a.rating) || a.amount - b.amount)[0];
+    if (!better) continue;
+    left -= usd(better) - usd(base);
+    row.upgraded = { fromHotelId: base.hotelId, fromRating: base.rating ?? null, extraUsd: usd(better) - usd(base) };
+    row.offer = better; upgradedCount += 1;
+  }
+  return { attempted: true, upgradedCount, budgetUsd: Math.round(cap), spentUsd: Math.round(startLeft - left), leftUsd: Math.round(left) };
 }
 
 async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
@@ -124,6 +152,7 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
       return { ...row, ms: Date.now() - started };
     })()));
 
+  const upgrade = upgradeHotels(rows, options.hotelBudgetUsd, usdRate);
   const nextStops = stops.map(stop => ({ ...stop }));
   const observedAt = new Date().toISOString();
   for (const row of rows) {
@@ -171,6 +200,7 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
         reserved: false,
         finalPriceRequiresPartnerConfirmation: true
       },
+      ...(row.upgraded ? { budgetUpgrade: { fromHotelId: row.upgraded.fromHotelId, fromRating: row.upgraded.fromRating, extraUsd: row.upgraded.extraUsd, reason: 'Better-rated hotel chosen with budget the route left unspent.' } } : {}),
       nuiteeWhitelabel: { url, checkoutUrl: checkoutUrl(domain, row.offer.offerId), offerObservedAt: observedAt, domain, hotelId: row.offer.hotelId, label: 'Book this hotel', merchant: 'Nuitee' }
     };
   }
@@ -187,9 +217,10 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
       providerRequests: rows.reduce((s, r) => s + (r.providerRequests || 0), 0),
       currency,
       reason: appliedCount === targets.length ? null : 'partial-hotel-coverage',
+      budgetUpgrade: upgrade,
       rows: rows.map(r => ({ index: r.index, applied: r.applied, reason: r.reason || null, hotelId: r.offer?.hotelId || null, ms: r.ms ?? null }))
     }
   };
 }
 
-module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl } };
+module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl, upgradeHotels } };
