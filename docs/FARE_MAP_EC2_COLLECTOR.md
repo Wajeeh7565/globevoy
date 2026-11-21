@@ -6,6 +6,8 @@ rolling job. Every city's fares then come from the same day, and the collector i
 no longer bound by the Lambda time limit. Travelpayouts refreshes its cached
 prices about weekly, so every 2 days is fresh enough.
 
+The machine only runs while collecting: an EventBridge Scheduler schedule starts it every 2 days at 2:17 am Toronto time, it runs one pass at boot, then switches itself off. Stopped, it costs only its disk.
+
 Only the collector moves. The website backend stays on the Lambda
 `globevoy-recommendations`, which keeps reading the same table.
 
@@ -15,8 +17,8 @@ Only the collector moves. The website backend stays on the Lambda
 | --- | --- |
 | Full-pass logic (same Travelpayouts query, table and pacing as the Lambda job) | `backend/services/domain/fare-map/fare-map-full-pass.js` |
 | Command the machine runs | `ops/fare-map/run-full-pass.cjs` |
-| Schedule: every 2 days at 07:17 UTC | `ops/fare-map/ec2/globevoy-fare-map.timer` |
-| Service definition | `ops/fare-map/ec2/globevoy-fare-map.service` |
+| Runs a pass at every boot, then powers the machine off | `ops/fare-map/ec2/globevoy-fare-map.service` |
+| Permission for the schedule to start only this machine | `ops/fare-map/ec2/scheduler-start-policy.json` |
 | Settings template | `ops/fare-map/ec2/fare-map.env.example` |
 | Permissions for the machine | `ops/fare-map/ec2/iam-policy.json` |
 | Tests | `tests/backend/fare-map-full-pass.test.cjs` |
@@ -66,17 +68,30 @@ Expected length of one pass: a few hours (about 7,776 tasks, most needing 1–3 
    cd /opt/globevoy && sudo -u globevoy env $(sudo cat /etc/globevoy/fare-map.env | xargs) node ops/fare-map/run-full-pass.cjs --dry-run --max-tasks 3
    ```
    Each line of output is JSON; `"event":"paused"` with `done: 3` means it works.
-7. **Turn on the schedule**:
+7. **Run a pass at every boot, then power off**:
    ```bash
-   sudo cp ops/fare-map/ec2/globevoy-fare-map.service ops/fare-map/ec2/globevoy-fare-map.timer /etc/systemd/system/
-   sudo systemctl daemon-reload && sudo systemctl enable --now globevoy-fare-map.timer
-   sudo systemctl start globevoy-fare-map.service   # first pass now, without waiting
+   sudo cp ops/fare-map/ec2/globevoy-fare-map.service /etc/systemd/system/
+   sudo systemctl daemon-reload && sudo systemctl enable globevoy-fare-map.service
    ```
+8. **Start the machine every 2 days** (from CloudShell): create the role
+   `globevoy-fare-map-scheduler` (trusted by `scheduler.amazonaws.com`) with
+   `ops/fare-map/ec2/scheduler-start-policy.json`, which can start only this instance, then:
+   ```bash
+   aws scheduler create-schedule --name globevoy-fare-map-collector \
+     --schedule-expression 'cron(17 2 */2 * ? *)' --schedule-expression-timezone America/Toronto \
+     --flexible-time-window Mode=OFF \
+     --target '{"Arn":"arn:aws:scheduler:::aws-sdk:ec2:startInstances","RoleArn":"arn:aws:iam::216241083409:role/globevoy-fare-map-scheduler","Input":"{\"InstanceIds\":[\"i-0d13709c171561f0a\"]}"}'
+   ```
+
+**Maintenance:** start the machine (a pass begins), connect through Session Manager and run
+`sudo touch /etc/globevoy/hold`. The machine then stays on when the pass ends or is stopped, and
+later boots skip the pass. Run `sudo rm /etc/globevoy/hold` and stop the machine when done.
 
 ## Checking on it
 
-- Logs: `journalctl -u globevoy-fare-map -f` (progress every 250 tasks, and a final line).
-- Next run: `systemctl list-timers globevoy-fare-map.timer`.
+- Logs (while it runs): `journalctl -u globevoy-fare-map -f`; after a pass, `journalctl -u globevoy-fare-map -b -1`.
+- Next run: EventBridge Scheduler → Schedules → `globevoy-fare-map-collector`. Between passes the
+  instance shows **stopped** in EC2; that is normal.
 - Progress in DynamoDB: Query `globevoy-fare-map` with partition key `META#job`; the `full-pass`
   item shows `index`, `done`, `skipped`, `completedAt` and `lastError`.
 
@@ -92,4 +107,4 @@ Expected length of one pass: a few hours (about 7,776 tasks, most needing 1–3 
 
 ## Updating the collector
 
-`cd /opt/globevoy && sudo -u globevoy git pull`, between passes. The next timer run uses the new code.
+During a pass or with the hold file in place: `cd /opt/globevoy && sudo -u globevoy -H git pull`. The next pass uses the new code.
