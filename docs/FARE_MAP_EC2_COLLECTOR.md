@@ -42,7 +42,10 @@ Expected length of one pass: a few hours (about 7,776 tasks, most needing 1–3 
    Add `AmazonSSMManagedInstanceCore` so the machine can be reached through Session Manager
    without SSH keys or open ports.
 3. **Launch the instance**: us-east-2, Amazon Linux 2023, 2 vCPUs and 8 GB (for example
-   `t3.large`), the role from step 2, no inbound ports. Leave the existing Deaf AI instance as it is.
+   `t3.large`), the role from step 2, no inbound ports. Name it `globevoy-fare-map-collector`.
+   **The existing Deaf AI instance must not be touched**: do not stop, restart, resize or edit it,
+   and do not reuse its IAM role, security group or key pair. The collector gets its own role
+   and its own security group (no inbound rules), and its policy grants nothing on EC2.
 4. **Install** (through Session Manager):
    The repository is private, so first add a **read-only deploy key** for the machine
    (GitHub → repository Settings → Deploy keys, "Allow write access" unticked), with the
