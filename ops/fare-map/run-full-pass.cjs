@@ -24,7 +24,11 @@ async function tokenFromSecret(secretId) {
   const client = new SecretsManagerClient({ region: process.env.AWS_REGION || 'us-east-2' });
   const out = await client.send(new GetSecretValueCommand({ SecretId: secretId }));
   const raw = String(out.SecretString || '').trim();
-  try { const j = JSON.parse(raw); return String(j.token || j.TRAVELPAYOUTS_TOKEN || '').trim(); } catch (_) { return raw; }
+  // Plain text, or a key/value secret: {"token": ...}, {"TRAVELPAYOUTS_TOKEN": ...} or any single key.
+  let j; try { j = JSON.parse(raw); } catch (_) { return raw; }
+  if (!j || typeof j !== 'object') return raw;
+  const values = Object.values(j).filter(v => typeof v === 'string' && v.trim());
+  return String(j.token || j.TRAVELPAYOUTS_TOKEN || j.apiKey || (values.length === 1 ? values[0] : '')).trim();
 }
 
 (async () => {

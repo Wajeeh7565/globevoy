@@ -35,7 +35,7 @@ Expected length of one pass: a few hours (about 7,776 tasks, most needing 1–3 
 ## Setup (one time)
 
 1. **Store the Travelpayouts token in Secrets Manager** (us-east-2), as secret
-   `globevoy/production/travelpayouts`, plain text. Copy the value from the Lambda's
+   `globevoy/production/travelpayouts`, plain text or a single key/value pair. Copy the value from the Lambda's
    `TRAVELPAYOUTS_TOKEN` environment variable. Never paste it into chat, Jira or Git.
 2. **Create the IAM role** `globevoy-fare-map-collector` for EC2 with the policy in
    `ops/fare-map/ec2/iam-policy.json` (write and read the fare map table, read that one secret).
