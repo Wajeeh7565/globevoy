@@ -21,7 +21,7 @@ Only the collector moves. The website backend stays on the Lambda
 | Permissions for the machine | `ops/fare-map/ec2/iam-policy.json` |
 | Tests | `tests/backend/fare-map-full-pass.test.cjs` |
 
-- Priority cities (Toronto, Montreal, Vancouver) are collected first.
+- Every city is treated the same: month by month, origin by origin.
 - Each origin and month is read to its last page (up to 34 pages, about 1,000 destinations).
 - One request every 1.1 s, the same pace as the Lambda job, which has never been rate limited.
 - Progress is saved after every task in `META#job` / `full-pass`, separate from the Lambda's

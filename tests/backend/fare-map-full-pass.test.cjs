@@ -32,11 +32,11 @@ function tpFetch({ rateLimitOnce = false, failOrigin = null } = {}) {
   };
   f.calls = 0; return f;
 }
-const base = (over = {}) => ({ env: ENV, token: 'tp_test', clock: () => NOW, sleep: async ms => { (over.slept || []).push(ms); }, pace: async () => {}, log: () => {}, origins: ['YTO', 'NYC', 'LON'], priorityOrigins: ['YTO'], ...over });
+const base = (over = {}) => ({ env: ENV, token: 'tp_test', clock: () => NOW, sleep: async ms => { (over.slept || []).push(ms); }, pace: async () => {}, log: () => {}, origins: ['YTO', 'NYC', 'LON'], ...over });
 
-test('task order: priority origins first for every month, then month by month', () => {
-  const t = _internal.buildTasks(['NYC', 'YTO', 'LON'], ['2026-11', '2026-12'], ['YTO', 'YUL']).map(x => x.origin + '#' + x.month);
-  assert.deepEqual(t, ['YTO#2026-11', 'YTO#2026-12', 'NYC#2026-11', 'LON#2026-11', 'NYC#2026-12', 'LON#2026-12']);
+test('task order: month by month, every origin treated the same', () => {
+  const t = _internal.buildTasks(['NYC', 'YTO', 'LON'], ['2026-11', '2026-12']).map(x => x.origin + '#' + x.month);
+  assert.deepEqual(t, ['NYC#2026-11', 'YTO#2026-11', 'LON#2026-11', 'NYC#2026-12', 'YTO#2026-12', 'LON#2026-12']);
 });
 
 test('one run collects every origin x month to the last page and records completion', async () => {

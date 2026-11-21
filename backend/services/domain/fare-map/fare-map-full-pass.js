@@ -14,7 +14,7 @@
 // - Progress is saved after every task in META#job / full-pass, separate from
 //   the Lambda job's cursor, so both can run side by side during the switch-over
 //   and a stopped pass resumes where it left off.
-// - Priority origins (Toronto, Montreal, Vancouver) are collected first.
+// - Every city is treated the same: tasks run month by month, origin by origin.
 
 const ingest = require('./fare-map-ingest');
 const store = require('./fare-map-store');
@@ -22,24 +22,14 @@ const { collectionMonthCount } = require('./search-window');
 
 const VERSION = 'GV-FAREMAP-FULLPASS-001';
 const META_KEY = 'full-pass';
-const DEFAULT_PRIORITY = ['YTO', 'YUL', 'YVR'];
 const MAX_TASK_ATTEMPTS = 3;      // transient provider errors, then the task is skipped
 const MAX_COOLDOWNS = 10;         // rate limits in one pass before giving up
 const STOP_REASONS = new Set(['provider-auth-error', 'travelpayouts-token-missing', 'invalid-fx-configuration']);
 
-function priorityOrigins(env = process.env) {
-  const raw = String(env.FARE_MAP_PRIORITY_ORIGINS || '').trim();
-  const list = raw ? raw.split(',').map(x => x.trim().toUpperCase()).filter(x => /^[A-Z]{3}$/.test(x)) : DEFAULT_PRIORITY;
-  return [...new Set(list)].slice(0, 10);
-}
-
-// Priority origins first (every month), then everything else month by month,
-// the same order the Lambda job uses for the rest.
-function buildTasks(origins, months, priority) {
-  const first = priority.filter(p => origins.includes(p));
+// Month by month, origin by origin: the same order as the Lambda job's rolling pass.
+function buildTasks(origins, months) {
   const tasks = [];
-  for (const o of first) for (const m of months) tasks.push({ origin: o, month: m });
-  for (const m of months) for (const o of origins) if (!first.includes(o)) tasks.push({ origin: o, month: m });
+  for (const m of months) for (const o of origins) tasks.push({ origin: o, month: m });
   return tasks;
 }
 const taskKey = t => (t ? `${t.origin}#${t.month}` : null);
@@ -56,7 +46,7 @@ async function runFullPass(options = {}) {
 
   const origins = options.origins || ingest.originCodesFromRegistry(options.registry || require('../../../data/unified-city-registry-1000.json'));
   const months = ingest.upcomingMonths(collectionMonthCount(clock()), clock());
-  const tasks = buildTasks(origins, months, options.priorityOrigins || priorityOrigins(env));
+  const tasks = buildTasks(origins, months);
   const opts = { env, dynamo: options.dynamo };
 
   // Resume an unfinished pass with the same task list; otherwise start a new one.
@@ -132,4 +122,4 @@ async function runFullPass(options = {}) {
   return { ok: true, finished, ...pass, index };
 }
 
-module.exports = { VERSION, META_KEY, runFullPass, _internal: { buildTasks, priorityOrigins } };
+module.exports = { VERSION, META_KEY, runFullPass, _internal: { buildTasks } };
