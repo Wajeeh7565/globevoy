@@ -1,0 +1,16 @@
+# One complete fare-map pass. Started by globevoy-fare-map.timer; a pass that is
+# still running is never started twice (systemd runs one instance of a oneshot).
+[Unit]
+Description=GlobeVoy fare map: one full Travelpayouts collection pass
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=globevoy
+WorkingDirectory=/opt/globevoy
+EnvironmentFile=/etc/globevoy/fare-map.env
+ExecStart=/usr/bin/node ops/fare-map/run-full-pass.cjs
+# A pass takes a few hours; stop it if it ever runs past 12.
+TimeoutStartSec=12h
+Nice=10

@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "FareMapReadWrite",
+      "Effect": "Allow",
+      "Action": ["dynamodb:BatchWriteItem", "dynamodb:PutItem", "dynamodb:GetItem", "dynamodb:Query"],
+      "Resource": "arn:aws:dynamodb:us-east-2:216241083409:table/globevoy-fare-map"
+    },
+    {
+      "Sid": "TravelpayoutsToken",
+      "Effect": "Allow",
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": "arn:aws:secretsmanager:us-east-2:216241083409:secret:globevoy/production/travelpayouts-*"
+    }
+  ]
+}
