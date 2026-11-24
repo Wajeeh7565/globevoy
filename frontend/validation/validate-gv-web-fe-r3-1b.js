@@ -64,10 +64,15 @@ function main() {
 
   for (const page of pages) {
     const html = read(page);
+    if (page === 'index.html' || page === 'multicity-visualizer.html') {
+      assert.ok(html.includes('auth-config-705b-r3.js'), `${page} missing public auth configuration`);
+      assert.ok(html.includes('auth-session-705b-r3.js'), `${page} missing Cognito session runtime`);
+      continue;
+    }
     assert.ok(html.includes('shell.css?v=fe-r3-1b'), `${page} missing FE-R3.1B CSS cache key`);
     assert.ok(html.includes('shell-670f.js?v=fe-r3-1b'), `${page} missing FE-R3.1B JS cache key`);
   }
-  pass('all canonical classic pages cache-bust the unified shell');
+  pass('classic pages use the unified shell or load the shared Cognito runtime directly');
 
   assert.doesNotMatch(shell, /Book now|Pay now|Complete purchase/);
   pass('header consolidation adds no booking or payment capability');

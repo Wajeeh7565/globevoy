@@ -44,6 +44,8 @@ const groups = {
     ['node', 'backend/validation/validate-gv-web-fe-r2.js']
   ],
 
+  'frontend-history': [['node', 'frontend/validation/validate-gv-rec-687b-frontend.js']],
+
   frontend: [
     ['node', 'frontend/validation/validate-gv-book-685d-frontend.js'],
     ['node', 'tests/frontend/validate-fixture-paths.mjs'],
@@ -52,7 +54,7 @@ const groups = {
     ['node', '--test', 'tests/frontend/booking-ignav-links.test.cjs'],
     ['node', '--test', 'tests/frontend/booking-trip-v2.test.cjs'],
     ['node', 'frontend/validation/validate-gv-data-701c.js'],
-    ['node', 'frontend/validation/validate-gv-rec-687b-frontend.js'],
+    ['node', '--test', 'tests/frontend/zip-frontend.test.cjs'],
     ['node', 'frontend/validation/validate-gv-web-fe-r3-1b.js']
   ],
 

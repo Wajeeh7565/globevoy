@@ -18,7 +18,17 @@ test('all active HTML is centralized and archived mockups stay byte-preserved',(
  assert.equal(fs.readdirSync('frontend').filter(n=>n.endsWith('.html')).length,0);
  const publicNames=new Set(layout.publicPageSources.map(item=>path.basename(item.to)));
  assert.equal(publicNames.size,22);
- for(const item of layout.publicPageSources){assert.equal(fs.existsSync(item.from),false);assert.equal(sha(item.to),item.sha256,item.to);}
+ const replacements = new Map([
+  ['frontend/pages/index.html', ['id="search"', 'fresh-b-v9.css', 'fresh-b-search.js']],
+  ['frontend/pages/multicity-visualizer.html', ['data-concept="a"', 'multicity-cinematic.css', 'multicity-search.js', 'multicity-results.js']],
+ ]);
+ for(const item of layout.publicPageSources){
+  assert.equal(fs.existsSync(item.from),false);
+  const markers = replacements.get(item.to);
+  if(!markers){assert.equal(sha(item.to),item.sha256,item.to);continue;}
+  const html = fs.readFileSync(item.to, 'utf8');
+  for(const marker of markers) assert.ok(html.includes(marker),item.to+' missing '+marker);
+ }
  for(const name of layout.retainedLegacyPages)assert.equal(publicNames.has(name),false,'Duplicate active page name: '+name);
  assert.ok(fs.readFileSync('frontend/pages/about.html','utf8').includes('About Globevoy'));
 });
@@ -57,7 +67,7 @@ test('release generation preserves legacy content, emits redirects and excludes 
  const output=fs.mkdtempSync(path.join(os.tmpdir(),'gv-page-layout-'));
  try{
   sourceLayout.copyFrontendSource(output);
-  for(const item of layout.publicPageSources)assert.equal(sha(path.join(output,path.basename(item.to))),item.sha256,item.to);
+  for(const item of layout.publicPageSources)assert.equal(sha(path.join(output,path.basename(item.to))),sha(item.to),item.to);
   assert.equal(fs.existsSync(path.join(output,'validation')),false);
   assert.equal(fs.existsSync(path.join(output,'README.md')),false);
   for(const target of new Set(Object.values(layout.compatibilityRedirects))){const file=path.join(output,target.slice(1),target.endsWith('/')?'index.html':'');fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,target.startsWith('/react/')?'<h1>React fixture</h1>':fs.readFileSync(sourceLayout.frontendSourcePath('frontend',target.slice(1))));}

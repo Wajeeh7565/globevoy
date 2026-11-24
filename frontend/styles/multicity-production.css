@@ -1,0 +1,213 @@
+/* Production bindings for the supplied Concept A layout. */
+body.gv-cinematic-results {
+  margin: 0;
+  background: var(--paper, #f6f4ee);
+  color: var(--ink, #142b2b);
+  font-family: Archivo, Arial, sans-serif;
+}
+
+.gv-cinematic-results [hidden] { display: none !important; }
+
+.gv-cinematic-results .hero-trip video[hidden],
+.gv-cinematic-results .hero-trip img[hidden] { display: none !important; }
+
+.gv-cinematic-results .hero-trip .hero-copy h1 {
+  max-width: 14ch;
+  overflow-wrap: anywhere;
+}
+
+.gv-cinematic-results .hero-bottom .btn { white-space: nowrap; }
+
+.gv-cinematic-results .loading-film {
+  margin-block: 18px 72px;
+  min-height: clamp(400px, 70vh, 720px);
+}
+
+.gv-cinematic-results .loading-film > div { z-index: 2; }
+
+.gv-cinematic-results .cinematic-error { margin: 30px auto 70px; }
+
+.gv-cinematic-results .a-summary {
+  margin-block: 22px 42px;
+  align-items: start;
+}
+.gv-cinematic-results .a-summary > * { min-width: 0; }
+
+.gv-cinematic-results .map-panel {
+  min-height: 0;
+  height: clamp(350px, 46vw, 520px);
+}
+
+.gv-cinematic-results .map-title,
+.gv-cinematic-results .map-tools { z-index: 600; }
+.gv-cinematic-results .map-title { pointer-events: none; }
+
+.gv-cinematic-results .leaflet-container { background: #d9e6e3; }
+.gv-cinematic-results .leaflet-top.leaflet-left { top: 56px; }
+
+.gv-cinematic-results .city-marker {
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: #063e40;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 7px #063e4050;
+  font-size: 13px;
+  font-weight: 700;
+}
+.gv-cinematic-results .city-marker.active { background: #08756e; outline: 2px solid #39b7ae; }
+.gv-cinematic-results .city-tooltip { font: 600 12px Archivo, Arial, sans-serif; }
+.gv-cinematic-results .map[data-outline-unavailable='true']::after {
+  content: 'Map outlines unavailable';
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 400;
+  padding: 5px 8px;
+  background: #fff;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.gv-cinematic-results .cinematic-choice { margin-top: 24px; }
+.gv-cinematic-results .route-picker { display: flex; flex-wrap: wrap; }
+
+.gv-cinematic-results .mcv-r2-pick-tab {
+  display: grid;
+  gap: 5px;
+  text-align: start;
+  min-width: min(250px, 100%);
+  padding: 14px 16px;
+  border: 1px solid #c3d3ce;
+  border-radius: 12px;
+  background: transparent;
+  color: #142b2b;
+}
+
+.gv-cinematic-results .mcv-r2-pick-tab.is-selected {
+  background: #063e40;
+  color: #fff;
+}
+
+.gv-cinematic-results .mcv-r2-tab-role,
+.gv-cinematic-results .mcv-r2-tab-price { font-size: .8rem; }
+.gv-cinematic-results #mcv-picks-note { margin: 8px 0; }
+
+.gv-cinematic-results .mcv-member-gate-711 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+}
+
+.gv-cinematic-results .mcv-member-gate-count,
+.gv-cinematic-results .mcv-member-gate-copy > span,
+.gv-cinematic-results .mcv-member-gate-711.is-member { display: none; }
+
+.gv-cinematic-results .mcv-member-gate-copy { display: grid; gap: 3px; }
+.gv-cinematic-results .mcv-member-gate-copy small { color: #536666; }
+
+.gv-cinematic-results .mcv-member-gate-signin {
+  min-height: 44px;
+  border: 1px solid #a5bab3;
+  border-radius: 24px;
+  background: transparent;
+  color: #063e40;
+  padding: 0 16px;
+  font-weight: 700;
+}
+
+.gv-cinematic-results #gv-journey-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.gv-cinematic-results #gv-journey-rail .gv-journey-step {
+  min-height: 44px;
+  padding: 6px 10px;
+  color: #142b2b;
+  background: #fff;
+  border: 1px solid #c3d3ce;
+  border-radius: 8px;
+}
+.gv-cinematic-results #gv-journey-rail .gv-journey-step.is-active {
+  color: #fff;
+  background: #063e40;
+}
+.gv-cinematic-results #gv-journey-rail :is(.gv-journey-connector,.gv-journey-step__index) { display: none; }
+
+.gv-cinematic-results .cinematic-destination-image {
+  display: grid;
+  place-items: center;
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: radial-gradient(ellipse at top right, #d6e6df, #b2cfc4);
+}
+
+.gv-cinematic-results .cinematic-destination-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gv-cinematic-results .cinematic-city-placeholder { padding: 12px; color: #063e40; font-weight: 700; text-align: center; }
+.gv-cinematic-results #cinematic-itinerary { margin-top: 32px; }
+.gv-cinematic-results #cinematic-itinerary > summary { font-size: 1.4rem; font-weight: 700; cursor: pointer; }
+.gv-cinematic-results .mcv-card-carousel-shell { padding-inline: 0; }
+
+@media (max-width: 600px) {
+  .gv-cinematic-results .loading-film { min-height: 480px; }
+  .gv-cinematic-results .hero-bottom .actions { flex-wrap: wrap; }
+  .gv-cinematic-results .mcv-card-grid { max-width: 100%; }
+}
+
+.gv-cinematic-results .hero-bottom .route-inline { color: #fff; }
+.gv-cinematic-results .hero-bottom .route-inline > span { color: inherit; }
+.gv-cinematic-results .hero-bottom .actions { flex: 0 0 auto; }
+.gv-cinematic-results .mcv-toast {
+  position: fixed;
+  z-index: 2000;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  max-width: min(440px, 90vw);
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #063e40;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .gv-cinematic-results .hero-bottom .actions { flex: 0 1 auto; }
+}
+
+.gv-cinematic-results .day-list .cinematic-leg {
+  background: #fff;
+  border: 1px solid #d4ddda;
+  border-radius: 12px;
+  padding: 16px;
+}
+.gv-cinematic-results .cinematic-leg h3 { margin: 0 0 6px; }
+.gv-cinematic-results .cinematic-leg p { margin: 5px 0; }
+.gv-cinematic-results .cinematic-status:not(:empty) {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #d9eeea;
+  color: #063e40;
+}
+.gv-cinematic-results .hero-bottom .route-inline { min-width: 0; }
+
+.gv-cinematic-results .map-panel .map {
+  width: 100%;
+  height: 100%;
+}
+.gv-cinematic-results .route-choice[aria-selected="true"] {
+  border-color: #063e40;
+  background: #063e40;
+  color: #fff;
+}
+.gv-cinematic-results .route-choice[aria-selected="true"] span { color: #d9eeea; }
