@@ -118,7 +118,8 @@ test('when every live check fails, the checked trip is shown as an estimate and 
     assert.equal(r.diagnostics.fareMapLiveOnlyUnmet, true);
     assert.equal(r.diagnostics.fareMapLiveAttempts.at(-1), 'shown-estimate-no-live-trip');
     // GV-HOTEL-MARGIN-001: the main pick may also try two cheaper lowest-cost trips.
-    assert.ok(calls <= 5, 'at most five trips checked: ' + calls);
+    // GV-MAIN-PICK-002: the main pick may also try two lowest-cost and three cheapest unused trips.
+    assert.ok(calls <= 7, 'at most seven trips checked: ' + calls);
     assert.equal(r.diagnostics.ignavCalls, calls * 3, 'the response reports exactly how many Ignav calls were made');
   } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
 });
