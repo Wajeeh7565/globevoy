@@ -3507,6 +3507,8 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
   // hotels are no more expensive than the estimates they replace (the trip's
   // budget status then doesn't get worse, and real prices beat guesses).
   const hotelUsd = tour => (tour?.stops || []).reduce((sum, stop) => sum + (Number(stop?.hotel?.estimatedStayUsd ?? stop?.hotel?.totalStayUsd) || 0), 0);
+  // What each live hotel cost against the model, for the hotel price memory.
+  diagnostics.nuiteeHotelObservations = (live.tour.stops || []).map((stop, i) => ({ cityId: stop?.cityId, estimateUsd: Number(result.tour.stops?.[i]?.hotel?.estimatedStayUsd) || 0, liveUsd: stop?.hotel?.nuiteeLiveRate ? Number(stop.hotel.nuiteeLiveRate.totalUsd) || Number(stop.hotel.estimatedStayUsd ?? stop.hotel.totalStayUsd) || 0 : 0 })).filter(o => o.cityId && o.estimateUsd > 0 && o.liveUsd > 0);
   const liveHotelsNotPricier = hotelUsd(live.tour) <= hotelUsd(result.tour) + 1;
   if (isOverUserBudgetStrict684BR3(live.tour, query) && !liveHotelsNotPricier) {
     diagnostics.nuiteeLiveStays = { ...summary, applied: false, appliedCount: 0, reason: 'nuitee-final-tour-over-budget-kept-estimate' };
@@ -3535,7 +3537,11 @@ function tripWords(visual,source){
 async function getFareMapGeneratedTour(query,options) {
   const optimizer=require('../fare-map/fare-map-optimizer');
   if(!generatedTourEnabled())return {ok:true,supported:false,reason:'feature-disabled',tour:null,tours:[]};
-  const result=await optimizer.search(query,options.fareMap||options);
+  // Learned real-vs-model hotel prices per city (GV-HOTEL-MEMORY-001); empty on any error.
+  const hotelMemory=require('../live-fares/hotel-price-memory');
+  const searchOptions=options.fareMap||options;
+  const hotelRatios=await hotelMemory.load({...searchOptions,env:searchOptions.env||options.env}).catch(()=>new Map());
+  const result=await optimizer.search(query,{...searchOptions,hotelRatios});
   const empty=reason=>({...result,tour:null,tours:[],reason});
   if(!result.tours.length)return {...result,tour:null};
   let selected=result.tours[0],arrivalVerified=false;
@@ -3620,6 +3626,8 @@ async function getFareMapGeneratedTour(query,options) {
       // fit, the trip does not fit; never show it with the cheaper estimate (GV-HOTEL-HONEST-001).
       if(overWithRealHotels(priced))priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,{...options,hotelChoice:'cheapest'});
       diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
+      const observed=priced?.diagnostics?.nuiteeHotelObservations||[];
+      if(observed.length){diagnostics.hotelObservations=(diagnostics.hotelObservations||0)+observed.length;try{await hotelMemory.record(observed,{...searchOptions,env:searchOptions.env||options.env});}catch(_){}}
       if(overWithRealHotels(priced))return {reason:'fare-map-live-hotels-exceed-protected-budget'};
       const stops=priced?.tour?.stops||[];
       if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};

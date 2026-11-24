@@ -10,7 +10,8 @@ const {recommendationEligibility}=require('../eligibility/travel-entry-eligibili
 const {normalizeParty,priceTransportLeg,priceStopStay}=require('../pricing/traveller-pricing');
 const {attachTourPresentation,presentationPolicy,buildDisplayBudget}=require('../pricing/budget-presentation');
 const accommodation=require('./accommodation-cost-map');
-const VERSION='GV-FAREMAP-BEAM-003',FLAG='ENABLE_FARE_MAP_OPTIMIZER';
+const VERSION='GV-FAREMAP-BEAM-004',FLAG='ENABLE_FARE_MAP_OPTIMIZER';
+const hotelMemory=require('../live-fares/hotel-price-memory');
 // Trips have 1 to MAX_CITIES cities (GV-TRIP-SHAPE-001): a small budget gets one city done
 // well, a larger one two. FARE_MAP_MAX_CITIES may raise this to 3 once read budgets allow.
 // Above about C$1,500 (US$1,100) a single city wastes the budget: the options are
@@ -270,7 +271,11 @@ async function search(query={},options={}){
       if(!tour){diagnostics.missingHotelEvidence=(diagnostics.missingHotelEvidence||0)+1;return false;}
       if(state.cities.length<minCities)return false;
       // Safe cost: flights plus hotels at the live-price margin; used to choose and rank.
-      const safeCost=Math.round(tour.totalFlightEstimateUsd+tour.totalHotelEstimateUsd*margin);
+      // A city with learned real-vs-model hotel prices (GV-HOTEL-MEMORY-001) uses its own
+      // ratio, plus 5%, instead of the general margin.
+      const hotelFor=stop=>{const est=Number(stop?.hotel?.estimatedStayUsd)||0,learned=hotelMemory.ratioFor(options.hotelRatios,stop?.cityId);if(learned)diagnostics.learnedHotelCities=(diagnostics.learnedHotelCities||0)+1;return est*(learned?Math.max(1,learned*1.05):margin);};
+      const stopHotels=(tour.stops||[]).reduce((n,stop)=>n+hotelFor(stop),0);
+      const safeCost=Math.round(tour.totalFlightEstimateUsd+(stopHotels>0?stopHotels:tour.totalHotelEstimateUsd*margin));
       if(safeCost>tour.usableTripBudgetUsd){
        // Over budget: remember the cheapest (to say what budget would work) and keep
        // trips a little over as the optional "+ a bit more" idea; never a main pick.
