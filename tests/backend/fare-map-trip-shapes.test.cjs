@@ -36,9 +36,9 @@ test('one-city trips: a flight home after the first city completes a trip; maxSt
 
 test('a small budget gets a one-city trip instead of nothing', async () => {
   const f = withShortReturns(fixture());
-  const two = await search(f, { ...f.query, budget: 560 });
-  assert.equal(two.tours.length, 0, 'two cities do not fit 560');
-  const r = await search(f, { ...flexible(f), budget: 560 });
+  const two = await search(f, { ...f.query, budget: 650 });
+  assert.equal(two.tours.length, 0, 'two cities do not fit 650');
+  const r = await search(f, { ...flexible(f), budget: 650 });
   assert.ok(r.tours.length, JSON.stringify(r.reason));
   assert.ok(r.tours.every(t => t.stops.length === 1));
 });
@@ -194,4 +194,14 @@ test('a repeat request with diversityExcludedRoutes never returns an excluded tr
     assert.ok(again.tour);
     assert.notEqual(again.tour.cities.map(c => String(c.cityId || c.id || c.city).toLowerCase()).join('>'), key);
   } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});
+
+test('trips are chosen with hotels counted at the live-price margin (default 1.3)', async () => {
+  const f = withShortReturns(fixture());
+  const r = await search(f, flexible(f));
+  assert.equal(r.diagnostics.hotelMargin, 1.3);
+  for (const list of Object.values(r.roleCandidates)) for (const t of list) if (t.tourRole !== 'stretch')
+    assert.ok(t.totalFlightEstimateUsd + t.totalHotelEstimateUsd * 1.3 <= t.usableTripBudgetUsd + 1);
+  const loose = await search(f, flexible(f), { env: { ...f.options.env, FARE_MAP_HOTEL_MARGIN: '1' } });
+  assert.equal(loose.diagnostics.hotelMargin, 1);
 });

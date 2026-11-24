@@ -3640,6 +3640,9 @@ async function getFareMapGeneratedTour(query,options) {
   const tripKey=t=>(t?.stops||[]).map(st=>String(st.cityId||st.city||'').toLowerCase()).join('>');
   let candidates=roleList||result.tours.slice(0,2);
   if(excluded.size){const fresh=candidates.filter(t=>!excluded.has(tripKey(t)));const others=Object.values(result.roleCandidates||{}).flat().filter(t=>!excluded.has(tripKey(t))&&!fresh.includes(t));candidates=[...fresh,...others].filter((t,i,a)=>a.findIndex(x=>tripKey(x)===tripKey(t))===i).slice(0,3);diagnostics.excludedRoutes=excluded.size;}
+  // The main pick never gives up early: after its own trips, it tries the cheaper
+  // lowest-cost trips (at most 5 checks in all, still inside the time limit).
+  if(role==='best-balance'&&roleList&&!excluded.size){const extra=(result.roleCandidates['lowest-cost']||[]).filter(t=>!candidates.some(c=>tripKey(c)===tripKey(t)));candidates=[...candidates,...extra].slice(0,5);}
   if(roleList)diagnostics.fareMapRole=role;
   // Best use of budget: hotels may be upgraded with the money the route leaves unspent.
   const useBudget=role==='best-balance'&&!!roleList;

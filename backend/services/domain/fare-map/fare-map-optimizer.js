@@ -16,6 +16,10 @@ const VERSION='GV-FAREMAP-BEAM-003',FLAG='ENABLE_FARE_MAP_OPTIMIZER';
 // Above about C$1,500 (US$1,100) a single city wastes the budget: the options are
 // two-city trips, and one city is shown only when no two-city trip fits.
 const MULTI_CITY_FROM_USD=1100;
+// Real hotel prices (Nuitee) came in well above the planning model in a 120-search live
+// check, so trips that fit on paper failed live. Trips are chosen with hotels counted at
+// this margin (GV-HOTEL-MARGIN-001); the shown price stays the honest estimate until live.
+function hotelMargin(env=process.env){const m=Number(env.FARE_MAP_HOTEL_MARGIN);return Number.isFinite(m)&&m>=1&&m<=2?m:1.3;}
 function maxCities(env=process.env){const n=Number(env.FARE_MAP_MAX_CITIES);return Number.isInteger(n)&&n>=1&&n<=3?n:2;}
 // City character (GV-CITY-VIBES-001): theme scores 0-5 for 443 of the 444 live cities.
 const intel=new Map((require('../../../data/city-intelligence-510c.json').records||[]).map(r=>[r.cityId,r]));
@@ -250,12 +254,14 @@ async function search(query={},options={}){
       const candidate={...state,edges:[...state.edges,fare]};const tour=makeTour(candidate,origin,budget,query,{...options,now,durationChoices:durations});
       if(!tour){diagnostics.missingHotelEvidence=(diagnostics.missingHotelEvidence||0)+1;return false;}
       if(state.cities.length<minCities)return false;
-      if(tour.estimatedTotalUsd>tour.usableTripBudgetUsd){
+      // Safe cost: flights plus hotels at the live-price margin; used to choose and rank.
+      const safeCost=Math.round(tour.totalFlightEstimateUsd+tour.totalHotelEstimateUsd*margin);
+      if(safeCost>tour.usableTripBudgetUsd){
        // Over budget: remember the cheapest (to say what budget would work) and keep
        // trips a little over as the optional "+ a bit more" idea; never a main pick.
        diagnostics.overBudgetRoutes=(diagnostics.overBudgetRoutes||0)+1;
-       if(!(cheapestOverUsd<=tour.estimatedTotalUsd))cheapestOverUsd=tour.estimatedTotalUsd;
-       if(tour.estimatedTotalUsd<=tour.usableTripBudgetUsd+stretchUsd&&!fare.dateEstimated){const ev=evaluateTour(tour,query);if(ev.accepted&&!recommendationEligibility(ev.tour,query).hardBlocked){stretchPool.push({estimatedDate:false,cities:state.cities,cost:tour.estimatedTotalUsd,key:state.key,tour:{...ev.tour,fareMap:tour.fareMap}});if(stretchPool.length>64)stretchPool=stretchPool.sort((a,b)=>(b.tour.totalNights-a.tour.totalNights)||a.cost-b.cost).slice(0,32);}}
+       if(!(cheapestOverUsd<=safeCost))cheapestOverUsd=safeCost;
+       if(safeCost<=tour.usableTripBudgetUsd+stretchUsd&&!fare.dateEstimated){const ev=evaluateTour(tour,query);if(ev.accepted&&!recommendationEligibility(ev.tour,query).hardBlocked){stretchPool.push({estimatedDate:false,cities:state.cities,cost:safeCost,key:state.key,tour:{...ev.tour,fareMap:tour.fareMap}});if(stretchPool.length>64)stretchPool=stretchPool.sort((a,b)=>(b.tour.totalNights-a.tour.totalNights)||a.cost-b.cost).slice(0,32);}}
        return false;
       }
       const evaluated=evaluateTour(tour,query);if(!evaluated.accepted||recommendationEligibility(evaluated.tour,query).hardBlocked){diagnostics.rejectedRules++;return false}
@@ -267,7 +273,7 @@ async function search(query={},options={}){
       const pts=[origin,...state.cities.map(c=>({latitude:c.unifiedRegistry.latitude,longitude:c.unifiedRegistry.longitude})),origin],hk=(a,b)=>legacy._internal.haversineKm(a,b)||0;
       const flown=pts.slice(1).reduce((n,p,i)=>n+hk(pts[i],p),0),far=Math.max(...pts.slice(1,-1).map(p=>hk(origin,p)));
       const detour=state.cities.length>1&&far>0?Number((flown/(2*far)).toFixed(2)):1;
-      complete.push({detour,estimatedDate:!!fare.dateEstimated,cities:state.cities,cost:tour.estimatedTotalUsd,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}});
+      complete.push({detour,estimatedDate:!!fare.dateEstimated,cities:state.cities,cost:safeCost,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}});
       // Keep cheap, diverse routes and the routes that use the budget best, per trip
       // size, so many cheap one-city trips never crowd out the two-city ones.
       const size=state.cities.length;
@@ -276,6 +282,7 @@ async function search(query={},options={}){
   }
  let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[],stretchPool=[],cheapestOverUsd=null;
  // How far over the spendable budget the optional bigger-trip idea may go (about C$100-200).
+ const margin=hotelMargin(env);diagnostics.hotelMargin=margin;
  const stretchUsd=Math.round(Math.min(150,Math.max(70,budget*.12)));
  const homeLinked=new Set(),outboundFrom=new Map();
  try {
