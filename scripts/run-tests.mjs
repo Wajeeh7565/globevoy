@@ -21,6 +21,7 @@ const groups = {
     ['node', '--test', 'tests/backend/nuitee-live-stays.test.cjs'],
     ['node', '--test', 'tests/backend/jinko-compare.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map-best-use.test.cjs'],
+    ['node', '--test', 'tests/backend/fare-map-trip-shapes.test.cjs'],
     ['node', '--test', 'tests/backend/ignav-fare-cache.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map-full-pass.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map.test.cjs'],

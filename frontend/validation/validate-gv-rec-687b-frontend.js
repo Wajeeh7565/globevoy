@@ -28,9 +28,10 @@ check('Diversity request flag is sent',engine.includes("diversityRequest:'true'"
 check('Candidate diversity pool is bounded',engine.includes("diversityCandidateLimit:'12'"));
 check('Old six random best-balance retry loop is removed',!engine.includes('attempt<6')&&!engine.includes("variant:`extra-${Date.now()}-${attempt+1}`"));
 check('Additional roles have meaningful labels',engine.includes("return'Something different'")&&engine.includes("return'Hidden gem'"));
-check('Lowest-cost label remains explicit',engine.includes("return'Lowest verified cost'"));
-check('Best-overall label remains explicit',engine.includes("return'Best overall'"));
-check('Most-inspiring label remains explicit',engine.includes("return'Most inspiring'"));
+// GV-THREE-OPTIONS-002 renamed the three picks to say what each one is for.
+check('Lowest-cost label remains explicit',engine.includes("if(normalized==='lowest-cost')return'Lowest cost'"));
+check('Best-overall label remains explicit',engine.includes("if(normalized==='best-balance')return'Best use of your budget'"));
+check('Most-inspiring label remains explicit',engine.includes("if(normalized==='most-memorable')return'Something different'"));
 check('Duplicate route keys are still rejected client-side',engine.includes('if(key&&routeKeys.has(key))continue')&&engine.includes('if(key&&seen.has(key))continue'));
 check('Near-duplicate route overlap is rejected at two-thirds overlap or higher',engine.includes('pickRouteOverlap687B(tour,other)>=0.66'));
 check('Backend role mismatch remains fail-closed',engine.includes('tour?.pickRoleMatched===false')&&engine.includes('repaired.pickRoleMatched!==false'));

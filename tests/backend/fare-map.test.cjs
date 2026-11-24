@@ -292,12 +292,11 @@ test('priority origins: env override is validated; defaults to Toronto, Montreal
   assert.deepEqual(job.priorityOrigins({ FARE_MAP_PRIORITY_ORIGINS: 'yto, bad1,LON,LON' }), ['YTO', 'LON']);
 });
 
-test('fare-map preview only for farePreview=1 when the preview flag is on', () => {
+test('one website: the preview flag turns the fare map on for every search, farePreview=1 not needed', () => {
   const { _fareMapPreviewRequested: p } = require('../../backend/services/domain/tours/generated-tour');
   assert.equal(p({ farePreview: '1' }, {}), false);
   assert.equal(p({ farePreview: '1' }, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), true);
-  assert.equal(p({}, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), false);
-  assert.equal(p({ farePreview: 'yes' }, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), false);
+  assert.equal(p({}, { ENABLE_FARE_MAP_OPTIMIZER_PREVIEW: 'true' }), true);
 });
 
 test('priority pass re-runs when the priority origin list changes', async () => {
@@ -325,10 +324,11 @@ test('optimizer reads the origin city partition the collector writes, not a neig
   for (const q of ['Toronto (YYZ)', 'Montreal (YUL)', 'Vancouver (YVR)']) assert.ok(job.priorityOrigins({}).includes(codeFor(q)), q + ' is a priority origin');
 });
 
-test('preview falls back to the existing search only when the fare map had no route to check', async () => {
+test('no old-engine fallback (ground legs, estimates) unless FARE_MAP_OLD_ENGINE_FALLBACK=true', async () => {
   const src = require('node:fs').readFileSync(require.resolve('../../backend/services/domain/tours/generated-tour.js'), 'utf8');
   assert.match(src, /result.fareMapFallback=reason;result.fareMapDiagnostics=fareMapDiagnostics/);
-  assert.match(src, /if\(preview&&!fareMapChecked&&!\(Array\.isArray\(result\?\.tours\)&&result\.tours\.length\)\)/);
+  assert.match(src, /if\(String\(baseEnv\.FARE_MAP_OLD_ENGINE_FALLBACK\|\|''\)\.trim\(\)\.toLowerCase\(\)==='true'\)/);
+  assert.match(src, /result=\{\.\.\.result,noTrip:noTripMessage\(result,query\)\}/);
 });
 
 test('fare map default time budget is 5 s and the site waits 55 s for trip searches', () => {
@@ -371,5 +371,5 @@ test('fare-map routes report: console events only, ranked list without live call
   const r = await report.runFareMapRoutesReport({ globevoyJob: 'fare-map-routes', budget: 3500, limit: 30 }, { env: { FARE_MAP_TABLE: 'x' }, readRoutes, now });
   assert.equal(r.ok, true);
   assert.ok(r.listed > 3 && r.listed <= 30, String(r.listed));
-  assert.match(r.routes[0], /^ 1\. .+ > .+ \| C\$\d+ \| \d+ nights \| \d{4}-\d{2}-\d{2}/);
+  assert.match(r.routes[0], /^ 1\. .+ \| C\$\d+ \| \d+ nights \| \d{4}-\d{2}-\d{2}/);
 });

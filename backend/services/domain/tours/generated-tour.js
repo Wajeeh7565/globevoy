@@ -3522,6 +3522,16 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
   return { ...result, tour: repriced, tours, diagnostics };
 }
 
+// Carry the trip's reason and city character onto the page tour (GV-CITY-VIBES-001).
+function tripWords(visual,source){
+  if(!visual||!source)return visual;
+  if(source.tripStory){visual.tripStory=source.tripStory;visual.recommendationExplanation=source.tripStory;}
+  visual.cityCount=source.cityCount||source.stops?.length||visual.cityCount;
+  if(source.stretchExtraUsd)visual.stretchExtraUsd=source.stretchExtraUsd;
+  (visual.cities||[]).forEach((c,i)=>{const st=source.stops?.[i];if(st?.vibes)c.vibes=st.vibes;if(st?.regionFamily)c.regionFamily=st.regionFamily;});
+  return visual;
+}
+
 async function getFareMapGeneratedTour(query,options) {
   const optimizer=require('../fare-map/fare-map-optimizer');
   if(!generatedTourEnabled())return {ok:true,supported:false,reason:'feature-disabled',tour:null,tours:[]};
@@ -3554,11 +3564,12 @@ async function getFareMapGeneratedTour(query,options) {
       }
     } else if(checked?.summary?.applied){
       const candidate=checked.tour,stops=[],legs=candidate?.legs||[];
-      if(legs.length!==3||candidate?.stops?.length!==2)return fail('fare-map-incomplete-live-itinerary');
+      const stopCount=candidate?.stops?.length||0;
+      if(stopCount<1||legs.length!==stopCount+1)return fail('fare-map-incomplete-live-itinerary');
       const airport=node=>node?.airportCode||node?.code;
       if(!legs.every((leg,i)=>leg.liveFareVerified===true&&leg.providerDateEvidence?.sourceType==='LIVE'
         &&leg.departureDate===selected.legs[i].departureDate&&airport(leg.from)===airport(selected.legs[i].from)&&airport(leg.to)===airport(selected.legs[i].to)))return fail('fare-map-incomplete-or-mismatched-live-evidence');
-      for(let i=0;i<2;i++){
+      for(let i=0;i<stopCount;i++){
         const evidence=legs[i].providerDateEvidence||{},segments=evidence.segments||[];
         const arrival=optimizer._internal.date(segments.at(-1)?.arriveLocal),departure=optimizer._internal.date(legs[i+1].departureDate);
         const firstDate=optimizer._internal.date(legs[i].departureDate);
@@ -3581,11 +3592,11 @@ async function getFareMapGeneratedTour(query,options) {
   }
   return {selected,arrivalVerified,source:candidateTour};
   };
-  // Live-only (on for farePreview searches; FARE_MAP_REQUIRE_LIVE=true|false overrides): a trip is shown only
+  // Live-only (on by default; FARE_MAP_REQUIRE_LIVE=false turns it off): a trip is shown only
   // when every flight and every hotel came back live. Up to 3 trips are checked,
   // stopping after ~35 s so the page stays inside the site's 55 s wait.
   const env=options.env||process.env,liveSetting=String(env.FARE_MAP_REQUIRE_LIVE||'').trim().toLowerCase();
-  const requireLive=liveSetting==='true'||(liveSetting!=='false'&&options.fareMapPreview===true);
+  const requireLive=liveSetting!=='false';
   const party=normalizeParty(query),pricingQuery={...query,adults:party.adults,children:party.children,infants:party.infants,rooms:party.rooms,passengers:party.travellers};delete pricingQuery.travellers;
   const started=Date.now(),deadlineMs=Number(options.liveCheckDeadlineMs)||25000;
   const liveCount=t=>(t?.legs||[]).filter(l=>l?.providerDateEvidence?.sourceType==='LIVE').length+(t?.stops||[]).filter(st=>st?.hotel?.nuiteeLiveRate).length;
@@ -3594,6 +3605,7 @@ async function getFareMapGeneratedTour(query,options) {
     const chosen=flights.selected;
     const visual=buildVisualizerTour(chosen,{...query,month:chosen.legs[0].departureDate.slice(0,7)},{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
     visual.fareMap={...(chosen.fareMap||{}),arrivalDatesVerified:flights.arrivalVerified,hotelDatesRequireVerification:!flights.arrivalVerified};
+    tripWords(visual,candidateTour);
     const guard=evaluateTour(visual,query);
     if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return {reason:'fare-map-final-business-or-date-guard'};
     let tour=guard.tour;
@@ -3612,7 +3624,8 @@ async function getFareMapGeneratedTour(query,options) {
   };
   // The page asks for each trip role separately (best overall, lowest cost, most
   // inspiring) in parallel; give each role its own route so three different trips come back.
-  const role=normalizePickRole670a(query.routeRole||query.tourRole||query.pickRole);
+  const rawRole=String(query.routeRole||query.tourRole||query.pickRole||'').trim().toLowerCase();
+  const role=rawRole==='stretch'?'stretch':normalizePickRole670a(rawRole);
   const roleList=role&&Array.isArray(result.roleCandidates?.[role])&&result.roleCandidates[role].length?result.roleCandidates[role]:null;
   const candidates=roleList||result.tours.slice(0,2);
   if(roleList)diagnostics.fareMapRole=role;
@@ -3645,35 +3658,50 @@ async function getFareMapGeneratedTour(query,options) {
   if(!outcome||outcome.reason)return {...empty(outcome?.reason||liveAttempts.at(-1)||'fare-map-no-route'),diagnostics:{...result.diagnostics,...diagnostics}};
   diagnostics.arrivalDatesVerified=outcome.arrivalVerified;
   if(roleList)outcome.tour={...outcome.tour,tourRole:outcome.source.tourRole,tourRoleLabel:outcome.source.tourRoleLabel,fareMapRole:role,budgetUse:outcome.source.budgetUse};
-  const tours=[outcome.tour,...result.tours.filter(t=>t!==outcome.source).map(t=>buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}))];
+  if(roleList)outcome.tour.stretchExtraUsd=outcome.source.stretchExtraUsd||undefined;
+  const tours=[outcome.tour,...result.tours.filter(t=>t!==outcome.source).map(t=>tripWords(buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}),t))];
   return {...result,tour:outcome.tour,tours,diagnostics};
 }
 
-// Demo/preview: with ENABLE_FARE_MAP_OPTIMIZER_PREVIEW=true, a request that
-// carries farePreview=1 uses the fare-map optimizer; every other request keeps
-// the existing search. ENABLE_FARE_MAP_OPTIMIZER=true still turns it on for all.
+// One website (GV-ONE-SITE-001): the fare-map trip builder serves every search when
+// ENABLE_FARE_MAP_OPTIMIZER or ENABLE_FARE_MAP_OPTIMIZER_PREVIEW is true; ?farePreview=1
+// is no longer needed. The old engine (ground legs, estimates) runs only when the fare
+// map is off, or when FARE_MAP_OLD_ENGINE_FALLBACK=true asks for it as a fallback.
 function fareMapPreviewRequested(query = {}, env = process.env) {
-  return String(env.ENABLE_FARE_MAP_OPTIMIZER_PREVIEW || '').trim().toLowerCase() === 'true'
-    && String(query.farePreview || '').trim() === '1';
+  return String(env.ENABLE_FARE_MAP_OPTIMIZER_PREVIEW || '').trim().toLowerCase() === 'true';
+}
+function fareMapForEveryone(env = process.env) {
+  const truthy = v => String(v || '').trim().toLowerCase() === 'true';
+  return truthy(env.ENABLE_FARE_MAP_OPTIMIZER) || truthy(env.ENABLE_FARE_MAP_OPTIMIZER_PREVIEW);
+}
+// What the page shows when no trip fits: plain words and a next step, never a code.
+function noTripMessage(result = {}, query = {}) {
+  const min = Number(result?.requested?.suggestedMinimumBudgetUsd) || null;
+  const rate = Number(result?.requested?.displayBudget?.exchangeRateFromUsd) || null;
+  const currency = String(query.currency || 'USD').toUpperCase();
+  const shown = min ? (rate && currency !== 'USD' ? Math.ceil(min * rate / 50) * 50 : Math.ceil(min / 50) * 50) : null;
+  const origin = result?.requested?.origin?.city || result?.requested?.origin?.name || 'this city';
+  if (shown) return { title: 'Your budget is a little tight from ' + origin, message: 'Trips from ' + origin + ' start at about ' + currency + ' ' + shown.toLocaleString('en-US') + ' with flights and hotels. Try that budget, or a later month.', suggestedBudget: shown, currency };
+  if (/read-unavailable|not-configured/.test(String(result?.reason || ''))) return { title: 'We could not load prices just now', message: 'Please try again in a minute.', retry: true };
+  return { title: 'No trip found for these choices', message: 'Try a different month, a longer trip or a slightly higher budget.' };
 }
 
 async function getGeneratedTour(query = {}, options = {}) {
   const fareMap=require('../fare-map/fare-map-optimizer');
   const baseEnv=options.env||process.env;
   const preview=!fareMap.enabled(baseEnv)&&fareMapPreviewRequested(query,baseEnv);
-  if(preview)options={...options,fareMapPreview:true,env:{...baseEnv,ENABLE_FARE_MAP_OPTIMIZER:'true'}};
+  if(fareMapForEveryone(baseEnv))options={...options,fareMapPreview:preview,env:{...baseEnv,ENABLE_FARE_MAP_OPTIMIZER:'true'}};
   let mapEnabled=fareMap.enabled(options.env);
   let result=mapEnabled?await getFareMapGeneratedTour(query,options):await getGeneratedTourCore(query);
-  // Once the fare map has live-checked trips, never start the old search as well: it
-  // ran its own live checks and retries (about 12 more Ignav calls) and took 20+ s.
-  // The old search only runs when the fare map had no route to check at all.
-  const fareMapChecked=Array.isArray(result?.diagnostics?.fareMapLiveAttempts)&&result.diagnostics.fareMapLiveAttempts.length>0;
-  if(preview&&!fareMapChecked&&!(Array.isArray(result?.tours)&&result.tours.length)){
-    // Preview only: while the fare map is still filling, fall back to the existing
-    // search rather than an empty page, and say so in the response.
-    const reason=result?.reason||'fare-map-no-route',fareMapDiagnostics=result?.diagnostics||null;
-    result=await getGeneratedTourCore(query);mapEnabled=false;
-    if(result&&typeof result==='object'){result.fareMapFallback=reason;result.fareMapDiagnostics=fareMapDiagnostics;}
+  const noTours=!(Array.isArray(result?.tours)&&result.tours.length)&&!result?.tour;
+  if(mapEnabled&&noTours){
+    if(String(baseEnv.FARE_MAP_OLD_ENGINE_FALLBACK||'').trim().toLowerCase()==='true'){
+      const reason=result?.reason||'fare-map-no-route',fareMapDiagnostics=result?.diagnostics||null;
+      result=await getGeneratedTourCore(query);mapEnabled=false;
+      if(result&&typeof result==='object'){result.fareMapFallback=reason;result.fareMapDiagnostics=fareMapDiagnostics;}
+    } else if(result&&typeof result==='object'){
+      result={...result,noTrip:noTripMessage(result,query)};
+    }
   }
   if(preview&&result&&typeof result==='object')result.fareMapPreview=true;
 
