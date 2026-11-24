@@ -21,7 +21,7 @@ test.before(async()=> {
 });
 test.after(async()=>{ await browser?.close(); });
 
-async function site(tour, signedIn=true) {
+async function site(tour, signedIn=true, generatedTourOptions={}) {
   const context = await browser.newContext({serviceWorkers:'block'});
   const rows = new Map(), postBodies = [], statuses = [], missing = [], livePosts=[];let liveOptions={};
   let failure = '', gate;
@@ -41,7 +41,12 @@ async function site(tour, signedIn=true) {
       let status=200,data;
       try{
         if(method==='OPTIONS')return route.fulfill({status:204,headers});
-        if(u.pathname==='/api/generated-tour')data={ok:true,supported:true,tour,tours:[tour]};
+        if(u.pathname==='/api/generated-tour'){
+          generatedTourOptions.onRequest?.();
+          await generatedTourOptions.wait;
+          if(generatedTourOptions.fail) return route.abort('failed');
+          data=generatedTourOptions.payload || {ok:true,supported:true,tour,tours:[tour]};
+        }
         else if(u.pathname==='/api/account/session')data={ok:true,authenticated:true,user:{sub:'synthetic-offline-owner'},capabilities:{bookingRevalidation:liveOptions.supported===true}};
         else if(u.pathname==='/api/saved-trips'){
           assert.equal(request.headers().authorization,'Bearer offline-browser-test-token');
@@ -78,7 +83,7 @@ async function site(tour, signedIn=true) {
       if(u.pathname.endsWith('/'))file=path.join(file,'index.html');
       if(!artifactRoot&&!isReact)file=frontendSourcePath(root,path.relative(root,file));
       if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){missing.push(u.pathname);return route.fulfill({status:404,body:'Missing offline asset'})}
-      const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon','.woff2':'font/woff2','.txt':'text/plain'};
+      const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.webp':'image/webp','.ico':'image/x-icon','.woff2':'font/woff2','.txt':'text/plain'};
       return route.fulfill({status:200,contentType:mime[path.extname(file)]||'application/octet-stream',body:fs.readFileSync(file)});
     }
     // Zero live network access, including maps, images, Cognito and AWS.
@@ -251,4 +256,58 @@ test('fare-map two-stop MVP renders in the existing guest visualizer without acc
  try{result=await require('../../backend/services/domain/tours/generated-tour').getGeneratedTour(f.query,{env:f.options.env,fareMap:{...f.options,rows:f.rows}})}finally{if(prior===undefined)delete process.env.ENABLE_GENERATED_TOUR_651A;else process.env.ENABLE_GENERATED_TOUR_651A=prior}
  assert.ok(result.tour);const s=await site(result.tour,false);
  try{await s.visualizer();await s.page.locator('#mcv-app').waitFor();const actual=await s.page.evaluate(()=>({legs:window.__gvGeneratedTour.backendLegs.length,cities:window.__gvGeneratedTour.cities.length,dates:window.__gvGeneratedTour.itineraryDatePlan,live:window.__gvGeneratedTour.backendLegs.some(l=>l.liveFareVerified)}));assert.equal(actual.legs,3);assert.equal(actual.cities,2);assert.equal(actual.dates.consistent,true);assert.equal(actual.live,false);assert.equal(s.postBodies.length,0)}finally{await s.context.close()}
+});
+
+
+test('guest loading preview retains the search context and hands off to the trip', async () => {
+  let finish;
+  const response = new Promise(resolve => { finish = resolve; });
+  const s = await site(tours[0], false, { wait: response });
+  try {
+    await s.page.setViewportSize({ width: 390, height: 780 });
+    await s.page.emulateMedia({ reducedMotion: 'reduce' });
+    await s.page.goto(origin+'/multicity-visualizer.html?generated=true&origin=Toronto&budget=1500&currency=CAD');
+    const loading = s.page.locator('#mcv-loading');
+    await loading.waitFor();
+    assert.match(await s.page.locator('#gv-loading-context').innerText(), /Toronto.*1,500/);
+    assert.equal(await s.page.locator('#gv-loading-edit').getAttribute('href'), 'index.html');
+    assert.equal(await s.page.locator('.gv-journey-loading__track span').evaluate(el => getComputedStyle(el).animationName), 'none');
+    assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    finish();
+    await s.page.locator('#mcv-app:visible').waitFor();
+    await loading.waitFor({ state: 'hidden' });
+    assert.ok(await s.page.locator('#mcv-title').isVisible());
+    assert.equal(await s.page.locator('#mcv-results-context').innerText(), await s.page.locator('#mcv-route-strip').innerText().then(text => text.replace(' (origin)', '').replace(/\s*›\s*/g, ' → ')));
+    assert.match(await s.page.locator('#mcv-member-gate-711').innerText(), /One trip to explore as a guest/);
+    const schematic = s.page.locator('#mcv-map [aria-label="Route schematic"]');
+    assert.equal(await schematic.locator('.mcv-fallback-marker').count(), 3);
+    const pinPositions = await schematic.locator('.mcv-fallback-marker').evaluateAll(pins => pins.map(pin => parseFloat(pin.style.left)));
+    assert.ok(Math.max(...pinPositions) - Math.min(...pinPositions) > 50, 'nearby cities fit the schematic instead of clustering on a world projection');
+
+  } finally {
+    finish();
+    await s.context.close();
+  }
+});
+
+test('loading clears for an API no-trip result and a failed guest request is not repeated', async () => {
+  for (const fail of [false, true]) {
+    let calls = 0;
+    const payload = { supported: false, noTrip: { title: 'Your budget is a little tight', message: 'Try a higher budget.', currency: 'CAD', suggestedBudget: 1650 } };
+    const s = await site(tours[0], false, { fail, payload, onRequest: () => { calls++; } });
+    try {
+      await s.page.goto(origin+'/multicity-visualizer.html?generated=true&origin=Toronto&budget=1500&currency=CAD');
+      await s.page.locator('#mcv-error:visible').waitFor();
+      assert.equal(await s.page.locator('#mcv-loading').isHidden(), true);
+      assert.equal(calls, 1);
+      if (!fail) {
+        assert.equal(await s.page.locator('#mcv-error h1').innerText(), payload.noTrip.title);
+        assert.match(await s.page.locator('#mcv-error-back').innerText(), /1,650/);
+      } else {
+        assert.equal(await s.page.locator('#mcv-error-back').innerText(), 'Back to search');
+      }
+    } finally {
+      await s.context.close();
+    }
+  }
 });

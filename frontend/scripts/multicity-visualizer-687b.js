@@ -222,6 +222,7 @@ function renderHeader(t){
   const destinationStops=Math.max(0,path.length-2);
   const simple=destinationStops<2||guard.status==='simple-budget-route';
   $('#mcv-title').textContent=routeTitle(t);
+  $('#mcv-results-context').textContent=path.join(' → ');
   $('#mcv-subtitle').textContent=`${activeRole(t)} · ${path[0]} loop · ${safeNumber(t.totalNights)||destinationStops} nights · ${destinationStops} stop${destinationStops===1?'':'s'}${smartDurationLabel677A(t)?' · Smart duration':''}`;
   $('#mcv-route-role').textContent=simple?'Comfort-first route':guard.status==='within-budget-after-pruning'?'Budget-fit route':activeRole(t);
   $('#mcv-total').textContent=money(estimate,t);
@@ -614,8 +615,8 @@ function renderMemberGate711(member){
       <div class="mcv-member-gate-count">1</div>
       <div class="mcv-member-gate-copy">
         <span>GUEST DISCOVERY</span>
-        <strong>One strong multi-city possibility, no account required</strong>
-        <small>Maps, trip details and current planning evidence stay available. Sign in for more alternatives, route editing and saved continuity.</small>
+        <strong>One trip to explore as a guest</strong>
+        <small>Sign in to see more trip options, edit routes and save trips.</small>
       </div>
       <button id="mcv-member-gate-signin-711" class="mcv-member-gate-signin" type="button">Sign in for more</button>`;
 
@@ -642,7 +643,7 @@ function openMemberSignIn711(){
 }
 
 function threePicksEnabled(){return window.GLOBEVOY_CONFIG?.mapFirstThreePicksEnabled!==false;}
-async function fetchGeneratedPicks(){if(!window.GlobevoyApi||!window.GlobevoyApi.getGeneratedTour||!window.GlobevoyApi.isConfigured()){throw new Error('Live generated-tour API is not configured.');}const base=apiParams();delete base.routeRole;delete base.tourRole;delete base.pickRole;const seed=String(base.variant||Date.now());const roles=classicMember711()&&threePicksEnabled()?PRIMARY_PICK_ROLES_687B:[PRIMARY_PICK_ROLES_687B[1]];const firstPass=await Promise.allSettled(roles.map((role,index)=>window.GlobevoyApi.getGeneratedTour({...base,routeRole:role.id,pickRole:role.id,threePickRequest:'true',diversityRequest:'true',diversitySlot:String(index+1),diversityExcludedRoutes:'[]',routeRankingCandidateLimit:'3',diversityCandidateLimit:'12',variant:`${seed}-${role.id}-${index+1}`})));const tours=[];const routeKeys=new Set();let noTrip=null;for(let index=0;index<roles.length;index+=1){const role=roles[index];const result=firstPass[index];let tour=null;if(result?.status==='fulfilled'){const payload=result.value;if(payload?.noTrip&&!noTrip)noTrip=payload.noTrip;if(payload&&payload.supported!==false){tour=payload.tour||(Array.isArray(payload.tours)&&payload.tours[0])||null;if(tour?.pickRoleMatched===false)tour=null;}}if(tour&&routeTooSimilar687B(tour,tours)){try{const retry=await window.GlobevoyApi.getGeneratedTour({...base,routeRole:role.id,pickRole:role.id,threePickRequest:'true',diversityRequest:'true',diversityRepair:'true',diversitySlot:String(index+1),diversityExcludedRoutes:JSON.stringify([...routeKeys]),routeRankingCandidateLimit:'3',diversityCandidateLimit:'12',variant:`${seed}-${role.id}-${index+1}-diverse-repair`});const repaired=retry?.tour||(Array.isArray(retry?.tours)&&retry.tours[0]);if(repaired&&Array.isArray(repaired.cities)&&repaired.cities.length&&repaired.pickRoleMatched!==false)tour=repaired;}catch(_){}}if(!tour||!Array.isArray(tour.cities)||!tour.cities.length||routeTooSimilar687B(tour,tours))continue;const key=pickRouteKey(tour);if(key&&routeKeys.has(key))continue;if(key)routeKeys.add(key);tour.pickRole=role.id;tour.pickRoleLabel=pickRoleLabel(role.id,index);tours.push(tour);}if(!tours.length&&noTrip)throw noTripError(noTrip);if(!tours.length){const payload=await window.GlobevoyApi.getGeneratedTour(base);if(payload?.noTrip)throw noTripError(payload.noTrip);if(!payload||payload.supported===false)throw noTripError(null);const tour=payload.tour||(Array.isArray(payload.tours)&&payload.tours[0]);if(tour&&Array.isArray(tour.cities)&&tour.cities.length){tour.pickRole='best-balance';tour.pickRoleLabel='Best overall';tour.displayOptionNumber=1;tours.push(tour);}}if(!tours.length)throw noTripError(null);tours.sort((a,b)=>PICK_ROLES_687B.findIndex(r=>r.id===pickRole(a))-PICK_ROLES_687B.findIndex(r=>r.id===pickRole(b)));tours.forEach((tour,index)=>{tour.displayOptionNumber=index+1;tour.pickRoleLabel=pickRoleLabel(pickRole(tour,index),index);});return tours;}
+async function fetchGeneratedPicks(){if(!window.GlobevoyApi||!window.GlobevoyApi.getGeneratedTour||!window.GlobevoyApi.isConfigured()){throw new Error('Live generated-tour API is not configured.');}const base=apiParams();delete base.routeRole;delete base.tourRole;delete base.pickRole;const seed=String(base.variant||Date.now());const roles=classicMember711()&&threePicksEnabled()?PRIMARY_PICK_ROLES_687B:[PRIMARY_PICK_ROLES_687B[1]];const firstPass=await Promise.allSettled(roles.map((role,index)=>window.GlobevoyApi.getGeneratedTour({...base,routeRole:role.id,pickRole:role.id,threePickRequest:'true',diversityRequest:'true',diversitySlot:String(index+1),diversityExcludedRoutes:'[]',routeRankingCandidateLimit:'3',diversityCandidateLimit:'12',variant:`${seed}-${role.id}-${index+1}`})));const tours=[];const routeKeys=new Set();let noTrip=null;for(let index=0;index<roles.length;index+=1){const role=roles[index];const result=firstPass[index];let tour=null;if(result?.status==='fulfilled'){const payload=result.value;if(payload?.noTrip&&!noTrip)noTrip=payload.noTrip;if(payload&&payload.supported!==false){tour=payload.tour||(Array.isArray(payload.tours)&&payload.tours[0])||null;if(tour?.pickRoleMatched===false)tour=null;}}if(tour&&routeTooSimilar687B(tour,tours)){try{const retry=await window.GlobevoyApi.getGeneratedTour({...base,routeRole:role.id,pickRole:role.id,threePickRequest:'true',diversityRequest:'true',diversityRepair:'true',diversitySlot:String(index+1),diversityExcludedRoutes:JSON.stringify([...routeKeys]),routeRankingCandidateLimit:'3',diversityCandidateLimit:'12',variant:`${seed}-${role.id}-${index+1}-diverse-repair`});const repaired=retry?.tour||(Array.isArray(retry?.tours)&&retry.tours[0]);if(repaired&&Array.isArray(repaired.cities)&&repaired.cities.length&&repaired.pickRoleMatched!==false)tour=repaired;}catch(_){}}if(!tour||!Array.isArray(tour.cities)||!tour.cities.length||routeTooSimilar687B(tour,tours))continue;const key=pickRouteKey(tour);if(key&&routeKeys.has(key))continue;if(key)routeKeys.add(key);tour.pickRole=role.id;tour.pickRoleLabel=pickRoleLabel(role.id,index);tours.push(tour);}if(!tours.length&&noTrip)throw noTripError(noTrip);if(!tours.length&&firstPass.every(result=>result.status==='rejected'))throw firstPass[0].reason;if(!tours.length){const payload=await window.GlobevoyApi.getGeneratedTour(base);if(payload?.noTrip)throw noTripError(payload.noTrip);if(!payload||payload.supported===false)throw noTripError(null);const tour=payload.tour||(Array.isArray(payload.tours)&&payload.tours[0]);if(tour&&Array.isArray(tour.cities)&&tour.cities.length){tour.pickRole='best-balance';tour.pickRoleLabel='Best overall';tour.displayOptionNumber=1;tours.push(tour);}}if(!tours.length)throw noTripError(null);tours.sort((a,b)=>PICK_ROLES_687B.findIndex(r=>r.id===pickRole(a))-PICK_ROLES_687B.findIndex(r=>r.id===pickRole(b)));tours.forEach((tour,index)=>{tour.displayOptionNumber=index+1;tour.pickRoleLabel=pickRoleLabel(pickRole(tour,index),index);});return tours;}
 async function loadMorePicks674A(){if(!classicMember711()){openMemberSignIn711();return;}const button=$('#mcv-more-picks');if(extraPicksLoaded||!button)return;button.disabled=true;button.textContent='Finding 2 more routes…';const base=apiParams();delete base.routeRole;delete base.tourRole;delete base.pickRole;const seen=new Set(pickTours.map(pickRouteKey).filter(Boolean));let added=0;for(let roleIndex=0;roleIndex<EXTRA_PICK_ROLES_687B.length&&added<2;roleIndex+=1){const role=EXTRA_PICK_ROLES_687B[roleIndex];try{const payload=await window.GlobevoyApi.getGeneratedTour({...base,routeRole:role.id,pickRole:role.id,threePickRequest:'true',diversityRequest:'true',diversitySlot:String(pickTours.length+1),diversityExcludedRoutes:JSON.stringify([...seen]),routeRankingCandidateLimit:'3',diversityCandidateLimit:'12',variant:`extra-${role.id}-${Date.now()}-${roleIndex+1}`});const tour=payload?.tour||(Array.isArray(payload?.tours)&&payload.tours[0]);if(!tour||!Array.isArray(tour.cities)||!tour.cities.length||tour.pickRoleMatched===false)continue;const key=pickRouteKey(tour);if(key&&seen.has(key))continue;if(key)seen.add(key);tour.pickRole=role.id;tour.displayOptionNumber=pickTours.length+1;tour.pickRoleLabel=pickRoleLabel(role.id,tour.displayOptionNumber-1);pickTours.push(tour);added+=1;}catch(_){}}extraPicksLoaded=true;button.hidden=true;renderPickList();showToast(added?`${added} more intentionally different budget-safe route${added===1?'':'s'} added.`:'No additional distinct route passed the current checks.');}
 function renderCards(t){const row=$('#mcv-cards');if(!row)return;const items=itineraryCards(t);const addState=addDestinationState674A(t);row.innerHTML=items.map(item=>cardHtml(t,item)).join('')+(addState.enabled?addDestinationCardHtml(t):'');row.dataset.journeyCardCount=String(items.length);row.classList.remove('mcv-card-grid--fit-four');$('#mcv-adjust-trip')?.addEventListener('click',()=>showToast('Use the arrows on a destination card to choose a replacement, or add a city when the trip length allows it.'));$('#mcv-save-trip')?.addEventListener('click',()=>saveTourSnapshot(t));$$('.mcv-card-cta').forEach((el)=>el.addEventListener('click',(ev)=>{ev.stopPropagation();openOrToast(el.dataset.url,'Partner booking link is not available for this leg yet.');}));$('.mcv-add-btn:not([disabled])')?.addEventListener('click',(ev)=>{ev.preventDefault();handleRouteAction('add',-1);});$('.mcv-set-date')?.addEventListener('click',(ev)=>{ev.preventDefault();setDepartureDateLocal();});$$('.mcv-control-btn').forEach((el)=>el.addEventListener('click',(ev)=>{ev.stopPropagation();ev.preventDefault();const action=el.dataset.action||'refresh';if(action==='shuffle')openReplacementChoices674A(Number(el.dataset.stopIndex||0));else handleRouteAction(action,Number(el.dataset.stopIndex||0));}));$$('.mcv-mini-action').forEach((el)=>el.addEventListener('click',(ev)=>{ev.stopPropagation();openOrToast(el.dataset.url,'Partner booking options are coming next.');}));const detailButton=$('#mcv-flight-options');if(detailButton)detailButton.onclick=()=>openTripDetails(t);bindCardCarousel();hydratePhotos();}
 function bindCardCarousel(){const row=$('#mcv-cards');const prev=$('#mcv-cards-prev');const next=$('#mcv-cards-next');if(!row||!prev||!next)return;prev.hidden=false;next.hidden=false;const step=()=>{const first=row.querySelector('.mcv-card');return first?Math.round(first.getBoundingClientRect().width+16):376;};prev.onclick=()=>row.scrollBy({left:-step(),behavior:'smooth'});next.onclick=()=>row.scrollBy({left:step(),behavior:'smooth'});}
@@ -678,8 +679,39 @@ function hydratePhotos(){
   });
 }
 
-function drawFallbackMap(t){const points=routePoints(t);const el=$('#mcv-map');function project(p){const x=((p.lng+180)/360)*100;const y=((90-p.lat)/180)*100;return {x:Math.max(4,Math.min(96,x)),y:Math.max(8,Math.min(92,y))};}
- const projected=points.map(project);const poly=projected.map((p)=>`${p.x},${p.y}`).join(' ');el.innerHTML=`<div class="mcv-fallback-map"><div class="mcv-fallback-land" style="left:5%;top:12%;width:28%;height:30%"></div><div class="mcv-fallback-land" style="left:37%;top:7%;width:31%;height:48%"></div><div class="mcv-fallback-land" style="left:70%;top:10%;width:25%;height:36%"></div><svg class="mcv-fallback-line" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${poly}" fill="none" stroke="#008f89" stroke-width=".55" stroke-linecap="round" stroke-linejoin="round"/><polyline points="${poly}" fill="none" stroke="rgba(32,211,200,.5)" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/></svg>${points.slice(0,-1).map((p,i)=>{const v=project(p);return `<div class="mcv-fallback-marker" data-journey-marker="${i}" style="left:${v.x}%;top:${v.y}%"><span class="mcv-fallback-dot">${i===0?'O':i}</span><span class="mcv-fallback-label">${escapeHtml(p.label)}</span></div>`}).join('')}</div>`;window.__gvJourneyMapFocus=(index,options={})=>{el.querySelectorAll('.mcv-fallback-marker').forEach((marker,markerIndex)=>marker.classList.toggle('is-journey-active',!options.overview&&markerIndex===Number(index)));};}
+function drawFallbackMap(t) {
+  const points = routePoints(t);
+  const el = $('#mcv-map');
+  const originLng = points[0]?.lng ?? 0;
+  const offsets = points.map(point => ((point.lng - originLng + 540) % 360) - 180);
+  const latitudes = points.map(point => point.lat);
+  const minLng = Math.min(...offsets);
+  const minLat = Math.min(...latitudes);
+  const lngSpan = Math.max(...offsets) - minLng;
+  const latSpan = Math.max(...latitudes) - minLat;
+  const projected = points.map((point, index) => ({
+    x: lngSpan ? 17 + ((offsets[index] - minLng) / lngSpan) * 66 : 50,
+    y: latSpan ? 76 - ((point.lat - minLat) / latSpan) * 51 : 50,
+  }));
+  const line = projected.map(point => `${point.x},${point.y}`).join(' ');
+  const stops = points.filter(point => !point.returnPoint);
+  el.innerHTML = `<div class="mcv-fallback-map" aria-label="Route schematic">
+    <span class="gv-journey-map-note">${stops.length ? 'Route schematic' : 'Map unavailable'}</span>
+    <svg class="mcv-fallback-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <polyline points="${line}" fill="none" stroke="#568e89" stroke-width=".6" stroke-dasharray="1.5 1.4"/>
+    </svg>
+    ${stops.map((point, index) => `<div class="mcv-fallback-marker" data-journey-marker="${index}" style="left:${projected[index].x}%;top:${projected[index].y}%">
+      <span class="mcv-fallback-dot">${point.origin ? 'O' : point.stop}</span>
+      <span class="mcv-fallback-label">${escapeHtml(point.label)}</span>
+    </div>`).join('')}
+  </div>`;
+  window.__gvJourneyMapFocus = (index, options = {}) => {
+    const focused = points[index]?.returnPoint ? 0 : Number(index);
+    el.querySelectorAll('.mcv-fallback-marker').forEach((marker, markerIndex) => {
+      marker.classList.toggle('is-journey-active', !options.overview && markerIndex === focused);
+    });
+  };
+}
 function renderMap(t){const points=routePoints(t);if(!points.length){drawFallbackMap(t);return;} if(!window.google||!google.maps){drawFallbackMap(t);return;}const el=$('#mcv-map');el.innerHTML='';map=new google.maps.Map(el,{mapTypeControl:false,streetViewControl:false,fullscreenControl:true,gestureHandling:'cooperative',styles:[{featureType:'poi',stylers:[{visibility:'off'}]},{featureType:'transit',stylers:[{visibility:'off'}]},{featureType:'water',stylers:[{color:'#bde8ee'}]},{featureType:'landscape',stylers:[{color:'#eef5f6'}]}]});const bounds=new google.maps.LatLngBounds();const path=points.map(p=>({lat:p.lat,lng:p.lng}));points.slice(0,-1).forEach((p,i)=>{bounds.extend(p);new google.maps.Marker({map,position:p,label:i===0?'O':String(i),title:p.label});});new google.maps.Polyline({map,path,geodesic:true,strokeColor:'#008f89',strokeOpacity:.95,strokeWeight:4});new google.maps.Polyline({map,path,geodesic:true,strokeColor:'#20d3c8',strokeOpacity:.35,strokeWeight:10});map.fitBounds(bounds,80);window.__gvJourneyMapFocus=(index,options={})=>{if(options.overview){map.fitBounds(bounds,80);return;}const point=points[Math.max(0,Math.min(Number(index)||0,points.length-1))];if(point){map.panTo({lat:point.lat,lng:point.lng});map.setZoom(Math.max(4,Math.min(7,Number(map.getZoom())||5)));}};setTimeout(()=>{
 // GV-GLOBAL-665A: all route mutations require backend feasibility validation; no local random-city fallback.
 google.maps.event.trigger(map,'resize');map.fitBounds(bounds,80);},150);}
@@ -697,9 +729,30 @@ function apiParams(){const params={};q.forEach((v,k)=>{if(k!=='generated')params
 const PICKS_CACHE_MS_GV=30*60*1000;
 function picksCacheKeyGV(){return 'gv-picks:'+(classicMember711()?'member:':'guest:')+location.pathname+location.search;}
 async function cachedGeneratedPicks(){const key=picksCacheKeyGV();try{const saved=JSON.parse(sessionStorage.getItem(key)||'null');if(saved&&Array.isArray(saved.tours)&&saved.tours.length&&Date.now()-Number(saved.at)<PICKS_CACHE_MS_GV)return saved.tours;}catch(_){}const tours=await fetchGeneratedPicks();try{sessionStorage.setItem(key,JSON.stringify({at:Date.now(),tours}));}catch(_){}return tours;}
-async function start(){try{if(String(q.get('saved')||'').toLowerCase()==='true'){const tour=await restoreSavedRoute();tour.pickRole=normalizePickRole(tour.pickRole||tour.tourRole)||'best-balance';tour.displayOptionNumber=1;tour.pickRoleLabel='Option 1';pickTours=[tour];activePickIndex=0;render(tour);const button=$('#mcv-save-trip');if(button){button.textContent='Saved ✓';button.classList.add('is-saved');}return;}if(String(q.get('generated')||'').toLowerCase()==='true'){pickTours=await cachedGeneratedPicks();activePickIndex=Math.max(0,pickTours.findIndex(t=>pickRole(t)==='best-balance'));render(pickTours[activePickIndex]);return;}const tour=getStoredTour();if(!tour){showError('No selected multi-city route was found in this browser. Start again from the homepage.');return;}tour.pickRole=normalizePickRole(tour.pickRole||tour.tourRole)||'best-balance';tour.displayOptionNumber=1;tour.pickRoleLabel='Option 1';pickTours=[tour];activePickIndex=0;render(tour);}catch(error){showError(error.noTrip?error.message:'',error.noTrip||null);}}
-// GV-WEB-711B-R1: remove the legacy Edit search results strip.
-$('#mcv-edit-search')?.closest('.mcv-r2-results-head')?.remove();
+function setupLoadingPreview() {
+  const section = $('#mcv-loading');
+  const status = $('#gv-loading-status');
+  const context = $('#gv-loading-context');
+  const saved = q.get('saved')?.toLowerCase() === 'true';
+  if (saved) {
+    $('#gv-loading-title').textContent = 'Opening your saved trip';
+    status.textContent = 'We’re loading your itinerary.';
+  } else {
+    let budget = '';
+    const amount = Number(q.get('budget'));
+    const currency = q.get('currency');
+    if (amount > 0 && Number.isFinite(amount) && /^[A-Z]{3}$/.test(currency || '')) {
+      budget = new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+    }
+    context.textContent = [q.get('origin')?.trim(), budget].filter(Boolean).join(' · ');
+    context.hidden = !context.textContent;
+  }
+  const timer = window.setTimeout(() => {
+    if (!section.hidden) status.textContent = saved ? 'Your saved trip is taking longer to open.' : 'This search is taking a little longer. We’re still looking for your trip.';
+  }, 18000);
+  return () => window.clearTimeout(timer);
+}
+async function start(){const stopLoadingPreview=setupLoadingPreview();try{if(String(q.get('saved')||'').toLowerCase()==='true'){const tour=await restoreSavedRoute();tour.pickRole=normalizePickRole(tour.pickRole||tour.tourRole)||'best-balance';tour.displayOptionNumber=1;tour.pickRoleLabel='Option 1';pickTours=[tour];activePickIndex=0;render(tour);const button=$('#mcv-save-trip');if(button){button.textContent='Saved ✓';button.classList.add('is-saved');}return;}if(String(q.get('generated')||'').toLowerCase()==='true'){pickTours=await cachedGeneratedPicks();activePickIndex=Math.max(0,pickTours.findIndex(t=>pickRole(t)==='best-balance'));render(pickTours[activePickIndex]);return;}const tour=getStoredTour();if(!tour){showError('No selected multi-city route was found in this browser. Start again from the homepage.');return;}tour.pickRole=normalizePickRole(tour.pickRole||tour.tourRole)||'best-balance';tour.displayOptionNumber=1;tour.pickRoleLabel='Option 1';pickTours=[tour];activePickIndex=0;render(tour);}catch(error){showError(error.noTrip?error.message:'',error.noTrip||null);}finally{stopLoadingPreview();}}
 
 $('#mcv-replacement-close')?.addEventListener('click',closeReplacementChoices674A);$('#mcv-replacement-modal')?.addEventListener('click',event=>{if(event.target?.dataset?.closeReplacement==='true')closeReplacementChoices674A();});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!$('#mcv-replacement-modal')?.hidden)closeReplacementChoices674A();});
 start();

@@ -39,7 +39,7 @@ check('Account boundary now delegates secure authentication to Cognito', signIn.
 check('Account return is restricted to the current origin', signIn.includes('target.origin !== location.origin') && signIn.includes('target.pathname + target.search + target.hash'));
 check('Saved trips does not expose a design-reference redirect', !saved.includes('http-equiv="refresh"') && !saved.includes('pages/saved-trips.html'));
 check('Legacy multi-city URL preserves query and hash', legacy.includes("'multicity-visualizer.html'+location.search+location.hash"));
-check('Generated-trip loading explains four stages', ['Finding suitable cities', 'Connecting the route', 'Checking price evidence', 'Preparing your trip'].every((stage) => visualizer.includes(stage)));
+check('Loading gives search context, status and a way back without timed stages', ['id="gv-loading-context"', 'id="gv-loading-status" role="status"', 'id="gv-loading-edit" href="index.html"'].every(markup=>visualizer.includes(markup))&&!visualizer.includes('Trip generation stages'));
 check('Generated-trip shell uses current map language', visualizer.includes('Preparing route map…') && !visualizer.includes('Loading route map…'));
 check('Mixed results retains honest travel-profile action without password UI', mixed.includes('Create travel profile') && !/type=["']password/i.test(mixed));
 check('Mixed-results runtime retains return path for local profile', mixedRuntime.includes('create-account.html?return='));

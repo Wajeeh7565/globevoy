@@ -1,0 +1,341 @@
+/* Shared visual treatment for the classic home and journey pages. */
+body.gv-journey-home,
+body.gv-mcv-page {
+  --journey-paper: #f6f4ee;
+  --journey-ink: #142b2b;
+  --journey-teal: #075a59;
+  --journey-deep: #063e40;
+  --journey-line: #d4ddda;
+  --journey-radius: 18px;
+  background: var(--journey-paper);
+  color: var(--journey-ink);
+}
+
+:is(.gv-journey-home, .gv-mcv-page) #gv-header.gv-header,
+:is(.gv-journey-home, .gv-mcv-page) .gv-footer {
+  background: var(--journey-deep);
+}
+
+.gv-journey-home .gv-home-hero {
+  min-height: 0;
+  background: var(--journey-deep);
+}
+
+.gv-journey-home .gv-home-overlay {
+  background: linear-gradient(180deg, #062c31a6, #062c3161 56%, #062c3194);
+}
+
+.gv-journey-home .gv-home-hero-inner {
+  min-height: min(690px, 81vh);
+  max-width: 1120px;
+  padding: clamp(30px, 6vh, 65px) 24px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 23px;
+  align-content: center;
+}
+
+.gv-journey-home .gv-home-copy {
+  text-align: center;
+  margin: 0 auto;
+}
+
+.gv-journey-home .gv-home-copy h1 {
+  margin: 0;
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: .96;
+  letter-spacing: -.065em;
+  text-shadow: 0 2px 24px #072e32a6;
+}
+
+.gv-journey-home .gv-home-copy em {
+  font-style: normal;
+  color: #b2eee6;
+}
+
+.gv-journey-home .gv-home-copy > p:not(.gv-eyebrow) {
+  margin: 16px auto 0;
+  max-width: 46ch;
+  color: #fff;
+  font-size: clamp(.94rem, 1.8vw, 1.12rem);
+  line-height: 1.5;
+}
+
+.gv-journey-home .gv-search-card {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  border-radius: var(--journey-radius);
+  padding: 20px 24px 17px;
+  border-color: var(--journey-line);
+  box-shadow: 0 18px 50px #05252942;
+}
+
+.gv-journey-home .gv-search-card-head h2 {
+  margin: 0 0 12px;
+  color: var(--journey-ink);
+  font-size: 1.21rem;
+}
+
+.gv-journey-home .gv-search-fields {
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+.gv-journey-home .gv-search-fields > .gv-field-full {
+  grid-column: auto;
+}
+
+.gv-journey-home .gv-input-wrap,
+.gv-journey-home .gv-passenger-button,
+.gv-journey-home .gv-advanced {
+  border-color: var(--journey-line);
+}
+
+.gv-journey-home .gv-search-submit,
+.gv-mcv-page .mcv-primary-btn,
+.gv-mcv-page .mcv-primary-link,
+.gv-mcv-page .mcv-member-gate-signin,
+.gv-mcv-page #gv-journey-play {
+  background: var(--journey-teal);
+  color: #fff;
+}
+
+.gv-journey-home .gv-search-submit:hover,
+.gv-mcv-page .mcv-primary-btn:hover,
+.gv-mcv-page .mcv-member-gate-signin:hover {
+  background: var(--journey-deep);
+}
+
+:is(.gv-journey-home, .gv-mcv-page) :focus-visible {
+  outline: 3px solid #16847e;
+  outline-offset: 3px;
+}
+
+body.gv-mcv-page .mcv-shell {
+  background: var(--journey-paper);
+}
+
+body.gv-mcv-page .mcv-r2-results-head {
+  overflow: hidden;
+  padding: clamp(22px, 3vw, 36px);
+  border-radius: var(--journey-radius);
+  background: radial-gradient(ellipse at 92% 1%, #217974 0%, transparent 66%), var(--journey-deep);
+  align-items: end;
+  margin-bottom: 18px;
+}
+
+body.gv-mcv-page .mcv-r2-results-head > div {
+  min-width: 0;
+}
+
+.gv-mcv-page .mcv-r2-results-head h1 {
+  margin: 0 0 9px;
+  color: #fff;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.03;
+  overflow-wrap: anywhere;
+}
+
+.gv-mcv-page .mcv-r2-results-head p:not(.mcv-eyebrow) {
+  color: #d5ebe7;
+  overflow-wrap: anywhere;
+}
+
+.gv-mcv-page .mcv-r2-edit-search {
+  background: #fff;
+  color: var(--journey-deep);
+}
+
+.gv-mcv-page .mcv-r2-switch-panel,
+.gv-mcv-page .mcv-summary-card,
+.gv-mcv-page .mcv-card,
+.gv-mcv-page .mcv-map-card {
+  border-color: var(--journey-line);
+  border-radius: var(--journey-radius);
+}
+
+.gv-mcv-page .mcv-summary-rows #mcv-total {
+  color: var(--journey-teal);
+  font-size: clamp(1.2rem, 2vw, 1.75rem);
+}
+
+.gv-mcv-page .gv-journey-player {
+  margin-top: 22px;
+  background: var(--journey-deep);
+  border-color: var(--journey-teal);
+  border-radius: var(--journey-radius);
+}
+
+.gv-mcv-page #gv-journey-play {
+  border: 1px solid #75bcb5;
+}
+
+.gv-journey-estimate-title {
+  color: var(--journey-ink);
+  margin: 0 0 6px;
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+}
+
+body.gv-mcv-page .mcv-map-card {
+  min-height: clamp(360px, 54vh, 620px);
+}
+
+.gv-mcv-page .mcv-fallback-map {
+  background: #e5eeea;
+}
+
+.gv-mcv-page .mcv-fallback-line {
+  width: 100%;
+  height: 100%;
+}
+
+.gv-mcv-page .mcv-fallback-marker {
+  display: grid;
+  justify-items: center;
+  width: 26px;
+}
+
+.gv-mcv-page .mcv-fallback-label {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 50%;
+  max-width: min(140px, 25vw);
+  overflow-wrap: anywhere;
+  text-align: center;
+  transform: translateX(-50%);
+  width: max-content;
+}
+
+.gv-journey-map-note {
+  position: absolute;
+  right: 12px;
+  bottom: 62px;
+  z-index: 6;
+  color: var(--journey-deep);
+  background: #ffffffde;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: .72rem;
+}
+
+body.gv-mcv-page .mcv-summary-card {
+  top: 88px;
+}
+
+body.gv-mcv-page .gv-journey-loading {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  min-height: clamp(410px, 64vh, 650px);
+  place-items: center;
+  width: min(calc(100% - 28px), 1280px);
+  box-sizing: border-box;
+  margin: 18px auto 30px;
+  padding: clamp(24px, 6vw, 80px);
+  border-radius: var(--journey-radius);
+  text-align: center;
+  background: var(--journey-deep);
+  color: #fff;
+}
+
+.gv-journey-loading[hidden] {
+  display: none !important;
+}
+
+.gv-journey-loading__scene {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(180deg, #072e32b0, #062b30d9), url("../assets/images/journey/takeoff.jpg") center 57% / cover;
+}
+
+.gv-journey-loading__track {
+  position: absolute;
+  inset: auto 22% 15%;
+  height: 2px;
+  border-top: 2px dotted #b2eee686;
+}
+
+.gv-journey-loading__track::before,
+.gv-journey-loading__track::after,
+.gv-journey-loading__track span {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  top: -5px;
+  border-radius: 50%;
+  background: #b2eee6;
+  content: "";
+}
+
+.gv-journey-loading__track::before { left: 0; }
+.gv-journey-loading__track::after { right: 0; }
+.gv-journey-loading__track span {
+  left: 10%;
+  animation: gv-loading-drift 4s ease-out both;
+  box-shadow: 0 0 14px #b2eee6;
+}
+
+@keyframes gv-loading-drift {
+  to { left: calc(90% - 9px); }
+}
+
+.gv-journey-loading__content {
+  width: min(100%, 630px);
+  padding-bottom: 35px;
+}
+
+.gv-journey-loading h1 {
+  margin: 10px 0 14px;
+  color: inherit;
+  font-size: clamp(2rem, 5vw, 4.15rem);
+  letter-spacing: -.05em;
+  line-height: 1.03;
+}
+
+.gv-journey-loading__content p {
+  margin: 0 auto;
+  color: #e5f4f1;
+  line-height: 1.5;
+}
+
+.gv-journey-loading__context {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.gv-journey-loading__content a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-top: 10px;
+  color: #fff;
+  text-underline-offset: .25em;
+}
+
+@media (max-width: 1040px) {
+  body.gv-mcv-page .mcv-generated-hero { grid-template-columns: minmax(0, 1fr); }
+  body.gv-mcv-page .mcv-summary-card { top: auto; }
+}
+
+@media (max-width: 600px) {
+  .gv-journey-home .gv-home-hero-inner { padding: 30px 14px; gap: 17px; }
+  .gv-journey-home .gv-home-copy h1 { font-size: clamp(2.5rem, 12vw, 3.7rem); }
+  .gv-journey-home .gv-home-copy > p:not(.gv-eyebrow) { margin-top: 12px; }
+  .gv-journey-home .gv-search-card { padding: 16px 14px 12px; }
+  .gv-journey-home .gv-search-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gv-journey-home .gv-search-fields > .gv-field-full { grid-column: 1 / -1; }
+  .gv-journey-home .gv-search-fields .gv-passenger-button { min-width: 0; }
+  body.gv-mcv-page .mcv-r2-results-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  body.gv-mcv-page .mcv-map-card { min-height: 340px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gv-journey-loading__track span { animation: none; left: calc(50% - 4px); }
+  .gv-journey-home .gv-home-slide,
+  .gv-mcv-page .mcv-generated-hero.is-route-updated :is(.mcv-map-card, .mcv-summary-card) {
+    animation: none;
+    transition: none;
+  }
+}
