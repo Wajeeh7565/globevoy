@@ -135,6 +135,7 @@ function bestUseOrder(states,spendable){
 // one from a different part of the world (Europe vs Latin America vs Asia) where possible.
 // The optional "stretch" idea costs a little more than the spendable budget and buys a
 // longer or bigger trip; the page offers it, never as a main pick.
+const MAX_DETOUR=1.35;
 function roleCandidates(ranked,spendable,extra={}){
  if(!ranked.length||!(spendable>0))return null;
  const key=s=>s.cities.map(code).join('>'),taken=new Set(),takenFams=new Set(),out={};
@@ -143,6 +144,10 @@ function roleCandidates(ranked,spendable,extra={}){
  // Each role's main pick and backups are its own: when a live check fails, the backup
  // must not be another option's trip, or the page shows the same trip twice.
  const firsts=new Set(),inUse=new Set();
+ // Sensible routes only (GV-ROUTE-SHAPE-001): a two-city trip that flies far past the
+ // second city's direction and back (Fort Lauderdale > Vancouver from Toronto) is left
+ // out while sensible routes exist.
+ const sane=ranked.filter(s=>!(s.detour>MAX_DETOUR));if(sane.length)ranked=sane;
  const take=(order,role,label)=>{const fresh=order.filter(s=>!inUse.has(key(s)));const list=(fresh.length?fresh:order).slice(0,3);if(fresh.length){firsts.add(key(fresh[0]));taken.add(key(fresh[0]));fams(fresh[0]).forEach(f=>takenFams.add(f));list.forEach(s=>inUse.add(key(s)));}out[role]=list.map(s=>tag(s,role,label));};
  take(bestUseOrder(ranked,spendable),'best-balance','Best use of budget');
  take(ranked,'lowest-cost','Lowest cost');
@@ -257,7 +262,12 @@ async function search(query={},options={}){
       const comfortPenalty=String(query.flightComfort||'').toLowerCase()==='comfortable'?candidate.edges.reduce((sum,f)=>sum+(Number.isFinite(f.stops)?f.stops*25:25)+(Number.isFinite(f.durationMinutes)?f.durationMinutes/60:12),0):0;
       const qualityPenalty=tour.stops.reduce((sum,s)=>sum+(s.hotel.costEvidence.quality.verified?-(s.hotel.costEvidence.quality.reviewScore||0)*2:0),0);
       tour.fareMap.scoreEvidence={costUsd:tour.estimatedTotalUsd,comfortPenalty,hotelQualityPenalty:qualityPenalty,unknownFlightComfort:candidate.edges.some(f=>f.stops==null||f.durationMinutes==null)};
-      complete.push({estimatedDate:!!fare.dateEstimated,cities:state.cities,cost:tour.estimatedTotalUsd,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}});
+      // Flown distance compared with going out and back to the furthest city: 1.0 is a
+      // clean loop, Lisbon > Munich from Toronto about 1.1, a zigzag 1.4 or more.
+      const pts=[origin,...state.cities.map(c=>({latitude:c.unifiedRegistry.latitude,longitude:c.unifiedRegistry.longitude})),origin],hk=(a,b)=>legacy._internal.haversineKm(a,b)||0;
+      const flown=pts.slice(1).reduce((n,p,i)=>n+hk(pts[i],p),0),far=Math.max(...pts.slice(1,-1).map(p=>hk(origin,p)));
+      const detour=state.cities.length>1&&far>0?Number((flown/(2*far)).toFixed(2)):1;
+      complete.push({detour,estimatedDate:!!fare.dateEstimated,cities:state.cities,cost:tour.estimatedTotalUsd,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}});
       // Keep cheap, diverse routes and the routes that use the budget best, per trip
       // size, so many cheap one-city trips never crowd out the two-city ones.
       const size=state.cities.length;

@@ -121,3 +121,14 @@ test('above about C$1,500 the options are two-city trips; one city only when no 
   const onlyOne = await search(f, { ...flexible(f), budget: 5000, maxStops: 1 });
   assert.ok(onlyOne.tours.length && onlyOne.tours.every(t => t.stops.length === 1), 'maxStops 1 is still honoured');
 });
+
+test('zigzag two-city routes are left out while sensible ones exist', () => {
+  const row = c => ({ unifiedRegistry: { origin: { providerLocationCode: c }, cityId: 'global-city-' + c.toLowerCase(), latitude: 0, longitude: 0, destination: { regionCluster: 'southern-europe' } } });
+  const st = (a, b, cost, detour) => ({ cities: [row(a), row(b)], cost, detour, estimatedDate: false, key: a + '>' + b, tour: { totalNights: 8, stops: [] } });
+  const out = roleCandidates([st('FLL', 'YVR', 850, 1.46), st('LIS', 'MUC', 860, 1.08), st('BCN', 'LIS', 700, 1.02), st('MBJ', 'YYC', 600, 1.84)], 1000);
+  const all = Object.values(out).flat();
+  assert.ok(all.length >= 2);
+  assert.ok(all.every(t => t.budgetUse !== 0.85 && t.budgetUse !== 0.6), 'no zigzag route offered');
+  const onlyZigzag = roleCandidates([st('FLL', 'YVR', 850, 1.46)], 1000);
+  assert.equal(onlyZigzag['best-balance'].length, 1, 'better a zigzag than nothing');
+});
