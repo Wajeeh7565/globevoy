@@ -3647,17 +3647,21 @@ async function getFareMapGeneratedTour(query,options) {
   // prices; an extra option that cannot be live-checked is left out instead, so the
   // page shows two real trips rather than one with estimates (GV-LIVE-ONLY-002).
   const mayShowEstimate=!roleList||role==='best-balance';
+  // A trip whose way home was only a stand-in (no cached fare back) is shown only once
+  // the live check has confirmed that return flight.
+  const lastLeg=t=>(t?.backendLegs||t?.legs||[]).at(-1);
+  const returnUnconfirmed=(t,src)=>(src?.fareMap?.mirroredReturn||t?.fareMap?.mirroredReturn)&&lastLeg(t)?.providerDateEvidence?.sourceType!=='LIVE';
   if(!outcome&&requireLive&&checked.length&&(mayShowEstimate||checked.some(c=>liveCount(c.partial)>0))){
     // None came back fully live: show the checked trip with the most live prices (its
     // estimates stay labelled) instead of a slow second search. No extra provider calls.
-    const best=checked.slice().sort((x,y)=>liveCount(y.partial)-liveCount(x.partial))[0];
-    outcome={tour:best.partial,arrivalVerified:best.flights.arrivalVerified,source:best.candidateTour};
-    diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-most-live-trip');
+    const best=checked.filter(c=>!returnUnconfirmed(c.partial,c.candidateTour)).sort((x,y)=>liveCount(y.partial)-liveCount(x.partial))[0];
+    if(best)outcome={tour:best.partial,arrivalVerified:best.flights.arrivalVerified,source:best.candidateTour};
+    if(best){diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-most-live-trip');}
   }
   if(!outcome&&requireLive&&liveAttempts.length&&candidates.length&&mayShowEstimate){
     // Every check failed before hotels: show the first trip with its estimates labelled
     // (what the old fallback search ended up showing), without another round of calls.
-    const first=candidates[0],shown=await build(first,{selected:first,arrivalVerified:false},false);
+    const first=candidates.find(c=>!c?.fareMap?.mirroredReturn),shown=first?await build(first,{selected:first,arrivalVerified:false},false):{reason:'fare-map-return-flight-unconfirmed'};
     if(!shown.reason){outcome=shown;diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-estimate-no-live-trip');}
   }
   diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;

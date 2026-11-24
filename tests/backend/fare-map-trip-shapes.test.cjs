@@ -147,3 +147,23 @@ test('an extra option that cannot be live-checked is left out; only the main pic
     assert.ok(main.diagnostics.fareMapLiveAttempts.some(a => /^shown-/.test(a)), 'shown with its estimates labelled');
   } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
 });
+
+test('no cached fare home: the outbound fare stands in, and the trip is shown only if the return comes back live', async () => {
+  const f = fixture();
+  for (const [k, v] of f.map) if (!k.startsWith(f.originCode + '#')) f.map.set(k, v.filter(r => r.destination !== f.originCode));
+  const r = await search(f, flexible(f));
+  assert.ok(r.tours.length && r.diagnostics.mirroredReturnSeeds > 0);
+  for (const t of r.tours) { assert.equal(t.fareMap.mirroredReturn, true); assert.equal(t.legs.at(-1).providerDateEvidence.dateEstimated, true); }
+  const old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline' };
+  const gt = require('../../backend/services/domain/tours/generated-tour');
+  const live = home => async t => { const tour = structuredClone(t); tour.legs.forEach((l, i) => { if (!home && i === tour.legs.length - 1) return; l.liveFareVerified = true; l.providerDateEvidence = { ...l.providerDateEvidence, provider: 'ignav', sourceType: 'LIVE', productionEligible: true, segments: [{ arriveLocal: plus(l.departureDate, 0) + 'T15:00:00' }] }; }); return { tour, summary: { applied: true, partial: !home, providerRequests: tour.legs.length } }; };
+  try {
+    const opts = applyIgnavLiveFares => ({ env, fareMap: { ...f.options, rows: f.rows }, applyIgnavLiveFares, applyNuiteeLiveStays: async t => ({ tour: t, summary: { applied: false } }) });
+    const unconfirmed = await gt.getGeneratedTour({ ...flexible(f), routeRole: 'best-balance' }, opts(live(false)));
+    assert.equal(unconfirmed.tour, null, 'a stand-in return is never shown unconfirmed');
+    const confirmed = await gt.getGeneratedTour({ ...flexible(f), routeRole: 'best-balance', maxStops: 1 }, opts(live(true)));
+    assert.ok(confirmed.tour, JSON.stringify(confirmed.diagnostics?.fareMapLiveAttempts));
+    assert.equal(confirmed.tour.backendLegs.at(-1).providerDateEvidence.sourceType, 'LIVE');
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});
