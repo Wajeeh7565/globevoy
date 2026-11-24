@@ -3618,6 +3618,8 @@ async function getFareMapGeneratedTour(query,options) {
       diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
       const stops=priced?.tour?.stops||[];
       if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};
+      // Live hotel prices can push the total over; the spendable budget is a hard line.
+      if(Number(priced.tour.estimatedTotalUsd)>Number(priced.tour.usableTripBudgetUsd))return {reason:'fare-map-live-total-exceeds-protected-budget'};
       tour=priced.tour;
     }
     return {tour,arrivalVerified:flights.arrivalVerified,source:candidateTour};

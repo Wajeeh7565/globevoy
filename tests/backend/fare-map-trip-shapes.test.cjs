@@ -97,3 +97,14 @@ test('live check works for a one-city trip: both flights live, exact hotel dates
     assert.equal(r.diagnostics.arrivalDatesVerified, true);
   } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
 });
+
+test('backups are never another option\'s trip, so a failed live check cannot show one trip twice', () => {
+  const row = c => ({ unifiedRegistry: { origin: { providerLocationCode: c }, cityId: 'global-city-' + c.toLowerCase(), latitude: 0, longitude: 0, destination: { regionCluster: 'southern-europe' } } });
+  const ranked = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III'].map((c, i) => ({ cities: [row(c)], cost: 500 + i * 50, estimatedDate: false, key: c, tour: { totalNights: 6, stops: [] } }));
+  const out = roleCandidates(ranked, 1000), seen = new Map();
+  for (const [role, list] of Object.entries(out)) for (const t of list) {
+    const k = t.estimatedTotalUsd + ':' + t.budgetUse;
+    assert.ok(!seen.has(k), `${role} reuses ${seen.get(k)}'s trip`); seen.set(k, role);
+  }
+  assert.equal(Object.keys(out).length, 3);
+});

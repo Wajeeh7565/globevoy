@@ -137,15 +137,18 @@ function roleCandidates(ranked,spendable,extra={}){
  const key=s=>s.cities.map(code).join('>'),taken=new Set(),takenFams=new Set(),out={};
  const fams=s=>s.cities.map(regionFamily);
  const tag=(s,role,label)=>({...s.tour,tourRole:role,tourRoleLabel:label,fareMapRole:role,budgetUse:Number((s.cost/spendable).toFixed(3))});
- const take=(order,role,label)=>{const fresh=order.filter(s=>!taken.has(key(s)));const list=(fresh.length?fresh:order).slice(0,3);if(fresh.length){taken.add(key(fresh[0]));fams(fresh[0]).forEach(f=>takenFams.add(f));}out[role]=list.map(s=>tag(s,role,label));};
+ // Each role's main pick and backups are its own: when a live check fails, the backup
+ // must not be another option's trip, or the page shows the same trip twice.
+ const firsts=new Set(),inUse=new Set();
+ const take=(order,role,label)=>{const fresh=order.filter(s=>!inUse.has(key(s)));const list=(fresh.length?fresh:order).slice(0,3);if(fresh.length){firsts.add(key(fresh[0]));taken.add(key(fresh[0]));fams(fresh[0]).forEach(f=>takenFams.add(f));list.forEach(s=>inUse.add(key(s)));}out[role]=list.map(s=>tag(s,role,label));};
  take(bestUseOrder(ranked,spendable),'best-balance','Best use of budget');
  take(ranked,'lowest-cost','Lowest cost');
- const used=new Map();for(const k of taken)for(const c of k.split('>'))used.set(c,(used.get(c)||0)+1);
+ const used=new Map();for(const k of firsts)for(const c of k.split('>'))used.set(c,(used.get(c)||0)+1);
  const shared=s=>s.cities.reduce((n,c)=>n+(used.get(code(c))||0),0),newFam=s=>fams(s).some(f=>!takenFams.has(f))?0:1;
  const far=s=>extra.origin?-Math.max(...s.cities.map(c=>legacy._internal.haversineKm(extra.origin,{latitude:c.unifiedRegistry.latitude,longitude:c.unifiedRegistry.longitude})||0)):0;
  // Real dates first, then a new part of the world, no shared cities, a fuller trip, further away.
  take(ranked.slice().sort((a,b)=>a.estimatedDate-b.estimatedDate||newFam(a)-newFam(b)||shared(a)-shared(b)||Math.abs(a.cost/spendable-.85)-Math.abs(b.cost/spendable-.85)||far(a)-far(b)||a.key.localeCompare(b.key)),'most-memorable','Something different');
- const stretch=(extra.stretch||[]).filter(s=>!taken.has(key(s)));
+ const stretch=(extra.stretch||[]).filter(s=>!inUse.has(key(s)));
  if(stretch.length){
   const best=bestUseOrder(ranked,spendable)[0],bestNights=Number(best?.tour?.totalNights)||0,bestCities=best?.cities.length||0;
   // Worth it only if it buys more: more nights or more cities than the best pick.
