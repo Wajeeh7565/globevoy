@@ -36,9 +36,9 @@ test('one-city trips: a flight home after the first city completes a trip; maxSt
 
 test('a small budget gets a one-city trip instead of nothing', async () => {
   const f = withShortReturns(fixture());
-  const two = await search(f, { ...f.query, budget: 560 });
-  assert.equal(two.tours.length, 0, 'two cities do not fit 560');
-  const r = await search(f, { ...flexible(f), budget: 560 });
+  const two = await search(f, { ...f.query, budget: 650 });
+  assert.equal(two.tours.length, 0, 'two cities do not fit 650');
+  const r = await search(f, { ...flexible(f), budget: 650 });
   assert.ok(r.tours.length, JSON.stringify(r.reason));
   assert.ok(r.tours.every(t => t.stops.length === 1));
 });
@@ -96,4 +96,132 @@ test('live check works for a one-city trip: both flights live, exact hotel dates
     assert.equal(r.tour.cities.length, 1); assert.equal(r.tour.backendLegs.length, 2);
     assert.equal(r.diagnostics.arrivalDatesVerified, true);
   } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});
+
+test('backups are never another option\'s trip, so a failed live check cannot show one trip twice', () => {
+  const row = c => ({ unifiedRegistry: { origin: { providerLocationCode: c }, cityId: 'global-city-' + c.toLowerCase(), latitude: 0, longitude: 0, destination: { regionCluster: 'southern-europe' } } });
+  const ranked = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III'].map((c, i) => ({ cities: [row(c)], cost: 500 + i * 50, estimatedDate: false, key: c, tour: { totalNights: 6, stops: [] } }));
+  const out = roleCandidates(ranked, 1000), seen = new Map();
+  for (const [role, list] of Object.entries(out)) for (const t of list) {
+    const k = t.estimatedTotalUsd + ':' + t.budgetUse;
+    assert.ok(!seen.has(k), `${role} reuses ${seen.get(k)}'s trip`); seen.set(k, role);
+  }
+  assert.equal(Object.keys(out).length, 3);
+});
+
+test('above about C$1,500 the options are two-city trips; one city only when no two-city trip fits', async () => {
+  const f = withShortReturns(fixture());
+  assert.equal(optimizer.MULTI_CITY_FROM_USD, 1100);
+  const big = await search(f, { ...flexible(f), budget: 5000 });
+  assert.equal(big.diagnostics.multiCityFirst, true);
+  for (const list of Object.values(big.roleCandidates)) for (const t of list) assert.equal(t.stops.length, 2);
+  const small = await search(f, { ...flexible(f), budget: 1000 });
+  assert.equal(small.diagnostics.multiCityFirst, false);
+  assert.ok(small.tours.some(t => t.stops.length === 1));
+  const onlyOne = await search(f, { ...flexible(f), budget: 5000, maxStops: 1 });
+  assert.ok(onlyOne.tours.length && onlyOne.tours.every(t => t.stops.length === 1), 'maxStops 1 is still honoured');
+});
+
+test('zigzag two-city routes are left out while sensible ones exist', () => {
+  const row = c => ({ unifiedRegistry: { origin: { providerLocationCode: c }, cityId: 'global-city-' + c.toLowerCase(), latitude: 0, longitude: 0, destination: { regionCluster: 'southern-europe' } } });
+  const st = (a, b, cost, detour) => ({ cities: [row(a), row(b)], cost, detour, estimatedDate: false, key: a + '>' + b, tour: { totalNights: 8, stops: [] } });
+  const out = roleCandidates([st('FLL', 'YVR', 850, 1.46), st('LIS', 'MUC', 860, 1.08), st('BCN', 'LIS', 700, 1.02), st('MBJ', 'YYC', 600, 1.84)], 1000);
+  const all = Object.values(out).flat();
+  assert.ok(all.length >= 2);
+  assert.ok(all.every(t => t.budgetUse !== 0.85 && t.budgetUse !== 0.6), 'no zigzag route offered');
+  const onlyZigzag = roleCandidates([st('FLL', 'YVR', 850, 1.46)], 1000);
+  assert.equal(onlyZigzag['best-balance'].length, 1, 'better a zigzag than nothing');
+});
+
+test('an extra option that cannot be live-checked is left out; only the main pick may show estimates', async () => {
+  const f = fixture(), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline' };
+  const noLive = async t => ({ tour: t, summary: { applied: false, reason: 'provider-unavailable', providerRequests: 1 } });
+  const gt = require('../../backend/services/domain/tours/generated-tour');
+  try {
+    const run = role => gt.getGeneratedTour({ ...f.query, routeRole: role, pickRole: role }, { env, fareMap: { ...f.options, rows: f.rows }, applyIgnavLiveFares: noLive });
+    const extra = await run('most-memorable');
+    assert.equal(extra.tour, null, 'no estimate-only extra option');
+    const main = await run('best-balance');
+    assert.ok(main.tour, 'main pick still shows a trip rather than a blank page');
+    assert.ok(main.diagnostics.fareMapLiveAttempts.some(a => /^shown-/.test(a)), 'shown with its estimates labelled');
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});
+
+test('no cached fare home: the outbound fare stands in, and the trip is shown only if the return comes back live', async () => {
+  const f = fixture();
+  for (const [k, v] of f.map) if (!k.startsWith(f.originCode + '#')) f.map.set(k, v.filter(r => r.destination !== f.originCode));
+  const r = await search(f, flexible(f));
+  assert.ok(r.tours.length && r.diagnostics.mirroredReturnSeeds > 0);
+  for (const t of r.tours) { assert.equal(t.fareMap.mirroredReturn, true); assert.equal(t.legs.at(-1).providerDateEvidence.dateEstimated, true); }
+  const old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline' };
+  const gt = require('../../backend/services/domain/tours/generated-tour');
+  const live = home => async t => { const tour = structuredClone(t); tour.legs.forEach((l, i) => { if (!home && i === tour.legs.length - 1) return; l.liveFareVerified = true; l.providerDateEvidence = { ...l.providerDateEvidence, provider: 'ignav', sourceType: 'LIVE', productionEligible: true, segments: [{ arriveLocal: plus(l.departureDate, 0) + 'T15:00:00' }] }; }); return { tour, summary: { applied: true, partial: !home, providerRequests: tour.legs.length } }; };
+  try {
+    const opts = applyIgnavLiveFares => ({ env, fareMap: { ...f.options, rows: f.rows }, applyIgnavLiveFares, applyNuiteeLiveStays: async t => ({ tour: t, summary: { applied: false } }) });
+    const unconfirmed = await gt.getGeneratedTour({ ...flexible(f), routeRole: 'best-balance' }, opts(live(false)));
+    assert.equal(unconfirmed.tour, null, 'a stand-in return is never shown unconfirmed');
+    const confirmed = await gt.getGeneratedTour({ ...flexible(f), routeRole: 'best-balance', maxStops: 1 }, opts(live(true)));
+    assert.ok(confirmed.tour, JSON.stringify(confirmed.diagnostics?.fareMapLiveAttempts));
+    assert.equal(confirmed.tour.backendLegs.at(-1).providerDateEvidence.sourceType, 'LIVE');
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});
+
+test('real hotels over budget: cheapest real rooms tried once, else the trip is dropped and the page says live prices are higher', async () => {
+  const f = fixture(), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline', ENABLE_NUITEE_LIVE_STAYS: 'true', NUITEE_SECRET_ID: 'offline-reference' };
+  const flights = async t => { const tour = structuredClone(t); tour.legs.forEach(l => { l.liveFareVerified = true; l.providerDateEvidence = { ...l.providerDateEvidence, provider: 'ignav', sourceType: 'LIVE', productionEligible: true, segments: [{ arriveLocal: plus(l.departureDate, 0) + 'T15:00:00' }] }; }); return { tour, summary: { applied: true, providerRequests: tour.legs.length } }; };
+  const choices = [];
+  const pricey = async (t, q, options) => { choices.push(options.hotelChoice || 'default'); let tour = structuredClone(t); tour.stops.forEach(st => { const usd = 5000, n = Math.max(1, st.nights || 1); st.hotel = { ...st.hotel, pricingIntegrity: { ...(st.hotel?.pricingIntegrity || {}), nightlyPerRoomUsd: usd / n }, estimatedNightlyUsd: usd / n, estimatedStayUsd: usd, totalStayUsd: usd, nuiteeLiveRate: { amount: usd, currency: 'USD', totalUsd: usd } }; }); tour = require('../../backend/services/domain/pricing/traveller-pricing').applyTravellerPricingToTour(tour, q); return { tour, summary: { applied: true, appliedCount: tour.stops.length, stopCount: tour.stops.length } }; };
+  try {
+    const r = await require('../../backend/services/domain/tours/generated-tour').getGeneratedTour({ ...f.query, routeRole: 'best-balance' }, { env, fareMap: { ...f.options, rows: f.rows }, applyIgnavLiveFares: flights, applyNuiteeLiveStays: pricey });
+    assert.equal(r.tour, null, 'never shown with the cheaper estimate');
+    assert.ok(choices.includes('cheapest'), 'cheapest real rooms were tried');
+    assert.match(r.noTrip.title, /Live prices came in just above your budget/);
+    assert.equal(r.noTrip.suggestedBudget, Math.ceil(5000 * 1.15 / 50) * 50);
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});
+
+test('a repeat request with diversityExcludedRoutes never returns an excluded trip', async () => {
+  const f = fixture(), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const gt = require('../../backend/services/domain/tours/generated-tour');
+  try {
+    const opts = { env: f.options.env, fareMap: { ...f.options, rows: f.rows } };
+    const first = await gt.getGeneratedTour({ ...f.query, routeRole: 'best-balance' }, opts);
+    const key = first.tour.cities.map(c => String(c.cityId || c.id || c.city).toLowerCase()).join('>');
+    const again = await gt.getGeneratedTour({ ...f.query, routeRole: 'best-balance', diversityExcludedRoutes: JSON.stringify([key]) }, opts);
+    assert.ok(again.tour);
+    assert.notEqual(again.tour.cities.map(c => String(c.cityId || c.id || c.city).toLowerCase()).join('>'), key);
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});
+
+test('trips are chosen with hotels counted at the live-price margin (default 1.3)', async () => {
+  const f = withShortReturns(fixture());
+  const r = await search(f, flexible(f));
+  assert.equal(r.diagnostics.hotelMargin, 1.3);
+  for (const list of Object.values(r.roleCandidates)) for (const t of list) if (t.tourRole !== 'stretch')
+    assert.ok(t.totalFlightEstimateUsd + t.totalHotelEstimateUsd * 1.3 <= t.usableTripBudgetUsd + 1);
+  const loose = await search(f, flexible(f), { env: { ...f.options.env, FARE_MAP_HOTEL_MARGIN: '1' } });
+  assert.equal(loose.diagnostics.hotelMargin, 1);
+});
+
+test('trips leave at least 10 days out unless the traveller picks a date', async () => {
+  const f = withShortReturns(fixture());
+  const r = await search(f, flexible(f), { now: Date.parse('2027-02-25T12:00:00Z') });
+  assert.equal(r.requested.departureWindow.start, '2027-03-07');
+  for (const t of r.tours) assert.ok(t.legs[0].departureDate >= '2027-03-07');
+  assert.equal(optimizer._internal.plus('2027-02-25', 10), '2027-03-07');
+});
+
+test('above about C$1,500 the main and "something different" picks go abroad when a trip abroad fits', () => {
+  const row = (c, cc) => ({ countryCode: cc, unifiedRegistry: { origin: { providerLocationCode: c }, cityId: c.toLowerCase(), countryCode: cc, latitude: 0, longitude: 0, destination: { regionCluster: 'south-asia' } } });
+  const st = (cities, cost) => ({ cities: cities.map(([c, cc]) => row(c, cc)), cost, estimatedDate: false, key: cities.map(x => x[0]).join('>'), tour: { totalNights: 8, stops: [] } });
+  const ranked = [st([['ISB', 'PK']], 500), st([['IST', 'TR']], 800), st([['DXB', 'AE']], 840), st([['PEW', 'PK'], ['KHI', 'PK']], 860)]; // cheapest first, as the search ranks them
+  const out = roleCandidates(ranked, 1000, { originCountry: 'PK', preferAbroad: true });
+  const cc = role => out[role][0].budgetUse;
+  assert.equal(cc('best-balance'), 0.84, 'Dubai, not Peshawar > Karachi');
+  assert.equal(cc('lowest-cost'), 0.5, 'a domestic trip can still be the cheapest');
+  assert.equal(cc('most-memorable'), 0.8);
+  assert.equal(roleCandidates(ranked, 1000, { originCountry: 'PK', preferAbroad: false })['best-balance'][0].budgetUse, 0.86);
 });
