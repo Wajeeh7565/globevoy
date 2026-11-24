@@ -14,7 +14,8 @@
     "country": "Canada",
     "code": "YYZ",
     "latitude": 43.653524,
-    "longitude": -79.383907
+    "longitude": -79.383907,
+    "countryCode": "CA"
    },
    "cities": [
     {
@@ -39,7 +40,8 @@
      "vibes": [
       "beach",
       "relaxation"
-     ]
+     ],
+     "countryCode": "US"
     },
     {
      "id": "boston-us",
@@ -63,7 +65,8 @@
      "vibes": [
       "culture",
       "nightlife"
-     ]
+     ],
+     "countryCode": "US"
     }
    ],
    "legs": [
@@ -76,7 +79,8 @@
       "country": "Canada",
       "code": "YYZ",
       "latitude": 43.653524,
-      "longitude": -79.383907
+      "longitude": -79.383907,
+      "countryCode": "CA"
      },
      "to": {
       "cityId": "fort-lauderdale-us",
@@ -85,7 +89,8 @@
       "latitude": 26.122308,
       "longitude": -80.143379,
       "arrivalDate": "2027-01-05",
-      "departureDate": "2027-01-09"
+      "departureDate": "2027-01-09",
+      "countryCode": "US"
      },
      "mode": "flight",
      "departureDate": "2027-01-05",
@@ -112,7 +117,8 @@
       "latitude": 26.122308,
       "longitude": -80.143379,
       "arrivalDate": "2027-01-05",
-      "departureDate": "2027-01-09"
+      "departureDate": "2027-01-09",
+      "countryCode": "US"
      },
      "to": {
       "cityId": "boston-us",
@@ -121,7 +127,8 @@
       "latitude": 42.3601,
       "longitude": -71.0589,
       "arrivalDate": "2027-01-09",
-      "departureDate": "2027-01-15"
+      "departureDate": "2027-01-15",
+      "countryCode": "US"
      },
      "mode": "flight",
      "departureDate": "2027-01-09",
@@ -148,7 +155,8 @@
       "latitude": 42.3601,
       "longitude": -71.0589,
       "arrivalDate": "2027-01-09",
-      "departureDate": "2027-01-15"
+      "departureDate": "2027-01-15",
+      "countryCode": "US"
      },
      "to": {
       "cityId": "global-city-yto",
@@ -157,7 +165,8 @@
       "country": "Canada",
       "code": "YYZ",
       "latitude": 43.653524,
-      "longitude": -79.383907
+      "longitude": -79.383907,
+      "countryCode": "CA"
      },
      "mode": "flight",
      "departureDate": "2027-01-15",
@@ -210,7 +219,8 @@
      "country": "Canada",
      "code": "YYZ",
      "latitude": 43.653524,
-     "longitude": -79.383907
+     "longitude": -79.383907,
+     "countryCode": "CA"
     },
     "cities": [
      {
@@ -235,7 +245,8 @@
       "vibes": [
        "beach",
        "relaxation"
-      ]
+      ],
+      "countryCode": "US"
      },
      {
       "id": "boston-us",
@@ -259,7 +270,8 @@
       "vibes": [
        "culture",
        "nightlife"
-      ]
+      ],
+      "countryCode": "US"
      }
     ],
     "legs": [
@@ -272,7 +284,8 @@
        "country": "Canada",
        "code": "YYZ",
        "latitude": 43.653524,
-       "longitude": -79.383907
+       "longitude": -79.383907,
+       "countryCode": "CA"
       },
       "to": {
        "cityId": "fort-lauderdale-us",
@@ -281,7 +294,8 @@
        "latitude": 26.122308,
        "longitude": -80.143379,
        "arrivalDate": "2027-01-05",
-       "departureDate": "2027-01-09"
+       "departureDate": "2027-01-09",
+       "countryCode": "US"
       },
       "mode": "flight",
       "departureDate": "2027-01-05",
@@ -308,7 +322,8 @@
        "latitude": 26.122308,
        "longitude": -80.143379,
        "arrivalDate": "2027-01-05",
-       "departureDate": "2027-01-09"
+       "departureDate": "2027-01-09",
+       "countryCode": "US"
       },
       "to": {
        "cityId": "boston-us",
@@ -317,7 +332,8 @@
        "latitude": 42.3601,
        "longitude": -71.0589,
        "arrivalDate": "2027-01-09",
-       "departureDate": "2027-01-15"
+       "departureDate": "2027-01-15",
+       "countryCode": "US"
       },
       "mode": "flight",
       "departureDate": "2027-01-09",
@@ -344,7 +360,8 @@
        "latitude": 42.3601,
        "longitude": -71.0589,
        "arrivalDate": "2027-01-09",
-       "departureDate": "2027-01-15"
+       "departureDate": "2027-01-15",
+       "countryCode": "US"
       },
       "to": {
        "cityId": "global-city-yto",
@@ -353,7 +370,8 @@
        "country": "Canada",
        "code": "YYZ",
        "latitude": 43.653524,
-       "longitude": -79.383907
+       "longitude": -79.383907,
+       "countryCode": "CA"
       },
       "mode": "flight",
       "departureDate": "2027-01-15",
@@ -405,7 +423,8 @@
      "country": "Canada",
      "code": "YYZ",
      "latitude": 43.653524,
-     "longitude": -79.383907
+     "longitude": -79.383907,
+     "countryCode": "CA"
     },
     "cities": [
      {
@@ -431,7 +450,8 @@
        "architecture",
        "food",
        "beach"
-      ]
+      ],
+      "countryCode": "ES"
      },
      {
       "id": "lisbon-pt",
@@ -455,7 +475,8 @@
       "vibes": [
        "culture",
        "food"
-      ]
+      ],
+      "countryCode": "PT"
      }
     ],
     "legs": [
@@ -468,7 +489,8 @@
        "country": "Canada",
        "code": "YYZ",
        "latitude": 43.653524,
-       "longitude": -79.383907
+       "longitude": -79.383907,
+       "countryCode": "CA"
       },
       "to": {
        "cityId": "barcelona-es",
@@ -477,7 +499,8 @@
        "latitude": 41.3874,
        "longitude": 2.1686,
        "arrivalDate": "2027-02-11",
-       "departureDate": "2027-02-14"
+       "departureDate": "2027-02-14",
+       "countryCode": "ES"
       },
       "mode": "flight",
       "departureDate": "2027-02-10",
@@ -504,7 +527,8 @@
        "latitude": 41.3874,
        "longitude": 2.1686,
        "arrivalDate": "2027-02-11",
-       "departureDate": "2027-02-14"
+       "departureDate": "2027-02-14",
+       "countryCode": "ES"
       },
       "to": {
        "cityId": "lisbon-pt",
@@ -513,7 +537,8 @@
        "latitude": 38.7223,
        "longitude": -9.1393,
        "arrivalDate": "2027-02-14",
-       "departureDate": "2027-02-18"
+       "departureDate": "2027-02-18",
+       "countryCode": "PT"
       },
       "mode": "flight",
       "departureDate": "2027-02-14",
@@ -540,7 +565,8 @@
        "latitude": 38.7223,
        "longitude": -9.1393,
        "arrivalDate": "2027-02-14",
-       "departureDate": "2027-02-18"
+       "departureDate": "2027-02-18",
+       "countryCode": "PT"
       },
       "to": {
        "cityId": "global-city-yto",
@@ -549,7 +575,8 @@
        "country": "Canada",
        "code": "YYZ",
        "latitude": 43.653524,
-       "longitude": -79.383907
+       "longitude": -79.383907,
+       "countryCode": "CA"
       },
       "mode": "flight",
       "departureDate": "2027-02-18",
@@ -605,7 +632,8 @@
     "country": "Canada",
     "code": "YYZ",
     "latitude": 43.653524,
-    "longitude": -79.383907
+    "longitude": -79.383907,
+    "countryCode": "CA"
    },
    "cities": [
     {
@@ -631,7 +659,8 @@
       "food",
       "culture",
       "nightlife"
-     ]
+     ],
+     "countryCode": "JP"
     }
    ],
    "legs": [
@@ -644,7 +673,8 @@
       "country": "Canada",
       "code": "YYZ",
       "latitude": 43.653524,
-      "longitude": -79.383907
+      "longitude": -79.383907,
+      "countryCode": "CA"
      },
      "to": {
       "cityId": "tokyo-jp",
@@ -653,7 +683,8 @@
       "latitude": 35.6762,
       "longitude": 139.6503,
       "arrivalDate": "2027-03-04",
-      "departureDate": "2027-03-10"
+      "departureDate": "2027-03-10",
+      "countryCode": "JP"
      },
      "mode": "flight",
      "departureDate": "2027-03-03",
@@ -680,7 +711,8 @@
       "latitude": 35.6762,
       "longitude": 139.6503,
       "arrivalDate": "2027-03-04",
-      "departureDate": "2027-03-10"
+      "departureDate": "2027-03-10",
+      "countryCode": "JP"
      },
      "to": {
       "cityId": "global-city-yto",
@@ -689,7 +721,8 @@
       "country": "Canada",
       "code": "YYZ",
       "latitude": 43.653524,
-      "longitude": -79.383907
+      "longitude": -79.383907,
+      "countryCode": "CA"
      },
      "mode": "flight",
      "departureDate": "2027-03-10",
@@ -742,7 +775,8 @@
      "country": "Canada",
      "code": "YYZ",
      "latitude": 43.653524,
-     "longitude": -79.383907
+     "longitude": -79.383907,
+     "countryCode": "CA"
     },
     "cities": [
      {
@@ -768,7 +802,8 @@
        "food",
        "culture",
        "nightlife"
-      ]
+      ],
+      "countryCode": "JP"
      }
     ],
     "legs": [
@@ -781,7 +816,8 @@
        "country": "Canada",
        "code": "YYZ",
        "latitude": 43.653524,
-       "longitude": -79.383907
+       "longitude": -79.383907,
+       "countryCode": "CA"
       },
       "to": {
        "cityId": "tokyo-jp",
@@ -790,7 +826,8 @@
        "latitude": 35.6762,
        "longitude": 139.6503,
        "arrivalDate": "2027-03-04",
-       "departureDate": "2027-03-10"
+       "departureDate": "2027-03-10",
+       "countryCode": "JP"
       },
       "mode": "flight",
       "departureDate": "2027-03-03",
@@ -817,7 +854,8 @@
        "latitude": 35.6762,
        "longitude": 139.6503,
        "arrivalDate": "2027-03-04",
-       "departureDate": "2027-03-10"
+       "departureDate": "2027-03-10",
+       "countryCode": "JP"
       },
       "to": {
        "cityId": "global-city-yto",
@@ -826,7 +864,8 @@
        "country": "Canada",
        "code": "YYZ",
        "latitude": 43.653524,
-       "longitude": -79.383907
+       "longitude": -79.383907,
+       "countryCode": "CA"
       },
       "mode": "flight",
       "departureDate": "2027-03-10",
@@ -882,7 +921,8 @@
     "country": "Canada",
     "code": "YYZ",
     "latitude": 43.653524,
-    "longitude": -79.383907
+    "longitude": -79.383907,
+    "countryCode": "CA"
    },
    "cities": [
     {
@@ -908,7 +948,8 @@
       "architecture",
       "food",
       "beach"
-     ]
+     ],
+     "countryCode": "ES"
     },
     {
      "id": "lisbon-pt",
@@ -932,7 +973,8 @@
      "vibes": [
       "culture",
       "food"
-     ]
+     ],
+     "countryCode": "PT"
     }
    ],
    "legs": [
@@ -945,7 +987,8 @@
       "country": "Canada",
       "code": "YYZ",
       "latitude": 43.653524,
-      "longitude": -79.383907
+      "longitude": -79.383907,
+      "countryCode": "CA"
      },
      "to": {
       "cityId": "barcelona-es",
@@ -954,7 +997,8 @@
       "latitude": 41.3874,
       "longitude": 2.1686,
       "arrivalDate": "2027-02-11",
-      "departureDate": "2027-02-14"
+      "departureDate": "2027-02-14",
+      "countryCode": "ES"
      },
      "mode": "flight",
      "departureDate": "2027-02-10",
@@ -981,7 +1025,8 @@
       "latitude": 41.3874,
       "longitude": 2.1686,
       "arrivalDate": "2027-02-11",
-      "departureDate": "2027-02-14"
+      "departureDate": "2027-02-14",
+      "countryCode": "ES"
      },
      "to": {
       "cityId": "lisbon-pt",
@@ -990,7 +1035,8 @@
       "latitude": 38.7223,
       "longitude": -9.1393,
       "arrivalDate": "2027-02-14",
-      "departureDate": "2027-02-18"
+      "departureDate": "2027-02-18",
+      "countryCode": "PT"
      },
      "mode": "flight",
      "departureDate": "2027-02-14",
@@ -1017,7 +1063,8 @@
       "latitude": 38.7223,
       "longitude": -9.1393,
       "arrivalDate": "2027-02-14",
-      "departureDate": "2027-02-18"
+      "departureDate": "2027-02-18",
+      "countryCode": "PT"
      },
      "to": {
       "cityId": "global-city-yto",
@@ -1026,7 +1073,8 @@
       "country": "Canada",
       "code": "YYZ",
       "latitude": 43.653524,
-      "longitude": -79.383907
+      "longitude": -79.383907,
+      "countryCode": "CA"
      },
      "mode": "flight",
      "departureDate": "2027-02-18",
@@ -1079,7 +1127,8 @@
      "country": "Canada",
      "code": "YYZ",
      "latitude": 43.653524,
-     "longitude": -79.383907
+     "longitude": -79.383907,
+     "countryCode": "CA"
     },
     "cities": [
      {
@@ -1105,7 +1154,8 @@
        "architecture",
        "food",
        "beach"
-      ]
+      ],
+      "countryCode": "ES"
      },
      {
       "id": "lisbon-pt",
@@ -1129,7 +1179,8 @@
       "vibes": [
        "culture",
        "food"
-      ]
+      ],
+      "countryCode": "PT"
      }
     ],
     "legs": [
@@ -1142,7 +1193,8 @@
        "country": "Canada",
        "code": "YYZ",
        "latitude": 43.653524,
-       "longitude": -79.383907
+       "longitude": -79.383907,
+       "countryCode": "CA"
       },
       "to": {
        "cityId": "barcelona-es",
@@ -1151,7 +1203,8 @@
        "latitude": 41.3874,
        "longitude": 2.1686,
        "arrivalDate": "2027-02-11",
-       "departureDate": "2027-02-14"
+       "departureDate": "2027-02-14",
+       "countryCode": "ES"
       },
       "mode": "flight",
       "departureDate": "2027-02-10",
@@ -1178,7 +1231,8 @@
        "latitude": 41.3874,
        "longitude": 2.1686,
        "arrivalDate": "2027-02-11",
-       "departureDate": "2027-02-14"
+       "departureDate": "2027-02-14",
+       "countryCode": "ES"
       },
       "to": {
        "cityId": "lisbon-pt",
@@ -1187,7 +1241,8 @@
        "latitude": 38.7223,
        "longitude": -9.1393,
        "arrivalDate": "2027-02-14",
-       "departureDate": "2027-02-18"
+       "departureDate": "2027-02-18",
+       "countryCode": "PT"
       },
       "mode": "flight",
       "departureDate": "2027-02-14",
@@ -1214,7 +1269,8 @@
        "latitude": 38.7223,
        "longitude": -9.1393,
        "arrivalDate": "2027-02-14",
-       "departureDate": "2027-02-18"
+       "departureDate": "2027-02-18",
+       "countryCode": "PT"
       },
       "to": {
        "cityId": "global-city-yto",
@@ -1223,7 +1279,8 @@
        "country": "Canada",
        "code": "YYZ",
        "latitude": 43.653524,
-       "longitude": -79.383907
+       "longitude": -79.383907,
+       "countryCode": "CA"
       },
       "mode": "flight",
       "departureDate": "2027-02-18",

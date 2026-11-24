@@ -307,7 +307,7 @@
     {
       "from": "frontend/index.html",
       "to": "frontend/pages/index.html",
-      "sha256": "ce2475bd1555422fbe7d79a458523a9044773399f28dab59cec314669e5df7c5"
+      "sha256": "2ec85bac23f2285910a249425953a4b023e77602009e24dff198f0e24c1b3d49"
     },
     {
       "from": "frontend/mixed-results.html",
@@ -342,7 +342,7 @@
     {
       "from": "frontend/results.html",
       "to": "frontend/pages/results.html",
-      "sha256": "b2c874bff43f1f6cd577a1481ffc951e203e955a3e86f4d83ad8086501937ee0"
+      "sha256": "1dc1b0566eaeca809907b1509738d0ba430175cb4d3e84a6bd4726cf282d93a1"
     },
     {
       "from": "frontend/saved-trips.html",

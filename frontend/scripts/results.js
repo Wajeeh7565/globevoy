@@ -123,13 +123,14 @@
         arrive: stopInfo.arrivalDate || inbound.arrivalDate || inbound.departureDate || c.hotel?.checkIn,
         leave: stopInfo.departureDate || c.hotel?.checkOut,
         hotel: c.hotel || null,
+        cc: String(stopInfo.countryCode || c.countryCode || '').toLowerCase(),
         vibes: c.vibes || [],
         inbound
       };
     });
     return {
       tour, cur,
-      origin: { name: cityName(origin) || originName(), country: origin.country || '', coords: [Number(origin.latitude), Number(origin.longitude)] },
+      origin: { name: cityName(origin) || originName(), country: origin.country || '', cc: String(origin.countryCode || '').toLowerCase(), coords: [Number(origin.latitude), Number(origin.longitude)] },
       cities, legs,
       start: tour.itineraryDatePlan?.canonicalDepartureDate || legs[0]?.departureDate,
       end: tour.itineraryDatePlan?.canonicalReturnDate || legs[legs.length - 1]?.departureDate,
@@ -226,6 +227,7 @@
     return mins <= 1 ? 'just now' : mins + ' minutes ago';
   }
 
+  const flag = cc => /^[a-z]{2}$/.test(cc || '') ? `<img class="flag" src="./assets/flags/${cc}.svg" alt="" width="20" height="15" loading="lazy">` : '';
   // ---------- journey cards (start, each stop, home) ----------
   const ICON_FLIGHT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 7 2 6-8 2 1-3 9 5 3-1 2-7-2-4 4-2-1 2-5-5-3Z"/></svg>';
   const ICON_BED = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18V7m0 7h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="2"/></svg>';
@@ -251,22 +253,22 @@
     if (!name) return '';
     return `<div class="jrow"><span class="jicon">${ICON_BED}</span><div class="jtext"><span class="jlabel">${plural(c.nights, 'night', 'nights')}${rating ? ` · rated ${rating.toFixed(1)}` : ''}</span><strong>${esc(name)}</strong></div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>Live</em></div>` : ''}</div>`;
   }
-  function photoBox(id, alt, badge, sub) {
-    return `<div class="jphoto"><img data-photo="${id}" alt="${esc(alt)}" hidden><div class="jphoto-fallback" data-mapcard="${id}"></div><span class="jbadge">${esc(badge)}</span>${sub ? `<span class="jbadge alt">${esc(sub)}</span>` : ''}<span class="jnow">Now exploring</span><div class="jtitle"><h3>${esc(alt.split(',')[0])}</h3><span>${esc(alt.split(', ').slice(1).join(', '))}</span></div></div>`;
+  function photoBox(id, alt, badge, sub, cc) {
+    return `<div class="jphoto"><img data-photo="${id}" alt="${esc(alt)}" hidden><div class="jphoto-fallback" data-mapcard="${id}"></div><span class="jbadge">${esc(badge)}</span>${sub ? `<span class="jbadge alt">${esc(sub)}</span>` : ''}<span class="jnow">Now exploring</span><div class="jtitle"><h3>${esc(alt.split(',')[0])}</h3><span>${flag(cc)}${esc(alt.split(', ').slice(1).join(', '))}</span></div></div>`;
   }
   function renderJourneyCards(v) {
     const home = v.legs[v.cities.length];
-    const startCard = `<li class="jcard is-end" id="card-origin">${photoBox('origin', [v.origin.name, v.origin.country].filter(Boolean).join(', '), 'Start')}
+    const startCard = `<li class="jcard is-end" id="card-origin">${photoBox('origin', [v.origin.name, v.origin.country].filter(Boolean).join(', '), 'Start', '', v.origin.cc)}
       <div class="jbody"><div class="jrow plain"><div class="jtext"><span class="jlabel">Leave ${esc(day(v.start, { weekday: 'short', month: 'short', day: 'numeric' }))}</span><strong>${esc(search.origin)}</strong><span>${plural(v.nights, 'night', 'nights')} away, ${plural(v.cities.length, 'stop', 'stops')}</span></div></div></div></li>`;
     const stops = v.cities.map((c, i) => {
       const d1 = dayIndex(c.arrive), d2 = d1 + c.nights - 1;
       const total = [legPrice(c.inbound), stayPrice(c)].filter(Number.isFinite).reduce((a, b) => a + b, 0);
       return `<li class="jcard" id="card-${c.id}"><button class="jselect" type="button" data-city="${c.id}" aria-pressed="false" aria-label="Show ${esc(c.name)} on the map"></button>
-        ${photoBox(c.id, `${c.name}, ${c.country}`, `Stop ${i + 1}`, Number.isFinite(d1) ? (c.nights > 1 ? `Days ${d1}–${d2}` : `Day ${d1}`) : '')}
+        ${photoBox(c.id, `${c.name}, ${c.country}`, `Stop ${i + 1}`, Number.isFinite(d1) ? (c.nights > 1 ? `Days ${d1}–${d2}` : `Day ${d1}`) : '', c.cc)}
         <div class="jbody">${flightRow(c.inbound, 'Fly in')}${stayRow(c)}</div>
         <div class="jfoot"><span>Stop total</span><strong>${money(total, v.cur)}</strong></div></li>`;
     }).join('');
-    const endCard = `<li class="jcard is-end" id="card-home">${photoBox('home', [v.origin.name, v.origin.country].filter(Boolean).join(', '), 'Home')}
+    const endCard = `<li class="jcard is-end" id="card-home">${photoBox('home', [v.origin.name, v.origin.country].filter(Boolean).join(', '), 'Home', '', v.origin.cc)}
       <div class="jbody">${flightRow(home, 'Fly home')}</div>
       <div class="jfoot"><span>Return flight</span><strong>${money(legPrice(home), v.cur)}</strong></div></li>`;
     $('#destinations').innerHTML = startCard + stops + endCard;
@@ -278,7 +280,7 @@
     const key = sceneKey(v.origin.name);
     let url = ORIGIN_PHOTOS[key] ? `./assets/images/${ORIGIN_PHOTOS[key]}.jpg` : '';
     if (!url && window.GlobevoyCityImages?.get) {
-      try { const f = await window.GlobevoyCityImages.get(v.origin.name, v.origin.country, ''); url = typeof f === 'string' ? f : f?.url || ''; } catch (_) { /* fallback */ }
+      try { url = cityImageUrls(await window.GlobevoyCityImages.get(v.origin.name, v.origin.country, ''))[0] || ''; } catch (_) { /* fallback */ }
     }
     if (!url || v !== view) return;
     ['origin', 'home'].forEach(id => {
@@ -323,12 +325,23 @@
     } else if (window.GlobevoyCityImages?.get) {
       try {
         const found = await window.GlobevoyCityImages.get(c.name, c.country, '');
-        const url = typeof found === 'string' ? found : found?.url || found?.src || '';
-        if (url) media = { kind: 'photo', url };
+        const urls = cityImageUrls(found);
+        if (urls.length) media = { kind: 'photo', url: urls[0], urls };
       } catch (_) { /* map only */ }
+    }
+    // Arrival slideshow: city photos first, then the hotel this trip books.
+    const hotelPhoto = c.hotel?.photoUrl;
+    if (media.kind !== 'video') {
+      const slides = (media.urls || (media.url ? [media.url] : [])).slice(0, 3).map(url => ({ url, caption: `${c.name}, ${c.country}` }));
+      if (/^https:\/\//.test(hotelPhoto || '')) slides.push({ url: hotelPhoto, caption: 'Your hotel · ' + (c.hotel.name || c.hotel.hotelName || '') });
+      if (slides.length) media = { ...media, kind: 'slides', slides, url: media.url || slides[0].url };
     }
     mediaCache[c.id + view.tour.routeId] = media;
     return media;
+  }
+  function cityImageUrls(found) {
+    const list = typeof found === 'string' ? [found] : (Array.isArray(found?.images) ? found.images : [found?.url || found?.src]);
+    return list.map(x => (typeof x === 'string' ? x : x?.url || x?.src || '')).filter(u => u && !/^data:image\/svg/.test(u));
   }
   async function loadCityPhoto(c) {
     const forView = view;
@@ -338,13 +351,13 @@
     if (!img || media.kind === 'map') return;
     img.onload = () => { img.hidden = false; card.hidden = true; };
     img.onerror = () => { img.hidden = true; card.hidden = false; };
-    img.src = media.poster || media.url;
+    img.src = media.poster || media.url || '';
   }
 
   // ---------- map + journey (Route Preview engine, any number of cities) ----------
   let map, routeLine, ghostLine, plane, originMarker, cityMarkers = {}, phases = [], duration = 0, phaseIndex = -1,
     clockFrame = null, playing = false, elapsed = 0, lastTick = 0, activeCity = null, mediaVersion = 0, panelShown = false,
-    manualPreview = false, mediaExitTimer = null, countriesLoaded = null;
+    manualPreview = false, mediaExitTimer = null, countriesLoaded = null, slideTimer = null;
   const planeSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m3 10 7 2 6-8 2 1-3 9 5 3-1 2-7-2-4 4-2-1 2-5-5-3Z"/></svg>';
   const DEG = Math.PI / 180;
   const stops = () => [view.origin, ...view.cities, view.origin];
@@ -406,7 +419,7 @@
     const add = (kind, length, leg) => { phases.push({ kind, start: duration, length, leg }); duration += length; };
     add('overview', 900);
     const n = view.cities.length;
-    for (let i = 0; i <= n; i += 1) { add('flight', 3200, i); if (i < n) add('arrival', 3900, i); else add('complete', 800, i); }
+    for (let i = 0; i <= n; i += 1) { add('flight', 3200, i); if (i < n) add('arrival', 6200, i); else add('complete', 800, i); }
   }
   const markerIcon = (i, on) => L.divIcon({ className: 'map-point' + (on ? ' active' : ''), html: String(i + 1), iconSize: [29, 29], iconAnchor: [14.5, 14.5] });
 
@@ -474,6 +487,7 @@
   }
   function clearMedia() {
     mediaVersion += 1; panelShown = false;
+    clearInterval(slideTimer); slideTimer = null;
     const v = $('#city-video'); v.pause(); v.hidden = true; v.removeAttribute('src'); v.load();
     fadeOutPanel();
   }
@@ -496,7 +510,7 @@
     const v = $('#city-video'), img = $('#media-photo'), panel = $('#media-panel');
     v.pause(); v.onloadeddata = null; v.onerror = null; v.ontimeupdate = null; v.hidden = true; v.removeAttribute('src'); img.hidden = true; img.onerror = null;
     if (media.kind === 'map') { fadeOutPanel(); setStatus(`${c.name} · ${plural(c.nights, 'night', 'nights')}`); return; }
-    $('#media-city').textContent = c.name; $('#media-country').textContent = c.country;
+    $('#media-city').textContent = c.name; $('#media-country').innerHTML = flag(c.cc) + esc(c.country);
     cancelMediaExit(); panel.hidden = false; panel.inert = false; panel.setAttribute('aria-hidden', 'false'); panel.classList.add('entering');
     const visibleVersion = mediaVersion;
     requestAnimationFrame(() => requestAnimationFrame(() => { if (visibleVersion === mediaVersion && panelShown) panel.classList.remove('entering'); }));
@@ -505,6 +519,27 @@
     img.onerror = () => { v.pause(); panel.hidden = true; };
     const stay = c.hotel?.name ? ' · ' + c.hotel.name : '';
     $('#media-state').textContent = plural(c.nights, 'night', 'nights') + ' · ' + dateRange(c.arrive, c.leave) + stay;
+    if (media.kind === 'slides') {
+      // Crossfade through the city photos, ending on the hotel this trip books.
+      const slides = media.slides, token = mediaVersion;
+      let i = 0;
+      const show = n => {
+        const s = slides[n];
+        img.classList.add('fading');
+        setTimeout(() => {
+          if (token !== mediaVersion) return;
+          img.onload = () => img.classList.remove('fading');
+          img.onerror = () => { slides.splice(n, 1); if (!slides.length) fadeOutPanel(); else show(n % slides.length); };
+          img.src = s.url;
+          img.alt = s.caption;
+          $('#media-state').textContent = /^Your hotel/.test(s.caption) ? s.caption : plural(c.nights, 'night', 'nights') + ' · ' + dateRange(c.arrive, c.leave);
+          $('#media-panel').classList.toggle('is-hotel', /^Your hotel/.test(s.caption));
+        }, n === 0 ? 0 : 260);
+      };
+      show(0);
+      if (slides.length > 1 && !constrained()) slideTimer = setInterval(() => { if (token !== mediaVersion) return; i = (i + 1) % slides.length; show(i); }, 1700);
+      return;
+    }
     if (media.kind === 'video' && !constrained()) {
       v.poster = poster; v.src = media.url; v.muted = true; v.currentTime = 0;
       v.onloadeddata = () => { if (activeCity !== c.id || !panelShown || document.hidden) return; v.hidden = false; if (playing || manualPreview) v.play().catch(() => { v.hidden = true; }); };
@@ -673,6 +708,8 @@
     fitFull(false);
     countriesLoaded?.then(() => map.invalidateSize());
     if (note) $('#live-note').textContent = note;
+    // The journey plays by itself once results arrive (not when motion is reduced).
+    if (!constrained()) setTimeout(() => { if (!playing && elapsed === 0 && !manualPreview) start(); }, 900);
   }
 
   window.GlobevoyResults = { getState: () => ({ trips: trips.length, active, playing, elapsed, duration, activeCity }) };
