@@ -71,7 +71,9 @@ function chooseOffer(payload = {}, currency, options = {}) {
   // Cheapest offer from a hotel rated 7.0+ (if any are rated); refundable only
   // breaks exact ties. Budget-first: price matters more than free cancellation.
   const good = valid.filter(o => Number(o.rating) >= GOOD_RATING);
-  const pool = good.length ? good : valid;
+  // hotelChoice 'cheapest': a trip that only fits with the cheapest room takes it,
+  // whatever its rating (the page shows the rating).
+  const pool = options.cheapest ? valid : (good.length ? good : valid);
   return pool.slice().sort((a, b) => a.amount - b.amount || (a.refundableTag === 'RFN' ? 0 : 1) - (b.refundableTag === 'RFN' ? 0 : 1))[0];
 }
 
@@ -95,7 +97,7 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   const result = await nuitee.postJson(RATE_URL, body, apiKey, options);
   if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: 1 };
   if (result.payload?.sandbox === true) return { index, applied: false, reason: 'sandbox-response', providerRequests: 1 };
-  const offer = chooseOffer(result.payload || {}, currency);
+  const offer = chooseOffer(result.payload || {}, currency, { cheapest: options.hotelChoice === 'cheapest' });
   if (!offer) return { index, applied: false, reason: 'no-usable-offer', providerRequests: 1 };
   const pool = chooseOffer(result.payload || {}, currency, { all: true }) || [];
   return { index, applied: true, offer, pool, stayWindow, occupancies: body.occupancies, roomCount: body.occupancies.length, providerRequests: 1 };

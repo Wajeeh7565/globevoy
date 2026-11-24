@@ -167,3 +167,31 @@ test('no cached fare home: the outbound fare stands in, and the trip is shown on
     assert.equal(confirmed.tour.backendLegs.at(-1).providerDateEvidence.sourceType, 'LIVE');
   } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
 });
+
+test('real hotels over budget: cheapest real rooms tried once, else the trip is dropped and the page says live prices are higher', async () => {
+  const f = fixture(), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline', ENABLE_NUITEE_LIVE_STAYS: 'true', NUITEE_SECRET_ID: 'offline-reference' };
+  const flights = async t => { const tour = structuredClone(t); tour.legs.forEach(l => { l.liveFareVerified = true; l.providerDateEvidence = { ...l.providerDateEvidence, provider: 'ignav', sourceType: 'LIVE', productionEligible: true, segments: [{ arriveLocal: plus(l.departureDate, 0) + 'T15:00:00' }] }; }); return { tour, summary: { applied: true, providerRequests: tour.legs.length } }; };
+  const choices = [];
+  const pricey = async (t, q, options) => { choices.push(options.hotelChoice || 'default'); let tour = structuredClone(t); tour.stops.forEach(st => { const usd = 5000, n = Math.max(1, st.nights || 1); st.hotel = { ...st.hotel, pricingIntegrity: { ...(st.hotel?.pricingIntegrity || {}), nightlyPerRoomUsd: usd / n }, estimatedNightlyUsd: usd / n, estimatedStayUsd: usd, totalStayUsd: usd, nuiteeLiveRate: { amount: usd, currency: 'USD', totalUsd: usd } }; }); tour = require('../../backend/services/domain/pricing/traveller-pricing').applyTravellerPricingToTour(tour, q); return { tour, summary: { applied: true, appliedCount: tour.stops.length, stopCount: tour.stops.length } }; };
+  try {
+    const r = await require('../../backend/services/domain/tours/generated-tour').getGeneratedTour({ ...f.query, routeRole: 'best-balance' }, { env, fareMap: { ...f.options, rows: f.rows }, applyIgnavLiveFares: flights, applyNuiteeLiveStays: pricey });
+    assert.equal(r.tour, null, 'never shown with the cheaper estimate');
+    assert.ok(choices.includes('cheapest'), 'cheapest real rooms were tried');
+    assert.match(r.noTrip.title, /Live prices came in just above your budget/);
+    assert.equal(r.noTrip.suggestedBudget, Math.ceil(5000 * 1.15 / 50) * 50);
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});
+
+test('a repeat request with diversityExcludedRoutes never returns an excluded trip', async () => {
+  const f = fixture(), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const gt = require('../../backend/services/domain/tours/generated-tour');
+  try {
+    const opts = { env: f.options.env, fareMap: { ...f.options, rows: f.rows } };
+    const first = await gt.getGeneratedTour({ ...f.query, routeRole: 'best-balance' }, opts);
+    const key = first.tour.cities.map(c => String(c.cityId || c.id || c.city).toLowerCase()).join('>');
+    const again = await gt.getGeneratedTour({ ...f.query, routeRole: 'best-balance', diversityExcludedRoutes: JSON.stringify([key]) }, opts);
+    assert.ok(again.tour);
+    assert.notEqual(again.tour.cities.map(c => String(c.cityId || c.id || c.city).toLowerCase()).join('>'), key);
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});

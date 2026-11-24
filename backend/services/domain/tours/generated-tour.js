@@ -3614,8 +3614,13 @@ async function getFareMapGeneratedTour(query,options) {
       const hotelUsd=(tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
       // Up to 97% of the spendable budget: the rest absorbs price changes before booking.
       const hotelBudgetUsd=useBudget&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?Math.floor(tour.usableTripBudgetUsd*.97-(tour.estimatedTotalUsd-hotelUsd)):null;
-      const priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...options,hotelBudgetUsd}:options);
+      let priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...options,hotelBudgetUsd}:options);
+      const overWithRealHotels=p=>p?.diagnostics?.nuiteeLiveStays?.reason==='nuitee-final-tour-over-budget-kept-estimate';
+      // Real hotels push it over: try the cheapest real rooms once. If it still does not
+      // fit, the trip does not fit; never show it with the cheaper estimate (GV-HOTEL-HONEST-001).
+      if(overWithRealHotels(priced))priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,{...options,hotelChoice:'cheapest'});
       diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
+      if(overWithRealHotels(priced))return {reason:'fare-map-live-hotels-exceed-protected-budget'};
       const stops=priced?.tour?.stops||[];
       if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};
       // Live hotel prices can push the total over; the spendable budget is a hard line.
@@ -3629,7 +3634,12 @@ async function getFareMapGeneratedTour(query,options) {
   const rawRole=String(query.routeRole||query.tourRole||query.pickRole||'').trim().toLowerCase();
   const role=rawRole==='stretch'?'stretch':normalizePickRole670a(rawRole);
   const roleList=role&&Array.isArray(result.roleCandidates?.[role])&&result.roleCandidates[role].length?result.roleCandidates[role]:null;
-  const candidates=roleList||result.tours.slice(0,2);
+  // The page asks again with diversityExcludedRoutes when two options came back the same
+  // (parallel searches can differ slightly); skip those trips, using any role's backups.
+  let excluded=new Set();try{const raw=query.diversityExcludedRoutes;excluded=new Set((Array.isArray(raw)?raw:JSON.parse(raw||'[]')).map(x=>String(x).toLowerCase()));}catch{}
+  const tripKey=t=>(t?.stops||[]).map(st=>String(st.cityId||st.city||'').toLowerCase()).join('>');
+  let candidates=roleList||result.tours.slice(0,2);
+  if(excluded.size){const fresh=candidates.filter(t=>!excluded.has(tripKey(t)));const others=Object.values(result.roleCandidates||{}).flat().filter(t=>!excluded.has(tripKey(t))&&!fresh.includes(t));candidates=[...fresh,...others].filter((t,i,a)=>a.findIndex(x=>tripKey(x)===tripKey(t))===i).slice(0,3);diagnostics.excludedRoutes=excluded.size;}
   if(roleList)diagnostics.fareMapRole=role;
   // Best use of budget: hotels may be upgraded with the money the route leaves unspent.
   const useBudget=role==='best-balance'&&!!roleList;
@@ -3646,7 +3656,10 @@ async function getFareMapGeneratedTour(query,options) {
   // Only the main pick (the one signed-out visitors see) may fall back to estimated
   // prices; an extra option that cannot be live-checked is left out instead, so the
   // page shows two real trips rather than one with estimates (GV-LIVE-ONLY-002).
-  const mayShowEstimate=!roleList||role==='best-balance';
+  // Real prices said these trips do not fit: say so rather than show a cheaper estimate.
+  const allOverBudget=liveAttempts.length>0&&liveAttempts.every(a=>/exceeds?-protected-budget|stopped-live-check/.test(a))&&liveAttempts.some(a=>/exceeds?-protected-budget/.test(a));
+  const mayShowEstimate=(!roleList||role==='best-balance')&&!allOverBudget;
+  if(allOverBudget)diagnostics.fareMapLivePricesOverBudget=true;
   // A trip whose way home was only a stand-in (no cached fare back) is shown only once
   // the live check has confirmed that return flight.
   const lastLeg=t=>(t?.backendLegs||t?.legs||[]).at(-1);
@@ -3686,6 +3699,13 @@ function fareMapForEveryone(env = process.env) {
 }
 // What the page shows when no trip fits: plain words and a next step, never a code.
 function noTripMessage(result = {}, query = {}) {
+  // Live prices came in above the budget for every trip checked: suggest about 15% more.
+  if (result?.diagnostics?.fareMapLivePricesOverBudget) {
+    const asked = Number(query.budget ?? query.budgetUsd) || 0, currency = String(query.currency || 'USD').toUpperCase();
+    const more = asked ? Math.ceil(asked * 1.15 / 50) * 50 : null;
+    const from = result?.requested?.origin?.city || result?.requested?.origin?.name || 'this city';
+    return { title: 'Live prices came in just above your budget', message: 'Today\u2019s real flight and hotel prices from ' + from + ' are a little higher than your budget.' + (more ? ' Try ' + currency + ' ' + more.toLocaleString('en-US') + ', or a later month.' : ' Try a slightly higher budget or a later month.'), suggestedBudget: more, currency };
+  }
   const min = Number(result?.requested?.suggestedMinimumBudgetUsd) || null;
   const rate = Number(result?.requested?.displayBudget?.exchangeRateFromUsd) || null;
   const currency = String(query.currency || 'USD').toUpperCase();
