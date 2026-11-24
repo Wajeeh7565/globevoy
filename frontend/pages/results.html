@@ -121,8 +121,12 @@
     </div>
 
     <section class="dest-section" aria-labelledby="dest-heading">
-      <div class="section-heading"><h2 id="dest-heading">Where you’ll stay</h2></div>
-      <div class="destinations" id="destinations"></div>
+      <div class="section-heading"><h2 id="dest-heading">Your trip, stop by stop</h2></div>
+      <div class="journey-cards-wrap">
+        <button class="cards-nav prev" type="button" aria-label="Previous stop" hidden>‹</button>
+        <ol class="journey-cards" id="destinations" aria-labelledby="dest-heading"></ol>
+        <button class="cards-nav next" type="button" aria-label="Next stop" hidden>›</button>
+      </div>
     </section>
   </div>
 </main>

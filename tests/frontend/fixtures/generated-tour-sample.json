@@ -33,7 +33,8 @@
       "livePriceVerified": true,
       "source": "nuitee-live-rate",
       "checkIn": "2027-01-05",
-      "checkOut": "2027-01-09"
+      "checkOut": "2027-01-09",
+      "totalStayUsd": 529.2
      },
      "vibes": [
       "beach",
@@ -56,7 +57,8 @@
       "livePriceVerified": true,
       "source": "nuitee-live-rate",
       "checkIn": "2027-01-09",
-      "checkOut": "2027-01-15"
+      "checkOut": "2027-01-15",
+      "totalStayUsd": 798.95
      },
      "vibes": [
       "culture",
@@ -92,8 +94,14 @@
      "cheapestOneWay": {
       "carrier": "Flair Airlines",
       "stops": 0,
-      "observedAt": "2026-11-24T06:31:47Z"
-     }
+      "observedAt": "2026-11-24T06:31:47Z",
+      "displayPrice": 131,
+      "partyTotalAmountDisplay": 131,
+      "displayCurrency": "CAD",
+      "durationMinutes": 195,
+      "departureDate": "2027-01-05"
+     },
+     "amountUsd": 96
     },
     {
      "legNumber": 2,
@@ -122,8 +130,14 @@
      "cheapestOneWay": {
       "carrier": "Allegiant",
       "stops": 0,
-      "observedAt": "2026-11-24T06:31:47Z"
-     }
+      "observedAt": "2026-11-24T06:31:47Z",
+      "displayPrice": 143,
+      "partyTotalAmountDisplay": 143,
+      "displayCurrency": "CAD",
+      "durationMinutes": 209,
+      "departureDate": "2027-01-09"
+     },
+     "amountUsd": 105
     },
     {
      "legNumber": 3,
@@ -152,8 +166,14 @@
      "cheapestOneWay": {
       "carrier": "Air Canada",
       "stops": 0,
-      "observedAt": "2026-11-24T06:31:47Z"
-     }
+      "observedAt": "2026-11-24T06:31:47Z",
+      "displayPrice": 187,
+      "partyTotalAmountDisplay": 187,
+      "displayCurrency": "CAD",
+      "durationMinutes": 121,
+      "departureDate": "2027-01-15"
+     },
+     "amountUsd": 137
     }
    ],
    "totalNights": 10,
@@ -172,7 +192,8 @@
     "flightEstimate": 461,
     "accommodationEstimate": 1807,
     "tripEstimate": 2268,
-    "amountLeft": 432
+    "amountLeft": 432,
+    "exchangeRateFromUsd": 1.360544
    }
   },
   "tours": [
@@ -208,7 +229,8 @@
        "livePriceVerified": true,
        "source": "nuitee-live-rate",
        "checkIn": "2027-01-05",
-       "checkOut": "2027-01-09"
+       "checkOut": "2027-01-09",
+       "totalStayUsd": 529.2
       },
       "vibes": [
        "beach",
@@ -231,7 +253,8 @@
        "livePriceVerified": true,
        "source": "nuitee-live-rate",
        "checkIn": "2027-01-09",
-       "checkOut": "2027-01-15"
+       "checkOut": "2027-01-15",
+       "totalStayUsd": 798.95
       },
       "vibes": [
        "culture",
@@ -267,8 +290,14 @@
       "cheapestOneWay": {
        "carrier": "Flair Airlines",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 131,
+       "partyTotalAmountDisplay": 131,
+       "displayCurrency": "CAD",
+       "durationMinutes": 195,
+       "departureDate": "2027-01-05"
+      },
+      "amountUsd": 96
      },
      {
       "legNumber": 2,
@@ -297,8 +326,14 @@
       "cheapestOneWay": {
        "carrier": "Allegiant",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 143,
+       "partyTotalAmountDisplay": 143,
+       "displayCurrency": "CAD",
+       "durationMinutes": 209,
+       "departureDate": "2027-01-09"
+      },
+      "amountUsd": 105
      },
      {
       "legNumber": 3,
@@ -327,8 +362,14 @@
       "cheapestOneWay": {
        "carrier": "Air Canada",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 187,
+       "partyTotalAmountDisplay": 187,
+       "displayCurrency": "CAD",
+       "durationMinutes": 121,
+       "departureDate": "2027-01-15"
+      },
+      "amountUsd": 137
      }
     ],
     "totalNights": 10,
@@ -347,7 +388,8 @@
      "flightEstimate": 461,
      "accommodationEstimate": 1807,
      "tripEstimate": 2268,
-     "amountLeft": 432
+     "amountLeft": 432,
+     "exchangeRateFromUsd": 1.360544
     }
    },
    {
@@ -382,7 +424,8 @@
        "livePriceVerified": false,
        "source": "nuitee-live-rate",
        "checkIn": "2027-02-10",
-       "checkOut": "2027-02-14"
+       "checkOut": "2027-02-14",
+       "totalStayUsd": 448.35
       },
       "vibes": [
        "architecture",
@@ -406,7 +449,8 @@
        "livePriceVerified": true,
        "source": "nuitee-live-rate",
        "checkIn": "2027-02-14",
-       "checkOut": "2027-02-18"
+       "checkOut": "2027-02-18",
+       "totalStayUsd": 463.05
       },
       "vibes": [
        "culture",
@@ -442,8 +486,14 @@
       "cheapestOneWay": {
        "carrier": "Air Transat",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 640,
+       "partyTotalAmountDisplay": 640,
+       "displayCurrency": "CAD",
+       "durationMinutes": 470,
+       "departureDate": "2027-02-10"
+      },
+      "amountUsd": 470
      },
      {
       "legNumber": 2,
@@ -472,8 +522,14 @@
       "cheapestOneWay": {
        "carrier": "Vueling",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 95,
+       "partyTotalAmountDisplay": 95,
+       "displayCurrency": "CAD",
+       "durationMinutes": 145,
+       "departureDate": "2027-02-14"
+      },
+      "amountUsd": 70
      },
      {
       "legNumber": 3,
@@ -502,8 +558,14 @@
       "cheapestOneWay": {
        "carrier": "TAP Air Portugal",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 455,
+       "partyTotalAmountDisplay": 455,
+       "displayCurrency": "CAD",
+       "durationMinutes": 500,
+       "departureDate": "2027-02-18"
+      },
+      "amountUsd": 334
      }
     ],
     "totalNights": 8,
@@ -522,7 +584,8 @@
      "flightEstimate": 1190,
      "accommodationEstimate": 1240,
      "tripEstimate": 2430,
-     "amountLeft": 270
+     "amountLeft": 270,
+     "exchangeRateFromUsd": 1.360544
     }
    }
   ]
@@ -561,7 +624,8 @@
       "livePriceVerified": true,
       "source": "nuitee-live-rate",
       "checkIn": "2027-03-04",
-      "checkOut": "2027-03-10"
+      "checkOut": "2027-03-10",
+      "totalStayUsd": 705.6
      },
      "vibes": [
       "food",
@@ -598,8 +662,14 @@
      "cheapestOneWay": {
       "carrier": "Air Canada",
       "stops": 0,
-      "observedAt": "2026-11-24T06:31:47Z"
-     }
+      "observedAt": "2026-11-24T06:31:47Z",
+      "displayPrice": 820,
+      "partyTotalAmountDisplay": 820,
+      "displayCurrency": "CAD",
+      "durationMinutes": 810,
+      "departureDate": "2027-03-03"
+     },
+     "amountUsd": 603
     },
     {
      "legNumber": 2,
@@ -628,8 +698,14 @@
      "cheapestOneWay": {
       "carrier": "ANA",
       "stops": 0,
-      "observedAt": "2026-11-24T06:31:47Z"
-     }
+      "observedAt": "2026-11-24T06:31:47Z",
+      "displayPrice": 560,
+      "partyTotalAmountDisplay": 560,
+      "displayCurrency": "CAD",
+      "durationMinutes": 760,
+      "departureDate": "2027-03-10"
+     },
+     "amountUsd": 412
     }
    ],
    "totalNights": 6,
@@ -648,7 +724,8 @@
     "flightEstimate": 1380,
     "accommodationEstimate": 960,
     "tripEstimate": 2340,
-    "amountLeft": 360
+    "amountLeft": 360,
+    "exchangeRateFromUsd": 1.360544
    }
   },
   "tours": [
@@ -684,7 +761,8 @@
        "livePriceVerified": true,
        "source": "nuitee-live-rate",
        "checkIn": "2027-03-04",
-       "checkOut": "2027-03-10"
+       "checkOut": "2027-03-10",
+       "totalStayUsd": 705.6
       },
       "vibes": [
        "food",
@@ -721,8 +799,14 @@
       "cheapestOneWay": {
        "carrier": "Air Canada",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 820,
+       "partyTotalAmountDisplay": 820,
+       "displayCurrency": "CAD",
+       "durationMinutes": 810,
+       "departureDate": "2027-03-03"
+      },
+      "amountUsd": 603
      },
      {
       "legNumber": 2,
@@ -751,8 +835,14 @@
       "cheapestOneWay": {
        "carrier": "ANA",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 560,
+       "partyTotalAmountDisplay": 560,
+       "displayCurrency": "CAD",
+       "durationMinutes": 760,
+       "departureDate": "2027-03-10"
+      },
+      "amountUsd": 412
      }
     ],
     "totalNights": 6,
@@ -771,7 +861,8 @@
      "flightEstimate": 1380,
      "accommodationEstimate": 960,
      "tripEstimate": 2340,
-     "amountLeft": 360
+     "amountLeft": 360,
+     "exchangeRateFromUsd": 1.360544
     }
    }
   ]
@@ -810,7 +901,8 @@
       "livePriceVerified": true,
       "source": "nuitee-live-rate",
       "checkIn": "2027-02-10",
-      "checkOut": "2027-02-14"
+      "checkOut": "2027-02-14",
+      "totalStayUsd": 448.35
      },
      "vibes": [
       "architecture",
@@ -834,7 +926,8 @@
       "livePriceVerified": true,
       "source": "nuitee-live-rate",
       "checkIn": "2027-02-14",
-      "checkOut": "2027-02-18"
+      "checkOut": "2027-02-18",
+      "totalStayUsd": 463.05
      },
      "vibes": [
       "culture",
@@ -870,8 +963,14 @@
      "cheapestOneWay": {
       "carrier": "Air Transat",
       "stops": 0,
-      "observedAt": "2026-11-24T06:31:47Z"
-     }
+      "observedAt": "2026-11-24T06:31:47Z",
+      "displayPrice": 640,
+      "partyTotalAmountDisplay": 640,
+      "displayCurrency": "CAD",
+      "durationMinutes": 470,
+      "departureDate": "2027-02-10"
+     },
+     "amountUsd": 470
     },
     {
      "legNumber": 2,
@@ -900,8 +999,14 @@
      "cheapestOneWay": {
       "carrier": "Vueling",
       "stops": 0,
-      "observedAt": "2026-11-24T06:31:47Z"
-     }
+      "observedAt": "2026-11-24T06:31:47Z",
+      "displayPrice": 95,
+      "partyTotalAmountDisplay": 95,
+      "displayCurrency": "CAD",
+      "durationMinutes": 145,
+      "departureDate": "2027-02-14"
+     },
+     "amountUsd": 70
     },
     {
      "legNumber": 3,
@@ -930,8 +1035,14 @@
      "cheapestOneWay": {
       "carrier": "TAP Air Portugal",
       "stops": 0,
-      "observedAt": "2026-11-24T06:31:47Z"
-     }
+      "observedAt": "2026-11-24T06:31:47Z",
+      "displayPrice": 455,
+      "partyTotalAmountDisplay": 455,
+      "displayCurrency": "CAD",
+      "durationMinutes": 500,
+      "departureDate": "2027-02-18"
+     },
+     "amountUsd": 334
     }
    ],
    "totalNights": 8,
@@ -950,7 +1061,8 @@
     "flightEstimate": 1190,
     "accommodationEstimate": 1240,
     "tripEstimate": 2430,
-    "amountLeft": 270
+    "amountLeft": 270,
+    "exchangeRateFromUsd": 1.360544
    }
   },
   "tours": [
@@ -986,7 +1098,8 @@
        "livePriceVerified": true,
        "source": "nuitee-live-rate",
        "checkIn": "2027-02-10",
-       "checkOut": "2027-02-14"
+       "checkOut": "2027-02-14",
+       "totalStayUsd": 448.35
       },
       "vibes": [
        "architecture",
@@ -1010,7 +1123,8 @@
        "livePriceVerified": true,
        "source": "nuitee-live-rate",
        "checkIn": "2027-02-14",
-       "checkOut": "2027-02-18"
+       "checkOut": "2027-02-18",
+       "totalStayUsd": 463.05
       },
       "vibes": [
        "culture",
@@ -1046,8 +1160,14 @@
       "cheapestOneWay": {
        "carrier": "Air Transat",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 640,
+       "partyTotalAmountDisplay": 640,
+       "displayCurrency": "CAD",
+       "durationMinutes": 470,
+       "departureDate": "2027-02-10"
+      },
+      "amountUsd": 470
      },
      {
       "legNumber": 2,
@@ -1076,8 +1196,14 @@
       "cheapestOneWay": {
        "carrier": "Vueling",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 95,
+       "partyTotalAmountDisplay": 95,
+       "displayCurrency": "CAD",
+       "durationMinutes": 145,
+       "departureDate": "2027-02-14"
+      },
+      "amountUsd": 70
      },
      {
       "legNumber": 3,
@@ -1106,8 +1232,14 @@
       "cheapestOneWay": {
        "carrier": "TAP Air Portugal",
        "stops": 0,
-       "observedAt": "2026-11-24T06:31:47Z"
-      }
+       "observedAt": "2026-11-24T06:31:47Z",
+       "displayPrice": 455,
+       "partyTotalAmountDisplay": 455,
+       "displayCurrency": "CAD",
+       "durationMinutes": 500,
+       "departureDate": "2027-02-18"
+      },
+      "amountUsd": 334
      }
     ],
     "totalNights": 8,
@@ -1126,7 +1258,8 @@
      "flightEstimate": 1190,
      "accommodationEstimate": 1240,
      "tripEstimate": 2430,
-     "amountLeft": 270
+     "amountLeft": 270,
+     "exchangeRateFromUsd": 1.360544
     }
    }
   ]

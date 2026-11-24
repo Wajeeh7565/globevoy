@@ -147,11 +147,11 @@
         <strong>${esc(v.cities.map(c => c.name).join(' → '))}</strong>
         <span class="option-meta"><span>${plural(v.nights, 'night', 'nights')}</span><span>${money(t.tour.displayBudget?.tripEstimate, v.cur)}</span></span>
       </button>`;
-    }).join('') + (!member ? `<div class="option-locked">
-        <span class="option-role">2 more trips</span>
-        <strong>In other parts of the world</strong>
-        <button id="unlock" class="btn primary" type="button">Sign in to see them</button>
-      </div>` : '');
+    }).join('') + (!member ? S.ROLES.slice(1).map(r => `<button class="option-tab is-locked" type="button" data-unlock>
+        <span class="option-role">${esc(r.label)}</span>
+        <strong class="ghost" aria-hidden="true"><i></i><i></i></strong>
+        <span class="option-meta"><svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Sign in to see this trip</span></span>
+      </button>`).join('') : '');
     $$('.option-tab').forEach(b => {
       b.addEventListener('click', () => selectTrip(Number(b.dataset.option)));
       b.addEventListener('keydown', e => {
@@ -162,7 +162,7 @@
         if (to !== null) { e.preventDefault(); selectTrip(to); $('#option-' + to).focus(); }
       });
     });
-    $('#unlock')?.addEventListener('click', () => S.signIn());
+    $$('[data-unlock]').forEach(b => b.addEventListener('click', () => S.signIn()));
     $('#options-note').textContent = member
       ? (trips.length > 1 ? '' : 'One trip passed every live price check')
       : '';
@@ -204,26 +204,9 @@
     $('#summary-origin').textContent = [v.origin.name, v.origin.country].filter(Boolean).join(', ');
     $('#book').href = S.tripDetailsUrl(tour, search);
 
-    $('#destinations').innerHTML = v.cities.map(c => {
-      const leg = c.inbound, flight = leg.cheapestOneWay || {};
-      const flightText = [flight.carrier, flight.stops === 0 ? 'nonstop' : (flight.stops ? plural(flight.stops, 'stop', 'stops') : ''), day(leg.departureDate)].filter(Boolean).join(' · ');
-      const hotel = c.hotel?.name || c.hotel?.hotelName;
-      const rating = Number(c.hotel?.rating);
-      return `<article id="card-${c.id}" class="destination">
-        <button class="city-card" type="button" data-city="${c.id}" aria-pressed="false">
-          <div class="card-photo"><img data-photo="${c.id}" alt="${esc(c.name)}, ${esc(c.country)}" hidden><div class="map-card" data-mapcard="${c.id}"><svg width="100" height="80" viewBox="0 0 100 80" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="m9 25 27-14 29 12 26-14v45L65 68 36 56 9 70Zm27-14v45m29-33v45"/><path d="M54 24a11 11 0 0 1 22 0c0 8-11 20-11 20S54 32 54 24Z"/><circle cx="65" cy="24" r="3"/></svg><span class="map-caption">${Math.abs(c.coords[0]).toFixed(2)}° ${c.coords[0] >= 0 ? 'N' : 'S'} · ${Math.abs(c.coords[1]).toFixed(2)}° ${c.coords[1] >= 0 ? 'E' : 'W'}</span></div><span class="exploring">Exploring now</span></div>
-          <div class="card-title"><h3>${esc(c.name)}</h3><span>${esc(c.country)}</span></div>
-          <div class="card-meta"><span>${plural(c.nights, 'night', 'nights')}</span><span>${esc(dateRange(c.arrive, c.leave))}</span></div>
-        </button>
-        <div class="card-foot">
-          ${c.vibes.length ? `<p class="vibes">${esc(vibeLine(c.vibes))}</p>` : ''}
-          ${hotel ? `<p><strong>Stay</strong> ${esc(hotel)}${rating ? ` · ${rating.toFixed(1)}/10` : ''}</p>` : ''}
-          ${flightText ? `<p><strong>Fly in</strong> ${esc(flightText)}</p>` : ''}
-        </div>
-      </article>`;
-    }).join('');
-    $$('#destinations [data-city]').forEach(btn => btn.addEventListener('click', () => manualSelect(btn.dataset.city)));
+    renderJourneyCards(v);
     v.cities.forEach(loadCityPhoto);
+    loadOriginPhoto(v);
     renderRail();
     $('.mobile-breakdown')?.remove();
     const d = document.createElement('details');
@@ -238,6 +221,89 @@
     if (!times.length) return 'just now';
     const mins = Math.round((Date.now() - Math.min(...times)) / 60000);
     return mins <= 1 ? 'just now' : mins + ' minutes ago';
+  }
+
+  // ---------- journey cards (start, each stop, home) ----------
+  const ICON_FLIGHT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 7 2 6-8 2 1-3 9 5 3-1 2-7-2-4 4-2-1 2-5-5-3Z"/></svg>';
+  const ICON_BED = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18V7m0 7h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="2"/></svg>';
+  function legPrice(leg) {
+    const f = leg?.cheapestOneWay || {};
+    if (view.cur === (f.displayCurrency || f.currency) && Number.isFinite(Number(f.partyTotalAmountDisplay ?? f.displayPrice))) return Number(f.partyTotalAmountDisplay ?? f.displayPrice);
+    const rate = Number(view.tour.displayBudget?.exchangeRateFromUsd) || 1;
+    return Number(leg?.amountUsd) * rate;
+  }
+  function stayPrice(c) {
+    const rate = Number(view.tour.displayBudget?.exchangeRateFromUsd) || 1;
+    return Number(c.hotel?.totalStayUsd ?? c.hotel?.estimatedStayUsd) * rate;
+  }
+  const dayIndex = iso => Math.round((Date.parse(String(iso).slice(0, 10)) - Date.parse(String(view.start).slice(0, 10))) / 864e5) + 1;
+  const flightTime = m => (Number(m) > 0 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m` : '');
+  function flightRow(leg, label) {
+    const f = leg?.cheapestOneWay || {}, price = legPrice(leg);
+    const how = [f.stops === 0 ? 'Nonstop' : (f.stops ? plural(f.stops, 'stop', 'stops') : ''), flightTime(f.durationMinutes)].filter(Boolean).join(', ');
+    return `<div class="jrow"><span class="jicon">${ICON_FLIGHT}</span><div class="jtext"><span class="jlabel">${esc(label)} · ${esc(day(leg?.departureDate))}</span><strong>${esc(f.carrier || 'Flight')}</strong>${how ? `<span>${esc(how)}</span>` : ''}</div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>Live</em></div>` : ''}</div>`;
+  }
+  function stayRow(c) {
+    const price = stayPrice(c), name = c.hotel?.name || c.hotel?.hotelName, rating = Number(c.hotel?.rating);
+    if (!name) return '';
+    return `<div class="jrow"><span class="jicon">${ICON_BED}</span><div class="jtext"><span class="jlabel">${plural(c.nights, 'night', 'nights')}${rating ? ` · rated ${rating.toFixed(1)}` : ''}</span><strong>${esc(name)}</strong></div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>Live</em></div>` : ''}</div>`;
+  }
+  function photoBox(id, alt, badge, sub) {
+    return `<div class="jphoto"><img data-photo="${id}" alt="${esc(alt)}" hidden><div class="jphoto-fallback" data-mapcard="${id}"></div><span class="jbadge">${esc(badge)}</span>${sub ? `<span class="jbadge alt">${esc(sub)}</span>` : ''}<span class="jnow">Now exploring</span><div class="jtitle"><h3>${esc(alt.split(',')[0])}</h3><span>${esc(alt.split(', ').slice(1).join(', '))}</span></div></div>`;
+  }
+  function renderJourneyCards(v) {
+    const home = v.legs[v.cities.length];
+    const startCard = `<li class="jcard is-end" id="card-origin">${photoBox('origin', [v.origin.name, v.origin.country].filter(Boolean).join(', '), 'Start')}
+      <div class="jbody"><div class="jrow plain"><div class="jtext"><span class="jlabel">Leave ${esc(day(v.start, { weekday: 'short', month: 'short', day: 'numeric' }))}</span><strong>${esc(search.origin)}</strong><span>${plural(v.nights, 'night', 'nights')} away, ${plural(v.cities.length, 'stop', 'stops')}</span></div></div></div></li>`;
+    const stops = v.cities.map((c, i) => {
+      const d1 = dayIndex(c.arrive), d2 = d1 + c.nights - 1;
+      const total = [legPrice(c.inbound), stayPrice(c)].filter(Number.isFinite).reduce((a, b) => a + b, 0);
+      return `<li class="jcard" id="card-${c.id}"><button class="jselect" type="button" data-city="${c.id}" aria-pressed="false" aria-label="Show ${esc(c.name)} on the map"></button>
+        ${photoBox(c.id, `${c.name}, ${c.country}`, `Stop ${i + 1}`, Number.isFinite(d1) ? (c.nights > 1 ? `Days ${d1}–${d2}` : `Day ${d1}`) : '')}
+        <div class="jbody">${flightRow(c.inbound, 'Fly in')}${stayRow(c)}</div>
+        <div class="jfoot"><span>Stop total</span><strong>${money(total, v.cur)}</strong></div></li>`;
+    }).join('');
+    const endCard = `<li class="jcard is-end" id="card-home">${photoBox('home', [v.origin.name, v.origin.country].filter(Boolean).join(', '), 'Home')}
+      <div class="jbody">${flightRow(home, 'Fly home')}</div>
+      <div class="jfoot"><span>Return flight</span><strong>${money(legPrice(home), v.cur)}</strong></div></li>`;
+    $('#destinations').innerHTML = startCard + stops + endCard;
+    $$('#destinations [data-city]').forEach(btn => btn.addEventListener('click', () => manualSelect(btn.dataset.city)));
+    syncCardNav();
+  }
+  const ORIGIN_PHOTOS = { toronto: 'toronto', montreal: 'montreal', ottawa: 'ottawa', newyork: 'new-york-city', miami: 'miami', fortlauderdale: 'fort-lauderdale', cancun: 'cancun', mexicocity: 'mexico-city', dubai: 'dubai', cairo: 'cairo', montegobay: 'montego-bay' };
+  async function loadOriginPhoto(v) {
+    const key = sceneKey(v.origin.name);
+    let url = ORIGIN_PHOTOS[key] ? `./assets/images/${ORIGIN_PHOTOS[key]}.jpg` : '';
+    if (!url && window.GlobevoyCityImages?.get) {
+      try { const f = await window.GlobevoyCityImages.get(v.origin.name, v.origin.country, ''); url = typeof f === 'string' ? f : f?.url || ''; } catch (_) { /* fallback */ }
+    }
+    if (!url || v !== view) return;
+    ['origin', 'home'].forEach(id => {
+      const img = document.querySelector(`[data-photo="${id}"]`), fb = document.querySelector(`[data-mapcard="${id}"]`);
+      if (!img) return;
+      img.onload = () => { img.hidden = false; fb.hidden = true; };
+      img.src = url;
+    });
+  }
+  function syncCardNav() {
+    const row = $('#destinations'), prev = $('.cards-nav.prev'), next = $('.cards-nav.next');
+    const update = () => {
+      const over = row.scrollWidth > row.clientWidth + 4;
+      prev.hidden = next.hidden = !over;
+      prev.disabled = row.scrollLeft < 8;
+      next.disabled = row.scrollLeft + row.clientWidth > row.scrollWidth - 8;
+    };
+    row.onscroll = update;
+    prev.onclick = () => row.scrollBy({ left: -row.clientWidth * 0.8, behavior: constrained() ? 'auto' : 'smooth' });
+    next.onclick = () => row.scrollBy({ left: row.clientWidth * 0.8, behavior: constrained() ? 'auto' : 'smooth' });
+    requestAnimationFrame(update);
+    window.addEventListener('resize', update);
+  }
+  function revealCard(id) {
+    const row = $('#destinations'), card = document.getElementById('card-' + id);
+    if (!row || !card || row.scrollWidth <= row.clientWidth + 4) return;
+    const left = card.offsetLeft - (row.clientWidth - card.offsetWidth) / 2;
+    row.scrollTo({ left: Math.max(0, left), behavior: constrained() ? 'auto' : 'smooth' });
   }
 
   // ---------- city media ----------
@@ -375,10 +441,8 @@
   const PLANE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 7 2 6-8 2 1-3 9 5 3-1 2-7-2-4 4-2-1 2-5-5-3Z"/></svg>';
   function renderRail() {
     const v = view;
-    const hop = leg => {
-      const f = leg?.cheapestOneWay || {};
-      const info = [f.carrier, f.stops === 0 ? 'nonstop' : ''].filter(Boolean).join(', ');
-      return `<li class="tl-hop" aria-hidden="true">${PLANE}<span>${esc(info)}</span></li>`;
+    const hop = () => {
+      return `<li class="tl-hop" aria-hidden="true">${PLANE}</li>`;
     };
     let html = `<li class="tl-end"><strong>${esc(v.origin.name)}</strong><span>Leave ${esc(day(v.start))}</span></li>`;
     v.cities.forEach((c, i) => {
@@ -413,7 +477,8 @@
   function markCity(id) {
     activeCity = id;
     $$('[data-city]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.city === id)));
-    $$('.destination').forEach(card => card.classList.toggle('active', card.id === 'card-' + id));
+    $$('.jcard').forEach(card => card.classList.toggle('active', card.id === 'card-' + id));
+    if (id) revealCard(id);
     view.cities.forEach((c, i) => cityMarkers[c.id]?.setIcon(markerIcon(i, c.id === id)));
   }
   const cityById = id => view.cities.find(c => c.id === id);

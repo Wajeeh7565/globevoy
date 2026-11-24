@@ -342,7 +342,7 @@
     {
       "from": "frontend/results.html",
       "to": "frontend/pages/results.html",
-      "sha256": "21f43c441c76e800c8859ad7c0abd6c5e978876b391f5827bfbd6f58497fe3fb"
+      "sha256": "a81f31b93bbe54587113410ea0c9931657f8c80606baf7f35545b45976466e68"
     },
     {
       "from": "frontend/saved-trips.html",
