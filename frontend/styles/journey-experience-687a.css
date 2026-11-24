@@ -66,6 +66,15 @@ body.gv-mcv-page .mcv-card-carousel-shell .mcv-carousel-btn{display:grid!importa
    Keep the classic visualizer, remove explanatory/technical clutter only.
    No route generation, pricing, auth or API behaviour changes. */
 
+body.gv-mcv-page .mcv-r2-results-head > div {
+  display: none !important;
+}
+
+body.gv-mcv-page .mcv-r2-results-head {
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
 body.gv-mcv-page .mcv-r2-switch-intro p {
   display: none !important;
 }

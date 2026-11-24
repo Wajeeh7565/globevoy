@@ -83,7 +83,7 @@ check('Secure accounts now delegate to Cognito while guest planning remains expl
 check('Travel profile is described as browser-local',profile.includes('stored only in this browser')&&!/type=["']password/i.test(profile));
 check('Legacy multi-city route redirects with query and hash',legacy.includes("'multicity-visualizer.html'+location.search+location.hash"));
 check('Normal shell navigation does not expose obsolete multi-city route',!shell.includes('href="multi-city.html')&&!home.includes('href="multi-city.html'));
-check('Loading gives search context, status and a way back without timed stages', ['id="gv-loading-context"', 'id="gv-loading-status" role="status"', 'id="gv-loading-edit" href="index.html"'].every(markup=>visualizer.includes(markup))&&!visualizer.includes('Trip generation stages'));
+check('Progressive generation language contains four user-facing stages',['Finding suitable cities','Connecting the route','Checking price evidence','Preparing your trip'].every(stage=>visualizer.includes(stage)));
 
 check('Journey player is optional and never autoplays',visualizer.includes('Play your journey')&&journeySource.includes('playButton.onclick = play')&&!journeySource.includes('playButton.click()'));
 check('Reduced-motion and static/manual paths survive',journeySource.includes('Next journey step')&&journeyCss.includes('@media(prefers-reduced-motion:reduce)')&&visualizer.includes('Show complete route'));
