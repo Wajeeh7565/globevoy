@@ -20,6 +20,8 @@ const MULTI_CITY_FROM_USD=1100;
 // check, so trips that fit on paper failed live. Trips are chosen with hotels counted at
 // this margin (GV-HOTEL-MARGIN-001); the shown price stays the honest estimate until live.
 function hotelMargin(env=process.env){const m=Number(env.FARE_MAP_HOTEL_MARGIN);return Number.isFinite(m)&&m>=1&&m<=2?m:1.3;}
+// Nobody books a holiday for tomorrow: trips leave at least this many days out.
+function minLeadDays(env=process.env){const n=Number(env.FARE_MAP_MIN_LEAD_DAYS);return Number.isInteger(n)&&n>=0&&n<=60?n:10;}
 function maxCities(env=process.env){const n=Number(env.FARE_MAP_MAX_CITIES);return Number.isInteger(n)&&n>=1&&n<=3?n:2;}
 // City character (GV-CITY-VIBES-001): theme scores 0-5 for 443 of the 444 live cities.
 const intel=new Map((require('../../../data/city-intelligence-510c.json').records||[]).map(r=>[r.cityId,r]));
@@ -153,13 +155,18 @@ function roleCandidates(ranked,spendable,extra={}){
  // out while sensible routes exist.
  const sane=ranked.filter(s=>!(s.detour>MAX_DETOUR));if(sane.length)ranked=sane;
  const take=(order,role,label)=>{const fresh=order.filter(s=>!inUse.has(key(s)));const list=(fresh.length?fresh:order).slice(0,3);if(fresh.length){firsts.add(key(fresh[0]));taken.add(key(fresh[0]));fams(fresh[0]).forEach(f=>takenFams.add(f));list.forEach(s=>inUse.add(key(s)));}out[role]=list.map(s=>tag(s,role,label));};
- take(bestUseOrder(ranked,spendable),'best-balance','Best use of budget');
+ // Above about C$1,500 the main and "something different" picks go abroad when a trip
+ // abroad fits (Lahore > Peshawar > Karachi is not what US$1,500 is for); a domestic
+ // trip can still be the lowest-cost option.
+ const abroad=s=>extra.originCountry&&s.cities.some(c=>String(c.countryCode||c.unifiedRegistry?.countryCode||'').toUpperCase()!==extra.originCountry);
+ const wide=extra.preferAbroad&&ranked.some(abroad)?ranked.filter(abroad):ranked;
+ take(bestUseOrder(wide,spendable),'best-balance','Best use of budget');
  take(ranked,'lowest-cost','Lowest cost');
  const used=new Map();for(const k of firsts)for(const c of k.split('>'))used.set(c,(used.get(c)||0)+1);
  const shared=s=>s.cities.reduce((n,c)=>n+(used.get(code(c))||0),0),newFam=s=>fams(s).some(f=>!takenFams.has(f))?0:1;
  const far=s=>extra.origin?-Math.max(...s.cities.map(c=>legacy._internal.haversineKm(extra.origin,{latitude:c.unifiedRegistry.latitude,longitude:c.unifiedRegistry.longitude})||0)):0;
  // Real dates first, then a new part of the world, no shared cities, a fuller trip, further away.
- take(ranked.slice().sort((a,b)=>a.estimatedDate-b.estimatedDate||newFam(a)-newFam(b)||shared(a)-shared(b)||Math.abs(a.cost/spendable-.85)-Math.abs(b.cost/spendable-.85)||far(a)-far(b)||a.key.localeCompare(b.key)),'most-memorable','Something different');
+ take(wide.slice().sort((a,b)=>a.estimatedDate-b.estimatedDate||newFam(a)-newFam(b)||shared(a)-shared(b)||Math.abs(a.cost/spendable-.85)-Math.abs(b.cost/spendable-.85)||far(a)-far(b)||a.key.localeCompare(b.key)),'most-memorable','Something different');
  const stretch=(extra.stretch||[]).filter(s=>!inUse.has(key(s)));
  if(stretch.length){
   const best=bestUseOrder(ranked,spendable)[0],bestNights=Number(best?.tour?.totalNights)||0,bestCities=best?.cities.length||0;
@@ -203,7 +210,7 @@ async function search(query={},options={}){
  const end=query.departureDate?plus(start,1):horizon;
  // A requested month narrows the window; default searches the entire rolling six months.
  const monthEnd=explicitMonth?new Date(Date.UTC(Number(explicitMonth.slice(0,4)),Number(explicitMonth.slice(5,7)),1)).toISOString().slice(0,10):null;
- const windowStart=start>today?start:today,windowEnd=[horizon,query.departureDate?end:monthEnd||horizon].sort()[0];
+ const earliest=query.departureDate?today:plus(today,minLeadDays(env)),windowStart=start>earliest?start:earliest,windowEnd=[horizon,query.departureDate?end:monthEnd||horizon].sort()[0];
  requested.departureWindow={start:windowStart,endExclusive:windowEnd};
  if(windowStart>=windowEnd)return response([],'departure-window-outside-six-month-horizon');
  const firstMonths=months(windowStart,plus(windowEnd,-1));
@@ -370,7 +377,7 @@ async function search(query={},options={}){
  const ranked=multiFirst?allRanked.filter(s=>s.cities.length>=2):allRanked,cheapest=ranked[0];
  const alternatives=cheapest?ranked.slice(1).map(s=>({...s,preferencePenalty:(s.preferencePenalty||0)+s.cities.reduce((sum,c)=>sum+(cheapest.cities.some(x=>code(x)===code(c))?75:0),0)})):[];
  const picked=(cheapest?[cheapest,...pickDiverse(alternatives,2)]:[]).map((s,i)=>({...s.tour,tourRole:['lowest-cost','best-balance','most-memorable'][i],tourRoleLabel:['Lowest cost','Diverse alternative','Another route idea'][i]}));
- result_roleCandidates=roleCandidates(ranked,budget-Math.round(budget*.1),{origin,stretch:multiFirst?stretchPool.filter(s=>s.cities.length>=2):stretchPool});
+ result_roleCandidates=roleCandidates(ranked,budget-Math.round(budget*.1),{origin,originCountry:String(origin.countryCode||'').toUpperCase(),preferAbroad:budget>=MULTI_CITY_FROM_USD,stretch:multiFirst?stretchPool.filter(s=>s.cities.length>=2):stretchPool});
  diagnostics.cityCounts=[...new Set(allRanked.map(s=>s.cities.length))].sort();diagnostics.stretchCandidates=stretchPool.length;
  // No trip fits: say what budget would (cheapest complete trip seen, plus the 10% reserve).
  if(!allRanked.length&&cheapestOverUsd)requested.suggestedMinimumBudgetUsd=Math.ceil(cheapestOverUsd/.9/10)*10;

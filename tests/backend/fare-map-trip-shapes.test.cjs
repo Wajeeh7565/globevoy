@@ -205,3 +205,23 @@ test('trips are chosen with hotels counted at the live-price margin (default 1.3
   const loose = await search(f, flexible(f), { env: { ...f.options.env, FARE_MAP_HOTEL_MARGIN: '1' } });
   assert.equal(loose.diagnostics.hotelMargin, 1);
 });
+
+test('trips leave at least 10 days out unless the traveller picks a date', async () => {
+  const f = withShortReturns(fixture());
+  const r = await search(f, flexible(f), { now: Date.parse('2027-02-25T12:00:00Z') });
+  assert.equal(r.requested.departureWindow.start, '2027-03-07');
+  for (const t of r.tours) assert.ok(t.legs[0].departureDate >= '2027-03-07');
+  assert.equal(optimizer._internal.plus('2027-02-25', 10), '2027-03-07');
+});
+
+test('above about C$1,500 the main and "something different" picks go abroad when a trip abroad fits', () => {
+  const row = (c, cc) => ({ countryCode: cc, unifiedRegistry: { origin: { providerLocationCode: c }, cityId: c.toLowerCase(), countryCode: cc, latitude: 0, longitude: 0, destination: { regionCluster: 'south-asia' } } });
+  const st = (cities, cost) => ({ cities: cities.map(([c, cc]) => row(c, cc)), cost, estimatedDate: false, key: cities.map(x => x[0]).join('>'), tour: { totalNights: 8, stops: [] } });
+  const ranked = [st([['ISB', 'PK']], 500), st([['IST', 'TR']], 800), st([['DXB', 'AE']], 840), st([['PEW', 'PK'], ['KHI', 'PK']], 860)]; // cheapest first, as the search ranks them
+  const out = roleCandidates(ranked, 1000, { originCountry: 'PK', preferAbroad: true });
+  const cc = role => out[role][0].budgetUse;
+  assert.equal(cc('best-balance'), 0.84, 'Dubai, not Peshawar > Karachi');
+  assert.equal(cc('lowest-cost'), 0.5, 'a domestic trip can still be the cheapest');
+  assert.equal(cc('most-memorable'), 0.8);
+  assert.equal(roleCandidates(ranked, 1000, { originCountry: 'PK', preferAbroad: false })['best-balance'][0].budgetUse, 0.86);
+});

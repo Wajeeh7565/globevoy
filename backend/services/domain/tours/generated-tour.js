@@ -3715,6 +3715,12 @@ function noTripMessage(result = {}, query = {}) {
   const shown = min ? (rate && currency !== 'USD' ? Math.ceil(min * rate / 50) * 50 : Math.ceil(min / 50) * 50) : null;
   const origin = result?.requested?.origin?.city || result?.requested?.origin?.name || 'this city';
   if (shown) return { title: 'Your budget is a little tight from ' + origin, message: 'Trips from ' + origin + ' start at about ' + currency + ' ' + shown.toLocaleString('en-US') + ' with flights and hotels. Try that budget, or a later month.', suggestedBudget: shown, currency };
+  // Every trip found had no bookable live flight (Tehran: providers do not sell these).
+  const attempts = result?.diagnostics?.fareMapLiveAttempts || [];
+  if (attempts.length && attempts.every(x => /flights-not-all-live|mismatched-live|incomplete-live|return-flight-unconfirmed/.test(x))) {
+    const from = result?.requested?.origin?.city || 'this city';
+    return { title: 'No bookable flights from ' + from + ' right now', message: 'Our booking partners do not currently sell flights for the trips we found from ' + from + '. Try a nearby city as your starting point.' };
+  }
   if (/read-unavailable|not-configured/.test(String(result?.reason || ''))) return { title: 'We could not load prices just now', message: 'Please try again in a minute.', retry: true };
   return { title: 'No trip found for these choices', message: 'Try a different month, a longer trip or a slightly higher budget.' };
 }
