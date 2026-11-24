@@ -183,7 +183,7 @@
   function renderTrip(t) {
     const v = t.view, tour = t.tour, b = tour.displayBudget || {};
     const names = v.cities.map(c => c.name);
-    $('#trip-title').textContent = names.join(' → ');
+    $('#trip-title').innerHTML = v.cities.map(c => `<span class="title-stop">${flag(c.cc)}${esc(c.name)}</span>`).join(' → ');
     $('#trip-meta').innerHTML = [plural(v.nights, 'night', 'nights'), dateRange(v.start, v.end), plural(search.adults, 'traveller', 'travellers')]
       .map(x => `<span>${esc(x)}</span>`).join('');
     $('#live-note').textContent = 'Live prices, checked ' + checkedAgo(tour);
@@ -329,12 +329,18 @@
         if (urls.length) media = { kind: 'photo', url: urls[0], urls };
       } catch (_) { /* map only */ }
     }
-    // Arrival slideshow: city photos first, then the hotel this trip books.
+    // Arrival slideshow: four different landmark photos of the city, then the hotel this trip books.
     const hotelPhoto = c.hotel?.photoUrl;
     if (media.kind !== 'video') {
-      const slides = (media.urls || (media.url ? [media.url] : [])).slice(0, 3).map(url => ({ url, caption: `${c.name}, ${c.country}` }));
+      let gallery = [];
+      try { gallery = (await window.GlobevoyCityImages?.gallery?.(c.name, c.country)) || []; } catch (_) { gallery = []; }
+      const seen = new Set(), slides = [];
+      const add = url => { const k = String(url || '').split('/').pop().replace(/^\d+px-/, '').toLowerCase(); if (!url || seen.has(k) || slides.length >= 4) return; seen.add(k); slides.push({ url, caption: `${c.name}, ${c.country}` }); };
+      gallery.forEach(g => add(g.url));
+      (media.urls || (media.url ? [media.url] : [])).forEach(add);
       if (/^https:\/\//.test(hotelPhoto || '')) slides.push({ url: hotelPhoto, caption: 'Your hotel · ' + (c.hotel.name || c.hotel.hotelName || '') });
       if (slides.length) media = { ...media, kind: 'slides', slides, url: media.url || slides[0].url };
+      slides.forEach(sl => { const im = new Image(); im.decoding = 'async'; im.src = sl.url; });
     }
     mediaCache[c.id + view.tour.routeId] = media;
     return media;
@@ -419,7 +425,7 @@
     const add = (kind, length, leg) => { phases.push({ kind, start: duration, length, leg }); duration += length; };
     add('overview', 900);
     const n = view.cities.length;
-    for (let i = 0; i <= n; i += 1) { add('flight', 3200, i); if (i < n) add('arrival', 6200, i); else add('complete', 800, i); }
+    for (let i = 0; i <= n; i += 1) { add('flight', 3200, i); if (i < n) add('arrival', 8400, i); else add('complete', 800, i); }
   }
   const markerIcon = (i, on) => L.divIcon({ className: 'map-point' + (on ? ' active' : ''), html: String(i + 1), iconSize: [29, 29], iconAnchor: [14.5, 14.5] });
 
@@ -428,7 +434,9 @@
     L.control.zoom({ position: 'topright' }).addTo(map);
     map.attributionControl.addAttribution('© Natural Earth · public domain');
     countriesLoaded = fetch('./assets/map/countries.geo.json').then(r => r.json()).then(data => {
-      const renderer = L.canvas({ padding: 0.5 });
+      // Land sits in its own low pane so the route lines always draw above it.
+      if (!map.getPane('land')) map.createPane('land').style.zIndex = 250;
+      const renderer = L.canvas({ padding: 0.5, pane: 'land' });
       // Three copies so routes that cross the Pacific still have land under them.
       [-360, 0, 360].forEach(offset => L.geoJSON(data, {
         renderer, interactive: false,
@@ -537,7 +545,7 @@
         }, n === 0 ? 0 : 260);
       };
       show(0);
-      if (slides.length > 1 && !constrained()) slideTimer = setInterval(() => { if (token !== mediaVersion) return; i = (i + 1) % slides.length; show(i); }, 1700);
+      if (slides.length > 1 && !constrained()) slideTimer = setInterval(() => { if (token !== mediaVersion) return; i = (i + 1) % slides.length; show(i); }, 1500);
       return;
     }
     if (media.kind === 'video' && !constrained()) {

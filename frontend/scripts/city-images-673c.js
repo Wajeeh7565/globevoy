@@ -280,5 +280,46 @@ async function get(city,country,fallback){
   const k=key(city,country);if(!mem.has(k))mem.set(k,resolve(city,country,fallback));return mem.get(k);
 }
 
-window.GlobevoyCityImages={version:VERSION,get,registry:loadRegistry};
+// Slideshow gallery: landmark photos picked by the editors of the city's Wikipedia
+// article, kept in page order, landscape only, without maps, emblems or old artwork.
+const GALLERY_PREFIX='gv-city-gallery-v1:';
+const GALLERY_SKIP=/\b(flags?|coat|arms|logos?|maps?|locator|seal|emblem|icons?|symbols?|charts?|graphs?|climate|diagram|signature|banner|population|wiki\w*|commons|location|outline|plans?|muse(um|u|o)s?|collections?|paintings?|engraving|lithograph|illustration|drawing|portrait|statue|bust|reconstruction|review|sir|1[0-8]\d\d|19[0-4]\d|w|metro|subway|trains?|trams?|bus(es)?|airport|station|stadium|arena|game|university|hospital|school|campus|protest|parade|festival|concert|election|president|mayor)\b/i;
+async function wikiGallery(city,country){
+  const api=params=>fetchJson('https://en.wikipedia.org/w/api.php?'+new URLSearchParams({format:'json',origin:'*',formatversion:'2',redirects:'1',...params}),8000);
+  let page=null;
+  for(const title of [country?`${city}, ${country}`:'',city].filter(Boolean)){
+    try{const d=await api({action:'parse',page:title,prop:'images'});if(d?.parse?.images?.length&&!/disambiguation/i.test(d.parse.title)){page=d.parse;break;}}catch(_){}
+  }
+  if(!page)return [];
+  const files=page.images.filter(f=>/\.(jpe?g|png|webp)$/i.test(f)&&!GALLERY_SKIP.test(f.replace(/[_\-]+/g,' ').replace(/\.\w+$/,''))).slice(0,24);
+  if(!files.length)return [];
+  const info=await api({action:'query',titles:files.map(f=>'File:'+f).join('|'),prop:'imageinfo',iiprop:'url|size',iiurlwidth:'1600'});
+  const byName=new Map((info?.query?.pages||[]).map(p=>[String(p.title||'').replace(/^File:/,'').replace(/ /g,'_'),p.imageinfo?.[0]]));
+  const seen=new Set(),out=[];
+  for(const f of files){
+    const ii=byName.get(f.replace(/ /g,'_'));if(!ii)continue;
+    const ratio=ii.width/ii.height,url=ii.thumburl||ii.url;
+    if(!url||ratio<1.25||ratio>2.7||ii.width<1200)continue;
+    const near=f.toLowerCase().replace(/\.\w+$/,'').replace(/[^a-z]+/g,' ').trim().split(' ').slice(0,3).join(' ');
+    if(seen.has(url)||seen.has(near))continue;seen.add(url);seen.add(near);
+    out.push({url,title:f.replace(/\.\w+$/,'').replace(/_/g,' '),sourceUrl:ii.descriptionurl||''});
+    if(out.length===6)break;
+  }
+  return out;
+}
+const galleryMem=new Map();
+function gallery(city,country){
+  const k=key(city,country);
+  if(galleryMem.has(k))return galleryMem.get(k);
+  const run=(async()=>{
+    const cached=safeGet(GALLERY_PREFIX+k);if(cached?.images)return cached.images;
+    if(isOffline())return [];
+    let images=[];try{images=await wikiGallery(city,country);}catch(_){images=[];}
+    if(images.length)safeSet(GALLERY_PREFIX+k,{images});
+    return images;
+  })();
+  galleryMem.set(k,run);return run;
+}
+
+window.GlobevoyCityImages={version:VERSION,get,gallery,registry:loadRegistry};
 })();

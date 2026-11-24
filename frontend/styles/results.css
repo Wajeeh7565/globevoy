@@ -246,3 +246,6 @@ main:focus{outline:none}
 .state-kicker{text-transform:none;letter-spacing:0;font-size:13px}
 .state:before{display:none}
 .jphoto .flag,.media-title .flag{position:static;inset:auto;width:18px;height:13px;object-fit:cover}
+.title-stop{display:inline-flex;align-items:center;white-space:nowrap}
+.trip-head h1 .flag{width:34px;height:25px;border-radius:4px;margin-right:12px;vertical-align:0}
+@media(max-width:600px){.trip-head h1 .flag{width:24px;height:18px;margin-right:8px}}
