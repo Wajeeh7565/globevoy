@@ -132,3 +132,18 @@ test('zigzag two-city routes are left out while sensible ones exist', () => {
   const onlyZigzag = roleCandidates([st('FLL', 'YVR', 850, 1.46)], 1000);
   assert.equal(onlyZigzag['best-balance'].length, 1, 'better a zigzag than nothing');
 });
+
+test('an extra option that cannot be live-checked is left out; only the main pick may show estimates', async () => {
+  const f = fixture(), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline' };
+  const noLive = async t => ({ tour: t, summary: { applied: false, reason: 'provider-unavailable', providerRequests: 1 } });
+  const gt = require('../../backend/services/domain/tours/generated-tour');
+  try {
+    const run = role => gt.getGeneratedTour({ ...f.query, routeRole: role, pickRole: role }, { env, fareMap: { ...f.options, rows: f.rows }, applyIgnavLiveFares: noLive });
+    const extra = await run('most-memorable');
+    assert.equal(extra.tour, null, 'no estimate-only extra option');
+    const main = await run('best-balance');
+    assert.ok(main.tour, 'main pick still shows a trip rather than a blank page');
+    assert.ok(main.diagnostics.fareMapLiveAttempts.some(a => /^shown-/.test(a)), 'shown with its estimates labelled');
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});

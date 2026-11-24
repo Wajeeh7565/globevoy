@@ -135,7 +135,7 @@ function bestUseOrder(states,spendable){
 // one from a different part of the world (Europe vs Latin America vs Asia) where possible.
 // The optional "stretch" idea costs a little more than the spendable budget and buys a
 // longer or bigger trip; the page offers it, never as a main pick.
-const MAX_DETOUR=1.35;
+const MAX_DETOUR=1.25;
 function roleCandidates(ranked,spendable,extra={}){
  if(!ranked.length||!(spendable>0))return null;
  const key=s=>s.cities.map(code).join('>'),taken=new Set(),takenFams=new Set(),out={};

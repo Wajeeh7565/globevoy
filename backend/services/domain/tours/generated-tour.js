@@ -3643,14 +3643,18 @@ async function getFareMapGeneratedTour(query,options) {
     if(outcome.tour)checked.push({candidateTour,flights,partial:outcome.tour});
     outcome=null;
   }
-  if(!outcome&&requireLive&&checked.length){
+  // Only the main pick (the one signed-out visitors see) may fall back to estimated
+  // prices; an extra option that cannot be live-checked is left out instead, so the
+  // page shows two real trips rather than one with estimates (GV-LIVE-ONLY-002).
+  const mayShowEstimate=!roleList||role==='best-balance';
+  if(!outcome&&requireLive&&checked.length&&(mayShowEstimate||checked.some(c=>liveCount(c.partial)>0))){
     // None came back fully live: show the checked trip with the most live prices (its
     // estimates stay labelled) instead of a slow second search. No extra provider calls.
     const best=checked.slice().sort((x,y)=>liveCount(y.partial)-liveCount(x.partial))[0];
     outcome={tour:best.partial,arrivalVerified:best.flights.arrivalVerified,source:best.candidateTour};
     diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-most-live-trip');
   }
-  if(!outcome&&requireLive&&liveAttempts.length&&candidates.length){
+  if(!outcome&&requireLive&&liveAttempts.length&&candidates.length&&mayShowEstimate){
     // Every check failed before hotels: show the first trip with its estimates labelled
     // (what the old fallback search ended up showing), without another round of calls.
     const first=candidates[0],shown=await build(first,{selected:first,arrivalVerified:false},false);
