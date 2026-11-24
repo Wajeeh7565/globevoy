@@ -307,7 +307,7 @@
     {
       "from": "frontend/index.html",
       "to": "frontend/pages/index.html",
-      "sha256": "2ec85bac23f2285910a249425953a4b023e77602009e24dff198f0e24c1b3d49"
+      "sha256": "d799315fd9d9f98e810301449a790b2bd39320d3463ca70568f297433c75a7bb"
     },
     {
       "from": "frontend/mixed-results.html",
