@@ -106,7 +106,7 @@
   }
 
   // ---------- trip view model ----------
-  let trips = [], active = 0, view = null;
+  let trips = [], active = 0, view = null, savedView = false;
   function buildView(tour) {
     const cur = tour.displayBudget?.currency || search.currency;
     const origin = tour.origin || tour.legs?.[0]?.from || {};
@@ -147,7 +147,7 @@
         <strong>${esc(v.cities.map(c => c.name).join(' → '))}</strong>
         <span class="option-meta"><span>${plural(v.nights, 'night', 'nights')}</span><span>${money(t.tour.displayBudget?.tripEstimate, v.cur)}</span></span>
       </button>`;
-    }).join('') + (!member ? S.ROLES.slice(1).map(r => `<button class="option-tab is-locked" type="button" data-unlock>
+    }).join('') + (!member && !savedView ? S.ROLES.slice(1).map(r => `<button class="option-tab is-locked" type="button" data-unlock>
         <span class="option-role">${esc(r.label)}</span>
         <strong class="ghost" aria-hidden="true"><i></i><i></i></strong>
         <span class="option-meta"><svg class="lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span>Sign in to see this trip</span></span>
@@ -203,6 +203,9 @@
     $('#summary-note').textContent = 'You confirm the final price when you book with the airline and hotel.';
     $('#summary-origin').textContent = [v.origin.name, v.origin.country].filter(Boolean).join(', ');
     $('#book').href = S.tripDetailsUrl(tour, search);
+    window.__gvGeneratedTour = tour;
+    const save = $('#mcv-save-trip');
+    if (save && !savedView) { save.textContent = 'Save'; save.setAttribute('aria-pressed', 'false'); save.classList.remove('is-saved'); }
 
     renderJourneyCards(v);
     v.cities.forEach(loadCityPhoto);
@@ -590,6 +593,13 @@
     $('#skip').onclick = () => skip();
     $('#fit').onclick = () => { stopFrame(); clearMedia(); fitFull(); setStatus('Full route. Select a city or resume.'); };
     $('#close-media').onclick = () => { clearMedia(); $('#play').focus(); };
+    $('#mcv-save-trip').addEventListener('click', () => {
+      if (!view) return;
+      S.saveInBrowser(view.tour, search);
+      const b = $('#mcv-save-trip');
+      // Signed in: the saved-trips runtime takes over and reports "Saved to account".
+      if (!(member && window.GlobevoySavedTrips705C?.enabled?.())) { b.textContent = 'Saved ✓'; b.classList.add('is-saved'); b.setAttribute('aria-pressed', 'true'); }
+    });
     $('#new-search').href = homeUrl();
     const signin = $('#signin');
     if (member) { signin.textContent = 'Your account'; signin.onclick = () => { location.href = './account.html'; }; }
@@ -602,6 +612,14 @@
     bind();
     if (!search.budget) {
       showState('input', { kicker: 'Almost there', title: 'Tell us your budget first', copy: 'GlobeVoy plans the whole trip around one number: your total budget for flights and hotels.', primaryText: 'Enter a budget', primaryHref: homeUrl() });
+      return;
+    }
+    const saved = S.savedTrip();
+    if (saved) {
+      savedView = true;
+      document.body.classList.add('is-saved-view');
+      const role = S.ROLES.find(r => r.id === (saved.tourRole || saved.fareMapRole)) || S.ROLES[0];
+      await showTrips([{ tour: saved, role: role.id, meta: role }], 'Saved trip. Prices may have changed since you saved it.');
       return;
     }
     startLoading();
@@ -635,10 +653,14 @@
       }
       return;
     }
-    trips = result.trips.map(t => ({ ...t, view: buildView(t.tour) }));
+    await showTrips(result.trips);
+  }
+
+  async function showTrips(list, note) {
+    trips = list.map(t => ({ ...t, view: buildView(t.tour) }));
     active = 0; view = trips[0].view;
     $('#results').hidden = false;
-    $('#options-heading').textContent = `Trips from ${originName()} for ${money(search.budget, search.currency)}`;
+    $('#options-heading').textContent = savedView ? 'Your saved trip' : `Trips from ${originName()} for ${money(search.budget, search.currency)}`;
     renderTabs();
     renderTrip(trips[0]);
     await initMap();
@@ -650,6 +672,7 @@
     map.invalidateSize();
     fitFull(false);
     countriesLoaded?.then(() => map.invalidateSize());
+    if (note) $('#live-note').textContent = note;
   }
 
   window.GlobevoyResults = { getState: () => ({ trips: trips.length, active, playing, elapsed, duration, activeCity }) };

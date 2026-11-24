@@ -225,7 +225,7 @@
     "/pages/about.html": "/about.html",
     "/pages/account-settings.html": "/react/account/",
     "/pages/account-verification.html": "/react/account/",
-    "/pages/advanced-search.html": "/ask.html",
+    "/pages/advanced-search.html": "/index.html",
     "/pages/affiliate.html": "/affiliate.html",
     "/pages/create-account.html": "/create-account.html",
     "/pages/explore-all-eligible.html": "/explore.html",
@@ -342,7 +342,7 @@
     {
       "from": "frontend/results.html",
       "to": "frontend/pages/results.html",
-      "sha256": "a81f31b93bbe54587113410ea0c9931657f8c80606baf7f35545b45976466e68"
+      "sha256": "b2c874bff43f1f6cd577a1481ffc951e203e955a3e86f4d83ad8086501937ee0"
     },
     {
       "from": "frontend/saved-trips.html",

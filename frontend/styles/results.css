@@ -89,7 +89,7 @@ body.is-loading .topbar,body.is-loading main,body.is-loading .footer{visibility:
 .loading-hint{margin-top:14px;font-size:12px;color:#9cc2bb}
 
 @media(max-width:900px){.option-tabs{grid-template-columns:1fr}.option-tab,.option-locked{min-height:0;padding:14px 16px}}
-@media(max-width:600px){.state{padding:30px 24px}.state h1{font-size:32px}.loading-title{margin-top:4vh}.loading-steps{font-size:13px}.options-head{display:block}.options-head span{display:block;margin-top:6px}.summary-actions{display:none}}
+@media(max-width:600px){.state{padding:30px 24px}.state h1{font-size:32px}.loading-title{margin-top:4vh}.loading-steps{font-size:13px}.options-head{display:block}.options-head span{display:block;margin-top:6px}}
 @media(prefers-reduced-motion:reduce){.loading-film{display:none}.loading-arcs .arc{stroke-dashoffset:0;opacity:.5}.loading-dots .dot{opacity:.8}}
 main:focus{outline:none}
 
@@ -216,3 +216,10 @@ main:focus{outline:none}
 .trip-head .trip-meta{display:flex;justify-content:center}
 .trip-head{justify-content:stretch}
 @media(max-width:600px){.option-tabs{grid-template-columns:1fr 1fr}.option-tab:not(.is-locked){grid-column:1/-1}.option-tab.is-locked{min-height:0;padding:12px 14px}.option-tab.is-locked .ghost{display:none}.option-tab.is-locked .option-meta span{font-size:12px}.jcard.is-end .jbody{flex:0}}
+/* save + saved view */
+.summary-actions{gap:8px}
+.save-trip{min-height:44px;font-size:13px;background:#fff}
+.save-trip.is-saved,.save-trip[aria-pressed=true]{border-color:var(--turquoise);color:var(--teal);background:#e9f6f3}
+.is-saved-view .tag,.is-saved-view .jprice em{display:none}
+@media(max-width:600px){.summary-actions{display:grid}}
+@media(max-width:600px){.summary{position:static;box-shadow:none}.summary-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;margin-top:14px}.summary .budget-bar{grid-column:1/-1}}

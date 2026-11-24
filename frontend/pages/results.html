@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="./assets/vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="./styles/results.css?v=gv2-1">
 </head>
-<body class="is-loading">
+<body class="is-loading gv-mcv-page">
 <a class="skip" href="#main">Skip to content</a>
 
 <section id="loading" class="loading" role="status" aria-live="polite" aria-label="Finding your trips">
@@ -115,6 +115,7 @@
         <p class="estimate-note" id="summary-note"></p>
         <div class="summary-actions">
           <a id="book" class="btn primary" href="#">View trip &amp; book</a>
+          <button id="mcv-save-trip" class="btn save-trip" type="button" aria-pressed="false">Save</button>
         </div>
         <div class="summary-foot"><span>Departure &amp; return</span><strong id="summary-origin"></strong></div>
       </aside>
@@ -145,5 +146,6 @@
 <script src="./assets/vendor/leaflet/leaflet.js"></script>
 <script src="./scripts/trip-search.js?v=gv2-1"></script>
 <script src="./scripts/results.js?v=gv2-1"></script>
+<script src="./scripts/saved-trips-705c.js"></script>
 </body>
 </html>

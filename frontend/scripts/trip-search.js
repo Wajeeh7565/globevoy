@@ -236,6 +236,33 @@
     return 'multi-city-trip.html?' + p.toString();
   }
 
+  // Save on the results page: keep the trip in this browser and put its snapshot in
+  // the address, where the saved-trips runtime (saved-trips-705c.js) picks it up for
+  // signed-in travellers and My Trips reopens it later.
+  function saveInBrowser(tour, search) {
+    const details = new URL(tripDetailsUrl(tour, search), location.href);
+    const p = details.searchParams;
+    p.set('pace', search.pace);
+    p.delete('handoff');
+    try { history.replaceState(null, '', 'results.html?' + p.toString()); } catch (_) { /* sandboxed */ }
+    return p.get('snapshot');
+  }
+
+  function savedTrip(query) {
+    const q = query || new URLSearchParams(location.search);
+    if (q.get('saved') !== 'true') return null;
+    const id = q.get('snapshot');
+    try {
+      const env = id ? JSON.parse(localStorage.getItem('globevoy.generated.snapshot.v1.' + id) || 'null') : null;
+      if (env?.tour?.cities?.length) return env.tour;
+    } catch (_) { /* fall through */ }
+    try {
+      const tour = JSON.parse(sessionStorage.getItem('globevoy.multi.selected.v1') || 'null');
+      if (tour?.cities?.length) return tour;
+    } catch (_) { /* none */ }
+    return null;
+  }
+
   function hash(s) {
     let h = 0;
     for (let i = 0; i < s.length; i += 1) h = (h * 31 + s.charCodeAt(i)) | 0;
@@ -243,6 +270,6 @@
   }
 
   window.GlobevoyTripSearch = Object.freeze({
-    ROLES, CURRENCIES, PACES, resultsUrl, readSearch, apiParams, isMember, signIn, isFullyLive, findTrips, tripDetailsUrl, tripTotal
+    ROLES, CURRENCIES, PACES, resultsUrl, readSearch, apiParams, isMember, signIn, isFullyLive, findTrips, tripDetailsUrl, tripTotal, saveInBrowser, savedTrip
   });
 })();
