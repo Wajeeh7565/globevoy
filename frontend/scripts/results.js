@@ -145,11 +145,11 @@
       return `<button class="option-tab" role="tab" id="option-${i}" aria-selected="${i === active}" tabindex="${i === active ? 0 : -1}" data-option="${i}">
         <span class="option-role">${esc(t.meta.label)}</span>
         <strong>${esc(v.cities.map(c => c.name).join(' → '))}</strong>
-        <span class="option-meta">${plural(v.nights, 'night', 'nights')} · ${money(t.tour.displayBudget?.tripEstimate, v.cur)}</span>
+        <span class="option-meta"><span>${plural(v.nights, 'night', 'nights')}</span><span>${money(t.tour.displayBudget?.tripEstimate, v.cur)}</span></span>
       </button>`;
     }).join('') + (!member ? `<div class="option-locked">
         <span class="option-role">2 more trips</span>
-        <strong>Different parts of the world</strong>
+        <strong>In other parts of the world</strong>
         <button id="unlock" class="btn primary" type="button">Sign in to see them</button>
       </div>` : '');
     $$('.option-tab').forEach(b => {
@@ -164,8 +164,8 @@
     });
     $('#unlock')?.addEventListener('click', () => S.signIn());
     $('#options-note').textContent = member
-      ? (trips.length > 1 ? plural(trips.length, 'complete trip', 'complete trips') + ' within your budget' : 'One trip passed every live price check')
-      : 'Signed-in travellers see three trips';
+      ? (trips.length > 1 ? '' : 'One trip passed every live price check')
+      : '';
   }
 
   function selectTrip(i) {
@@ -182,31 +182,28 @@
   function renderTrip(t) {
     const v = t.view, tour = t.tour, b = tour.displayBudget || {};
     const names = v.cities.map(c => c.name);
-    $('#trip-title').innerHTML = esc(names.join(' + ')) + '.<br>' + esc(t.meta.line);
-    $('#route-line').innerHTML = [v.origin.name, ...names, v.origin.name].map(esc).join(' <span aria-hidden="true">→</span> ');
-    $('#trip-story').textContent = tour.tripStory || tour.recommendationExplanation || '';
-    $('#trip-facts').innerHTML = [
-      plural(v.cities.length, 'destination', 'destinations'),
-      plural(v.nights, 'night', 'nights'),
-      plural(search.adults, 'traveller', 'travellers') + ' · ' + dateRange(v.start, v.end)
-    ].map(x => `<span>${esc(x)}</span>`).join('');
-    $('#live-note').textContent = 'Live flight and hotel prices · checked ' + checkedAgo(tour);
-
+    $('#trip-title').textContent = names.join(' → ');
+    $('#trip-meta').innerHTML = [plural(v.nights, 'night', 'nights'), dateRange(v.start, v.end), plural(search.adults, 'traveller', 'travellers')]
+      .map(x => `<span>${esc(x)}</span>`).join('');
+    $('#live-note').textContent = 'Live prices, checked ' + checkedAgo(tour);
+    const parts = [['Flights', b.flightEstimate, 'f'], ['Hotels', b.accommodationEstimate, 'h'], ['Spending money', b.reserveAmount, 'r'], ['Left over', b.amountLeft, 'l']];
+    const total = Number(b.totalBudget) || parts.reduce((n, x) => n + (Number(x[1]) || 0), 0) || 1;
+    $('#budget-bar').innerHTML = parts.map(([k, val, c]) => `<span class="seg seg-${c}" style="width:${Math.max(0, Number(val) || 0) / total * 100}%"></span>`).join('');
+    $('#budget-bar').setAttribute('aria-label', parts.map(([k, val]) => `${k} ${money(val, v.cur)}`).join(', ') + ' of ' + money(total, v.cur));
     $('#summary-currency').textContent = v.cur + ' · ' + (search.adults === 1 ? 'for 1 traveller' : 'for ' + search.adults + ' travellers');
-    $('#summary-total').innerHTML = money(b.tripEstimate, v.cur) + ' <small>flights + hotels</small>';
-    $('#summary-line').textContent = plural(v.nights, 'night', 'nights') + '. ' + (v.cities.length === 1 ? 'One place, done properly.' : plural(v.cities.length, 'place', 'places') + '. One journey.');
+    $('#summary-total').innerHTML = money(b.tripEstimate, v.cur) + ' <small>flights and hotels</small>';
+    $('#summary-line').textContent = 'of your ' + money(b.totalBudget || search.budget, v.cur) + ' budget';
     $('#summary-list').innerHTML = [
-      ['Flights', money(b.flightEstimate, v.cur), 'Live'],
-      ['Hotels · ' + plural(v.nights, 'night', 'nights'), money(b.accommodationEstimate, v.cur), 'Live'],
-      ['Kept aside for spending', money(b.reserveAmount, v.cur)],
-      ['Left over', money(b.amountLeft, v.cur)]
-    ].map(([k, val, tag]) => `<div><dt>${esc(k)}${tag ? ` <em class="tag">${tag}</em>` : ''}</dt><dd>${esc(val)}</dd></div>`).join('');
+      ['Flights', money(b.flightEstimate, v.cur), 'f', 'Live'],
+      ['Hotels, ' + plural(v.nights, 'night', 'nights'), money(b.accommodationEstimate, v.cur), 'h', 'Live'],
+      ['Spending money', money(b.reserveAmount, v.cur), 'r'],
+      ['Left over', money(b.amountLeft, v.cur), 'l']
+    ].map(([k, val, c, tag]) => `<div><dt><i class="key seg-${c}"></i>${esc(k)}${tag ? ` <em class="tag">${tag}</em>` : ''}</dt><dd>${esc(val)}</dd></div>`).join('');
     $('#summary-budget').textContent = money(b.totalBudget || search.budget, v.cur) + ' ' + v.cur;
-    $('#summary-note').textContent = 'Prices were checked live with our flight and hotel partners. You confirm the final price when you book with them.';
+    $('#summary-note').textContent = 'You confirm the final price when you book with the airline and hotel.';
     $('#summary-origin').textContent = [v.origin.name, v.origin.country].filter(Boolean).join(', ');
     $('#book').href = S.tripDetailsUrl(tour, search);
 
-    $('#dest-heading').textContent = v.cities.length === 1 ? 'One stop. Stay a while.' : (v.cities.length === 2 ? 'Two stops' : 'Three stops') + '. Stay curious.';
     $('#destinations').innerHTML = v.cities.map(c => {
       const leg = c.inbound, flight = leg.cheapestOneWay || {};
       const flightText = [flight.carrier, flight.stops === 0 ? 'nonstop' : (flight.stops ? plural(flight.stops, 'stop', 'stops') : ''), day(leg.departureDate)].filter(Boolean).join(' · ');
@@ -225,10 +222,6 @@
         </div>
       </article>`;
     }).join('');
-    const back = v.legs[v.legs.length - 1];
-    if (back?.cheapestOneWay?.carrier) {
-      $('#summary-origin').textContent += ' · home ' + day(back.departureDate) + ' with ' + back.cheapestOneWay.carrier;
-    }
     $$('#destinations [data-city]').forEach(btn => btn.addEventListener('click', () => manualSelect(btn.dataset.city)));
     v.cities.forEach(loadCityPhoto);
     renderRail();
@@ -379,9 +372,20 @@
     plane = L.marker(view.origin.mapCoords, { icon: L.divIcon({ className: 'plane-marker', html: planeSVG, iconSize: [35, 35], iconAnchor: [17.5, 17.5] }), keyboard: false, interactive: false }).addTo(map);
     fitFull(false);
   }
+  const PLANE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 7 2 6-8 2 1-3 9 5 3-1 2-7-2-4 4-2-1 2-5-5-3Z"/></svg>';
   function renderRail() {
     const v = view;
-    $('#route-rail').innerHTML = `<li>${esc(v.origin.name)}</li>` + v.cities.map(c => `<li><button type="button" data-city="${c.id}" aria-pressed="false">${esc(c.name)}</button></li>`).join('') + `<li>${esc(v.origin.name)}</li>`;
+    const hop = leg => {
+      const f = leg?.cheapestOneWay || {};
+      const info = [f.carrier, f.stops === 0 ? 'nonstop' : ''].filter(Boolean).join(', ');
+      return `<li class="tl-hop" aria-hidden="true">${PLANE}<span>${esc(info)}</span></li>`;
+    };
+    let html = `<li class="tl-end"><strong>${esc(v.origin.name)}</strong><span>Leave ${esc(day(v.start))}</span></li>`;
+    v.cities.forEach((c, i) => {
+      html += hop(v.legs[i]) + `<li class="tl-stop"><button type="button" data-city="${c.id}" aria-pressed="false"><strong>${esc(c.name)}</strong><span>${plural(c.nights, 'night', 'nights')}</span></button></li>`;
+    });
+    html += hop(v.legs[v.cities.length]) + `<li class="tl-end"><strong>${esc(v.origin.name)}</strong><span>Home ${esc(day(v.end))}</span></li>`;
+    $('#route-rail').innerHTML = html;
     $$('#route-rail [data-city]').forEach(b => b.addEventListener('click', () => manualSelect(b.dataset.city)));
   }
   function resetJourney() {
@@ -569,6 +573,7 @@
     trips = result.trips.map(t => ({ ...t, view: buildView(t.tour) }));
     active = 0; view = trips[0].view;
     $('#results').hidden = false;
+    $('#options-heading').textContent = `Trips from ${originName()} for ${money(search.budget, search.currency)}`;
     renderTabs();
     renderTrip(trips[0]);
     await initMap();

@@ -152,10 +152,23 @@ let originsPromise=null;
 function loadOrigins(){if(window.GlobevoySupportedOrigins)return Promise.resolve(window.GlobevoySupportedOrigins);if(!originsPromise)originsPromise=new Promise(resolve=>{const s=document.createElement('script');s.src=ORIGINS_URL;s.async=true;s.onload=()=>resolve(window.GlobevoySupportedOrigins||null);s.onerror=()=>resolve(null);document.head.appendChild(s)});return originsPromise}
 // Load the starting-city list once the page is idle; the search needs it to resolve airports.
 (window.requestIdleCallback||(f=>setTimeout(f,1500)))(()=>loadOrigins());
-$('#from').addEventListener('focus',()=>{loadOrigins().then(fillDatalist)},{once:true});
-function fillDatalist(O){/* the six common starting cities stay until the traveller types */}
-let fromTimer=null;
-$('#from').addEventListener('input',()=>{clearTimeout(fromTimer);fromTimer=setTimeout(async()=>{const O=await loadOrigins();const q=$('#from').value.trim();if(!O||q.length<2)return;const m=O.matching(q)||[];if(m.length)$('#cities').innerHTML=m.slice(0,8).map(o=>`<option value="${escapeHTML(O.label(o))}">`).join('')},180)});
+/* Departure dropdown (popular cities first, then any of ~9,000 starting cities). */
+const POPULAR=[['Toronto (YYZ)','Toronto, Canada','YYZ'],['Montreal (YUL)','Montreal, Canada','YUL'],['Vancouver (YVR)','Vancouver, Canada','YVR'],['Calgary (YYC)','Calgary, Canada','YYC'],['Ottawa (YOW)','Ottawa, Canada','YOW'],['New York (JFK)','New York, United States','JFK'],['Chicago (ORD)','Chicago, United States','ORD'],['London (LHR)','London, United Kingdom','LHR']];
+const fromInput=$('#from'),fromList=$('#from-list');let fromItems=[],fromActive=-1,fromTimer=null;
+function renderFrom(items,emptyText){fromItems=items;fromActive=-1;fromList.innerHTML=items.length?items.map((o,i)=>`<li role="option" id="from-opt-${i}" aria-selected="false" data-i="${i}"><strong>${escapeHTML(o[0])}</strong><span>${escapeHTML(o[1])} · ${escapeHTML(o[2])}</span></li>`).join(''):`<li class="from-empty" role="option" aria-disabled="true">${escapeHTML(emptyText||'No matching starting city')}</li>`;fromList.hidden=false;fromInput.setAttribute('aria-expanded','true')}
+function closeFrom(){fromList.hidden=true;fromInput.setAttribute('aria-expanded','false');fromInput.removeAttribute('aria-activedescendant')}
+function pickFrom(i){const o=fromItems[i];if(!o)return;fromInput.value=o[0];origin=o[1].split(',')[0];renderCards();closeFrom();loadOrigins().then(O=>{const f=O&&O.find(o[0]);if(f&&O.currencyFor){const c=O.currencyFor(f);if(S.CURRENCIES.includes(c)&&!$('#budget').value){$('#currency').value=c;syncPrefix()}}})}
+function moveFrom(d){if(fromList.hidden||!fromItems.length)return;fromActive=(fromActive+d+fromItems.length)%fromItems.length;[...fromList.children].forEach((li,i)=>li.setAttribute('aria-selected',String(i===fromActive)));const li=fromList.children[fromActive];fromInput.setAttribute('aria-activedescendant',li.id);li.scrollIntoView({block:'nearest'})}
+async function searchFrom(){const q=fromInput.value.trim();if(q.length<2||/\([A-Z]{3}\)$/.test(q)&&POPULAR.some(p=>p[0]===q)){renderFrom(POPULAR);return}const O=await loadOrigins();if(!O){renderFrom(POPULAR);return}if(fromInput.value.trim()!==q)return;const m=(O.matching(q)||[]).slice(0,8).map(o=>[O.label(o),`${o.city}, ${o.country}`,o.airportCode||o.code]);renderFrom(m,`No starting city matches “${q}”. Try a nearby city.`)}
+fromInput.addEventListener('focus',()=>{fromInput.select();searchFrom()});
+fromInput.addEventListener('input',()=>{clearTimeout(fromTimer);fromTimer=setTimeout(searchFrom,140)});
+fromInput.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();if(fromList.hidden)searchFrom();else moveFrom(1)}else if(e.key==='ArrowUp'){e.preventDefault();moveFrom(-1)}else if(e.key==='Enter'&&!fromList.hidden&&fromActive>=0){e.preventDefault();pickFrom(fromActive)}else if(e.key==='Escape'){closeFrom()}});
+fromList.addEventListener('mousedown',e=>{const li=e.target.closest('[data-i]');if(!li)return;e.preventDefault();pickFrom(Number(li.dataset.i))});
+document.addEventListener('click',e=>{if(!e.target.closest('.from-field'))closeFrom()});
+fromInput.addEventListener('blur',()=>setTimeout(closeFrom,120));
+const SYMBOLS={CAD:'C$',USD:'US$',EUR:'€',GBP:'£',AUD:'A$'};
+function syncPrefix(){$('#budget-prefix').textContent=SYMBOLS[$('#currency').value]||''}
+$('#currency').addEventListener('change',syncPrefix);
 function note(t){$('#search-note').textContent=t}
 async function resolveOrigin(text){const O=await loadOrigins();if(!O)return text;const found=O.find(text);return found?O.label(found):null}
 async function submitSearch(e){
@@ -174,11 +187,11 @@ function useMyLocation(){
  navigator.geolocation.getCurrentPosition(async pos=>{const O=await loadOrigins();if(!O){note('Location lookup failed. Type your city instead.');return}
   const {latitude:la,longitude:lo}=pos.coords;let best=null,bd=Infinity;
   for(const o of O.origins){const d=(o.lat-la)**2+((o.lng-lo)*Math.cos(la*Math.PI/180))**2;if(d<bd){bd=d;best=o}}
-  if(best){$('#from').value=O.label(best);origin=best.city;renderCards();if(O.currencyFor)$('#currency').value=S.CURRENCIES.includes(O.currencyFor(best))?O.currencyFor(best):$('#currency').value;note(`Starting from ${O.label(best)}.`)}
+  if(best){$('#from').value=O.label(best);origin=best.city;renderCards();if(O.currencyFor)$('#currency').value=S.CURRENCIES.includes(O.currencyFor(best))?O.currencyFor(best):$('#currency').value;syncPrefix();note(`Starting from ${O.label(best)}.`)}
  },()=>{note('Location permission wasn’t given. Type your city instead.');$('#from').focus()},{timeout:8000,maximumAge:600000});
 }
 // Months for "When": flexible (default) or one of the next six months.
 (function months(){const sel=$('#dates'),now=new Date();for(let i=1;i<=6;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;const o=document.createElement('option');o.value=v;o.textContent=d.toLocaleDateString('en-CA',{month:'long',year:'numeric'});sel.appendChild(o)}})();
 // Coming back from results: keep the previous search.
-(function prefill(){const q=new URLSearchParams(location.search);if(!q.get('budget'))return;const s=S.readSearch(q);$('#from').value=s.origin;origin=s.origin.replace(/\s*\([A-Z]{3}\)$/,'');$('#budget').value=s.budget||'';$('#currency').value=s.currency;$('#travelers').value=String(s.adults);syncTravelers();if(s.month){$('#dates').value=s.month}$('#pace').value=s.pace;renderCards()})();
+(function prefill(){const q=new URLSearchParams(location.search);if(!q.get('budget'))return;const s=S.readSearch(q);$('#from').value=s.origin;origin=s.origin.replace(/\s*\([A-Z]{3}\)$/,'');$('#budget').value=s.budget||'';$('#currency').value=s.currency;$('#travelers').value=String(s.adults);syncTravelers();if(s.month){$('#dates').value=s.month}$('#pace').value=s.pace;syncPrefix();renderCards()})();
 if(S.isMember())$('#signin').textContent='Your account';
