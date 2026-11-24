@@ -3664,13 +3664,17 @@ async function getFareMapGeneratedTour(query,options) {
   // page shows two real trips rather than one with estimates (GV-LIVE-ONLY-002).
   // Real prices said these trips do not fit: say so rather than show a cheaper estimate.
   const allOverBudget=liveAttempts.length>0&&liveAttempts.every(a=>/exceeds?-protected-budget|stopped-live-check/.test(a))&&liveAttempts.some(a=>/exceeds?-protected-budget/.test(a));
-  const mayShowEstimate=(!roleList||role==='best-balance')&&!allOverBudget;
+  // The page shows only fully live trips, so a trip with estimated prices is never
+  // returned unless FARE_MAP_SHOW_ESTIMATES=true (GV-LIVE-ONLY-003); the main pick
+  // keeps trying other trips instead.
+  const showEstimates=String(env.FARE_MAP_SHOW_ESTIMATES||'').trim().toLowerCase()==='true';
+  const mayShowEstimate=showEstimates&&(!roleList||role==='best-balance')&&!allOverBudget;
   if(allOverBudget)diagnostics.fareMapLivePricesOverBudget=true;
   // A trip whose way home was only a stand-in (no cached fare back) is shown only once
   // the live check has confirmed that return flight.
   const lastLeg=t=>(t?.backendLegs||t?.legs||[]).at(-1);
   const returnUnconfirmed=(t,src)=>(src?.fareMap?.mirroredReturn||t?.fareMap?.mirroredReturn)&&lastLeg(t)?.providerDateEvidence?.sourceType!=='LIVE';
-  if(!outcome&&requireLive&&checked.length&&(mayShowEstimate||checked.some(c=>liveCount(c.partial)>0))){
+  if(!outcome&&requireLive&&checked.length&&mayShowEstimate){
     // None came back fully live: show the checked trip with the most live prices (its
     // estimates stay labelled) instead of a slow second search. No extra provider calls.
     const best=checked.filter(c=>!returnUnconfirmed(c.partial,c.candidateTour)).sort((x,y)=>liveCount(y.partial)-liveCount(x.partial))[0];
@@ -3723,6 +3727,9 @@ function noTripMessage(result = {}, query = {}) {
   if (attempts.length && attempts.every(x => /flights-not-all-live|mismatched-live|incomplete-live|return-flight-unconfirmed/.test(x))) {
     const from = result?.requested?.origin?.city || 'this city';
     return { title: 'No bookable flights from ' + from + ' right now', message: 'Our booking partners do not currently sell flights for the trips we found from ' + from + '. Try a nearby city as your starting point.' };
+  }
+  if (attempts.length && attempts.every(x => /hotels-not-all-live|flights-not-all-live|stopped-live-check/.test(x))) {
+    return { title: 'We could not confirm live prices just now', message: 'Live flight or hotel prices for the trips we found could not be confirmed. Please try again in a few minutes, or pick another month.', retry: true };
   }
   if (/read-unavailable|not-configured/.test(String(result?.reason || ''))) return { title: 'We could not load prices just now', message: 'Please try again in a minute.', retry: true };
   return { title: 'No trip found for these choices', message: 'Try a different month, a longer trip or a slightly higher budget.' };

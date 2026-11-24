@@ -105,9 +105,10 @@ test('live hotel pass: with a hotel budget it upgrades and labels the change; wi
   assert.equal(up.summary.budgetUpgrade.upgradedCount, 1);
 });
 
+// With FARE_MAP_SHOW_ESTIMATES=true (off by default since GV-LIVE-ONLY-003; the page hides estimates).
 test('when every live check fails, the checked trip is shown as an estimate and the old search never runs', async () => {
   const f = fixture(), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
-  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline' };
+  const env = { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', FARE_MAP_SHOW_ESTIMATES: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline' };
   let calls = 0;
   const gt = require('../../backend/services/domain/tours/generated-tour');
   try {
