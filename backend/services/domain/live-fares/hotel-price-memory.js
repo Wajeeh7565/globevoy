@@ -14,9 +14,9 @@
 
 const store = require('../fare-map/fare-map-store');
 
-const PK = 'MEM#hotel', SK = 'ratios', CACHE_MS = 60 * 1000, READ_TIMEOUT_MS = 400;
+const PK = 'MEM#hotel', SK = 'ratios', CACHE_MS = 60 * 1000, READ_TIMEOUT_MS = 1000;
 const MIN_RATIO = 0.6, MAX_RATIO = 3, WINDOW = 5, MAX_AGE_MS = 60 * 24 * 3600 * 1000;
-let cached = null;
+let cached = null, pending = null;
 
 const attr = cityId => String(cityId || '').toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 120);
 const clamp = r => Math.min(MAX_RATIO, Math.max(MIN_RATIO, r));
@@ -28,17 +28,24 @@ async function load(options = {}) {
   const env = options.env || process.env, now = (options.clock || Date.now)();
   if (!store.tableName(env) || options.hotelMemory === false) return new Map();
   if (cached && now - cached.at < CACHE_MS && !options.fresh) return cached.map;
-  try {
-    const read = client(options).send(store._internal.cmd('GetItemCommand', { TableName: store.tableName(env), Key: { pk: { S: PK }, sk: { S: SK } } }));
-    const res = await Promise.race([read, new Promise(resolve => setTimeout(() => resolve(null), READ_TIMEOUT_MS))]);
+  // A new Lambda copy needs over a second to open its first database connection: the
+  // search waits at most READ_TIMEOUT_MS, and a slower read still fills the cache for
+  // the next search on this copy.
+  const parse = res => {
     const map = new Map();
     for (const [k, v] of Object.entries(res?.Item || {})) {
       if (!k.startsWith('r_')) continue;
       const id = k.slice(2), ratio = Number(v.N), n = Number(res.Item['n_' + id]?.N) || 1, at = Number(res.Item['t_' + id]?.N) || 0;
       if (Number.isFinite(ratio) && now - at <= MAX_AGE_MS) map.set(id, { ratio: clamp(ratio), n, at });
     }
-    cached = { at: now, map };
     return map;
+  };
+  try {
+    if (!pending) pending = client(options).send(store._internal.cmd('GetItemCommand', { TableName: store.tableName(env), Key: { pk: { S: PK }, sk: { S: SK } } }))
+      .then(res => { const map = parse(res); cached = { at: now, map }; return map; })
+      .catch(() => null).finally(() => { pending = null; });
+    const map = await Promise.race([pending, new Promise(resolve => setTimeout(() => resolve(null), READ_TIMEOUT_MS))]);
+    return map || cached?.map || new Map();
   } catch (_) { return cached?.map || new Map(); }
 }
 
@@ -74,4 +81,4 @@ async function record(observations = [], options = {}) {
   return count;
 }
 
-module.exports = { load, record, ratioFor, _internal: { attr, clamp, reset: () => { cached = null; } } };
+module.exports = { load, record, ratioFor, _internal: { attr, clamp, reset: () => { cached = null; pending = null; } } };

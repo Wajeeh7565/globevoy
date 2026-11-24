@@ -79,3 +79,15 @@ test('a live hotel check records what each hotel cost against the model', async 
     for (const k of stored) assert.ok(Math.abs(Number(dynamo.item[k].N) - 1.2) < 0.15, k + ' ' + dynamo.item[k].N);
   } finally { memory._internal.reset(); if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
 });
+
+test('a slow first read does not hold the search; it fills the cache for the next search', async () => {
+  memory._internal.reset();
+  const item = { r_lyon_fr: { N: '1.4' }, n_lyon_fr: { N: '2' }, t_lyon_fr: { N: String(Date.now()) } };
+  const slow = { send: () => new Promise(resolve => setTimeout(() => resolve({ Item: item }), 1300)) };
+  const t = Date.now(), first = await memory.load({ env, dynamo: slow, fresh: true });
+  assert.ok(Date.now() - t < 1250, 'waited at most about a second');
+  assert.equal(first.size, 0);
+  await new Promise(r => setTimeout(r, 400));
+  assert.equal(memory.ratioFor(await memory.load({ env, dynamo: slow }), 'lyon-fr'), 1.4, 'next search has it');
+  memory._internal.reset();
+});
