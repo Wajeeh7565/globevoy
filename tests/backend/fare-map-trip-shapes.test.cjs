@@ -108,3 +108,16 @@ test('backups are never another option\'s trip, so a failed live check cannot sh
   }
   assert.equal(Object.keys(out).length, 3);
 });
+
+test('above about C$1,500 the options are two-city trips; one city only when no two-city trip fits', async () => {
+  const f = withShortReturns(fixture());
+  assert.equal(optimizer.MULTI_CITY_FROM_USD, 1100);
+  const big = await search(f, { ...flexible(f), budget: 5000 });
+  assert.equal(big.diagnostics.multiCityFirst, true);
+  for (const list of Object.values(big.roleCandidates)) for (const t of list) assert.equal(t.stops.length, 2);
+  const small = await search(f, { ...flexible(f), budget: 1000 });
+  assert.equal(small.diagnostics.multiCityFirst, false);
+  assert.ok(small.tours.some(t => t.stops.length === 1));
+  const onlyOne = await search(f, { ...flexible(f), budget: 5000, maxStops: 1 });
+  assert.ok(onlyOne.tours.length && onlyOne.tours.every(t => t.stops.length === 1), 'maxStops 1 is still honoured');
+});
