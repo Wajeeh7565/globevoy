@@ -21,7 +21,7 @@ test.before(async()=> {
 });
 test.after(async()=>{ await browser?.close(); });
 
-async function site(tour, signedIn=true) {
+async function site(tour, signedIn=true, generated={}) {
   const context = await browser.newContext({serviceWorkers:'block'});
   const rows = new Map(), postBodies = [], statuses = [], missing = [], livePosts=[];let liveOptions={};
   let failure = '', gate;
@@ -41,7 +41,11 @@ async function site(tour, signedIn=true) {
       let status=200,data;
       try{
         if(method==='OPTIONS')return route.fulfill({status:204,headers});
-        if(u.pathname==='/api/generated-tour')data={ok:true,supported:true,tour,tours:[tour]};
+        if(u.pathname==='/api/generated-tour'){
+          generated.requests?.push(Object.fromEntries(u.searchParams));
+          await generated.wait;
+          data=generated.payload || {ok:true,supported:true,tour,tours:[tour]};
+        }
         else if(u.pathname==='/api/account/session')data={ok:true,authenticated:true,user:{sub:'synthetic-offline-owner'},capabilities:{bookingRevalidation:liveOptions.supported===true}};
         else if(u.pathname==='/api/saved-trips'){
           assert.equal(request.headers().authorization,'Bearer offline-browser-test-token');
@@ -78,7 +82,7 @@ async function site(tour, signedIn=true) {
       if(u.pathname.endsWith('/'))file=path.join(file,'index.html');
       if(!artifactRoot&&!isReact)file=frontendSourcePath(root,path.relative(root,file));
       if(!file.startsWith(root+path.sep)||!fs.existsSync(file)||!fs.statSync(file).isFile()){missing.push(u.pathname);return route.fulfill({status:404,body:'Missing offline asset'})}
-      const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon','.woff2':'font/woff2','.txt':'text/plain'};
+      const mime={'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.mp4':'video/mp4','.webp':'image/webp','.ico':'image/x-icon','.woff2':'font/woff2','.txt':'text/plain'};
       return route.fulfill({status:200,contentType:mime[path.extname(file)]||'application/octet-stream',body:fs.readFileSync(file)});
     }
     // Zero live network access, including maps, images, Cognito and AWS.
@@ -102,10 +106,11 @@ test('classic hotel CTA uses validated current context instead of the stale prov
     try{
       await s.visualizer();
       await s.page.locator('#mcv-save-trip').waitFor();
-      const label=property?'Check this property on Agoda':'View selected property in Agoda results';
-      const button=s.page.locator('.mcv-mini-action').filter({hasText:label}).first();
+      await s.page.locator('#mcv-flight-options').click();
+      await s.page.waitForURL('**/multi-city-trip.html?**');
+      const button=s.page.locator('.gv-mtd-destination-action').first();
       assert.equal(await button.count(),1);
-      const url=new URL(await button.getAttribute('data-url'));
+      const url=new URL(await button.getAttribute('href'));
       assert.equal(url.searchParams.get('hid'),'42');
       assert.equal(url.searchParams.get('checkin'),enriched.arrivalDate);
       assert.equal(url.searchParams.get('NumberofChildren'),'0');
@@ -190,7 +195,7 @@ async function detailedBooking(page){
 for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`Home -> itinerary -> booking workspace with honest referrals at ${viewport.width}px`,async()=>{
  const s=await site(tours[0],false);
  try{
-  await s.page.setViewportSize(viewport);await s.page.emulateMedia({reducedMotion:'reduce'});await s.page.goto(origin+'/');await s.page.locator('#gv-origin').fill('Toronto');await s.page.locator('.gv-origin-option').first().click();await s.page.locator('#gv-budget').fill('2500');await s.page.locator('#gv-search-submit').click();await s.page.locator('#mcv-save-trip').waitFor();
+  await s.page.setViewportSize(viewport);await s.page.emulateMedia({reducedMotion:'reduce'});await s.page.goto(origin+'/');await s.page.locator('#from').fill('Toronto');await s.page.locator('#budget').fill('2500');await s.page.getByRole('button',{name:'Multi-City Trip'}).click();await s.page.locator('#mcv-save-trip').waitFor();
   await s.page.locator('#mcv-flight-options').click();await s.page.waitForURL('**/multi-city-trip.html?**');await s.page.locator('#gv-mtd-booking').click();await s.page.waitForURL('**/booking.html?**');
   await detailedBooking(s.page);
   const model=await s.page.evaluate(()=>{const t=window.GlobevoyBooking673FR1?.tour;return window.GlobevoyBookingHub685D.buildJourney(t,new URLSearchParams(location.search))});
@@ -251,4 +256,57 @@ test('fare-map two-stop MVP renders in the existing guest visualizer without acc
  try{result=await require('../../backend/services/domain/tours/generated-tour').getGeneratedTour(f.query,{env:f.options.env,fareMap:{...f.options,rows:f.rows}})}finally{if(prior===undefined)delete process.env.ENABLE_GENERATED_TOUR_651A;else process.env.ENABLE_GENERATED_TOUR_651A=prior}
  assert.ok(result.tour);const s=await site(result.tour,false);
  try{await s.visualizer();await s.page.locator('#mcv-app').waitFor();const actual=await s.page.evaluate(()=>({legs:window.__gvGeneratedTour.backendLegs.length,cities:window.__gvGeneratedTour.cities.length,dates:window.__gvGeneratedTour.itineraryDatePlan,live:window.__gvGeneratedTour.backendLegs.some(l=>l.liveFareVerified)}));assert.equal(actual.legs,3);assert.equal(actual.cities,2);assert.equal(actual.dates.consistent,true);assert.equal(actual.live,false);assert.equal(s.postBodies.length,0)}finally{await s.context.close()}
+});
+
+
+test('Fresh B and the ZIP results flow handle loading, map and reduced motion without providers', async () => {
+  let finish;
+  const wait = new Promise(resolve => { finish = resolve; });
+  const requests = [];
+  const s = await site(tours[0], false, { wait, requests });
+  try {
+    await s.page.emulateMedia({ reducedMotion: 'reduce' });
+    await s.page.setViewportSize({ width: 390, height: 844 });
+    await s.page.goto(origin+'/');
+    assert.ok(await s.page.locator('#hero-deck').isVisible());
+    assert.equal(await s.page.locator('#motion-toggle').isDisabled(), true);
+    await s.page.locator('#budget').fill('2500');
+    await s.page.getByRole('button',{name:'Multi-City Trip'}).click();
+    await s.page.locator('#loading-query').filter({hasText:'Toronto'}).waitFor();
+    assert.match(await s.page.locator('#loading-query').innerText(), /2,500/);
+    finish();
+    await s.page.locator('#mcv-app').waitFor();
+    await s.page.locator('#mcv-loading').waitFor({state:'hidden'});
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].budget, '2500');
+    assert.equal(requests[0].origin, 'Toronto');
+    assert.equal(await s.page.locator('#cinematic-destinations article').count(), 2);
+    assert.equal(await s.page.locator('.leaflet-marker-icon').count(), 3);
+    assert.equal(await s.page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), true);
+    await s.page.getByRole('button',{name:'Next journey step'}).click();
+    await s.page.getByRole('button',{name:'Next journey step'}).click();
+    assert.match(await s.page.locator('#gv-journey-status').innerText(), /New York/);
+    assert.equal(await s.page.locator('#cinematic-destinations article.active').count(), 1);
+    assert.deepEqual(s.missing, []);
+  } finally {
+    finish();
+    await s.context.close();
+  }
+});
+
+test('ZIP results show a real no-trip response and preserve its budget retry', async () => {
+  const payload = {supported:false,noTrip:{title:'Your budget is a little tight',message:'Try a higher budget.',currency:'CAD',suggestedBudget:1650}};
+  const s = await site(tours[0],false,{payload});
+  try {
+    await s.page.goto(origin+'/multicity-visualizer.html?generated=true&origin=Toronto&budget=1500&currency=CAD');
+    await s.page.locator('#mcv-error').waitFor();
+    assert.equal(await s.page.locator('#mcv-error h1').innerText(),payload.noTrip.title);
+    assert.match(await s.page.locator('#mcv-error-back').innerText(),/1,650/);
+    const target = new URL(await s.page.locator('#mcv-error-back').getAttribute('href'), s.page.url());
+    assert.equal(target.searchParams.get('budget'),'1650');
+    assert.equal(target.searchParams.get('origin'),'Toronto');
+    assert.equal(await s.page.locator('#mcv-loading').isHidden(),true);
+  } finally {
+    await s.context.close();
+  }
 });
