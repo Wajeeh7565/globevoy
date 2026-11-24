@@ -147,3 +147,4 @@ main:focus{outline:none}
 .card-foot{font-size:12.5px;margin-top:10px;padding-top:10px}
 @media(max-width:900px){.trip-head{display:block}.live-pill{margin-top:14px}}
 @media(max-width:600px){.timeline{margin-top:14px}.timeline .tl-hop{min-width:58px;flex-basis:58px}.timeline .tl-hop span{display:none}.destinations{grid-template-columns:1fr}.brand img{height:34px}.trip-head{margin-top:24px}}
+@media(min-width:601px) and (max-width:980px){.workspace{grid-template-columns:minmax(0,1fr)}.summary{position:static;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:32px;padding:24px}.summary>h2,.summary>.currency,.summary>.total,.summary>#summary-line,.summary>.budget-bar{grid-column:1}.summary>dl{grid-column:2;grid-row:1/span 6;margin-top:0}.summary>.budget,.summary>.estimate-note,.summary>.summary-actions,.summary>.summary-foot{grid-column:1/-1}}
