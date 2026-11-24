@@ -37,7 +37,8 @@ test('generated-tour feature integration preserves classic response/labels and d
 
 test('explicit preferred stops, region and two-destination request limits remain enforced',async()=>{
  const f=fixture();const id=f.dest[0].unifiedRegistry.cityId;const selected=await search(f,{...f.query,preferredStops:id});for(const t of selected.tours)assert.ok(t.stops.some(s=>s.cityId===id));
- assert.equal((await search(f,{...f.query,region:'Oceania'})).tours.length,0);assert.equal((await search(f,{...f.query,maxStops:1})).tours.length,0);assert.equal((await search(f,{...f.query,destinationCount:3})).reason,'two-destination-mvp-only');
+ assert.equal((await search(f,{...f.query,region:'Oceania'})).tours.length,0);assert.equal((await search(f,{...f.query,destinationCount:3})).reason,'destination-count-not-supported');
+ for(const t of (await search(f,{...f.query,destinationCount:undefined,maxStops:1})).tours)assert.equal(t.stops.length,1);
 });
 test('single selected-tour verification reuses Ignav and Nuitee gates; overnight arrivals set exact hotel dates',async()=>{
  const f=fixture(),old=process.env.ENABLE_GENERATED_TOUR_651A;process.env.ENABLE_GENERATED_TOUR_651A='true';let flightCalls=0,hotelCalls=0;

@@ -1,0 +1,99 @@
+'use strict';
+// Offline: trip shapes and options (GV-TRIP-SHAPE-001, GV-THREE-OPTIONS-002, GV-ONE-SITE-001).
+// One-city trips for small budgets, three different options, a plain "no trip" message
+// instead of a failure, and live checks that work for one city as well as two.
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const optimizer = require('../../backend/services/domain/fare-map/fare-map-optimizer');
+const { fixture } = require('./fare-map-fixtures.cjs');
+const { plus, cityVibes, tripStory, roleCandidates, regionFamily } = optimizer._internal;
+
+// Adds a flight home four days after arrival, so one-city trips can complete.
+function withShortReturns(f) {
+  for (const r of f.dest) {
+    const c = optimizer._internal.code(r), key = c + '#2027-03', rows = f.map.get(key) || [];
+    rows.push({ origin: c, destination: f.originCode, month: '2027-03', departureDate: '2027-03-05', priceUsd: 70, source: 'travelpayouts-cached', observedAt: rows[0].observedAt, stops: 0, durationMinutes: 90 });
+    f.map.set(key, rows);
+  }
+  return f;
+}
+const flexible = f => { const q = { ...f.query }; delete q.destinationCount; delete q.nights; return q; };
+const search = (f, query, options = {}) => optimizer.search(query, { ...f.options, rows: f.rows, ...options });
+
+test('one-city trips: a flight home after the first city completes a trip; maxStops 1 gives only those', async () => {
+  const f = withShortReturns(fixture());
+  const r = await search(f, flexible(f));
+  assert.ok(r.tours.length, JSON.stringify(r.reason));
+  assert.deepEqual(r.diagnostics.cityCounts, [1, 2]);
+  const one = await search(f, { ...flexible(f), maxStops: 1 });
+  assert.ok(one.tours.length);
+  for (const t of one.tours) {
+    assert.equal(t.stops.length, 1); assert.equal(t.legs.length, 2); assert.equal(t.cityCount, 1);
+    assert.equal(t.legs[1].to.airportCode, 'LHR'); assert.ok(t.estimatedTotalUsd <= t.usableTripBudgetUsd);
+    assert.match(t.tripStory, /One base for \d+ nights/);
+  }
+});
+
+test('a small budget gets a one-city trip instead of nothing', async () => {
+  const f = withShortReturns(fixture());
+  const two = await search(f, { ...f.query, budget: 560 });
+  assert.equal(two.tours.length, 0, 'two cities do not fit 560');
+  const r = await search(f, { ...flexible(f), budget: 560 });
+  assert.ok(r.tours.length, JSON.stringify(r.reason));
+  assert.ok(r.tours.every(t => t.stops.length === 1));
+});
+
+test('city vibes name what stands out, not what every city has; the story reads as one sentence per trip', () => {
+  const lisbon = cityVibes('lisbon-pt'), vienna = cityVibes('vienna-at');
+  assert.ok(lisbon.length >= 1 && lisbon.length <= 2);
+  assert.notDeepEqual(lisbon, vienna);
+  const story = tripStory([{ city: 'Lisbon', cityId: 'lisbon-pt', nights: 4, regionFamily: 'europe' }, { city: 'Vienna', cityId: 'vienna-at', nights: 4, regionFamily: 'europe' }]);
+  assert.match(story, /^Lisbon for .+, then Vienna for .+\. Two different sides of Europe\.$/);
+});
+
+test('three options: best use, cheapest, and one from another part of the world when there is one', () => {
+  const row = (c, cluster) => ({ unifiedRegistry: { origin: { providerLocationCode: c }, cityId: 'global-city-' + c.toLowerCase(), latitude: 0, longitude: 0, destination: { regionCluster: cluster } } });
+  const st = (cities, cost) => ({ cities: cities.map(([c, cl]) => row(c, cl)), cost, estimatedDate: false, key: cities.map(x => x[0]).join('>'), tour: { totalNights: 7, stops: [] } });
+  const ranked = [st([['BUF', 'north-america-east']], 500), st([['DTW', 'north-america-east']], 520), st([['CLE', 'north-america-east'], ['PIT', 'north-america-east']], 860), st([['LIS', 'southern-europe']], 840)];
+  const out = roleCandidates(ranked, 1000);
+  const city = role => out[role][0].fareMapRole && out[role][0].budgetUse;
+  assert.equal(city('best-balance'), 0.86); assert.equal(city('lowest-cost'), 0.5);
+  assert.equal(out['most-memorable'][0].budgetUse, 0.84, 'Lisbon: a new part of the world');
+  assert.equal(regionFamily(row('LIS', 'southern-europe')), 'europe');
+});
+
+test('stretch idea: only a bigger trip a little over budget, never a main pick', async () => {
+  const f = withShortReturns(fixture());
+  const r = await search(f, { ...flexible(f), budget: 420 });
+  const main = ['best-balance', 'lowest-cost', 'most-memorable'].flatMap(k => r.roleCandidates?.[k] || []);
+  assert.ok(main.every(t => t.estimatedTotalUsd <= t.usableTripBudgetUsd));
+  for (const t of r.roleCandidates?.stretch || []) {
+    assert.ok(t.estimatedTotalUsd > t.usableTripBudgetUsd); assert.ok(t.stretchExtraUsd >= 20 && t.stretchExtraUsd <= 150);
+    assert.equal(t.tourRole, 'stretch');
+  }
+});
+
+test('no trip: a plain message and a budget that would work; the old engine is not started', async () => {
+  const f = fixture(), old = { flag: process.env.ENABLE_GENERATED_TOUR_651A, fetch: global.fetch };
+  process.env.ENABLE_GENERATED_TOUR_651A = 'true'; global.fetch = () => assert.fail('No provider or old-engine requests');
+  try {
+    const gt = require('../../backend/services/domain/tours/generated-tour');
+    const r = await gt.getGeneratedTour({ ...f.query, budget: 150 }, { env: f.options.env, fareMap: { ...f.options, rows: f.rows } });
+    assert.equal(r.tour, null); assert.ok(!r.fareMapFallback);
+    assert.ok(r.noTrip && r.noTrip.title && r.noTrip.message, JSON.stringify(r.noTrip));
+    assert.ok(r.noTrip.suggestedBudget > 150, 'says what budget would work');
+    assert.doesNotMatch(r.noTrip.message, /fare-map|route-|provider/);
+  } finally { global.fetch = old.fetch; if (old.flag === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old.flag; }
+});
+
+test('live check works for a one-city trip: both flights live, exact hotel dates', async () => {
+  const f = withShortReturns(fixture()), old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  const env = { ...f.options.env, ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline' };
+  const applyIgnavLiveFares = async t => { const tour = structuredClone(t); tour.legs.forEach(l => { l.liveFareVerified = true; l.providerDateEvidence = { ...l.providerDateEvidence, provider: 'ignav', sourceType: 'LIVE', productionEligible: true, segments: [{ arriveLocal: plus(l.departureDate, 0) + 'T15:00:00' }] }; }); return { tour, summary: { applied: true, providerRequests: tour.legs.length } }; };
+  try {
+    const r = await require('../../backend/services/domain/tours/generated-tour').getGeneratedTour({ ...flexible(f), maxStops: 1 }, { env, fareMap: { ...f.options, rows: f.rows }, applyIgnavLiveFares, applyNuiteeLiveStays: async t => ({ tour: t, summary: { applied: false } }) });
+    assert.ok(r.tour, JSON.stringify(r.reason));
+    assert.equal(r.tour.cities.length, 1); assert.equal(r.tour.backendLegs.length, 2);
+    assert.equal(r.diagnostics.arrivalDatesVerified, true);
+  } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; }
+});

@@ -5,10 +5,10 @@ const accommodation=require('../../backend/services/domain/fare-map/accommodatio
 const {fixture,NOW}=require('./fare-map-fixtures.cjs');
 function run(f,query={},options={}){return optimizer.search(query,{...f.options,rows:f.rows,...options});}
 function move(f,first,second,last){const rows=[...f.map.values()].flat();f.map.clear();for(const r of rows){r.departureDate={'2027-03-01':first,'2027-03-05':second,'2027-03-09':last}[r.departureDate];r.month=r.departureDate.slice(0,7);const k=r.origin+'#'+r.month;f.map.set(k,[...(f.map.get(k)||[]),r]);}}
-const minimum={origin:'LHR',budget:5000,travelers:2};
+const minimum={origin:'LHR',budget:5000,travelers:2,destinationCount:2};
 test('minimal request scans six months, considers durations and returns distinct complete routes',async()=>{
  const f=fixture(12),seen=[];const r=await run(f,minimum,{readRoutes:async(o,m)=>{seen.push([o,m]);return f.map.get(o+'#'+m)||[]}});
- assert.equal(r.tours.length,3);assert.deepEqual(r.requested.durationChoices,[6,8,10,12,14,18,21,28]);
+ assert.equal(r.tours.length,3);assert.deepEqual(r.requested.durationChoices,[4,6,8,10,12,14,18,21,28]);
  assert.deepEqual(seen.filter(([o])=>o===f.originCode).map(([,m])=>m),['2027-02','2027-03','2027-04','2027-05','2027-06','2027-07']);
  assert.equal(new Set(r.tours.map(t=>t.stops.map(s=>s.cityId).join('>'))).size,3);
  assert.ok(r.tours.every(t=>t.passengerPricing.travellers===2&&t.legs.length===3));
