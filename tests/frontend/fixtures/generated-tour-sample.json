@@ -1,0 +1,1146 @@
+{
+ "best-balance": {
+  "ok": true,
+  "tour": {
+   "tourId": "gv-fare-map-YTO-fort-lauderdale-us-2027-01-05-boston-us-2027-01-09",
+   "routeId": "gv-fare-map-YTO-fort-lauderdale-us-2027-01-05-boston-us-2027-01-09",
+   "tourRole": "best-balance",
+   "title": "Fort Lauderdale + Boston",
+   "tripStory": "Fort Lauderdale for beaches and slow, relaxed days, then Boston for culture and nightlife. Two different sides of North America.",
+   "origin": {
+    "cityId": "global-city-yto",
+    "city": "Toronto",
+    "displayCity": "Toronto",
+    "country": "Canada",
+    "code": "YYZ",
+    "latitude": 43.653524,
+    "longitude": -79.383907
+   },
+   "cities": [
+    {
+     "id": "fort-lauderdale-us",
+     "city": "Fort Lauderdale",
+     "country": "United States",
+     "code": "FLL",
+     "latitude": 26.122308,
+     "longitude": -80.143379,
+     "lat": 26.122308,
+     "lng": -80.143379,
+     "nights": 4,
+     "hotel": {
+      "name": "Courtyard by Marriott Fort Lauderdale North/Cypress Creek",
+      "rating": 8.1,
+      "livePriceVerified": true,
+      "source": "nuitee-live-rate",
+      "checkIn": "2027-01-05",
+      "checkOut": "2027-01-09"
+     },
+     "vibes": [
+      "beach",
+      "relaxation"
+     ]
+    },
+    {
+     "id": "boston-us",
+     "city": "Boston",
+     "country": "United States",
+     "code": "BOS",
+     "latitude": 42.3601,
+     "longitude": -71.0589,
+     "lat": 42.3601,
+     "lng": -71.0589,
+     "nights": 6,
+     "hotel": {
+      "name": "Hampton by Hilton at the Boston Seaport District",
+      "rating": 9.4,
+      "livePriceVerified": true,
+      "source": "nuitee-live-rate",
+      "checkIn": "2027-01-09",
+      "checkOut": "2027-01-15"
+     },
+     "vibes": [
+      "culture",
+      "nightlife"
+     ]
+    }
+   ],
+   "legs": [
+    {
+     "legNumber": 1,
+     "from": {
+      "cityId": "global-city-yto",
+      "city": "Toronto",
+      "displayCity": "Toronto",
+      "country": "Canada",
+      "code": "YYZ",
+      "latitude": 43.653524,
+      "longitude": -79.383907
+     },
+     "to": {
+      "cityId": "fort-lauderdale-us",
+      "city": "Fort Lauderdale",
+      "country": "United States",
+      "latitude": 26.122308,
+      "longitude": -80.143379,
+      "arrivalDate": "2027-01-05",
+      "departureDate": "2027-01-09"
+     },
+     "mode": "flight",
+     "departureDate": "2027-01-05",
+     "arrivalDate": "2027-01-05",
+     "liveFareVerified": true,
+     "cheapestOneWay": {
+      "carrier": "Flair Airlines",
+      "stops": 0,
+      "observedAt": "2026-11-24T06:31:47Z"
+     }
+    },
+    {
+     "legNumber": 2,
+     "from": {
+      "cityId": "fort-lauderdale-us",
+      "city": "Fort Lauderdale",
+      "country": "United States",
+      "latitude": 26.122308,
+      "longitude": -80.143379,
+      "arrivalDate": "2027-01-05",
+      "departureDate": "2027-01-09"
+     },
+     "to": {
+      "cityId": "boston-us",
+      "city": "Boston",
+      "country": "United States",
+      "latitude": 42.3601,
+      "longitude": -71.0589,
+      "arrivalDate": "2027-01-09",
+      "departureDate": "2027-01-15"
+     },
+     "mode": "flight",
+     "departureDate": "2027-01-09",
+     "arrivalDate": "2027-01-09",
+     "liveFareVerified": true,
+     "cheapestOneWay": {
+      "carrier": "Allegiant",
+      "stops": 0,
+      "observedAt": "2026-11-24T06:31:47Z"
+     }
+    },
+    {
+     "legNumber": 3,
+     "from": {
+      "cityId": "boston-us",
+      "city": "Boston",
+      "country": "United States",
+      "latitude": 42.3601,
+      "longitude": -71.0589,
+      "arrivalDate": "2027-01-09",
+      "departureDate": "2027-01-15"
+     },
+     "to": {
+      "cityId": "global-city-yto",
+      "city": "Toronto",
+      "displayCity": "Toronto",
+      "country": "Canada",
+      "code": "YYZ",
+      "latitude": 43.653524,
+      "longitude": -79.383907
+     },
+     "mode": "flight",
+     "departureDate": "2027-01-15",
+     "arrivalDate": "2027-01-15",
+     "liveFareVerified": true,
+     "cheapestOneWay": {
+      "carrier": "Air Canada",
+      "stops": 0,
+      "observedAt": "2026-11-24T06:31:47Z"
+     }
+    }
+   ],
+   "totalNights": 10,
+   "ignavLiveFares": {
+    "applied": true,
+    "partial": false
+   },
+   "itineraryDatePlan": {
+    "canonicalDepartureDate": "2027-01-05",
+    "canonicalReturnDate": "2027-01-15"
+   },
+   "displayBudget": {
+    "currency": "CAD",
+    "totalBudget": 3000,
+    "reserveAmount": 300,
+    "flightEstimate": 461,
+    "accommodationEstimate": 1807,
+    "tripEstimate": 2268,
+    "amountLeft": 432
+   }
+  },
+  "tours": [
+   {
+    "tourId": "gv-fare-map-YTO-fort-lauderdale-us-2027-01-05-boston-us-2027-01-09",
+    "routeId": "gv-fare-map-YTO-fort-lauderdale-us-2027-01-05-boston-us-2027-01-09",
+    "tourRole": "best-balance",
+    "title": "Fort Lauderdale + Boston",
+    "tripStory": "Fort Lauderdale for beaches and slow, relaxed days, then Boston for culture and nightlife. Two different sides of North America.",
+    "origin": {
+     "cityId": "global-city-yto",
+     "city": "Toronto",
+     "displayCity": "Toronto",
+     "country": "Canada",
+     "code": "YYZ",
+     "latitude": 43.653524,
+     "longitude": -79.383907
+    },
+    "cities": [
+     {
+      "id": "fort-lauderdale-us",
+      "city": "Fort Lauderdale",
+      "country": "United States",
+      "code": "FLL",
+      "latitude": 26.122308,
+      "longitude": -80.143379,
+      "lat": 26.122308,
+      "lng": -80.143379,
+      "nights": 4,
+      "hotel": {
+       "name": "Courtyard by Marriott Fort Lauderdale North/Cypress Creek",
+       "rating": 8.1,
+       "livePriceVerified": true,
+       "source": "nuitee-live-rate",
+       "checkIn": "2027-01-05",
+       "checkOut": "2027-01-09"
+      },
+      "vibes": [
+       "beach",
+       "relaxation"
+      ]
+     },
+     {
+      "id": "boston-us",
+      "city": "Boston",
+      "country": "United States",
+      "code": "BOS",
+      "latitude": 42.3601,
+      "longitude": -71.0589,
+      "lat": 42.3601,
+      "lng": -71.0589,
+      "nights": 6,
+      "hotel": {
+       "name": "Hampton by Hilton at the Boston Seaport District",
+       "rating": 9.4,
+       "livePriceVerified": true,
+       "source": "nuitee-live-rate",
+       "checkIn": "2027-01-09",
+       "checkOut": "2027-01-15"
+      },
+      "vibes": [
+       "culture",
+       "nightlife"
+      ]
+     }
+    ],
+    "legs": [
+     {
+      "legNumber": 1,
+      "from": {
+       "cityId": "global-city-yto",
+       "city": "Toronto",
+       "displayCity": "Toronto",
+       "country": "Canada",
+       "code": "YYZ",
+       "latitude": 43.653524,
+       "longitude": -79.383907
+      },
+      "to": {
+       "cityId": "fort-lauderdale-us",
+       "city": "Fort Lauderdale",
+       "country": "United States",
+       "latitude": 26.122308,
+       "longitude": -80.143379,
+       "arrivalDate": "2027-01-05",
+       "departureDate": "2027-01-09"
+      },
+      "mode": "flight",
+      "departureDate": "2027-01-05",
+      "arrivalDate": "2027-01-05",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "Flair Airlines",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     },
+     {
+      "legNumber": 2,
+      "from": {
+       "cityId": "fort-lauderdale-us",
+       "city": "Fort Lauderdale",
+       "country": "United States",
+       "latitude": 26.122308,
+       "longitude": -80.143379,
+       "arrivalDate": "2027-01-05",
+       "departureDate": "2027-01-09"
+      },
+      "to": {
+       "cityId": "boston-us",
+       "city": "Boston",
+       "country": "United States",
+       "latitude": 42.3601,
+       "longitude": -71.0589,
+       "arrivalDate": "2027-01-09",
+       "departureDate": "2027-01-15"
+      },
+      "mode": "flight",
+      "departureDate": "2027-01-09",
+      "arrivalDate": "2027-01-09",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "Allegiant",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     },
+     {
+      "legNumber": 3,
+      "from": {
+       "cityId": "boston-us",
+       "city": "Boston",
+       "country": "United States",
+       "latitude": 42.3601,
+       "longitude": -71.0589,
+       "arrivalDate": "2027-01-09",
+       "departureDate": "2027-01-15"
+      },
+      "to": {
+       "cityId": "global-city-yto",
+       "city": "Toronto",
+       "displayCity": "Toronto",
+       "country": "Canada",
+       "code": "YYZ",
+       "latitude": 43.653524,
+       "longitude": -79.383907
+      },
+      "mode": "flight",
+      "departureDate": "2027-01-15",
+      "arrivalDate": "2027-01-15",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "Air Canada",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     }
+    ],
+    "totalNights": 10,
+    "ignavLiveFares": {
+     "applied": true,
+     "partial": false
+    },
+    "itineraryDatePlan": {
+     "canonicalDepartureDate": "2027-01-05",
+     "canonicalReturnDate": "2027-01-15"
+    },
+    "displayBudget": {
+     "currency": "CAD",
+     "totalBudget": 3000,
+     "reserveAmount": 300,
+     "flightEstimate": 461,
+     "accommodationEstimate": 1807,
+     "tripEstimate": 2268,
+     "amountLeft": 432
+    }
+   },
+   {
+    "tourId": "gv-fare-map-YTO-barcelona-es-2027-02-10-lisbon-pt-2027-02-14",
+    "routeId": "estimate-only",
+    "tourRole": "most-memorable",
+    "title": "Barcelona + Lisbon",
+    "tripStory": "Barcelona for architecture and long dinners, then Lisbon for hillside streets and Atlantic light.",
+    "origin": {
+     "cityId": "global-city-yto",
+     "city": "Toronto",
+     "displayCity": "Toronto",
+     "country": "Canada",
+     "code": "YYZ",
+     "latitude": 43.653524,
+     "longitude": -79.383907
+    },
+    "cities": [
+     {
+      "id": "barcelona-es",
+      "city": "Barcelona",
+      "country": "Spain",
+      "code": "BCN",
+      "latitude": 41.3874,
+      "longitude": 2.1686,
+      "lat": 41.3874,
+      "lng": 2.1686,
+      "nights": 4,
+      "hotel": {
+       "name": "Hotel Sant Antoni",
+       "rating": 8.6,
+       "livePriceVerified": false,
+       "source": "nuitee-live-rate",
+       "checkIn": "2027-02-10",
+       "checkOut": "2027-02-14"
+      },
+      "vibes": [
+       "architecture",
+       "food",
+       "beach"
+      ]
+     },
+     {
+      "id": "lisbon-pt",
+      "city": "Lisbon",
+      "country": "Portugal",
+      "code": "LIS",
+      "latitude": 38.7223,
+      "longitude": -9.1393,
+      "lat": 38.7223,
+      "lng": -9.1393,
+      "nights": 4,
+      "hotel": {
+       "name": "Lisboa Pessoa Hotel",
+       "rating": 9.0,
+       "livePriceVerified": true,
+       "source": "nuitee-live-rate",
+       "checkIn": "2027-02-14",
+       "checkOut": "2027-02-18"
+      },
+      "vibes": [
+       "culture",
+       "food"
+      ]
+     }
+    ],
+    "legs": [
+     {
+      "legNumber": 1,
+      "from": {
+       "cityId": "global-city-yto",
+       "city": "Toronto",
+       "displayCity": "Toronto",
+       "country": "Canada",
+       "code": "YYZ",
+       "latitude": 43.653524,
+       "longitude": -79.383907
+      },
+      "to": {
+       "cityId": "barcelona-es",
+       "city": "Barcelona",
+       "country": "Spain",
+       "latitude": 41.3874,
+       "longitude": 2.1686,
+       "arrivalDate": "2027-02-11",
+       "departureDate": "2027-02-14"
+      },
+      "mode": "flight",
+      "departureDate": "2027-02-10",
+      "arrivalDate": "2027-02-10",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "Air Transat",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     },
+     {
+      "legNumber": 2,
+      "from": {
+       "cityId": "barcelona-es",
+       "city": "Barcelona",
+       "country": "Spain",
+       "latitude": 41.3874,
+       "longitude": 2.1686,
+       "arrivalDate": "2027-02-11",
+       "departureDate": "2027-02-14"
+      },
+      "to": {
+       "cityId": "lisbon-pt",
+       "city": "Lisbon",
+       "country": "Portugal",
+       "latitude": 38.7223,
+       "longitude": -9.1393,
+       "arrivalDate": "2027-02-14",
+       "departureDate": "2027-02-18"
+      },
+      "mode": "flight",
+      "departureDate": "2027-02-14",
+      "arrivalDate": "2027-02-14",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "Vueling",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     },
+     {
+      "legNumber": 3,
+      "from": {
+       "cityId": "lisbon-pt",
+       "city": "Lisbon",
+       "country": "Portugal",
+       "latitude": 38.7223,
+       "longitude": -9.1393,
+       "arrivalDate": "2027-02-14",
+       "departureDate": "2027-02-18"
+      },
+      "to": {
+       "cityId": "global-city-yto",
+       "city": "Toronto",
+       "displayCity": "Toronto",
+       "country": "Canada",
+       "code": "YYZ",
+       "latitude": 43.653524,
+       "longitude": -79.383907
+      },
+      "mode": "flight",
+      "departureDate": "2027-02-18",
+      "arrivalDate": "2027-02-18",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "TAP Air Portugal",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     }
+    ],
+    "totalNights": 8,
+    "ignavLiveFares": {
+     "applied": true,
+     "partial": false
+    },
+    "itineraryDatePlan": {
+     "canonicalDepartureDate": "2027-02-10",
+     "canonicalReturnDate": "2027-02-18"
+    },
+    "displayBudget": {
+     "currency": "CAD",
+     "totalBudget": 3000,
+     "reserveAmount": 300,
+     "flightEstimate": 1190,
+     "accommodationEstimate": 1240,
+     "tripEstimate": 2430,
+     "amountLeft": 270
+    }
+   }
+  ]
+ },
+ "lowest-cost": {
+  "ok": true,
+  "tour": {
+   "tourId": "gv-fare-map-YTO-tokyo-jp-2027-03-03",
+   "routeId": "gv-fare-map-YTO-tokyo-jp-2027-03-03",
+   "tourRole": "lowest-cost",
+   "title": "Tokyo",
+   "tripStory": "Tokyo for food, neon nights and quiet temples, all in one stay.",
+   "origin": {
+    "cityId": "global-city-yto",
+    "city": "Toronto",
+    "displayCity": "Toronto",
+    "country": "Canada",
+    "code": "YYZ",
+    "latitude": 43.653524,
+    "longitude": -79.383907
+   },
+   "cities": [
+    {
+     "id": "tokyo-jp",
+     "city": "Tokyo",
+     "country": "Japan",
+     "code": "HND",
+     "latitude": 35.6762,
+     "longitude": 139.6503,
+     "lat": 35.6762,
+     "lng": 139.6503,
+     "nights": 6,
+     "hotel": {
+      "name": "Hotel Gracery Shinjuku",
+      "rating": 8.4,
+      "livePriceVerified": true,
+      "source": "nuitee-live-rate",
+      "checkIn": "2027-03-04",
+      "checkOut": "2027-03-10"
+     },
+     "vibes": [
+      "food",
+      "culture",
+      "nightlife"
+     ]
+    }
+   ],
+   "legs": [
+    {
+     "legNumber": 1,
+     "from": {
+      "cityId": "global-city-yto",
+      "city": "Toronto",
+      "displayCity": "Toronto",
+      "country": "Canada",
+      "code": "YYZ",
+      "latitude": 43.653524,
+      "longitude": -79.383907
+     },
+     "to": {
+      "cityId": "tokyo-jp",
+      "city": "Tokyo",
+      "country": "Japan",
+      "latitude": 35.6762,
+      "longitude": 139.6503,
+      "arrivalDate": "2027-03-04",
+      "departureDate": "2027-03-10"
+     },
+     "mode": "flight",
+     "departureDate": "2027-03-03",
+     "arrivalDate": "2027-03-03",
+     "liveFareVerified": true,
+     "cheapestOneWay": {
+      "carrier": "Air Canada",
+      "stops": 0,
+      "observedAt": "2026-11-24T06:31:47Z"
+     }
+    },
+    {
+     "legNumber": 2,
+     "from": {
+      "cityId": "tokyo-jp",
+      "city": "Tokyo",
+      "country": "Japan",
+      "latitude": 35.6762,
+      "longitude": 139.6503,
+      "arrivalDate": "2027-03-04",
+      "departureDate": "2027-03-10"
+     },
+     "to": {
+      "cityId": "global-city-yto",
+      "city": "Toronto",
+      "displayCity": "Toronto",
+      "country": "Canada",
+      "code": "YYZ",
+      "latitude": 43.653524,
+      "longitude": -79.383907
+     },
+     "mode": "flight",
+     "departureDate": "2027-03-10",
+     "arrivalDate": "2027-03-10",
+     "liveFareVerified": true,
+     "cheapestOneWay": {
+      "carrier": "ANA",
+      "stops": 0,
+      "observedAt": "2026-11-24T06:31:47Z"
+     }
+    }
+   ],
+   "totalNights": 6,
+   "ignavLiveFares": {
+    "applied": true,
+    "partial": false
+   },
+   "itineraryDatePlan": {
+    "canonicalDepartureDate": "2027-03-03",
+    "canonicalReturnDate": "2027-03-10"
+   },
+   "displayBudget": {
+    "currency": "CAD",
+    "totalBudget": 3000,
+    "reserveAmount": 300,
+    "flightEstimate": 1380,
+    "accommodationEstimate": 960,
+    "tripEstimate": 2340,
+    "amountLeft": 360
+   }
+  },
+  "tours": [
+   {
+    "tourId": "gv-fare-map-YTO-tokyo-jp-2027-03-03",
+    "routeId": "gv-fare-map-YTO-tokyo-jp-2027-03-03",
+    "tourRole": "lowest-cost",
+    "title": "Tokyo",
+    "tripStory": "Tokyo for food, neon nights and quiet temples, all in one stay.",
+    "origin": {
+     "cityId": "global-city-yto",
+     "city": "Toronto",
+     "displayCity": "Toronto",
+     "country": "Canada",
+     "code": "YYZ",
+     "latitude": 43.653524,
+     "longitude": -79.383907
+    },
+    "cities": [
+     {
+      "id": "tokyo-jp",
+      "city": "Tokyo",
+      "country": "Japan",
+      "code": "HND",
+      "latitude": 35.6762,
+      "longitude": 139.6503,
+      "lat": 35.6762,
+      "lng": 139.6503,
+      "nights": 6,
+      "hotel": {
+       "name": "Hotel Gracery Shinjuku",
+       "rating": 8.4,
+       "livePriceVerified": true,
+       "source": "nuitee-live-rate",
+       "checkIn": "2027-03-04",
+       "checkOut": "2027-03-10"
+      },
+      "vibes": [
+       "food",
+       "culture",
+       "nightlife"
+      ]
+     }
+    ],
+    "legs": [
+     {
+      "legNumber": 1,
+      "from": {
+       "cityId": "global-city-yto",
+       "city": "Toronto",
+       "displayCity": "Toronto",
+       "country": "Canada",
+       "code": "YYZ",
+       "latitude": 43.653524,
+       "longitude": -79.383907
+      },
+      "to": {
+       "cityId": "tokyo-jp",
+       "city": "Tokyo",
+       "country": "Japan",
+       "latitude": 35.6762,
+       "longitude": 139.6503,
+       "arrivalDate": "2027-03-04",
+       "departureDate": "2027-03-10"
+      },
+      "mode": "flight",
+      "departureDate": "2027-03-03",
+      "arrivalDate": "2027-03-03",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "Air Canada",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     },
+     {
+      "legNumber": 2,
+      "from": {
+       "cityId": "tokyo-jp",
+       "city": "Tokyo",
+       "country": "Japan",
+       "latitude": 35.6762,
+       "longitude": 139.6503,
+       "arrivalDate": "2027-03-04",
+       "departureDate": "2027-03-10"
+      },
+      "to": {
+       "cityId": "global-city-yto",
+       "city": "Toronto",
+       "displayCity": "Toronto",
+       "country": "Canada",
+       "code": "YYZ",
+       "latitude": 43.653524,
+       "longitude": -79.383907
+      },
+      "mode": "flight",
+      "departureDate": "2027-03-10",
+      "arrivalDate": "2027-03-10",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "ANA",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     }
+    ],
+    "totalNights": 6,
+    "ignavLiveFares": {
+     "applied": true,
+     "partial": false
+    },
+    "itineraryDatePlan": {
+     "canonicalDepartureDate": "2027-03-03",
+     "canonicalReturnDate": "2027-03-10"
+    },
+    "displayBudget": {
+     "currency": "CAD",
+     "totalBudget": 3000,
+     "reserveAmount": 300,
+     "flightEstimate": 1380,
+     "accommodationEstimate": 960,
+     "tripEstimate": 2340,
+     "amountLeft": 360
+    }
+   }
+  ]
+ },
+ "most-memorable": {
+  "ok": true,
+  "tour": {
+   "tourId": "gv-fare-map-YTO-barcelona-es-2027-02-10-lisbon-pt-2027-02-14",
+   "routeId": "gv-fare-map-YTO-barcelona-es-2027-02-10-lisbon-pt-2027-02-14",
+   "tourRole": "most-memorable",
+   "title": "Barcelona + Lisbon",
+   "tripStory": "Barcelona for architecture and long dinners, then Lisbon for hillside streets and Atlantic light.",
+   "origin": {
+    "cityId": "global-city-yto",
+    "city": "Toronto",
+    "displayCity": "Toronto",
+    "country": "Canada",
+    "code": "YYZ",
+    "latitude": 43.653524,
+    "longitude": -79.383907
+   },
+   "cities": [
+    {
+     "id": "barcelona-es",
+     "city": "Barcelona",
+     "country": "Spain",
+     "code": "BCN",
+     "latitude": 41.3874,
+     "longitude": 2.1686,
+     "lat": 41.3874,
+     "lng": 2.1686,
+     "nights": 4,
+     "hotel": {
+      "name": "Hotel Sant Antoni",
+      "rating": 8.6,
+      "livePriceVerified": true,
+      "source": "nuitee-live-rate",
+      "checkIn": "2027-02-10",
+      "checkOut": "2027-02-14"
+     },
+     "vibes": [
+      "architecture",
+      "food",
+      "beach"
+     ]
+    },
+    {
+     "id": "lisbon-pt",
+     "city": "Lisbon",
+     "country": "Portugal",
+     "code": "LIS",
+     "latitude": 38.7223,
+     "longitude": -9.1393,
+     "lat": 38.7223,
+     "lng": -9.1393,
+     "nights": 4,
+     "hotel": {
+      "name": "Lisboa Pessoa Hotel",
+      "rating": 9.0,
+      "livePriceVerified": true,
+      "source": "nuitee-live-rate",
+      "checkIn": "2027-02-14",
+      "checkOut": "2027-02-18"
+     },
+     "vibes": [
+      "culture",
+      "food"
+     ]
+    }
+   ],
+   "legs": [
+    {
+     "legNumber": 1,
+     "from": {
+      "cityId": "global-city-yto",
+      "city": "Toronto",
+      "displayCity": "Toronto",
+      "country": "Canada",
+      "code": "YYZ",
+      "latitude": 43.653524,
+      "longitude": -79.383907
+     },
+     "to": {
+      "cityId": "barcelona-es",
+      "city": "Barcelona",
+      "country": "Spain",
+      "latitude": 41.3874,
+      "longitude": 2.1686,
+      "arrivalDate": "2027-02-11",
+      "departureDate": "2027-02-14"
+     },
+     "mode": "flight",
+     "departureDate": "2027-02-10",
+     "arrivalDate": "2027-02-10",
+     "liveFareVerified": true,
+     "cheapestOneWay": {
+      "carrier": "Air Transat",
+      "stops": 0,
+      "observedAt": "2026-11-24T06:31:47Z"
+     }
+    },
+    {
+     "legNumber": 2,
+     "from": {
+      "cityId": "barcelona-es",
+      "city": "Barcelona",
+      "country": "Spain",
+      "latitude": 41.3874,
+      "longitude": 2.1686,
+      "arrivalDate": "2027-02-11",
+      "departureDate": "2027-02-14"
+     },
+     "to": {
+      "cityId": "lisbon-pt",
+      "city": "Lisbon",
+      "country": "Portugal",
+      "latitude": 38.7223,
+      "longitude": -9.1393,
+      "arrivalDate": "2027-02-14",
+      "departureDate": "2027-02-18"
+     },
+     "mode": "flight",
+     "departureDate": "2027-02-14",
+     "arrivalDate": "2027-02-14",
+     "liveFareVerified": true,
+     "cheapestOneWay": {
+      "carrier": "Vueling",
+      "stops": 0,
+      "observedAt": "2026-11-24T06:31:47Z"
+     }
+    },
+    {
+     "legNumber": 3,
+     "from": {
+      "cityId": "lisbon-pt",
+      "city": "Lisbon",
+      "country": "Portugal",
+      "latitude": 38.7223,
+      "longitude": -9.1393,
+      "arrivalDate": "2027-02-14",
+      "departureDate": "2027-02-18"
+     },
+     "to": {
+      "cityId": "global-city-yto",
+      "city": "Toronto",
+      "displayCity": "Toronto",
+      "country": "Canada",
+      "code": "YYZ",
+      "latitude": 43.653524,
+      "longitude": -79.383907
+     },
+     "mode": "flight",
+     "departureDate": "2027-02-18",
+     "arrivalDate": "2027-02-18",
+     "liveFareVerified": true,
+     "cheapestOneWay": {
+      "carrier": "TAP Air Portugal",
+      "stops": 0,
+      "observedAt": "2026-11-24T06:31:47Z"
+     }
+    }
+   ],
+   "totalNights": 8,
+   "ignavLiveFares": {
+    "applied": true,
+    "partial": false
+   },
+   "itineraryDatePlan": {
+    "canonicalDepartureDate": "2027-02-10",
+    "canonicalReturnDate": "2027-02-18"
+   },
+   "displayBudget": {
+    "currency": "CAD",
+    "totalBudget": 3000,
+    "reserveAmount": 300,
+    "flightEstimate": 1190,
+    "accommodationEstimate": 1240,
+    "tripEstimate": 2430,
+    "amountLeft": 270
+   }
+  },
+  "tours": [
+   {
+    "tourId": "gv-fare-map-YTO-barcelona-es-2027-02-10-lisbon-pt-2027-02-14",
+    "routeId": "gv-fare-map-YTO-barcelona-es-2027-02-10-lisbon-pt-2027-02-14",
+    "tourRole": "most-memorable",
+    "title": "Barcelona + Lisbon",
+    "tripStory": "Barcelona for architecture and long dinners, then Lisbon for hillside streets and Atlantic light.",
+    "origin": {
+     "cityId": "global-city-yto",
+     "city": "Toronto",
+     "displayCity": "Toronto",
+     "country": "Canada",
+     "code": "YYZ",
+     "latitude": 43.653524,
+     "longitude": -79.383907
+    },
+    "cities": [
+     {
+      "id": "barcelona-es",
+      "city": "Barcelona",
+      "country": "Spain",
+      "code": "BCN",
+      "latitude": 41.3874,
+      "longitude": 2.1686,
+      "lat": 41.3874,
+      "lng": 2.1686,
+      "nights": 4,
+      "hotel": {
+       "name": "Hotel Sant Antoni",
+       "rating": 8.6,
+       "livePriceVerified": true,
+       "source": "nuitee-live-rate",
+       "checkIn": "2027-02-10",
+       "checkOut": "2027-02-14"
+      },
+      "vibes": [
+       "architecture",
+       "food",
+       "beach"
+      ]
+     },
+     {
+      "id": "lisbon-pt",
+      "city": "Lisbon",
+      "country": "Portugal",
+      "code": "LIS",
+      "latitude": 38.7223,
+      "longitude": -9.1393,
+      "lat": 38.7223,
+      "lng": -9.1393,
+      "nights": 4,
+      "hotel": {
+       "name": "Lisboa Pessoa Hotel",
+       "rating": 9.0,
+       "livePriceVerified": true,
+       "source": "nuitee-live-rate",
+       "checkIn": "2027-02-14",
+       "checkOut": "2027-02-18"
+      },
+      "vibes": [
+       "culture",
+       "food"
+      ]
+     }
+    ],
+    "legs": [
+     {
+      "legNumber": 1,
+      "from": {
+       "cityId": "global-city-yto",
+       "city": "Toronto",
+       "displayCity": "Toronto",
+       "country": "Canada",
+       "code": "YYZ",
+       "latitude": 43.653524,
+       "longitude": -79.383907
+      },
+      "to": {
+       "cityId": "barcelona-es",
+       "city": "Barcelona",
+       "country": "Spain",
+       "latitude": 41.3874,
+       "longitude": 2.1686,
+       "arrivalDate": "2027-02-11",
+       "departureDate": "2027-02-14"
+      },
+      "mode": "flight",
+      "departureDate": "2027-02-10",
+      "arrivalDate": "2027-02-10",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "Air Transat",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     },
+     {
+      "legNumber": 2,
+      "from": {
+       "cityId": "barcelona-es",
+       "city": "Barcelona",
+       "country": "Spain",
+       "latitude": 41.3874,
+       "longitude": 2.1686,
+       "arrivalDate": "2027-02-11",
+       "departureDate": "2027-02-14"
+      },
+      "to": {
+       "cityId": "lisbon-pt",
+       "city": "Lisbon",
+       "country": "Portugal",
+       "latitude": 38.7223,
+       "longitude": -9.1393,
+       "arrivalDate": "2027-02-14",
+       "departureDate": "2027-02-18"
+      },
+      "mode": "flight",
+      "departureDate": "2027-02-14",
+      "arrivalDate": "2027-02-14",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "Vueling",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     },
+     {
+      "legNumber": 3,
+      "from": {
+       "cityId": "lisbon-pt",
+       "city": "Lisbon",
+       "country": "Portugal",
+       "latitude": 38.7223,
+       "longitude": -9.1393,
+       "arrivalDate": "2027-02-14",
+       "departureDate": "2027-02-18"
+      },
+      "to": {
+       "cityId": "global-city-yto",
+       "city": "Toronto",
+       "displayCity": "Toronto",
+       "country": "Canada",
+       "code": "YYZ",
+       "latitude": 43.653524,
+       "longitude": -79.383907
+      },
+      "mode": "flight",
+      "departureDate": "2027-02-18",
+      "arrivalDate": "2027-02-18",
+      "liveFareVerified": true,
+      "cheapestOneWay": {
+       "carrier": "TAP Air Portugal",
+       "stops": 0,
+       "observedAt": "2026-11-24T06:31:47Z"
+      }
+     }
+    ],
+    "totalNights": 8,
+    "ignavLiveFares": {
+     "applied": true,
+     "partial": false
+    },
+    "itineraryDatePlan": {
+     "canonicalDepartureDate": "2027-02-10",
+     "canonicalReturnDate": "2027-02-18"
+    },
+    "displayBudget": {
+     "currency": "CAD",
+     "totalBudget": 3000,
+     "reserveAmount": 300,
+     "flightEstimate": 1190,
+     "accommodationEstimate": 1240,
+     "tripEstimate": 2430,
+     "amountLeft": 270
+    }
+   }
+  ]
+ },
+ "noTrip": {
+  "ok": true,
+  "tour": null,
+  "tours": [],
+  "reason": "fare-map-live-hotels-exceed-protected-budget",
+  "noTrip": {
+   "currency": "CAD",
+   "message": "Today\u2019s real flight and hotel prices from Toronto are a little higher than your budget. Try CAD 2,900, or a later month.",
+   "suggestedBudget": 2900,
+   "title": "Live prices came in just above your budget"
+  }
+ }
+}

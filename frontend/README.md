@@ -4,8 +4,8 @@ Edit classic HTML in `pages/`. The frontend root contains this guide, the favico
 
 ```text
 frontend/
-  pages/       All 25 active classic HTML files
-  assets/      Images, icons and fonts
+  pages/       All 23 active HTML files (homepage and results are GV-WEB-2)
+  assets/      Images, icons, fonts, media (homepage films, city scenes), map data, Leaflet
   scripts/     Classic browser behavior and authentication
   styles/      CSS
   runtime/     Public configuration and API policy
@@ -19,7 +19,25 @@ archive/frontend/design-pages/  Unused historical mockups; never published
 
 `pages/about.html` is the current About page. The older About mockup in the archive is not used by the website. The same applies to the 31 archived settings, sign-in, loading and error designs: they are retained only as historical reference. Do not import, publish or move them back into active source merely because their filenames resemble current pages.
 
-All 22 public entry pages now live alongside the three still-linked legacy screens in `pages/`. The three legacy screens are `explore-curated.html`, `multi-city-results.html` and `trip-detail-single.html`; they remain active because `scripts/clean-routing.js` still reaches them.
+All 23 public entry pages live in `pages/`. The three legacy screens (`explore-curated.html`, `multi-city-results.html`, `trip-detail-single.html`) were removed in GV-WEB-2; `scripts/clean-routing.js` now sends those buttons to the homepage.
+
+## GV-WEB-2: homepage and results page (November 2026)
+
+| Page | Design | Files |
+| --- | --- | --- |
+| `pages/index.html` | `globevoy_fresh_B_v9` homepage | `styles/home.css`, `scripts/home.js`, `assets/media/scenes`, `assets/media/cards` |
+| `pages/results.html` | GlobeVoy Route Preview (map-first journey) + option tabs from the multi-city concepts | `styles/results.css`, `scripts/results.js`, `assets/map/countries.geo.json`, `assets/vendor/leaflet` |
+| both | shared search logic | `scripts/trip-search.js`, fonts in `assets/fonts/archivo` |
+
+Rules the new pages follow:
+
+- Only trips where every flight and hotel was priced live are shown (`GlobevoyTripSearch.isFullyLive`). No estimates.
+- Dates stay open (about six months ahead) unless the traveller picks a month under More Options.
+- Guests see one trip; signed-in travellers see three ("Best use of your budget", "Lowest cost", "Something different"). "Lowest cost" is always the cheapest trip shown.
+- "View trip & book" hands the trip to the existing `multi-city-trip.html` and `booking.html` pages.
+- `multicity-visualizer.html`, `mixed-results.html`, `multi-city.html`, `explore.html` and `ask.html` are now redirects: searches with a budget open `results.html`, everything else the homepage.
+
+Tests: `tests/frontend/trip-search.test.cjs` (fixture `tests/frontend/fixtures/generated-tour-sample.json`, built from a real API trip).
 
 `pages/create-account.html` is the existing browser-local travel-profile flow. Real account signup/sign-in and private trip/profile pages use the React/Cognito implementation in `web/`. This organization does not change those features.
 
@@ -32,8 +50,8 @@ Source folders are for navigation; the build controls public URLs. For example:
 | `pages/index.html` | `/index.html` |
 | `pages/about.html` | `/about.html` |
 | `pages/auth-callback.html` | `/auth-callback.html` |
-| `pages/multicity-visualizer.html` | `/multicity-visualizer.html` |
-| `pages/explore-curated.html` | `/pages/explore-curated.html` (existing legacy address) |
+| `pages/results.html` | `/results.html` |
+| `pages/multicity-visualizer.html` | `/multicity-visualizer.html` (redirect) |
 | `../web/app/account/page.tsx` | `/react/account/` |
 
 The shared composer in `../ops/frontend/source-layout.cjs` copies source pages to these existing addresses without editing their bytes. HTML relative asset paths and `data-depth` refer to the published address. Do not change them to match the source directory. The production packager and composite Amplify build use the same composer. Compatibility redirects for 36 older design URLs retain queries and fragments.

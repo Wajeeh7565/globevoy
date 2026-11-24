@@ -70,7 +70,7 @@ function browser(tour, { signedIn = true, routeDetails = false } = {}) {
   vm.runInContext(read('saved-trips-705c.js'), context);
   vm.runInContext(read('saved-trips-705c-r3-route-details.js'), context);
   // Run the actual legacy persistence and feedback functions, not a replacement save.
-  const visualizer = read('multicity-visualizer-687b.js');
+  const visualizer = fs.readFileSync('tests/frontend/fixtures/visualizer-687b-save-harness.js', 'utf8');
   Object.assign(context, { tourFixture: tour, activePickIndex: 0, q: new URLSearchParams(location.search), $: selector => elements.get(selector.slice(1)), storageKey: 'globevoy.multi.selected.v1', FRONTEND_VERSION: 'regression', HANDOFF_WINDOW_PREFIX: 'regression:', cloneTour: plain, snapshotIdFromTour: () => 'regression', snapshotStorageKey: id => 'globevoy.generated.snapshot.v1.' + id, officialLegDate: leg => leg?.departureDate || '', safeIso: value => value || '', currentStopIds: t => t.cities.map(c => c.id).join(','), currentStopRefs: t => t.cities.map(c => c.code).join(','), pickRole: () => 'best-balance', showToast: () => {} });
   for (const name of ['persistTourSnapshot', 'saveTourSnapshot']) vm.runInContext(visualizer.match(new RegExp('function '+name+'\\(t\\)\\{[^\\n]+'))[0], context);
   window.sessionStorage.setItem('globevoy.multi.selected.v1', JSON.stringify(tour));

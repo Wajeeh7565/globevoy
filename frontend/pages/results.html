@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your trips | GlobeVoy</title>
+<meta name="description" content="Complete trips that fit your budget, with live flight and hotel prices.">
+<link rel="icon" href="./favicon.ico">
+<link rel="stylesheet" href="./assets/fonts/archivo/archivo.css">
+<link rel="stylesheet" href="./assets/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="./styles/results.css?v=gv2-1">
+</head>
+<body class="is-loading">
+<a class="skip" href="#main">Skip to content</a>
+
+<section id="loading" class="loading" role="status" aria-live="polite" aria-label="Finding your trips">
+  <video class="loading-film" src="./assets/media/scenes/takeoff.mp4" poster="./assets/media/scenes/takeoff.jpg" muted autoplay loop playsinline aria-hidden="true"></video>
+  <div class="loading-veil" aria-hidden="true"></div>
+  <div class="loading-inner">
+    <a class="word light" href="./index.html">Globe<b>Voy</b></a>
+    <h1 class="loading-title">Finding where <span id="loading-budget">your budget</span><br>can take you.</h1>
+    <p class="loading-sub" id="loading-sub">From <span id="loading-origin">Toronto</span> · <span id="loading-party">1 traveller</span> · next 6 months</p>
+    <svg class="loading-globe" viewBox="0 0 600 260" aria-hidden="true">
+      <defs>
+        <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#39b7ae" stop-opacity=".55"/><stop offset="1" stop-color="#39b7ae" stop-opacity="0"/></radialGradient>
+      </defs>
+      <ellipse cx="300" cy="250" rx="300" ry="70" fill="url(#glow)" opacity=".35"/>
+      <g class="loading-arcs" fill="none" stroke-linecap="round"></g>
+      <g class="loading-dots"></g>
+      <circle class="loading-origin" cx="110" cy="185" r="7"/>
+      <circle class="loading-origin-ring" cx="110" cy="185" r="7"/>
+    </svg>
+    <ol class="loading-steps" id="loading-steps">
+      <li data-at="0">Comparing 400+ cities your budget could reach</li>
+      <li data-at="4">Choosing the order and the dates</li>
+      <li data-at="9">Checking live flight prices</li>
+      <li data-at="17">Checking live hotel rates</li>
+      <li data-at="27">Putting your journey together</li>
+    </ol>
+    <div class="loading-bar" aria-hidden="true"><span id="loading-bar"></span></div>
+    <p class="loading-hint" id="loading-hint">Live prices take 15–40 seconds. Worth the wait.</p>
+  </div>
+</section>
+
+<header class="wrap topbar">
+  <a class="word" href="./index.html">Globe<b>Voy</b></a>
+  <nav aria-label="Main">
+    <a id="new-search" href="./index.html">New search</a>
+    <button id="signin" class="btn" type="button">Sign in</button>
+  </nav>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <section id="state" class="state" hidden>
+    <span class="state-kicker" id="state-kicker">No trip yet</span>
+    <h1 id="state-title">Let’s try that search again</h1>
+    <p id="state-copy"></p>
+    <div class="state-actions">
+      <a id="state-primary" class="btn primary" href="./index.html">Back to search</a>
+      <a id="state-secondary" class="btn" href="./index.html">Change search</a>
+    </div>
+  </section>
+
+  <div id="results" hidden>
+    <section class="options" aria-labelledby="options-heading">
+      <div class="options-head">
+        <h2 id="options-heading">Your trips</h2>
+        <span id="options-note"></span>
+      </div>
+      <div class="option-tabs" id="option-tabs" role="tablist" aria-labelledby="options-heading"></div>
+    </section>
+
+    <section class="intro">
+      <div>
+        <h1 id="trip-title"></h1>
+        <p class="route-line" id="route-line"></p>
+        <p class="trip-story" id="trip-story"></p>
+      </div>
+      <div class="trip-facts" id="trip-facts"></div>
+    </section>
+    <div class="live-note" id="live-note">Live flight and hotel prices</div>
+
+    <div class="workspace">
+      <section class="journey" aria-labelledby="map-heading">
+        <div class="map-shell">
+          <div id="map" aria-label="Map of your route. Arrow keys pan, plus and minus zoom." tabindex="0"></div>
+          <div class="map-header"><h2 id="map-heading">Your journey, in motion.</h2><button id="fit" class="btn" type="button" aria-label="Show the full route">Full route</button></div>
+          <div class="map-legend"><i></i> Flight route</div>
+          <section id="media-panel" class="media-panel" hidden aria-label="Destination preview">
+            <div class="media-image"><img id="media-photo" alt=""><video id="city-video" muted playsinline preload="none" hidden></video>
+              <div class="media-title"><span id="media-country"></span><h3 id="media-city"></h3></div>
+              <button id="close-media" class="close" type="button" aria-label="Close destination preview">×</button>
+            </div>
+            <div class="media-caption"><span id="media-state"></span></div>
+          </section>
+        </div>
+        <div class="transport">
+          <div class="transport-buttons">
+            <button id="play" class="btn primary" type="button" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m8 5 11 7-11 7Z"/></svg><span>Play journey</span></button>
+            <button id="replay" class="btn" type="button" aria-label="Replay journey">Replay</button>
+            <button id="skip" class="btn" type="button">Skip animation</button>
+          </div>
+          <span id="journey-status" role="status">Ready when you are.</span>
+        </div>
+        <div class="journey-progress" role="progressbar" aria-label="Journey playback progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress"></span></div>
+        <ol class="route-rail" id="route-rail" aria-label="Route sequence"></ol>
+      </section>
+
+      <aside class="summary" aria-labelledby="summary-heading">
+        <h2 id="summary-heading">Your trip</h2>
+        <span class="currency" id="summary-currency"></span>
+        <div class="total" id="summary-total"></div>
+        <p id="summary-line"></p>
+        <dl id="summary-list"></dl>
+        <div class="budget"><span>Your budget</span><strong id="summary-budget"></strong></div>
+        <p class="estimate-note" id="summary-note"></p>
+        <div class="summary-actions">
+          <a id="book" class="btn primary" href="#">View trip &amp; book</a>
+        </div>
+        <div class="summary-foot"><span>Departure &amp; return</span><strong id="summary-origin"></strong></div>
+      </aside>
+    </div>
+
+    <section class="dest-section" aria-labelledby="dest-heading">
+      <div class="section-heading"><h2 id="dest-heading"></h2><span>Choose any city to explore it on the map.</span></div>
+      <div class="destinations" id="destinations"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="wrap footer">
+  <div><img src="./assets/images/globevoy-logo.png" alt="GlobeVoy"><span>Every budget has a map.<br>You book directly with the airline and hotel partners.</span></div>
+  <nav aria-label="Footer"><a href="./about.html">About</a><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a></nav>
+</footer>
+
+<script src="./runtime/environment-policy.js?v=main-release-1"></script>
+<script src="./runtime/config.js"></script>
+<script src="./runtime/api-client.js"></script>
+<script src="./runtime/auth-config-705b-r3.js"></script>
+<script src="./scripts/auth-session-705b-r3.js"></script>
+<script src="./scripts/city-images-673c.js?v=673f-r2"></script>
+<script src="./assets/vendor/leaflet/leaflet.js"></script>
+<script src="./scripts/trip-search.js?v=gv2-1"></script>
+<script src="./scripts/results.js?v=gv2-1"></script>
+</body>
+</html>

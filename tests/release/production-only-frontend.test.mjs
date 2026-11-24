@@ -88,15 +88,15 @@ test('actual ZIP verifier rejects every known staging identifier, including comp
 test('classic account links preserve staging development fallback without hardcoded staging URLs',()=>{
   const shell=fs.readFileSync('frontend/scripts/shell-670f.js','utf8');
   const snippet=shell.slice(shell.indexOf('  const stagingOrigin ='),shell.indexOf('  function activeAccountSession'));
-  const visualizer=fs.readFileSync('frontend/scripts/multicity-visualizer-687b.js','utf8');
-  const signIn=visualizer.slice(visualizer.indexOf('function openMemberSignIn711()'),visualizer.indexOf('function threePicksEnabled()'));
+  // GV-WEB-2: the results page signs in through GlobevoyTripSearch.signIn (frontend/scripts/trip-search.js).
+  const tripSearch=fs.readFileSync('frontend/scripts/trip-search.js','utf8');
   for(const productionOnly of [false,true]){
     const window={GLOBEVOY_ENVIRONMENT_POLICY:productionOnly?browser('https://globevoy.com').window.GLOBEVOY_ENVIRONMENT_POLICY:policy};
     const location={origin:'http://localhost:8080',hostname:'localhost',pathname:'/',search:'',hash:''};
-    const ctx=vm.createContext({window,location,root:p=>p});
+    const ctx=vm.createContext({window,location,root:p=>p,URLSearchParams,sessionStorage:{getItem:()=>null}});
     vm.runInContext(snippet+';globalThis.accountLink=accountBaseHref;',ctx);
     assert.equal(ctx.accountLink,productionOnly?'react/account/':policy.stagingOrigin+'/react/account/');
-    vm.runInContext(signIn+';openMemberSignIn711();',ctx);
+    vm.runInContext(tripSearch+';window.GlobevoyTripSearch.signIn();',ctx);
     assert.equal(location.href,productionOnly?'account.html':policy.stagingOrigin+'/account.html');
   }
 });

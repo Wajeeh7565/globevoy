@@ -52,7 +52,7 @@ const groups = {
     ['node', '--test', 'tests/frontend/booking-ignav-links.test.cjs'],
     ['node', '--test', 'tests/frontend/booking-trip-v2.test.cjs'],
     ['node', 'frontend/validation/validate-gv-data-701c.js'],
-    ['node', 'frontend/validation/validate-gv-rec-687b-frontend.js'],
+    ['node', '--test', 'tests/frontend/trip-search.test.cjs'],
     ['node', 'frontend/validation/validate-gv-web-fe-r3-1b.js']
   ],
 
@@ -106,7 +106,9 @@ const groups = {
     ['node', '--check', 'backend/services/cities/recovery/staging/staging-reviewed-recovery-702d.js'],
     ['node', '--check', 'backend/services/cities/recovery/reviewed-activation-promotion-702e.js'],
     ['node', '--check', 'frontend/runtime/api-client.js'],
-    ['node', '--check', 'frontend/scripts/multicity-visualizer-687b.js']
+    ['node', '--check', 'frontend/scripts/trip-search.js'],
+    ['node', '--check', 'frontend/scripts/results.js'],
+    ['node', '--check', 'frontend/scripts/home.js']
   ]
 };
 

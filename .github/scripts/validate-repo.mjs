@@ -30,7 +30,7 @@ for (const [relativePath, type] of [
   ['frontend', 'directory'],
   ['backend', 'directory'],
   ['frontend/runtime/config.js', 'file'],
-  ['frontend/validation/validate-gv-rec-687b-frontend.js', 'file'],
+  ['tests/frontend/trip-search.test.cjs', 'file'],
   ['backend/validation/validate-gv-rec-687b-p3.js', 'file'],
   ['backend/services/domain/routing/route-diversity-687b.js', 'file']
 ]) requirePath(relativePath, type);
@@ -38,7 +38,7 @@ for (const [relativePath, type] of [
 const baselinePath = path.join(root, 'CURRENT_BASELINE.md');
 if (fs.existsSync(baselinePath)) {
   const baseline = fs.readFileSync(baselinePath, 'utf8');
-  const markers = ['GV-REC-687B-R1', 'GV-REC-687B-P3', 'Canonical branch: `main`'];
+  const markers = ['GV-WEB-2', 'GV-REC-687B-P3', 'Canonical branch: `main`'];
   for (const marker of markers) {
     baseline.includes(marker) ? pass(`Baseline marker present: ${marker}`) : fail(`Baseline marker missing: ${marker}`);
   }
