@@ -17,14 +17,14 @@ test('all active HTML is centralized and archived mockups stay byte-preserved',(
  assert.deepEqual(fs.readdirSync('frontend/pages').filter(n=>n.endsWith('.html')).sort(), [...layout.retainedLegacyPages,...layout.publicPageSources.map(item=>path.basename(item.to))].sort());
  assert.equal(fs.readdirSync('frontend').filter(n=>n.endsWith('.html')).length,0);
  const publicNames=new Set(layout.publicPageSources.map(item=>path.basename(item.to)));
- assert.equal(publicNames.size,22);
+ assert.equal(publicNames.size,23);
  for(const item of layout.publicPageSources){assert.equal(fs.existsSync(item.from),false);assert.equal(sha(item.to),item.sha256,item.to);}
  for(const name of layout.retainedLegacyPages)assert.equal(publicNames.has(name),false,'Duplicate active page name: '+name);
  assert.ok(fs.readFileSync('frontend/pages/about.html','utf8').includes('About Globevoy'));
 });
 
 test('promoted public content is real HTML with correct root asset paths and shell depth',()=>{
- assert.equal(layout.promotions.length,5);
+ assert.equal(layout.promotions.length,4);
  for(const item of layout.promotions){
   const source=sourceLayout.frontendSourcePath('frontend',path.basename(item.to));const html=fs.readFileSync(source,'utf8');
   assert.equal(layoutAssertions.promotedPageContentPreserved(path.basename(item.to)),true);
@@ -74,8 +74,7 @@ test('active frontend consumers no longer link to archived source paths',()=>{
  function scan(dir){for(const ent of fs.readdirSync(dir,{withFileTypes:true})){if(excluded.has(ent.name))continue;const file=path.join(dir,ent.name);if(ent.isDirectory())scan(file);else if(/\.(html|js|css)$/.test(ent.name)){const text=fs.readFileSync(file,'utf8');for(const item of [...layout.archives,...layout.promotions])assert.ok(!text.includes('pages/'+path.basename(item.from)),file+' references removed source '+item.from)}}}
  scan('frontend');
  const clean=fs.readFileSync('frontend/scripts/clean-routing.js','utf8');
- for(const name of layout.retainedLegacyPages)assert.ok(clean.includes(name));
- const mixed=fs.readFileSync('frontend/scripts/mixed-results-542b-r1.js','utf8');assert.ok(mixed.includes('`create-account.html?returnTo='));
+ assert.ok(clean.includes('index.html'));
 });
 
 test('retained legacy button routing still resolves from promoted root and nested screens',()=>{

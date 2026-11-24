@@ -9,10 +9,9 @@ GlobeVoy contains the classic travel website, a React successor, and backend ser
 
 ## Recorded release baseline (August 2026)
 
-- Frontend: GV-REC-687B-R1 horizontal journey carousel / route-diversity UI.
+- Frontend: GV-WEB-2 (November 2026): new homepage and map-first results page with live-only prices. See [frontend/README.md](frontend/README.md).
 - Backend: GV-REC-687B-P3 production-origin auto-enable Lambda package.
 - P3 backend validator: 12/12 PASS.
-- 687B frontend validator on exact release bytes: 36/36 PASS.
 
 `backend/` mirrors the current Lambda package source tree. `frontend/pages/` contains the classic HTML source. The shared frontend composer preserves the existing Amplify public URLs when building the site.
 

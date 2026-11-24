@@ -546,7 +546,7 @@
       const url = new URL(raw, location.origin);
       if (url.origin !== location.origin) return '';
       const name = url.pathname.split('/').pop();
-      if (!['trip.html', 'multicity-visualizer.html', 'multi-city-trip.html'].includes(name)) return '';
+      if (!['trip.html', 'multicity-visualizer.html', 'multi-city-trip.html', 'results.html'].includes(name)) return '';
       return `${name}${url.search}`;
     } catch (_) { return ''; }
   }

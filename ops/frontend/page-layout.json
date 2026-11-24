@@ -1,19 +1,8 @@
 {
   "schemaVersion": 1,
   "purpose": "Separate live public content from archived design/state screens while preserving published URLs.",
-  "retainedLegacyPages": [
-    "explore-curated.html",
-    "multi-city-results.html",
-    "trip-detail-single.html"
-  ],
+  "retainedLegacyPages": [],
   "promotions": [
-    {
-      "from": "frontend/pages/advanced-search.html",
-      "to": "frontend/ask.html",
-      "originalSha256": "1f27d09f7a3b330d260e8035dd8635357ea4c34418fd382ba21dfc8ac2036394",
-      "promotedSha256": "fe0d5564558333e7ada6b91c16b20f05e2fcebf62ba533bb100cd22ffc272294",
-      "change": "Only relative asset paths and shell depth changed; original content is preserved."
-    },
     {
       "from": "frontend/pages/affiliate.html",
       "to": "frontend/affiliate.html",
@@ -236,7 +225,7 @@
     "/pages/about.html": "/about.html",
     "/pages/account-settings.html": "/react/account/",
     "/pages/account-verification.html": "/react/account/",
-    "/pages/advanced-search.html": "/ask.html",
+    "/pages/advanced-search.html": "/index.html",
     "/pages/affiliate.html": "/affiliate.html",
     "/pages/create-account.html": "/create-account.html",
     "/pages/explore-all-eligible.html": "/explore.html",
@@ -288,7 +277,7 @@
     {
       "from": "frontend/ask.html",
       "to": "frontend/pages/ask.html",
-      "sha256": "fe0d5564558333e7ada6b91c16b20f05e2fcebf62ba533bb100cd22ffc272294"
+      "sha256": "78823b4275383504555170842675f36089623f2933385881a80b7b5b6cc13dab"
     },
     {
       "from": "frontend/auth-callback.html",
@@ -308,7 +297,7 @@
     {
       "from": "frontend/explore.html",
       "to": "frontend/pages/explore.html",
-      "sha256": "8b24fba0573e02637e69e9ebfca1b09a479858bd504e4d46a8ab3c28dbafeea9"
+      "sha256": "78823b4275383504555170842675f36089623f2933385881a80b7b5b6cc13dab"
     },
     {
       "from": "frontend/how-it-works.html",
@@ -318,12 +307,12 @@
     {
       "from": "frontend/index.html",
       "to": "frontend/pages/index.html",
-      "sha256": "6da03fee36113e7a3e9d6ea149f7e5697e8b877ba233c1cf3fe0626e3e1e3749"
+      "sha256": "ce2475bd1555422fbe7d79a458523a9044773399f28dab59cec314669e5df7c5"
     },
     {
       "from": "frontend/mixed-results.html",
       "to": "frontend/pages/mixed-results.html",
-      "sha256": "850385d1dadcb2e2e9e3584fcb1cae88e2defc46a31a15639b2635f8ab084e99"
+      "sha256": "78823b4275383504555170842675f36089623f2933385881a80b7b5b6cc13dab"
     },
     {
       "from": "frontend/multi-city-trip.html",
@@ -333,12 +322,12 @@
     {
       "from": "frontend/multi-city.html",
       "to": "frontend/pages/multi-city.html",
-      "sha256": "0ab11d9871e5943cdf8eceb86f57e6009acc2cf811aaa240596887705a15d670"
+      "sha256": "78823b4275383504555170842675f36089623f2933385881a80b7b5b6cc13dab"
     },
     {
       "from": "frontend/multicity-visualizer.html",
       "to": "frontend/pages/multicity-visualizer.html",
-      "sha256": "160e2ebb1462983575660d52e75f11f7dba6f33bc8e1677b1a9f462dd916d4fb"
+      "sha256": "78823b4275383504555170842675f36089623f2933385881a80b7b5b6cc13dab"
     },
     {
       "from": "frontend/my-trips.html",
@@ -349,6 +338,11 @@
       "from": "frontend/privacy.html",
       "to": "frontend/pages/privacy.html",
       "sha256": "1a1e95c296829cd2e4ec9a6f2ae34df542a289526368a0967433bc4f19591f0f"
+    },
+    {
+      "from": "frontend/results.html",
+      "to": "frontend/pages/results.html",
+      "sha256": "b2c874bff43f1f6cd577a1481ffc951e203e955a3e86f4d83ad8086501937ee0"
     },
     {
       "from": "frontend/saved-trips.html",

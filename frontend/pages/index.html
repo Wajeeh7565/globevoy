@@ -1,268 +1,70 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <meta name="gv-release" content="GV-QUALITY-680B-R1">
-  <title>Globevoy — Discover trips within your budget</title>
-  <link rel="icon" href="./favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="64x64" href="./assets/images/favicon-64.png?v=673f-r2">
-  <link href="./assets/fonts/fonts.css" rel="stylesheet">
-  <link href="./styles/shell.css?v=fe-r3-1b" rel="stylesheet">
-  <link href="./styles/live.css?v=680b-r1" rel="stylesheet">
-  <meta content="gv-home-654a-homepage-shuffle-global-ideas-visualizer-photos" name="gv-source-status">
-  <meta name="gv-origin-ui-release" content="GV-BOOK-676A-R1">
-  <link rel="stylesheet" href="./styles/profile-672a.css?v=672a">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GlobeVoy · Every budget has a map.</title>
+<meta name="description" content="Tell GlobeVoy your budget. It picks the cities, the order and the dates, and checks live flight and hotel prices.">
+<link rel="icon" href="./favicon.ico">
+<link rel="stylesheet" href="./assets/fonts/archivo/archivo.css">
+<link rel="stylesheet" href="./styles/home.css?v=gv2-1">
 </head>
-<body class="bg-[#f7f9fb] text-[#071c33] gv-canonical" data-depth="0" data-nav-active="Plan" data-signed-in="false">
-  <div id="gv-header"></div>
+<body>
+<svg class="sr-only" aria-hidden="true"><defs>
+<symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+<symbol id="shuffle-icon" viewBox="0 0 24 24"><path d="m17 3 4 4-4 4M3 17h3c5 0 7-10 12-10h3M17 13l4 4-4 4M3 7h3c1.5 0 2.8 1 4 3m4 4c1.2 2 2.5 3 4 3h3"/></symbol>
+<symbol id="pin" viewBox="0 0 24 24"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+<symbol id="pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol><symbol id="play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+<symbol id="plane" viewBox="0 0 24 24"><path d="m3 13 7 1 5 7 2-1-3-7 6-2c3-1 2-4-1-3l-6 2-5-5-2 1 3 6-6 1Z"/></symbol><symbol id="train" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="4"/><path d="M7 5v7h14M7 12H3m4 5-2 3m12-3 2 3M9 5v7m6-7v7"/><circle cx="7" cy="15" r=".6"/><circle cx="17" cy="15" r=".6"/></symbol></defs></svg>
+<a class="skip" href="#search">Skip to trip search</a>
+<main>
+<section class="hero" aria-labelledby="hero-title">
+ <div class="film" aria-hidden="true"><div class="scene-deck" id="hero-deck"><img src="./assets/media/scenes/safari.jpg" alt="" fetchpriority="high"></div></div>
+ <header class="topbar"><a class="brand" href="./index.html"><img src="./assets/images/globevoy-logo-light.png" alt="GlobeVoy" width="146" height="48"></a><div class="header-actions"><button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause all motion" title="Pause all motion" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#pause"/></svg></button><button class="signin" id="signin">Sign In</button></div></header>
+ <div class="frame hero-content">
+  <h1 id="hero-title">Every budget<br>has a <span>map.</span></h1>
+  <form class="search" id="search" aria-label="Find trips within your budget">
+   <div class="search-main">
+    <div class="field from-field"><label for="from">Departure</label><div class="input-row"><svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 19h19M3.6 12.6l3 2.7c.5.4 1.1.5 1.7.4l12-3.2c1-.3 1.6-1.3 1.3-2.3-.3-1-1.3-1.6-2.3-1.3l-3.9 1-5.3-4.9-2.2.6 3 5.4-3.6 1-2-1.7-1.6.4Z"/></svg><input id="from" value="Toronto (YYZ)" required maxlength="80" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="from-list"></div><ul class="from-list" id="from-list" role="listbox" aria-label="Starting cities" hidden></ul></div>
+    <div class="field"><label for="budget">Total budget</label><div class="input-row"><span class="prefix" id="budget-prefix" aria-hidden="true">C$</span><input id="budget" type="number" min="100" required step="1" placeholder="2,000" inputmode="numeric"></div></div>
+    <div class="field currency"><label for="currency">Currency</label><select id="currency"><option>CAD</option><option>USD</option><option>EUR</option><option>GBP</option><option>AUD</option></select></div>
+    <div class="field travelers"><label for="travelers">Travelers <span class="sr-only">· adults, 1 to 12</span></label><div class="traveler-controls"><button id="fewer-travelers" type="button" aria-label="Remove one adult" aria-controls="travelers"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><input id="travelers" type="number" min="1" max="12" step="1" value="1" required inputmode="numeric"><span class="adult-unit" aria-hidden="true">adult</span><button id="more-travelers" type="button" aria-label="Add one adult" aria-controls="travelers"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></svg></button></div></div>
+    <button class="primary" type="submit">Show My Trips<svg class="icon" aria-hidden="true"><use href="#arrow"/></svg></button>
+   </div>
+   <div class="search-tools"><button id="more" type="button" aria-expanded="false" aria-controls="options">More Options <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button><button id="locate" type="button"><svg class="icon" aria-hidden="true"><use href="#pin"/></svg>Use My Location</button></div>
+   <div class="options" id="options" hidden><div class="field"><label for="dates">When</label><select id="dates"><option value="">Flexible · next 6 months</option></select></div><div class="field"><label for="pace">Pace</label><select id="pace"><option value="relaxed">Unhurried</option><option value="balanced" selected>Balanced</option><option value="see-more">See more</option></select></div></div>
+   <p class="demo-note" id="search-note" role="status">Live flight and hotel prices, checked the moment you search.</p>
+  </form>
+  
+ </div>
+ <div class="hero-bottom"><span class="film-label" id="hero-scene-name">African safari</span><div class="scene-nav" aria-label="Hero scenes"><button type="button" data-hero-scene="0" aria-label="African safari scene" aria-pressed="true"></button><button type="button" data-hero-scene="1" aria-label="Mountain adventure scene" aria-pressed="false"></button><button type="button" data-hero-scene="2" aria-label="Florence architecture scene" aria-pressed="false"></button></div></div></section>
+<section class="section multi" id="multi" aria-labelledby="multi-title"><div class="frame"><div class="route-stage">
+<div class="scene-deck" id="journey-deck"><img src="./assets/media/scenes/lisbon.jpg" alt="" loading="lazy"></div>
+<div class="route-top"><h2 id="multi-title">More places. One journey.</h2><div class="tabs" role="tablist" aria-label="Multi-country journeys"><button role="tab" id="tab-0" aria-selected="true" aria-controls="route-panel" tabindex="0">Mediterranean<br>to Morocco</button><button role="tab" id="tab-1" aria-selected="false" aria-controls="route-panel" tabindex="-1">Europe’s<br>Royal Capitals</button><button role="tab" id="tab-2" aria-selected="false" aria-controls="route-panel" tabindex="-1">East Asia<br>Explorer</button></div></div>
+<div class="route-panel" id="route-panel" role="tabpanel" aria-labelledby="tab-0" tabindex="0">
+<div class="journey-stage"><div class="journey-caption"><h3 id="active-city">Lisbon</h3><p id="active-country">Portugal</p></div><span class="destination-count" id="destination-count">1 / 3</span></div>
+<div class="route-details"><div class="route-summary"><div class="route-context"><span id="journey-mode">Flight-inspired journey</span><span>Example journey</span></div><p class="route-feedback" id="budget-feedback" role="status"></p></div>
+<div class="route-track"><div class="timeline-rail" aria-hidden="true"><div class="timeline-fill" id="timeline-fill"></div></div><div class="transport-runway" aria-hidden="true"><div class="transport-position" id="transport-position"><div class="transport-icon"><svg class="icon"><use id="transport-use" href="#plane"/></svg></div></div></div><div class="stops" id="stops"></div></div>
+<div class="sr-only" id="journey-progress" role="progressbar" aria-label="Journey progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div></div></div><p class="sr-only" id="route-announcement" role="status"></p></div></div></section>
+<section class="section" id="ideas" aria-labelledby="ideas-title"><div class="frame">
+ <div class="section-head"><h2 id="ideas-title">Single Trip Suggestions</h2><button class="shuffle" id="shuffle"><svg class="icon" aria-hidden="true"><use href="#shuffle-icon"/></svg>Shuffle Ideas</button></div>
+ <div class="trips" id="trips"></div>
+ <p class="examples">Ideas to start from. Your search checks live flight and hotel prices for your budget.</p>
+ <p class="status" id="ideas-status" role="status"></p>
+</div></section>
+<section class="section how-section" id="how" aria-labelledby="how-title"><div class="frame"><div class="how">
+ <div class="film" aria-hidden="true"><div class="scene-deck" id="how-deck"><img src="./assets/media/scenes/takeoff.jpg" alt="" loading="lazy"></div></div>
+ 
+ <h2 id="how-title">How GlobeVoy Works</h2>
+ <div class="steps"><div class="step"><span>01</span><h3>Set a budget</h3></div><div class="step"><span>02</span><h3>Explore possibilities</h3></div><div class="step"><span>03</span><h3>Plan your trip</h3></div></div>
+</div></div></section>
+</main>
+<footer><div class="frame"><span>© 2026 GlobeVoy · You book directly with airline and hotel partners.</span><nav aria-label="Footer"><a href="./about.html">About</a><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a></nav></div></footer>
 
-  <main>
-    <section class="gv-home-hero">
-      <div class="gv-home-slides" aria-hidden="true">
-        <div class="gv-home-slide is-active" data-slide-label="Tropical beach at sunrise" style="background-image:url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2200&q=84')"></div>
-        <div class="gv-home-slide" data-slide-label="City skyline at dusk" style="background-image:url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?auto=format&fit=crop&w=2200&q=84')"></div>
-        <div class="gv-home-slide" data-slide-label="Mountain landscape" style="background-image:url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2200&q=84')"></div>
-        <div class="gv-home-slide" data-slide-label="Green valley from above" style="background-image:url('https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=2200&q=84')"></div>
-      </div>
-      <div class="gv-home-overlay"></div>
-      <!-- GV-UI-631B-R3: decorative route lines and slideshow dots removed for a cleaner scenic hero. -->
-
-      <div class="gv-home-hero-inner">
-        <div class="gv-home-copy">
-          <p class="gv-eyebrow">Budget-first travel discovery</p>
-          <h1>Tell us your budget.<br>We’ll unlock the possibilities.</h1>
-          <p>Start with only the essentials. Globevoy will look for a small set of single-city and multi-city trips that fit your budget, starting city and group size.</p>
-          <p class="gv-home-copy-note">You can fine-tune dates, trip length, travel style and more under Advanced options.</p>
-        </div>
-
-        <section class="gv-search-card" aria-labelledby="gv-search-title">
-          <div class="gv-search-card-head">
-            <div>
-              <p class="gv-eyebrow gv-eyebrow-dark">Start simple</p>
-              <h2 id="gv-search-title">Discover trips within your budget</h2>
-            </div>
-          </div>
-
-          <div class="gv-search-fields">
-            <label class="gv-field gv-field-full">
-              <span>Leaving from</span>
-              <span class="gv-input-wrap">
-                <span class="material-symbols-outlined" aria-hidden="true">flight_takeoff</span>
-                <input id="gv-origin" type="text" placeholder="City or airport" autocomplete="off" role="combobox" aria-autocomplete="list" aria-controls="gv-origin-menu" aria-expanded="false">
-              </span>
-              <div id="gv-origin-menu" class="gv-origin-menu" role="listbox" aria-label="Origin suggestions" hidden></div>
-
-              <div class="gv-origin-actions">
-                <button id="gv-use-location" class="gv-location-button" type="button">
-                  <span class="material-symbols-outlined" aria-hidden="true">my_location</span>
-                  <span>Use my location</span>
-                </button>
-                <span id="gv-location-status" class="gv-location-status" role="status" aria-live="polite"></span>
-              </div>
-            </label>
-
-            <label class="gv-field">
-              <span>Total trip budget</span>
-              <span class="gv-input-wrap">
-                <span id="gv-budget-prefix" class="gv-prefix">C$</span>
-                <input id="gv-budget" type="number" min="300" step="50" value="1000" inputmode="numeric">
-              </span>
-            </label>
-
-            <div class="gv-field gv-passenger-field">
-              <span>Passengers</span>
-              <button id="gv-passenger-button" class="gv-passenger-button" type="button" aria-expanded="false" aria-controls="gv-passenger-panel">
-                <span class="material-symbols-outlined" aria-hidden="true">group</span>
-                <span id="gv-passenger-summary">1 adult</span>
-                <span class="material-symbols-outlined gv-chevron" aria-hidden="true">expand_more</span>
-              </button>
-              <div id="gv-passenger-panel" class="gv-passenger-panel" hidden>
-                <div class="gv-counter-row">
-                  <div><strong>Adults</strong><span>Ages 18 or above</span></div>
-                  <div class="gv-counter"><button type="button" data-counter="adults" data-delta="-1" aria-label="Remove adult">−</button><output id="gv-adults-count">1</output><button type="button" data-counter="adults" data-delta="1" aria-label="Add adult">+</button></div>
-                </div>
-                <div class="gv-counter-row">
-                  <div><strong>Children</strong><span>Ages 0–17</span></div>
-                  <div class="gv-counter"><button type="button" data-counter="children" data-delta="-1" aria-label="Remove child">−</button><output id="gv-children-count">0</output><button type="button" data-counter="children" data-delta="1" aria-label="Add child">+</button></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <details id="gv-advanced-options" class="gv-advanced">
-            <summary>Advanced options <span class="material-symbols-outlined" aria-hidden="true">expand_more</span></summary>
-            <div id="gv-advanced-body" class="gv-advanced-body">
-              <div class="gv-advanced-grid">
-                <label class="gv-field gv-field-full">
-                  <span>Travel dates</span>
-                  <span class="gv-input-wrap">
-                    <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span>
-                    <input id="gv-travel-dates" type="text" placeholder="Anytime in the next 6 months" readonly role="button" aria-haspopup="dialog" aria-expanded="false">
-                  </span>
-                </label>
-
-                <label class="gv-field">
-                  <span>Trip length</span>
-                  <select id="gv-trip-length">
-                    <option value="5">Around 4–6 nights</option>
-                    <option value="8">Around 7–9 nights</option>
-                    <option value="12">Around 10–14 nights</option>
-                    <option value="auto" selected>Let Globevoy decide</option>
-                  </select>
-                </label>
-
-                <label class="gv-field">
-                  <span>Primary interest</span>
-                  <select id="gv-interests">
-                    <option>No preference</option>
-                    <option>Food and culture</option>
-                    <option>Beach and relaxation</option>
-                    <option>Nature and outdoors</option>
-                    <option>Nightlife</option>
-                    <option>Family-friendly</option>
-                  </select>
-                </label>
-
-                <fieldset class="gv-preference-field gv-field-full">
-                  <legend>What matters most? <small>Select any</small></legend>
-                  <div class="gv-preference-chips">
-                    <label><input type="checkbox" name="gv-priority" value="Food and culture"><span>Food &amp; culture</span></label>
-                    <label><input type="checkbox" name="gv-priority" value="Beach"><span>Beach</span></label>
-                    <label><input type="checkbox" name="gv-priority" value="Nature"><span>Nature</span></label>
-                    <label><input type="checkbox" name="gv-priority" value="Nightlife"><span>Nightlife</span></label>
-                    <label><input type="checkbox" name="gv-priority" value="Wellness"><span>Wellness</span></label>
-                  </div>
-                </fieldset>
-
-                <label class="gv-field">
-                  <span>Travel pace</span>
-                  <select id="gv-travel-pace">
-                    <option value="Balanced">Balanced</option>
-                    <option>Relaxed</option>
-                    <option>See more</option>
-                  </select>
-                </label>
-
-                <label class="gv-field">
-                  <span>Flight preference</span>
-                  <select id="gv-flight-preference">
-                    <option value="Best overall">Best overall</option>
-                    <option>Nonstop preferred</option>
-                    <option>Maximum one stop</option>
-                    <option>Lowest fare</option>
-                  </select>
-                </label>
-
-                <label class="gv-field">
-                  <span>Hotel style</span>
-                  <select id="gv-hotel-style">
-                    <option>Best balance</option>
-                    <option>Best value</option>
-                    <option>Best location</option>
-                    <option>Higher guest rating</option>
-                    <option>Luxury</option>
-                  </select>
-                </label>
-
-                <label class="gv-field">
-                  <span>Region</span>
-                  <select id="gv-continent">
-                    <option>Anywhere</option>
-                    <option>North America</option>
-                    <option>Latin America &amp; Caribbean</option>
-                    <option>Europe</option>
-                    <option>Asia</option>
-                    <option>Middle East and North Africa</option>
-                    <option>Sub-Saharan Africa</option>
-                    <option>Oceania</option>
-                  </select>
-                </label>
-
-                <label class="gv-field gv-field-full">
-                  <span>Ask Globevoy <small>Optional</small></span>
-                  <textarea id="gv-ai-request" maxlength="240" rows="3" placeholder="Example: I want warm weather, good food and no more than one long flight."></textarea>
-                  <span class="gv-char-count"><span id="gv-ai-count">0</span>/240</span>
-                </label>
-              </div>
-
-              <section id="gv-date-panel" class="gv-date-panel" hidden aria-labelledby="gv-date-title">
-                <div class="gv-date-panel-head">
-                  <div><strong id="gv-date-title">Travel date options</strong><p>Choose a broad window. Flexible trips begin at least 14 days from today so there is time to compare and book.</p></div>
-                  <button id="gv-date-close" type="button" aria-label="Close date options">×</button>
-                </div>
-                <div class="gv-date-mode" role="tablist" aria-label="Date mode">
-                  <button id="gv-flex-mode" type="button" class="is-active" role="tab" aria-selected="true">Flexible</button>
-                  <button id="gv-exact-mode" type="button" role="tab" aria-selected="false">Exact</button>
-                </div>
-                <div id="gv-flex-fields" class="gv-date-grid">
-                  <label>Preferred month<select id="gv-preferred-month"></select></label>
-                  <label>Flexibility<select id="gv-flex-window"><option value="month">Anytime in month</option><option value="14">±14 days</option><option value="7">±7 days</option><option value="3">±3 days</option></select></label>
-                </div>
-                <div id="gv-exact-fields" class="gv-date-grid" hidden>
-                  <label>Departure<input id="gv-start-date" type="date"></label>
-                  <label>Return<input id="gv-end-date" type="date"></label>
-                </div>
-              </section>
-            </div>
-          </details>
-
-          <button id="gv-search-submit" class="gv-search-submit" type="button">Show me trips within my budget</button>
-          <p id="gv-home-status" class="gv-home-status" role="status" aria-live="polite"></p>
-          <p class="gv-search-hint">Globevoy will choose a small, useful mix of single-city and multi-city options. You can continue as a guest.</p>
-        </section>
-      </div>
-    </section>
-
-
-    <section id="gv-home-ideas" class="gv-home-ideas" aria-labelledby="gv-home-ideas-title">
-      <div class="gv-home-ideas-head">
-        <div>
-          <p class="gv-eyebrow gv-eyebrow-dark">Ideas from your starting city</p>
-          <h2 id="gv-home-ideas-title">Choose a starting city to preview trip ideas</h2>
-          <p id="gv-home-ideas-copy">Current trip ideas based on your starting city, budget and group size.</p>
-        </div>
-        <button id="gv-home-ideas-shuffle" class="gv-home-ideas-shuffle" type="button" hidden>Shuffle ideas</button>
-      </div>
-      <div id="gv-home-ideas-state" class="gv-home-ideas-state">Enter or detect a supported origin to see three budget-aware trip ideas.</div>
-      <div id="gv-home-ideas-grid" class="gv-home-ideas-grid" hidden></div>
-    </section>
-    <section class="gv-home-benefits" aria-label="How Globevoy helps">
-      <article><span class="material-symbols-outlined">account_balance_wallet</span><h2>Budget leads the search</h2><p>We compare what your money can unlock instead of making you choose a destination first.</p></article>
-      <article><span class="material-symbols-outlined">route</span><h2>Single and multi-city together</h2><p>Globevoy can surface nearby, faraway, value-focused and connected routes in one short list.</p></article>
-      <article><span class="material-symbols-outlined">tune</span><h2>Simple first, customizable later</h2><p>Start with three inputs. Open Advanced options only when you want more control.</p></article>
-    </section>
-  </main>
-
-  <div id="gv-footer"></div>
-
-  <div id="gv-signin-modal" class="gv-modal" hidden>
-    <div class="gv-modal-backdrop" data-close-signin></div>
-    <section class="gv-modal-card" role="dialog" aria-modal="true" aria-labelledby="gv-signin-title">
-      <button class="gv-modal-close" type="button" data-close-signin aria-label="Close profile options">×</button>
-      <p class="gv-eyebrow gv-eyebrow-dark">Optional profile</p>
-      <h2 id="gv-signin-title">Personalize Globevoy</h2>
-      <p>Create a lightweight profile to remember travel preferences in this browser, or continue without one.</p>
-      <div class="gv-modal-actions">
-        <a class="gv-search-submit" href="create-account.html">Create travel profile</a>
-        <button class="gv-guest-action" type="button" data-close-signin>Continue as guest</button>
-      </div>
-      <p class="gv-modal-note">Your profile can store passport nationality and residence country—not passport numbers, document scans or payment details.</p>
-    </section>
-  </div>
-
-  <script src="./runtime/environment-policy.js?v=main-release-1"></script>
-<script src="./scripts/shell-670f.js?v=fe-r3-1b"></script>
-  <script src="./runtime/config.js"></script>
-  <script src="./runtime/supported-origins.js"></script>
-  <script src="./runtime/budget-model.js"></script>
-  <script src="./runtime/api-client.js"></script>
-  <script src="./runtime/discovery-data-500.js"></script>
-<script src="./scripts/city-images-673c.js?v=673f-r2"></script>
-  <script src="./runtime/multicity-explorer/feature-flags.js"></script>
-  <script src="./scripts/home-live-674a.js?v=680b-r1"></script>
-  <script src="./scripts/home-slideshow-631b.js?v=631b-r3"></script>
-  <script src="./scripts/home-ideas-geolocation.js?v=654a-r1"></script>
-  <script src="./scripts/home-profile-672a.js?v=672a"></script>
+<script src="./runtime/environment-policy.js?v=main-release-1"></script>
+<script src="./runtime/config.js"></script>
+<script src="./runtime/auth-config-705b-r3.js"></script>
+<script src="./scripts/auth-session-705b-r3.js"></script>
+<script src="./scripts/trip-search.js?v=gv2-1"></script>
+<script src="./scripts/home.js?v=gv2-1"></script>
 </body>
 </html>
