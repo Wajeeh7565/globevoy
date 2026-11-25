@@ -85,6 +85,23 @@ test('a trip that fails its live check is replaced by the next pool trip', async
   assert.ok(r.tours.length >= Math.min(3, r.poolSize - 1), 'filled from the pool');
 });
 
+// GV-POOL-002: a page that needs 3 trips checks 2 spares in the same round, so one
+// failure does not cost another 10-15 s round (live, Nov 25: two pages hit the time limit).
+test('spare trips: one failure is covered in the same round; never more than 8 checks; guests get no spares', async () => {
+  const f = fixture();
+  let n = 0;
+  const flakyFlights = async t => { n++; return n === 1 ? { tour: t, summary: { applied: false, reason: 'provider-unavailable' } } : liveFlights(t); };
+  const r = await poolRequest(f, {}, { flights: flakyFlights });
+  assert.ok(r.poolSize >= 5, 'fixture pool is big enough to test spares');
+  assert.equal(r.diagnostics.poolRounds, 1, 'filled in one round');
+  assert.equal(r.tours.length, 3);
+  assert.ok(r.diagnostics.poolChecks <= 8);
+  const none = await poolRequest(fixture(), { poolSpare: '0' });
+  assert.ok(none.diagnostics.poolChecks <= 3, 'poolSpare=0 checks only what it needs when all pass');
+  const guest = await poolRequest(fixture(), { poolShow: '1' });
+  assert.equal(guest.diagnostics.poolChecks, 1, 'a guest needs one trip and gets no spare checks');
+});
+
 test('the old per-option requests are unchanged by pool mode', async () => {
   const f = fixture();
   const old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';

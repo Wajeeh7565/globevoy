@@ -1,6 +1,7 @@
 {
  "engine": "GV-FAREMAP-BEAM-004",
  "env": {},
+ "spare": 2,
  "quick": false,
  "limits": {
   "detour": 1.25,
@@ -17,9 +18,11 @@
   "variety": 98,
   "oddBestRate": 0,
   "oddShownRate": 0,
-  "liveFailureRate": 20,
-  "avgChecks": 3.1,
-  "avgMs": 138,
+  "liveFailureRate": 18,
+  "avgChecks": 4.1,
+  "avgRounds": 0.84,
+  "slowPageRate": 0,
+  "avgMs": 160,
   "flagCounts": {},
   "byBudget": {
    "800": {
@@ -74,6 +77,7 @@
    "poolRoutes": [],
    "shown": 0,
    "checks": 0,
+   "rounds": 0,
    "liveFailures": 0,
    "noTrip": true,
    "best": null,
@@ -87,7 +91,7 @@
    "maxNights": 0,
    "reads": 66,
    "completeRoutes": 88,
-   "ms": 457
+   "ms": 440
   },
   {
    "id": "YTO-1500-1A",
@@ -110,6 +114,7 @@
    ],
    "shown": 3,
    "checks": 5,
+   "rounds": 1,
    "liveFailures": 2,
    "noTrip": false,
    "best": {
@@ -139,7 +144,7 @@
    "maxNights": 5,
    "reads": 96,
    "completeRoutes": 161,
-   "ms": 127
+   "ms": 117
   },
   {
    "id": "YTO-2500-1A",
@@ -155,8 +160,9 @@
     "pittsburgh-us>cincinnati-us"
    ],
    "shown": 3,
-   "checks": 4,
-   "liveFailures": 1,
+   "checks": 5,
+   "rounds": 1,
+   "liveFailures": 2,
    "noTrip": false,
    "best": {
     "route": "Pittsburgh > Louisville",
@@ -185,7 +191,7 @@
    "maxNights": 8,
    "reads": 96,
    "completeRoutes": 119,
-   "ms": 125
+   "ms": 127
   },
   {
    "id": "YTO-4000-1A",
@@ -209,6 +215,7 @@
    ],
    "shown": 3,
    "checks": 5,
+   "rounds": 1,
    "liveFailures": 2,
    "noTrip": false,
    "best": {
@@ -238,7 +245,7 @@
    "maxNights": 14,
    "reads": 96,
    "completeRoutes": 161,
-   "ms": 135
+   "ms": 147
   },
   {
    "id": "YTO-10000-1A",
@@ -261,7 +268,8 @@
     "philadelphia-us>asheville-us"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -291,7 +299,7 @@
    "maxNights": 20,
    "reads": 96,
    "completeRoutes": 129,
-   "ms": 137
+   "ms": 192
   },
   {
    "id": "YVR-800-1A",
@@ -302,6 +310,7 @@
    "poolRoutes": [],
    "shown": 0,
    "checks": 0,
+   "rounds": 0,
    "liveFailures": 0,
    "noTrip": true,
    "best": null,
@@ -315,7 +324,7 @@
    "maxNights": 0,
    "reads": 63,
    "completeRoutes": 76,
-   "ms": 211
+   "ms": 299
   },
   {
    "id": "YVR-1500-1A",
@@ -332,7 +341,8 @@
     "portland-us-pdx"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -362,7 +372,7 @@
    "maxNights": 4,
    "reads": 96,
    "completeRoutes": 158,
-   "ms": 143
+   "ms": 112
   },
   {
    "id": "YVR-2500-1A",
@@ -385,7 +395,8 @@
     "bozeman-us"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -415,7 +426,7 @@
    "maxNights": 7,
    "reads": 96,
    "completeRoutes": 131,
-   "ms": 119
+   "ms": 147
   },
   {
    "id": "YVR-4000-1A",
@@ -438,8 +449,9 @@
     "marrakech-ma>perugia-it"
    ],
    "shown": 3,
-   "checks": 3,
-   "liveFailures": 0,
+   "checks": 5,
+   "rounds": 1,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
     "route": "Mexico City > Flagstaff",
@@ -468,7 +480,7 @@
    "maxNights": 13,
    "reads": 96,
    "completeRoutes": 117,
-   "ms": 121
+   "ms": 197
   },
   {
    "id": "YVR-10000-1A",
@@ -491,7 +503,8 @@
     "victoria-ca>kelowna-ca>juneau-us"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -521,7 +534,7 @@
    "maxNights": 19,
    "reads": 96,
    "completeRoutes": 111,
-   "ms": 125
+   "ms": 211
   },
   {
    "id": "BOS-800-1A",
@@ -532,6 +545,7 @@
    "poolRoutes": [],
    "shown": 0,
    "checks": 0,
+   "rounds": 0,
    "liveFailures": 0,
    "noTrip": true,
    "best": null,
@@ -545,7 +559,7 @@
    "maxNights": 0,
    "reads": 65,
    "completeRoutes": 84,
-   "ms": 178
+   "ms": 278
   },
   {
    "id": "BOS-1500-1A",
@@ -566,6 +580,7 @@
    ],
    "shown": 3,
    "checks": 5,
+   "rounds": 1,
    "liveFailures": 2,
    "noTrip": false,
    "best": {
@@ -595,7 +610,7 @@
    "maxNights": 5,
    "reads": 96,
    "completeRoutes": 146,
-   "ms": 111
+   "ms": 122
   },
   {
    "id": "BOS-2500-1A",
@@ -617,6 +632,7 @@
    ],
    "shown": 3,
    "checks": 5,
+   "rounds": 1,
    "liveFailures": 2,
    "noTrip": false,
    "best": {
@@ -646,7 +662,7 @@
    "maxNights": 8,
    "reads": 96,
    "completeRoutes": 109,
-   "ms": 202
+   "ms": 134
   },
   {
    "id": "BOS-4000-1A",
@@ -669,7 +685,8 @@
     "marrakech-ma>tenerife-es"
    ],
    "shown": 3,
-   "checks": 4,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 1,
    "noTrip": false,
    "best": {
@@ -699,7 +716,7 @@
    "maxNights": 14,
    "reads": 96,
    "completeRoutes": 153,
-   "ms": 125
+   "ms": 155
   },
   {
    "id": "BOS-10000-1A",
@@ -722,7 +739,8 @@
     "belfast-gb>lille-fr"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -752,7 +770,7 @@
    "maxNights": 20,
    "reads": 96,
    "completeRoutes": 118,
-   "ms": 128
+   "ms": 147
   },
   {
    "id": "NYC-800-1A",
@@ -763,6 +781,7 @@
    "poolRoutes": [],
    "shown": 0,
    "checks": 0,
+   "rounds": 0,
    "liveFailures": 0,
    "noTrip": true,
    "best": null,
@@ -776,7 +795,7 @@
    "maxNights": 0,
    "reads": 70,
    "completeRoutes": 94,
-   "ms": 172
+   "ms": 186
   },
   {
    "id": "NYC-1500-1A",
@@ -798,6 +817,7 @@
    ],
    "shown": 3,
    "checks": 5,
+   "rounds": 1,
    "liveFailures": 2,
    "noTrip": false,
    "best": {
@@ -827,7 +847,7 @@
    "maxNights": 5,
    "reads": 96,
    "completeRoutes": 158,
-   "ms": 103
+   "ms": 152
   },
   {
    "id": "NYC-2500-1A",
@@ -850,8 +870,9 @@
     "new-haven-us>boston-us"
    ],
    "shown": 3,
-   "checks": 4,
-   "liveFailures": 1,
+   "checks": 5,
+   "rounds": 1,
+   "liveFailures": 2,
    "noTrip": false,
    "best": {
     "route": "Philadelphia > Toronto",
@@ -880,7 +901,7 @@
    "maxNights": 9,
    "reads": 96,
    "completeRoutes": 108,
-   "ms": 104
+   "ms": 154
   },
   {
    "id": "NYC-4000-1A",
@@ -903,8 +924,9 @@
     "new-haven-us>buffalo-us>toronto-ca"
    ],
    "shown": 3,
-   "checks": 3,
-   "liveFailures": 0,
+   "checks": 5,
+   "rounds": 1,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
     "route": "Tangier > Ouarzazate",
@@ -933,7 +955,7 @@
    "maxNights": 14,
    "reads": 96,
    "completeRoutes": 152,
-   "ms": 143
+   "ms": 190
   },
   {
    "id": "NYC-10000-1A",
@@ -956,7 +978,8 @@
     "new-haven-us>buffalo-us>campeche-mx"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -986,7 +1009,7 @@
    "maxNights": 19,
    "reads": 96,
    "completeRoutes": 128,
-   "ms": 129
+   "ms": 185
   },
   {
    "id": "LON-800-1A",
@@ -997,6 +1020,7 @@
    "poolRoutes": [],
    "shown": 0,
    "checks": 0,
+   "rounds": 0,
    "liveFailures": 0,
    "noTrip": true,
    "best": null,
@@ -1010,7 +1034,7 @@
    "maxNights": 0,
    "reads": 87,
    "completeRoutes": 102,
-   "ms": 182
+   "ms": 207
   },
   {
    "id": "LON-1500-1A",
@@ -1033,7 +1057,8 @@
     "cambridge-gb"
    ],
    "shown": 3,
-   "checks": 4,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 1,
    "noTrip": false,
    "best": {
@@ -1063,7 +1088,7 @@
    "maxNights": 6,
    "reads": 96,
    "completeRoutes": 119,
-   "ms": 114
+   "ms": 154
   },
   {
    "id": "LON-2500-1A",
@@ -1087,6 +1112,7 @@
    ],
    "shown": 3,
    "checks": 5,
+   "rounds": 1,
    "liveFailures": 2,
    "noTrip": false,
    "best": {
@@ -1116,7 +1142,7 @@
    "maxNights": 11,
    "reads": 96,
    "completeRoutes": 72,
-   "ms": 127
+   "ms": 169
   },
   {
    "id": "LON-4000-1A",
@@ -1139,7 +1165,8 @@
     "sousse-tn>turin-it"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1169,7 +1196,7 @@
    "maxNights": 17,
    "reads": 96,
    "completeRoutes": 62,
-   "ms": 99
+   "ms": 96
   },
   {
    "id": "LON-10000-1A",
@@ -1192,7 +1219,8 @@
     "rotterdam-nl>salzburg-at"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1222,7 +1250,7 @@
    "maxNights": 17,
    "reads": 96,
    "completeRoutes": 62,
-   "ms": 129
+   "ms": 106
   },
   {
    "id": "LHE-800-1A",
@@ -1236,6 +1264,7 @@
    ],
    "shown": 2,
    "checks": 2,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1264,7 +1293,7 @@
    "maxNights": 5,
    "reads": 71,
    "completeRoutes": 100,
-   "ms": 101
+   "ms": 130
   },
   {
    "id": "LHE-1500-1A",
@@ -1286,7 +1315,8 @@
     "jaipur-in"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1316,7 +1346,7 @@
    "maxNights": 8,
    "reads": 96,
    "completeRoutes": 146,
-   "ms": 123
+   "ms": 131
   },
   {
    "id": "LHE-2500-1A",
@@ -1339,8 +1369,9 @@
     "delhi-in>hualien-tw"
    ],
    "shown": 3,
-   "checks": 4,
-   "liveFailures": 1,
+   "checks": 5,
+   "rounds": 1,
+   "liveFailures": 2,
    "noTrip": false,
    "best": {
     "route": "Delhi > Langkawi",
@@ -1369,7 +1400,7 @@
    "maxNights": 14,
    "reads": 96,
    "completeRoutes": 97,
-   "ms": 132
+   "ms": 174
   },
   {
    "id": "LHE-4000-1A",
@@ -1392,7 +1423,8 @@
     "delhi-in>langkawi-my"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1422,7 +1454,7 @@
    "maxNights": 19,
    "reads": 96,
    "completeRoutes": 159,
-   "ms": 123
+   "ms": 147
   },
   {
    "id": "LHE-10000-1A",
@@ -1445,7 +1477,8 @@
     "delhi-in>langkawi-my"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1475,7 +1508,7 @@
    "maxNights": 21,
    "reads": 96,
    "completeRoutes": 116,
-   "ms": 117
+   "ms": 143
   },
   {
    "id": "ADD-800-1A",
@@ -1486,6 +1519,7 @@
    "poolRoutes": [],
    "shown": 0,
    "checks": 0,
+   "rounds": 0,
    "liveFailures": 0,
    "noTrip": true,
    "best": null,
@@ -1499,7 +1533,7 @@
    "maxNights": 0,
    "reads": 67,
    "completeRoutes": 89,
-   "ms": 162
+   "ms": 247
   },
   {
    "id": "ADD-1500-1A",
@@ -1522,7 +1556,8 @@
     "arusha-tz"
    ],
    "shown": 3,
-   "checks": 4,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 1,
    "noTrip": false,
    "best": {
@@ -1552,7 +1587,7 @@
    "maxNights": 7,
    "reads": 96,
    "completeRoutes": 135,
-   "ms": 101
+   "ms": 170
   },
   {
    "id": "ADD-2500-1A",
@@ -1575,7 +1610,8 @@
     "mombasa-ke>maputo-mz"
    ],
    "shown": 3,
-   "checks": 4,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 1,
    "noTrip": false,
    "best": {
@@ -1605,7 +1641,7 @@
    "maxNights": 12,
    "reads": 96,
    "completeRoutes": 108,
-   "ms": 123
+   "ms": 117
   },
   {
    "id": "ADD-4000-1A",
@@ -1628,7 +1664,8 @@
     "hurghada-eg>sharm-el-sheikh-eg>berlin-de"
    ],
    "shown": 3,
-   "checks": 4,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 1,
    "noTrip": false,
    "best": {
@@ -1658,7 +1695,7 @@
    "maxNights": 23,
    "reads": 96,
    "completeRoutes": 118,
-   "ms": 116
+   "ms": 103
   },
   {
    "id": "ADD-10000-1A",
@@ -1681,7 +1718,8 @@
     "hurghada-eg>sharm-el-sheikh-eg>oxford-gb"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1711,7 +1749,7 @@
    "maxNights": 22,
    "reads": 96,
    "completeRoutes": 91,
-   "ms": 132
+   "ms": 100
   },
   {
    "id": "DXB-800-1A",
@@ -1722,6 +1760,7 @@
    "poolRoutes": [],
    "shown": 0,
    "checks": 0,
+   "rounds": 0,
    "liveFailures": 0,
    "noTrip": true,
    "best": null,
@@ -1735,7 +1774,7 @@
    "maxNights": 0,
    "reads": 72,
    "completeRoutes": 74,
-   "ms": 174
+   "ms": 181
   },
   {
    "id": "DXB-1500-1A",
@@ -1754,7 +1793,8 @@
     "abu-dhabi-ae"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1784,7 +1824,7 @@
    "maxNights": 7,
    "reads": 96,
    "completeRoutes": 119,
-   "ms": 93
+   "ms": 163
   },
   {
    "id": "DXB-2500-1A",
@@ -1807,7 +1847,8 @@
     "sharjah-ae>lalibela-et"
    ],
    "shown": 3,
-   "checks": 4,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 1,
    "noTrip": false,
    "best": {
@@ -1837,7 +1878,7 @@
    "maxNights": 12,
    "reads": 96,
    "completeRoutes": 93,
-   "ms": 107
+   "ms": 101
   },
   {
    "id": "DXB-4000-1A",
@@ -1860,7 +1901,8 @@
     "ras-al-khaimah-ae>al-ain-ae>sharm-el-sheikh-eg"
    ],
    "shown": 3,
-   "checks": 4,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 1,
    "noTrip": false,
    "best": {
@@ -1890,7 +1932,7 @@
    "maxNights": 19,
    "reads": 96,
    "completeRoutes": 147,
-   "ms": 124
+   "ms": 109
   },
   {
    "id": "DXB-10000-1A",
@@ -1913,7 +1955,8 @@
     "rize-tr>budapest-hu"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -1943,7 +1986,7 @@
    "maxNights": 24,
    "reads": 96,
    "completeRoutes": 111,
-   "ms": 147
+   "ms": 126
   },
   {
    "id": "YTO-4000-2A",
@@ -1966,7 +2009,8 @@
     "pittsburgh-us>cincinnati-us"
    ],
    "shown": 3,
-   "checks": 4,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 1,
    "noTrip": false,
    "best": {
@@ -1996,7 +2040,7 @@
    "maxNights": 15,
    "reads": 96,
    "completeRoutes": 185,
-   "ms": 106
+   "ms": 104
   },
   {
    "id": "YVR-4000-2A",
@@ -2019,7 +2063,8 @@
     "eugene-us>las-vegas-us"
    ],
    "shown": 3,
-   "checks": 3,
+   "checks": 5,
+   "rounds": 1,
    "liveFailures": 0,
    "noTrip": false,
    "best": {
@@ -2049,7 +2094,7 @@
    "maxNights": 11,
    "reads": 96,
    "completeRoutes": 169,
-   "ms": 106
+   "ms": 104
   },
   {
    "id": "BOS-4000-2A",
@@ -2073,6 +2118,7 @@
    ],
    "shown": 3,
    "checks": 5,
+   "rounds": 1,
    "liveFailures": 2,
    "noTrip": false,
    "best": {
@@ -2102,7 +2148,7 @@
    "maxNights": 14,
    "reads": 96,
    "completeRoutes": 179,
-   "ms": 129
+   "ms": 113
   },
   {
    "id": "NYC-4000-2A",
@@ -2126,6 +2172,7 @@
    ],
    "shown": 3,
    "checks": 5,
+   "rounds": 1,
    "liveFailures": 2,
    "noTrip": false,
    "best": {
@@ -2155,7 +2202,7 @@
    "maxNights": 13,
    "reads": 96,
    "completeRoutes": 177,
-   "ms": 121
+   "ms": 137
   }
  ]
 }

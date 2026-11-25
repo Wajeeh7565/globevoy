@@ -12,6 +12,7 @@
 //   node tests/performance/recommendation-benchmark.cjs --quick            small set (CI smoke)
 //   --save/--compare <name>: 'baseline' is tests/performance/fixtures/recommendation-baseline.json,
 //   any other name goes to .cache/benchmark/<name>.json
+//   ... --spare 0                                              live-check without spare trips
 //   ... --env FARE_MAP_BIG_BUDGET=off                          try a setting
 //
 // Everything is deterministic: same code + same settings => same numbers.
@@ -38,6 +39,7 @@ function args() {
     else if (a[i] === '--compare') o.compare = a[++i];
     else if (a[i] === '--quick') o.quick = true;
     else if (a[i] === '--json') o.json = true;
+    else if (a[i] === '--spare') o.spare = Number(a[++i]);
     else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); }
   }
   return o;
@@ -106,20 +108,27 @@ function quality(t, origin) {
   return { detour: +detour.toFixed(2), spreadKm: Math.round(spread), regions: families.size, longLegHours: +longLeg.toFixed(1), flags };
 }
 
-// Mirrors generated-tour pool mode: walk the pool in order, live-check at most 8,
-// keep up to 3 that fit, label the highest-use one "best".
-function simulatePage(pool, spendableUsd, want = 3, maxChecks = 8) {
-  const shown = []; let checks = 0, failed = 0;
-  for (const t of pool) {
-    if (shown.length >= want || checks >= maxChecks) break;
-    checks++;
-    const live = liveTotalUsd(t);
-    if (live > spendableUsd) { failed++; continue; }
-    shown.push({ t, live, use: live / (spendableUsd / 0.9) });
+// Mirrors generated-tour pool mode: check the pool in order, a round at a time
+// (the trips still needed plus `spare` extra when more than one is wanted), at most
+// 8 checks; keep up to `want` that fit; label the highest-use one "best".
+// A round is one wait for live prices (~10-15 s live), so fewer rounds = faster page.
+function simulatePage(pool, spendableUsd, want = 3, maxChecks = 8, spare = SPARE) {
+  const shown = []; let checks = 0, failed = 0, rounds = 0, i = 0;
+  while (shown.length < want && i < pool.length && checks < maxChecks) {
+    const n = Math.min(want - shown.length + (want > 1 ? spare : 0), maxChecks - checks, pool.length - i);
+    rounds++;
+    for (const t of pool.slice(i, i + n)) {
+      checks++;
+      const live = liveTotalUsd(t);
+      if (live > spendableUsd) { failed++; continue; }
+      if (shown.length < want) shown.push({ t, live, use: live / (spendableUsd / 0.9) });
+    }
+    i += n;
   }
   shown.sort((a, b) => b.use - a.use);
-  return { shown, checks, failed };
+  return { shown, checks, failed, rounds };
 }
+let SPARE = 2;
 
 function originInfo(name) {
   const c = name.match(/\(([A-Z]{3})\)/)[1];
@@ -142,7 +151,7 @@ async function runOne(originName, budgetCad, adults, env) {
   return {
     id: `${origin.code}-${budgetCad}-${adults}A`, origin: originName, budgetCad, adults,
     poolSize: pool.length, poolRoutes: pool.map(routeKey),
-    shown: page.shown.length, checks: page.checks, liveFailures: page.failed,
+    shown: page.shown.length, checks: page.checks, rounds: page.rounds, liveFailures: page.failed,
     noTrip: page.shown.length === 0,
     best: best ? { route: best.t.stops.map(s => s.city).join(' > '), nights: best.t.totalNights, cities: best.t.stops.length, use: +best.use.toFixed(3), quality: q(best.t) } : null,
     shownUse: page.shown.map(s => +s.use.toFixed(3)),
@@ -182,21 +191,24 @@ function summarise(cases) {
     oddShownRate: pct(cases.reduce((s, c) => s + c.oddShown, 0) / Math.max(1, shownTrips)),
     liveFailureRate: pct(cases.reduce((s, c) => s + c.liveFailures, 0) / Math.max(1, cases.reduce((s, c) => s + c.checks, 0))),
     avgChecks: +mean(cases.map(c => c.checks)).toFixed(1),
+    avgRounds: +mean(cases.map(c => c.rounds)).toFixed(2),
+    slowPageRate: pct(cases.filter(c => c.rounds > 2).length / cases.length),
     avgMs: Math.round(mean(cases.map(c => c.ms))),
     flagCounts, byBudget
   };
 }
 const HIGHER = ['tripFoundRate', 'fullPageRate', 'bestUseInBand', 'variety'];
-const LOWER = ['oddBestRate', 'oddShownRate', 'liveFailureRate', 'avgChecks'];
+const LOWER = ['oddBestRate', 'oddShownRate', 'liveFailureRate', 'avgChecks', 'avgRounds', 'slowPageRate'];
 const TOLERANCE = 2; // percentage points / checks treated as noise-free but rounding-safe
 
 function compare(now, base) {
   const rows = [], worse = [];
   for (const k of [...HIGHER, ...LOWER, 'bestUse', 'avgMs']) {
     const a = base.summary[k], b = now.summary[k];
+    if (a === undefined) { rows.push([k, '-', b, 'new']); continue; }
     let verdict = 'same';
     if (b !== a) verdict = (HIGHER.includes(k) ? b > a : LOWER.includes(k) ? b < a : null) === true ? 'better' : (HIGHER.includes(k) || LOWER.includes(k)) ? 'worse' : 'changed';
-    if (verdict === 'worse' && Math.abs(b - a) > (k === 'avgChecks' ? 0.5 : TOLERANCE)) worse.push(k);
+    if (verdict === 'worse' && Math.abs(b - a) > (k === 'avgChecks' ? 1 : k === 'avgRounds' ? 0.2 : TOLERANCE)) worse.push(k);
     rows.push([k, a, b, verdict]);
   }
   const changed = now.cases.filter(c => { const o = base.cases.find(x => x.id === c.id); return o && (o.best?.route || '-') !== (c.best?.route || '-'); }).map(c => { const o = base.cases.find(x => x.id === c.id); return `${c.id}: ${o.best?.route || 'no trip'} -> ${c.best?.route || 'no trip'}`; });
@@ -211,7 +223,7 @@ function print(result, cmp) {
   L.push(`  best uses budget  ${s.bestUse}% avg   in 70-100% band ${s.bestUseInBand}%`);
   L.push(`  variety           ${s.variety}% different cities across shown trips`);
   L.push(`  odd routes        best pick ${s.oddBestRate}%   all shown ${s.oddShownRate}%   ${JSON.stringify(s.flagCounts)}`);
-  L.push(`  live failures     ${s.liveFailureRate}% of checks   avg ${s.avgChecks} checks/search   avg ${s.avgMs} ms`);
+  L.push(`  live failures     ${s.liveFailureRate}% of checks   avg ${s.avgChecks} checks and ${s.avgRounds} rounds/search, ${s.slowPageRate}% need 3+ rounds   avg ${s.avgMs} ms`);
   L.push('  by budget (1 adult): ' + Object.entries(s.byBudget).map(([b, v]) => `C$${b}: ${v.withTrip}/${v.searches} found, use ${v.bestUse}%, ${v.bestCities} cities, ${v.bestNights} nights, odd best ${v.oddBest}`).join('\n                       '));
   const odd = result.cases.filter(c => c.best && c.best.quality.flags.length);
   if (odd.length) { L.push('  odd best picks:'); for (const c of odd) L.push(`    ${c.id.padEnd(16)} ${c.best.route}  [${c.best.quality.flags.join(', ')}; spread ${c.best.quality.spreadKm} km, longest leg ${c.best.quality.longLegHours} h]`); }
@@ -227,11 +239,12 @@ function print(result, cmp) {
 
 async function main() {
   const o = args();
+  if (Number.isFinite(o.spare)) SPARE = o.spare;
   const list = o.quick ? QUICK : [...ORIGINS.flatMap(x => BUDGETS_CAD.map(b => [x, b, 1])), ...ORIGINS.slice(0, 4).map(x => [x, 4000, 2])];
   ORIGIN_CODES = [...new Set(list.map(([x]) => originInfo(x).code))];
   const cases = [];
   for (const [x, b, a] of list) cases.push(await runOne(x, b, a, o.env));
-  const result = { engine: opt.VERSION, env: o.env, quick: !!o.quick, limits: LIMITS, summary: summarise(cases), cases };
+  const result = { engine: opt.VERSION, env: o.env, spare: SPARE, quick: !!o.quick, limits: LIMITS, summary: summarise(cases), cases };
   // A saved baseline is a checked-in fixture; any other saved run is local output.
   const file = name => name === 'baseline' ? path.join(__dirname, 'fixtures', 'recommendation-baseline.json') : path.join(root, '.cache', 'benchmark', name + '.json');
   let cmp = null;

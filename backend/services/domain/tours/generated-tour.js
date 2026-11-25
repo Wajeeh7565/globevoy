@@ -3666,12 +3666,18 @@ async function getFareMapGeneratedTour(query,options) {
   if(/^(1|true|yes)$/i.test(String(query.pool||''))){
     const want=Math.min(3,Math.max(1,Number(query.poolShow)||3));
     const queue=(result.pool||[]).filter(t=>!excluded.has(tripKey(t)));
-    const shown=[];let checks=0;
+    const shown=[];let checks=0,rounds=0,spareOk=0;
     while(shown.length<want&&queue.length&&checks<8){
       if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
-      const batch=queue.splice(0,Math.min(want-shown.length,8-checks));checks+=batch.length;
+      // GV-POOL-002: about 1 in 5 trips fails its live check, and each round of checks
+      // takes ~10-15 s, so a page that needs 3 trips checks 2 spare trips in the same
+      // round instead of waiting for another one. Still at most 8 checks per search.
+      const need=want-shown.length,spare=want>1?Math.min(2,Number(query.poolSpare??2)||0):0;
+      const batch=queue.splice(0,Math.min(need+spare,8-checks));checks+=batch.length;rounds++;
       const results=await Promise.all(batch.map(async t=>{const flights=await attempt(t);if(flights.reason)return {reason:flights.reason};return build(t,flights,requireLive);}));
-      for(const r of results){liveAttempts.push(r.reason||'ok');if(!r.reason&&r.tour)shown.push(r);}
+      // A spare that passes but is not needed is not marked as shown, so the next
+      // "Show other trips" can still show it.
+      for(const r of results){liveAttempts.push(r.reason||'ok');if(!r.reason&&r.tour){if(shown.length<want)shown.push(r);else spareOk++;}}
     }
     const useOf=r=>Number(r.tour.estimatedTotalUsd)/Math.max(1,Number(r.tour.usableTripBudgetUsd));
     const labelled=shown.map(r=>({...r,role:'most-memorable'}));
@@ -3683,7 +3689,7 @@ async function getFareMapGeneratedTour(query,options) {
     const order=['best-balance','lowest-cost','most-memorable'];
     labelled.sort((a,b)=>order.indexOf(a.role)-order.indexOf(b.role));
     const tours=labelled.map(r=>({...r.tour,tourRole:r.role,tourRoleLabel:LABEL[r.role],fareMapRole:r.role,budgetUse:Number(useOf(r).toFixed(3)),poolRank:r.source.poolRank,poolScore:r.source.poolScore}));
-    diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;diagnostics.poolChecks=checks;
+    diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;diagnostics.poolChecks=checks;diagnostics.poolRounds=rounds;diagnostics.poolSpareUnused=spareOk;
     const poolInfo={poolMode:true,poolSize:(result.pool||[]).length,poolRemaining:queue.length,poolShownRoutes:labelled.map(r=>tripKey(r.source))};
     if(!tours.length)return {...empty(liveAttempts.at(-1)||'fare-map-no-route'),...poolInfo,diagnostics:{...result.diagnostics,...diagnostics}};
     return {...result,...poolInfo,tour:tours[0],tours,diagnostics};
