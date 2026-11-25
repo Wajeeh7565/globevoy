@@ -134,6 +134,11 @@ exports.handler = async function handler(event) {
     };
   }
 
+  // GV-ANALYTICS-9A: recommendation feedback; always 204, records only when approved.
+  if (path === '/api/trip-feedback') {
+    return require('./services/analytics/trip-feedback').handle(event, { corsHeaders: corsHeaders() });
+  }
+
   if (path === '/api/flex-windows') {
     if (process.env.GLOBEVOY_FLEX_DATES !== 'true') {
       return { statusCode: 200, headers: corsHeaders(), body: JSON.stringify({ supported: false, reason: 'feature-disabled' }) };

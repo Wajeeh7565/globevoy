@@ -168,8 +168,18 @@
       : '';
   }
 
-  function selectTrip(i) {
+  // GV-ANALYTICS-9A: what the traveller did with the trips shown (view, book, save, or
+  // "show other trips" = not these). Sent only when the backend has feedback enabled.
+  function feedback(action, i = active) {
+    const t = trips[i];
+    if (!t || savedView || !(window.GlobevoyApi && window.GlobevoyApi.sendTripFeedback)) return;
+    const cities = (t.tour?.cities || t.tour?.stops || []).map(c => c.cityId || c.id).filter(Boolean).slice(0, 4);
+    window.GlobevoyApi.sendTripFeedback({ sid: S.pageSid, action, role: t.role || t.tour?.tourRole || 'none', rank: i + 1, cities, page: (Number(new URLSearchParams(location.search).get('more')) || 0) + 1 });
+  }
+
+  function selectTrip(i, byUser = true) {
     if (!trips[i]) return;
+    if (byUser && i !== active) feedback('view', i);
     active = i;
     $$('.option-tab').forEach((b, n) => { b.setAttribute('aria-selected', String(n === i)); b.tabIndex = n === i ? 0 : -1; });
     view = trips[i].view;
@@ -203,6 +213,7 @@
     $('#summary-note').textContent = 'You confirm the final price when you book with the airline and hotel.';
     $('#summary-origin').textContent = [v.origin.name, v.origin.country].filter(Boolean).join(', ');
     $('#book').href = S.tripDetailsUrl(tour, search);
+    $('#book').onclick = () => feedback('book_click');
     window.__gvGeneratedTour = tour;
     const save = $('#mcv-save-trip');
     if (save && !savedView) { save.textContent = 'Save'; save.setAttribute('aria-pressed', 'false'); save.classList.remove('is-saved'); }
@@ -600,6 +611,7 @@
     $('#mcv-save-trip').addEventListener('click', () => {
       if (!view) return;
       S.saveInBrowser(view.tour, search);
+      feedback('save');
       const b = $('#mcv-save-trip');
       // Signed in: the saved-trips runtime takes over and reports "Saved to account".
       if (!(member && window.GlobevoySavedTrips705C?.enabled?.())) { b.textContent = 'Saved ✓'; b.classList.add('is-saved'); b.setAttribute('aria-pressed', 'true'); }
@@ -672,6 +684,7 @@
     a.className = 'btn show-more-trips';
     a.href = url.toString();
     a.textContent = 'Show other trips';
+    a.addEventListener('click', () => trips.forEach((_, i) => feedback('show_other', i)));
     note.textContent = '';
     note.appendChild(a);
   }

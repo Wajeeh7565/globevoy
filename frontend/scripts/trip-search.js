@@ -47,8 +47,16 @@
     };
   }
 
+  // GV-ANALYTICS-9A: a random reference for this page view only (not stored anywhere in
+  // the browser), sent with the search and with feedback clicks so the two can be linked.
+  const PAGE_SID = (() => {
+    try { if (crypto.randomUUID) return crypto.randomUUID(); } catch (_) {}
+    return Array.from({ length: 4 }, () => Math.random().toString(36).slice(2, 10)).join('-');
+  })();
+
   function apiParams(search, role, slot) {
     const p = {
+      sid: PAGE_SID,
       mode: 'generated-tour',
       recommendationScope: 'generated-multicity-tour',
       origin: search.origin,
@@ -315,6 +323,7 @@
   }
 
   window.GlobevoyTripSearch = Object.freeze({
+    pageSid: PAGE_SID,
     ROLES, CURRENCIES, PACES, resultsUrl, readSearch, apiParams, isMember, signIn, isFullyLive, findTrips, tripDetailsUrl, tripTotal, saveInBrowser, savedTrip
   });
 })();
