@@ -62,7 +62,7 @@ function createClient(options = {}) {
   const timeoutMs = Math.min(10000, Math.max(500, Number(options.timeoutMs) || 2500));
   const fetchFn = options.fetchFn || globalThis.fetch;
   const now = options.now || (() => Date.now());
-  const usage = { environment: sandbox ? 'sandbox' : 'production', calls: 0, maxCalls, refused: 0, stopped: null, log: [] };
+  const usage = { environment: sandbox ? 'sandbox' : 'production', calls: 0, maxCalls, timeoutMs, refused: 0, stopped: null, log: [] };
 
   async function call(endpoint, request = {}) {
     const started = now();

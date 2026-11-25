@@ -87,3 +87,9 @@ test('the module is not wired into user searches', () => {
   const r = spawnSync('git', ['grep', '-l', "jinko-discovery'", '--', 'backend'], { encoding: 'utf8' });
   assert.equal(r.stdout.trim(), '', 'no backend file requires jinko-discovery');
 });
+
+test('the check script prints the timeout it actually uses', () => {
+  const src = require('fs').readFileSync(require('path').join(__dirname, '../../ops/providers/jinko-discovery-check.mjs'), 'utf8');
+  assert.match(src, /timeout \$\{client\.usage\(\)\.timeoutMs \/ 1000\} s/);
+  assert.equal(createClient({ apiKey: 'jnk_sandbox_t_x', timeoutMs: 8000 }).usage().timeoutMs, 8000);
+});

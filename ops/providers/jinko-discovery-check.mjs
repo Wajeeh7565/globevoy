@@ -40,9 +40,8 @@ const key = process.env.JINKO_API_KEY || '';
 if (!key) { console.error('Set JINKO_API_KEY in your shell (sandbox keys start with jnk_sandbox_t_).'); process.exit(2); }
 const sandbox = key.startsWith('jnk_sandbox_');
 if (!sandbox && !flag('--production')) { console.error('This is a production key (billed). Add --production only after approval.'); process.exit(2); }
-console.log(`Jinko discovery check: ${sandbox ? 'SANDBOX (not billed)' : 'PRODUCTION (billed)'}, ${plan.length} call(s), timeout 2.5 s, no retries\n`);
-
 const client = createClient({ apiKey: key, allowProduction: !sandbox, maxCalls: plan.length, timeoutMs: Number(val('--timeout-ms', 2500)) });
+console.log(`Jinko discovery check: ${sandbox ? 'SANDBOX (not billed)' : 'PRODUCTION (billed)'}, ${plan.length} call(s), timeout ${client.usage().timeoutMs / 1000} s, no retries\n`);
 const age = t => (t ? Math.round((Date.now() - Date.parse(t)) / 3600e3) + ' h old' : 'no priced_at');
 for (const [endpoint, req] of plan) {
   const r = await client.call(endpoint, req);
