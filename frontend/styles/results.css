@@ -254,3 +254,4 @@ main:focus{outline:none}
 .show-more-trips:hover{border-color:var(--teal);background:#f3faf8}
 .show-more-trips:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
 .show-more-trips svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.jnote{display:block;margin-top:3px;font-size:12px;line-height:1.35;color:var(--muted);font-weight:400}
