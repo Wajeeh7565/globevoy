@@ -36,12 +36,41 @@ function hotelMargin(env=process.env){const m=Number(env.FARE_MAP_HOTEL_MARGIN);
 //          (weekends, holidays, seasons) relative to the city's median, clamped 0.7-1.8.
 // FARE_MAP_REGION_COLD_START=off turns the regional level off.
 const REGION_MIN_CITIES=3,REGION_QUANTILE=.75;
+// GV-HOTEL-MEM-002 study settings (defaults = current production behaviour):
+//   FARE_MAP_REGION_QUANTILE   0.5-0.9 (default 0.75): which percentile of a region's learned
+//                              ratios plans never-checked cities.
+//   HOTEL_MEMORY_CLEAN_SINCE   ISO time or ms; memory entries last updated before it are
+//                              "legacy" (learned before the budget-upgrade and property-fee fixes).
+//   HOTEL_MEMORY_LEGACY        trust (default) | shrink | regional | ignore
+//     trust:    use legacy entries as they are
+//     shrink:   legacy ratio keeps half its excess over 1 (1 + (r - 1) / 2)
+//     regional: legacy entries leave the regional calibration; a legacy city uses its region's
+//               clean level when one exists, else its own ratio shrunk
+//     ignore:   legacy entries are treated as never checked
+function regionQuantile(env=process.env){const q=Number(env.FARE_MAP_REGION_QUANTILE);return Number.isFinite(q)&&q>=.5&&q<=.9?q:REGION_QUANTILE;}
+function legacyRule(env=process.env){
+ const mode=String(env.HOTEL_MEMORY_LEGACY||'trust').trim().toLowerCase(),raw=String(env.HOTEL_MEMORY_CLEAN_SINCE||'').trim();
+ const since=/^\d+$/.test(raw)?Number(raw):Date.parse(raw);
+ return {mode:['shrink','regional','ignore'].includes(mode)&&Number.isFinite(since)?mode:'trust',since:Number.isFinite(since)?since:0};
+}
+const isLegacy=(hit,rule)=>rule.mode!=='trust'&&hit&&Number(hit.at||0)<rule.since;
 function regionRatios(ratios,rowList,env=process.env){
  const out=new Map();if(!ratios||!ratios.size||String(env.FARE_MAP_REGION_COLD_START||'').trim().toLowerCase()==='off')return out;
- const by=new Map();
- for(const row of rowList){const hit=ratios.get(hotelMemory._internal.attr(row.unifiedRegistry?.cityId));if(!hit)continue;const f=regionFamily(row);if(!by.has(f))by.set(f,[]);by.get(f).push(hit.ratio);}
- for(const [f,v] of by){if(v.length<REGION_MIN_CITIES)continue;v.sort((a,b)=>a-b);const i=(v.length-1)*REGION_QUANTILE,lo=Math.floor(i),hi=Math.ceil(i);out.set(f,{ratio:Number((v[lo]+(v[hi]-v[lo])*(i-lo)).toFixed(3)),cities:v.length});}
+ const rule=legacyRule(env),q=regionQuantile(env),by=new Map();
+ for(const row of rowList){const hit=ratios.get(hotelMemory._internal.attr(row.unifiedRegistry?.cityId));if(!hit)continue;
+  if(isLegacy(hit,rule)&&rule.mode!=='shrink')continue;
+  const r=isLegacy(hit,rule)?1+(hit.ratio-1)/2:hit.ratio;const f=regionFamily(row);if(!by.has(f))by.set(f,[]);by.get(f).push(r);}
+ for(const [f,v] of by){if(v.length<REGION_MIN_CITIES)continue;v.sort((a,b)=>a-b);const i=(v.length-1)*q,lo=Math.floor(i),hi=Math.ceil(i);out.set(f,{ratio:Number((v[lo]+(v[hi]-v[lo])*(i-lo)).toFixed(3)),cities:v.length});}
  return out;
+}
+// Level for one stay from memory: { level, kind } or null (=> regional level or margin).
+function memoryLevel(ratios,stop,regionLevels,env,rule=legacyRule(env)){
+ const hit=ratios&&ratios.get(hotelMemory._internal.attr(stop?.cityId));if(!hit)return null;
+ if(!isLegacy(hit,rule))return {level:Math.max(1,hit.ratio*1.05),kind:'learned'};
+ if(rule.mode==='ignore')return null;
+ const shrunk=Math.max(1,(1+(hit.ratio-1)/2)*1.05);
+ if(rule.mode==='regional'){const reg=regionLevels.get(stop?.regionFamily);return reg?{level:Math.max(1,reg.ratio),kind:'legacy-regional'}:{level:shrunk,kind:'legacy-shrunk'};}
+ return {level:shrunk,kind:'legacy-shrunk'};
 }
 function stayShape(index,stop){
  if(!index||!index.size)return null;const sum=index.get(stop?.cityId);if(!sum)return null;
@@ -366,8 +395,8 @@ async function search(query={},options={}){
       // Safe cost: flights plus hotels at the live-price margin; used to choose and rank.
       // A city with learned real-vs-model hotel prices (GV-HOTEL-MEMORY-001) uses its own
       // ratio, plus 5%, instead of the general margin.
-      const hotelFor=stop=>{const est=Number(stop?.hotel?.estimatedStayUsd)||0,learned=hotelMemory.ratioFor(options.hotelRatios,stop?.cityId);
-       let level;if(learned){diagnostics.learnedHotelCities=(diagnostics.learnedHotelCities||0)+1;level=Math.max(1,learned*1.05);}
+      const hotelFor=stop=>{const est=Number(stop?.hotel?.estimatedStayUsd)||0,mem=memoryLevel(options.hotelRatios,stop,regionLevels,env,memRule);
+       let level;if(mem){const k=mem.kind==='learned'?'learnedHotelCities':'legacyHotelCities';diagnostics[k]=(diagnostics[k]||0)+1;level=mem.level;}
        else{const reg=regionLevels.get(stop?.regionFamily);if(reg){diagnostics.regionHotelCities=(diagnostics.regionHotelCities||0)+1;level=Math.max(1,reg.ratio);}else level=margin;}
        const shape=stayShape(options.priceIndex,stop);if(shape!=null)diagnostics.priceIndexStays=(diagnostics.priceIndexStays||0)+1;
        return est*level*(shape??1);};
@@ -400,6 +429,7 @@ async function search(query={},options={}){
  let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[],stretchPool=[],cheapestOverUsd=null;
  // How far over the spendable budget the optional bigger-trip idea may go (about C$100-200).
  const margin=hotelMargin(env);diagnostics.hotelMargin=margin;
+ const memRule=legacyRule(env);
  const regionLevels=regionRatios(options.hotelRatios,all,env);diagnostics.regionHotelLevels=Object.fromEntries([...regionLevels].map(([k,v])=>[k,v.ratio]));
  const stretchUsd=Math.round(Math.min(150,Math.max(70,budget*.12)));
  const homeLinked=new Set(),outboundFrom=new Map();
@@ -505,4 +535,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,regionQuantile,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
