@@ -67,7 +67,7 @@ test('Ignav evidence in canonicalPricing/providerVerification shows as live with
   assert.equal(items[2].source, 'Live price · Ignav');
   assert.equal(items[2].price, 205);
   assert.equal(items[2].age, 'checked 2 min ago');
-  assert.equal(items[2].mainLabel, 'Book flight');
+  assert.equal(items[2].mainLabel, 'Compare flights');
 });
 
 test('bestLink prefers the airline, then exact flight, then cheapest; drops non-https', () => {
@@ -92,6 +92,15 @@ test('total matches the site total: extras line and reserve', () => {
 
 test('fresh Nuitee offer: Book this room → checkout; stale offer: hotel page', () => {
   const t = tour();
+  const hotel = t.cities[0].hotel;
+  const occupancy = Buffer.from(JSON.stringify([{ adults: 1, children: [] }])).toString('base64');
+  hotel.nuiteeHotelId = 'lp57def';
+  hotel.nuiteeLiveRate.checkin = hotel.checkIn;
+  hotel.nuiteeLiveRate.checkout = hotel.checkOut;
+  const property = new URL(hotel.nuiteeWhitelabel.url);
+  property.searchParams.set('checkout', hotel.checkOut);
+  property.searchParams.set('occupancies', occupancy);
+  hotel.nuiteeWhitelabel.url = property.toString();
   t.cities[0].hotel.nuiteeWhitelabel.checkoutUrl = 'https://wajeeh-4443-racp8.nuitee.link/booking?offerId=offer-1';
   t.cities[0].hotel.nuiteeWhitelabel.offerObservedAt = '2026-11-19T09:00:00Z';
   let { items } = v2.buildItems(t, now); // 10 min old
@@ -102,6 +111,13 @@ test('fresh Nuitee offer: Book this room → checkout; stale offer: hotel page',
   assert.equal(items[1].mainLabel, 'Book this hotel');
   assert.match(items[1].mainUrl, /\/hotels\/lp57def/);
   assert.equal(items[1].altUrl, '');
+  t.passengerPricing.adults = 2;
+  ({ items } = v2.buildItems(t, now));
+  assert.equal(items[1].mainLabel, 'Find a hotel', 'a different party cannot inherit the room offer');
+  t.passengerPricing.adults = 1;
+  t.cities[0].arrivalDate = '2026-12-04';
+  ({ items } = v2.buildItems(t, now));
+  assert.equal(items[1].mainLabel, 'Find a hotel', 'a changed arrival date cannot inherit the room offer');
 });
 
 // GV-HOTEL-FEES-001: the booking page shows the hotel site's checkout price, plus local taxes

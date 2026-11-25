@@ -541,7 +541,7 @@ exports.handler = async function handler(event) {
     }
     try {
       const payload = parseJsonBody(event);
-      const result = await getIgnavBookingLinks(String(payload.ignavId || ''), { proof: payload.bookingProof });
+      const result = await getIgnavBookingLinks(String(payload.ignavId || ''), { proof: payload.bookingProof, ignavAudience: 'booking' });
       return { statusCode: result.ok ? 200 : 400, headers: corsHeaders(), body: JSON.stringify(result) };
     } catch (_) {
       return { statusCode: 400, headers: corsHeaders(), body: JSON.stringify({ ok: false, reason: 'invalid-request', links: [] }) };

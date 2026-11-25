@@ -56,3 +56,30 @@ test('stay White Label links: only https Nuitee/GlobeVoy hosts are accepted', ()
   assert.equal(links[1], null);
   assert.equal(links[2], null);
 });
+
+
+test('a matching booking-link click joins the in-flight lookup and a later click is fresh', async () => {
+  const previous = globalThis.GLOBEVOY_CONFIG;
+  globalThis.GLOBEVOY_CONFIG = { apiBaseUrl: 'https://api.example.test/' };
+  try {
+    let calls = 0, release;
+    const gate = new Promise(resolve => { release = resolve; });
+    const fetch = async () => { calls++; await gate; return { json: async () => ({ ok: true }) }; };
+    const link = mod.flightLookups(tour)[0];
+    const pair = [mod.fetchLinks(link, fetch), mod.fetchLinks(link, fetch)];
+    assert.equal(calls, 1);
+    release();
+    await Promise.all(pair);
+    await mod.fetchLinks(link, fetch);
+    assert.equal(calls, 2);
+  } finally { globalThis.GLOBEVOY_CONFIG = previous; }
+});
+
+test('a selected flight change detaches the original provider booking link', () => {
+  const leg = { ...tour.backendLegs[0], from: { airportCode: 'YYZ' }, to: { airportCode: 'LIS' }, departureDate: '2027-02-12' };
+  leg.booking = { liveBookingLinks: { ...leg.booking.liveBookingLinks, origin: 'YYZ', destination: 'LIS', departureDate: '2027-02-12', passengers: 2 } };
+  assert.ok(mod.flightLookup(leg, { travellers: 2 }));
+  assert.equal(mod.flightLookup(leg, { travellers: 3 }), null);
+  assert.equal(mod.flightLookup({ ...leg, departureDate: '2027-02-13' }), null);
+  assert.equal(mod.flightLookup({ ...leg, to: { airportCode: 'OPO' } }), null);
+});
