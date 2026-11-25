@@ -54,7 +54,7 @@ A per-night city number can mix hotels night by night. On the sandbox-shaped dat
 - **Price:** per-night p25 vs the p25 of complete stays at one hotel: within ±0.3% at the median for 2–7 nights. It is under by 5% or more for 0.6% of 3-night check-ins and 5.7% of 7-night ones.
 - **Availability (the bigger effect):** only 90% (3 nights) → 78% (7 nights) of sampled hotels have every night of the stay priced. Per-night numbers overstate how many hotels can take the whole stay.
 - **So the summary (v2) also keeps:** the p25 of complete stays for 3, 5 and 7 nights, and the share of hotels with every night (`stayCoverage`).
-- **Undecided:** whether the planner should use the complete-stay level. It did not help on synthetic data (see C), and the probe's real calendars will decide (the same analysis runs on them).
+- **Decided by real data (see Task 5 results):** the planner should use the complete-stay level. On real Barcelona calendars, per-night numbers understate complete stays and only about half the hotels can take a whole stay.
 
 ### C. Synthetic planning accuracy (NOT live accuracy)
 
@@ -73,7 +73,30 @@ This needs the Task 5 production probe (price basis: currency, taxes, occupancy)
 
 Store city summaries only (no hotel IDs, no per-hotel prices). They are 9–17× smaller, take 9× fewer reads, and carry lower licence risk while Nuitée hasn't confirmed storage terms. They also keep what the planner needs: the date shape, plus complete-stay levels and availability. Per-hotel answers are summarised in memory and dropped.
 
-## Task 5: production test (prepared, not run)
+## Task 5 results: first production test (Nov 25, 2026)
+
+Barcelona, 2026-11-25 to 2027-05-26. Run locally by Wajeeh.
+
+- **Cost:** 2 requests = **US$0.04** (no retry needed). Shared counter `PI#budget/2026-11`: 0 → 2. Nothing stored.
+- **Sample:** 1,000 hotels in the free sandbox list → 50 hotels: 8 affordable, 18 mid, 17 upper-mid, 7 high.
+
+| | Result |
+|---|---|
+| `prices/hotels` | 50/50 hotels answered, 6,615 daily prices over 183 days (72% of hotel-days priced), every day has ≥5 hotels, 1.4 s |
+| `prices/city` | 183 days, 1.8 s |
+| Median USD/night by band | affordable 121 · mid 170 · upper-mid 195 · high 364; sample median 189 |
+| City average vs sample median | 250 vs 189 (×1.32): the city endpoint averages in expensive hotels |
+| Hotels with every night of a stay priced | 3 nights 54% · 5 nights 50% · 7 nights 48% |
+| Per-night p25 vs complete-stay p25 | −3.2% / −4.4% / −5.0% at the median (3/5/7 nights); under by 5%+ in 29% / 44% / 49% of check-ins |
+
+**What it means:**
+
+- **Hotel prices are far above today's planning model.** Today's model plans southern Europe at US$84/night × 1.3 = **US$109**. Even the affordable band's median is US$121, and the sample median is US$189. This matches the live finding that hotel guesses are 30–60% too low.
+- **Per-night city numbers do lose information about complete stays.** Real calendars have many more gaps than the synthetic data (54% vs 90% complete for 3 nights), and per-night p25 understates a bookable one-hotel stay by 3–5%. Summary v2's complete-stay levels and `stayCoverage` are needed. Per-hotel calendars are still not: the summary keeps the stay-level answer.
+- **Use the hotel sample, not the city endpoint, for the level.** The city average is pulled up by expensive hotels. It can still give the date shape for cities without a sample.
+- **Not yet known:** the price basis (taxes included? per room or per person? which occupancy?). The response gives only `avgPriceUsd`. Next is a free comparison of a few sampled hotel-dates against Nuitée live rates, which are not Price Index requests.
+
+## Task 5: production test script
 
 `ops/providers/nuitee-price-index-probe.mjs`, run locally. It sends nothing without `--run`.
 
