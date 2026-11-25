@@ -94,7 +94,26 @@ Barcelona, 2026-11-25 to 2027-05-26. Run locally by Wajeeh.
 - **Hotel prices are far above today's planning model.** Today's model plans southern Europe at US$84/night × 1.3 = **US$109**. Even the affordable band's median is US$121, and the sample median is US$189. This matches the live finding that hotel guesses are 30–60% too low.
 - **Per-night city numbers do lose information about complete stays.** Real calendars have many more gaps than the synthetic data (54% vs 90% complete for 3 nights), and per-night p25 understates a bookable one-hotel stay by 3–5%. Summary v2's complete-stay levels and `stayCoverage` are needed. Per-hotel calendars are still not: the summary keeps the stay-level answer.
 - **Use the hotel sample, not the city endpoint, for the level.** The city average is pulled up by expensive hotels. It can still give the date shape for cities without a sample.
-- **Not yet known:** the price basis (taxes included? per room or per person? which occupancy?). The response gives only `avgPriceUsd`. Next is a free comparison of a few sampled hotel-dates against Nuitée live rates, which are not Price Index requests.
+- **Price basis:** see the basis check below.
+
+### Price-basis check (Nov 25, 2026; 1 request, US$0.02; counter 2 → 3)
+
+Compared 10 sampled Barcelona hotels (3 affordable, 3 mid, 2 upper-mid, 2 high) with Nuitée live rates on 4 stays (Dec 15, Jan 8 and Mar 10 for 1 night; Jan 25 for 3 nights) at 1 and 2 adults. 34 hotel-stays had both an index price and a live room.
+
+| Index ÷ live cheapest room, per night | Median | Middle half | Within 15% |
+|---|---|---|---|
+| 1 adult, taxes included | 1.26 | 1.18–1.42 | 15% |
+| 1 adult, before taxes | 1.38 | 1.29–1.56 | 3% |
+| **1 adult, plus fees paid at the hotel** | **1.16** | 1.10–1.31 | 47% |
+| 2 adults, taxes included | 1.26 | 1.15–1.41 | 24% |
+| 2 adults, before taxes | 1.37 | 1.26–1.55 | 6% |
+
+**What it means:**
+
+- **The index is a per-room price.** 1 adult and 2 adults give the same ratio (1.26), so occupancy barely changes it.
+- **It includes taxes and the fees paid at the hotel.** That basis is the closest, but still 16% above the cheapest bookable room. The index is an average across rooms and searches, not the cheapest room on the day.
+- **For planning, use the index for the date shape (weekends, holidays, seasons) and take the level from the learned live ratio** (hotel price memory). The ratio is what absorbs this +16–26% gap. Using the index level directly would overestimate hotels.
+- **New finding: all 34 cheapest live rooms had a fee paid at the hotel** (Barcelona's tourist tax). GlobeVoy currently drops every offer with an excluded fee (`excludedFeesPresent`). In cities with a tourist tax it therefore skips the cheapest rooms and picks pricier ones, or none. That is likely part of why live hotel prices come out 30–60% above plan and why trips fail. Fix (needs approval): keep those offers, add the at-hotel fee to the trip total, and show it as "pay at the hotel: €X". Don't drop them.
 
 ## Task 5: production test script
 
