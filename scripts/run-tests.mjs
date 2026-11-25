@@ -26,6 +26,7 @@ const groups = {
     ['node', '--test', 'tests/backend/recommendation-pool.test.cjs'],
     ['node', '--test', 'tests/backend/hotel-upgrade-policy.test.cjs'],
     ['node', '--test', 'tests/backend/hotel-memory-bayes.test.cjs'],
+    ['node', '--test', 'tests/backend/read-plan.test.cjs'],
     ['node', '--test', 'tests/backend/hotel-price-index.test.cjs'],
     ['node', '--test', 'tests/backend/hotel-planning.test.cjs'],
     ['node', '--test', 'tests/backend/ignav-fare-cache.test.cjs'],

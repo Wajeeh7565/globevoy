@@ -7,7 +7,7 @@
 //
 // Safety (approved 2026-11-25):
 //   * Read-only: the DynamoDB client refuses every command except QueryCommand.
-//   * Hard limits for the WHOLE run: --max-queries (default 600 Query calls, pagination
+//   * Hard limits for the WHOLE run: --max-queries (default 800 Query calls, pagination
 //     included), --max-pages per partition (default 2, same as production) and
 //     --max-rcu (default 15000 consumed read capacity units, under US$0.01 on demand).
 //     When a limit is reached, no further Query is sent; the run still saves and reports.
@@ -38,7 +38,7 @@ const origins = arg('--origins', 'Toronto (YYZ)').split(',').map(s => s.trim());
 const budgets = arg('--budgets', '1500,2000,3000,4000,5000,7500,10000,15000').split(',').map(Number);
 const out = path.resolve(arg('--out', path.join(os.homedir(), 'Downloads', 'globevoy-fare-snapshot.json.gz')));
 const memoryFile = arg('--memory-file', path.join(os.homedir(), 'Downloads', 'globevoy-hotel-memory.json'));
-const LIMIT = { queries: Number(arg('--max-queries', 600)), pages: Number(arg('--max-pages', 2)), rcu: Number(arg('--max-rcu', 15000)), rcuPerSec: Number(arg('--rcu-per-sec', 50)), rounds: 8 };
+const LIMIT = { queries: Number(arg('--max-queries', 800)), pages: Number(arg('--max-pages', 2)), rcu: Number(arg('--max-rcu', 15000)), rcuPerSec: Number(arg('--rcu-per-sec', 50)), rounds: 8 };
 const dryRun = argv.includes('--dry-run');
 // --simulate: no AWS; serves the benchmark's synthetic fares, to test convergence and estimate Query counts.
 const simulate = argv.includes('--simulate');
@@ -54,8 +54,10 @@ export const VARIANTS = [
   { name: 'big-stay-extra-8', env: { FARE_MAP_BIG_STAY_EXTRA: '8' } },
   { name: 'beam-target', env: { FARE_MAP_BEAM_TARGET: 'on' } },
   { name: 'four-cities', env: { FARE_MAP_HUGE_MAX_CITIES: '4' } },
+  { name: 'memory-bayes', env: { HOTEL_MEMORY_LEGACY: 'bayes', HOTEL_MEMORY_CLEAN_SINCE: CLEAN } },
+  { name: 'read-plan-4', env: { FARE_MAP_HUGE_MAX_CITIES: '4', FARE_MAP_READ_PLAN: 'on' } },
   { name: 'pool-diversity', env: { FARE_MAP_POOL_DIVERSITY: 'on' } },
-  { name: 'combined', env: { HOTEL_MEMORY_LEGACY: 'shrink', HOTEL_MEMORY_CLEAN_SINCE: CLEAN, FARE_MAP_BIG_STAY_EXTRA: '8', FARE_MAP_BEAM_TARGET: 'on', FARE_MAP_HUGE_MAX_CITIES: '4', FARE_MAP_POOL_DIVERSITY: 'on' } }
+  { name: 'combined', env: { HOTEL_MEMORY_LEGACY: 'bayes', HOTEL_MEMORY_CLEAN_SINCE: CLEAN, FARE_MAP_BIG_STAY_EXTRA: '8', FARE_MAP_HUGE_MAX_CITIES: '4', FARE_MAP_READ_PLAN: 'on', FARE_MAP_POOL_DIVERSITY: 'on' } }
 ];
 
 function insideRepo(p) { const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'); return !path.relative(repo, p).startsWith('..'); }

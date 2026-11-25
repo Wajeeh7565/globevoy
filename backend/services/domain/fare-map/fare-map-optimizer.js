@@ -243,6 +243,27 @@ const MAX_DETOUR=1.25;
 // the limit; 0 turns the check off.
 const MAX_SPREAD_KM=4500;
 let spreadLimitKm=MAX_SPREAD_KM;
+// GV-RECS-READS-001 (FARE_MAP_READ_PLAN=on, big budgets only; off by default).
+//   Shortlist: a first city is worth exploring when many other cities, in OTHER countries,
+//   lie within a short hop (<= 1,800 km): onward potential, computed once from the
+//   registry (no reads, no hardcoded places), so multi-country trips start where they can.
+//   Read plan: the reads still unspent are shared across the depths still to come, and a
+//   deeper state is kept only if its partitions fit that share (cached ones are free), so
+//   the read limit is not used up by the second city and 3- and 4-city trips get read.
+const ONWARD_KM=1800,ONWARD_CAP=12;let onwardCache=null;
+function onwardPotential(rowList){
+ if(onwardCache&&onwardCache.rows===rowList)return onwardCache.map;
+ const pts=rowList.filter(r=>eligible(r)).map(r=>({id:r.unifiedRegistry?.cityId,c:String(r.unifiedRegistry?.countryCode||r.unifiedRegistry?.country||'').toUpperCase(),lat:Number(r.unifiedRegistry?.latitude),lon:Number(r.unifiedRegistry?.longitude)})).filter(p=>p.id&&Number.isFinite(p.lat)&&Number.isFinite(p.lon));
+ const map=new Map(),R=6371,rad=Math.PI/180;
+ // Grid of 20-degree cells (about 2,200 km of latitude): each city only looks at its own and
+ // neighbouring cells, so 10,000 cities stay fast (no all-pairs pass).
+ const cell=(lat,lon)=>Math.floor((lat+90)/20)+':'+Math.floor((lon+180)/20),grid=new Map();
+ for(const p of pts){const k=cell(p.lat,p.lon);if(!grid.has(k))grid.set(k,[]);grid.get(k).push(p);}
+ const near=a=>{const la=Math.floor((a.lat+90)/20),lo=Math.floor((a.lon+180)/20),out=[];for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const w=((lo+j)%18+18)%18;out.push(...(grid.get((la+i)+':'+w)||[]));}return out;};
+ for(const a of pts){let n=0;const seen=new Set();for(const b of near(a)){if(b===a||b.c===a.c&&a.c)continue;const dl=(b.lat-a.lat)*rad,dn=(b.lon-a.lon)*rad,h=Math.sin(dl/2)**2+Math.cos(a.lat*rad)*Math.cos(b.lat*rad)*Math.sin(dn/2)**2;if(2*R*Math.asin(Math.sqrt(h))<=ONWARD_KM){n++;seen.add(b.c);}}
+  map.set(a.id,{cities:Math.min(ONWARD_CAP,n),countries:seen.size});}
+ onwardCache={rows:rowList,map};return map;
+}
 function routeShape(s){
  const pts=s.cities.map(c=>({latitude:c.unifiedRegistry.latitude,longitude:c.unifiedRegistry.longitude}));
  let spread=0;for(let i=1;i<pts.length;i++)spread=Math.max(spread,legacy._internal.haversineKm(pts[i-1],pts[i])||0);
@@ -477,6 +498,7 @@ async function search(query={},options={}){
  const memRule=legacyRule(env);
  const regionLevels=regionRatios(options.hotelRatios,all,env);
  poolDiversity=String(env.FARE_MAP_POOL_DIVERSITY||'').trim().toLowerCase()==='on';
+ const readPlan=bigBudget&&K>=3&&String(env.FARE_MAP_READ_PLAN||'').trim().toLowerCase()==='on',onward=readPlan?onwardPotential(all):null;diagnostics.readPlan=readPlan;
  beamTarget=String(env.FARE_MAP_BEAM_TARGET||'').trim().toLowerCase()==='on'&&!query.nights?{spendable:budget-Math.round(budget*.1),K,share:.85}:null;diagnostics.regionHotelLevels=Object.fromEntries([...regionLevels].map(([k,v])=>[k,v.ratio]));
  const stretchUsd=Math.round(Math.min(150,Math.max(70,budget*.12)));
  const homeLinked=new Set(),outboundFrom=new Map();
@@ -514,7 +536,8 @@ async function search(query={},options={}){
      const cost=state.cost+Math.round(fare.priceUsd*party.flightFareUnits)+hotel;
      if(cost>budget*.9)continue;
      const theme=String(query.theme||query.preference||'').toLowerCase(),fit=themeScore(row,theme);
-     next.push({preferencePenalty:([ ...state.cities,row ].some(c=>preferred.includes(c.unifiedRegistry.cityId.toLowerCase()))?-budget:0)-fit*20,cities:[...state.cities,row],edges:[...state.edges,fare],lastCode:fare.destination,cost,key:state.key+'>'+record.cityId+'@'+fare.departureDate});
+     const onwardBonus=readPlan&&depth===0?(()=>{const o=onward.get(record.cityId);return o?Math.round(budget*.012*Math.min(ONWARD_CAP,o.cities)*Math.min(1,o.countries/3)):0})():0;
+     next.push({preferencePenalty:([ ...state.cities,row ].some(c=>preferred.includes(c.unifiedRegistry.cityId.toLowerCase()))?-budget:0)-fit*20-onwardBonus,cities:[...state.cities,row],edges:[...state.edges,fare],lastCode:fare.destination,cost,key:state.key+'>'+record.cityId+'@'+fare.departureDate});
     }
     // No cached fare home from this city (Montreal's data often has none): use the
     // fare out to it as a stand-in for the way back. The trip is live-checked on the
@@ -554,6 +577,13 @@ async function search(query={},options={}){
     const linkedPick=temporalBeam(coldLinked,Math.min(coldLinked.length,Math.max(0,width-warmPick.length)));
     beam=[...warmPick,...linkedPick,...temporalBeam(coldOther,Math.max(0,width-warmPick.length-linkedPick.length))];
    } else beam=depth===0?familyBeam(next,width):temporalBeam(next,width);
+   if(readPlan&&depth<K&&beam.length){
+    const nd=depth+1,left=Math.max(0,Math.min(MAX_READS,options.maxReads||MAX_READS)-diagnostics.reads),share=nd>=K?left:Math.floor(left/(K-nd+1));
+    const need=st=>months(st.edges.at(-1).departureDate,plus(st.edges[0].departureDate,nights)).map(m=>st.lastCode+'#'+m).filter(k=>!cache.has(k));
+    const planned=new Set(),kept=[];
+    for(const st of beam){const n=need(st).filter(k=>!planned.has(k));if(planned.size+n.length<=share){n.forEach(k=>planned.add(k));kept.push(st);}}
+    diagnostics.readPlanDropped=(diagnostics.readPlanDropped||0)+beam.length-kept.length;beam=kept;
+   }
    diagnostics.peakRetainedComplete=Math.max(diagnostics.peakRetainedComplete||0,complete.length);
   }
  }finally{clearTimeout(timer)}
@@ -582,4 +612,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,regionQuantile,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
