@@ -126,7 +126,7 @@ test('storage is off by default; when on, summaries expire after the configured 
   assert.equal(db.calls.length, 0);
   const r = await store.write(s, { env: { ...ENV, PRICE_INDEX_STORAGE: 'on', PRICE_INDEX_RETENTION_DAYS: '10' }, dynamo: db, clock: () => now });
   assert.equal(r.stored, true); assert.equal(r.retentionDays, 10);
-  const item = db.items.get('PI#city#barcelona-es|summary');
+  const item = db.items.get('PI#city|barcelona-es');
   assert.equal(Number(item.ttl.N), now / 1000 + 10 * 86400);
   assert.equal(store.retentionDays({}), 35);
   assert.equal(store.retentionDays({ PRICE_INDEX_RETENTION_DAYS: '9999' }), 365);
@@ -171,11 +171,13 @@ test('collector: live mode with collection on uses the shared counter (fails clo
   assert.equal(sent, 0, 'fails closed: no counter, no request'); assert.equal(r.stopped, 'budget-table-not-configured');
 });
 
-test('nothing in the Lambda or the trip search uses the collector yet', () => {
+test('the trip search only READS summaries (off by default); nothing live uses the collector, client or budget', () => {
   const { spawnSync } = require('node:child_process');
-  const r = spawnSync('git', ['grep', '-l', '-e', 'hotel-price-index', '-e', 'nuitee-price-index', '--', 'backend'], { encoding: 'utf8' });
+  const r = spawnSync('git', ['grep', '-l', '-e', 'hotel-price-index/collector', '-e', 'hotel-price-index/budget', '-e', 'nuitee-price-index', '--', 'backend'], { encoding: 'utf8' });
   const users = r.stdout.trim().split('\n').filter(Boolean).filter(f => !f.includes('/hotel-price-index/') && !f.endsWith('nuitee-price-index.js'));
   assert.deepEqual(users, []);
+  const readers = spawnSync('git', ['grep', '-l', '-e', 'hotel-price-index/summary', '-e', 'hotel-price-index/store', '--', 'backend'], { encoding: 'utf8' }).stdout.trim().split('\n').filter(f => f && !f.includes('/hotel-price-index/'));
+  assert.deepEqual(readers.sort(), ['backend/services/domain/fare-map/fare-map-optimizer.js', 'backend/services/domain/tours/generated-tour.js']);
 });
 
 test('representative sample: 50 hotels across affordable, mid, upper-mid and high bands', () => {

@@ -12,6 +12,7 @@ const {attachTourPresentation,presentationPolicy,buildDisplayBudget}=require('..
 const accommodation=require('./accommodation-cost-map');
 const VERSION='GV-FAREMAP-BEAM-004',FLAG='ENABLE_FARE_MAP_OPTIMIZER';
 const hotelMemory=require('../live-fares/hotel-price-memory');
+const priceIndexSummary=require('../pricing/hotel-price-index/summary');
 // Trips have 1 to MAX_CITIES cities (GV-TRIP-SHAPE-001): a small budget gets one city done
 // well, a larger one two. FARE_MAP_MAX_CITIES may raise this to 3 once read budgets allow.
 // Above about C$1,500 (US$1,100) a single city wastes the budget: the options are
@@ -26,6 +27,27 @@ const ABROAD_FROM_USD=1500;
 // check, so trips that fit on paper failed live. Trips are chosen with hotels counted at
 // this margin (GV-HOTEL-MARGIN-001); the shown price stays the honest estimate until live.
 function hotelMargin(env=process.env){const m=Number(env.FARE_MAP_HOTEL_MARGIN);return Number.isFinite(m)&&m>=1&&m<=2?m:1.3;}
+// GV-HOTEL-PLAN-002 (V2 task 6): how a stay is priced while planning.
+//   level: the city's learned live/model ratio (hotel price memory) x1.05; for a city
+//          never checked live, its REGION's learned ratios (75th percentile, needs >=3
+//          learned cities in the region) instead of the flat margin; else the margin.
+//   shape: when Price Index summaries are loaded (PRICE_INDEX_PLANNING=on, which needs
+//          stored summaries, i.e. PRICE_INDEX_STORAGE=on), the stay's date pattern
+//          (weekends, holidays, seasons) relative to the city's median, clamped 0.7-1.8.
+// FARE_MAP_REGION_COLD_START=off turns the regional level off.
+const REGION_MIN_CITIES=3,REGION_QUANTILE=.75;
+function regionRatios(ratios,rowList,env=process.env){
+ const out=new Map();if(!ratios||!ratios.size||String(env.FARE_MAP_REGION_COLD_START||'').trim().toLowerCase()==='off')return out;
+ const by=new Map();
+ for(const row of rowList){const hit=ratios.get(hotelMemory._internal.attr(row.unifiedRegistry?.cityId));if(!hit)continue;const f=regionFamily(row);if(!by.has(f))by.set(f,[]);by.get(f).push(hit.ratio);}
+ for(const [f,v] of by){if(v.length<REGION_MIN_CITIES)continue;v.sort((a,b)=>a-b);const i=(v.length-1)*REGION_QUANTILE,lo=Math.floor(i),hi=Math.ceil(i);out.set(f,{ratio:Number((v[lo]+(v[hi]-v[lo])*(i-lo)).toFixed(3)),cities:v.length});}
+ return out;
+}
+function stayShape(index,stop){
+ if(!index||!index.size)return null;const sum=index.get(stop?.cityId);if(!sum)return null;
+ const day=String(stop.arrivalDate||stop.checkIn||'').slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(day))return null;
+ const f=priceIndexSummary.seasonality(sum,day,Number(stop.nights)||1);return f==null?null:Math.min(1.8,Math.max(0.7,f));
+}
 // Nobody books a holiday for tomorrow: trips leave at least this many days out.
 function minLeadDays(env=process.env){const n=Number(env.FARE_MAP_MIN_LEAD_DAYS);return Number.isInteger(n)&&n>=0&&n<=60?n:10;}
 function maxCities(env=process.env){const n=Number(env.FARE_MAP_MAX_CITIES);return Number.isInteger(n)&&n>=1&&n<=3?n:2;}
@@ -344,7 +366,11 @@ async function search(query={},options={}){
       // Safe cost: flights plus hotels at the live-price margin; used to choose and rank.
       // A city with learned real-vs-model hotel prices (GV-HOTEL-MEMORY-001) uses its own
       // ratio, plus 5%, instead of the general margin.
-      const hotelFor=stop=>{const est=Number(stop?.hotel?.estimatedStayUsd)||0,learned=hotelMemory.ratioFor(options.hotelRatios,stop?.cityId);if(learned)diagnostics.learnedHotelCities=(diagnostics.learnedHotelCities||0)+1;return est*(learned?Math.max(1,learned*1.05):margin);};
+      const hotelFor=stop=>{const est=Number(stop?.hotel?.estimatedStayUsd)||0,learned=hotelMemory.ratioFor(options.hotelRatios,stop?.cityId);
+       let level;if(learned){diagnostics.learnedHotelCities=(diagnostics.learnedHotelCities||0)+1;level=Math.max(1,learned*1.05);}
+       else{const reg=regionLevels.get(stop?.regionFamily);if(reg){diagnostics.regionHotelCities=(diagnostics.regionHotelCities||0)+1;level=Math.max(1,reg.ratio);}else level=margin;}
+       const shape=stayShape(options.priceIndex,stop);if(shape!=null)diagnostics.priceIndexStays=(diagnostics.priceIndexStays||0)+1;
+       return est*level*(shape??1);};
       const stopHotels=(tour.stops||[]).reduce((n,stop)=>n+hotelFor(stop),0);
       const safeCost=Math.round(tour.totalFlightEstimateUsd+(stopHotels>0?stopHotels:tour.totalHotelEstimateUsd*margin));
       if(safeCost>tour.usableTripBudgetUsd){
@@ -374,6 +400,7 @@ async function search(query={},options={}){
  let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[],stretchPool=[],cheapestOverUsd=null;
  // How far over the spendable budget the optional bigger-trip idea may go (about C$100-200).
  const margin=hotelMargin(env);diagnostics.hotelMargin=margin;
+ const regionLevels=regionRatios(options.hotelRatios,all,env);diagnostics.regionHotelLevels=Object.fromEntries([...regionLevels].map(([k,v])=>[k,v.ratio]));
  const stretchUsd=Math.round(Math.min(150,Math.max(70,budget*.12)));
  const homeLinked=new Set(),outboundFrom=new Map();
  try {
@@ -478,4 +505,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};

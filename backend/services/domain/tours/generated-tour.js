@@ -3,6 +3,7 @@
 // Uses the existing route planner, then optionally enriches flight legs with cheap
 // one-way date observations from Travelpayouts/Aviasales.
 
+const priceIndexStore = require('../pricing/hotel-price-index/store');
 const { getMultiCityTours } = require('../routing/multicity-routes');
 const { selectBestUsableObservation, smartFlightDateSelection677BEnabled, SMART_FLIGHT_DATE_SELECTION_VERSION_677B, smartFlightQualityGuardrails677BR2Enabled, SMART_FLIGHT_QUALITY_GUARDRAIL_VERSION_677B_R2, smartRouteRelativeFlightQuality677BR3Enabled, SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3 } = require('../../providers/flights/cheap-one-way-flights');
 const { FLIGHT_PROVIDER_CONTRACT_VERSION_683C, fetchFlightDates683C, fetchFlightAcrossMonths683C, adapterSummary683C } = require('../../providers/flights/flight-provider-router-683c');
@@ -3540,8 +3541,13 @@ async function getFareMapGeneratedTour(query,options) {
   // Learned real-vs-model hotel prices per city (GV-HOTEL-MEMORY-001); empty on any error.
   const hotelMemory=require('../live-fares/hotel-price-memory');
   const searchOptions=options.fareMap||options;
-  const hotelRatios=await hotelMemory.load({...searchOptions,env:searchOptions.env||options.env}).catch(()=>new Map());
-  const result=await optimizer.search(query,{...searchOptions,hotelRatios});
+  const memEnv=searchOptions.env||options.env;
+  // Price Index summaries (GV-HOTEL-PLAN-002) load in parallel with hotel memory; both
+  // are off or empty unless configured, and neither can delay the search past ~1 s.
+  const [hotelRatios,priceIndex]=await Promise.all([
+    hotelMemory.load({...searchOptions,env:memEnv}).catch(()=>new Map()),
+    priceIndexStore.loadAll({...searchOptions,env:memEnv||process.env}).catch(()=>new Map())]);
+  const result=await optimizer.search(query,{...searchOptions,hotelRatios,priceIndex});
   const empty=reason=>({...result,tour:null,tours:[],reason});
   if(!result.tours.length)return {...result,tour:null};
   let selected=result.tours[0],arrivalVerified=false;
