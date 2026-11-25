@@ -124,39 +124,61 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   // 20 still leaves a well-rated, cheap choice and returns faster.
   body.limit = HOTEL_LIMIT;
   body.maxRatesPerHotel = 1;
-  const result = await nuitee.postJson(RATE_URL, body, apiKey, options);
-  if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: 1 };
-  if (result.payload?.sandbox === true) return { index, applied: false, reason: 'sandbox-response', providerRequests: 1 };
+  // rateCache (GV-HOTEL-UPGRADE-002): one search may price the same stay twice (first
+  // without upgrades, then with its role's upgrade limit); the second pass reuses the reply.
+  const cacheKey = options.rateCache ? JSON.stringify(body) : null;
+  const hit = Boolean(cacheKey && options.rateCache.has(cacheKey));
+  if (cacheKey && !hit) options.rateCache.set(cacheKey, nuitee.postJson(RATE_URL, body, apiKey, options).catch(e => { options.rateCache.delete(cacheKey); throw e; }));
+  const result = cacheKey ? await options.rateCache.get(cacheKey) : await nuitee.postJson(RATE_URL, body, apiKey, options);
+  if (cacheKey && result.status !== 200) options.rateCache.delete(cacheKey);
+  const requests = hit ? 0 : 1;
+  if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: requests };
+  if (result.payload?.sandbox === true) return { index, applied: false, reason: 'sandbox-response', providerRequests: requests };
   const offer = chooseOffer(result.payload || {}, currency, { cheapest: options.hotelChoice === 'cheapest', env });
-  if (!offer) return { index, applied: false, reason: 'no-usable-offer', providerRequests: 1 };
+  if (!offer) return { index, applied: false, reason: 'no-usable-offer', providerRequests: requests };
   const pool = chooseOffer(result.payload || {}, currency, { all: true, env }) || [];
-  return { index, applied: true, offer, pool, stayWindow, occupancies: body.occupancies, roomCount: body.occupancies.length, providerRequests: 1 };
+  return { index, applied: true, offer, pool, stayWindow, occupancies: body.occupancies, roomCount: body.occupancies.length, providerRequests: requests };
 }
 
 // Best use of budget (GV-HOTEL-BUDGET-UPGRADE-001): when the caller passes the most the
 // trip's hotels may cost (hotelBudgetUsd), spend what the cheap-but-good picks leave over on
 // better-rated hotels, longest stays first. Each upgrade must raise the review score and fit
 // the money left; without a hotel budget the cheap-but-good pick is unchanged.
-function upgradeHotels(rows, hotelBudgetUsd, usdRate) {
+// GV-HOTEL-UPGRADE-002 policy (options.upgradePolicy, from the trip's role):
+//   perStayPct  most an upgrade may add to one stay, as a share of that stay's base price
+//               (Best use 0.5, Something different 0.25; Lowest cost gets no hotel budget).
+//   minGain     a "meaningful" upgrade: review score up by at least this much (0-10 scale),
+//               or breakfast added at an equal-or-better score. Location and amenities are
+//               not in the rates reply, so they cannot be judged here yet.
+// Without a policy the legacy rule applies (any higher score, no per-stay limit).
+const BREAKFAST = /breakfast|half board|full board|all inclusive|bed and breakfast|\bbb\b/i;
+function meaningful(base, better, minGain) {
+  const gain = (Number(better.rating) || 0) - (Number(base.rating) || 0);
+  if (!(minGain > 0)) return gain > 0;
+  return gain >= minGain - 1e-9 || (gain >= 0 && BREAKFAST.test(better.boardName || '') && !BREAKFAST.test(base.boardName || ''));
+}
+function upgradeHotels(rows, hotelBudgetUsd, usdRate, policy = null) {
   const cap = Number(hotelBudgetUsd);
   if (!Number.isFinite(cap) || cap <= 0) return null;
   const applied = rows.filter(r => r.applied && r.offer);
   if (!applied.length || applied.length !== rows.length) return { attempted: false, reason: 'not-all-hotels-priced' };
   const usd = o => Math.round((o.effectiveAmount ?? o.amount) * usdRate);
+  const perStay = policy && Number(policy.perStayPct) >= 0 ? Number(policy.perStayPct) : Infinity;
+  const minGain = policy ? Number(policy.minGain ?? 0.5) : 0;
   let left = cap - applied.reduce((sum, r) => sum + usd(r.offer), 0);
   const startLeft = left;
-  if (left <= 0) return { attempted: true, upgradedCount: 0, leftUsd: Math.round(left) };
+  if (left <= 0) return { attempted: true, upgradedCount: 0, leftUsd: Math.round(left), ...(policy ? { policy } : {}) };
   let upgradedCount = 0;
   for (const row of applied.slice().sort((a, b) => (b.stayWindow?.nights || 0) - (a.stayWindow?.nights || 0))) {
-    const base = row.offer, baseRating = Number(base.rating) || 0;
-    const better = (row.pool || []).filter(o => Number(o.rating) > baseRating && usd(o) - usd(base) <= left)
+    const base = row.offer, baseRating = Number(base.rating) || 0, limit = Math.min(left, perStay * usd(base));
+    const better = (row.pool || []).filter(o => o.hotelId !== base.hotelId && (policy ? meaningful(base, o, minGain) : Number(o.rating) > baseRating) && usd(o) - usd(base) <= limit)
       .sort((a, b) => Number(b.rating) - Number(a.rating) || a.amount - b.amount)[0];
     if (!better) continue;
     left -= usd(better) - usd(base);
-    row.upgraded = { fromHotelId: base.hotelId, fromRating: base.rating ?? null, extraUsd: usd(better) - usd(base) };
+    row.upgraded = { fromHotelId: base.hotelId, fromRating: base.rating ?? null, extraUsd: usd(better) - usd(base), ...(policy ? { role: policy.role || null, ratingGain: Number(((Number(better.rating) || 0) - baseRating).toFixed(1)) } : {}) };
     row.offer = better; upgradedCount += 1;
   }
-  return { attempted: true, upgradedCount, budgetUsd: Math.round(cap), spentUsd: Math.round(startLeft - left), leftUsd: Math.round(left) };
+  return { attempted: true, upgradedCount, budgetUsd: Math.round(cap), spentUsd: Math.round(startLeft - left), leftUsd: Math.round(left), ...(policy ? { policy } : {}) };
 }
 
 async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
@@ -184,7 +206,7 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
       return { ...row, ms: Date.now() - started };
     })()));
 
-  const upgrade = upgradeHotels(rows, options.hotelBudgetUsd, usdRate);
+  const upgrade = upgradeHotels(rows, options.hotelBudgetUsd, usdRate, options.upgradePolicy || null);
   const nextStops = stops.map(stop => ({ ...stop }));
   const observedAt = new Date().toISOString();
   for (const row of rows) {
@@ -237,7 +259,7 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
         reserved: false,
         finalPriceRequiresPartnerConfirmation: true
       },
-      ...(row.upgraded ? { budgetUpgrade: { fromHotelId: row.upgraded.fromHotelId, fromRating: row.upgraded.fromRating, extraUsd: row.upgraded.extraUsd, reason: 'Better-rated hotel chosen with budget the route left unspent.' } } : {}),
+      ...(row.upgraded ? { budgetUpgrade: { fromHotelId: row.upgraded.fromHotelId, fromRating: row.upgraded.fromRating, extraUsd: row.upgraded.extraUsd, ...(row.upgraded.role !== undefined ? { role: row.upgraded.role, ratingGain: row.upgraded.ratingGain } : {}), reason: 'Better-rated hotel chosen with budget the route left unspent.' } } : {}),
       nuiteeWhitelabel: { url, checkoutUrl: checkoutUrl(domain, row.offer.offerId), offerObservedAt: observedAt, domain, hotelId: row.offer.hotelId, label: 'Book this hotel', merchant: 'Nuitee' }
     };
   }
@@ -260,4 +282,4 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
   };
 }
 
-module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl, upgradeHotels, payAtHotel, priced } };
+module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl, upgradeHotels, meaningful, payAtHotel, priced } };

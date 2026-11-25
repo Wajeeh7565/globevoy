@@ -3627,13 +3627,18 @@ async function getFareMapGeneratedTour(query,options) {
     if(strict){
       if(!flights.arrivalVerified)return {reason:'fare-map-flights-not-all-live',tour};
       const hotelUsd=(tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
-      // Up to 97% of the spendable budget: the rest absorbs price changes before booking.
-      const hotelBudgetUsd=(useBudget||candidateTour?.poolUpgrade===true)&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?Math.floor(tour.usableTripBudgetUsd*.97-(tour.estimatedTotalUsd-hotelUsd)):null;
-      let priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...options,hotelBudgetUsd}:options);
+      // Legacy: up to 97% of the spendable budget: the rest absorbs price changes before booking.
+      // Role policy (HOTEL_UPGRADE_POLICY=roles, GV-HOTEL-UPGRADE-002): pool trips are priced
+      // without upgrades here; roles are given on those real prices and upgrades follow.
+      const legacyBudget=!rolePolicy&&(useBudget||candidateTour?.poolUpgrade===true);
+      const policy=rolePolicy&&!poolMode&&Number(tour.estimatedTotalUsd)/Math.max(1,Number(tour.usableTripBudgetUsd))<UPGRADE_USE_BELOW?upgradePolicyFor(role):null;
+      const hotelBudgetUsd=(legacyBudget||policy)&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?upgradeRoom(tour,hotelUsd,legacyBudget?.97:1):null;
+      const pricingOptions={...options,rateCache};
+      let priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...pricingOptions,hotelBudgetUsd,...(policy?{upgradePolicy:policy}:{})}:pricingOptions);
       const overWithRealHotels=p=>p?.diagnostics?.nuiteeLiveStays?.reason==='nuitee-final-tour-over-budget-kept-estimate';
       // Real hotels push it over: try the cheapest real rooms once. If it still does not
       // fit, the trip does not fit; never show it with the cheaper estimate (GV-HOTEL-HONEST-001).
-      if(overWithRealHotels(priced))priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,{...options,hotelChoice:'cheapest'});
+      if(overWithRealHotels(priced))priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,{...pricingOptions,hotelChoice:'cheapest'});
       diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
       const observed=priced?.diagnostics?.nuiteeHotelObservations||[];
       if(observed.length){diagnostics.hotelObservations=(diagnostics.hotelObservations||0)+observed.length;try{await hotelMemory.record(observed,{...searchOptions,env:searchOptions.env||options.env});}catch(_){}}
@@ -3642,10 +3647,38 @@ async function getFareMapGeneratedTour(query,options) {
       if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};
       // Live hotel prices can push the total over; the spendable budget is a hard line.
       if(Number(priced.tour.estimatedTotalUsd)>Number(priced.tour.usableTripBudgetUsd))return {reason:'fare-map-live-total-exceeds-protected-budget'};
-      tour=priced.tour;
+      return {tour:priced.tour,unpriced:tour,arrivalVerified:flights.arrivalVerified,source:candidateTour};
     }
     return {tour,arrivalVerified:flights.arrivalVerified,source:candidateTour};
   };
+  // GV-HOTEL-UPGRADE-002: hotel upgrades by trip role, limits fixed by the product owner.
+  //   Lowest cost: none (the cheapest well-rated room, 7.0+, is kept).
+  //   Best use: up to +50% per stay; Something different: up to +25% per stay.
+  //   Only when the trip, after the search has tried more nights and more cities, still
+  //   uses under 75% of the budget (never forced), and the whole trip stays within the
+  //   spendable budget: 90% of what the user entered, the 10% reserve counted once.
+  const rolePolicy=String(env.HOTEL_UPGRADE_POLICY||'').trim().toLowerCase()==='roles';
+  const poolMode=/^(1|true|yes)$/i.test(String(query.pool||''));
+  const rateCache=new Map();
+  const UPGRADE_USE_BELOW=.75;
+  const upgradePolicyFor=r=>r==='best-balance'?{role:r,perStayPct:.5,minGain:.5}:r==='most-memorable'?{role:r,perStayPct:.25,minGain:.5}:null;
+  const upgradeRoom=(t,hotelUsd,share)=>Math.floor(Number(t.usableTripBudgetUsd)*share-(Number(t.estimatedTotalUsd)-hotelUsd));
+  async function upgradeForRole(r){
+    const policy=upgradePolicyFor(r.role);
+    if(!policy||!r.unpriced)return r;
+    const use=Number(r.tour.estimatedTotalUsd)/Math.max(1,Number(r.tour.usableTripBudgetUsd));
+    if(!(use<UPGRADE_USE_BELOW))return r;
+    const liveHotelUsd=(r.tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
+    const hotelBudgetUsd=upgradeRoom(r.tour,liveHotelUsd,1);
+    if(!(hotelBudgetUsd>liveHotelUsd))return r;
+    let priced;
+    try{priced=await priceFinalTourWithNuitee({ok:true,tour:r.unpriced,tours:[r.unpriced],diagnostics:{}},pricingQuery,{...options,rateCache,hotelBudgetUsd,upgradePolicy:policy});}catch(_){return r;}
+    const t=priced?.tour,stops=t?.stops||[];
+    if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate)||!(Number(t.estimatedTotalUsd)<=Number(t.usableTripBudgetUsd)))return r;
+    if(!stops.some(st=>st?.hotel?.budgetUpgrade))return r;
+    diagnostics.roleUpgrades=(diagnostics.roleUpgrades||[]).concat([{role:r.role,upgraded:stops.filter(st=>st?.hotel?.budgetUpgrade).length,extraUsd:stops.reduce((x,st)=>x+(Number(st?.hotel?.budgetUpgrade?.extraUsd)||0),0)}]);
+    return {...r,tour:t};
+  }
   // The page asks for each trip role separately (best overall, lowest cost, most
   // inspiring) in parallel; give each role its own route so three different trips come back.
   const rawRole=String(query.routeRole||query.tourRole||query.pickRole||'').trim().toLowerCase();
@@ -3694,6 +3727,7 @@ async function getFareMapGeneratedTour(query,options) {
       const byUse=labelled.slice().sort((a,b)=>useOf(b)-useOf(a))[0];byUse.role='best-balance';
       if(labelled.length>1){const cheap=labelled.filter(r=>r!==byUse).sort((a,b)=>Number(a.tour.estimatedTotalUsd)-Number(b.tour.estimatedTotalUsd))[0];cheap.role='lowest-cost';}
     }
+    if(rolePolicy){const up=await Promise.all(labelled.map(upgradeForRole));up.forEach((r,i)=>{labelled[i]=r;});}
     const LABEL={'best-balance':'Best use of your budget','lowest-cost':'Lowest cost','most-memorable':'Something different'};
     const order=['best-balance','lowest-cost','most-memorable'];
     labelled.sort((a,b)=>order.indexOf(a.role)-order.indexOf(b.role));
