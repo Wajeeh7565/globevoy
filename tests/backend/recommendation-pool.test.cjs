@@ -85,6 +85,23 @@ test('a trip that fails its live check is replaced by the next pool trip', async
   assert.ok(r.tours.length >= Math.min(3, r.poolSize - 1), 'filled from the pool');
 });
 
+// GV-POOL-002: a page that needs 3 trips checks 2 spares in the same round, so one
+// failure does not cost another 10-15 s round (live, Nov 25: two pages hit the time limit).
+test('spare trips: one failure is covered in the same round; never more than 8 checks; guests get no spares', async () => {
+  const f = fixture();
+  let n = 0;
+  const flakyFlights = async t => { n++; return n === 1 ? { tour: t, summary: { applied: false, reason: 'provider-unavailable' } } : liveFlights(t); };
+  const r = await poolRequest(f, {}, { flights: flakyFlights });
+  assert.ok(r.poolSize >= 5, 'fixture pool is big enough to test spares');
+  assert.equal(r.diagnostics.poolRounds, 1, 'filled in one round');
+  assert.equal(r.tours.length, 3);
+  assert.ok(r.diagnostics.poolChecks <= 8);
+  const none = await poolRequest(fixture(), { poolSpare: '0' });
+  assert.ok(none.diagnostics.poolChecks <= 3, 'poolSpare=0 checks only what it needs when all pass');
+  const guest = await poolRequest(fixture(), { poolShow: '1' });
+  assert.equal(guest.diagnostics.poolChecks, 1, 'a guest needs one trip and gets no spare checks');
+});
+
 test('the old per-option requests are unchanged by pool mode', async () => {
   const f = fixture();
   const old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
@@ -107,4 +124,21 @@ test('big budgets: up to 3 cities and 3 extra nights per city; off switch and ex
   assert.equal(capped.requested.maxStops, 2);
   const small = await search(f, { ...flexible(f), budget: 2000 });
   assert.equal(small.diagnostics.bigBudget, false);
+});
+
+// GV-ROUTE-001: trips that glue far-apart regions together are never picked.
+test('odd routes: the live Punta Cana > Vancouver > Manila trip is rejected, normal trips are not', () => {
+  const O = require('../../backend/services/domain/fare-map/fare-map-optimizer.js');
+  const c = (lat, lng, region) => ({ unifiedRegistry: { latitude: lat, longitude: lng, worldRegion: region } });
+  const zig = { detour: 1.24, cities: [c(18.58, -68.4, 'caribbean'), c(49.28, -123.12, 'north-america'), c(14.6, 120.98, 'southeast-asia')] };
+  const iberia = { detour: 1.05, cities: [c(41.39, 2.17, 'southern-europe'), c(38.72, -9.14, 'southern-europe')] };
+  const east = { detour: 1.1, cities: [c(45.42, -75.7, 'north-america'), c(40.71, -74, 'north-america'), c(44.65, -63.57, 'north-america')] };
+  const three = { detour: 1.2, cities: [c(25.2, 55.27, 'middle-east'), c(41.0, 28.97, 'europe'), c(30.04, 31.24, 'africa')] };
+  assert.ok(O.MAX_SPREAD_KM === 4500);
+  assert.ok(O._internal.routeShape(zig).spreadKm > 4500);
+  assert.equal(O._internal.oddRoute(zig), true);
+  assert.equal(O._internal.oddRoute(three), true, 'three cities in three different regions');
+  assert.equal(O._internal.oddRoute(iberia), false);
+  assert.equal(O._internal.oddRoute(east), false);
+  assert.equal(O._internal.oddRoute({ detour: 1.3, cities: iberia.cities }), true, 'old detour rule still applies');
 });
