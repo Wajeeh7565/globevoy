@@ -45,8 +45,8 @@ let SIMMEM = null, SNAP = null;
 // missing from the snapshot reads as empty. Live truth for hotels stays simulated.
 function snapshotReader(file) {
   const body = JSON.parse(require('zlib').gunzipSync(fs.readFileSync(file)).toString('utf8'));
-  SNAP = { takenAt: Date.parse(body.takenAt), missing: 0 };
-  return async (o, m) => { const v = body.partitions[o + '|' + m]; if (!v) SNAP.missing++; return v || []; };
+  SNAP = { takenAt: Date.parse(body.takenAt), missing: 0, keys: new Set(), coverage: body.coverage || null, memorySha: body.memory?.sha256 || null };
+  return async (o, m) => { const v = body.partitions[o + '|' + m]; if (!v) { SNAP.missing++; SNAP.keys.add(o + '|' + m); } return v || []; };
 }
 let READER = null;
 
@@ -90,5 +90,5 @@ let BUDGETS_USED = BUDGETS;
   for (const [b, r] of Object.entries(s.byBudget)) console.log(`C$${String(b).padEnd(6)} ${String(r.withTrip + '/' + r.searches).padEnd(6)} ${String(r.bestUse + '%').padEnd(8)} ${String(r.bestNights).padEnd(7)} ${String(r.bestCities).padEnd(7)} ${String(r.threeCityBest + '%').padEnd(7)} ${String(r.maxNightsHitBest + '%').padEnd(13)} ${String(r.multiCountry + '%').padEnd(28)} ${String(r.sameCountryShown + '%').padEnd(19)} ${r.refreshDistinctMonths}/${r.refreshRepeatCity}%   ${r.topMonth}`);
   console.log('Most repeated cities (share of guest trips):', s.topCitiesInGuestTrips.join(', '));
   console.log('Effort:', JSON.stringify(s.effort));
-  if (SNAP) console.log(`Fare snapshot from ${new Date(SNAP.takenAt).toISOString()}; partitions missing during replay: ${SNAP.missing}`);
+  if (SNAP) { console.log(`Fare snapshot from ${new Date(SNAP.takenAt).toISOString()}; partitions missing during replay: ${SNAP.keys.size} distinct (${SNAP.missing} reads)`); if (SNAP.keys.size) console.log('WARNING: this setting asked for partitions the snapshot lacks (read as empty); compare it with the baseline only after re-collecting:', [...SNAP.keys].slice(0, 10).join(', ')); if (SNAP.memorySha && o.memoryFile) { const h = require('crypto').createHash('sha256').update(fs.readFileSync(o.memoryFile, 'utf8')).digest('hex'); if (h !== SNAP.memorySha) console.log('WARNING: --memory-file differs from the memory used to collect the snapshot.'); } }
 })();
