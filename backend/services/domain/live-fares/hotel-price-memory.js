@@ -63,12 +63,20 @@ async function record(observations = [], options = {}) {
   const env = options.env || process.env, now = (options.clock || Date.now)();
   if (!store.tableName(env) || options.hotelMemory === false) return 0;
   const map = new Map(await load({ ...options, fresh: true }));
+  const mode = String(env.HOTEL_MEMORY_LEGACY || 'trust').trim().toLowerCase(), rawSince = String(env.HOTEL_MEMORY_CLEAN_SINCE || '').trim();
+  const cleanSince = mode !== 'trust' && rawSince ? (/^\d+$/.test(rawSince) ? Number(rawSince) : Date.parse(rawSince)) || 0 : 0;
   let count = 0;
   for (const o of observations) {
     const est = Number(o?.estimateUsd), live = Number(o?.liveUsd), id = attr(o?.cityId);
     if (!id || !(est > 0) || !(live > 0)) continue;
-    const obs = clamp(live / est), old = map.get(id), n = Math.min(WINDOW, old?.n || 0);
-    map.set(id, { ratio: Number((old ? (old.ratio * n + obs) / (n + 1) : obs).toFixed(3)), n: (old?.n || 0) + 1, at: now });
+    // GV-HOTEL-MEM-002: an entry last updated before HOTEL_MEMORY_CLEAN_SINCE (learned before
+    // the budget-upgrade and property-fee fixes) keeps only a 0.25 weight against the new
+    // observation, so one clean check replaces 80% of it instead of ~17%. Off unless the
+    // setting is present (with HOTEL_MEMORY_LEGACY other than "trust").
+    const obs = clamp(live / est), old = map.get(id);
+    const legacy = old && cleanSince > 0 && Number(old.at || 0) < cleanSince;
+    const n = legacy ? 0.25 : Math.min(WINDOW, old?.n || 0);
+    map.set(id, { ratio: Number((old ? (old.ratio * n + obs) / (n + 1) : obs).toFixed(3)), n: legacy ? 1 : (old?.n || 0) + 1, at: now });
     count++;
   }
   if (!count) return 0;

@@ -56,3 +56,53 @@ test('hotel memory learns the cheap-but-good all-in price, not a budget upgrade'
   assert.match(line, /nuiteeLiveRate\.totalUsd/, 'all-in total (taxes and fees paid at the hotel included)');
   assert.match(line, /budgetUpgrade\?\.extraUsd/, 'upgrade extra taken off');
 });
+
+// GV-HOTEL-MEM-002: settings for memory learned before the upgrade/fee fixes (defaults unchanged).
+test('legacy memory rules: trust by default; shrink, regional and ignore when a clean-since time is set', () => {
+  const { memoryLevel, legacyRule, regionQuantile } = opt._internal;
+  const ratios = new Map([[attr('old-city'), { ratio: 2.6, at: 1000 }], [attr('new-city'), { ratio: 1.6, at: 5000 }]]);
+  const reg = new Map([['europe', { ratio: 1.7 }]]);
+  const stop = id => ({ cityId: id, regionFamily: 'europe' });
+  assert.equal(legacyRule({}).mode, 'trust');
+  assert.equal(memoryLevel(ratios, stop('old-city'), reg, {}).level.toFixed(2), (2.6 * 1.05).toFixed(2), 'default: as today');
+  const env = m => ({ HOTEL_MEMORY_CLEAN_SINCE: '3000', HOTEL_MEMORY_LEGACY: m });
+  assert.equal(memoryLevel(ratios, stop('old-city'), reg, env('shrink')).level.toFixed(3), ((1 + 1.6 / 2) * 1.05).toFixed(3));
+  assert.equal(memoryLevel(ratios, stop('old-city'), reg, env('regional')).level, 1.7);
+  assert.equal(memoryLevel(ratios, stop('old-city'), reg, env('ignore')), null);
+  assert.equal(memoryLevel(ratios, stop('new-city'), reg, env('ignore')).kind, 'learned', 'clean entries are always trusted');
+  assert.equal(legacyRule({ HOTEL_MEMORY_LEGACY: 'shrink' }).mode, 'trust', 'no clean-since time: nothing is legacy');
+  assert.equal(regionQuantile({}), 0.75); assert.equal(regionQuantile({ FARE_MAP_REGION_QUANTILE: '0.6' }), 0.6); assert.equal(regionQuantile({ FARE_MAP_REGION_QUANTILE: '0.2' }), 0.75);
+});
+
+test('legacy memory: regional calibration leaves legacy entries out (or halves their excess with shrink)', () => {
+  const rows = ['a', 'b', 'c', 'd', 'e', 'f'].map(id => row(id, 'europe'));
+  const ratios = new Map([['a', 2.8, 1], ['b', 2.6, 1], ['c', 2.4, 1], ['d', 1.5, 9], ['e', 1.6, 9], ['f', 1.7, 9]].map(([id, r, at]) => [attr(id), { ratio: r, at }]));
+  const base = { HOTEL_MEMORY_CLEAN_SINCE: '5', FARE_MAP_REGION_QUANTILE: '0.5' };
+  assert.equal(regionRatios(ratios, rows, { FARE_MAP_REGION_QUANTILE: '0.5' }).get('europe').ratio, 2.05, 'trust: legacy pulls the level up');
+  assert.equal(regionRatios(ratios, rows, { ...base, HOTEL_MEMORY_LEGACY: 'regional' }).get('europe').ratio, 1.6, 'clean only');
+  assert.equal(regionRatios(ratios, rows, { ...base, HOTEL_MEMORY_LEGACY: 'shrink' }).get('europe').ratio, 1.7, 'legacy 2.8/2.6/2.4 count as 1.9/1.8/1.7');
+});
+
+test('legacy memory: one clean observation replaces 80% of a legacy entry (only with the setting)', async () => {
+  const mem = require('../../backend/services/domain/live-fares/hotel-price-memory');
+  const item = { Item: { pk: { S: 'MEM#hotel' }, sk: { S: 'ratios' }, r_rome_it: { N: '2.5' }, n_rome_it: { N: '5' }, t_rome_it: { N: String(Date.parse('2026-11-24T00:00:00Z')) } } };
+  const run = async env => {
+    let saved = null; mem._internal.reset();
+    const dynamo = { send: async cmd => { if (cmd.input.Item) { saved = cmd.input.Item; return {}; } return item; } };
+    await mem.record([{ cityId: 'rome-it', estimateUsd: 100, liveUsd: 150 }], { env: { FARE_MAP_TABLE: 'globevoy-test', ...env }, dynamo, clock: () => Date.parse('2026-11-26T00:00:00Z') });
+    mem._internal.reset(); return Number(saved.r_rome_it.N);
+  };
+  assert.equal(await run({}), Number(((2.5 * 5 + 1.5) / 6).toFixed(3)), 'default: rolling average as today');
+  assert.equal(await run({ HOTEL_MEMORY_LEGACY: 'shrink', HOTEL_MEMORY_CLEAN_SINCE: '2026-11-25T09:23:00Z' }), 1.7, '0.25 x 2.5 + 1 x 1.5 over 1.25');
+});
+
+test('memory report reads a get-item export and splits legacy from clean entries', () => {
+  const R = require('../performance/hotel-memory-report.cjs');
+  const fs = require('fs'), os = require('os'), p = require('path');
+  const f = p.join(os.tmpdir(), 'mem-' + process.pid + '.json');
+  fs.writeFileSync(f, '﻿' + JSON.stringify({ Item: { savedAt: { N: '200000000' }, r_barcelona_es: { N: '2.4' }, n_barcelona_es: { N: '5' }, t_barcelona_es: { N: '1000' }, r_lisbon_pt: { N: '1.6' }, n_lisbon_pt: { N: '2' }, t_lisbon_pt: { N: '199000000' } } }));
+  const r = R.report(f, 100000000); fs.unlinkSync(f);
+  assert.equal(r.cities, 2);
+  assert.equal(r.legacyVsClean['legacy (before fix)'].median, 2.4);
+  assert.equal(r.legacyVsClean['clean (after fix)'].median, 1.6);
+});
