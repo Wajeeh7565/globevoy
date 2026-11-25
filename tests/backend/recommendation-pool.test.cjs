@@ -108,3 +108,20 @@ test('big budgets: up to 3 cities and 3 extra nights per city; off switch and ex
   const small = await search(f, { ...flexible(f), budget: 2000 });
   assert.equal(small.diagnostics.bigBudget, false);
 });
+
+// GV-ROUTE-001: trips that glue far-apart regions together are never picked.
+test('odd routes: the live Punta Cana > Vancouver > Manila trip is rejected, normal trips are not', () => {
+  const O = require('../../backend/services/domain/fare-map/fare-map-optimizer.js');
+  const c = (lat, lng, region) => ({ unifiedRegistry: { latitude: lat, longitude: lng, worldRegion: region } });
+  const zig = { detour: 1.24, cities: [c(18.58, -68.4, 'caribbean'), c(49.28, -123.12, 'north-america'), c(14.6, 120.98, 'southeast-asia')] };
+  const iberia = { detour: 1.05, cities: [c(41.39, 2.17, 'southern-europe'), c(38.72, -9.14, 'southern-europe')] };
+  const east = { detour: 1.1, cities: [c(45.42, -75.7, 'north-america'), c(40.71, -74, 'north-america'), c(44.65, -63.57, 'north-america')] };
+  const three = { detour: 1.2, cities: [c(25.2, 55.27, 'middle-east'), c(41.0, 28.97, 'europe'), c(30.04, 31.24, 'africa')] };
+  assert.ok(O.MAX_SPREAD_KM === 4500);
+  assert.ok(O._internal.routeShape(zig).spreadKm > 4500);
+  assert.equal(O._internal.oddRoute(zig), true);
+  assert.equal(O._internal.oddRoute(three), true, 'three cities in three different regions');
+  assert.equal(O._internal.oddRoute(iberia), false);
+  assert.equal(O._internal.oddRoute(east), false);
+  assert.equal(O._internal.oddRoute({ detour: 1.3, cities: iberia.cities }), true, 'old detour rule still applies');
+});
