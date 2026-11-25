@@ -135,20 +135,65 @@
     return 'globevoy.results.v2:' + JSON.stringify([search, member]);
   }
 
-  // One request per option (the API plans one option per call). Every trip the
-  // API returns is a candidate; only fully live trips are kept.
+  // Trips this tab has already shown for a search, so "Show other trips" rotates
+  // through the API's pool instead of repeating them (GV-POOL-001).
+  function seenKey(search, member) { return 'globevoy.results.seen.v1:' + JSON.stringify([search, member]); }
+  function readSeen(search, member) { try { const v = JSON.parse(sessionStorage.getItem(seenKey(search, member)) || '[]'); return Array.isArray(v) ? v.slice(-60) : []; } catch (_) { return []; } }
+  function writeSeen(search, member, list) { try { sessionStorage.setItem(seenKey(search, member), JSON.stringify(list.slice(-60))); } catch (_) { /* storage full */ } }
+
+  // One request returns up to three live trips from the search's pool. options.refresh
+  // skips the saved result and the trips already shown; when the pool is used up the
+  // rotation starts again. An older API without pool mode falls back to one request
+  // per option.
   async function findTrips(search, options) {
     const member = !!(options && options.member);
+    const refresh = !!(options && options.refresh);
     const key = cacheKey(search, member);
-    try {
-      const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
-      if (saved && Date.now() - saved.at < CACHE_MS && (saved.trips?.length || saved.noTrip)) return saved;
-    } catch (_) { /* no cache */ }
-
+    if (!refresh) {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
+        if (saved && Date.now() - saved.at < CACHE_MS && (saved.trips?.length || saved.noTrip)) return saved;
+      } catch (_) { /* no cache */ }
+    }
     const api = window.GlobevoyApi;
     if (!api || !api.isConfigured || !api.isConfigured()) throw new Error('not-configured');
+
+    let seen = refresh ? readSeen(search, member) : [];
+    const ask = list => api.getGeneratedTour({ ...apiParams(search, 'best-balance', 1), pool: '1', poolShow: member ? '3' : '1', seenRoutes: JSON.stringify(list) });
+    let payload = null;
+    try { payload = await ask(seen); } catch (_) { payload = null; }
+    if (payload && payload.poolMode) {
+      let tours = [payload.tour].concat(Array.isArray(payload.tours) ? payload.tours : []).filter(Boolean);
+      if (!tours.some(isFullyLive) && seen.length && !payload.poolRemaining) {
+        // Every pool trip has been shown: start the rotation again.
+        seen = [];
+        try { payload = await ask(seen); } catch (_) { payload = null; }
+        tours = payload ? [payload.tour].concat(Array.isArray(payload.tours) ? payload.tours : []).filter(Boolean) : [];
+      }
+      const unique = [];
+      const keys = new Set();
+      tours.filter(isFullyLive).forEach(t => { const k = routeKey(t); if (!keys.has(k)) { keys.add(k); unique.push(t); } });
+      const labelled = unique.slice(0, member ? 3 : 1).map(tour => {
+        const role = ROLES.find(r => r.id === (tour.tourRole || tour.fareMapRole)) || ROLES[0];
+        return { tour, role: role.id, meta: role };
+      });
+      writeSeen(search, member, seen.concat(payload?.poolShownRoutes || []));
+      const result = { at: Date.now(), trips: labelled, noTrip: labelled.length ? null : (payload?.noTrip || null), failed: !payload,
+        poolSize: Number(payload?.poolSize) || 0, poolRemaining: Number(payload?.poolRemaining) || 0 };
+      if (labelled.length || result.noTrip) {
+        try { sessionStorage.setItem(key, JSON.stringify(result)); } catch (_) { /* storage full */ }
+      }
+      return result;
+    }
+    // Older API: its answer to this request is the main option's answer; reuse it.
+    return findTripsByRole(search, member, key, payload || undefined);
+  }
+
+  // Older API: one request per option (kept so the page works with either backend).
+  async function findTripsByRole(search, member, key, prefetched) {
+    const api = window.GlobevoyApi;
     const roles = member ? ROLES : ROLES.slice(0, 1);
-    const settled = await Promise.allSettled(roles.map((role, i) => api.getGeneratedTour(apiParams(search, role.id, i + 1))));
+    const settled = await Promise.allSettled(roles.map((role, i) => (i === 0 && prefetched ? Promise.resolve(prefetched) : api.getGeneratedTour(apiParams(search, role.id, i + 1)))));
 
     let noTrip = null;
     let failures = 0;
