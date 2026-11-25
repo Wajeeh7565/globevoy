@@ -192,7 +192,9 @@ function offerFromRoomType(rateHotel = {}, roomType = {}, contentHotel = null) {
     refundableTag: clean(rate?.cancellationPolicies?.refundableTag) || 'UNKNOWN',
     cancellationDetailsPresent: Array.isArray(rate?.cancellationPolicies?.cancelPolicyInfos),
     taxesAndFeesPresent: Array.isArray(rate?.retailRate?.taxesAndFees),
-    excludedFeesPresent: fees.some((fee) => fee?.included === false)
+    excludedFeesPresent: fees.some((fee) => fee?.included === false),
+    // Fees not in `amount` that the guest pays at the property (e.g. city tourist tax).
+    excludedFees: fees.filter((fee) => fee?.included === false).map((fee) => ({ amount: finite(fee.amount, null), currency: upper(fee.currency), description: clean(fee.description) }))
   };
 }
 

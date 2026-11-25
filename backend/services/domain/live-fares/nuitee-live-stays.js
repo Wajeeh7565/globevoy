@@ -54,8 +54,38 @@ function whitelabelUrl(domain, hotelId, checkin, checkout, occupancies) {
   return url.toString();
 }
 
+// GV-HOTEL-FEES-001: fees paid at the hotel (e.g. Barcelona's tourist tax) are NOT in the
+// Nuitee amount. Offers with them used to be dropped, which in tourist-tax cities removed
+// the cheapest rooms (Nov 25 basis check: 34/34 cheapest Barcelona rooms had one). Now
+// they are kept and priced honestly: the fee is converted to the offer currency and added
+// to the stay total (`effectiveAmount`), and shown as "paid at the hotel". An offer whose
+// fee can't be read or converted is still dropped. NUITEE_DROP_PAY_AT_HOTEL=true restores
+// the old behaviour.
+const CONVERTIBLE = new Set(['USD', 'CAD', 'EUR', 'GBP', 'AUD']);
+function payAtHotel(offer, currency) {
+  const fees = Array.isArray(offer.excludedFees) ? offer.excludedFees : [];
+  if (offer.excludedFeesPresent === true && !fees.length) return null; // flagged but unreadable
+  let amount = 0; const parts = [];
+  for (const f of fees) {
+    const cur = clean(f.currency).toUpperCase() || currency;
+    if (f.amount == null || !(Number(f.amount) >= 0)) return null; // unreadable fee: cannot price honestly
+    if (cur !== currency && !(CONVERTIBLE.has(cur) && CONVERTIBLE.has(currency))) return null;
+    const inOffer = cur === currency ? Number(f.amount) : Number(f.amount) * currencyToUsdRate(cur) / currencyToUsdRate(currency);
+    amount += inOffer; parts.push({ amount: Number(f.amount), currency: cur, description: f.description || null });
+  }
+  return { amount: Number(amount.toFixed(2)), parts };
+}
+function priced(offer, currency, env = process.env) {
+  if (offer.excludedFeesPresent !== true) return { ...offer, payAtHotel: null, effectiveAmount: offer.amount };
+  if (clean(env.NUITEE_DROP_PAY_AT_HOTEL).toLowerCase() === 'true') return null;
+  const fee = payAtHotel(offer, currency);
+  if (!fee) return null;
+  return { ...offer, payAtHotel: fee, effectiveAmount: Number((offer.amount + fee.amount).toFixed(2)) };
+}
+
 // "Cheap but good": among offers with a decent review score, prefer refundable,
-// then cheapest. Fall back to all valid offers when none are well rated.
+// then cheapest (including fees paid at the hotel). Fall back to all valid offers
+// when none are well rated.
 function chooseOffer(payload = {}, currency, options = {}) {
   const rateHotels = Array.isArray(payload.data) ? payload.data : [];
   const content = new Map((Array.isArray(payload.hotels) ? payload.hotels : []).map(h => [clean(h.hotelId || h.id), h]));
@@ -65,7 +95,7 @@ function chooseOffer(payload = {}, currency, options = {}) {
       offers.push(internal.offerFromRoomType(rh, rt, content.get(clean(rh.hotelId || rh.id)) || null));
     }
   }
-  const valid = offers.filter(o => o.hotelId && o.amount > 0 && o.currency === currency && o.excludedFeesPresent !== true);
+  const valid = offers.filter(o => o.hotelId && o.amount > 0 && o.currency === currency).map(o => priced(o, currency, options.env)).filter(Boolean);
   if (!valid.length) return null;
   if (options.all) return valid;
   // Cheapest offer from a hotel rated 7.0+ (if any are rated); refundable only
@@ -74,7 +104,7 @@ function chooseOffer(payload = {}, currency, options = {}) {
   // hotelChoice 'cheapest': a trip that only fits with the cheapest room takes it,
   // whatever its rating (the page shows the rating).
   const pool = options.cheapest ? valid : (good.length ? good : valid);
-  return pool.slice().sort((a, b) => a.amount - b.amount || (a.refundableTag === 'RFN' ? 0 : 1) - (b.refundableTag === 'RFN' ? 0 : 1))[0];
+  return pool.slice().sort((a, b) => a.effectiveAmount - b.effectiveAmount || (a.refundableTag === 'RFN' ? 0 : 1) - (b.refundableTag === 'RFN' ? 0 : 1))[0];
 }
 
 async function priceStop(stop, index, tour, query, env, options, apiKey, currency) {
@@ -97,9 +127,9 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   const result = await nuitee.postJson(RATE_URL, body, apiKey, options);
   if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: 1 };
   if (result.payload?.sandbox === true) return { index, applied: false, reason: 'sandbox-response', providerRequests: 1 };
-  const offer = chooseOffer(result.payload || {}, currency, { cheapest: options.hotelChoice === 'cheapest' });
+  const offer = chooseOffer(result.payload || {}, currency, { cheapest: options.hotelChoice === 'cheapest', env });
   if (!offer) return { index, applied: false, reason: 'no-usable-offer', providerRequests: 1 };
-  const pool = chooseOffer(result.payload || {}, currency, { all: true }) || [];
+  const pool = chooseOffer(result.payload || {}, currency, { all: true, env }) || [];
   return { index, applied: true, offer, pool, stayWindow, occupancies: body.occupancies, roomCount: body.occupancies.length, providerRequests: 1 };
 }
 
@@ -112,7 +142,7 @@ function upgradeHotels(rows, hotelBudgetUsd, usdRate) {
   if (!Number.isFinite(cap) || cap <= 0) return null;
   const applied = rows.filter(r => r.applied && r.offer);
   if (!applied.length || applied.length !== rows.length) return { attempted: false, reason: 'not-all-hotels-priced' };
-  const usd = o => Math.round(o.amount * usdRate);
+  const usd = o => Math.round((o.effectiveAmount ?? o.amount) * usdRate);
   let left = cap - applied.reduce((sum, r) => sum + usd(r.offer), 0);
   const startLeft = left;
   if (left <= 0) return { attempted: true, upgradedCount: 0, leftUsd: Math.round(left) };
@@ -161,7 +191,9 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
     if (!row.applied) continue;
     const stop = nextStops[row.index];
     const nights = Math.max(1, Math.round(row.stayWindow.nights || stop.nights || 1));
-    const totalUsd = Math.round(row.offer.amount * usdRate);
+    // Trip total includes fees paid at the hotel; the Nuitee checkout shows `amount` only.
+    const totalUsd = Math.round((row.offer.effectiveAmount ?? row.offer.amount) * usdRate);
+    const payUsd = row.offer.payAtHotel ? Math.round(row.offer.payAtHotel.amount * usdRate) : 0;
     const nightlyPerRoomUsd = totalUsd / (nights * row.roomCount);
     const url = whitelabelUrl(domain, row.offer.hotelId, row.stayWindow.checkin, row.stayWindow.checkout, row.occupancies);
     if (!url) { row.applied = false; row.reason = 'whitelabel-link-invalid'; continue; }
@@ -184,6 +216,7 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
       livePriceVerified: true,
       checkIn: row.stayWindow.checkin,
       checkOut: row.stayWindow.checkout,
+      payAtHotel: payUsd > 0 ? { usd: payUsd, amount: row.offer.payAtHotel.amount, currency: row.offer.currency, parts: row.offer.payAtHotel.parts, label: 'Paid at the hotel (local taxes)' } : null,
       pricingIntegrity: { ...(previous.pricingIntegrity || {}), nightlyPerRoomUsd: Number(nightlyPerRoomUsd.toFixed(2)), roomCount: row.roomCount, nights, rateBasis: 'per-room-per-night' },
       nuiteeLiveRate: {
         version: VERSION,
@@ -194,6 +227,8 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
         boardName: row.offer.boardName || null,
         refundableTag: row.offer.refundableTag,
         taxesAndFeesPresent: row.offer.taxesAndFeesPresent,
+        bookingAmount: row.offer.amount,
+        payAtHotelAmount: row.offer.payAtHotel ? row.offer.payAtHotel.amount : 0,
         checkin: row.stayWindow.checkin,
         checkout: row.stayWindow.checkout,
         dateBasis: row.stayWindow.dateBasis,
@@ -225,4 +260,4 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
   };
 }
 
-module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl, upgradeHotels } };
+module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl, upgradeHotels, payAtHotel, priced } };
