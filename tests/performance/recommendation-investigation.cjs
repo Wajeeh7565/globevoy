@@ -15,7 +15,7 @@ const B = require('./recommendation-benchmark.cjs');
 const ORIGINS = ['Toronto (YYZ)', 'Vancouver (YVR)', 'New York (JFK)', 'Los Angeles (LAX)', 'Mexico City (MEX)', 'London (LHR)', 'Paris (PAR)', 'Dubai (DXB)', 'Singapore (SIN)', 'Sydney (SYD)'];
 const BUDGETS = [1500, 2000, 3000, 4000, 5000, 7500, 10000, 15000];
 
-function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
+function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
 function loadMemory(file) {
   const R = require('./hotel-memory-report.cjs');
   const { entries } = R.parse(fs.readFileSync(file, 'utf8'));
@@ -25,7 +25,7 @@ const mean = a => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
 const pct = x => Math.round(100 * x);
 
 async function runOne(origin, budgetCad, env) {
-  const r = await opt.search({ origin, budget: budgetCad, currency: 'CAD', adults: 1 }, { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env }, now: B.NOW, readRoutes: B.fareReader(), hotelRatios: SIMMEM });
+  const r = await opt.search({ origin, budget: budgetCad, currency: 'CAD', adults: 1 }, { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env }, now: B.NOW, readRoutes: B.fareReader(), hotelRatios: SIMMEM, ...(READER ? { readRoutes: READER, now: SNAP.takenAt } : {}) });
   const pool = r.pool || [], spendable = budgetCad / B.CAD_PER_USD * 0.9;
   // live check in pool order; a page shows the first passing trips (signed out 1, signed in 3)
   const checked = pool.map(t => ({ t, live: B.liveTotalUsd(t) })).filter(x => x.live <= spendable);
@@ -40,7 +40,15 @@ async function runOne(origin, budgetCad, env) {
   const member = checked.slice(0, 3).map(trip);          // signed in: 3 trips
   return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member, d: r.diagnostics || {} };
 }
-let SIMMEM = null;
+let SIMMEM = null, SNAP = null;
+// --fare-snapshot: replay REAL cached fares (ops/fare-map/replay-snapshot.mjs); a partition
+// missing from the snapshot reads as empty. Live truth for hotels stays simulated.
+function snapshotReader(file) {
+  const body = JSON.parse(require('zlib').gunzipSync(fs.readFileSync(file)).toString('utf8'));
+  SNAP = { takenAt: Date.parse(body.takenAt), missing: 0 };
+  return async (o, m) => { const v = body.partitions[o + '|' + m]; if (!v) SNAP.missing++; return v || []; };
+}
+let READER = null;
 
 function summarise(cases) {
   const by = b => cases.filter(c => c.budgetCad === b);
@@ -72,6 +80,7 @@ let BUDGETS_USED = BUDGETS;
   const origins = o.origins || ORIGINS; BUDGETS_USED = o.budgets || BUDGETS;
   B.setOriginCodes(origins.map(x => B.originInfo(x).code));
   SIMMEM = o.memoryFile ? loadMemory(o.memoryFile) : B.simulatedMemory();
+  if (o.fareSnapshot) READER = snapshotReader(o.fareSnapshot);
   const cases = [];
   for (const x of origins) for (const b of BUDGETS_USED) cases.push(await runOne(x, b, o.env));
   const s = summarise(cases);
@@ -81,4 +90,5 @@ let BUDGETS_USED = BUDGETS;
   for (const [b, r] of Object.entries(s.byBudget)) console.log(`C$${String(b).padEnd(6)} ${String(r.withTrip + '/' + r.searches).padEnd(6)} ${String(r.bestUse + '%').padEnd(8)} ${String(r.bestNights).padEnd(7)} ${String(r.bestCities).padEnd(7)} ${String(r.threeCityBest + '%').padEnd(7)} ${String(r.maxNightsHitBest + '%').padEnd(13)} ${String(r.multiCountry + '%').padEnd(28)} ${String(r.sameCountryShown + '%').padEnd(19)} ${r.refreshDistinctMonths}/${r.refreshRepeatCity}%   ${r.topMonth}`);
   console.log('Most repeated cities (share of guest trips):', s.topCitiesInGuestTrips.join(', '));
   console.log('Effort:', JSON.stringify(s.effort));
+  if (SNAP) console.log(`Fare snapshot from ${new Date(SNAP.takenAt).toISOString()}; partitions missing during replay: ${SNAP.missing}`);
 })();
