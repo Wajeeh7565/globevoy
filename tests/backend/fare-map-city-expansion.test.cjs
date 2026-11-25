@@ -36,6 +36,30 @@ test('reviews the exact 503-city gap, preserves legacy rows and corrects evidenc
   assert.equal(expansion.admit({ ...praia, primaryAirportCode: 'LHR' }, review), null);
 });
 
+test('Nuitee catalogue evidence admits a blocked market only with an exact, local production property', () => {
+  const { catalogueMarkets } = require('../../backend/services/providers/stays/nuitee/nuitee-market');
+  const city = registry.records.find(row => row.cityId === 'palma-de-mallorca-es');
+  const original = expansion.reviewExpansion().get(city.cityId);
+  assert.deepEqual(original.reasons, ['hotel-market-unresolved']);
+  const property = { id: 'lp-test-only', city: city.displayName, country: 'ES',
+    latitude: city.latitude, longitude: city.longitude };
+  const evidence = hotels => ({ schema: 1, source: 'nuitee-production-data-hotels',
+    records: [{ cityId: city.cityId, observedAt: new Date(now).toISOString(), hotels }] });
+  const recovered = expansion.reviewExpansion(evidence([property]));
+  assert.deepEqual(recovered.get(city.cityId).reasons, []);
+  const row = rows().find(row => row.unifiedRegistry.cityId === city.cityId);
+  assert.equal(expansion.admit(row, recovered).nuiteeMarket.cityName, city.displayName);
+  assert.equal([...recovered.values()].filter(row => !row.reasons.length).length, 369);
+  for (const bad of [
+    { ...property, city: 'Calvia' }, { ...property, country: 'PT' },
+    { ...property, latitude: 0 }, { ...property, longitude: null }, { ...property, id: '../id' }
+  ]) assert.equal(catalogueMarkets(evidence([bad]), registry.records).size, 0);
+  const sandbox = evidence([property]);
+  sandbox.records[0].sandbox = true;
+  assert.equal(catalogueMarkets(sandbox, registry.records).size, 0);
+  assert.equal(expansion.reviewExpansion().get(city.cityId), original);
+});
+
 test('collectors already schedule every reviewed route code in every collection month', () => {
   const origins = ingest.originCodesFromRegistry(registry);
   const months = ingest.upcomingMonths(collectionMonthCount(now), now);
@@ -92,7 +116,6 @@ test('flag admits cached eligible routes, still blocks unmatched hotel markets a
 
 test('expansion verification fails closed and only publishes a trip after live flights and hotel pricing', async t => {
   const generated = require('../../backend/services/domain/tours/generated-tour');
-  const pricing = require('../../backend/services/domain/pricing/traveller-pricing');
   const prior = process.env.ENABLE_GENERATED_TOUR_651A;
   process.env.ENABLE_GENERATED_TOUR_651A = 'true';
   t.after(() => {
@@ -126,16 +149,46 @@ test('expansion verification fails closed and only publishes a trip after live f
   assert.equal(missing.tour, null);
   assert.deepEqual(missing.tours, []);
   assert.deepEqual(Object.values(missing.roleCandidates || {}).flat(), []);
-  const result = await generated.getGeneratedTour({ ...query, pool: 1, poolShow: 1 }, {
-    ...options, applyNuiteeLiveStays: async tour => {
-      assert.equal(tour.stops[0].countryCode, 'CV');
-      assert.equal(tour.stops[0].arrivalDate, '2027-03-11');
-      assert.equal(tour.stops[0].departureDate, query.returnDate);
-      tour.stops[0].hotel = { ...tour.stops[0].hotel, estimatedStayUsd: 180, totalStayUsd: 180,
-        nuiteeLiveRate: { amount: 180, currency: 'USD', totalUsd: 180 } };
-      return { tour: pricing.applyTravellerPricingToTour(tour, query), summary: { applied: true, appliedCount: 1, stopCount: 1 } };
+  const requests = [];
+  const rateResponse = amount => ({
+    status: 200,
+    text: async () => JSON.stringify({
+      hotels: [{ id: 'lp-expansion', name: 'Test stay', city_name: 'Praia', country_code: 'CV',
+        latitude: 14.92, longitude: -23.5, rating: 8.5 }],
+      data: [{ hotelId: 'lp-expansion', roomTypes: [{ offerId: 'test-offer', offerRetailRate: { amount, currency: 'USD' },
+        rates: [{ adultCount: 1, childCount: 0, retailRate: { total: [{ amount, currency: 'USD' }],
+          taxesAndFees: [{ included: false, amount: 10, currency: 'USD' }] } }] }] }]
+    })
+  });
+  const fetchFor = amount => async (url, request) => {
+    assert.match(url, /\/hotels\/rates$/);
+    const body = JSON.parse(request.body);
+    requests.push(body);
+    assert.equal(body.countryCode, 'CV');
+    assert.equal(body.checkin, '2027-03-11');
+    assert.equal(body.checkout, query.returnDate);
+    assert.deepEqual(body.occupancies, [{ adults: 1, children: [] }]);
+    return rateResponse(amount);
+  };
+  const liveOptions = { ...options, apiKey: 'prod_test_not_real', fetch: fetchFor(180) };
+  const poolQuery = { ...query, pool: 1, poolShow: 1 };
+  const result = await generated.getGeneratedTour(poolQuery, liveOptions);
+  assert.equal(requests.length, 1);
+  assert.equal(result.tour?.stops[0].hotel.nuiteeLiveRate.marketVerified, true, JSON.stringify(result.diagnostics));
+  assert.equal(result.tour.stops[0].hotel.nuiteeLiveRate.payAtHotelAmount, 10);
+  const rejected = await generated.getGeneratedTour(poolQuery, { ...liveOptions, fetch: fetchFor(2200) });
+  assert.equal(rejected.tour, null);
+  assert.equal(requests.length, 2, 'over-budget retry shares the same rate response');
+  const mismatch = await generated.getGeneratedTour(poolQuery, { ...liveOptions,
+    fetch: () => assert.fail('Mismatched flights must not start stay pricing'),
+    applyIgnavLiveFares: async tour => {
+      const priced = await options.applyIgnavLiveFares(tour);
+      priced.tour.legs[0].to = { ...priced.tour.legs[0].to, airportCode: 'LHR' };
+      return priced;
     }
   });
+  assert.equal(mismatch.tour, null);
+  assert.equal(mismatch.reason, 'fare-map-incomplete-or-mismatched-live-evidence');
   assert.equal(result.tour?.stops[0].cityId, 'praia-cv', result.reason);
   assert.equal(result.tour.tourRole, 'best-balance');
   assert.equal(result.diagnostics.ignavCalls, 2);

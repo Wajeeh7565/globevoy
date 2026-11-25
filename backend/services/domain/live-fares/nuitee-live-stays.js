@@ -14,6 +14,7 @@
 const HOTEL_LIMIT = 20;
 const RATE_TIMEOUT_MS = 12000;
 const nuitee = require('../../providers/stays/nuitee/nuitee-hotel-708c');
+const { matchesMarket, matchesOccupancies, propertyId } = require('../../providers/stays/nuitee/nuitee-market');
 const { applyTravellerPricingToTour } = require('../pricing/traveller-pricing');
 const { currencyToUsdRate, normalizeCurrency } = require('../pricing/budget-presentation');
 
@@ -90,9 +91,16 @@ function chooseOffer(payload = {}, currency, options = {}) {
   const rateHotels = Array.isArray(payload.data) ? payload.data : [];
   const content = new Map((Array.isArray(payload.hotels) ? payload.hotels : []).map(h => [clean(h.hotelId || h.id), h]));
   const offers = [];
+  const market = options.market;
   for (const rh of rateHotels) {
+    const id = clean(rh.hotelId || rh.id);
+    const hotel = content.get(id);
+    if (market && (!propertyId.test(id) || !matchesMarket(hotel, market.stop))) continue;
     for (const rt of (Array.isArray(rh.roomTypes) ? rh.roomTypes : [])) {
-      offers.push(internal.offerFromRoomType(rh, rt, content.get(clean(rh.hotelId || rh.id)) || null));
+      if (market && (!clean(rt?.offerId) || !matchesOccupancies(rt.rates, market.occupancies) ||
+          rt.rates.some(rate => Array.isArray(rate.retailRate?.total) &&
+            rate.retailRate.total.some(total => clean(total?.currency).toUpperCase() !== currency)))) continue;
+      offers.push(internal.offerFromRoomType(rh, rt, hotel || null, Boolean(market)));
     }
   }
   const valid = offers.filter(o => o.hotelId && o.amount > 0 && o.currency === currency).map(o => priced(o, currency, options.env)).filter(Boolean);
@@ -110,13 +118,18 @@ function chooseOffer(payload = {}, currency, options = {}) {
 async function priceStop(stop, index, tour, query, env, options, apiKey, currency) {
   const stayWindow = internal.deriveStayWindow(tour, stop, index);
   const countryCode = internal.resolveCountryCode(stop);
+  const verifyMarket = tour.fareMap?.expansionCandidate === true;
   const today = new Date().toISOString().slice(0, 10);
+  if (verifyMarket && (tour.fareMap.arrivalDatesVerified !== true || !stayWindow.dateConfirmed)) {
+    return { index, applied: false, reason: 'expansion-stay-dates-unverified' };
+  }
   if (!clean(stop.city) || !countryCode || !stayWindow.checkin || !stayWindow.checkout || stayWindow.checkin < today) {
     return { index, applied: false, reason: !countryCode ? 'country-code-unresolved' : 'stay-dates-unavailable' };
   }
   let body;
   try {
-    body = internal.searchBody({ ...stop, hotel: {} }, { ...query, guestNationality: query.guestNationality || query.nationality || env.NUITEE_GUEST_NATIONALITY || 'CA', currency }, stayWindow, countryCode, env);
+    const searchCity = verifyMarket && stop.nuiteeSearchCity ? stop.nuiteeSearchCity : stop.city;
+    body = internal.searchBody({ ...stop, city: searchCity, hotel: {} }, { ...query, guestNationality: query.guestNationality || query.nationality || env.NUITEE_GUEST_NATIONALITY || 'CA', currency }, stayWindow, countryCode, env);
   } catch (error) {
     return { index, applied: false, reason: clean(error.code || 'occupancy-invalid') };
   }
@@ -134,10 +147,12 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   const requests = hit ? 0 : 1;
   if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: requests };
   if (result.payload?.sandbox === true) return { index, applied: false, reason: 'sandbox-response', providerRequests: requests };
-  const offer = chooseOffer(result.payload || {}, currency, { cheapest: options.hotelChoice === 'cheapest', env });
-  if (!offer) return { index, applied: false, reason: 'no-usable-offer', providerRequests: requests };
-  const pool = chooseOffer(result.payload || {}, currency, { all: true, env }) || [];
-  return { index, applied: true, offer, pool, stayWindow, occupancies: body.occupancies, roomCount: body.occupancies.length, providerRequests: requests };
+  const offerOptions = { env, ...(verifyMarket ? { market: { stop, occupancies: body.occupancies } } : {}) };
+  const offer = chooseOffer(result.payload || {}, currency, { ...offerOptions, cheapest: options.hotelChoice === 'cheapest' });
+  if (!offer) return { index, applied: false, reason: verifyMarket ? 'no-matching-market-and-occupancy-offer' : 'no-usable-offer', providerRequests: requests };
+  const pool = chooseOffer(result.payload || {}, currency, { ...offerOptions, all: true }) || [];
+  return { index, applied: true, offer, pool, stayWindow, marketVerified: verifyMarket,
+    occupancies: body.occupancies, roomCount: body.occupancies.length, providerRequests: requests };
 }
 
 // Best use of budget (GV-HOTEL-BUDGET-UPGRADE-001): when the caller passes the most the
@@ -256,6 +271,7 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
         dateBasis: row.stayWindow.dateBasis,
         observedAt,
         sourceType: 'LIVE',
+        ...(row.marketVerified ? { marketVerified: true } : {}),
         reserved: false,
         finalPriceRequiresPartnerConfirmation: true
       },

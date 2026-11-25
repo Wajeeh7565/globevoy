@@ -1,5 +1,7 @@
 'use strict';
 
+const { catalogueMarkets } = require('../../providers/stays/nuitee/nuitee-market');
+
 const FLAG = 'FARE_MAP_CITY_EXPANSION';
 const stayMarketTypes = new Set(['exact-city-country', 'alias-city-country', 'coordinate-confirmed-market', 'fuzzy-city-country']);
 // These country/territory codes currently fall through to "Other" in the base registry.
@@ -18,7 +20,7 @@ function enabled(env) {
   return String(env?.[FLAG] || '').trim().toLowerCase() === 'on';
 }
 
-function check(city, catalogue, mapping, directCounts) {
+function check(city, catalogue, mapping, directCounts, nuiteeMarket) {
   const reasons = [];
   const { origin, destination } = city;
   const { travelpayouts: flight, agoda: stay } = mapping || {};
@@ -50,19 +52,22 @@ function check(city, catalogue, mapping, directCounts) {
     reasons.push('direct-provider-airport-unresolved');
   }
   if (directCounts.get(origin.providerLocationCode) > 1) reasons.push('ambiguous-direct-fare-code');
-  if (!stay?.mappingAccepted || !(stay.cityId > 0 && stay.hotelCount > 0)) reasons.push('hotel-market-unresolved');
-  else if (!stayMarketTypes.has(stay.mappingType)) reasons.push('hotel-market-outside-destination');
+  if (!nuiteeMarket) {
+    if (!stay?.mappingAccepted || !(stay.cityId > 0 && stay.hotelCount > 0)) reasons.push('hotel-market-unresolved');
+    else if (!stayMarketTypes.has(stay.mappingType)) reasons.push('hotel-market-outside-destination');
+  }
 
   return {
     cityId: city.cityId, city: city.displayName, countryCode: city.countryCode,
     code: origin.providerLocationCode, airport: origin.preferredAirportCode,
-    hotelMapping: stay?.mappingType || null, reasons, metadata
+    hotelMapping: stay?.mappingType || null, nuiteeMarket: nuiteeMarket || null, reasons, metadata
   };
 }
 
 let review;
-function reviewExpansion() {
-  if (review) return review;
+function reviewExpansion(evidence = require('../../../data/nuitee-city-catalogue-evidence.json')) {
+  const packaged = evidence === require('../../../data/nuitee-city-catalogue-evidence.json');
+  if (packaged && review) return review;
   const base = require('../../../data/unified-city-registry-1000.json').records;
   const catalogue = index(require('../../../data/global-destination-catalogue.json').destinations, 'catalogueId');
   const mappings = index(require('../../../data/provider-mappings-1000-668b.json').records, 'cityId');
@@ -73,12 +78,14 @@ function reviewExpansion() {
       directCounts.set(code, (directCounts.get(code) || 0) + 1);
     }
   }
-  review = new Map();
+  const markets = catalogueMarkets(evidence, base);
+  const decisions = new Map();
   for (const city of base) {
     if (!city.destination.eligible || city.origin.requiresGatewayTransfer || city.validation.bothProvidersMapped) continue;
-    review.set(city.cityId, check(city, catalogue.get(city.catalogueId), mappings.get(city.cityId), directCounts));
+    decisions.set(city.cityId, check(city, catalogue.get(city.catalogueId), mappings.get(city.cityId), directCounts, markets.get(city.cityId)));
   }
-  return review;
+  if (packaged) review = decisions;
+  return decisions;
 }
 
 function admit(row, review) {
@@ -91,7 +98,7 @@ function admit(row, review) {
   const metadata = decision.metadata;
   // Keep the original hotel/provider fields. Historical catalogue mappings only admit a
   // candidate; the production adapters verify the real trip independently.
-  return { ...row, expansionCandidate: true, unifiedRegistry: metadata ? {
+  return { ...row, expansionCandidate: true, nuiteeMarket: decision.nuiteeMarket, unifiedRegistry: metadata ? {
     ...city, worldRegion: metadata.worldRegion, destination: { ...city.destination, regionCluster: metadata.regionCluster }
   } : city };
 }

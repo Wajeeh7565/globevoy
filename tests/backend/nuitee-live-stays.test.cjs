@@ -260,3 +260,30 @@ test('pay-at-hotel fees: EUR fees are converted; unknown currencies and unreadab
   assert.equal(_internal.chooseOffer({ data: [unread.rate], hotels: [] }, 'CAD'), null);
   assert.equal(_internal.chooseOffer({ data: [feeHotel('lpT', 'Tax Hotel', 8.2, 400, 30).rate], hotels: [] }, 'CAD', { env: { NUITEE_DROP_PAY_AT_HOTEL: 'true' } }), null, 'old behaviour on request');
 });
+
+test('expansion offer filtering rejects nearby substitutions and wrong room assignments before upgrades', () => {
+  const stop = { city: 'Lisbon', countryCode: 'PT', latitude: 38.72, longitude: -9.14 };
+  const room = (adults, children, currency = 'CAD') => ({
+    adultCount: adults, childCount: children.length, childrenAges: children,
+    retailRate: { total: [{ amount: 100, currency }], taxesAndFees: [{ included: false, amount: 6, currency }] }
+  });
+  const offer = (id, city, lat, roomRates) => ({
+    property: { id, city_name: city, country_code: 'PT', latitude: lat, longitude: -9.14 },
+    rate: { hotelId: id, roomTypes: [{ offerId: 'test-' + id,
+      offerRetailRate: { amount: 200, currency: 'CAD' }, rates: roomRates }] }
+  });
+  const good = [room(1, [7]), room(2, [])];
+  const cases = [
+    offer('nearby', 'Oeiras', 38.72, good), offer('faraway', 'Lisbon', 39.2, good),
+    offer('wrong-age', 'Lisbon', 38.72, [room(1, [9]), room(2, [])]),
+    offer('wrong-rooms', 'Lisbon', 38.72, [room(3, [7])]),
+    offer('wrong-currency', 'Lisbon', 38.72, [room(1, [7]), room(2, [], 'EUR')]),
+    offer('right', 'Lisbon', 38.72, good.slice().reverse())
+  ];
+  const payload = { hotels: cases.map(r => r.property), data: cases.map(r => r.rate) };
+  const market = { stop, occupancies: [{ adults: 1, children: [7] }, { adults: 2, children: [] }] };
+  const valid = _internal.chooseOffer(payload, 'CAD', { all: true, market });
+  assert.deepEqual(valid.map(row => row.hotelId), ['right']);
+  assert.equal(valid[0].effectiveAmount, 212);
+  assert.equal(_internal.chooseOffer({ ...payload, hotels: [] }, 'CAD', { market }), null);
+});

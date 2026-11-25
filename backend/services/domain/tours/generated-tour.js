@@ -3581,6 +3581,11 @@ async function getFareMapGeneratedTour(query,options) {
     priceIndexStore.loadAll({...searchOptions,env:memEnv||process.env}).catch(()=>new Map())]);
   const result=await optimizer.search(query,{...searchOptions,hotelRatios,priceIndex,allowCityExpansion:true});
   const needsExpansionVerification=tour=>tour?.fareMap?.expansionCandidate===true;
+  const verifiedStays=(tour, source)=>{
+    const stops=tour?.stops||[];
+    return stops.length>0&&stops.every(st=>st.hotel?.nuiteeLiveRate&&
+      (!needsExpansionVerification(source)||st.hotel.nuiteeLiveRate.marketVerified===true));
+  };
   const legacyCandidates=tours=>tours.filter(t=>!needsExpansionVerification(t));
   // Expansion planning candidates are private to the verification queue.
   const publicResult=result.diagnostics?.expansionEligibleCities ? {
@@ -3706,10 +3711,9 @@ async function getFareMapGeneratedTour(query,options) {
       const observed=String(env.HOTEL_MEMORY_SKIP_FALLBACK||'').trim().toLowerCase()==='on'?firstObserved:(priced?.diagnostics?.nuiteeHotelObservations||[]);
       if(observed.length){diagnostics.hotelObservations=(diagnostics.hotelObservations||0)+observed.length;try{await hotelMemory.record(observed,{...searchOptions,env:searchOptions.env||options.env});}catch(_){}}
       if(overWithRealHotels(priced))return {reason:'fare-map-live-hotels-exceed-protected-budget'};
-      const stops=priced?.tour?.stops||[];
-      if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};
+      if(!verifiedStays(priced?.tour,candidateTour))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};
       // Live hotel prices can push the total over; the spendable budget is a hard line.
-      if(Number(priced.tour.estimatedTotalUsd)>Number(priced.tour.usableTripBudgetUsd))return {reason:'fare-map-live-total-exceeds-protected-budget'};
+      if(!(Number(priced.tour.estimatedTotalUsd)<=Number(priced.tour.usableTripBudgetUsd)))return {reason:'fare-map-live-total-exceeds-protected-budget'};
       return {tour:priced.tour,unpriced:tour,arrivalVerified:flights.arrivalVerified,source:candidateTour};
     }
     return {tour,arrivalVerified:flights.arrivalVerified,source:candidateTour};
@@ -3737,7 +3741,7 @@ async function getFareMapGeneratedTour(query,options) {
     let priced;
     try{priced=await priceFinalTourWithNuitee({ok:true,tour:r.unpriced,tours:[r.unpriced],diagnostics:{}},pricingQuery,{...options,rateCache,hotelBudgetUsd,upgradePolicy:policy});}catch(_){return r;}
     const t=priced?.tour,stops=t?.stops||[];
-    if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate)||!(Number(t.estimatedTotalUsd)<=Number(t.usableTripBudgetUsd)))return r;
+    if(!verifiedStays(t,r.source)||!(Number(t.estimatedTotalUsd)<=Number(t.usableTripBudgetUsd)))return r;
     if(!stops.some(st=>st?.hotel?.budgetUpgrade))return r;
     diagnostics.roleUpgrades=(diagnostics.roleUpgrades||[]).concat([{role:r.role,upgraded:stops.filter(st=>st?.hotel?.budgetUpgrade).length,extraUsd:stops.reduce((x,st)=>x+(Number(st?.hotel?.budgetUpgrade?.extraUsd)||0),0)}]);
     return {...r,tour:t};

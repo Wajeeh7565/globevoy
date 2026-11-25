@@ -167,16 +167,17 @@ function hotelAddress(hotel = {}) {
   return [...new Set(parts)].join(', ');
 }
 
-function offerFromRoomType(rateHotel = {}, roomType = {}, contentHotel = null) {
+function offerFromRoomType(rateHotel = {}, roomType = {}, contentHotel = null, allRoomFees = false) {
   const rate = Array.isArray(roomType.rates) ? roomType.rates[0] : null;
   const offerRetail = roomType.offerRetailRate || {};
   const rateTotal = rate?.retailRate?.total?.[0] || {};
   // A roomType is an offer containing every requested room. Never price only
   // rates[0] for a multi-room offer.
   const aggregate = prebookPrice({ data: { roomTypes: [roomType] } });
-  const amount = finite(offerRetail.amount, null) ?? aggregate.amount;
+  const amount = allRoomFees ? aggregate.amount : finite(offerRetail.amount, null) ?? aggregate.amount;
   const currency = upper(offerRetail.currency || rateTotal.currency);
-  const fees = Array.isArray(rate?.retailRate?.taxesAndFees) ? rate.retailRate.taxesAndFees : [];
+  const fees = (allRoomFees && Array.isArray(roomType.rates) ? roomType.rates : [rate]).flatMap(room =>
+    Array.isArray(room?.retailRate?.taxesAndFees) ? room.retailRate.taxesAndFees : []);
   const identity = contentHotel || rateHotel;
   return {
     offerId: clean(roomType.offerId),
