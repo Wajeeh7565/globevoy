@@ -22,7 +22,7 @@ const { applyTravellerPricingToTour } = require('../../backend/services/domain/p
 const ORIGINS = ['Toronto (YYZ)', 'Vancouver (YVR)', 'New York (JFK)', 'Los Angeles (LAX)', 'Mexico City (MEX)', 'London (LHR)', 'Paris (PAR)', 'Dubai (DXB)', 'Singapore (SIN)', 'Sydney (SYD)'];
 const BUDGETS = [1500, 2000, 3000, 4000, 5000, 7500, 10000, 15000];
 
-function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
+function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--cost-release') o.costRelease = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
 function loadMemory(file) {
   const R = require('./hotel-memory-report.cjs');
   const { entries } = R.parse(fs.readFileSync(file, 'utf8'));
@@ -47,10 +47,11 @@ function describe(t, prices, totalBudgetUsd, source, origin) {
 
 // The production builder runs against mocked flight responses, hotel rates and storage.
 // The real Ignav adapter still applies its task cap, cache key, pricing and evidence rules.
-async function mockPage(query, options, want, { cold = true, seen = [], shared = new Map(), spare } = {}) {
+async function mockPage(query, options, want, { cold = true, seen = [], shared = new Map(), spare, stress = false } = {}) {
   const env = { ...options.env, ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline',
     ENABLE_NUITEE_LIVE_STAYS: 'true', NUITEE_SECRET_ID: 'offline', FARE_MAP_REQUIRE_LIVE: 'true',
     FARE_MAP_SHOW_ESTIMATES: 'false', FARE_MAP_OLD_ENGINE_FALLBACK: 'false', HOTEL_UPGRADE_POLICY: '' };
+  if (spare != null) delete env.FARE_MAP_POOL_SPARE_STRATEGY;
   if (cold) ignavCache._internal.memory.clear();
   const memory = Object.fromEntries([...SIMMEM].flatMap(([id, e]) =>
     Object.entries({ r: e.ratio, n: e.n, t: e.at, q: e.q, c: e.c }).filter(([, value]) => Number.isFinite(value))
@@ -63,14 +64,19 @@ async function mockPage(query, options, want, { cold = true, seen = [], shared =
     if (Item?.pk?.S === 'MEM#hotel') return {};
     throw Error('Unexpected offline storage operation');
   } };
-  const sources = new Map(), keys = [], attempts = [];
+  const sources = new Map(), keys = [], attempts = [], guardRejections = [];
+  const started = performance.now();
+  let candidates = 0;
   const requestGuard = ignav._internal.createGuard(Date.now, { perMinute: 500, perHour: 500 });
   let hotelRequests = 0;
   const hotelKeys = new Set();
   const result = await getGeneratedTour({ ...query, pool: '1', poolShow: want, poolSpare: spare, seenRoutes: seen }, {
     env, dynamo, fareMap: { ...options, env, dynamo, fresh: true, traceSearch: false, clock: () => options.now },
+    onFareMapRejection: r => guardRejections.push({ reason: r.reason, guards: r.guardReasons, dateConsistent: r.dateConsistent }),
     async applyIgnavLiveFares(t, q) {
       sources.set(B.routeKey(t), t);
+      const index = candidates++;
+      if (stress) await new Promise(resolve => setTimeout(resolve, index === 0 ? 24 : 8 + index % 3 * 5));
       const simulatedFlights = B.simulatedPrices(t).flights;
       const factor = simulatedFlights / t.totalFlightEstimateUsd;
       const priced = await applyIgnavLiveFares(t, q, { env, dynamo, fareCache: true, requestGuard,
@@ -78,6 +84,9 @@ async function mockPage(query, options, want, { cold = true, seen = [], shared =
           const body = JSON.parse(request.body);
           const key = ignavCache._internal.keyFor({ ...body, departureDate: body.departure_date, currency: q.currency });
           keys.push(key);
+          if (stress && index === 0 && body.departure_date === t.legs[0].departureDate) {
+            return { ok: true, status: 200, text: async () => JSON.stringify({ observed_at: new Date().toISOString(), itineraries: [] }) };
+          }
           const leg = t.legs.find(l => l.departureDate === body.departure_date);
           if (!leg) throw Error('Unexpected offline flight date');
           const arrival = opt._internal.plus(body.departure_date, leg.distanceKm >= 5500 ? 1 : 0);
@@ -91,6 +100,7 @@ async function mockPage(query, options, want, { cold = true, seen = [], shared =
       return priced;
     },
     async applyNuiteeLiveStays(t, q, hotelOptions) {
+      if (stress) await new Promise(resolve => setTimeout(resolve, 9));
       const stops = t.stops.map(s => {
         const key = [s.cityId, s.arrivalDate, s.departureDate, q.adults, q.rooms, q.currency].join('|');
         if (!hotelKeys.has(key)) { hotelKeys.add(key); hotelRequests++; }
@@ -107,10 +117,13 @@ async function mockPage(query, options, want, { cold = true, seen = [], shared =
   return { shown, checks: result.diagnostics?.poolChecks ?? 0, rounds: result.diagnostics?.poolRounds ?? 0,
     ignavRequests: keys.length, ignavCacheHits: result.diagnostics?.ignavCacheHits ?? 0, hotelRequests,
     duplicateIgnavRequests: keys.length - new Set(keys).size, attempts, outcomes: result.diagnostics?.fareMapLiveAttempts || [],
-    shownKeys: result.poolShownRoutes || [], spareUnused: result.diagnostics?.poolSpareUnused ?? 0 };
+    shownKeys: result.poolShownRoutes || [], spareUnused: result.diagnostics?.poolSpareUnused ?? 0,
+    arrivalRiskReordered: result.diagnostics?.guestArrivalRiskReordered === true,
+    sparesStarted: result.diagnostics?.poolSparesStarted ?? 0, usage: result.diagnostics?.ignavUsage || {}, guardRejections,
+    verificationLatencyMs: result.diagnostics?.verificationLatencyMs ?? 0, pageLatencyMs: Math.round(performance.now() - started) };
 }
 
-async function runOne(origin, budgetCad, env, costStudy) {
+async function runOne(origin, budgetCad, env, costStudy, stress = false) {
   const missing = new Set(), truncated = new Set();
   const query = { origin, budget: budgetCad, currency: 'CAD', adults: 1 };
   const options = { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env },
@@ -135,8 +148,8 @@ async function runOne(origin, budgetCad, env, costStudy) {
     guest = shown.map(trip);
   }
   const member = checked.slice(0, 3).map(trip);          // signed in: 3 trips
-  const signedOut = await mockPage(query, options, 1);
-  const signedIn = await mockPage(query, options, 3);
+  const signedOut = await mockPage(query, options, 1, { stress });
+  const signedIn = await mockPage(query, options, 3, { stress });
   let cost;
   if (costStudy) {
     const shared = new Map();
@@ -204,6 +217,26 @@ async function main() {
   const origins = o.origins || SNAP?.origins || ORIGINS; BUDGETS_USED = o.budgets || BUDGETS;
   B.setOriginCodes(origins.map(x => B.originInfo(x).code));
   SIMMEM = o.memoryFile ? loadMemory(o.memoryFile) : B.simulatedMemory();
+  if (o.costRelease) {
+    const recommended = { FARE_MAP_READ_PLAN: 'on', FARE_MAP_BALANCED_POOL: 'on' };
+    const scenarios = [
+      ['baseline', { IGNAV_FARE_COALESCE: 'off' }, false],
+      ['recommended', { ...recommended, IGNAV_FARE_COALESCE: 'off' }, false],
+      ['guest-risk-only', { ...recommended, FARE_MAP_GUEST_ARRIVAL_RISK: 'on' }, false],
+      ['cost-optimized', { ...recommended, FARE_MAP_GUEST_ARRIVAL_RISK: 'on', FARE_MAP_POOL_SPARE_STRATEGY: 'adaptive' }, false],
+      ...['0','1','2','adaptive'].map(mode => ['stress-' + mode, { ...recommended, FARE_MAP_POOL_SPARE_STRATEGY: mode }, true])
+    ];
+    const experiments = {};
+    for (const [name, env, stress] of scenarios) {
+      const cases = [];
+      for (const origin of origins) for (const budget of BUDGETS_USED) {
+        cases.push(await runOne(origin, budget, { ...env, ...o.env }, o.costStudy, stress));
+      }
+      experiments[name] = { env, stress, cases, summary: summarise(cases) };
+    }
+    console.log(JSON.stringify({ input: SNAP ? 'cached-fare-snapshot' : 'synthetic-fares', experiments }));
+    return;
+  }
   if (o.matrix) {
     const { VARIANTS } = await import('../../ops/fare-map/replay-snapshot.mjs');
     const experiments = {};
