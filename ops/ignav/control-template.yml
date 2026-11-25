@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Optional Ignav spend ledger and separately attachable policies. Review only.
+Parameters:
+  IgnavQuotaAccount:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9_.-]{1,64}'
+    Description: Shared billing-account identifier. Do not enter a credential.
+  FareMapTableArn:
+    Type: String
+    Description: ARN of the existing fare-map cache table.
+Resources:
+  IgnavControlTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - { AttributeName: pk, AttributeType: S }
+        - { AttributeName: sk, AttributeType: S }
+      KeySchema:
+        - { AttributeName: pk, KeyType: HASH }
+        - { AttributeName: sk, KeyType: RANGE }
+      TimeToLiveSpecification: { AttributeName: ttl, Enabled: true }
+      PointInTimeRecoverySpecification: { PointInTimeRecoveryEnabled: true }
+      SSESpecification: { SSEEnabled: true }
+
+  IgnavQuotaRuntimePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Check emergency stop and reserve units for one Ignav account.
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: dynamodb:ConditionCheckItem
+            Resource: !GetAtt IgnavControlTable.Arn
+            Condition:
+              ForAllValues:StringEquals:
+                dynamodb:LeadingKeys: [!Join ['#', [IGNAVSTOP, !Ref IgnavQuotaAccount]]]
+          - Effect: Allow
+            Action: dynamodb:GetItem
+            Resource: !GetAtt IgnavControlTable.Arn
+            Condition:
+              ForAllValues:StringEquals:
+                dynamodb:LeadingKeys: [!Join ['#', [IGNAV, !Ref IgnavQuotaAccount]]]
+          - Effect: Allow
+            Action: dynamodb:UpdateItem
+            Resource: !GetAtt IgnavControlTable.Arn
+            Condition:
+              StringEquals:
+                dynamodb:EnclosingOperation: TransactWriteItems
+              ForAllValues:StringEquals:
+                dynamodb:LeadingKeys: [!Join ['#', [IGNAV, !Ref IgnavQuotaAccount]]]
+
+  IgnavLeaseRuntimePolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Optional lease permissions on the existing fare-map cache table.
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action: [dynamodb:PutItem, dynamodb:DeleteItem]
+            Resource: !Ref FareMapTableArn
+            Condition:
+              ForAllValues:StringLike:
+                dynamodb:LeadingKeys: ['IGNAVLEASE#*']
+
+Outputs:
+  ControlTableName:
+    Value: !Ref IgnavControlTable
+  QuotaPolicyArn:
+    Value: !Ref IgnavQuotaRuntimePolicy
+  LeasePolicyArn:
+    Value: !Ref IgnavLeaseRuntimePolicy

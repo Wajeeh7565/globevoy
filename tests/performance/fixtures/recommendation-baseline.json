@@ -1,7 +1,10 @@
 {
  "engine": "GV-FAREMAP-BEAM-004",
+ "truthModel": 2,
  "env": {},
  "spare": 2,
+ "memory": true,
+ "priceIndex": false,
  "quick": false,
  "limits": {
   "detour": 1.25,
@@ -12,23 +15,25 @@
  "summary": {
   "searches": 44,
   "tripFoundRate": 84,
-  "fullPageRate": 82,
-  "bestUse": 75,
-  "bestUseInBand": 78,
+  "fullPageRate": 80,
+  "bestUse": 72,
+  "bestUseInBand": 76,
   "variety": 98,
-  "oddBestRate": 0,
-  "oddShownRate": 0,
-  "liveFailureRate": 18,
+  "oddBestRate": 3,
+  "oddShownRate": 1,
+  "liveFailureRate": 11,
   "avgChecks": 4.1,
   "avgRounds": 0.84,
   "slowPageRate": 0,
   "avgMs": 160,
-  "flagCounts": {},
+  "flagCounts": {
+   "detour": 1
+  },
   "byBudget": {
    "800": {
     "searches": 8,
     "withTrip": 1,
-    "bestUse": 82,
+    "bestUse": 76,
     "bestCities": 1,
     "bestNights": 5,
     "oddBest": 0
@@ -36,31 +41,31 @@
    "1500": {
     "searches": 8,
     "withTrip": 8,
-    "bestUse": 83,
+    "bestUse": 80,
     "bestCities": 1,
-    "bestNights": 4.8,
+    "bestNights": 5.1,
     "oddBest": 0
    },
    "2500": {
     "searches": 8,
     "withTrip": 8,
-    "bestUse": 86,
-    "bestCities": 2,
-    "bestNights": 9.3,
+    "bestUse": 77,
+    "bestCities": 1.6,
+    "bestNights": 8.1,
     "oddBest": 0
    },
    "4000": {
     "searches": 8,
     "withTrip": 8,
-    "bestUse": 82,
-    "bestCities": 2.4,
-    "bestNights": 14.5,
-    "oddBest": 0
+    "bestUse": 77,
+    "bestCities": 2.3,
+    "bestNights": 12,
+    "oddBest": 1
    },
    "10000": {
     "searches": 8,
     "withTrip": 8,
-    "bestUse": 46,
+    "bestUse": 47,
     "bestCities": 2.9,
     "bestNights": 19,
     "oddBest": 0
@@ -91,26 +96,24 @@
    "maxNights": 0,
    "reads": 66,
    "completeRoutes": 88,
-   "ms": 440
+   "ms": 457
   },
   {
    "id": "YTO-1500-1A",
    "origin": "Toronto (YYZ)",
    "budgetCad": 1500,
    "adults": 1,
-   "poolSize": 11,
+   "poolSize": 9,
    "poolRoutes": [
-    "detroit-us",
-    "merida-mx",
-    "new-york-us",
-    "new-haven-us",
-    "milwaukee-us",
+    "montego-bay-jm",
     "providence-us",
-    "philadelphia-us",
+    "merida-mx",
     "baltimore-us",
-    "ottawa-ca",
+    "pittsburgh-us",
     "cleveland-us",
-    "pittsburgh-us"
+    "philadelphia-us",
+    "detroit-us",
+    "ottawa-ca"
    ],
    "shown": 3,
    "checks": 5,
@@ -118,22 +121,22 @@
    "liveFailures": 2,
    "noTrip": false,
    "best": {
-    "route": "Milwaukee",
+    "route": "Merida",
     "nights": 4,
     "cities": 1,
-    "use": 0.88,
+    "use": 0.789,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 2,
+     "longLegHours": 4.8,
      "flags": []
     }
    },
    "shownUse": [
-    0.88,
-    0.873,
-    0.695
+    0.789,
+    0.695,
+    0.663
    ],
    "distinctCitiesShown": 3,
    "citiesShown": 3,
@@ -143,55 +146,62 @@
    "maxCities": 1,
    "maxNights": 5,
    "reads": 96,
-   "completeRoutes": 161,
-   "ms": 117
+   "completeRoutes": 165,
+   "ms": 202
   },
   {
    "id": "YTO-2500-1A",
    "origin": "Toronto (YYZ)",
    "budgetCad": 2500,
    "adults": 1,
-   "poolSize": 5,
+   "poolSize": 12,
    "poolRoutes": [
-    "pittsburgh-us>louisville-us",
+    "montreal-ca",
+    "tulum-mx",
+    "marrakech-ma",
     "new-haven-us>boston-us",
-    "montego-bay-jm>philadelphia-us",
-    "ottawa-ca>quebec-city-ca",
-    "pittsburgh-us>cincinnati-us"
+    "ponta-delgada-pt",
+    "detroit-us",
+    "ottawa-ca",
+    "essaouira-ma",
+    "merida-mx",
+    "milwaukee-us",
+    "philadelphia-us",
+    "montego-bay-jm"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 2,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Pittsburgh > Louisville",
+    "route": "Montreal",
     "nights": 8,
-    "cities": 2,
-    "use": 0.837,
+    "cities": 1,
+    "use": 0.774,
     "quality": {
-     "detour": 1.07,
-     "spreadKm": 552,
+     "detour": 1,
+     "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 2.1,
+     "longLegHours": 1.7,
      "flags": []
     }
    },
    "shownUse": [
-    0.837,
-    0.825,
-    0.777
+    0.774,
+    0.729,
+    0.711
    ],
-   "distinctCitiesShown": 6,
-   "citiesShown": 6,
+   "distinctCitiesShown": 3,
+   "citiesShown": 3,
    "oddShown": 0,
    "oddFlags": [],
    "poolOdd": 0,
    "maxCities": 2,
    "maxNights": 8,
    "reads": 96,
-   "completeRoutes": 119,
-   "ms": 127
+   "completeRoutes": 129,
+   "ms": 135
   },
   {
    "id": "YTO-4000-1A",
@@ -200,51 +210,51 @@
    "adults": 1,
    "poolSize": 12,
    "poolRoutes": [
-    "new-haven-us>cleveland-us>oaxaca-mx",
-    "marrakech-ma>ibiza-es",
     "tulum-mx>cabo-san-lucas-mx",
-    "baltimore-us>cleveland-us",
+    "marrakech-ma>ibiza-es",
+    "pittsburgh-us>louisville-us",
     "essaouira-ma>prague-cz",
+    "baltimore-us>cleveland-us",
+    "new-haven-us>boston-us",
     "detroit-us>houston-us",
     "philadelphia-us>asheville-us",
-    "pittsburgh-us>louisville-us",
     "pittsburgh-us>tulum-mx",
     "ponta-delgada-pt>lisbon-pt",
-    "ottawa-ca>quebec-city-ca",
-    "detroit-us>oklahoma-city-us"
+    "ottawa-ca>moab-us",
+    "ponta-delgada-pt>manchester-gb"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 2,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Baltimore > Cleveland",
-    "nights": 14,
+    "route": "Marrakech > Ibiza",
+    "nights": 10,
     "cities": 2,
-    "use": 0.859,
+    "use": 0.777,
     "quality": {
-     "detour": 1.24,
-     "spreadKm": 495,
-     "regions": 1,
-     "longLegHours": 1.8,
+     "detour": 1.07,
+     "spreadKm": 1175,
+     "regions": 2,
+     "longLegHours": 10,
      "flags": []
     }
    },
    "shownUse": [
-    0.859,
-    0.825,
-    0.756
+    0.777,
+    0.731,
+    0.724
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
    "oddShown": 0,
    "oddFlags": [],
    "poolOdd": 0,
-   "maxCities": 3,
-   "maxNights": 14,
+   "maxCities": 2,
+   "maxNights": 12,
    "reads": 96,
-   "completeRoutes": 161,
+   "completeRoutes": 172,
    "ms": 147
   },
   {
@@ -258,12 +268,12 @@
     "marrakech-ma>ibiza-es",
     "tulum-mx>cabo-san-lucas-mx",
     "detroit-us>new-york-us>key-west-us",
-    "baltimore-us>cleveland-us",
     "baltimore-us>cleveland-us>merida-mx",
+    "baltimore-us>cleveland-us",
     "detroit-us>new-york-us>tulum-mx",
     "essaouira-ma>prague-cz",
     "detroit-us>new-york-us>san-diego-us",
-    "pittsburgh-us>louisville-us",
+    "baltimore-us>cleveland-us>vancouver-ca",
     "baltimore-us>cleveland-us>austin-us",
     "philadelphia-us>asheville-us"
    ],
@@ -276,7 +286,7 @@
     "route": "Marrakech > Ibiza",
     "nights": 14,
     "cities": 2,
-    "use": 0.402,
+    "use": 0.388,
     "quality": {
      "detour": 1.07,
      "spreadKm": 1175,
@@ -286,9 +296,9 @@
     }
    },
    "shownUse": [
-    0.402,
     0.388,
-    0.302
+    0.33,
+    0.29
    ],
    "distinctCitiesShown": 7,
    "citiesShown": 7,
@@ -299,7 +309,7 @@
    "maxNights": 20,
    "reads": 96,
    "completeRoutes": 129,
-   "ms": 192
+   "ms": 151
   },
   {
    "id": "YVR-800-1A",
@@ -324,54 +334,50 @@
    "maxNights": 0,
    "reads": 63,
    "completeRoutes": 76,
-   "ms": 299
+   "ms": 194
   },
   {
    "id": "YVR-1500-1A",
    "origin": "Vancouver (YVR)",
    "budgetCad": 1500,
    "adults": 1,
-   "poolSize": 6,
+   "poolSize": 3,
    "poolRoutes": [
-    "kelowna-ca",
     "calgary-ca",
-    "edmonton-ca",
-    "victoria-ca",
-    "saskatoon-ca",
+    "kelowna-ca",
     "portland-us-pdx"
    ],
-   "shown": 3,
-   "checks": 5,
+   "shown": 2,
+   "checks": 3,
    "rounds": 1,
-   "liveFailures": 0,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Edmonton",
+    "route": "Kelowna",
     "nights": 4,
     "cities": 1,
-    "use": 0.82,
+    "use": 0.809,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 2.1,
+     "longLegHours": 1.4,
      "flags": []
     }
    },
    "shownUse": [
-    0.82,
-    0.75,
-    0.653
+    0.809,
+    0.69
    ],
-   "distinctCitiesShown": 3,
-   "citiesShown": 3,
+   "distinctCitiesShown": 2,
+   "citiesShown": 2,
    "oddShown": 0,
    "oddFlags": [],
    "poolOdd": 0,
    "maxCities": 1,
    "maxNights": 4,
    "reads": 96,
-   "completeRoutes": 158,
+   "completeRoutes": 162,
    "ms": 112
   },
   {
@@ -382,40 +388,40 @@
    "poolSize": 12,
    "poolRoutes": [
     "edmonton-ca>spokane-us",
-    "kelowna-ca",
     "guadalajara-mx",
-    "bend-us>thunder-bay-ca",
-    "cabo-san-lucas-mx>santa-barbara-us",
+    "kelowna-ca",
+    "cabo-san-lucas-mx>guatemala-city-gt",
     "calgary-ca",
     "portland-us-pdx",
     "juneau-us",
-    "saskatoon-ca",
+    "cabo-san-lucas-mx>santa-barbara-us",
+    "bend-us",
     "eugene-us",
-    "missoula-us",
-    "bozeman-us"
+    "cabo-san-lucas-mx",
+    "saskatoon-ca"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 0,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Edmonton > Spokane",
+    "route": "Kelowna",
     "nights": 7,
-    "cities": 2,
-    "use": 0.836,
+    "cities": 1,
+    "use": 0.763,
     "quality": {
-     "detour": 1.21,
-     "spreadKm": 711,
+     "detour": 1,
+     "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 2.1,
+     "longLegHours": 1.4,
      "flags": []
     }
    },
    "shownUse": [
-    0.836,
-    0.649,
-    0.614
+    0.763,
+    0.698,
+    0.697
    ],
    "distinctCitiesShown": 4,
    "citiesShown": 4,
@@ -425,8 +431,8 @@
    "maxCities": 2,
    "maxNights": 7,
    "reads": 96,
-   "completeRoutes": 131,
-   "ms": 147
+   "completeRoutes": 133,
+   "ms": 120
   },
   {
    "id": "YVR-4000-1A",
@@ -435,41 +441,41 @@
    "adults": 1,
    "poolSize": 12,
    "poolRoutes": [
-    "guadalajara-mx>phoenix-us",
-    "essaouira-ma>porto-pt",
-    "mexico-city-mx>flagstaff-us",
     "cabo-san-lucas-mx>guatemala-city-gt",
-    "victoria-ca>palm-springs-us",
-    "belfast-gb>inverness-gb",
-    "eugene-us>las-vegas-us",
-    "calgary-ca>regina-ca",
-    "bend-us>thunder-bay-ca",
-    "kelowna-ca>jackson-us",
+    "essaouira-ma>porto-pt",
     "missoula-us>daytona-beach-us",
-    "marrakech-ma>perugia-it"
+    "guadalajara-mx>phoenix-us",
+    "mexico-city-mx>flagstaff-us",
+    "calgary-ca>regina-ca",
+    "belfast-gb>inverness-gb",
+    "bend-us>thunder-bay-ca",
+    "eugene-us>las-vegas-us",
+    "victoria-ca>palm-springs-us",
+    "edmonton-ca>spokane-us",
+    "guadalajara-mx>tulsa-us"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 1,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
-    "route": "Mexico City > Flagstaff",
-    "nights": 12,
+    "route": "Essaouira > Porto",
+    "nights": 10,
     "cities": 2,
-    "use": 0.819,
+    "use": 0.833,
     "quality": {
-     "detour": 1,
-     "spreadKm": 2144,
+     "detour": 1.02,
+     "spreadKm": 1078,
      "regions": 2,
-     "longLegHours": 6.5,
+     "longLegHours": 13.3,
      "flags": []
     }
    },
    "shownUse": [
-    0.819,
-    0.795,
-    0.744
+    0.833,
+    0.821,
+    0.713
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
@@ -477,10 +483,10 @@
    "oddFlags": [],
    "poolOdd": 0,
    "maxCities": 2,
-   "maxNights": 13,
+   "maxNights": 12,
    "reads": 96,
-   "completeRoutes": 117,
-   "ms": 197
+   "completeRoutes": 129,
+   "ms": 124
   },
   {
    "id": "YVR-10000-1A",
@@ -491,16 +497,16 @@
    "poolRoutes": [
     "victoria-ca>kelowna-ca>pittsburgh-us",
     "cabo-san-lucas-mx>guatemala-city-gt",
-    "belfast-gb>inverness-gb",
+    "essaouira-ma>porto-pt",
     "guadalajara-mx>phoenix-us",
     "mexico-city-mx>flagstaff-us",
+    "belfast-gb>inverness-gb",
     "calgary-ca>regina-ca",
     "victoria-ca>kelowna-ca>santa-fe-us",
-    "essaouira-ma>porto-pt",
     "victoria-ca>kelowna-ca>austin-us",
     "victoria-ca>kelowna-ca>jackson-us",
     "victoria-ca>kelowna-ca>quebec-city-ca",
-    "victoria-ca>kelowna-ca>juneau-us"
+    "missoula-us>daytona-beach-us"
    ],
    "shown": 3,
    "checks": 5,
@@ -511,7 +517,7 @@
     "route": "Victoria > Kelowna > Pittsburgh",
     "nights": 19,
     "cities": 3,
-    "use": 0.552,
+    "use": 0.586,
     "quality": {
      "detour": 1.02,
      "spreadKm": 3227,
@@ -521,9 +527,9 @@
     }
    },
    "shownUse": [
-    0.552,
-    0.372,
-    0.279
+    0.586,
+    0.333,
+    0.285
    ],
    "distinctCitiesShown": 7,
    "citiesShown": 7,
@@ -534,7 +540,7 @@
    "maxNights": 19,
    "reads": 96,
    "completeRoutes": 111,
-   "ms": 211
+   "ms": 130
   },
   {
    "id": "BOS-800-1A",
@@ -559,47 +565,45 @@
    "maxNights": 0,
    "reads": 65,
    "completeRoutes": 84,
-   "ms": 278
+   "ms": 206
   },
   {
    "id": "BOS-1500-1A",
    "origin": "Boston (BOS)",
    "budgetCad": 1500,
    "adults": 1,
-   "poolSize": 9,
+   "poolSize": 7,
    "poolRoutes": [
-    "new-york-us",
-    "new-haven-us",
-    "portland-maine-us",
-    "halifax-ca",
-    "ottawa-ca",
-    "quebec-city-ca",
-    "baltimore-us",
+    "cancun-mx",
     "philadelphia-us",
-    "providence-us"
+    "baltimore-us",
+    "ottawa-ca",
+    "providence-us",
+    "halifax-ca",
+    "quebec-city-ca"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 2,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Halifax",
-    "nights": 4,
+    "route": "Cancun",
+    "nights": 5,
     "cities": 1,
-    "use": 0.798,
+    "use": 0.836,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 1.9,
+     "longLegHours": 4.9,
      "flags": []
     }
    },
    "shownUse": [
-    0.798,
-    0.735,
-    0.713
+    0.836,
+    0.734,
+    0.729
    ],
    "distinctCitiesShown": 3,
    "citiesShown": 3,
@@ -609,60 +613,62 @@
    "maxCities": 1,
    "maxNights": 5,
    "reads": 96,
-   "completeRoutes": 146,
-   "ms": 122
+   "completeRoutes": 154,
+   "ms": 133
   },
   {
    "id": "BOS-2500-1A",
    "origin": "Boston (BOS)",
    "budgetCad": 2500,
    "adults": 1,
-   "poolSize": 10,
+   "poolSize": 12,
    "poolRoutes": [
-    "providence-us>merida-mx",
-    "new-haven-us>baltimore-us",
-    "portland-maine-us>toronto-ca",
-    "montego-bay-jm>fort-myers-us",
+    "new-york-us",
+    "cancun-mx",
+    "tangier-ma",
     "new-haven-us>cleveland-us",
-    "providence-us>buffalo-us",
-    "providence-us>caye-caulker-bz",
-    "new-haven-us>st-louis-us",
-    "portland-maine-us>panama-city-pa",
-    "portland-maine-us>columbus-us"
+    "reykjavik-is",
+    "portland-maine-us>columbus-us",
+    "marrakech-ma",
+    "philadelphia-us",
+    "halifax-ca",
+    "ottawa-ca",
+    "providence-us",
+    "baltimore-us"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 2,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "New Haven > Baltimore",
-    "nights": 8,
+    "route": "New Haven > Cleveland",
+    "nights": 7,
     "cities": 2,
-    "use": 0.883,
+    "use": 0.741,
     "quality": {
-     "detour": 1,
-     "spreadKm": 385,
+     "detour": 1.02,
+     "spreadKm": 731,
      "regions": 1,
-     "longLegHours": 1.8,
+     "longLegHours": 2.2,
      "flags": []
     }
    },
    "shownUse": [
-    0.883,
-    0.871,
-    0.715
+    0.741,
+    0.688,
+    0.599
    ],
-   "distinctCitiesShown": 5,
-   "citiesShown": 6,
+   "distinctCitiesShown": 4,
+   "citiesShown": 4,
    "oddShown": 0,
    "oddFlags": [],
    "poolOdd": 0,
    "maxCities": 2,
    "maxNights": 8,
    "reads": 96,
-   "completeRoutes": 109,
-   "ms": 134
+   "completeRoutes": 121,
+   "ms": 166
   },
   {
    "id": "BOS-4000-1A",
@@ -671,29 +677,29 @@
    "adults": 1,
    "poolSize": 12,
    "poolRoutes": [
-    "marrakech-ma>lanzarote-es",
-    "new-haven-us>cleveland-us>oaxaca-mx",
     "philadelphia-us>cartagena-co",
-    "tangier-ma>bergamo-it",
-    "cancun-mx>buffalo-us",
-    "portland-maine-us>new-york-us>atlanta-us",
-    "providence-us>merida-mx",
+    "marrakech-ma>lanzarote-es",
+    "providence-us>caye-caulker-bz",
     "dakar-sn>ouarzazate-ma",
+    "tangier-ma>bergamo-it",
     "montego-bay-jm>fort-myers-us",
-    "belfast-gb>lille-fr",
+    "cancun-mx>buffalo-us",
+    "portland-maine-us>toronto-ca",
+    "new-haven-us>baltimore-us",
+    "providence-us>merida-mx",
     "akureyri-is>olbia-it",
     "marrakech-ma>tenerife-es"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 1,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
     "route": "Marrakech > Lanzarote",
-    "nights": 14,
+    "nights": 10,
     "cities": 2,
-    "use": 0.891,
+    "use": 0.692,
     "quality": {
      "detour": 1.03,
      "spreadKm": 611,
@@ -703,20 +709,20 @@
     }
    },
    "shownUse": [
-    0.891,
-    0.815,
-    0.741
+    0.692,
+    0.687,
+    0.677
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
    "oddShown": 0,
    "oddFlags": [],
    "poolOdd": 0,
-   "maxCities": 3,
-   "maxNights": 14,
+   "maxCities": 2,
+   "maxNights": 12,
    "reads": 96,
-   "completeRoutes": 153,
-   "ms": 155
+   "completeRoutes": 160,
+   "ms": 160
   },
   {
    "id": "BOS-10000-1A",
@@ -730,11 +736,11 @@
     "marrakech-ma>lanzarote-es",
     "new-haven-us>cleveland-us>dallas-us",
     "providence-us>caye-caulker-bz",
-    "portland-maine-us>new-york-us>tulum-mx",
+    "dakar-sn>ouarzazate-ma",
     "tangier-ma>bergamo-it",
+    "portland-maine-us>new-york-us>tulum-mx",
     "portland-maine-us>new-york-us>corpus-christi-us",
     "portland-maine-us>philadelphia-us>kansas-city-us",
-    "dakar-sn>ouarzazate-ma",
     "portland-maine-us>new-york-us>monterey-us",
     "belfast-gb>lille-fr"
    ],
@@ -747,7 +753,7 @@
     "route": "Portland (Maine) > Philadelphia > Memphis",
     "nights": 19,
     "cities": 3,
-    "use": 0.491,
+    "use": 0.558,
     "quality": {
      "detour": 1.09,
      "spreadKm": 1414,
@@ -757,9 +763,9 @@
     }
    },
    "shownUse": [
-    0.491,
-    0.457,
-    0.356
+    0.558,
+    0.381,
+    0.351
    ],
    "distinctCitiesShown": 8,
    "citiesShown": 8,
@@ -770,7 +776,7 @@
    "maxNights": 20,
    "reads": 96,
    "completeRoutes": 118,
-   "ms": 147
+   "ms": 169
   },
   {
    "id": "NYC-800-1A",
@@ -795,20 +801,18 @@
    "maxNights": 0,
    "reads": 70,
    "completeRoutes": 94,
-   "ms": 186
+   "ms": 322
   },
   {
    "id": "NYC-1500-1A",
    "origin": "New York (JFK)",
    "budgetCad": 1500,
    "adults": 1,
-   "poolSize": 10,
+   "poolSize": 8,
    "poolRoutes": [
-    "montreal-ca",
     "new-haven-us",
-    "portland-maine-us",
-    "baltimore-us",
     "ottawa-ca",
+    "baltimore-us",
     "richmond-us",
     "washington-d-c-us",
     "boston-us",
@@ -821,22 +825,22 @@
    "liveFailures": 2,
    "noTrip": false,
    "best": {
-    "route": "Portland (Maine)",
-    "nights": 5,
+    "route": "Ottawa",
+    "nights": 4,
     "cities": 1,
-    "use": 0.754,
+    "use": 0.701,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 1.6,
+     "longLegHours": 1.8,
      "flags": []
     }
    },
    "shownUse": [
-    0.754,
-    0.734,
-    0.699
+    0.701,
+    0.698,
+    0.686
    ],
    "distinctCitiesShown": 3,
    "citiesShown": 3,
@@ -846,8 +850,8 @@
    "maxCities": 1,
    "maxNights": 5,
    "reads": 96,
-   "completeRoutes": 158,
-   "ms": 152
+   "completeRoutes": 164,
+   "ms": 145
   },
   {
    "id": "NYC-2500-1A",
@@ -856,52 +860,52 @@
    "adults": 1,
    "poolSize": 12,
    "poolRoutes": [
-    "providence-us>portland-maine-us",
+    "san-juan-pr",
+    "providence-us",
+    "ponta-delgada-pt",
+    "merida-mx",
+    "caye-caulker-bz",
+    "tangier-ma",
+    "new-haven-us>boston-us",
     "caye-caulker-bz>san-andres-island-co",
-    "washington-d-c-us>atlanta-us",
-    "philadelphia-us>toronto-ca",
-    "new-haven-us>pittsburgh-us",
     "caye-caulker-bz>guatemala-city-gt",
-    "boston-us>montreal-ca",
-    "caye-caulker-bz>tampa-us",
-    "new-haven-us>myrtle-beach-us",
-    "new-haven-us>toronto-ca",
-    "new-haven-us>richmond-us",
-    "new-haven-us>boston-us"
+    "montreal-ca",
+    "ouarzazate-ma",
+    "caye-caulker-bz>tampa-us"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 2,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
-    "route": "Philadelphia > Toronto",
-    "nights": 8,
-    "cities": 2,
-    "use": 0.888,
+    "route": "Providence",
+    "nights": 7,
+    "cities": 1,
+    "use": 0.751,
     "quality": {
-     "detour": 1.11,
-     "spreadKm": 540,
+     "detour": 1,
+     "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 1.8,
+     "longLegHours": 1.4,
      "flags": []
     }
    },
    "shownUse": [
-    0.888,
-    0.87,
-    0.769
+    0.751,
+    0.666,
+    0.662
    ],
-   "distinctCitiesShown": 6,
-   "citiesShown": 6,
+   "distinctCitiesShown": 3,
+   "citiesShown": 3,
    "oddShown": 0,
    "oddFlags": [],
    "poolOdd": 0,
    "maxCities": 2,
    "maxNights": 9,
    "reads": 96,
-   "completeRoutes": 108,
-   "ms": 154
+   "completeRoutes": 128,
+   "ms": 121
   },
   {
    "id": "NYC-4000-1A",
@@ -911,51 +915,51 @@
    "poolSize": 12,
    "poolRoutes": [
     "new-haven-us>buffalo-us",
-    "merida-mx>campeche-mx",
     "tangier-ma>ouarzazate-ma",
+    "merida-mx>campeche-mx",
     "glasgow-gb>nantes-fr",
     "san-juan-pr>cartagena-co",
-    "caye-caulker-bz>san-andres-island-co",
     "baltimore-us>queretaro-mx",
+    "caye-caulker-bz>san-andres-island-co",
     "washington-d-c-us>atlanta-us",
     "ponta-delgada-pt>dakar-sn",
     "providence-us>tulsa-us",
-    "portland-maine-us>yellowknife-ca",
-    "new-haven-us>buffalo-us>toronto-ca"
+    "philadelphia-us>toronto-ca",
+    "caye-caulker-bz>savannah-us"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 1,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
-    "route": "Tangier > Ouarzazate",
-    "nights": 12,
+    "route": "New Haven > Buffalo",
+    "nights": 11,
     "cities": 2,
-    "use": 0.739,
+    "use": 0.757,
     "quality": {
-     "detour": 1.03,
-     "spreadKm": 546,
+     "detour": 1.17,
+     "spreadKm": 521,
      "regions": 1,
-     "longLegHours": 9.3,
+     "longLegHours": 1.7,
      "flags": []
     }
    },
    "shownUse": [
-    0.739,
-    0.729,
-    0.635
+    0.757,
+    0.698,
+    0.569
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
    "oddShown": 0,
    "oddFlags": [],
    "poolOdd": 0,
-   "maxCities": 3,
+   "maxCities": 2,
    "maxNights": 14,
    "reads": 96,
-   "completeRoutes": 152,
-   "ms": 190
+   "completeRoutes": 161,
+   "ms": 174
   },
   {
    "id": "NYC-10000-1A",
@@ -967,11 +971,11 @@
     "boston-us>montreal-ca>vancouver-ca",
     "san-juan-pr>cartagena-co",
     "tangier-ma>ouarzazate-ma",
-    "new-haven-us>buffalo-us",
     "glasgow-gb>nantes-fr",
+    "new-haven-us>buffalo-us",
     "boston-us>philadelphia-us>bend-us",
-    "caye-caulker-bz>san-andres-island-co",
     "merida-mx>campeche-mx",
+    "caye-caulker-bz>san-andres-island-co",
     "baltimore-us>queretaro-mx",
     "ponta-delgada-pt>dakar-sn",
     "new-haven-us>boston-us>puerto-vallarta-mx",
@@ -986,7 +990,7 @@
     "route": "Boston > Montreal > Vancouver",
     "nights": 19,
     "cities": 3,
-    "use": 0.504,
+    "use": 0.524,
     "quality": {
      "detour": 1.06,
      "spreadKm": 3686,
@@ -996,9 +1000,9 @@
     }
    },
    "shownUse": [
-    0.504,
-    0.308,
-    0.295
+    0.524,
+    0.279,
+    0.277
    ],
    "distinctCitiesShown": 7,
    "citiesShown": 7,
@@ -1009,7 +1013,7 @@
    "maxNights": 19,
    "reads": 96,
    "completeRoutes": 128,
-   "ms": 185
+   "ms": 187
   },
   {
    "id": "LON-800-1A",
@@ -1034,7 +1038,7 @@
    "maxNights": 0,
    "reads": 87,
    "completeRoutes": 102,
-   "ms": 207
+   "ms": 261
   },
   {
    "id": "LON-1500-1A",
@@ -1043,29 +1047,29 @@
    "adults": 1,
    "poolSize": 12,
    "poolRoutes": [
-    "birmingham-gb",
     "sousse-tn",
-    "cardiff-gb",
-    "bournemouth-gb",
-    "fes-ma",
-    "manchester-gb",
-    "lille-fr",
-    "rotterdam-nl",
     "southampton-gb",
-    "leeds-gb",
+    "fes-ma",
+    "rotterdam-nl",
     "oxford-gb",
-    "cambridge-gb"
+    "lille-fr",
+    "leeds-gb",
+    "bournemouth-gb",
+    "cambridge-gb",
+    "cardiff-gb",
+    "manchester-gb",
+    "bruges-be"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 1,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
     "route": "Sousse",
     "nights": 5,
     "cities": 1,
-    "use": 0.814,
+    "use": 0.778,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
@@ -1075,9 +1079,9 @@
     }
    },
    "shownUse": [
-    0.814,
-    0.727,
-    0.661
+    0.778,
+    0.765,
+    0.727
    ],
    "distinctCitiesShown": 3,
    "citiesShown": 3,
@@ -1085,10 +1089,10 @@
    "oddFlags": [],
    "poolOdd": 0,
    "maxCities": 1,
-   "maxNights": 6,
+   "maxNights": 5,
    "reads": 96,
-   "completeRoutes": 119,
-   "ms": 154
+   "completeRoutes": 127,
+   "ms": 166
   },
   {
    "id": "LON-2500-1A",
@@ -1098,28 +1102,28 @@
    "poolSize": 12,
    "poolRoutes": [
     "sousse-tn>menorca-es",
-    "lille-fr>tunis-tn",
     "tangier-ma>ponta-delgada-pt",
+    "lille-fr>tunis-tn",
+    "bournemouth-gb>casablanca-ma",
     "oxford-gb>milan-it",
+    "sousse-tn>turin-it",
+    "southampton-gb>cologne-de",
+    "rotterdam-nl>salzburg-at",
+    "manchester-gb>warsaw-pl",
     "bournemouth-gb>seville-es",
     "leeds-gb>blackpool-gb",
-    "sousse-tn>turin-it",
-    "manchester-gb>warsaw-pl",
-    "lille-fr>prague-cz",
-    "southampton-gb>cologne-de",
-    "bournemouth-gb>casablanca-ma",
-    "rotterdam-nl>salzburg-at"
+    "lille-fr>prague-cz"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 2,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
     "route": "Sousse > Menorca",
-    "nights": 11,
+    "nights": 9,
     "cities": 2,
-    "use": 0.88,
+    "use": 0.83,
     "quality": {
      "detour": 1.03,
      "spreadKm": 720,
@@ -1129,9 +1133,9 @@
     }
    },
    "shownUse": [
-    0.88,
-    0.784,
-    0.773
+    0.83,
+    0.823,
+    0.779
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
@@ -1139,15 +1143,69 @@
    "oddFlags": [],
    "poolOdd": 0,
    "maxCities": 2,
-   "maxNights": 11,
+   "maxNights": 9,
    "reads": 96,
-   "completeRoutes": 72,
-   "ms": 169
+   "completeRoutes": 86,
+   "ms": 117
   },
   {
    "id": "LON-4000-1A",
    "origin": "London (LHR)",
    "budgetCad": 4000,
+   "adults": 1,
+   "poolSize": 12,
+   "poolRoutes": [
+    "fes-ma>ouarzazate-ma",
+    "birmingham-gb>cagliari-it",
+    "sousse-tn>menorca-es",
+    "tangier-ma>ponta-delgada-pt",
+    "oxford-gb>milan-it",
+    "lille-fr>tunis-tn",
+    "bournemouth-gb>seville-es",
+    "rotterdam-nl>salzburg-at",
+    "manchester-gb>warsaw-pl",
+    "cambridge-gb>stockholm-se",
+    "southampton-gb>krakow-pl",
+    "sousse-tn>prague-cz"
+   ],
+   "shown": 3,
+   "checks": 5,
+   "rounds": 1,
+   "liveFailures": 0,
+   "noTrip": false,
+   "best": {
+    "route": "Sousse > Menorca",
+    "nights": 13,
+    "cities": 2,
+    "use": 0.7,
+    "quality": {
+     "detour": 1.03,
+     "spreadKm": 720,
+     "regions": 2,
+     "longLegHours": 3.7,
+     "flags": []
+    }
+   },
+   "shownUse": [
+    0.7,
+    0.654,
+    0.566
+   ],
+   "distinctCitiesShown": 6,
+   "citiesShown": 6,
+   "oddShown": 0,
+   "oddFlags": [],
+   "poolOdd": 0,
+   "maxCities": 2,
+   "maxNights": 14,
+   "reads": 96,
+   "completeRoutes": 62,
+   "ms": 106
+  },
+  {
+   "id": "LON-10000-1A",
+   "origin": "London (LHR)",
+   "budgetCad": 10000,
    "adults": 1,
    "poolSize": 12,
    "poolRoutes": [
@@ -1162,7 +1220,7 @@
     "manchester-gb>warsaw-pl",
     "southampton-gb>krakow-pl",
     "rotterdam-nl>salzburg-at",
-    "sousse-tn>turin-it"
+    "sousse-tn>prague-cz"
    ],
    "shown": 3,
    "checks": 5,
@@ -1173,7 +1231,7 @@
     "route": "Cambridge > Cardiff > Mostar",
     "nights": 17,
     "cities": 3,
-    "use": 0.829,
+    "use": 0.427,
     "quality": {
      "detour": 1.17,
      "spreadKm": 1818,
@@ -1183,9 +1241,9 @@
     }
    },
    "shownUse": [
-    0.829,
-    0.75,
-    0.545
+    0.427,
+    0.262,
+    0.226
    ],
    "distinctCitiesShown": 7,
    "citiesShown": 7,
@@ -1196,61 +1254,7 @@
    "maxNights": 17,
    "reads": 96,
    "completeRoutes": 62,
-   "ms": 96
-  },
-  {
-   "id": "LON-10000-1A",
-   "origin": "London (LHR)",
-   "budgetCad": 10000,
-   "adults": 1,
-   "poolSize": 12,
-   "poolRoutes": [
-    "cambridge-gb>cardiff-gb>mostar-ba",
-    "fes-ma>ouarzazate-ma",
-    "sousse-tn>menorca-es",
-    "lille-fr>tunis-tn",
-    "tangier-ma>ponta-delgada-pt",
-    "oxford-gb>salamanca-es",
-    "birmingham-gb>cagliari-it",
-    "bournemouth-gb>seville-es",
-    "manchester-gb>warsaw-pl",
-    "sousse-tn>turin-it",
-    "southampton-gb>krakow-pl",
-    "rotterdam-nl>salzburg-at"
-   ],
-   "shown": 3,
-   "checks": 5,
-   "rounds": 1,
-   "liveFailures": 0,
-   "noTrip": false,
-   "best": {
-    "route": "Cambridge > Cardiff > Mostar",
-    "nights": 17,
-    "cities": 3,
-    "use": 0.332,
-    "quality": {
-     "detour": 1.17,
-     "spreadKm": 1818,
-     "regions": 1,
-     "longLegHours": 3.5,
-     "flags": []
-    }
-   },
-   "shownUse": [
-    0.332,
-    0.253,
-    0.218
-   ],
-   "distinctCitiesShown": 7,
-   "citiesShown": 7,
-   "oddShown": 0,
-   "oddFlags": [],
-   "poolOdd": 0,
-   "maxCities": 3,
-   "maxNights": 17,
-   "reads": 96,
-   "completeRoutes": 62,
-   "ms": 106
+   "ms": 170
   },
   {
    "id": "LHE-800-1A",
@@ -1271,7 +1275,7 @@
     "route": "Delhi",
     "nights": 5,
     "cities": 1,
-    "use": 0.822,
+    "use": 0.76,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
@@ -1281,8 +1285,8 @@
     }
    },
    "shownUse": [
-    0.822,
-    0.691
+    0.76,
+    0.725
    ],
    "distinctCitiesShown": 2,
    "citiesShown": 2,
@@ -1293,23 +1297,21 @@
    "maxNights": 5,
    "reads": 71,
    "completeRoutes": 100,
-   "ms": 130
+   "ms": 134
   },
   {
    "id": "LHE-1500-1A",
    "origin": "Lahore (LHE)",
    "budgetCad": 1500,
    "adults": 1,
-   "poolSize": 11,
+   "poolSize": 9,
    "poolRoutes": [
-    "dubai-ae",
-    "tbilisi-ge",
     "delhi-in",
     "goa-in",
+    "tbilisi-ge",
     "ras-al-khaimah-ae",
     "muscat-om",
     "sharjah-ae",
-    "trabzon-tr",
     "doha-qa",
     "salalah-om",
     "jaipur-in"
@@ -1317,25 +1319,25 @@
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 0,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Tbilisi",
-    "nights": 4,
+    "route": "Goa",
+    "nights": 7,
     "cities": 1,
-    "use": 0.894,
+    "use": 0.793,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 5,
+     "longLegHours": 3.5,
      "flags": []
     }
    },
    "shownUse": [
-    0.894,
-    0.881,
-    0.589
+    0.793,
+    0.75,
+    0.543
    ],
    "distinctCitiesShown": 3,
    "citiesShown": 3,
@@ -1345,8 +1347,8 @@
    "maxCities": 1,
    "maxNights": 8,
    "reads": 96,
-   "completeRoutes": 146,
-   "ms": 131
+   "completeRoutes": 148,
+   "ms": 127
   },
   {
    "id": "LHE-2500-1A",
@@ -1356,40 +1358,40 @@
    "poolSize": 12,
    "poolRoutes": [
     "jaipur-in>dubai-ae",
-    "tbilisi-ge>izmir-tr",
-    "delhi-in>langkawi-my",
+    "delhi-in>lijiang-cn",
     "goa-in>medan-id",
-    "sharjah-ae>rize-tr",
-    "jaipur-in>kuantan-my",
     "aswan-eg>jaipur-in",
     "goa-in>jaipur-in",
+    "jaipur-in>kuantan-my",
     "al-ain-ae>hurghada-eg",
     "jaipur-in>hua-hin-th",
-    "delhi-in>lijiang-cn",
-    "delhi-in>hualien-tw"
+    "delhi-in>langkawi-my",
+    "delhi-in>hualien-tw",
+    "jaipur-in>kochi-in",
+    "delhi-in>abu-dhabi-ae"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 2,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
-    "route": "Delhi > Langkawi",
-    "nights": 12,
+    "route": "Delhi > Lijiang",
+    "nights": 10,
     "cities": 2,
-    "use": 0.831,
+    "use": 0.772,
     "quality": {
-     "detour": 1,
-     "spreadKm": 3430,
+     "detour": 1.03,
+     "spreadKm": 2270,
      "regions": 1,
-     "longLegHours": 6.3,
+     "longLegHours": 4.5,
      "flags": []
     }
    },
    "shownUse": [
-    0.831,
-    0.779,
-    0.668
+    0.772,
+    0.745,
+    0.703
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
@@ -1400,7 +1402,7 @@
    "maxNights": 14,
    "reads": 96,
    "completeRoutes": 97,
-   "ms": 174
+   "ms": 125
   },
   {
    "id": "LHE-4000-1A",
@@ -1410,13 +1412,13 @@
    "poolSize": 12,
    "poolRoutes": [
     "jaipur-in>kochi-in>malacca-my",
-    "trabzon-tr>trapani-it",
+    "aswan-eg>brussels-be",
     "doha-qa>amman-jo",
     "delhi-in>cairo-eg",
     "batumi-ge>innsbruck-at",
-    "aswan-eg>brussels-be",
-    "muscat-om>athens-gr",
+    "trabzon-tr>avignon-fr",
     "tbilisi-ge>izmir-tr",
+    "muscat-om>athens-gr",
     "goa-in>addis-ababa-et",
     "al-ain-ae>hurghada-eg",
     "sharjah-ae>rize-tr",
@@ -1425,25 +1427,25 @@
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 0,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Trabzon > Trapani",
-    "nights": 11,
+    "route": "Aswan > Brussels",
+    "nights": 8,
     "cities": 2,
-    "use": 0.827,
+    "use": 0.802,
     "quality": {
-     "detour": 1,
-     "spreadKm": 2358,
-     "regions": 1,
-     "longLegHours": 8.8,
+     "detour": 1.17,
+     "spreadKm": 3851,
+     "regions": 2,
+     "longLegHours": 9.3,
      "flags": []
     }
    },
    "shownUse": [
-    0.827,
-    0.761,
-    0.743
+    0.802,
+    0.783,
+    0.687
    ],
    "distinctCitiesShown": 7,
    "citiesShown": 7,
@@ -1453,8 +1455,8 @@
    "maxCities": 3,
    "maxNights": 19,
    "reads": 96,
-   "completeRoutes": 159,
-   "ms": 147
+   "completeRoutes": 163,
+   "ms": 114
   },
   {
    "id": "LHE-10000-1A",
@@ -1467,14 +1469,14 @@
     "aswan-eg>brussels-be",
     "al-ain-ae>salalah-om>athens-gr",
     "delhi-in>hualien-tw",
-    "goa-in>medan-id",
     "trabzon-tr>trapani-it",
-    "sharjah-ae>rize-tr",
+    "goa-in>addis-ababa-et",
+    "batumi-ge>innsbruck-at",
     "tbilisi-ge>izmir-tr",
     "doha-qa>amman-jo",
     "delhi-in>cairo-eg",
-    "batumi-ge>innsbruck-at",
-    "delhi-in>langkawi-my"
+    "sharjah-ae>rize-tr",
+    "jaipur-in>hua-hin-th"
    ],
    "shown": 3,
    "checks": 5,
@@ -1485,7 +1487,7 @@
     "route": "Al Ain > Salalah > Athens",
     "nights": 21,
     "cities": 3,
-    "use": 0.526,
+    "use": 0.457,
     "quality": {
      "detour": 1.21,
      "spreadKm": 3765,
@@ -1495,9 +1497,9 @@
     }
    },
    "shownUse": [
-    0.526,
-    0.349,
-    0.297
+    0.457,
+    0.382,
+    0.313
    ],
    "distinctCitiesShown": 8,
    "citiesShown": 8,
@@ -1508,7 +1510,7 @@
    "maxNights": 21,
    "reads": 96,
    "completeRoutes": 116,
-   "ms": 143
+   "ms": 109
   },
   {
    "id": "ADD-800-1A",
@@ -1533,7 +1535,7 @@
    "maxNights": 0,
    "reads": 67,
    "completeRoutes": 89,
-   "ms": 247
+   "ms": 176
   },
   {
    "id": "ADD-1500-1A",
@@ -1542,41 +1544,41 @@
    "adults": 1,
    "poolSize": 12,
    "poolRoutes": [
-    "mardin-tr",
     "hurghada-eg",
     "muscat-om",
     "kigali-rw",
     "mombasa-ke",
     "alexandria-eg",
-    "entebbe-ug",
+    "arusha-tz",
     "aswan-eg",
     "nairobi-ke",
-    "bodrum-tr",
     "aqaba-jo",
-    "arusha-tz"
+    "entebbe-ug",
+    "lamu-ke",
+    "lalibela-et"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 1,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
-    "route": "Mardin",
-    "nights": 5,
+    "route": "Muscat",
+    "nights": 4,
     "cities": 1,
-    "use": 0.845,
+    "use": 0.801,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 5.4,
+     "longLegHours": 4.7,
      "flags": []
     }
    },
    "shownUse": [
-    0.845,
-    0.758,
-    0.678
+    0.801,
+    0.774,
+    0.6
    ],
    "distinctCitiesShown": 3,
    "citiesShown": 3,
@@ -1586,28 +1588,25 @@
    "maxCities": 1,
    "maxNights": 7,
    "reads": 96,
-   "completeRoutes": 135,
-   "ms": 170
+   "completeRoutes": 138,
+   "ms": 105
   },
   {
    "id": "ADD-2500-1A",
    "origin": "Addis Ababa (ADD)",
    "budgetCad": 2500,
    "adults": 1,
-   "poolSize": 12,
+   "poolSize": 9,
    "poolRoutes": [
     "hurghada-eg>sharm-el-sheikh-eg",
     "lalibela-et>cairo-eg",
-    "ankara-tr>rize-tr",
-    "entebbe-ug>mombasa-ke",
+    "mombasa-ke>maputo-mz",
+    "arusha-tz>maun-bw",
     "aswan-eg>goreme-tr",
-    "alexandria-eg>rimini-it",
-    "aswan-eg>antalya-tr",
     "dar-es-salaam-tz>lalibela-et",
     "lalibela-et>sharjah-ae",
-    "arusha-tz>maun-bw",
-    "hurghada-eg>perugia-it",
-    "mombasa-ke>maputo-mz"
+    "entebbe-ug>mombasa-ke",
+    "lalibela-et>trabzon-tr"
    ],
    "shown": 3,
    "checks": 5,
@@ -1615,22 +1614,22 @@
    "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Hurghada > Sharm el Sheikh",
-    "nights": 12,
+    "route": "Arusha > Maun",
+    "nights": 7,
     "cities": 2,
-    "use": 0.809,
+    "use": 0.741,
     "quality": {
      "detour": 1.01,
-     "spreadKm": 105,
+     "spreadKm": 2340,
      "regions": 1,
-     "longLegHours": 4,
+     "longLegHours": 6,
      "flags": []
     }
    },
    "shownUse": [
-    0.809,
-    0.789,
-    0.743
+    0.741,
+    0.669,
+    0.652
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
@@ -1640,8 +1639,8 @@
    "maxCities": 2,
    "maxNights": 12,
    "reads": 96,
-   "completeRoutes": 108,
-   "ms": 117
+   "completeRoutes": 111,
+   "ms": 118
   },
   {
    "id": "ADD-4000-1A",
@@ -1651,28 +1650,28 @@
    "poolSize": 12,
    "poolRoutes": [
     "hurghada-eg>sharm-el-sheikh-eg>lecce-it",
-    "hurghada-eg>sharm-el-sheikh-eg>wroclaw-pl",
     "alexandria-eg>istanbul-tr",
     "hurghada-eg>sharm-el-sheikh-eg",
     "nairobi-ke>durban-za",
-    "mardin-tr>dusseldorf-de",
     "hurghada-eg>sharm-el-sheikh-eg>luxor-eg",
-    "aqaba-jo>rome-it",
+    "mardin-tr>dusseldorf-de",
+    "bodrum-tr>alghero-it",
     "hurghada-eg>sharm-el-sheikh-eg>brno-cz",
+    "arusha-tz>maun-bw",
+    "hurghada-eg>sharm-el-sheikh-eg>wroclaw-pl",
     "hurghada-eg>sharm-el-sheikh-eg>ankara-tr",
-    "hurghada-eg>sharm-el-sheikh-eg>santiago-de-compostela-es",
-    "hurghada-eg>sharm-el-sheikh-eg>berlin-de"
+    "hurghada-eg>sharm-el-sheikh-eg>santiago-de-compostela-es"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 1,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
     "route": "Hurghada > Sharm el Sheikh > Lecce",
     "nights": 18,
     "cities": 3,
-    "use": 0.809,
+    "use": 0.744,
     "quality": {
      "detour": 1.02,
      "spreadKm": 2023,
@@ -1682,9 +1681,9 @@
     }
    },
    "shownUse": [
-    0.809,
-    0.598,
-    0.561
+    0.744,
+    0.691,
+    0.448
    ],
    "distinctCitiesShown": 5,
    "citiesShown": 7,
@@ -1694,8 +1693,8 @@
    "maxCities": 3,
    "maxNights": 23,
    "reads": 96,
-   "completeRoutes": 118,
-   "ms": 103
+   "completeRoutes": 129,
+   "ms": 122
   },
   {
    "id": "ADD-10000-1A",
@@ -1706,14 +1705,14 @@
    "poolRoutes": [
     "hurghada-eg>sharm-el-sheikh-eg>wroclaw-pl",
     "hurghada-eg>sharm-el-sheikh-eg>lecce-it",
-    "alexandria-eg>istanbul-tr",
     "hurghada-eg>sharm-el-sheikh-eg",
+    "mardin-tr>bristol-gb",
+    "alexandria-eg>istanbul-tr",
+    "hurghada-eg>sharm-el-sheikh-eg>inverness-gb",
     "nairobi-ke>durban-za",
     "hurghada-eg>sharm-el-sheikh-eg>brno-cz",
-    "hurghada-eg>sharm-el-sheikh-eg>inverness-gb",
-    "hurghada-eg>sharm-el-sheikh-eg>berlin-de",
     "hurghada-eg>sharm-el-sheikh-eg>oslo-no",
-    "mardin-tr>bristol-gb",
+    "hurghada-eg>sharm-el-sheikh-eg>berlin-de",
     "bodrum-tr>bornholm-dk",
     "hurghada-eg>sharm-el-sheikh-eg>oxford-gb"
    ],
@@ -1726,7 +1725,7 @@
     "route": "Hurghada > Sharm el Sheikh > Wroclaw",
     "nights": 19,
     "cities": 3,
-    "use": 0.422,
+    "use": 0.333,
     "quality": {
      "detour": 1.01,
      "spreadKm": 2960,
@@ -1736,11 +1735,11 @@
     }
    },
    "shownUse": [
-    0.422,
-    0.324,
-    0.239
+    0.333,
+    0.297,
+    0.179
    ],
-   "distinctCitiesShown": 6,
+   "distinctCitiesShown": 4,
    "citiesShown": 8,
    "oddShown": 0,
    "oddFlags": [],
@@ -1749,7 +1748,7 @@
    "maxNights": 22,
    "reads": 96,
    "completeRoutes": 91,
-   "ms": 100
+   "ms": 163
   },
   {
    "id": "DXB-800-1A",
@@ -1774,19 +1773,20 @@
    "maxNights": 0,
    "reads": 72,
    "completeRoutes": 74,
-   "ms": 181
+   "ms": 268
   },
   {
    "id": "DXB-1500-1A",
    "origin": "Dubai (DXB)",
    "budgetCad": 1500,
    "adults": 1,
-   "poolSize": 8,
+   "poolSize": 9,
    "poolRoutes": [
     "doha-qa",
-    "cairo-eg",
+    "hurghada-eg",
     "mardin-tr",
     "delhi-in",
+    "cairo-eg",
     "muscat-om",
     "sharjah-ae",
     "al-ain-ae",
@@ -1795,25 +1795,25 @@
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 0,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Cairo",
-    "nights": 7,
+    "route": "Hurghada",
+    "nights": 8,
     "cities": 1,
-    "use": 0.832,
+    "use": 0.863,
     "quality": {
      "detour": 1,
      "spreadKm": 0,
      "regions": 1,
-     "longLegHours": 4.3,
+     "longLegHours": 4,
      "flags": []
     }
    },
    "shownUse": [
-    0.832,
-    0.757,
-    0.727
+    0.863,
+    0.743,
+    0.638
    ],
    "distinctCitiesShown": 3,
    "citiesShown": 3,
@@ -1821,29 +1821,27 @@
    "oddFlags": [],
    "poolOdd": 0,
    "maxCities": 1,
-   "maxNights": 7,
+   "maxNights": 8,
    "reads": 96,
    "completeRoutes": 119,
-   "ms": 163
+   "ms": 166
   },
   {
    "id": "DXB-2500-1A",
    "origin": "Dubai (DXB)",
    "budgetCad": 2500,
    "adults": 1,
-   "poolSize": 12,
+   "poolSize": 10,
    "poolRoutes": [
-    "rize-tr>batumi-ge",
-    "sharjah-ae>sharm-el-sheikh-eg",
-    "trabzon-tr>pisa-it",
     "cairo-eg>bursa-tr",
-    "muscat-om>izmir-tr",
+    "sharjah-ae>sharm-el-sheikh-eg",
+    "lalibela-et>lamu-ke",
     "ras-al-khaimah-ae>goreme-tr",
     "doha-qa>arusha-tz",
-    "cairo-eg>trieste-it",
-    "sharjah-ae>addis-ababa-et",
     "muscat-om>cairo-eg",
+    "sharjah-ae>addis-ababa-et",
     "sharjah-ae>nairobi-ke",
+    "cairo-eg>trieste-it",
     "sharjah-ae>lalibela-et"
    ],
    "shown": 3,
@@ -1852,22 +1850,22 @@
    "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Trabzon > Pisa",
-    "nights": 8,
+    "route": "Ras al-Khaimah > Goreme",
+    "nights": 10,
     "cities": 2,
-    "use": 0.897,
+    "use": 0.779,
     "quality": {
      "detour": 1.02,
-     "spreadKm": 2420,
-     "regions": 1,
-     "longLegHours": 7.3,
+     "spreadKm": 2450,
+     "regions": 2,
+     "longLegHours": 4.4,
      "flags": []
     }
    },
    "shownUse": [
-    0.897,
-    0.865,
-    0.772
+    0.779,
+    0.77,
+    0.741
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
@@ -1877,8 +1875,8 @@
    "maxCities": 2,
    "maxNights": 12,
    "reads": 96,
-   "completeRoutes": 93,
-   "ms": 101
+   "completeRoutes": 95,
+   "ms": 112
   },
   {
    "id": "DXB-4000-1A",
@@ -1890,9 +1888,9 @@
     "lalibela-et>hurghada-eg>bergamo-it",
     "ras-al-khaimah-ae>al-ain-ae>delhi-in",
     "cairo-eg>trieste-it",
-    "sharm-el-sheikh-eg>bodrum-tr",
-    "muscat-om>izmir-tr",
     "mardin-tr>prague-cz",
+    "muscat-om>izmir-tr",
+    "sharm-el-sheikh-eg>bodrum-tr",
     "doha-qa>arusha-tz",
     "sharjah-ae>nairobi-ke",
     "rize-tr>budapest-hu",
@@ -1903,36 +1901,40 @@
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 1,
+   "liveFailures": 0,
    "noTrip": false,
    "best": {
-    "route": "Ras al-Khaimah > Al Ain > Delhi",
-    "nights": 18,
+    "route": "Lalibela > Hurghada > Bergamo",
+    "nights": 16,
     "cities": 3,
-    "use": 0.751,
+    "use": 0.847,
     "quality": {
-     "detour": 1.05,
-     "spreadKm": 2190,
-     "regions": 1,
-     "longLegHours": 4,
-     "flags": []
+     "detour": 1.25,
+     "spreadKm": 2960,
+     "regions": 2,
+     "longLegHours": 7.4,
+     "flags": [
+      "detour"
+     ]
     }
    },
    "shownUse": [
-    0.751,
-    0.663,
-    0.616
+    0.847,
+    0.652,
+    0.615
    ],
-   "distinctCitiesShown": 7,
-   "citiesShown": 7,
-   "oddShown": 0,
-   "oddFlags": [],
+   "distinctCitiesShown": 8,
+   "citiesShown": 8,
+   "oddShown": 1,
+   "oddFlags": [
+    "detour"
+   ],
    "poolOdd": 1,
    "maxCities": 3,
    "maxNights": 19,
    "reads": 96,
-   "completeRoutes": 147,
-   "ms": 109
+   "completeRoutes": 149,
+   "ms": 114
   },
   {
    "id": "DXB-10000-1A",
@@ -1946,13 +1948,13 @@
     "cairo-eg>trieste-it",
     "lalibela-et>hurghada-eg>glasgow-gb",
     "lalibela-et>hurghada-eg>bergamo-it",
+    "mardin-tr>tunis-tn",
     "sharm-el-sheikh-eg>bodrum-tr",
     "muscat-om>izmir-tr",
-    "mardin-tr>tunis-tn",
     "doha-qa>arusha-tz",
     "ras-al-khaimah-ae>al-ain-ae>sharm-el-sheikh-eg",
     "lalibela-et>hurghada-eg>brussels-be",
-    "rize-tr>budapest-hu"
+    "ras-al-khaimah-ae>al-ain-ae>rize-tr"
    ],
    "shown": 3,
    "checks": 5,
@@ -1963,7 +1965,7 @@
     "route": "Lalibela > Hurghada > Paris",
     "nights": 24,
     "cities": 3,
-    "use": 0.46,
+    "use": 0.501,
     "quality": {
      "detour": 1.23,
      "spreadKm": 3615,
@@ -1973,8 +1975,8 @@
     }
    },
    "shownUse": [
-    0.46,
-    0.3,
+    0.501,
+    0.261,
     0.246
    ],
    "distinctCitiesShown": 8,
@@ -1986,7 +1988,7 @@
    "maxNights": 24,
    "reads": 96,
    "completeRoutes": 111,
-   "ms": 126
+   "ms": 142
   },
   {
    "id": "YTO-4000-2A",
@@ -1996,16 +1998,16 @@
    "poolSize": 12,
    "poolRoutes": [
     "tulum-mx>merida-mx",
-    "pittsburgh-us>louisville-us",
-    "baltimore-us>cleveland-us",
     "new-haven-us>boston-us",
+    "pittsburgh-us>atlanta-us",
+    "baltimore-us>cleveland-us",
     "philadelphia-us>asheville-us",
     "pittsburgh-us>tulum-mx",
-    "ottawa-ca>quebec-city-ca",
-    "new-york-us>columbus-us",
-    "montreal-ca>boston-us",
     "detroit-us>oklahoma-city-us",
-    "pittsburgh-us>atlanta-us",
+    "new-york-us>columbus-us",
+    "ottawa-ca>quebec-city-ca",
+    "pittsburgh-us>louisville-us",
+    "pittsburgh-us>albuquerque-us",
     "pittsburgh-us>cincinnati-us"
    ],
    "shown": 3,
@@ -2014,22 +2016,22 @@
    "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Baltimore > Cleveland",
-    "nights": 12,
+    "route": "Tulum > Merida",
+    "nights": 15,
     "cities": 2,
-    "use": 0.841,
+    "use": 0.897,
     "quality": {
-     "detour": 1.24,
-     "spreadKm": 495,
+     "detour": 1.04,
+     "spreadKm": 242,
      "regions": 1,
-     "longLegHours": 1.8,
+     "longLegHours": 4.8,
      "flags": []
     }
    },
    "shownUse": [
-    0.841,
-    0.755,
-    0.729
+    0.897,
+    0.856,
+    0.744
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
@@ -2039,8 +2041,8 @@
    "maxCities": 2,
    "maxNights": 15,
    "reads": 96,
-   "completeRoutes": 185,
-   "ms": 104
+   "completeRoutes": 193,
+   "ms": 187
   },
   {
    "id": "YVR-4000-2A",
@@ -2050,17 +2052,71 @@
    "poolSize": 12,
    "poolRoutes": [
     "mexico-city-mx>flagstaff-us",
-    "missoula-us>las-vegas-us",
-    "victoria-ca>bozeman-us",
     "guadalajara-mx>phoenix-us",
     "cabo-san-lucas-mx>santa-barbara-us",
-    "bend-us>thunder-bay-ca",
-    "edmonton-ca>spokane-us",
     "kelowna-ca>jackson-us",
-    "calgary-ca>regina-ca",
-    "eugene-us>minneapolis-us",
+    "victoria-ca>bend-us",
+    "eugene-us>las-vegas-us",
+    "edmonton-ca>spokane-us",
+    "missoula-us>las-vegas-us",
+    "guadalajara-mx>tulsa-us",
     "portland-us-pdx>winnipeg-ca",
-    "eugene-us>las-vegas-us"
+    "eugene-us>minneapolis-us",
+    "bend-us>thunder-bay-ca"
+   ],
+   "shown": 3,
+   "checks": 5,
+   "rounds": 1,
+   "liveFailures": 2,
+   "noTrip": false,
+   "best": {
+    "route": "Mexico City > Flagstaff",
+    "nights": 8,
+    "cities": 2,
+    "use": 0.818,
+    "quality": {
+     "detour": 1,
+     "spreadKm": 2144,
+     "regions": 2,
+     "longLegHours": 6.5,
+     "flags": []
+    }
+   },
+   "shownUse": [
+    0.818,
+    0.745,
+    0.728
+   ],
+   "distinctCitiesShown": 6,
+   "citiesShown": 6,
+   "oddShown": 0,
+   "oddFlags": [],
+   "poolOdd": 0,
+   "maxCities": 2,
+   "maxNights": 10,
+   "reads": 96,
+   "completeRoutes": 178,
+   "ms": 174
+  },
+  {
+   "id": "BOS-4000-2A",
+   "origin": "Boston (BOS)",
+   "budgetCad": 4000,
+   "adults": 2,
+   "poolSize": 12,
+   "poolRoutes": [
+    "cancun-mx>buffalo-us",
+    "new-haven-us>cleveland-us",
+    "new-york-us>providence-us",
+    "portland-maine-us>toronto-ca",
+    "providence-us>caye-caulker-bz",
+    "new-haven-us>baltimore-us",
+    "providence-us>philadelphia-us",
+    "montego-bay-jm>fort-myers-us",
+    "new-york-us>pittsburgh-us",
+    "providence-us>washington-d-c-us",
+    "providence-us>buffalo-us",
+    "new-york-us>asheville-us"
    ],
    "shown": 3,
    "checks": 5,
@@ -2068,22 +2124,22 @@
    "liveFailures": 0,
    "noTrip": false,
    "best": {
-    "route": "Victoria > Bozeman",
-    "nights": 10,
+    "route": "New York > Providence",
+    "nights": 11,
     "cities": 2,
-    "use": 0.857,
+    "use": 0.813,
     "quality": {
-     "detour": 1.04,
-     "spreadKm": 981,
+     "detour": 1.02,
+     "spreadKm": 250,
      "regions": 1,
-     "longLegHours": 2.4,
+     "longLegHours": 1.4,
      "flags": []
     }
    },
    "shownUse": [
-    0.857,
-    0.799,
-    0.792
+    0.813,
+    0.791,
+    0.733
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
@@ -2093,62 +2149,8 @@
    "maxCities": 2,
    "maxNights": 11,
    "reads": 96,
-   "completeRoutes": 169,
-   "ms": 104
-  },
-  {
-   "id": "BOS-4000-2A",
-   "origin": "Boston (BOS)",
-   "budgetCad": 4000,
-   "adults": 2,
-   "poolSize": 12,
-   "poolRoutes": [
-    "new-haven-us>baltimore-us",
-    "providence-us>caye-caulker-bz",
-    "new-york-us>pittsburgh-us",
-    "portland-maine-us>toronto-ca",
-    "cancun-mx>buffalo-us",
-    "montego-bay-jm>fort-myers-us",
-    "providence-us>buffalo-us",
-    "new-haven-us>cleveland-us",
-    "new-york-us>providence-us",
-    "providence-us>philadelphia-us",
-    "providence-us>washington-d-c-us",
-    "new-york-us>nashville-us"
-   ],
-   "shown": 3,
-   "checks": 5,
-   "rounds": 1,
-   "liveFailures": 2,
-   "noTrip": false,
-   "best": {
-    "route": "Cancun > Buffalo",
-    "nights": 9,
-    "cities": 2,
-    "use": 0.809,
-    "quality": {
-     "detour": 1.07,
-     "spreadKm": 2540,
-     "regions": 2,
-     "longLegHours": 4.9,
-     "flags": []
-    }
-   },
-   "shownUse": [
-    0.809,
-    0.785,
-    0.714
-   ],
-   "distinctCitiesShown": 6,
-   "citiesShown": 6,
-   "oddShown": 0,
-   "oddFlags": [],
-   "poolOdd": 0,
-   "maxCities": 2,
-   "maxNights": 14,
-   "reads": 96,
-   "completeRoutes": 179,
-   "ms": 113
+   "completeRoutes": 192,
+   "ms": 121
   },
   {
    "id": "NYC-4000-2A",
@@ -2160,38 +2162,38 @@
     "new-haven-us>buffalo-us",
     "caye-caulker-bz>san-andres-island-co",
     "merida-mx>campeche-mx",
-    "washington-d-c-us>atlanta-us",
     "providence-us>boston-us",
+    "washington-d-c-us>atlanta-us",
     "philadelphia-us>montreal-ca",
-    "new-haven-us>buffalo-us>toronto-ca",
     "ottawa-ca>quebec-city-ca",
+    "caye-caulker-bz>guatemala-city-gt",
     "baltimore-us>queretaro-mx",
-    "philadelphia-us>toronto-ca",
-    "new-haven-us>charleston-us",
-    "new-haven-us>richmond-us"
+    "new-haven-us>buffalo-us>toronto-ca",
+    "caye-caulker-bz>savannah-us",
+    "new-haven-us>boston-us"
    ],
    "shown": 3,
    "checks": 5,
    "rounds": 1,
-   "liveFailures": 2,
+   "liveFailures": 1,
    "noTrip": false,
    "best": {
-    "route": "Providence > Boston",
-    "nights": 13,
+    "route": "New Haven > Buffalo",
+    "nights": 11,
     "cities": 2,
-    "use": 0.872,
+    "use": 0.835,
     "quality": {
-     "detour": 1.02,
-     "spreadKm": 66,
+     "detour": 1.17,
+     "spreadKm": 521,
      "regions": 1,
-     "longLegHours": 1.4,
+     "longLegHours": 1.7,
      "flags": []
     }
    },
    "shownUse": [
-    0.872,
-    0.767,
-    0.713
+    0.835,
+    0.817,
+    0.761
    ],
    "distinctCitiesShown": 6,
    "citiesShown": 6,
@@ -2201,8 +2203,8 @@
    "maxCities": 3,
    "maxNights": 13,
    "reads": 96,
-   "completeRoutes": 177,
-   "ms": 137
+   "completeRoutes": 191,
+   "ms": 102
   }
  ]
 }

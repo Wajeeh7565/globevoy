@@ -66,7 +66,10 @@
   function cityName(x) { return String(x?.city || x?.name || x?.code || '').trim(); }
   function code(x) { return String(x?.code || x?.airportCode || x?.iata || '').toUpperCase(); }
 
-  function flightRow(leg, cur, now) {
+  const handoffs = () => root.GlobevoyBookingIgnavLinks ||
+    (typeof module === 'object' && module.exports ? require('./booking-ignav-links') : null);
+
+  function flightRow(leg, cur, now, party) {
     // Evidence can sit in canonicalPricing (shown amount), providerVerification
     // (667A/Ignav) or priceProvenance (Duffel); use the first that says LIVE.
     const cp = leg?.canonicalPricing || {};
@@ -77,8 +80,6 @@
     const shown = String(cp.currency || '').toUpperCase() === cur.code ? num(cp.amountDisplay) : null;
     const from = leg?.from || {}, to = leg?.to || {};
     const date = isoDate(leg?.departureDate);
-    const liveLinks = leg?.booking?.liveBookingLinks;
-    const ignavId = String(liveLinks?.ignavId || '');
     const compareUrl = safeUrl(leg?.booking?.url || leg?.bookingUrl || leg?.providerUrl);
     const ground = isGround(leg);
     return {
@@ -89,9 +90,9 @@
       source: live ? `Live price · ${providerName(prov.provider || prov.source) || 'provider'}` : 'Estimated price',
       live,
       age: live ? ageLabel(prov.observedAt || prov.checkedAt, now) : 'confirm on partner site',
-      ignav: /^[A-Za-z0-9_-]{8,128}$/.test(ignavId) ? { ignavId, bookingProof: liveLinks.bookingProof } : null,
+      ignav: ground ? null : handoffs()?.flightLookup(leg, party) || null,
       mainUrl: compareUrl,
-      mainLabel: ground ? 'Find transport' : 'Book flight',
+      mainLabel: ground ? 'Find transport' : 'Compare flights',
       compareUrl: compareUrl,
       compareLabel: 'Compare on Aviasales'
     };
@@ -106,12 +107,12 @@
 
   function hotelRow(city, stay, cur, now, party) {
     const hotel = city?.hotel || {};
-    const checkIn = isoDate(hotel.checkIn || stay?.checkIn || city?.checkIn || city?.arrivalDate);
-    const checkOut = isoDate(hotel.checkOut || stay?.checkOut || city?.checkOut || city?.departureDate);
+    const checkIn = isoDate(stay?.checkIn || city?.arrivalDate || city?.checkIn || hotel.checkIn);
+    const checkOut = isoDate(stay?.checkOut || city?.departureDate || city?.checkOut || hotel.checkOut);
     const nights = num(city?.nights) || num(stay?.nights);
     const rate = hotel.nuiteeLiveRate;
-    const wl = safeUrl(hotel.nuiteeWhitelabel?.url || hotel.booking?.whitelabel?.url);
-    const wlOk = wl && /(\.nuitee\.link|globevoy\.com)$/i.test(new URL(wl).hostname);
+    const wl = handoffs()?.propertyLink(hotel, checkIn, checkOut, party);
+    const wlOk = wl?.url;
     let price = null;
     if (rate && String(rate.currency || '').toUpperCase() === cur.code && num(rate.amount) != null) price = num(rate.amount);
     else if (num(hotel.estimatedStayUsd) != null && cur.fx) price = num(hotel.estimatedStayUsd) * cur.fx;
@@ -119,15 +120,22 @@
     const agoda = safeUrl(hotel.booking?.url || hotel.bookingUrl || hotel.hotelUrl || hotel.providerUrl) || agodaCityUrl(hotel, checkIn, checkOut, party.rooms, party.adults);
     const wlInfo = hotel.nuiteeWhitelabel || hotel.booking?.whitelabel || {};
     const checkout = safeUrl(wlInfo.checkoutUrl);
-    const checkoutOk = checkout && /(\.nuitee\.link|globevoy\.com)$/i.test(new URL(checkout).hostname) && /\/booking$/.test(new URL(checkout).pathname);
+    const checkoutOk = checkout && wlOk && new URL(checkout).origin === new URL(wlOk).origin &&
+      new URL(checkout).pathname === '/booking' && !!new URL(checkout).searchParams.get('offerId');
     const offerAge = (now || Date.now()) - Date.parse(wlInfo.offerObservedAt || rate?.observedAt || '');
-    const fresh = checkoutOk && Number.isFinite(offerAge) && offerAge >= 0 && offerAge <= OFFER_FRESH_MINUTES * 60000;
+    const fresh = checkoutOk && wl.matchesStay && live && rate.checkin === checkIn && rate.checkout === checkOut && Number.isFinite(offerAge) && offerAge >= 0 && offerAge <= OFFER_FRESH_MINUTES * 60000;
     const refundable = rate?.refundableTag === 'RFN' ? 'Free cancellation' : rate?.refundableTag === 'NRFN' ? 'Non-refundable' : '';
+    // GV-HOTEL-FEES-001: local taxes paid at the hotel are not in the hotel site's checkout
+    // price (`price` here) but are in the trip total; show them as their own amount.
+    let payAtHotel = 0;
+    if (rate && String(rate.currency || '').toUpperCase() === cur.code && num(rate.payAtHotelAmount) > 0) payAtHotel = num(rate.payAtHotelAmount);
+    else if (num(hotel.payAtHotel?.usd) > 0 && cur.fx) payAtHotel = num(hotel.payAtHotel.usd) * cur.fx;
     const detailBits = [
       checkIn && checkOut ? `${dateLabel(checkIn)} – ${dateLabel(checkOut)}` : '',
       nights ? `${nights} night${nights === 1 ? '' : 's'}` : '',
       rate?.boardName || '',
-      num(hotel.rating) ? `${hotel.rating} rating` : ''
+      num(hotel.rating) ? `${hotel.rating} rating` : '',
+      payAtHotel > 0 ? `plus ${money(payAtHotel, cur)} local taxes paid at the hotel` : ''
     ].filter(Boolean);
     const genericName = /central value stay/i.test(String(hotel.name || ''));
     return {
@@ -135,16 +143,18 @@
       title: genericName ? `Hotel in ${cityName(city)}` : (hotel.name || `Hotel in ${cityName(city)}`),
       detail: detailBits.join(' · '),
       price,
+      payAtHotel,
       source: live ? 'Live rate · Nuitee' : 'Estimated price',
       live,
       age: live ? (refundable || ageLabel(rate.observedAt, now)) : 'choose a hotel on Agoda',
       ignav: null,
-      mainUrl: fresh ? checkout : (wlOk ? wl : agoda),
+      mainUrl: fresh ? checkout : (wlOk || agoda),
       mainLabel: fresh ? 'Book this room' : (wlOk ? 'Book this hotel' : 'Find a hotel'),
       compareUrl: wlOk ? agoda : '',
       compareLabel: 'Compare on Agoda',
-      altUrl: fresh && wlOk ? wl : '',
-      altLabel: 'See hotel page'
+      altUrl: fresh && wlOk ? wlOk : '',
+      altLabel: 'See hotel page',
+      checkoutExpiresAt: fresh ? (now || Date.now()) - offerAge + OFFER_FRESH_MINUTES * 60000 : null
     };
   }
 
@@ -164,11 +174,14 @@
     const stays = Array.isArray(tour?.stays) ? tour.stays : [];
     const party = {
       adults: num(tour?.passengerPricing?.adults) || num(cities[0]?.hotel?.adults) || 1,
-      rooms: num(tour?.passengerPricing?.rooms) || num(cities[0]?.hotel?.rooms) || 1
+      rooms: num(tour?.passengerPricing?.rooms) || num(cities[0]?.hotel?.rooms) || 1,
+      minors: Number(tour?.passengerPricing?.children || 0) + Number(tour?.passengerPricing?.infants || 0),
+      travellers: tour?.passengerPricing?.travellers,
+      occupancies: tour?.passengerPricing?.occupancies
     };
     const items = [];
     legs.forEach((leg, i) => {
-      items.push(flightRow(leg, cur, now));
+      items.push(flightRow(leg, cur, now, party));
       if (cities[i]) items.push(hotelRow(cities[i], stays[i], cur, now, party));
     });
     if (!legs.length) cities.forEach((c, i) => items.push(hotelRow(c, stays[i], cur, now, party)));
@@ -183,9 +196,10 @@
     // The trip total the rest of the site shows also includes airport-access /
     // transfer estimates and other extras; show those as their own line so the
     // two pages agree.
+    const payAtHotel = items.filter(x => x.kind === 'hotel').reduce((s, x) => s + (x.payAtHotel || 0), 0);
     const siteTotal = num(d.tripEstimate);
-    const extras = siteTotal != null && siteTotal - (flights + hotels) > 1 ? siteTotal - (flights + hotels) : 0;
-    const total = flights + hotels + extras;
+    const extras = siteTotal != null && siteTotal - (flights + hotels + payAtHotel) > 1 ? siteTotal - (flights + hotels + payAtHotel) : 0;
+    const total = flights + hotels + payAtHotel + extras;
     const budget = num(d.totalBudget) ?? num(tour?.budget?.total?.amount);
     const reserve = num(d.reserveAmount) || 0;
     const cities = (Array.isArray(tour?.cities) ? tour.cities : []).map(cityName).filter(Boolean);
@@ -197,7 +211,7 @@
       route: [origin, ...cities, origin].filter(Boolean).join(' → '),
       dates: [start && end ? `${dateLabel(start)} – ${dateLabel(end)}, ${end.slice(0, 4)}` : '', nights ? `${nights} nights` : '',
         `${tour?.passengerPricing?.travellers || 1} traveller${(tour?.passengerPricing?.travellers || 1) === 1 ? '' : 's'}`].filter(Boolean).join(' · '),
-      flights, hotels, extras, total, budget, reserve,
+      flights, hotels, payAtHotel, extras, total, budget, reserve,
       left: budget != null ? budget - reserve - total : null,
       flightCount: items.filter(x => x.kind !== 'hotel').length,
       hotelCount: items.filter(x => x.kind === 'hotel').length,
@@ -227,11 +241,52 @@
   function loadBooked(key) { try { return JSON.parse(root.localStorage.getItem(key) || '{}') || {}; } catch (_) { return {}; } }
   function saveBooked(key, value) { try { root.localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
 
+  function selectionKey(tour) {
+    const party = tour.passengerPricing || {};
+    const legs = legsOf(tour);
+    const cities = tour.cities || tour.stops || [];
+    const airport = n => String(n?.airportCode || n?.code || '');
+    return JSON.stringify([
+      tour.tourId, tour.displayBudget?.currency, party.adults, party.children, party.infants, party.rooms, party.travellers,
+      legs.map(l => [airport(l.from), airport(l.to), l.departureDate, l.booking?.liveBookingLinks?.ignavId]),
+      cities.map(c => [c.cityId, c.arrivalDate || c.checkIn || c.hotel?.checkIn, c.departureDate || c.checkOut || c.hotel?.checkOut,
+        c.hotel?.nuiteeHotelId, c.hotel?.nuiteeLiveRate?.roomName, c.hotel?.nuiteeWhitelabel?.checkoutUrl])
+    ]);
+  }
+
+  async function readVerifiedQuote(tour, fetchFn = root.fetch) {
+    const base = String(root.GLOBEVOY_CONFIG?.apiBaseUrl || '').replace(/\/+$/, '');
+    if (!base || !tour?.bookingEvidence || typeof fetchFn !== 'function') return null;
+    try {
+      const response = await fetchFn(base + '/api/booking-evidence', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store',
+        body: JSON.stringify({ token: tour.bookingEvidence })
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data.ok && Number(data.expiresAt) > Date.now() &&
+        selectionKey(data.quote) === selectionKey(tour) ? data : null;
+    } catch (_) { return null; }
+  }
+
   function render(doc, tour, opts) {
     const host = doc.getElementById('gv-booking-v2');
     if (!host) return false;
     const { items, cur } = buildItems(tour, opts?.now);
     if (!items.length) return false;
+    if (opts?.historical) {
+      for (const item of items) {
+        item.live = false;
+        item.source = 'Estimate · verification required';
+        item.ignav = null;
+        item.checkoutExpiresAt = null;
+        if (item.kind === 'hotel') {
+          item.mainUrl = item.compareUrl;
+          item.mainLabel = 'Compare stays';
+          item.altUrl = '';
+        }
+      }
+    }
     const s = summaryOf(tour, items, cur);
     const key = storageKey(tour);
     const state = { booked: loadBooked(key), guiding: false };
@@ -264,16 +319,22 @@
       items.forEach(it => {
         const booked = !!state.booked[it.id];
         const best = it.ignav && it.links ? bestLink(it.links) : null;
-        const mainUrl = best ? best.url : (it.ignav && !it.links ? '' : it.mainUrl);
-        const mainLabel = best ? `Book on ${best.providerName || 'partner'}` : it.mainLabel;
+        const mainUrl = best ? best.url : it.mainUrl;
+        const mainLabel = best
+          ? `${best.specificity === 'exact_flight' ? 'Book on' : 'Compare on'} ${best.providerName || 'partner'}`
+          : it.mainLabel;
         const main = it.ignav && !it.links
-          ? el(doc, 'span', { class: 'gvb2-main gvb2-disabled', text: 'Finding live options…' })
+          ? el(doc, 'button', { type: 'button', class: 'gvb2-main gvb2-linkbtn', disabled: it.loadingLinks,
+            onclick: () => loadLinks(it), text: it.loadingLinks ? 'Checking booking options…' : 'See booking options' })
           : mainUrl
-          ? el(doc, 'a', { class: 'gvb2-main', href: mainUrl, target: '_blank', rel: 'noopener nofollow' }, [`${mainLabel} ↗`])
+          ? el(doc, 'a', { class: 'gvb2-main', href: mainUrl, target: '_blank', rel: 'noopener nofollow',
+            onclick: it.checkoutExpiresAt ? event => {
+              if (Date.now() >= it.checkoutExpiresAt && it.altUrl) event.currentTarget.href = it.altUrl;
+            } : null }, [`${mainLabel} ↗`])
           : el(doc, 'span', { class: 'gvb2-main gvb2-disabled', text: 'Link unavailable' });
         const right = el(doc, 'div', { class: 'gvb2-right' }, [el(doc, 'div', { class: 'gvb2-price', text: money(it.price, cur) }), main]);
         if (it.altUrl) right.appendChild(el(doc, 'a', { class: 'gvb2-compare', href: it.altUrl, target: '_blank', rel: 'noopener nofollow', text: it.altLabel }));
-        if (it.compareUrl && it.compareUrl !== it.mainUrl) right.appendChild(el(doc, 'a', { class: 'gvb2-compare', href: it.compareUrl, target: '_blank', rel: 'noopener nofollow', text: it.compareLabel }));
+        if (it.compareUrl && (it.compareUrl !== mainUrl || it.ignav && !it.links)) right.appendChild(el(doc, 'a', { class: 'gvb2-compare', href: it.compareUrl, target: '_blank', rel: 'noopener nofollow', text: it.compareLabel }));
         const optionsBox = el(doc, 'div', { class: 'gvb2-options', hidden: true });
         if (it.ignav && it.links && it.links.length > 1) {
           right.appendChild(el(doc, 'button', { type: 'button', class: 'gvb2-compare gvb2-linkbtn', 'aria-expanded': it.open ? 'true' : 'false', onclick: () => { it.open = !it.open; draw(); } }, [it.open ? 'Hide other options' : `${it.links.length - 1} more option${it.links.length > 2 ? 's' : ''}`]));
@@ -311,6 +372,7 @@
         el(doc, 'div', { class: 'gvb2-kicker gvb2-kicker-dark', text: 'TRIP TOTAL' }),
         el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: `Flights (${s.flightCount})` }), el(doc, 'strong', { text: money(s.flights, cur) })]),
         el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: `Hotels (${s.hotelCount})` }), el(doc, 'strong', { text: money(s.hotels, cur) })]),
+        s.payAtHotel ? el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: 'Local taxes paid at hotels' }), el(doc, 'strong', { text: money(s.payAtHotel, cur) })]) : null,
         s.extras ? el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: 'Airport transfers & extras (estimate)' }), el(doc, 'strong', { text: money(s.extras, cur) })]) : null,
         el(doc, 'div', { class: 'gvb2-rule' }),
         el(doc, 'div', { class: 'gvb2-line gvb2-total' }, [el(doc, 'span', { text: 'Total' }), el(doc, 'strong', { text: money(s.total, cur) })]),
@@ -325,15 +387,17 @@
 
       host.appendChild(el(doc, 'div', { class: 'gvb2-wrap' }, [list, aside]));
     }
-    draw();
-    const api = root.GlobevoyBookingIgnavLinks;
-    items.filter(it => it.ignav).forEach(async it => {
-      let result = { ok: false };
-      try { result = api && api.fetchLinks ? await api.fetchLinks({ ...it.ignav, endpoint: '/api/flight-booking-links' }) : { ok: false }; } catch (_) {}
-      it.links = Array.isArray(result?.links) ? result.links : [];
-      if (!bestLink(it.links)) it.ignav = null; // fall back to the Aviasales link
+    async function loadLinks(it) {
+      if (it.loadingLinks || it.links) return;
+      it.loadingLinks = true;
       draw();
-    });
+      const result = await handoffs()?.fetchLinks(it.ignav);
+      it.links = Array.isArray(result?.links) ? result.links : [];
+      it.loadingLinks = false;
+      if (!bestLink(it.links)) it.ignav = null;
+      draw();
+    }
+    draw();
     return true;
   }
 
@@ -361,9 +425,16 @@
         const back = doc.getElementById('gv-booking-back');
         if (back && back.parentNode === main) back.after(host); else main.prepend(host);
       }
-      if (!render(doc, tour)) return false;
+      if (!render(doc, tour, { historical: true })) return false;
       toggleClassic(doc, false);
       done = true;
+      void readVerifiedQuote(tour).then(evidence => {
+        if (!evidence || root.GlobevoyBooking673FR1?.tour !== tour) return;
+        render(doc, evidence.quote);
+        root.setTimeout(() => {
+          if (root.GlobevoyBooking673FR1?.tour === tour) render(doc, evidence.quote, { historical: true });
+        }, Math.max(0, evidence.expiresAt - Date.now()));
+      });
       return true;
     };
     root.addEventListener?.('globevoy:booking-tour-ready', () => root.setTimeout?.(run, 0));
@@ -373,7 +444,7 @@
     }
   }
 
-  const api = { VERSION, bestLink, buildItems, summaryOf, render, safeUrl, ageLabel, start };
+  const api = { VERSION, bestLink, buildItems, summaryOf, render, safeUrl, ageLabel, readVerifiedQuote, start };
   root.GlobevoyBookingV2 = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (root.document) {

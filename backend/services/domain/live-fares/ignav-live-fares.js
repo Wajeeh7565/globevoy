@@ -137,23 +137,27 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
     .filter(({ leg }) => isFlightLeg(leg))
     .map(({ leg, index }) => ({ index, origin: endpointCode(leg.from), destination: endpointCode(leg.to), departureDate: legDate(leg) }));
   if (!tasks.length) return { tour, summary: { ...baseSummary, reason: 'no-flight-legs' } };
-  if (tasks.length > MAX_FLIGHT_LEGS) return { tour, summary: { ...baseSummary, reason: 'too-many-flight-legs', flightLegCount: tasks.length } };
+  const fourCityLoop = String(env.FARE_MAP_FOUR_CITY_LIVE || '').trim().toLowerCase() === 'on' && tour.selectionSource === 'fare-map-beam' &&
+    tour.stops?.length === 4 && legs.length === 5 && tasks.length === 5 &&
+    tasks[0].origin && tasks[0].origin === tasks.at(-1).destination &&
+    tasks.slice(1).every((task, index) => tasks[index].destination === task.origin);
+  const limit = fourCityLoop ? 5 : MAX_FLIGHT_LEGS;
+  if (tasks.length > limit) return { tour, summary: { ...baseSummary, reason: 'too-many-flight-legs', flightLegCount: tasks.length } };
   if (tasks.some(t => !t.origin || !t.destination || !t.departureDate)) return { tour, summary: { ...baseSummary, reason: 'flight-leg-missing-airport-or-date' } };
 
   // Results are remembered for 15 minutes (ignav-fare-cache), so the page's three
   // parallel trips, retries and a return visit don't pay for the same flight twice.
   // Tests that inject fetchFn without a cache option keep calling Ignav directly.
-  const counter = { calls: 0, cacheHits: 0 };
+  const counter = { calls: 0, cacheHits: 0 }, usage = {};
   const search = options.fareCache === false || (options.fetchFn && options.fareCache !== true) ? ignav.searchOneWay : searchOneWayCached;
   const results = await Promise.all(tasks.map(task => search({
     origin: task.origin, destination: task.destination, departureDate: task.departureDate,
     adults: party.adults, children: party.children, currency
-  }, { env, fetchFn: options.fetchFn, requestGuard: options.requestGuard, dynamo: options.dynamo, counter })));
-  if (search === ignav.searchOneWay) counter.calls = tasks.length;
+  }, { ...options, env, counter, usage })));
 
   const failed = results.map((r, i) => ({ r, task: tasks[i] }))
     .filter(({ r }) => !r.ok || !r.cheapest || r.cheapest.currency !== currency);
-  const summaryBase = { ...baseSummary, attempted: true, providerRequests: counter.calls, cacheHits: counter.cacheHits, requiredFlightLegCount: tasks.length, currency };
+  const summaryBase = { ...baseSummary, maxFlightLegs: limit, attempted: true, providerRequests: counter.calls, cacheHits: counter.cacheHits, usage, requiredFlightLegCount: tasks.length, currency };
   const failedLegs = failed.map(({ r, task }) => ({ origin: task.origin, destination: task.destination, departureDate: task.departureDate,
     reason: !r.ok ? r.reason : !r.cheapest ? 'no-verified-fare' : 'currency-mismatch' }));
   // Per-leg: legs with a verified fare in the requested currency get live evidence;

@@ -1,0 +1,34 @@
+# Ignav request and spending controls
+
+**Proposal pending provider permission and AWS approval**
+
+Prioritize candidate selection and measure billable requests at the Ignav adapter boundary. Keep the existing recommendation diversity rules and exact flight, date, party, and currency checks. Treat the reported 80% spending alert as a signal to establish the remaining provider-side allowance. Recent diagnostics showed new search attempts and cache hits, which cannot establish account-wide billing. Confirm billing units, renewal time, treatment of booking-link lookups and provider cache hits, allowed retention, and approved usage before choosing thresholds.
+
+## Current request paths
+
+- Generated tours check up to eight pool candidates. Guests get one card with no spares. Members can add two initial spares, and every candidate in a batch can start all its flight legs before the builder has enough passing cards. The route role and diversity order can stay the same with fewer speculative checks. Current browser defaults should be evaluated against the existing request-level poolSpare setting. See [generated-tour.js](../backend/services/domain/tours/generated-tour.js).
+- The fare cache already has two layers. Each process keeps up to 500 entries. When the fare-map table is configured, DynamoDB stores reusable LIVE#ignav fare results for other instances. The application enforces 15 minutes of cache age and three hours of observation age. On a hit it re-signs the booking proof. The key includes normalized endpoints, date, adults, children, and currency. Cache read errors currently allow a provider call. Empty successful responses can be cached because the existing write gate checks ok. See [ignav-fare-cache.js](../backend/services/domain/live-fares/ignav-fare-cache.js).
+- Concurrent misses can call the provider for the same key before either result is stored. Two simultaneous mock misses sent two requests. The next lookup reused the result without a third request. A simulated repeat of an entire member page with an empty local cache and the same shared store sent zero new requests in the four measured cases. A refresh preserved route diversity and needed new requests for dates and legs the cache had never seen.
+- The booking page’s Ignav lookup is a user-click POST to /api/flight-booking-links, which validates a signed proof and makes a separate booking-link request by itinerary ID. Two mock clicks with the same valid proof made two link lookups. The owner-private account booking revalidation route uses the separate Duffel pilot in this checkout. Track these by endpoint and check production aggregate usage before attributing either to the Ignav alert. See [booking-ignav-links.js](../frontend/scripts/booking-ignav-links.js), [lambda.js](../backend/lambda.js), and [staging-booking-revalidation-707b.js](../backend/services/booking/revalidation/staging-booking-revalidation-707b.js).
+- The existing limiter defaults to 60 requests per minute and 1,000 per hour per instance. Its state resets on cold start. Two mocked instances each spent a token with independent one-token limits. The guard protects a single process and can back off after a 429. An account-wide cap needs shared state. See [ignav.js](../backend/services/providers/flights/ignav/ignav.js).
+
+## Mocked member verification
+
+Each cell shows new Ignav requests and verification rounds. The same candidate order produced three cards in every cell.
+
+| Budget | Guest requests | Member, two spares | Member, one spare | Member, zero spares | Repeated member page using shared cache |
+|---|---:|---:|---:|---:|---:|
+| C$2,000 | 2 | 10 / 1 | 8 / 1 | 8 / 2 | 0 new, 10 hits |
+| C$7,500 | 4 | 19 / 1 | 16 / 1 | 12 / 1 | 0 new, 19 hits |
+| C$10,000 | 4 | 20 / 1 | 16 / 1 | 12 / 1 | 0 new, 20 hits |
+| C$15,000 | 4 | 20 / 1 | 16 / 1 | 12 / 1 | 0 new, 20 hits |
+
+## Proposed implementation
+
+1. **Instrument the adapter boundary.** Count upstream fare and booking-link sends, provider responses, local/shared reuse, in-flight joins, spare attempts, spare successes used, and vetoed sends. Record candidate size, guest/member flow, fill rate, and wall time. Reconcile these counters with provider usage before setting a dollar cap. Keep IDs, proofs, personal data, and prices out of operational counters.
+2. **Reduce redundant checks first.** Compare zero and one spare with the current two-spare setting under realistic failure and latency profiles. Use a smaller initial batch when same-page completion stays reliable. Reuse the same ranking and refresh order. Add a per-process in-flight promise keyed by canonical request identity, clear it in finally, and share successes only through existing freshness and validation checks. Give cache sharing an explicit upper wait bound so a failed leader cannot strand a search.
+3. **Extend the existing shared cache after approval.** Use a short conditional lease per canonical key across instances. A leader acquires a lease, checks the cache again, reserves quota, and calls Ignav. Followers use a bounded wait and may compete after an expired lease. Keep the current 15-minute result TTL initially. Treat provider errors, invalid responses, and legitimate empty results distinctly. Scope keys to the credential or tenant and any provider input affecting identity. Confirm permissible reuse and expiry separately before caching booking-link responses. If permitted, key links by itinerary ID, market and credential, verify proof on every request, and cap reuse at the earliest applicable expiry.
+4. **Enforce spend centrally immediately before sending.** Use an atomic shared reservation for the provider account and billing window, with per-endpoint units derived from the contract. Charge attempts conservatively when the outcome is ambiguous, including timeouts. Requests that reuse verified cache evidence need no new reservation. If quota state is unavailable or depleted, fail closed for new upstream sends and return an honest verification-unavailable result when cached evidence cannot satisfy the request. Retain the per-instance breaker for transient bursts. Add approved warnings before the hard limit and a shared stop condition for confirmed billing lockouts.
+5. **Validate failure and concurrency before rollout.** Cover two-instance races, lease expiry, cache or quota-store failure, timeout accounting, disabled/denied booking links, date/party isolation, expiration, and reset boundaries. Measure page fill, time to first verified trip, destination diversity, and logged provider counts against baseline. Evaluate five-leg verification separately because each candidate carries one more potential request.
+
+Provider permission and AWS approval are required for shared storage or quota changes. Any paid validation and rollout need separate authorization.

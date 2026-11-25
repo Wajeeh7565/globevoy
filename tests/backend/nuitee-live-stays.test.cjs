@@ -221,3 +221,42 @@ test('after live hotel rates, the page total (displayBudget) is rebuilt from the
   assert.ok(Math.abs(db.accommodationEstimate - Math.round(959 * db.exchangeRateFromUsd)) <= 1);
   assert.equal(r.tours[0], r.tour);
 });
+
+// GV-HOTEL-FEES-001: rooms with a fee paid at the hotel (city tourist tax) are kept and
+// priced honestly instead of dropped (Nov 25: 34/34 cheapest Barcelona rooms had one).
+function feeHotel(id, name, rating, amount, fee, feeCurrency = 'CAD') {
+  const h = rateHotel(id, name, rating, amount);
+  h.rate.roomTypes[0].rates[0].retailRate.taxesAndFees = [{ included: true, amount: 10, currency: 'CAD' }, { included: false, amount: fee, currency: feeCurrency, description: 'City tax' }];
+  return h;
+}
+
+test('pay-at-hotel fees: the room is kept, the fee is added to the stay total and shown', async () => {
+  const fetch = mockFetch({ Lisbon: [feeHotel('lpT', 'Tax Hotel', 8.2, 400, 30)], Budapest: [rateHotel('lpD', 'Danube Inn', 8.0, 410)] });
+  const r = await applyNuiteeLiveStays(tour(), QUERY, { env: ENV, getSecretValue: prodSecret, fetch });
+  assert.equal(r.summary.appliedCount, 2, JSON.stringify(r.summary));
+  const h = r.tour.stops[0].hotel;
+  assert.equal(h.nuiteeHotelId, 'lpT');
+  assert.equal(h.nuiteeLiveRate.bookingAmount, 400, 'what the hotel site charges');
+  assert.equal(h.nuiteeLiveRate.payAtHotelAmount, 30);
+  assert.equal(h.totalStayUsd, Math.round(430 * 0.735), 'trip total includes the fee');
+  assert.equal(h.payAtHotel.usd, Math.round(30 * 0.735));
+  assert.equal(r.tour.stops[1].hotel.payAtHotel, null);
+});
+
+test('pay-at-hotel fees: comparison uses the full price, so a cheaper room with a big fee can lose', () => {
+  const payload = { data: [feeHotel('lpT', 'Tax Hotel', 8.2, 400, 120).rate, rateHotel('lpN', 'No Fee', 8.0, 450).rate], hotels: [{ hotelId: 'lpT', rating: 8.2 }, { hotelId: 'lpN', rating: 8.0 }] };
+  assert.equal(_internal.chooseOffer(payload, 'CAD').hotelId, 'lpN');
+  const small = { data: [feeHotel('lpT', 'Tax Hotel', 8.2, 400, 20).rate, rateHotel('lpN', 'No Fee', 8.0, 450).rate], hotels: payload.hotels };
+  assert.equal(_internal.chooseOffer(small, 'CAD').hotelId, 'lpT');
+});
+
+test('pay-at-hotel fees: EUR fees are converted; unknown currencies and unreadable fees still drop the room; off switch', () => {
+  const eur = { data: [feeHotel('lpE', 'Euro Tax', 8.5, 400, 10, 'EUR').rate], hotels: [{ hotelId: 'lpE', rating: 8.5 }] };
+  const o = _internal.chooseOffer(eur, 'CAD');
+  assert.ok(o && Math.abs(o.payAtHotel.amount - 10 * 1.08 / 0.735) < 0.01, JSON.stringify(o && o.payAtHotel));
+  const mad = { data: [feeHotel('lpM', 'Dirham Tax', 8.5, 400, 50, 'MAD').rate], hotels: [{ hotelId: 'lpM', rating: 8.5 }] };
+  assert.equal(_internal.chooseOffer(mad, 'CAD'), null, 'cannot convert MAD honestly');
+  const unread = rateHotel('lpU', 'Unreadable', 8.5, 400); unread.rate.roomTypes[0].rates[0].retailRate.taxesAndFees = [{ included: false }];
+  assert.equal(_internal.chooseOffer({ data: [unread.rate], hotels: [] }, 'CAD'), null);
+  assert.equal(_internal.chooseOffer({ data: [feeHotel('lpT', 'Tax Hotel', 8.2, 400, 30).rate], hotels: [] }, 'CAD', { env: { NUITEE_DROP_PAY_AT_HOTEL: 'true' } }), null, 'old behaviour on request');
+});

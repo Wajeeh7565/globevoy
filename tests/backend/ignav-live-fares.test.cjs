@@ -150,3 +150,33 @@ test('city codes are searched at the main airport, and untyped long legs count a
   const all = seen.join('\n');
   assert.match(all, /LHR/); assert.doesNotMatch(all, /"LON"|origin=LON|destination=LON/);
 });
+
+
+test('five flight legs are checked only for an opted-in four-city fare-map loop', async () => {
+  const t = tour();
+  const chain = ['YYZ', 'LIS', 'BUD', 'VIE', 'PRG', 'YYZ'];
+  t.selectionSource = 'fare-map-beam';
+  t.stops = chain.slice(1, -1).map(code => ({ city: code, hotel: { estimatedStayUsd: 150 } }));
+  t.legs = chain.slice(1).map((to, i) => ({ ...t.legs[0], from: node(chain[i]), to: node(to),
+    departureDate: '2027-02-' + String(2 + 4 * i).padStart(2, '0') }));
+  const calls = [];
+  const fetchFn = async (_url, init) => {
+    const body = JSON.parse(init.body);
+    calls.push(body);
+    return { ok: true, status: 200, text: async () => JSON.stringify({ observed_at: new Date().toISOString(),
+      itineraries: [{ price: { amount: 100, currency: 'CAD', status: 'verified' }, outbound: {
+        segments: [{ departure: { airport: body.origin, local_time: body.departure_date + 'T09:00:00' },
+          arrival: { airport: body.destination, local_time: body.departure_date + 'T14:00:00' } }]
+      } }] }) };
+  };
+  const attempt = (candidate, enabled) => applyIgnavLiveFares(candidate, QUERY, {
+    env: { ...ENV, FARE_MAP_FOUR_CITY_LIVE: enabled }, fetchFn
+  });
+  assert.equal((await attempt(t)).summary.reason, 'too-many-flight-legs');
+  assert.equal((await attempt({ ...t, selectionSource: 'other' }, 'on')).summary.reason, 'too-many-flight-legs');
+  assert.equal(calls.length, 0);
+  const priced = await attempt(t, 'on');
+  assert.equal(priced.summary.providerRequests, 5);
+  assert.ok(priced.tour.legs.every(l => l.liveFareVerified));
+  assert.deepEqual(calls.map(c => c.destination), chain.slice(1));
+});

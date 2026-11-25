@@ -10,7 +10,7 @@ const groups = {
     ['node', 'scripts/validate-organization.mjs']
   ],
 
-  browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs']],
+  browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs'], ['node', '--test', 'tests/frontend/booking-cost-browser.test.cjs']],
 
   backend: [
     ['node', '--test', 'tests/backend/search-activity.test.cjs'],
@@ -24,7 +24,15 @@ const groups = {
     ['node', '--test', 'tests/backend/fare-map-trip-shapes.test.cjs'],
     ['node', '--test', 'tests/backend/hotel-price-memory.test.cjs'],
     ['node', '--test', 'tests/backend/recommendation-pool.test.cjs'],
+    ['node', '--test', 'tests/backend/hotel-upgrade-policy.test.cjs'],
+    ['node', '--test', 'tests/backend/hotel-memory-bayes.test.cjs'],
+    ['node', '--test', 'tests/backend/read-plan.test.cjs'],
+    ['node', '--test', 'tests/backend/fare-map-route-variants.test.cjs'],
+    ['node', '--test', 'tests/backend/hotel-price-index.test.cjs'],
+    ['node', '--test', 'tests/backend/hotel-planning.test.cjs'],
     ['node', '--test', 'tests/backend/ignav-fare-cache.test.cjs'],
+    ['node', '--test', 'tests/backend/ignav-cost-controls.test.cjs'],
+    ['node', '--test', 'tests/backend/booking-evidence.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map-full-pass.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map-optimizer.test.cjs'],

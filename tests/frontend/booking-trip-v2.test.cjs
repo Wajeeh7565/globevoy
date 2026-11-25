@@ -67,7 +67,7 @@ test('Ignav evidence in canonicalPricing/providerVerification shows as live with
   assert.equal(items[2].source, 'Live price · Ignav');
   assert.equal(items[2].price, 205);
   assert.equal(items[2].age, 'checked 2 min ago');
-  assert.equal(items[2].mainLabel, 'Book flight');
+  assert.equal(items[2].mainLabel, 'Compare flights');
 });
 
 test('bestLink prefers the airline, then exact flight, then cheapest; drops non-https', () => {
@@ -92,6 +92,15 @@ test('total matches the site total: extras line and reserve', () => {
 
 test('fresh Nuitee offer: Book this room → checkout; stale offer: hotel page', () => {
   const t = tour();
+  const hotel = t.cities[0].hotel;
+  const occupancy = Buffer.from(JSON.stringify([{ adults: 1, children: [] }])).toString('base64');
+  hotel.nuiteeHotelId = 'lp57def';
+  hotel.nuiteeLiveRate.checkin = hotel.checkIn;
+  hotel.nuiteeLiveRate.checkout = hotel.checkOut;
+  const property = new URL(hotel.nuiteeWhitelabel.url);
+  property.searchParams.set('checkout', hotel.checkOut);
+  property.searchParams.set('occupancies', occupancy);
+  hotel.nuiteeWhitelabel.url = property.toString();
   t.cities[0].hotel.nuiteeWhitelabel.checkoutUrl = 'https://wajeeh-4443-racp8.nuitee.link/booking?offerId=offer-1';
   t.cities[0].hotel.nuiteeWhitelabel.offerObservedAt = '2026-11-19T09:00:00Z';
   let { items } = v2.buildItems(t, now); // 10 min old
@@ -102,4 +111,51 @@ test('fresh Nuitee offer: Book this room → checkout; stale offer: hotel page',
   assert.equal(items[1].mainLabel, 'Book this hotel');
   assert.match(items[1].mainUrl, /\/hotels\/lp57def/);
   assert.equal(items[1].altUrl, '');
+  t.passengerPricing.adults = 2;
+  ({ items } = v2.buildItems(t, now));
+  assert.equal(items[1].mainLabel, 'Find a hotel', 'a different party cannot inherit the room offer');
+  t.passengerPricing.adults = 1;
+  t.cities[0].arrivalDate = '2026-12-04';
+  ({ items } = v2.buildItems(t, now));
+  assert.equal(items[1].mainLabel, 'Find a hotel', 'a changed arrival date cannot inherit the room offer');
+});
+
+// GV-HOTEL-FEES-001: the booking page shows the hotel site's checkout price, plus local taxes
+// paid at the hotel as their own line, so the total still matches the results page.
+test('local taxes paid at the hotel: own line, not "transfers & extras"; total matches the site', () => {
+  const t = tour();
+  t.cities[0].hotel.nuiteeLiveRate.payAtHotelAmount = 41.5;
+  t.displayBudget.tripEstimate = Math.round(700 * 1.36 + 352.51 + 41.5 + 300 * 1.36);
+  const { items, cur } = v2.buildItems(t, now);
+  const hotel = items.find(i => i.kind === 'hotel');
+  assert.equal(hotel.price, 352.51, 'checkout price, as on the hotel site');
+  assert.equal(hotel.payAtHotel, 41.5);
+  assert.match(hotel.detail, /plus C\$42 local taxes paid at the hotel/);
+  const s = v2.summaryOf(t, items, cur);
+  assert.equal(s.payAtHotel, 41.5);
+  assert.equal(s.extras, 0, 'the fee is not mislabelled as transfers');
+  assert.equal(Math.round(s.total), t.displayBudget.tripEstimate);
+});
+
+
+test('fresh backend quote wins over editable prices, while changed trips must revalidate', async () => {
+  const base = tour();
+  const browser = structuredClone(base);
+  browser.bookingEvidence = 'opaque-signed-quote';
+  browser.cities[0].hotel.nuiteeLiveRate.amount = 1;
+  const previous = globalThis.GLOBEVOY_CONFIG;
+  globalThis.GLOBEVOY_CONFIG = { apiBaseUrl: 'https://offline.example.test' };
+  const fetch = async (url, request) => {
+    assert.match(url, /booking-evidence$/);
+    assert.deepEqual(JSON.parse(request.body), { token: 'opaque-signed-quote' });
+    return { ok: true, json: async () => ({ ok: true, expiresAt: Date.now() + 5000, quote: base }) };
+  };
+  try {
+    for (let visit = 0; visit < 2; visit++) {
+      const evidence = await v2.readVerifiedQuote(browser, fetch);
+      assert.equal(v2.buildItems(evidence.quote, now).items[1].price, 352.51);
+    }
+    browser.cities[0].hotel.checkOut = '2026-12-11';
+    assert.equal(await v2.readVerifiedQuote(browser, fetch), null);
+  } finally { globalThis.GLOBEVOY_CONFIG = previous; }
 });

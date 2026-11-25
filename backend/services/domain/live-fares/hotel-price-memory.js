@@ -36,7 +36,9 @@ async function load(options = {}) {
     for (const [k, v] of Object.entries(res?.Item || {})) {
       if (!k.startsWith('r_')) continue;
       const id = k.slice(2), ratio = Number(v.N), n = Number(res.Item['n_' + id]?.N) || 1, at = Number(res.Item['t_' + id]?.N) || 0;
-      if (Number.isFinite(ratio) && now - at <= MAX_AGE_MS) map.set(id, { ratio: clamp(ratio), n, at });
+      // q_/c_ (GV-HOTEL-MEM-003, bayes mode): average and count of CLEAN observations only.
+      const q = Number(res.Item['q_' + id]?.N), c = Number(res.Item['c_' + id]?.N) || 0;
+      if (Number.isFinite(ratio) && now - at <= MAX_AGE_MS) map.set(id, { ratio: clamp(ratio), n, at, ...(c > 0 && Number.isFinite(q) ? { q: clamp(q), c } : {}) });
     }
     return map;
   };
@@ -63,17 +65,38 @@ async function record(observations = [], options = {}) {
   const env = options.env || process.env, now = (options.clock || Date.now)();
   if (!store.tableName(env) || options.hotelMemory === false) return 0;
   const map = new Map(await load({ ...options, fresh: true }));
+  const mode = String(env.HOTEL_MEMORY_LEGACY || 'trust').trim().toLowerCase(), rawSince = String(env.HOTEL_MEMORY_CLEAN_SINCE || '').trim();
+  const cleanSince = mode !== 'trust' && rawSince ? (/^\d+$/.test(rawSince) ? Number(rawSince) : Date.parse(rawSince)) || 0 : 0;
+  const cleanSince2 = rawSince ? (/^\d+$/.test(rawSince) ? Number(rawSince) : Date.parse(rawSince)) || 0 : 0;
   let count = 0;
   for (const o of observations) {
     const est = Number(o?.estimateUsd), live = Number(o?.liveUsd), id = attr(o?.cityId);
     if (!id || !(est > 0) || !(live > 0)) continue;
-    const obs = clamp(live / est), old = map.get(id), n = Math.min(WINDOW, old?.n || 0);
-    map.set(id, { ratio: Number((old ? (old.ratio * n + obs) / (n + 1) : obs).toFixed(3)), n: (old?.n || 0) + 1, at: now });
+    // GV-HOTEL-MEM-002: an entry last updated before HOTEL_MEMORY_CLEAN_SINCE (learned before
+    // the budget-upgrade and property-fee fixes) keeps only a 0.25 weight against the new
+    // observation, so one clean check replaces 80% of it instead of ~17%. Off unless the
+    // setting is present (with HOTEL_MEMORY_LEGACY other than "trust").
+    const obs = clamp(live / est), old = map.get(id);
+    // GV-HOTEL-MEM-003 (HOTEL_MEMORY_LEGACY=bayes): clean observations go to their own
+    // average (q_, c_); the old average (r_, n_) is frozen as legacy evidence, whatever its
+    // timestamp, because an entry touched after the fix still carries its older checks.
+    // HOTEL_MEMORY_CLEAN_TRACK=on (with CLEAN_SINCE) is the shadow step: clean checks are
+    // counted the same way while planning and the old average keep today's rules, so the
+    // calibration modes can be scored against checks they never saw before being switched on.
+    const track = cleanSince2 > 0 && now >= cleanSince2 && (mode === 'bayes' || String(env.HOTEL_MEMORY_CLEAN_TRACK || '').trim().toLowerCase() === 'on');
+    const clean = track ? (() => { const c = Math.min(WINDOW, old?.c || 0); return { q: Number((c && old?.q ? (old.q * c + obs) / (c + 1) : obs).toFixed(3)), c: (old?.c || 0) + 1 }; })() : (old?.c ? { q: old.q, c: old.c } : {});
+    if (mode === 'bayes' && track) {
+      map.set(id, { ratio: old ? old.ratio : obs, n: old ? old.n : 0, at: now, ...clean });
+      count++; continue;
+    }
+    const legacy = old && cleanSince > 0 && Number(old.at || 0) < cleanSince;
+    const n = legacy ? 0.25 : Math.min(WINDOW, old?.n || 0);
+    map.set(id, { ...clean, ratio: Number((old ? (old.ratio * n + obs) / (n + 1) : obs).toFixed(3)), n: legacy ? 1 : (old?.n || 0) + 1, at: now });
     count++;
   }
   if (!count) return 0;
   const item = { pk: { S: PK }, sk: { S: SK }, savedAt: { N: String(now) } };
-  for (const [id, v] of map) { item['r_' + id] = { N: String(v.ratio) }; item['n_' + id] = { N: String(v.n) }; item['t_' + id] = { N: String(v.at) }; }
+  for (const [id, v] of map) { item['r_' + id] = { N: String(v.ratio) }; item['n_' + id] = { N: String(v.n) }; item['t_' + id] = { N: String(v.at) }; if (v.c > 0) { item['q_' + id] = { N: String(v.q) }; item['c_' + id] = { N: String(v.c) }; } }
   try {
     await client(options).send(store._internal.cmd('PutItemCommand', { TableName: store.tableName(env), Item: item }));
     cached = { at: now, map };

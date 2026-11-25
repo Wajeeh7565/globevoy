@@ -249,7 +249,11 @@
   function stayRow(c) {
     const price = stayPrice(c), name = c.hotel?.name || c.hotel?.hotelName, rating = Number(c.hotel?.rating);
     if (!name) return '';
-    return `<div class="jrow"><span class="jicon">${ICON_BED}</span><div class="jtext"><span class="jlabel">${plural(c.nights, 'night', 'nights')}${rating ? ` · rated ${rating.toFixed(1)}` : ''}</span><strong>${esc(name)}</strong></div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>Live</em></div>` : ''}</div>`;
+    // GV-HOTEL-FEES-001: local taxes paid at the hotel are in the price shown here, but not in the
+    // hotel site's checkout price, so say so.
+    const pay = Number(c.hotel?.payAtHotel?.usd) * (Number(view.tour.displayBudget?.exchangeRateFromUsd) || 1);
+    const payNote = pay > 0 ? `<span class="jnote">Includes ${money(pay, view.cur)} local taxes paid at the hotel</span>` : '';
+    return `<div class="jrow"><span class="jicon">${ICON_BED}</span><div class="jtext"><span class="jlabel">${plural(c.nights, 'night', 'nights')}${rating ? ` · rated ${rating.toFixed(1)}` : ''}</span><strong>${esc(name)}</strong>${payNote}</div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>Live</em></div>` : ''}</div>`;
   }
   function photoBox(id, alt, badge, sub) {
     return `<div class="jphoto"><img data-photo="${id}" alt="${esc(alt)}" hidden><div class="jphoto-fallback" data-mapcard="${id}"></div><span class="jbadge">${esc(badge)}</span>${sub ? `<span class="jbadge alt">${esc(sub)}</span>` : ''}<span class="jnow">Now exploring</span><div class="jtitle"><h3>${esc(alt.split(',')[0])}</h3><span>${esc(alt.split(', ').slice(1).join(', '))}</span></div></div>`;

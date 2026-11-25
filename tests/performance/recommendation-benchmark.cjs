@@ -13,9 +13,17 @@
 //   --save/--compare <name>: 'baseline' is tests/performance/fixtures/recommendation-baseline.json,
 //   any other name goes to .cache/benchmark/<name>.json
 //   ... --spare 0                                              live-check without spare trips
+//   ... --no-memory / --price-index                            without simulated hotel memory / with simulated Price Index
 //   ... --env FARE_MAP_BIG_BUDGET=off                          try a setting
 //
 // Everything is deterministic: same code + same settings => same numbers.
+//
+// IMPORTANT: every "live" price here is SIMULATED (truth model v2): hotel prices are
+// plan x region level x city factor x date factor, flights x0.9-1.2, hotel memory and
+// Price Index summaries are generated. The levels are informed by the Nov 23-25 live
+// tests and the Barcelona Price Index run, but they are NOT independently verified live
+// prices. The benchmark compares versions of the code against each other; only live
+// searches show real-world effect.
 
 const fs = require('fs');
 const path = require('path');
@@ -40,6 +48,9 @@ function args() {
     else if (a[i] === '--quick') o.quick = true;
     else if (a[i] === '--json') o.json = true;
     else if (a[i] === '--spare') o.spare = Number(a[++i]);
+    else if (a[i] === '--no-memory') o.noMemory = true;
+    else if (a[i] === '--contaminate') o.contaminate = true;
+    else if (a[i] === '--price-index') o.priceIndex = true;
     else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); }
   }
   return o;
@@ -72,16 +83,75 @@ function fareReader() {
   };
 }
 let ORIGIN_CODES = [];
+const SIM = { memory: null, priceIndex: null };
 
-// Simulated live check. Live tests (Nov 23-24) found hotel guesses 30-60% too low
-// and flights close to the cached fare, so the "true" price per city and route is
-// a fixed multiple of the plan.
-const hotelTruth = city => 1.0 + seeded('hotel|' + city)() * 0.7;   // x1.0 - x1.7
+// Simulated live check (truth model v2, GV-HOTEL-PLAN-002). Live tests (Nov 23-25)
+// found hotel guesses 30-60% too low, varying by region and city, with a date pattern
+// (Barcelona Price Index: holidays, weekends, seasons). Flights stay close to the
+// cached fare. Truth per stay = plan x region level x city factor x date factor.
+const REGION_LEVEL = { europe: 1.45, 'north-america': 1.35, 'latin-america': 1.15, asia: 1.2, africa: 1.1, oceania: 1.4 };
+const cityFactor = city => 0.85 + seeded('cityf|' + city)() * 0.35;      // x0.85 - x1.2
+function dateFactor(day) {
+  const d = new Date(day + 'T00:00:00Z'); if (isNaN(d)) return 1;
+  const m = d.getUTCMonth(), dd = d.getUTCDate(), wd = d.getUTCDay();
+  let f = { 0: 0.85, 1: 0.88, 2: 0.98, 3: 1.08, 4: 1.12, 5: 1.2, 6: 1.25, 7: 1.22, 8: 1.08, 9: 1.0, 10: 0.9, 11: 0.98 }[m];
+  if ((m === 11 && dd >= 22) || (m === 0 && dd <= 3)) f *= 1.35;
+  if (wd === 5 || wd === 6) f *= 1.1;
+  return f;
+}
+function stayDateFactor(stop) {
+  const n = Math.max(1, Number(stop.nights) || 1), start = Date.parse(String(stop.arrivalDate || stop.checkIn || '').slice(0, 10) + 'T00:00:00Z');
+  if (!Number.isFinite(start)) return 1;
+  let s = 0; for (let k = 0; k < n; k++) s += dateFactor(new Date(start + k * 86400e3).toISOString().slice(0, 10));
+  return s / n;
+}
+const hotelTruth = stop => (REGION_LEVEL[stop.regionFamily] || 1.3) * cityFactor(stop.cityId || stop.city) * stayDateFactor(stop);
 const flightTruth = route => 0.9 + seeded('flight|' + route)() * 0.3; // x0.9 - x1.2
-function liveTotalUsd(t) {
+function simulatedPrices(t) {
   const flights = (t.legs || []).reduce((s, l) => s + (Number(l.estimatedTransportUsd ?? l.estimatedFlightUsd) || 0), 0);
-  const hotels = (t.stops || []).reduce((s, c) => s + (Number(c.hotel?.estimatedStayUsd) || 0) * hotelTruth(c.city), 0);
-  return flights * flightTruth(routeKey(t)) + hotels;
+  const hotels = (t.stops || []).reduce((s, c) => s + (Number(c.hotel?.estimatedStayUsd) || 0) * hotelTruth(c), 0);
+  return { flights: flights * flightTruth(routeKey(t)), hotels };
+}
+
+function liveTotalUsd(t) {
+  const { flights, hotels } = simulatedPrices(t);
+  return flights + hotels;
+}
+
+// Simulated hotel price memory: about 40% of cities have a learned live/model ratio, as
+// after a few weeks of live checks (level only; dates average out).
+const memoryCities = row => seeded('mem|' + row.unifiedRegistry.cityId)() < 0.4;
+// --contaminate: memory as it stands after the budget-upgrade bug (GV-HOTEL-MEM-002).
+// Live evidence (Nov 25 validation, 26 stays): 69% of stays were upgraded, adding a median
+// ~105% (35-621%) to the stay. A legacy entry (85% of learned cities, last updated before the
+// fix) therefore holds truth x (1 + 0.69 x U), U per city in 0.35-2.0; clean entries (15%,
+// updated after the fix) hold the truth. Legacy entries are dated a day before NOW.
+const LEGACY_AT = NOW - 86400e3;
+let CONTAMINATE = false;
+function simulatedMemory() {
+  const attr = require(path.join(root, 'backend/services/domain/live-fares/hotel-price-memory'))._internal.attr;
+  const map = new Map();
+  for (const row of rows) if (memoryCities(row)) {
+    const id = row.unifiedRegistry.cityId, fam = opt._internal.regionFamily(row);
+    const truth = (REGION_LEVEL[fam] || 1.3) * cityFactor(id);
+    if (CONTAMINATE && seeded('legacy|' + id)() < 0.85) {
+      const U = 0.35 + seeded('upg|' + id)() * 1.65;
+      map.set(attr(id), { ratio: Math.min(3, truth * (1 + 0.69 * U)), n: 5, at: LEGACY_AT, legacy: true });
+    } else map.set(attr(id), { ratio: truth, n: 5, at: NOW });
+  }
+  return map;
+}
+// Simulated Price Index summaries for about 90 cities (date pattern only; the level is
+// relative, like the real index whose level is ~16-26% above bookable rooms).
+function simulatedPriceIndex() {
+  const S = require(path.join(root, 'backend/services/domain/pricing/hotel-price-index/summary'));
+  const map = new Map(), days = Array.from({ length: 183 }, (_, i) => new Date(NOW + i * 86400e3).toISOString().slice(0, 10));
+  for (const row of rows.filter(opt._internal.eligible)) {
+    const id = row.unifiedRegistry.cityId;
+    if (seeded('pi|' + id)() >= 0.2) continue;
+    map.set(id, S.fromCity(id, { prices: days.map(d => ({ day: d, usd: Math.round(150 * 1.2 * dateFactor(d)) })) }));
+  }
+  return map;
 }
 const routeKey = t => (t.stops || []).map(s => s.cityId || s.id || s.city).join('>');
 
@@ -139,7 +209,7 @@ function originInfo(name) {
 async function runOne(originName, budgetCad, adults, env) {
   const origin = originInfo(originName);
   const t0 = process.hrtime.bigint();
-  const r = await opt.search({ origin: originName, budget: budgetCad, currency: 'CAD', adults }, { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env }, now: NOW, readRoutes: fareReader() });
+  const r = await opt.search({ origin: originName, budget: budgetCad, currency: 'CAD', adults }, { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env }, now: NOW, readRoutes: fareReader(), hotelRatios: SIM.memory, priceIndex: SIM.priceIndex });
   const ms = Number(process.hrtime.bigint() - t0) / 1e6;
   const pool = r.pool || [];
   const budgetUsd = budgetCad / CAD_PER_USD, spendable = budgetUsd * 0.9;
@@ -175,7 +245,8 @@ function summarise(cases) {
   for (const b of BUDGETS_CAD) {
     const g = cases.filter(c => c.budgetCad === b && c.adults === 1), f = g.filter(c => !c.noTrip);
     if (!g.length) continue;
-    byBudget[b] = { searches: g.length, withTrip: f.length, bestUse: pct(mean(f.map(c => c.best.use))), bestCities: +mean(f.map(c => c.best.cities)).toFixed(1), bestNights: +mean(f.map(c => c.best.nights)).toFixed(1), oddBest: f.filter(c => c.best.quality.flags.length).length };
+    byBudget[b] = { searches: g.length, withTrip: f.length, fullPage: g.filter(c => c.shown >= 3).length, bestUse: pct(mean(f.map(c => c.best.use))), shownUse: pct(mean(f.flatMap(c => c.shownUse))), bestCities: +mean(f.map(c => c.best.cities)).toFixed(1), bestNights: +mean(f.map(c => c.best.nights)).toFixed(1), oddBest: f.filter(c => c.best.quality.flags.length).length,
+      failRate: pct(g.reduce((s, c) => s + c.liveFailures, 0) / Math.max(1, g.reduce((s, c) => s + c.checks, 0))), variety: pct(mean(f.filter(c => c.citiesShown).map(c => c.distinctCitiesShown / c.citiesShown))) };
   }
   const flagCounts = {}; for (const c of cases) for (const f of c.oddFlags) flagCounts[f] = (flagCounts[f] || 0) + 1;
   return {
@@ -218,7 +289,7 @@ function compare(now, base) {
 function print(result, cmp) {
   const s = result.summary;
   const L = [];
-  L.push(`GlobeVoy recommendation benchmark (${result.engine}) — ${s.searches} searches, settings ${JSON.stringify(result.env)}`);
+  L.push(`GlobeVoy recommendation benchmark (${result.engine}, truth v${result.truthModel}) — ${s.searches} searches, settings ${JSON.stringify(result.env)}, memory ${result.memory ? 'on' : 'off'}, price index ${result.priceIndex ? 'on' : 'off'}`);
   L.push(`  trip found        ${s.tripFoundRate}%      full page (3 trips) ${s.fullPageRate}%`);
   L.push(`  best uses budget  ${s.bestUse}% avg   in 70-100% band ${s.bestUseInBand}%`);
   L.push(`  variety           ${s.variety}% different cities across shown trips`);
@@ -240,17 +311,21 @@ function print(result, cmp) {
 async function main() {
   const o = args();
   if (Number.isFinite(o.spare)) SPARE = o.spare;
+  CONTAMINATE = !!o.contaminate;
+  SIM.memory = o.noMemory ? null : simulatedMemory();
+  SIM.priceIndex = o.priceIndex ? simulatedPriceIndex() : null;
   const list = o.quick ? QUICK : [...ORIGINS.flatMap(x => BUDGETS_CAD.map(b => [x, b, 1])), ...ORIGINS.slice(0, 4).map(x => [x, 4000, 2])];
   ORIGIN_CODES = [...new Set(list.map(([x]) => originInfo(x).code))];
   const cases = [];
   for (const [x, b, a] of list) cases.push(await runOne(x, b, a, o.env));
-  const result = { engine: opt.VERSION, env: o.env, spare: SPARE, quick: !!o.quick, limits: LIMITS, summary: summarise(cases), cases };
+  const result = { engine: opt.VERSION, truthModel: 2, env: o.env, spare: SPARE, memory: !o.noMemory, contaminated: !!o.contaminate, priceIndex: !!o.priceIndex, quick: !!o.quick, limits: LIMITS, summary: summarise(cases), cases };
   // A saved baseline is a checked-in fixture; any other saved run is local output.
   const file = name => name === 'baseline' ? path.join(__dirname, 'fixtures', 'recommendation-baseline.json') : path.join(root, '.cache', 'benchmark', name + '.json');
   let cmp = null;
   if (o.compare) {
     const base = JSON.parse(fs.readFileSync(file(o.compare), 'utf8'));
     if (base.quick !== result.quick) throw new Error('baseline and this run use different search sets (--quick)');
+    if ((base.truthModel || 1) !== result.truthModel) throw new Error('baseline uses an older truth model; re-save it first');
     cmp = compare(result, base);
   }
   if (o.json) console.log(JSON.stringify(result, null, 1)); else print(result, cmp);
@@ -259,4 +334,7 @@ async function main() {
 }
 
 if (require.main === module) main().catch(e => { console.error(e); process.exit(2); });
-module.exports = { quality, simulatePage, summarise, compare, LIMITS };
+// For tests/performance/recommendation-investigation.cjs
+function setSimulation({ memory, priceIndex, contaminate } = {}) { CONTAMINATE = !!contaminate; SIM.memory = memory === undefined ? simulatedMemory() : memory; SIM.priceIndex = priceIndex ? simulatedPriceIndex() : null; }
+function setOriginCodes(list) { ORIGIN_CODES = list; }
+module.exports = { quality, simulatePage, summarise, compare, LIMITS, fareReader, liveTotalUsd, simulatedPrices, hotelTruth, simulatedMemory, setSimulation, setOriginCodes, originInfo, NOW, CAD_PER_USD, routeKey };

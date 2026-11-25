@@ -41,13 +41,20 @@
   function legsOf(tour) {
     return Array.isArray(tour?.backendLegs) ? tour.backendLegs : (Array.isArray(tour?.legs) ? tour.legs : []);
   }
+  function flightLookup(leg, party = {}) {
+    const live = leg?.booking?.liveBookingLinks;
+    const id = String(live?.ignavId || '');
+    const code = node => String(node?.airportCode || node?.code || '').toUpperCase();
+    if (!live || !/^[A-Za-z0-9_-]{8,128}$/.test(id) || !live.bookingProof) return null;
+    if (live.origin && live.origin !== code(leg.from) || live.destination && live.destination !== code(leg.to) ||
+        live.departureDate && live.departureDate !== String(leg.departureDate || '').slice(0, 10) ||
+        live.passengers != null && party.travellers != null && Number(live.passengers) !== Number(party.travellers)) return null;
+    return { ignavId: id, bookingProof: live.bookingProof, endpoint: '/api/flight-booking-links' };
+  }
+
   // Same flight order the Booking Hub uses for its flight steps.
   function flightLookups(tour) {
-    return legsOf(tour).filter(leg => !isGround(leg)).map(leg => {
-      const live = leg?.booking?.liveBookingLinks;
-      const id = String(live?.ignavId || '');
-      return live && /^[A-Za-z0-9_-]{8,128}$/.test(id) ? { ignavId: id, bookingProof: live.bookingProof, endpoint: '/api/flight-booking-links' } : null;
-    });
+    return legsOf(tour).filter(leg => !isGround(leg)).map(leg => flightLookup(leg, tour.passengerPricing));
   }
   function apiBase() {
     const cfg = (root.GLOBEVOY_CONFIG && typeof root.GLOBEVOY_CONFIG === 'object') ? root.GLOBEVOY_CONFIG : {};
@@ -66,19 +73,25 @@
     return `<ul class="gv-booking-live-links">${items}</ul><p class="gv-booking-evidence-note">Live options found by Ignav. Prices can change; the booking site confirms the final fare. GlobeVoy does not earn a referral fee on these links.</p>`;
   }
 
+  const pendingLinks = new Map();
   async function fetchLinks(lookup, fetchFn = root.fetch) {
     const base = apiBase();
     if (!base || typeof fetchFn !== 'function') return { ok: false, reason: 'api-not-configured' };
-    try {
-      const response = await fetchFn(base + lookup.endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ignavId: lookup.ignavId, bookingProof: lookup.bookingProof })
-      });
-      return await response.json();
-    } catch (_) {
-      return { ok: false, reason: 'network-error' };
-    }
+    const { ignavId, bookingProof } = lookup;
+    const key = JSON.stringify([base, ignavId, bookingProof]);
+    if (pendingLinks.has(key)) return pendingLinks.get(key);
+    const lookupResult = (async () => {
+      try {
+        const response = await fetchFn(base + '/api/flight-booking-links', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ignavId, bookingProof })
+        });
+        return await response.json();
+      } catch (_) { return { ok: false, reason: 'network-error' }; }
+    })();
+    pendingLinks.set(key, lookupResult);
+    try { return await lookupResult; }
+    finally { pendingLinks.delete(key); }
   }
 
   function decorate(document, tour, fetchFn) {
@@ -97,6 +110,7 @@
       const button = wrap.querySelector('button');
       const out = wrap.querySelector('.gv-booking-live-result');
       button.addEventListener('click', async () => {
+        if (button.disabled) return;
         button.disabled = true;
         out.innerHTML = '<p class="gv-booking-evidence-note">Checking live booking options…</p>';
         const result = await fetchLinks(lookup, fetchFn);
@@ -111,19 +125,45 @@
   }
 
   // GV-HOTEL-NUITEE-WL-001: "Book this hotel" on stays priced live by Nuitee.
+  function propertyLink(hotel, checkIn, checkOut, party = {}) {
+    const whitelabel = hotel?.nuiteeWhitelabel || hotel?.booking?.whitelabel;
+    const href = safeUrl(whitelabel?.url);
+    if (!href) return null;
+    const url = new URL(href);
+    if (!/(?:\.nuitee\.link|(?:^|\.)globevoy\.com)$/i.test(url.hostname)) return null;
+    const property = url.pathname.match(/\/hotels\/([a-zA-Z0-9_-]+)\/?$/)?.[1];
+    const expectedProperty = hotel.nuiteeHotelId || whitelabel.hotelId;
+    if (!property || expectedProperty && property !== String(expectedProperty)) return null;
+    const bookedIn = url.searchParams.get('checkin'), bookedOut = url.searchParams.get('checkout');
+    if (bookedIn && checkIn && bookedIn !== checkIn || bookedOut && checkOut && bookedOut !== checkOut) return null;
+    const encoded = url.searchParams.get('occupancies');
+    let matchesParty = false;
+    if (encoded) {
+      try {
+        const rows = JSON.parse(root.atob(encoded));
+        if (!Array.isArray(rows) || !rows.length || !rows.every(r => Number.isInteger(r.adults) && r.adults > 0 &&
+            Array.isArray(r.children) && r.children.every(age => Number.isInteger(age) && age >= 0 && age <= 17))) return null;
+        const adults = rows.reduce((n, r) => n + r.adults, 0);
+        const children = rows.reduce((n, r) => n + r.children.length, 0);
+        if (party.rooms != null && rows.length !== party.rooms || party.adults != null && adults !== party.adults ||
+            party.minors != null && children !== party.minors ||
+            Array.isArray(party.occupancies) && JSON.stringify(rows) !== JSON.stringify(party.occupancies.map(r => ({ adults: r.adults, children: r.children || [] })))) return null;
+        matchesParty = party.rooms != null && party.adults != null && party.minors != null;
+      } catch (_) { return null; }
+    }
+    return { url: href, name: String(hotel.name || hotel.hotelName || '').trim(),
+      matchesStay: !!(expectedProperty && bookedIn && bookedOut && bookedIn === checkIn && bookedOut === checkOut && matchesParty) };
+  }
+
   function stayWhitelabels(tour) {
     const direct = Array.isArray(tour?.stays) ? tour.stays : [];
     const cities = Array.isArray(tour?.cities) ? tour.cities : [];
-    const list = (direct.length ? direct : cities);
-    return list.map((stay, i) => {
+    const party = tour.passengerPricing || {};
+    return (direct.length ? direct : cities).map((stay, i) => {
       const hotel = stay?.hotel || cities[i]?.hotel || {};
-      const wl = hotel?.booking?.whitelabel || hotel?.nuiteeWhitelabel;
-      const url = safeUrl(wl?.url);
-      if (!url) return null;
-      let host = '';
-      try { host = new URL(url).hostname; } catch (_) { return null; }
-      if (!/\.nuitee\.link$/.test(host) && !/(^|\.)globevoy\.com$/.test(host)) return null;
-      return { url, name: String(hotel.name || hotel.hotelName || '').trim() };
+      return propertyLink(hotel, stay.checkIn || stay.arrivalDate || hotel.checkIn,
+        stay.checkOut || stay.departureDate || hotel.checkOut,
+        { adults: party.adults, rooms: party.rooms, minors: Number(party.children || 0) + Number(party.infants || 0), occupancies: party.occupancies });
     });
   }
   function decorateStays(document, tour) {
@@ -135,13 +175,12 @@
     let added = 0;
     items.forEach((item, i) => {
       if (item.querySelector('.gv-booking-whitelabel')) return;
-      const title = String(item.querySelector('h3')?.textContent || '').trim().toLowerCase();
-      const link = links.find(l => l && l.name && title.includes(l.name.toLowerCase())) || links[i];
+      const link = links[i];
       if (!link) return;
       const side = item.querySelector('.gv-workspace-item-side,.gv-booking-journey-side') || item;
       const wrap = document.createElement('div');
       wrap.className = 'gv-booking-whitelabel';
-      wrap.innerHTML = `<a class="gv-booking-journey-action gv-booking-link" href="${esc(link.url)}" target="_blank" rel="noopener">Book this hotel ↗</a><p class="gv-booking-evidence-note">Opens GlobeVoy's hotel booking site (powered by Nuitee) with your dates and guests. The final price is confirmed there before you pay.</p>`;
+      wrap.innerHTML = `<a class="gv-booking-journey-action gv-booking-link" href="${esc(link.url)}" target="_blank" rel="noopener">Book this hotel ↗</a><p class="gv-booking-evidence-note">Opens GlobeVoy's hotel booking site (powered by Nuitee) to review the property, dates, travellers and final price before paying.</p>`;
       side.appendChild(wrap);
       added += 1;
     });
@@ -170,5 +209,5 @@
     const timer = root.setInterval?.(() => { if (tryRun() || ++attempts > 80) root.clearInterval?.(timer); }, 250);
   }
 
-  return { VERSION, start, decorate, decorateStays, stayWhitelabels, flightLookups, linksHtml, fetchLinks };
+  return { VERSION, start, decorate, decorateStays, propertyLink, stayWhitelabels, flightLookup, flightLookups, linksHtml, fetchLinks };
 });

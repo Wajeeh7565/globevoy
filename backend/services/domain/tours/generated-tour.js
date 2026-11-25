@@ -3,6 +3,7 @@
 // Uses the existing route planner, then optionally enriches flight legs with cheap
 // one-way date observations from Travelpayouts/Aviasales.
 
+const priceIndexStore = require('../pricing/hotel-price-index/store');
 const { getMultiCityTours } = require('../routing/multicity-routes');
 const { selectBestUsableObservation, smartFlightDateSelection677BEnabled, SMART_FLIGHT_DATE_SELECTION_VERSION_677B, smartFlightQualityGuardrails677BR2Enabled, SMART_FLIGHT_QUALITY_GUARDRAIL_VERSION_677B_R2, smartRouteRelativeFlightQuality677BR3Enabled, SMART_FLIGHT_ROUTE_RELATIVE_QUALITY_VERSION_677B_R3 } = require('../../providers/flights/cheap-one-way-flights');
 const { FLIGHT_PROVIDER_CONTRACT_VERSION_683C, fetchFlightDates683C, fetchFlightAcrossMonths683C, adapterSummary683C } = require('../../providers/flights/flight-provider-router-683c');
@@ -3508,7 +3509,10 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
   // budget status then doesn't get worse, and real prices beat guesses).
   const hotelUsd = tour => (tour?.stops || []).reduce((sum, stop) => sum + (Number(stop?.hotel?.estimatedStayUsd ?? stop?.hotel?.totalStayUsd) || 0), 0);
   // What each live hotel cost against the model, for the hotel price memory.
-  diagnostics.nuiteeHotelObservations = (live.tour.stops || []).map((stop, i) => ({ cityId: stop?.cityId, estimateUsd: Number(result.tour.stops?.[i]?.hotel?.estimatedStayUsd) || 0, liveUsd: stop?.hotel?.nuiteeLiveRate ? Number(stop.hotel.nuiteeLiveRate.totalUsd) || Number(stop.hotel.estimatedStayUsd ?? stop.hotel.totalStayUsd) || 0 : 0 })).filter(o => o.cityId && o.estimateUsd > 0 && o.liveUsd > 0);
+  // Hotel memory learns the all-in (taxes and fees paid at the hotel included) price of the
+  // cheap-but-good room: a budget upgrade's extra is taken off, or big-budget searches
+  // would teach the city a higher price than most trips can expect.
+  diagnostics.nuiteeHotelObservations = (live.tour.stops || []).map((stop, i) => ({ cityId: stop?.cityId, estimateUsd: Number(result.tour.stops?.[i]?.hotel?.estimatedStayUsd) || 0, liveUsd: stop?.hotel?.nuiteeLiveRate ? (Number(stop.hotel.nuiteeLiveRate.totalUsd) || Number(stop.hotel.estimatedStayUsd ?? stop.hotel.totalStayUsd) || 0) - (Number(stop.hotel.budgetUpgrade?.extraUsd) || 0) : 0 })).filter(o => o.cityId && o.estimateUsd > 0 && o.liveUsd > 0);
   const liveHotelsNotPricier = hotelUsd(live.tour) <= hotelUsd(result.tour) + 1;
   if (isOverUserBudgetStrict684BR3(live.tour, query) && !liveHotelsNotPricier) {
     diagnostics.nuiteeLiveStays = { ...summary, applied: false, appliedCount: 0, reason: 'nuitee-final-tour-over-budget-kept-estimate' };
@@ -3534,32 +3538,85 @@ function tripWords(visual,source){
   return visual;
 }
 
+function vulnerableFirstStay(tour) {
+  const first = tour.legs?.[0];
+  const distance = Number(first?.distanceKm);
+  if (!Number.isFinite(distance) || distance < 4500) return false;
+  const deltaLongitude = Number(first?.to?.longitude) - Number(first?.from?.longitude);
+  const eastward = ((deltaLongitude + 540) % 360) - 180;
+  if (distance < 8500 && !(eastward >= 20)) return false;
+  const profile = routeFeasibilityInternal.stopTravelProfiles(tour, tour.legs.map(l => l.distanceKm))[0];
+  return !!profile && (profile.nights - 1 < profile.minimumNights || profile.usableHours - 24 < profile.minimumUsefulHours);
+}
+
+function preferSaferGuestStart(queue) {
+  if (!queue.length || !vulnerableFirstStay(queue[0])) return false;
+  // Only move a comparable nearby candidate. The original stays available as a backup.
+  const alternative = queue.slice(1, 3).find(t => t.stops.length === queue[0].stops.length && !vulnerableFirstStay(t));
+  if (!alternative) return false;
+  queue.splice(queue.indexOf(alternative), 1);
+  queue.unshift(alternative);
+  return true;
+}
+
+function poolSpareCount(strategy, want, need, queue) {
+  if (want === 1) return 0;
+  if (strategy !== 'adaptive') return /^[012]$/.test(String(strategy)) ? Number(strategy) : 2;
+  // One speculative check when multiple likely failures would otherwise leave a sparse first round.
+  const risk = queue.slice(0, need).filter(t => t.fareMap?.mirroredReturn || Number(t.budgetUse) >= .90 || vulnerableFirstStay(t)).length;
+  return need >= 2 && risk >= 1 ? 1 : 0;
+}
+
 async function getFareMapGeneratedTour(query,options) {
   const optimizer=require('../fare-map/fare-map-optimizer');
   if(!generatedTourEnabled())return {ok:true,supported:false,reason:'feature-disabled',tour:null,tours:[]};
   // Learned real-vs-model hotel prices per city (GV-HOTEL-MEMORY-001); empty on any error.
   const hotelMemory=require('../live-fares/hotel-price-memory');
   const searchOptions=options.fareMap||options;
-  const hotelRatios=await hotelMemory.load({...searchOptions,env:searchOptions.env||options.env}).catch(()=>new Map());
-  const result=await optimizer.search(query,{...searchOptions,hotelRatios});
+  const memEnv=searchOptions.env||options.env;
+  // Price Index summaries (GV-HOTEL-PLAN-002) load in parallel with hotel memory; both
+  // are off or empty unless configured, and neither can delay the search past ~1 s.
+  const [hotelRatios,priceIndex]=await Promise.all([
+    hotelMemory.load({...searchOptions,env:memEnv}).catch(()=>new Map()),
+    priceIndexStore.loadAll({...searchOptions,env:memEnv||process.env}).catch(()=>new Map())]);
+  const result=await optimizer.search(query,{...searchOptions,hotelRatios,priceIndex});
   const empty=reason=>({...result,tour:null,tours:[],reason});
   if(!result.tours.length)return {...result,tour:null};
   let selected=result.tours[0],arrivalVerified=false;
   const diagnostics={...result.diagnostics};
+  const {record:recordIgnav}=require('../../providers/flights/ignav/ignav-usage');
+  const poolRequested=/^(1|true|yes)$/i.test(String(query.pool||''));
+  const want=Math.min(3,Math.max(1,Math.trunc(Number(query.poolShow)||3)));
+  const audience=poolRequested?(want===1?'guest':'member'):'single';
+  const usageOptions={...options,ignavAudience:audience};
+  const verificationSummaries=[];
+  let verificationChecks=0;
+  function finishVerification(tours,rounds,unusedSpares,strategy,sparesStarted=0){
+    const usage={};
+    for(const summary of verificationSummaries){
+      for(const [key,count] of Object.entries(summary?.usage||{}))usage[key]=(usage[key]||0)+count;
+    }
+    diagnostics.ignavUsage=usage;
+    diagnostics.ignavCalls=verificationSummaries.reduce((n,s)=>n+(Number(s?.providerRequests)||0),0);
+    diagnostics.ignavCacheHits=verificationSummaries.reduce((n,s)=>n+(Number(s?.cacheHits)||0),0);
+    if(verificationSummaries.length)diagnostics.ignavLiveFares=verificationSummaries.find(Boolean);
+    diagnostics.verificationLatencyMs=Date.now()-started;
+    recordIgnav(usageOptions,'verification',{...usage,fareRequests:diagnostics.ignavCalls,checks:verificationChecks,
+      rounds,unusedSpares,strategy,sparesStarted,shown:tours.length,latencyMs:diagnostics.verificationLatencyMs});
+  }
   // Live-check the cheapest trip; if live prices or dates rule it out, try the next
   // fare-map trip once before giving up (each check is a few provider calls).
   const attempt=async(candidateTour)=>{
-  let selected=candidateTour,arrivalVerified=false;const fail=reason=>({reason});
+  const attemptIndex=verificationChecks++;
+  let selected=candidateTour,arrivalVerified=false,ignavSummary;const fail=reason=>({reason});
   // Reuse the existing gated adapter ONCE, on the selected itinerary, never during expansion.
   const ignav=require('../../providers/flights/ignav/ignav');
   if(ignav.configured(options.env||process.env)){
     let checked;
-    try{checked=await (options.applyIgnavLiveFares||applyIgnavLiveFares)(selected,query,options)}
+    try{checked=await (options.applyIgnavLiveFares||applyIgnavLiveFares)(selected,query,usageOptions)}
     catch{checked={summary:{applied:false,reason:'provider-unavailable'}}}
-    diagnostics.ignavLiveFares=checked?.summary||{applied:false,reason:'provider-invalid-response'};
-    // Exact usage per search: Ignav calls made and flights reused from the 15-minute memory.
-    diagnostics.ignavCalls=(diagnostics.ignavCalls||0)+(Number(checked?.summary?.providerRequests)||0);
-    diagnostics.ignavCacheHits=(diagnostics.ignavCacheHits||0)+(Number(checked?.summary?.cacheHits)||0);
+    ignavSummary=checked?.summary||{applied:false,reason:'provider-invalid-response'};
+    verificationSummaries[attemptIndex]=ignavSummary;
     if(checked?.summary?.applied&&checked.summary.partial){
       // Some legs live, some estimated: keep the live legs, but without every arrival
       // time the hotel nights cannot be re-dated, so stays remain planning estimates.
@@ -3596,7 +3653,7 @@ async function getFareMapGeneratedTour(query,options) {
       selected=attachTourPresentation(selected,query);
     }
   }
-  return {selected,arrivalVerified,source:candidateTour};
+  return {selected,arrivalVerified,source:candidateTour,ignavSummary};
   };
   // Live-only (on by default; FARE_MAP_REQUIRE_LIVE=false turns it off): a trip is shown only
   // when every flight and every hotel came back live. Up to 3 trips are checked,
@@ -3609,34 +3666,73 @@ async function getFareMapGeneratedTour(query,options) {
   // Turn one flight-checked candidate into a page tour; with strict=true hotels must also come back live.
   const build=async(candidateTour,flights,strict)=>{
     const chosen=flights.selected;
-    const visual=buildVisualizerTour(chosen,{...query,month:chosen.legs[0].departureDate.slice(0,7)},{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:diagnostics.ignavLiveFares?.providerRequests||0}});
+    const visual=buildVisualizerTour(chosen,{...query,month:chosen.legs[0].departureDate.slice(0,7)},{summary:{enabled:true,source:'fare-map-cached',liveProviderCallsMade:flights.ignavSummary?.providerRequests||0}});
     visual.fareMap={...(chosen.fareMap||{}),arrivalDatesVerified:flights.arrivalVerified,hotelDatesRequireVerification:!flights.arrivalVerified};
     tripWords(visual,candidateTour);
     const guard=evaluateTour(visual,query);
-    if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return {reason:'fare-map-final-business-or-date-guard'};
+    if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return {reason:'fare-map-final-business-or-date-guard',guardReasons:guard.reasons||[],dateConsistent:visual.itineraryDatePlan?.consistent};
     let tour=guard.tour;
     if(strict){
       if(!flights.arrivalVerified)return {reason:'fare-map-flights-not-all-live',tour};
       const hotelUsd=(tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
-      // Up to 97% of the spendable budget: the rest absorbs price changes before booking.
-      const hotelBudgetUsd=(useBudget||candidateTour?.poolUpgrade===true)&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?Math.floor(tour.usableTripBudgetUsd*.97-(tour.estimatedTotalUsd-hotelUsd)):null;
-      let priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...options,hotelBudgetUsd}:options);
-      const overWithRealHotels=p=>p?.diagnostics?.nuiteeLiveStays?.reason==='nuitee-final-tour-over-budget-kept-estimate';
+      // Legacy: up to 97% of the spendable budget: the rest absorbs price changes before booking.
+      // Role policy (HOTEL_UPGRADE_POLICY=roles, GV-HOTEL-UPGRADE-002): pool trips are priced
+      // without upgrades here; roles are given on those real prices and upgrades follow.
+      const legacyBudget=!rolePolicy&&(useBudget||candidateTour?.poolUpgrade===true);
+      const policy=rolePolicy&&!poolMode&&Number(tour.estimatedTotalUsd)/Math.max(1,Number(tour.usableTripBudgetUsd))<UPGRADE_USE_BELOW?upgradePolicyFor(role):null;
+      const hotelBudgetUsd=(legacyBudget||policy)&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?upgradeRoom(tour,hotelUsd,legacyBudget?.97:1):null;
+      const pricingOptions={...options,rateCache};
+      let priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...pricingOptions,hotelBudgetUsd,...(policy?{upgradePolicy:policy}:{})}:pricingOptions);
+      const overWithRealHotels=p=>p?.diagnostics?.nuiteeLiveStays?.reason==='nuitee-final-tour-over-budget-kept-estimate'||
+        ((p?.tour?.stops||[]).length>0&&p.tour.stops.every(st=>st?.hotel?.nuiteeLiveRate)&&
+          Number(p.tour.estimatedTotalUsd)>Number(p.tour.usableTripBudgetUsd));
       // Real hotels push it over: try the cheapest real rooms once. If it still does not
       // fit, the trip does not fit; never show it with the cheaper estimate (GV-HOTEL-HONEST-001).
-      if(overWithRealHotels(priced))priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,{...options,hotelChoice:'cheapest'});
+      // GV-HOTEL-MEM-003: the "cheapest room, any rating" retry would teach memory a lower
+      // price than the well-rated rooms trips are planned with (a downward bias); with
+      // HOTEL_MEMORY_SKIP_FALLBACK=on memory learns from the first, well-rated pass only.
+      const firstObserved=priced?.diagnostics?.nuiteeHotelObservations||[];
+      if(overWithRealHotels(priced))priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,{...pricingOptions,hotelChoice:'cheapest'});
       diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
-      const observed=priced?.diagnostics?.nuiteeHotelObservations||[];
+      const observed=String(env.HOTEL_MEMORY_SKIP_FALLBACK||'').trim().toLowerCase()==='on'?firstObserved:(priced?.diagnostics?.nuiteeHotelObservations||[]);
       if(observed.length){diagnostics.hotelObservations=(diagnostics.hotelObservations||0)+observed.length;try{await hotelMemory.record(observed,{...searchOptions,env:searchOptions.env||options.env});}catch(_){}}
       if(overWithRealHotels(priced))return {reason:'fare-map-live-hotels-exceed-protected-budget'};
       const stops=priced?.tour?.stops||[];
       if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};
       // Live hotel prices can push the total over; the spendable budget is a hard line.
       if(Number(priced.tour.estimatedTotalUsd)>Number(priced.tour.usableTripBudgetUsd))return {reason:'fare-map-live-total-exceeds-protected-budget'};
-      tour=priced.tour;
+      return {tour:priced.tour,unpriced:tour,arrivalVerified:flights.arrivalVerified,source:candidateTour};
     }
     return {tour,arrivalVerified:flights.arrivalVerified,source:candidateTour};
   };
+  // GV-HOTEL-UPGRADE-002: hotel upgrades by trip role, limits fixed by the product owner.
+  //   Lowest cost: none (the cheapest well-rated room, 7.0+, is kept).
+  //   Best use: up to +50% per stay; Something different: up to +25% per stay.
+  //   Only when the trip, after the search has tried more nights and more cities, still
+  //   uses under 75% of the budget (never forced), and the whole trip stays within the
+  //   spendable budget: 90% of what the user entered, the 10% reserve counted once.
+  const rolePolicy=String(env.HOTEL_UPGRADE_POLICY||'').trim().toLowerCase()==='roles';
+  const poolMode=poolRequested;
+  const rateCache=new Map();
+  const UPGRADE_USE_BELOW=.75;
+  const upgradePolicyFor=r=>r==='best-balance'?{role:r,perStayPct:.5,minGain:.5}:r==='most-memorable'?{role:r,perStayPct:.25,minGain:.5}:null;
+  const upgradeRoom=(t,hotelUsd,share)=>Math.floor(Number(t.usableTripBudgetUsd)*share-(Number(t.estimatedTotalUsd)-hotelUsd));
+  async function upgradeForRole(r){
+    const policy=upgradePolicyFor(r.role);
+    if(!policy||!r.unpriced)return r;
+    const use=Number(r.tour.estimatedTotalUsd)/Math.max(1,Number(r.tour.usableTripBudgetUsd));
+    if(!(use<UPGRADE_USE_BELOW))return r;
+    const liveHotelUsd=(r.tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
+    const hotelBudgetUsd=upgradeRoom(r.tour,liveHotelUsd,1);
+    if(!(hotelBudgetUsd>liveHotelUsd))return r;
+    let priced;
+    try{priced=await priceFinalTourWithNuitee({ok:true,tour:r.unpriced,tours:[r.unpriced],diagnostics:{}},pricingQuery,{...options,rateCache,hotelBudgetUsd,upgradePolicy:policy});}catch(_){return r;}
+    const t=priced?.tour,stops=t?.stops||[];
+    if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate)||!(Number(t.estimatedTotalUsd)<=Number(t.usableTripBudgetUsd)))return r;
+    if(!stops.some(st=>st?.hotel?.budgetUpgrade))return r;
+    diagnostics.roleUpgrades=(diagnostics.roleUpgrades||[]).concat([{role:r.role,upgraded:stops.filter(st=>st?.hotel?.budgetUpgrade).length,extraUsd:stops.reduce((x,st)=>x+(Number(st?.hotel?.budgetUpgrade?.extraUsd)||0),0)}]);
+    return {...r,tour:t};
+  }
   // The page asks for each trip role separately (best overall, lowest cost, most
   // inspiring) in parallel; give each role its own route so three different trips come back.
   const rawRole=String(query.routeRole||query.tourRole||query.pickRole||'').trim().toLowerCase();
@@ -3663,21 +3759,25 @@ async function getFareMapGeneratedTour(query,options) {
   // search's varied pool, skipping trips the page has already shown (seenRoutes), so
   // refreshing rotates through the pool. Trips are checked a few at a time in parallel;
   // labels are given after live prices are known, so "Lowest cost" is the real cheapest.
-  if(/^(1|true|yes)$/i.test(String(query.pool||''))){
-    const want=Math.min(3,Math.max(1,Number(query.poolShow)||3));
-    const queue=(result.pool||[]).filter(t=>!excluded.has(tripKey(t)));
-    const shown=[];let checks=0,rounds=0,spareOk=0;
+  if(poolMode){
+    const strategy=env.FARE_MAP_POOL_SPARE_STRATEGY||(query.poolSpare??2);
+    // GV-RECS-ROTATE-001: with FARE_MAP_REFRESH_ROTATION=on, the unseen trips are ordered to
+    // repeat the fewest cities, countries and months already shown on this page.
+    const queue=String(env.FARE_MAP_REFRESH_ROTATION||'').trim().toLowerCase()==='on'&&excluded.size?require('../fare-map/fare-map-optimizer').rotateQueue(result.pool||[],excluded):(result.pool||[]).filter(t=>!excluded.has(tripKey(t)));
+    if(want===1&&env.FARE_MAP_GUEST_ARRIVAL_RISK==='on'&&preferSaferGuestStart(queue))diagnostics.guestArrivalRiskReordered=true;
+    const shown=[];let checks=0,rounds=0,spareOk=0,sparesStarted=0;
     while(shown.length<want&&queue.length&&checks<8){
       if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
       // GV-POOL-002: about 1 in 5 trips fails its live check, and each round of checks
       // takes ~10-15 s, so a page that needs 3 trips checks 2 spare trips in the same
       // round instead of waiting for another one. Still at most 8 checks per search.
-      const need=want-shown.length,spare=want>1?Math.min(2,Number(query.poolSpare??2)||0):0;
+      const need=want-shown.length,spare=poolSpareCount(strategy,want,need,queue);
       const batch=queue.splice(0,Math.min(need+spare,8-checks));checks+=batch.length;rounds++;
+      sparesStarted+=Math.max(0,batch.length-need);
       const results=await Promise.all(batch.map(async t=>{const flights=await attempt(t);if(flights.reason)return {reason:flights.reason};return build(t,flights,requireLive);}));
       // A spare that passes but is not needed is not marked as shown, so the next
       // "Show other trips" can still show it.
-      for(const r of results){liveAttempts.push(r.reason||'ok');if(!r.reason&&r.tour){if(shown.length<want)shown.push(r);else spareOk++;}}
+      for(const r of results){if(r.guardReasons)options.onFareMapRejection?.(r);liveAttempts.push(r.reason||'ok');if(!r.reason&&r.tour){if(shown.length<want)shown.push(r);else spareOk++;}}
     }
     const useOf=r=>Number(r.tour.estimatedTotalUsd)/Math.max(1,Number(r.tour.usableTripBudgetUsd));
     const labelled=shown.map(r=>({...r,role:'most-memorable'}));
@@ -3685,11 +3785,14 @@ async function getFareMapGeneratedTour(query,options) {
       const byUse=labelled.slice().sort((a,b)=>useOf(b)-useOf(a))[0];byUse.role='best-balance';
       if(labelled.length>1){const cheap=labelled.filter(r=>r!==byUse).sort((a,b)=>Number(a.tour.estimatedTotalUsd)-Number(b.tour.estimatedTotalUsd))[0];cheap.role='lowest-cost';}
     }
+    if(rolePolicy){const up=await Promise.all(labelled.map(upgradeForRole));up.forEach((r,i)=>{labelled[i]=r;});}
     const LABEL={'best-balance':'Best use of your budget','lowest-cost':'Lowest cost','most-memorable':'Something different'};
     const order=['best-balance','lowest-cost','most-memorable'];
     labelled.sort((a,b)=>order.indexOf(a.role)-order.indexOf(b.role));
     const tours=labelled.map(r=>({...r.tour,tourRole:r.role,tourRoleLabel:LABEL[r.role],fareMapRole:r.role,budgetUse:Number(useOf(r).toFixed(3)),poolRank:r.source.poolRank,poolScore:r.source.poolScore}));
-    diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;diagnostics.poolChecks=checks;diagnostics.poolRounds=rounds;diagnostics.poolSpareUnused=spareOk;
+    diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;diagnostics.poolChecks=checks;diagnostics.poolRounds=rounds;diagnostics.poolSpareUnused=spareOk;diagnostics.poolSparesStarted=sparesStarted;
+    const name=strategy==='adaptive'?'adaptive':poolSpareCount(strategy,3,3,[])===0?'zero':poolSpareCount(strategy,3,3,[])===1?'one':'two';
+    finishVerification(tours,rounds,spareOk,name,sparesStarted);
     const poolInfo={poolMode:true,poolSize:(result.pool||[]).length,poolRemaining:queue.length,poolShownRoutes:labelled.map(r=>tripKey(r.source))};
     if(!tours.length)return {...empty(liveAttempts.at(-1)||'fare-map-no-route'),...poolInfo,diagnostics:{...result.diagnostics,...diagnostics}};
     return {...result,...poolInfo,tour:tours[0],tours,diagnostics};
@@ -3732,6 +3835,7 @@ async function getFareMapGeneratedTour(query,options) {
     if(!shown.reason){outcome=shown;diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-estimate-no-live-trip');}
   }
   diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;
+  finishVerification(outcome?.tour?[outcome.tour]:[],verificationChecks,0,'single');
   if(!outcome||outcome.reason)return {...empty(outcome?.reason||liveAttempts.at(-1)||'fare-map-no-route'),diagnostics:{...result.diagnostics,...diagnostics}};
   diagnostics.arrivalDatesVerified=outcome.arrivalVerified;
   if(roleList)outcome.tour={...outcome.tour,tourRole:outcome.source.tourRole,tourRoleLabel:outcome.source.tourRoleLabel,fareMapRole:role,budgetUse:outcome.source.budgetUse};
@@ -3841,5 +3945,5 @@ module.exports = {
   prepareFlexibleLeadTimeQuery680BR1,
   preferenceMatchAdjustment680BR1,
   flightPreferenceAdjustment680BR1,
-  _internal: { safeMonth, defaultScanStartMonth, cheapDateScanMonths, legCode, convertProviderPriceToUsd, routeRankingEnabled, priceTourForParty, automaticCheapDateTourBuilderEnabled, initialAutomaticStartDate, synchronizeStopsWithLegDates, automaticFirstLegWindowDays681BP1, automaticLegWindowDays, maxAllowedDepartureDate, filterObservationsWithinDateWindow, selectObservationWithinDateWindow, automaticAlignedLegDate, maxStopsForTrip, evaluateTour, officialDepartureDateForLeg, enrichLegsForPresentation, itineraryDateConsistency, allTourStopsProductionActive, mvpValidationRepairs669bEnabled, budgetSafeRouteRecovery669cEnabled, budgetRecoveryAttempt669c, exactDateFamilyOccupancy669dEnabled, exactDateWindow669d, allocateExactNights669d, applyExactDateWindow669d, exactObservationForDate669d, mapFirstThreePicks670aEnabled, normalizePickRole670a, requestedPickRole670a, tourRole670a, routeKey670aR2, threePickBalanceScore670aR2, threePickMemorableScore670aR2, threePickRoleAssignments670aR2, roleScopedCandidatePool670a, decoratePickTour670a, explicitTripNights674A, resolveAdaptiveDuration674A, smartDurationFlightSelection677AEnabled, smartStopBounds677A, routeTravelHours677A, smartBudgetCapacity677A, resolveSmartDuration677A, smartFlightDateSelection677BEnabled, smartFlightQualityGuardrails677BR2Enabled, smartRouteRelativeFlightQuality677BR3Enabled, wholeTripRouteOptimization677CEnabled, optimizeTourOrder677C, wholeTripCandidateAdjustment677C, destinationValueProximity677DEnabled, destinationValueCandidateAdjustment677D, selectionContext677B, transportModeIntegrity677AR1Enabled, smartFlightDateIntegrity677BR1Enabled, wholeTripDateOptimizer681BP2Enabled, duffelP2Enabled683H, duffelP2Status683H, stay22P2DatePricingEnabled682B, stay22P2OptimizerEligible682B, stay22P2MaxRequests682B, stopHotelEstimateUsd682B, selectedHotelName682B, selectedHotelIdentity682C, stay22HotelPricingForCandidate682B, monthsCoveringDateRange681BP2, mergeMonthlyProviderResults681BP2, buildWholeTripDatePlan681BP2, legHasFlightComponent677AR1, legHasGroundComponent677AR1, pureGroundLeg677AR1, normalizeTransportModeIntegrity677AR1, strictBudgetFit684BR3, isOverUserBudgetStrict684BR3 }
+  _internal: { vulnerableFirstStay, preferSaferGuestStart, safeMonth, defaultScanStartMonth, cheapDateScanMonths, legCode, convertProviderPriceToUsd, routeRankingEnabled, priceTourForParty, automaticCheapDateTourBuilderEnabled, initialAutomaticStartDate, synchronizeStopsWithLegDates, automaticFirstLegWindowDays681BP1, automaticLegWindowDays, maxAllowedDepartureDate, filterObservationsWithinDateWindow, selectObservationWithinDateWindow, automaticAlignedLegDate, maxStopsForTrip, evaluateTour, officialDepartureDateForLeg, enrichLegsForPresentation, itineraryDateConsistency, allTourStopsProductionActive, mvpValidationRepairs669bEnabled, budgetSafeRouteRecovery669cEnabled, budgetRecoveryAttempt669c, exactDateFamilyOccupancy669dEnabled, exactDateWindow669d, allocateExactNights669d, applyExactDateWindow669d, exactObservationForDate669d, mapFirstThreePicks670aEnabled, normalizePickRole670a, requestedPickRole670a, tourRole670a, routeKey670aR2, threePickBalanceScore670aR2, threePickMemorableScore670aR2, threePickRoleAssignments670aR2, roleScopedCandidatePool670a, decoratePickTour670a, explicitTripNights674A, resolveAdaptiveDuration674A, smartDurationFlightSelection677AEnabled, smartStopBounds677A, routeTravelHours677A, smartBudgetCapacity677A, resolveSmartDuration677A, smartFlightDateSelection677BEnabled, smartFlightQualityGuardrails677BR2Enabled, smartRouteRelativeFlightQuality677BR3Enabled, wholeTripRouteOptimization677CEnabled, optimizeTourOrder677C, wholeTripCandidateAdjustment677C, destinationValueProximity677DEnabled, destinationValueCandidateAdjustment677D, selectionContext677B, transportModeIntegrity677AR1Enabled, smartFlightDateIntegrity677BR1Enabled, wholeTripDateOptimizer681BP2Enabled, duffelP2Enabled683H, duffelP2Status683H, stay22P2DatePricingEnabled682B, stay22P2OptimizerEligible682B, stay22P2MaxRequests682B, stopHotelEstimateUsd682B, selectedHotelName682B, selectedHotelIdentity682C, stay22HotelPricingForCandidate682B, monthsCoveringDateRange681BP2, mergeMonthlyProviderResults681BP2, buildWholeTripDatePlan681BP2, legHasFlightComponent677AR1, legHasGroundComponent677AR1, pureGroundLeg677AR1, normalizeTransportModeIntegrity677AR1, strictBudgetFit684BR3, isOverUserBudgetStrict684BR3 }
 };
