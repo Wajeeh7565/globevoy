@@ -196,7 +196,11 @@ function pickDiverse(states,width){
  return chosen;
 }
 // extra: big budgets may stay a few nights longer than a city's usual maximum (GV-BIG-BUDGET-001).
-function stayValid(row,nights,extra=0){const d=row?.unifiedRegistry?.destination||{};return nights>=Math.max(2,Number(d.minimumRecommendedNights)||2)&&nights<=Math.min(35,(Number(d.maximumRecommendedNights)||35)+extra);}
+function stayLimits(row,extra=0){
+ const d=row?.unifiedRegistry?.destination||{};
+ return {min:Math.max(2,Number(d.minimumRecommendedNights)||2),max:Math.min(35,(Number(d.maximumRecommendedNights)||35)+extra)};
+}
+function stayValid(row,nights,extra=0){const {min,max}=stayLimits(row,extra);return nights>=min&&nights<=max;}
 function fareValid(f,origin,month,now,maxAge){const t=Date.parse(f?.observedAt);return f?.origin===origin&&f.month===month&&/^[A-Z]{3}$/.test(f.destination||'')&&f.destination!==origin&&Number.isFinite(f.priceUsd)&&f.priceUsd>0&&f.source==='travelpayouts-cached'&&date(f.departureDate)&&f.departureDate.startsWith(month)&&f.departureDate>=new Date(now).toISOString().slice(0,10)&&Number.isFinite(t)&&t<=now+60000&&t>=now-maxAge;}
 function makeTour(state,origin,budget,query,options={}){
  const stops=[];
@@ -384,11 +388,22 @@ function buildPool(ranked,spendable,extra={}){
   poolUpgrade:!!extra.bigBudget&&p.x.use<.75}));
 }
 
+function candidateEvidence(s,stayExtra){
+ const tour=s.tour;
+ return {route:s.cities.map(code).join('>'),dates:tour.legs.map(l=>l.departureDate),returnDate:s.estimatedDate?'estimated':'cached',
+  mirroredReturn:!!tour.fareMap.mirroredReturn,nights:tour.totalNights,planningUsd:tour.estimatedTotalUsd,safeUsd:s.cost,
+  flightUsd:tour.totalFlightEstimateUsd,hotelUsd:tour.totalHotelEstimateUsd,detour:s.detour,odd:oddRoute(s),
+  stops:tour.stops.map((stop,i)=>({city:stop.city,country:stop.countryCode,nights:stop.nights,stayLimits:stayLimits(s.cities[i],stayExtra)}))};
+}
+
 async function search(query={},options={}){
  spreadLimitKm=(()=>{const v=String((options.env||process.env).FARE_MAP_MAX_SPREAD_KM??'').trim();return v===''?MAX_SPREAD_KM:Math.max(0,Number(v)||0);})();
  const env=options.env||process.env;
  if(!enabled(env))return {ok:true,supported:false,reason:'feature-disabled',requiredFlag:FLAG+'=true',tours:[]};
  const diagnostics={engine:VERSION,reads:0,examinedEdges:0,completeRoutes:0,expandedPairs:0,eligibleCities:0,cacheHits:0,rejectedFares:0,rejectedRules:0,bounded:false,liveProviderCallsMade:0};
+ const trace=options.traceSearch?(diagnostics.searchTrace={depths:[],completed:[],completedOmitted:0}):null;
+ let step=null,blockedReads=null;
+ const reject=reason=>{if(step)step.rejected[reason]=(step.rejected[reason]||0)+1;};
  let requested=null,result_roleCandidates=null,result_pool=null;
  const response=(tours,reason)=>({ok:true,supported:true,version:VERSION,mode:'guarded-planning-estimate',requested,tours,...(result_roleCandidates?{roleCandidates:result_roleCandidates}:{}),...(result_pool?{pool:result_pool}:{}),reason:reason||null,presentationPolicy:presentationPolicy(),pricingPolicy:{flights:'fare-map-cached-estimates',hotels:'accommodation-cost-map-planning-evidence',providerVerificationRequiredBeforeBooking:true,liveProviderCallsMade:0},diagnostics});
  if(!store.tableName(env)&&!options.readRoutes)return response([],'fare-map-not-configured');
@@ -445,7 +460,14 @@ async function search(query={},options={}){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeBudget);
  const read=options.readRoutes||((o,m)=>store.readRoutesFrom(o,m,{env,dynamo:options.dynamo,abortSignal:controller.signal,maxPages:2,limit:1000,nowMs:now,includeDated:true,diagnostics}));
  let readCeiling=Math.min(MAX_READS,options.maxReads||MAX_READS);
- const stopped=()=>{if(clock()>=deadline||controller.signal.aborted||diagnostics.examinedEdges>=Math.min(100000,options.maxEdges||100000)){diagnostics.bounded=true;return true}return false};
+ const maxEdges=Math.min(100000,options.maxEdges||100000);
+ const stopped=()=>{
+  const reason=controller.signal.aborted||clock()>=deadline?'time-limit':diagnostics.examinedEdges>=maxEdges?'edge-limit':null;
+  if(!reason)return false;
+  diagnostics.bounded=true;
+  if(step)step.stoppedBy=reason;
+  return true;
+ };
  async function cancellableRead(o,m){
   if(controller.signal.aborted)throw Error('deadline');
   let abort;
@@ -459,25 +481,25 @@ async function search(query={},options={}){
   if(cache.has(key)){diagnostics.cacheHits++;return cache.get(key)}
   if(pending.has(key)){diagnostics.cacheHits++;return pending.get(key)}
   if(stopped())return [];
-  if(diagnostics.reads>=readCeiling){diagnostics.bounded=true;return []}
+  if(diagnostics.reads>=readCeiling){diagnostics.bounded=true;if(blockedReads)blockedReads.add(key);return []}
   diagnostics.reads++;
   const work=(async()=>{
    let value;
-   try{value=await cancellableRead(o,m)}catch{diagnostics.readErrors=(diagnostics.readErrors||0)+1;value=[]}
-   if(Array.isArray(value)&&value.length>1000){diagnostics.bounded=true;diagnostics.truncatedPartitions=(diagnostics.truncatedPartitions||0)+1;}
-   const valid=(Array.isArray(value)?value:[]).slice(0,1000).filter(f=>{const valid=fareValid(f,o,m,now,Math.min(14*day,options.maxAgeMs||3*day));if(!valid)diagnostics.rejectedFares++;return valid});
+   try{value=await cancellableRead(o,m)}catch{diagnostics.readErrors=(diagnostics.readErrors||0)+1;reject('read-error');value=[]}
+   if(Array.isArray(value)&&value.length>1000){diagnostics.bounded=true;diagnostics.truncatedPartitions=(diagnostics.truncatedPartitions||0)+1;reject('partition-row-limit');}
+   const valid=(Array.isArray(value)?value:[]).slice(0,1000).filter(f=>{const valid=fareValid(f,o,m,now,Math.min(14*day,options.maxAgeMs||3*day));if(!valid){diagnostics.rejectedFares++;reject('invalid-or-stale-fare');}return valid});
    cache.set(key,valid);return valid;
   })();
   pending.set(key,work);try{return await work}finally{pending.delete(key)}
  }
  async function fares(o,ms){return (await Promise.all(ms.map(m=>partition(o,m)))).flat();}
   function completeRoute(state,fare,first){
-      if(!homeCodes.has(fare.destination)||!durationOk(days(first,fare.departureDate))||query.returnDate&&fare.departureDate!==query.returnDate)return false;
-      if(preferred.some(id=>!state.cities.some(c=>c.unifiedRegistry.cityId.toLowerCase()===id)))return false;
+      if(!homeCodes.has(fare.destination)||!durationOk(days(first,fare.departureDate))||query.returnDate&&fare.departureDate!==query.returnDate){reject('return-date-or-trip-duration');return false;}
+      if(preferred.some(id=>!state.cities.some(c=>c.unifiedRegistry.cityId.toLowerCase()===id))){reject('missing-preferred-stop');return false;}
       diagnostics.completeRoutes++;
       const candidate={...state,edges:[...state.edges,fare]};const tour=makeTour(candidate,origin,budget,query,{...options,now,durationChoices:durations});
-      if(!tour){diagnostics.missingHotelEvidence=(diagnostics.missingHotelEvidence||0)+1;return false;}
-      if(state.cities.length<minCities)return false;
+      if(!tour){diagnostics.missingHotelEvidence=(diagnostics.missingHotelEvidence||0)+1;reject('missing-hotel-evidence');return false;}
+      if(state.cities.length<minCities){reject('requested-city-count');return false;}
       // Safe cost: flights plus hotels at the live-price margin; used to choose and rank.
       // A city with learned real-vs-model hotel prices (GV-HOTEL-MEMORY-001) uses its own
       // ratio, plus 5%, instead of the general margin.
@@ -491,12 +513,17 @@ async function search(query={},options={}){
       if(safeCost>tour.usableTripBudgetUsd){
        // Over budget: remember the cheapest (to say what budget would work) and keep
        // trips a little over as the optional "+ a bit more" idea; never a main pick.
-       diagnostics.overBudgetRoutes=(diagnostics.overBudgetRoutes||0)+1;
+       diagnostics.overBudgetRoutes=(diagnostics.overBudgetRoutes||0)+1;reject('protected-budget');
        if(!(cheapestOverUsd<=safeCost))cheapestOverUsd=safeCost;
        if(safeCost<=tour.usableTripBudgetUsd+stretchUsd&&!fare.dateEstimated){const ev=evaluateTour(tour,query);if(ev.accepted&&!recommendationEligibility(ev.tour,query).hardBlocked){stretchPool.push({estimatedDate:false,cities:state.cities,cost:safeCost,key:state.key,tour:{...ev.tour,fareMap:tour.fareMap}});if(stretchPool.length>64)stretchPool=stretchPool.sort((a,b)=>(b.tour.totalNights-a.tour.totalNights)||a.cost-b.cost).slice(0,32);}}
        return false;
       }
-      const evaluated=evaluateTour(tour,query);if(!evaluated.accepted||recommendationEligibility(evaluated.tour,query).hardBlocked){diagnostics.rejectedRules++;return false}
+      const evaluated=evaluateTour(tour,query),eligibility=evaluated.accepted?recommendationEligibility(evaluated.tour,query):null;
+       if(!evaluated.accepted||eligibility?.hardBlocked){
+        diagnostics.rejectedRules++;
+        if(step)for(const reason of evaluated.reasons?.length?evaluated.reasons:['recommendation-eligibility'])reject(reason);
+        return false;
+       }
       const comfortPenalty=String(query.flightComfort||'').toLowerCase()==='comfortable'?candidate.edges.reduce((sum,f)=>sum+(Number.isFinite(f.stops)?f.stops*25:25)+(Number.isFinite(f.durationMinutes)?f.durationMinutes/60:12),0):0;
       const qualityPenalty=tour.stops.reduce((sum,s)=>sum+(s.hotel.costEvidence.quality.verified?-(s.hotel.costEvidence.quality.reviewScore||0)*2:0),0);
       tour.fareMap.scoreEvidence={costUsd:tour.estimatedTotalUsd,comfortPenalty,hotelQualityPenalty:qualityPenalty,unknownFlightComfort:candidate.edges.some(f=>f.stops==null||f.durationMinutes==null)};
@@ -505,11 +532,17 @@ async function search(query={},options={}){
       const pts=[origin,...state.cities.map(c=>({latitude:c.unifiedRegistry.latitude,longitude:c.unifiedRegistry.longitude})),origin],hk=(a,b)=>legacy._internal.haversineKm(a,b)||0;
       const flown=pts.slice(1).reduce((n,p,i)=>n+hk(pts[i],p),0),far=Math.max(...pts.slice(1,-1).map(p=>hk(origin,p)));
       const detour=state.cities.length>1&&far>0?Number((flown/(2*far)).toFixed(2)):1;
-      complete.push({detour,estimatedDate:!!fare.dateEstimated,cities:state.cities,cost:safeCost,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}});
+      const finished={detour,estimatedDate:!!fare.dateEstimated,cities:state.cities,cost:safeCost,preferencePenalty:comfortPenalty+qualityPenalty+(state.preferencePenalty||0),key:state.key,tour:{...evaluated.tour,fareMap:tour.fareMap}};
+       complete.push(finished);
+       if(trace){
+        step.accepted++;
+        if(trace.completed.length<2048)trace.completed.push(candidateEvidence(finished,stayExtra));
+        else trace.completedOmitted++;
+       }
       // Keep cheap, diverse routes and the routes that use the budget best, per trip
       // size, so many cheap one-city trips never crowd out the two-city ones.
       const size=state.cities.length;
-      if(complete.filter(x=>x.cities.length===size).length>128){const same=complete.filter(x=>x.cities.length===size),keep=pickDiverse(same,48),ids=new Set(keep.map(x=>x.key+'|'+x.cost));complete=[...complete.filter(x=>x.cities.length!==size),...keep,...bestUseOrder(same.filter(x=>!ids.has(x.key+'|'+x.cost)),budget-Math.round(budget*.1)).slice(0,16)];}
+      if(complete.filter(x=>x.cities.length===size).length>128){reject('complete-route-compaction');const same=complete.filter(x=>x.cities.length===size),keep=pickDiverse(same,48),ids=new Set(keep.map(x=>x.key+'|'+x.cost));complete=[...complete.filter(x=>x.cities.length!==size),...keep,...bestUseOrder(same.filter(x=>!ids.has(x.key+'|'+x.cost)),budget-Math.round(budget*.1)).slice(0,16)];}
       return true;
   }
  let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[],stretchPool=[],cheapestOverUsd=null;
@@ -524,7 +557,12 @@ async function search(query={},options={}){
  const homeLinked=new Set(),outboundFrom=new Map();
  try {
   for(let depth=0;depth<=K&&beam.length;depth++){
-   const readLimit=Math.min(MAX_READS,options.maxReads||MAX_READS);
+    if(trace){
+     step={depth,input:beam.length,readsBefore:diagnostics.reads,edgesBefore:diagnostics.examinedEdges,accepted:0,rejected:{}};
+     trace.depths.push(step);
+     blockedReads=new Set();
+    }
+    const readLimit=Math.min(MAX_READS,options.maxReads||MAX_READS);
    readCeiling=depth===K-1&&K>1?Math.max(diagnostics.reads,readLimit-Math.min(32,Math.floor(readLimit/3))):readLimit;
    // Independent partitions at one depth may be prefetched with a small fixed pool.
    // Never fan out to the full registry, and never make provider calls here.
@@ -537,24 +575,24 @@ async function search(query={},options={}){
     for(const fare of await fares(state.lastCode,ms)){
      if(stopped())break;diagnostics.examinedEdges++;
      if(depth===0){homeLinked.add(fare.destination);const o=outboundFrom.get(fare.destination);if(!o||fare.priceUsd<o.priceUsd)outboundFrom.set(fare.destination,fare);}
-     if(depth===0&&query.departureDate&&fare.departureDate!==query.departureDate)continue;
-     if(depth===0&&(fare.departureDate<windowStart||fare.departureDate>=windowEnd))continue;
+     if(depth===0&&query.departureDate&&fare.departureDate!==query.departureDate){reject('requested-departure-date');continue;}
+     if(depth===0&&(fare.departureDate<windowStart||fare.departureDate>=windowEnd)){reject('departure-window');continue;}
      const first=depth?state.edges[0].departureDate:fare.departureDate;
-     if(days(first,fare.departureDate)>nights)continue;
+     if(days(first,fare.departureDate)>nights){reject('maximum-trip-duration');continue;}
      const goingHome=depth>=1&&homeCodes.has(fare.destination);
      if(goingHome){diagnostics.returnFares=(diagnostics.returnFares||0)+1;if(!state.returnSeed||fare.priceUsd<state.returnSeed.priceUsd)state.returnSeed=fare;}
-     if(depth){const previous=state.edges.at(-1),transitDays=Math.max(1,Math.ceil((previous.durationMinutes||0)/1440));if(!stayValid(state.cities.at(-1),days(previous.departureDate,fare.departureDate)-transitDays,stayExtra)){if(goingHome)diagnostics.returnStayRejected=(diagnostics.returnStayRejected||0)+1;continue;}}
+     if(depth){const previous=state.edges.at(-1),transitDays=Math.max(1,Math.ceil((previous.durationMinutes||0)/1440));if(!stayValid(state.cities.at(-1),days(previous.departureDate,fare.departureDate)-transitDays,stayExtra)){if(goingHome)diagnostics.returnStayRejected=(diagnostics.returnStayRejected||0)+1;reject(goingHome?'return-stay-limit':'onward-stay-limit');continue;}}
      // A flight home after any city completes a trip of that many cities.
      if(goingHome){if(completeRoute(state,fare,first))state.completed=true;continue;}
-     if(depth===K)continue;
-     const row=map.get(fare.destination);if(!row||homeCodes.has(fare.destination)||state.cities.some(c=>code(c)===fare.destination))continue;
+     if(depth===K){reject('maximum-city-count');continue;}
+     const row=map.get(fare.destination);if(!row||homeCodes.has(fare.destination)||state.cities.some(c=>code(c)===fare.destination)){reject('ineligible-or-repeated-city');continue;}
      if(depth===1)diagnostics.expandedPairs++;
      const record=row.unifiedRegistry;
      if(preferred.length===2&&!preferred.includes(record.cityId.toLowerCase()))continue;
      if(regionFilter&&String(record.worldRegion).toLowerCase()!==regionFilter)continue;
      const hotel=depth?(options.accommodationProvider?0:graph._internal.nightlyUsd(state.cities.at(-1)))*party.rooms*days(state.edges.at(-1).departureDate,fare.departureDate):0;
      const cost=state.cost+Math.round(fare.priceUsd*party.flightFareUnits)+hotel;
-     if(cost>budget*.9)continue;
+     if(cost>budget*.9){reject('partial-protected-budget');continue;}
      const theme=String(query.theme||query.preference||'').toLowerCase(),fit=themeScore(row,theme);
      const onwardBonus=readPlan&&depth===0?(()=>{const o=onward.get(record.cityId);return o?Math.round(budget*.012*Math.min(ONWARD_CAP,o.cities)*Math.min(1,o.countries/3)):0})():0;
      next.push({preferencePenalty:([ ...state.cities,row ].some(c=>preferred.includes(c.unifiedRegistry.cityId.toLowerCase()))?-budget:0)-fit*20-onwardBonus,cities:[...state.cities,row],edges:[...state.edges,fare],lastCode:fare.destination,cost,key:state.key+'>'+record.cityId+'@'+fare.departureDate});
@@ -597,18 +635,30 @@ async function search(query={},options={}){
     const linkedPick=temporalBeam(coldLinked,Math.min(coldLinked.length,Math.max(0,width-warmPick.length)));
     beam=[...warmPick,...linkedPick,...temporalBeam(coldOther,Math.max(0,width-warmPick.length-linkedPick.length))];
    } else beam=depth===0?familyBeam(next,width):temporalBeam(next,width);
+   if(step)step.afterBeam=beam.length;
    if(readPlan&&depth<K&&beam.length){
     const nd=depth+1,left=Math.max(0,Math.min(MAX_READS,options.maxReads||MAX_READS)-diagnostics.reads),share=nd>=K?left:Math.floor(left/(K-nd+1));
     const need=st=>months(st.edges.at(-1).departureDate,plus(st.edges[0].departureDate,nights)).map(m=>st.lastCode+'#'+m).filter(k=>!cache.has(k));
     const planned=new Set(),kept=[];
     for(const st of beam){const n=need(st).filter(k=>!planned.has(k));if(planned.size+n.length<=share){n.forEach(k=>planned.add(k));kept.push(st);}}
+    if(step)step.readPlan={share,planned:planned.size,dropped:beam.length-kept.length};
     diagnostics.readPlanDropped=(diagnostics.readPlanDropped||0)+beam.length-kept.length;beam=kept;
+   }
+   if(step){
+    Object.assign(step,{readCeiling,readsAfter:diagnostics.reads,edgesAfter:diagnostics.examinedEdges,blockedPartitions:blockedReads.size,
+     generated:next.length,retained:beam.length,discarded:next.length-beam.length,
+     stopReason:step.stoppedBy||(depth===K?'maximum-city-depth':beam.length?'advance':'beam-exhausted')});
    }
    diagnostics.peakRetainedComplete=Math.max(diagnostics.peakRetainedComplete||0,complete.length);
   }
  }finally{clearTimeout(timer)}
  if(controller.signal.aborted)diagnostics.bounded=true;
  const distinct=new Map();for(const s of complete){const key=s.cities.map(code).join('>');const old=distinct.get(key);if(!old||old.estimatedDate&&!s.estimatedDate||old.estimatedDate===s.estimatedDate&&s.cost+s.preferencePenalty<old.cost+old.preferencePenalty)distinct.set(key,s);}
+ if(trace){
+  trace.termination=step?.stoppedBy||step?.stopReason||'no-search';
+  trace.beforeDedup=complete.map(s=>candidateEvidence(s,stayExtra));
+  trace.afterDedup=[...distinct.values()].map(s=>candidateEvidence(s,stayExtra));
+ }
  const allRanked=[...distinct.values()].sort((a,b)=>a.estimatedDate-b.estimatedDate||a.cost-b.cost||a.key.localeCompare(b.key));
  const multiFirst=!exact&&K>=2&&budget>=MULTI_CITY_FROM_USD&&allRanked.some(s=>s.cities.length>=2);
  diagnostics.multiCityFirst=multiFirst;

@@ -107,10 +107,15 @@ function stayDateFactor(stop) {
 }
 const hotelTruth = stop => (REGION_LEVEL[stop.regionFamily] || 1.3) * cityFactor(stop.cityId || stop.city) * stayDateFactor(stop);
 const flightTruth = route => 0.9 + seeded('flight|' + route)() * 0.3; // x0.9 - x1.2
-function liveTotalUsd(t) {
+function simulatedPrices(t) {
   const flights = (t.legs || []).reduce((s, l) => s + (Number(l.estimatedTransportUsd ?? l.estimatedFlightUsd) || 0), 0);
   const hotels = (t.stops || []).reduce((s, c) => s + (Number(c.hotel?.estimatedStayUsd) || 0) * hotelTruth(c), 0);
-  return flights * flightTruth(routeKey(t)) + hotels;
+  return { flights: flights * flightTruth(routeKey(t)), hotels };
+}
+
+function liveTotalUsd(t) {
+  const { flights, hotels } = simulatedPrices(t);
+  return flights + hotels;
 }
 
 // Simulated hotel price memory: about 40% of cities have a learned live/model ratio, as
@@ -332,4 +337,4 @@ if (require.main === module) main().catch(e => { console.error(e); process.exit(
 // For tests/performance/recommendation-investigation.cjs
 function setSimulation({ memory, priceIndex, contaminate } = {}) { CONTAMINATE = !!contaminate; SIM.memory = memory === undefined ? simulatedMemory() : memory; SIM.priceIndex = priceIndex ? simulatedPriceIndex() : null; }
 function setOriginCodes(list) { ORIGIN_CODES = list; }
-module.exports = { quality, simulatePage, summarise, compare, LIMITS, fareReader, liveTotalUsd, hotelTruth, simulatedMemory, setSimulation, setOriginCodes, originInfo, NOW, CAD_PER_USD, routeKey };
+module.exports = { quality, simulatePage, summarise, compare, LIMITS, fareReader, liveTotalUsd, simulatedPrices, hotelTruth, simulatedMemory, setSimulation, setOriginCodes, originInfo, NOW, CAD_PER_USD, routeKey };

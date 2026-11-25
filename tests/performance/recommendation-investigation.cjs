@@ -11,11 +11,17 @@ const path = require('path'), fs = require('fs');
 const root = path.resolve(__dirname, '../..');
 const opt = require(path.join(root, 'backend/services/domain/fare-map/fare-map-optimizer'));
 const B = require('./recommendation-benchmark.cjs');
+const { getGeneratedTour } = require('../../backend/services/domain/tours/generated-tour');
+const { applyIgnavLiveFares } = require('../../backend/services/domain/live-fares/ignav-live-fares');
+const ignav = require('../../backend/services/providers/flights/ignav/ignav');
+const ignavCache = require('../../backend/services/domain/live-fares/ignav-fare-cache');
+const { currencyToUsdRate } = require('../../backend/services/domain/pricing/budget-presentation');
+const { applyTravellerPricingToTour } = require('../../backend/services/domain/pricing/traveller-pricing');
 
 const ORIGINS = ['Toronto (YYZ)', 'Vancouver (YVR)', 'New York (JFK)', 'Los Angeles (LAX)', 'Mexico City (MEX)', 'London (LHR)', 'Paris (PAR)', 'Dubai (DXB)', 'Singapore (SIN)', 'Sydney (SYD)'];
 const BUDGETS = [1500, 2000, 3000, 4000, 5000, 7500, 10000, 15000];
 
-function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
+function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
 function loadMemory(file) {
   const R = require('./hotel-memory-report.cjs');
   const { entries } = R.parse(fs.readFileSync(file, 'utf8'));
@@ -24,8 +30,91 @@ function loadMemory(file) {
 const mean = a => (a.length ? a.reduce((s, x) => s + x, 0) / a.length : 0);
 const pct = x => Math.round(100 * x);
 
+function describe(t, prices, totalBudgetUsd, source, origin) {
+  const sourceLegs = source.legs || [];
+  const returnEvidence = sourceLegs.at(-1)?.providerDateEvidence;
+  return { role: t.tourRole, route: t.stops.map(s => s.city).join(' > '),
+    cities: t.stops.map(s => s.cityId), countries: [...new Set(t.stops.map(s => s.countryCode))],
+    legs: sourceLegs.map(l => ({ from: l.from.airportCode || l.from.code, to: l.to.airportCode || l.to.code, date: l.departureDate })),
+    returnDate: returnEvidence?.dateEstimated ? 'estimated' : 'cached',
+    mirroredReturn: !!source.fareMap?.mirroredReturn, nights: t.totalNights,
+    stays: t.stops.map(s => ({ city: s.city, country: s.countryCode, nights: s.nights, arrival: s.arrivalDate, departure: s.departureDate })),
+    planning: { flights: source.totalFlightEstimateUsd, hotels: source.totalHotelEstimateUsd },
+    simulated: prices, enteredBudgetUse: (prices.flights + prices.hotels) / totalBudgetUsd,
+    quality: B.quality(t, B.originInfo(origin)) };
+}
+
+// The production builder runs against mocked flight responses, hotel rates and storage.
+// The real Ignav adapter still applies its task cap, cache key, pricing and evidence rules.
+async function mockPage(query, options, want, { cold = true, seen = [], shared = new Map(), spare } = {}) {
+  const env = { ...options.env, ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline',
+    ENABLE_NUITEE_LIVE_STAYS: 'true', NUITEE_SECRET_ID: 'offline', FARE_MAP_REQUIRE_LIVE: 'true',
+    FARE_MAP_SHOW_ESTIMATES: 'false', FARE_MAP_OLD_ENGINE_FALLBACK: 'false', HOTEL_UPGRADE_POLICY: '' };
+  if (cold) ignavCache._internal.memory.clear();
+  const memory = Object.fromEntries([...SIMMEM].flatMap(([id, e]) =>
+    Object.entries({ r: e.ratio, n: e.n, t: e.at, q: e.q, c: e.c }).filter(([, value]) => Number.isFinite(value))
+      .map(([prefix, value]) => [prefix + '_' + id, { N: String(value) }])));
+  const dynamo = { async send(command) {
+    const { Key, Item } = command.input;
+    if (Key?.pk?.S === 'MEM#hotel') return { Item: memory };
+    if (Key?.pk?.S === 'LIVE#ignav') return { Item: shared.get(Key.sk.S) };
+    if (Item?.pk?.S === 'LIVE#ignav') { shared.set(Item.sk.S, Item); return {}; }
+    if (Item?.pk?.S === 'MEM#hotel') return {};
+    throw Error('Unexpected offline storage operation');
+  } };
+  const sources = new Map(), keys = [], attempts = [];
+  const requestGuard = ignav._internal.createGuard(Date.now, { perMinute: 500, perHour: 500 });
+  let hotelRequests = 0;
+  const hotelKeys = new Set();
+  const result = await getGeneratedTour({ ...query, pool: '1', poolShow: want, poolSpare: spare, seenRoutes: seen }, {
+    env, dynamo, fareMap: { ...options, env, dynamo, fresh: true, traceSearch: false, clock: () => options.now },
+    async applyIgnavLiveFares(t, q) {
+      sources.set(B.routeKey(t), t);
+      const simulatedFlights = B.simulatedPrices(t).flights;
+      const factor = simulatedFlights / t.totalFlightEstimateUsd;
+      const priced = await applyIgnavLiveFares(t, q, { env, dynamo, fareCache: true, requestGuard,
+        async fetchFn(_url, request) {
+          const body = JSON.parse(request.body);
+          const key = ignavCache._internal.keyFor({ ...body, departureDate: body.departure_date, currency: q.currency });
+          keys.push(key);
+          const leg = t.legs.find(l => l.departureDate === body.departure_date);
+          if (!leg) throw Error('Unexpected offline flight date');
+          const arrival = opt._internal.plus(body.departure_date, leg.distanceKm >= 5500 ? 1 : 0);
+          const amount = leg.estimatedTransportUsd * factor / currencyToUsdRate(q.currency);
+          const fare = { ignav_id: 'offline-' + keys.length, price: { amount, currency: q.currency, status: 'verified' },
+            outbound: { segments: [{ departure: { airport: body.origin, local_time: body.departure_date + 'T09:00:00' },
+              arrival: { airport: body.destination, local_time: arrival + 'T15:00:00' } }] } };
+          return { ok: true, status: 200, text: async () => JSON.stringify({ observed_at: new Date().toISOString(), itineraries: [fare] }) };
+        } });
+      attempts.push({ route: B.routeKey(t), reason: priced.summary.reason || null, flights: priced.summary.requiredFlightLegCount || 0 });
+      return priced;
+    },
+    async applyNuiteeLiveStays(t, q, hotelOptions) {
+      const stops = t.stops.map(s => {
+        const key = [s.cityId, s.arrivalDate, s.departureDate, q.adults, q.rooms, q.currency].join('|');
+        if (!hotelKeys.has(key)) { hotelKeys.add(key); hotelRequests++; }
+        const usd = Math.round(s.hotel.estimatedStayUsd * B.hotelTruth(s) * (hotelOptions.hotelChoice === 'cheapest' ? 0.8 : 1));
+        return { ...s, hotel: { ...s.hotel, pricingIntegrity: { ...s.hotel.pricingIntegrity, nightlyPerRoomUsd: usd / s.nights },
+          nuiteeLiveRate: { amount: usd, totalUsd: usd, currency: 'USD' } } };
+      });
+      return { tour: applyTravellerPricingToTour({ ...t, stops }, q),
+        summary: { applied: true, appliedCount: stops.length, stopCount: stops.length } };
+    }
+  });
+  const shown = result.tours.map(t => describe(t, { flights: t.totalFlightEstimateUsd, hotels: t.totalHotelEstimateUsd },
+    t.totalBudgetUsd, sources.get(B.routeKey(t)) || t, query.origin));
+  return { shown, checks: result.diagnostics?.poolChecks ?? 0, rounds: result.diagnostics?.poolRounds ?? 0,
+    ignavRequests: keys.length, ignavCacheHits: result.diagnostics?.ignavCacheHits ?? 0, hotelRequests,
+    duplicateIgnavRequests: keys.length - new Set(keys).size, attempts, outcomes: result.diagnostics?.fareMapLiveAttempts || [],
+    shownKeys: result.poolShownRoutes || [], spareUnused: result.diagnostics?.poolSpareUnused ?? 0 };
+}
+
 async function runOne(origin, budgetCad, env) {
-  const r = await opt.search({ origin, budget: budgetCad, currency: 'CAD', adults: 1 }, { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env }, now: B.NOW, readRoutes: B.fareReader(), hotelRatios: SIMMEM, ...(READER ? { readRoutes: READER, now: SNAP.takenAt } : {}) });
+  const missing = new Set();
+  const query = { origin, budget: budgetCad, currency: 'CAD', adults: 1 };
+  const options = { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env },
+    now: SNAP?.takenAt ?? B.NOW, readRoutes: READER ? READER(missing) : B.fareReader(), hotelRatios: SIMMEM };
+  const r = await opt.search(query, { ...options, traceSearch: true });
   const pool = r.pool || [], spendable = budgetCad / B.CAD_PER_USD * 0.9;
   // live check in pool order; a page shows the first passing trips (signed out 1, signed in 3)
   const checked = pool.map(t => ({ t, live: B.liveTotalUsd(t) })).filter(x => x.live <= spendable);
@@ -45,15 +134,23 @@ async function runOne(origin, budgetCad, env) {
     guest = shown.map(trip);
   }
   const member = checked.slice(0, 3).map(trip);          // signed in: 3 trips
-  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member, d: r.diagnostics || {} };
+  const signedOut = await mockPage(query, options, 1);
+  const signedIn = await mockPage(query, options, 3);
+  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member,
+    coverage: { complete: missing.size === 0, missing: [...missing] },
+    verified: { signedOut, signedIn }, d: r.diagnostics || {} };
 }
 let SIMMEM = null, SNAP = null;
 // --fare-snapshot: replay REAL cached fares (ops/fare-map/replay-snapshot.mjs); a partition
 // missing from the snapshot reads as empty. Live truth for hotels stays simulated.
 function snapshotReader(file) {
   const body = JSON.parse(require('zlib').gunzipSync(fs.readFileSync(file)).toString('utf8'));
-  SNAP = { takenAt: Date.parse(body.takenAt), missing: 0, keys: new Set(), coverage: body.coverage || null, memorySha: body.memory?.sha256 || null };
-  return async (o, m) => { const v = body.partitions[o + '|' + m]; if (!v) { SNAP.missing++; SNAP.keys.add(o + '|' + m); } return v || []; };
+  SNAP = { origins: body.origins, takenAt: Date.parse(body.takenAt), missing: 0, keys: new Set(), coverage: body.coverage || null, memorySha: body.memory?.sha256 || null };
+  return missing => async (o, m) => {
+    const key = o + '|' + m, value = body.partitions[key];
+    if (!value) { SNAP.missing++; SNAP.keys.add(key); missing.add(key); }
+    return value || [];
+  };
 }
 let READER = null;
 
@@ -65,6 +162,11 @@ function summarise(cases) {
     const months = {}; for (const c of g) for (const t of c.guest) months[t.month] = (months[t.month] || 0) + 1;
     rows[b] = {
       searches: g.length, withTrip: firsts.length,
+      incomplete: g.filter(c => !c.coverage.complete).length,
+      verifiedGuestUse: pct(mean(g.flatMap(c => c.verified.signedOut.shown.map(t => t.enteredBudgetUse)))),
+      verifiedMemberBestUse: pct(mean(g.flatMap(c => c.verified.signedIn.shown.filter(t => t.role === 'best-balance').map(t => t.enteredBudgetUse)))),
+      guestIgnav: mean(g.map(c => c.verified.signedOut.ignavRequests)),
+      memberIgnav: mean(g.map(c => c.verified.signedIn.ignavRequests)),
       bestUse: pct(mean(firsts.map(t => t.use))), bestNights: +mean(firsts.map(t => t.nights)).toFixed(1), bestCities: +mean(firsts.map(t => t.cityCount)).toFixed(1),
       multiCountry: pct(mean(members.filter(t => t.cityCount > 1).map(t => t.countries > 1 ? 1 : 0))), sameCountryShown: pct(mean(members.map(t => t.sameCountry ? 1 : 0))),
       refreshDistinctMonths: +mean(g.map(c => new Set(c.guest.map(t => t.month)).size)).toFixed(1),
@@ -82,20 +184,36 @@ function summarise(cases) {
 }
 let BUDGETS_USED = BUDGETS;
 
-(async () => {
+async function main() {
+  process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+  global.fetch = async () => { throw Error('Offline recommendation investigation requires injected responses'); };
   const o = args();
-  const origins = o.origins || ORIGINS; BUDGETS_USED = o.budgets || BUDGETS;
+  if (o.fareSnapshot) READER = snapshotReader(o.fareSnapshot);
+  const origins = o.origins || SNAP?.origins || ORIGINS; BUDGETS_USED = o.budgets || BUDGETS;
   B.setOriginCodes(origins.map(x => B.originInfo(x).code));
   SIMMEM = o.memoryFile ? loadMemory(o.memoryFile) : B.simulatedMemory();
-  if (o.fareSnapshot) READER = snapshotReader(o.fareSnapshot);
+  if (o.matrix) {
+    const { VARIANTS } = await import('../../ops/fare-map/replay-snapshot.mjs');
+    const experiments = {};
+    for (const { name, env } of [...VARIANTS, ...extraVariants()]) {
+      const cases = [];
+      for (const x of origins) for (const b of BUDGETS_USED) cases.push(await runOne(x, b, { ...env, ...o.env }));
+      experiments[name] = { env: { ...env, ...o.env }, summary: summarise(cases), cases };
+    }
+    console.log(JSON.stringify({ input: SNAP ? 'cached-fare-snapshot' : 'synthetic-fares', experiments }));
+    return;
+  }
   const cases = [];
   for (const x of origins) for (const b of BUDGETS_USED) cases.push(await runOne(x, b, o.env));
   const s = summarise(cases);
-  if (o.json) { console.log(JSON.stringify({ env: o.env, memory: o.memoryFile ? 'real export' : 'simulated', summary: s, cases }, null, 1)); return; }
+  if (o.json) { console.log(JSON.stringify({ input: SNAP ? 'cached-fare-snapshot' : 'synthetic-fares', env: o.env, memory: o.memoryFile ? 'real export' : 'simulated', summary: s, cases }, null, 1)); return; }
   console.log(`Investigation: ${origins.length} origins x ${BUDGETS_USED.length} budgets, memory ${o.memoryFile ? 'REAL export' : 'simulated clean'}, settings ${JSON.stringify(o.env)}`);
-  console.log('budget  found  bestUse  nights  cities  3-city  maxNightsHit  multiCountry(2+ city trips)  sameCountry(shown)  refresh: months/repeatCity  topMonth');
+  console.log('budget  found  legacy-first  nights  cities  3-city  maxNightsHit  multiCountry(2+ city trips)  sameCountry(shown)  refresh: months/repeatCity  topMonth');
   for (const [b, r] of Object.entries(s.byBudget)) console.log(`C$${String(b).padEnd(6)} ${String(r.withTrip + '/' + r.searches).padEnd(6)} ${String(r.bestUse + '%').padEnd(8)} ${String(r.bestNights).padEnd(7)} ${String(r.bestCities).padEnd(7)} ${String(r.threeCityBest + '%').padEnd(7)} ${String(r.maxNightsHitBest + '%').padEnd(13)} ${String(r.multiCountry + '%').padEnd(28)} ${String(r.sameCountryShown + '%').padEnd(19)} ${r.refreshDistinctMonths}/${r.refreshRepeatCity}%   ${r.topMonth}`);
   console.log('Most repeated cities (share of guest trips):', s.topCitiesInGuestTrips.join(', '));
   console.log('Effort:', JSON.stringify(s.effort));
   if (SNAP) { console.log(`Fare snapshot from ${new Date(SNAP.takenAt).toISOString()}; partitions missing during replay: ${SNAP.keys.size} distinct (${SNAP.missing} reads)`); if (SNAP.keys.size) console.log('WARNING: this setting asked for partitions the snapshot lacks (read as empty); compare it with the baseline only after re-collecting:', [...SNAP.keys].slice(0, 10).join(', ')); if (SNAP.memorySha && o.memoryFile) { const h = require('crypto').createHash('sha256').update(fs.readFileSync(o.memoryFile, 'utf8')).digest('hex'); if (h !== SNAP.memorySha) console.log('WARNING: --memory-file differs from the memory used to collect the snapshot.'); } }
-})();
+}
+function extraVariants() { return []; }
+
+if (require.main === module) main().catch(error => { console.error(error); process.exitCode = 1; });
