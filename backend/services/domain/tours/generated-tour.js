@@ -3579,9 +3579,18 @@ async function getFareMapGeneratedTour(query,options) {
   const [hotelRatios,priceIndex]=await Promise.all([
     hotelMemory.load({...searchOptions,env:memEnv}).catch(()=>new Map()),
     priceIndexStore.loadAll({...searchOptions,env:memEnv||process.env}).catch(()=>new Map())]);
-  const result=await optimizer.search(query,{...searchOptions,hotelRatios,priceIndex});
-  const empty=reason=>({...result,tour:null,tours:[],reason});
-  if(!result.tours.length)return {...result,tour:null};
+  const result=await optimizer.search(query,{...searchOptions,hotelRatios,priceIndex,allowCityExpansion:true});
+  const needsExpansionVerification=tour=>tour?.fareMap?.expansionCandidate===true;
+  const legacyCandidates=tours=>tours.filter(t=>!needsExpansionVerification(t));
+  // Expansion planning candidates are private to the verification queue.
+  const publicResult=result.diagnostics?.expansionEligibleCities ? {
+    ...result,
+    ...(result.pool ? {pool:legacyCandidates(result.pool)} : {}),
+    ...(result.roleCandidates ? {roleCandidates:Object.fromEntries(
+      Object.entries(result.roleCandidates).map(([role,tours])=>[role,legacyCandidates(tours)]))} : {})
+  } : result;
+  const empty=reason=>({...publicResult,tour:null,tours:[],reason});
+  if(!result.tours.length)return {...publicResult,tour:null};
   let selected=result.tours[0],arrivalVerified=false;
   const diagnostics={...result.diagnostics};
   const {record:recordIgnav}=require('../../providers/flights/ignav/ignav-usage');
@@ -3672,7 +3681,7 @@ async function getFareMapGeneratedTour(query,options) {
     const guard=evaluateTour(visual,query);
     if(!guard.accepted||recommendationEligibility(guard.tour,query).hardBlocked||visual.itineraryDatePlan?.consistent===false)return {reason:'fare-map-final-business-or-date-guard',guardReasons:guard.reasons||[],dateConsistent:visual.itineraryDatePlan?.consistent};
     let tour=guard.tour;
-    if(strict){
+    if(strict||needsExpansionVerification(candidateTour)){
       if(!flights.arrivalVerified)return {reason:'fare-map-flights-not-all-live',tour};
       const hotelUsd=(tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
       // Legacy: up to 97% of the spendable budget: the rest absorbs price changes before booking.
@@ -3795,7 +3804,7 @@ async function getFareMapGeneratedTour(query,options) {
     finishVerification(tours,rounds,spareOk,name,sparesStarted);
     const poolInfo={poolMode:true,poolSize:(result.pool||[]).length,poolRemaining:queue.length,poolShownRoutes:labelled.map(r=>tripKey(r.source))};
     if(!tours.length)return {...empty(liveAttempts.at(-1)||'fare-map-no-route'),...poolInfo,diagnostics:{...result.diagnostics,...diagnostics}};
-    return {...result,...poolInfo,tour:tours[0],tours,diagnostics};
+    return {...publicResult,...poolInfo,tour:tours[0],tours,diagnostics};
   }
   for(const candidateTour of candidates){
     if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
@@ -3824,14 +3833,14 @@ async function getFareMapGeneratedTour(query,options) {
   if(!outcome&&requireLive&&checked.length&&mayShowEstimate){
     // None came back fully live: show the checked trip with the most live prices (its
     // estimates stay labelled) instead of a slow second search. No extra provider calls.
-    const best=checked.filter(c=>!returnUnconfirmed(c.partial,c.candidateTour)).sort((x,y)=>liveCount(y.partial)-liveCount(x.partial))[0];
+    const best=checked.filter(c=>!needsExpansionVerification(c.candidateTour)&&!returnUnconfirmed(c.partial,c.candidateTour)).sort((x,y)=>liveCount(y.partial)-liveCount(x.partial))[0];
     if(best)outcome={tour:best.partial,arrivalVerified:best.flights.arrivalVerified,source:best.candidateTour};
     if(best){diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-most-live-trip');}
   }
   if(!outcome&&requireLive&&liveAttempts.length&&candidates.length&&mayShowEstimate){
     // Every check failed before hotels: show the first trip with its estimates labelled
     // (what the old fallback search ended up showing), without another round of calls.
-    const first=candidates.find(c=>!c?.fareMap?.mirroredReturn),shown=first?await build(first,{selected:first,arrivalVerified:false},false):{reason:'fare-map-return-flight-unconfirmed'};
+    const first=candidates.find(c=>!needsExpansionVerification(c)&&!c?.fareMap?.mirroredReturn),shown=first?await build(first,{selected:first,arrivalVerified:false},false):{reason:'fare-map-return-flight-unconfirmed'};
     if(!shown.reason){outcome=shown;diagnostics.fareMapLiveOnlyUnmet=true;liveAttempts.push('shown-estimate-no-live-trip');}
   }
   diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;
@@ -3840,8 +3849,8 @@ async function getFareMapGeneratedTour(query,options) {
   diagnostics.arrivalDatesVerified=outcome.arrivalVerified;
   if(roleList)outcome.tour={...outcome.tour,tourRole:outcome.source.tourRole,tourRoleLabel:outcome.source.tourRoleLabel,fareMapRole:role,budgetUse:outcome.source.budgetUse};
   if(roleList)outcome.tour.stretchExtraUsd=outcome.source.stretchExtraUsd||undefined;
-  const tours=[outcome.tour,...result.tours.filter(t=>t!==outcome.source).map(t=>tripWords(buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}),t))];
-  return {...result,tour:outcome.tour,tours,diagnostics};
+  const tours=[outcome.tour,...legacyCandidates(result.tours).filter(t=>t!==outcome.source).map(t=>tripWords(buildVisualizerTour(t,{...query,month:t.legs[0].departureDate.slice(0,7)}),t))];
+  return {...publicResult,tour:outcome.tour,tours,diagnostics};
 }
 
 // One website (GV-ONE-SITE-001): the fare-map trip builder serves every search when
