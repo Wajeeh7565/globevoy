@@ -393,6 +393,16 @@ function poolSimilarity(a,b){
  if(poolDiversity&&a.countries&&[...a.countries].some(c=>b.countries.has(c)))sim+=.3;
  return Math.min(1,sim);
 }
+// A bounded alternative for flexible, high-budget searches. Reward a useful
+// duration with diminishing returns and keep a separate penalty for uncertain returns.
+function balancedPoolScore(s,x,quality){
+ const fit=1-Math.min(1,Math.max(0,.78-x.use,x.use-.92)/.65);
+ const duration=Math.min(1,x.nights/14)-Math.max(0,x.nights-21)/35;
+ const shape=Math.min(1,x.size/3);
+ const detour=Math.max(0,(s.detour||1)-1);
+ const uncertainty=s.tour.fareMap?.mirroredReturn ? .23 : s.estimatedDate ? .09 : 0;
+ return .42*fit+.16*duration+.09*quality.value+.10*quality.reach+.08*quality.character+.15*shape-.3*detour-uncertainty;
+}
 function buildPool(ranked,spendable,extra={}){
  const list=ranked.filter(s=>!oddRoute(s));
  const usable=list.length?list:ranked;
@@ -405,7 +415,9 @@ function buildPool(ranked,spendable,extra={}){
   const fit=1-Math.min(1,Math.abs(x.use-.85)/.6);
   let shape=extra.bigBudget?Math.min(1,x.size/3+.1):extra.multiCity?(x.size>=2?1:.5):(x.size===1?1:.7);
   if(poolDiversity&&x.size>1)shape*=x.countries.size>1?1:.8; // prefer multi-country when it fits (spread rules keep it sensible)
-  const score=W.fit*fit+W.value*nValue(x.nightsPerK)+W.reach*nReach(x.km)+W.character*nChar(x.vibes)+W.shape*shape-(s.estimatedDate?.3:0);
+  const value=nValue(x.nightsPerK),reach=nReach(x.km),character=nChar(x.vibes);
+  const score=extra.balanced?balancedPoolScore(s,x,{value,reach,character}):
+   W.fit*fit+W.value*value+W.reach*reach+W.character*character+W.shape*shape-(s.estimatedDate?.3:0);
   return {s,x,score:Number(score.toFixed(4)),parts:{fit:Number(fit.toFixed(3)),value:Number(nValue(x.nightsPerK).toFixed(3)),reach:Number(nReach(x.km).toFixed(3)),shape}};});
  const picked=[];let left=scored.slice().sort((a,b)=>b.score-a.score||a.s.key.localeCompare(b.s.key));
  while(picked.length<(extra.size||POOL_SIZE)&&left.length){
@@ -705,8 +717,9 @@ async function search(query={},options={}){
  result_roleCandidates=roleCandidates(expandedRanked,spendable,{variants,origin,originCountry:String(origin.countryCode||'').toUpperCase(),preferAbroad:budget>=ABROAD_FROM_USD,stretch:multiFirst?stretchPool.filter(s=>s.cities.length>=2):stretchPool,fallbackPool:expanded});
  // The pool: two-city trips first when they fit (same rule as the options), topped up
  // with other trips so a small search still offers choice.
- const poolBase=ranked.length>=8||!multiFirst?expandedRanked:expanded;
- result_pool=buildPool(poolBase,spendable,{variants,origin,bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||POOL_SIZE});
+ const poolBase=ranked.length>=8||!multiFirst?expandedRanked:[...expandedRanked,...expanded.filter(s=>s.cities.length===1)];
+ const balanced=huge&&query.totalNights==null&&!query.departureDate&&!query.returnDate&&String(env.FARE_MAP_BALANCED_POOL||'').trim().toLowerCase()==='on';
+ result_pool=buildPool(poolBase,spendable,{variants,balanced,origin,bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||POOL_SIZE});
  if(variants)diagnostics.alternativeRouteVariants=retained.length-distinct.size;
  diagnostics.poolSize=result_pool.length;diagnostics.bigBudget=bigBudget;
  diagnostics.cityCounts=[...new Set(allRanked.map(s=>s.cities.length))].sort();diagnostics.stretchCandidates=stretchPool.length;
@@ -720,4 +733,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};

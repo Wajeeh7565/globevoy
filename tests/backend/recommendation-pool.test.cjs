@@ -142,3 +142,27 @@ test('odd routes: the live Punta Cana > Vancouver > Manila trip is rejected, nor
   assert.equal(O._internal.oddRoute(east), false);
   assert.equal(O._internal.oddRoute({ detour: 1.3, cities: iberia.cities }), true, 'old detour rule still applies');
 });
+
+
+test('balanced high-budget scoring caps duration rewards and discounts uncertain returns', () => {
+  const { balancedPoolScore } = optimizer._internal;
+  const state = { tour: {}, detour: 1.08, estimatedDate: false };
+  const features = { use: 0.8, nights: 16, size: 3 };
+  const quality = { value: 0.5, reach: 0.5, character: 0.5 };
+  const score = (s, x) => balancedPoolScore({ ...state, ...s }, { ...features, ...x }, quality);
+  assert.equal(score({}, { use: 0.91 }), score({}, {}), 'no reward for spending inside the fit band');
+  assert.ok(score({}, { nights: 28 }) < score({}, {}));
+  assert.ok(score({}, { size: 4 }) === score({}, {}));
+  assert.ok(score({ estimatedDate: true }, {}) < score({}, {}));
+  assert.ok(score({ tour: { fareMap: { mirroredReturn: true } }, estimatedDate: true }, {}) < score({ estimatedDate: true }, {}));
+  assert.ok(score({ detour: 1.24 }, {}) < score({}, {}));
+});
+
+test('balanced pool flag leaves small-budget pools and read demand unchanged', async () => {
+  const f = fixture(8);
+  const q = { ...flexible(f), budget: 1000 };
+  const baseline = await search(f, q);
+  const balanced = await search(f, q, { env: { ...f.options.env, FARE_MAP_BALANCED_POOL: 'on' } });
+  assert.deepEqual(balanced.pool, baseline.pool);
+  assert.equal(balanced.diagnostics.reads, baseline.diagnostics.reads);
+});
