@@ -2,6 +2,7 @@
 
 const { createHash, randomUUID } = require('node:crypto');
 const { record } = require('./ignav-usage');
+const { cmd } = require('../../../domain/fare-map/fare-map-store')._internal;
 
 const DAY = 86400000;
 const iso = ms => new Date(ms).toISOString();
@@ -85,13 +86,13 @@ function getStore(options) {
 }
 
 const warningsLogged = new Set();
-async function reportWarnings(db, GetItemCommand, cfg, entries, options, endpoint) {
+async function reportWarnings(db, cfg, entries, options, endpoint) {
   const logging = { ...options, env: { ...(options.env || process.env), IGNAV_USAGE_LOG: 'on' } };
   await Promise.all(entries.map(async ([window, ident, allowance]) => {
     const token = threshold => JSON.stringify([cfg.table, cfg.fingerprint, ident.sk.S, threshold]);
     if (cfg.thresholds.every(threshold => warningsLogged.has(token(threshold)))) return;
     try {
-      const row = await boundedSend(db, new GetItemCommand({ TableName: cfg.table, Key: ident, ConsistentRead: true }));
+      const row = await boundedSend(db, cmd('GetItemCommand', { TableName: cfg.table, Key: ident, ConsistentRead: true }));
       const used = Number(row?.Item?.used?.N);
       for (const threshold of cfg.thresholds) {
         const key = token(threshold);
@@ -117,9 +118,8 @@ async function reserve(endpoint, options = {}) {
   const dailyKey = key(cfg.account, 'daily#' + iso(day));
   const billingKey = key(cfg.account, 'billing#' + iso(period.start));
   try {
-    const { TransactWriteItemsCommand, GetItemCommand } = require('@aws-sdk/client-dynamodb');
     const db = getStore(options);
-    const command = new TransactWriteItemsCommand({
+    const command = cmd('TransactWriteItemsCommand', {
       ClientRequestToken: randomUUID(),
       TransactItems: [
         { ConditionCheck: { TableName: cfg.table, Key: { pk: { S: 'IGNAVSTOP#' + cfg.account }, sk: { S: 'control' } },
@@ -138,7 +138,7 @@ async function reserve(endpoint, options = {}) {
       // A late acknowledgement at a window boundary must not authorize a send in the next window.
       await boundedSend(db, command);
     }
-    await reportWarnings(db, GetItemCommand, cfg, [['daily', dailyKey, cfg.daily], ['billing', billingKey, cfg.billing]], options, endpoint);
+    await reportWarnings(db, cfg, [['daily', dailyKey, cfg.daily], ['billing', billingKey, cfg.billing]], options, endpoint);
     // A late acknowledgement at a window boundary must not authorize a send in the next window.
     const finished = (options.quotaClock || Date.now)();
     if (finished >= Math.min(day + DAY, period.end)) return { ok: false, reason: 'ignav-quota-window-changed' };
