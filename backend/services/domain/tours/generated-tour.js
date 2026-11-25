@@ -3507,6 +3507,8 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
   // hotels are no more expensive than the estimates they replace (the trip's
   // budget status then doesn't get worse, and real prices beat guesses).
   const hotelUsd = tour => (tour?.stops || []).reduce((sum, stop) => sum + (Number(stop?.hotel?.estimatedStayUsd ?? stop?.hotel?.totalStayUsd) || 0), 0);
+  // What each live hotel cost against the model, for the hotel price memory.
+  diagnostics.nuiteeHotelObservations = (live.tour.stops || []).map((stop, i) => ({ cityId: stop?.cityId, estimateUsd: Number(result.tour.stops?.[i]?.hotel?.estimatedStayUsd) || 0, liveUsd: stop?.hotel?.nuiteeLiveRate ? Number(stop.hotel.nuiteeLiveRate.totalUsd) || Number(stop.hotel.estimatedStayUsd ?? stop.hotel.totalStayUsd) || 0 : 0 })).filter(o => o.cityId && o.estimateUsd > 0 && o.liveUsd > 0);
   const liveHotelsNotPricier = hotelUsd(live.tour) <= hotelUsd(result.tour) + 1;
   if (isOverUserBudgetStrict684BR3(live.tour, query) && !liveHotelsNotPricier) {
     diagnostics.nuiteeLiveStays = { ...summary, applied: false, appliedCount: 0, reason: 'nuitee-final-tour-over-budget-kept-estimate' };
@@ -3535,7 +3537,11 @@ function tripWords(visual,source){
 async function getFareMapGeneratedTour(query,options) {
   const optimizer=require('../fare-map/fare-map-optimizer');
   if(!generatedTourEnabled())return {ok:true,supported:false,reason:'feature-disabled',tour:null,tours:[]};
-  const result=await optimizer.search(query,options.fareMap||options);
+  // Learned real-vs-model hotel prices per city (GV-HOTEL-MEMORY-001); empty on any error.
+  const hotelMemory=require('../live-fares/hotel-price-memory');
+  const searchOptions=options.fareMap||options;
+  const hotelRatios=await hotelMemory.load({...searchOptions,env:searchOptions.env||options.env}).catch(()=>new Map());
+  const result=await optimizer.search(query,{...searchOptions,hotelRatios});
   const empty=reason=>({...result,tour:null,tours:[],reason});
   if(!result.tours.length)return {...result,tour:null};
   let selected=result.tours[0],arrivalVerified=false;
@@ -3613,13 +3619,15 @@ async function getFareMapGeneratedTour(query,options) {
       if(!flights.arrivalVerified)return {reason:'fare-map-flights-not-all-live',tour};
       const hotelUsd=(tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
       // Up to 97% of the spendable budget: the rest absorbs price changes before booking.
-      const hotelBudgetUsd=useBudget&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?Math.floor(tour.usableTripBudgetUsd*.97-(tour.estimatedTotalUsd-hotelUsd)):null;
+      const hotelBudgetUsd=(useBudget||candidateTour?.poolUpgrade===true)&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?Math.floor(tour.usableTripBudgetUsd*.97-(tour.estimatedTotalUsd-hotelUsd)):null;
       let priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...options,hotelBudgetUsd}:options);
       const overWithRealHotels=p=>p?.diagnostics?.nuiteeLiveStays?.reason==='nuitee-final-tour-over-budget-kept-estimate';
       // Real hotels push it over: try the cheapest real rooms once. If it still does not
       // fit, the trip does not fit; never show it with the cheaper estimate (GV-HOTEL-HONEST-001).
       if(overWithRealHotels(priced))priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,{...options,hotelChoice:'cheapest'});
       diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
+      const observed=priced?.diagnostics?.nuiteeHotelObservations||[];
+      if(observed.length){diagnostics.hotelObservations=(diagnostics.hotelObservations||0)+observed.length;try{await hotelMemory.record(observed,{...searchOptions,env:searchOptions.env||options.env});}catch(_){}}
       if(overWithRealHotels(priced))return {reason:'fare-map-live-hotels-exceed-protected-budget'};
       const stops=priced?.tour?.stops||[];
       if(!stops.length||!stops.every(st=>st?.hotel?.nuiteeLiveRate))return {reason:'fare-map-hotels-not-all-live',tour:priced?.tour||tour};
@@ -3636,17 +3644,50 @@ async function getFareMapGeneratedTour(query,options) {
   const roleList=role&&Array.isArray(result.roleCandidates?.[role])&&result.roleCandidates[role].length?result.roleCandidates[role]:null;
   // The page asks again with diversityExcludedRoutes when two options came back the same
   // (parallel searches can differ slightly); skip those trips, using any role's backups.
-  let excluded=new Set();try{const raw=query.diversityExcludedRoutes;excluded=new Set((Array.isArray(raw)?raw:JSON.parse(raw||'[]')).map(x=>String(x).toLowerCase()));}catch{}
+  let excluded=new Set();
+  for(const raw of [query.diversityExcludedRoutes,query.seenRoutes]){try{for(const x of (Array.isArray(raw)?raw:JSON.parse(raw||'[]')))excluded.add(String(x).toLowerCase());}catch{}}
   const tripKey=t=>(t?.stops||[]).map(st=>String(st.cityId||st.city||'').toLowerCase()).join('>');
   let candidates=roleList||result.tours.slice(0,2);
   if(excluded.size){const fresh=candidates.filter(t=>!excluded.has(tripKey(t)));const others=Object.values(result.roleCandidates||{}).flat().filter(t=>!excluded.has(tripKey(t))&&!fresh.includes(t));candidates=[...fresh,...others].filter((t,i,a)=>a.findIndex(x=>tripKey(x)===tripKey(t))===i).slice(0,3);diagnostics.excludedRoutes=excluded.size;}
   // The main pick never gives up early: after its own trips, it tries the cheaper
   // lowest-cost trips (at most 5 checks in all, still inside the time limit).
-  if(role==='best-balance'&&roleList&&!excluded.size){const extra=(result.roleCandidates['lowest-cost']||[]).filter(t=>!candidates.some(c=>tripKey(c)===tripKey(t)));candidates=[...candidates,...extra].slice(0,5);}
+  // ...then the cheapest unused trips (domestic or one city) before giving up: at most
+  // 7 checks, still inside the time limit. Failures here are mostly hotel prices
+  // (Nuitee, no Ignav cost); each extra flight check is 2-3 Ignav calls.
+  if(role==='best-balance'&&roleList&&!excluded.size){const extra=[...(result.roleCandidates['lowest-cost']||[]).slice(0,2),...(result.roleCandidates.fallback||[])].filter((t,i,a)=>!candidates.some(c=>tripKey(c)===tripKey(t))&&a.findIndex(x=>tripKey(x)===tripKey(t))===i);candidates=[...candidates,...extra].slice(0,7);}
   if(roleList)diagnostics.fareMapRole=role;
   // Best use of budget: hotels may be upgraded with the money the route leaves unspent.
   const useBudget=role==='best-balance'&&!!roleList;
   let outcome=null;const liveAttempts=[],checked=[];
+  // Pool mode (GV-POOL-001): one request returns up to three live-checked trips from the
+  // search's varied pool, skipping trips the page has already shown (seenRoutes), so
+  // refreshing rotates through the pool. Trips are checked a few at a time in parallel;
+  // labels are given after live prices are known, so "Lowest cost" is the real cheapest.
+  if(/^(1|true|yes)$/i.test(String(query.pool||''))){
+    const want=Math.min(3,Math.max(1,Number(query.poolShow)||3));
+    const queue=(result.pool||[]).filter(t=>!excluded.has(tripKey(t)));
+    const shown=[];let checks=0;
+    while(shown.length<want&&queue.length&&checks<8){
+      if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
+      const batch=queue.splice(0,Math.min(want-shown.length,8-checks));checks+=batch.length;
+      const results=await Promise.all(batch.map(async t=>{const flights=await attempt(t);if(flights.reason)return {reason:flights.reason};return build(t,flights,requireLive);}));
+      for(const r of results){liveAttempts.push(r.reason||'ok');if(!r.reason&&r.tour)shown.push(r);}
+    }
+    const useOf=r=>Number(r.tour.estimatedTotalUsd)/Math.max(1,Number(r.tour.usableTripBudgetUsd));
+    const labelled=shown.map(r=>({...r,role:'most-memorable'}));
+    if(labelled.length){
+      const byUse=labelled.slice().sort((a,b)=>useOf(b)-useOf(a))[0];byUse.role='best-balance';
+      if(labelled.length>1){const cheap=labelled.filter(r=>r!==byUse).sort((a,b)=>Number(a.tour.estimatedTotalUsd)-Number(b.tour.estimatedTotalUsd))[0];cheap.role='lowest-cost';}
+    }
+    const LABEL={'best-balance':'Best use of your budget','lowest-cost':'Lowest cost','most-memorable':'Something different'};
+    const order=['best-balance','lowest-cost','most-memorable'];
+    labelled.sort((a,b)=>order.indexOf(a.role)-order.indexOf(b.role));
+    const tours=labelled.map(r=>({...r.tour,tourRole:r.role,tourRoleLabel:LABEL[r.role],fareMapRole:r.role,budgetUse:Number(useOf(r).toFixed(3)),poolRank:r.source.poolRank,poolScore:r.source.poolScore}));
+    diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;diagnostics.poolChecks=checks;
+    const poolInfo={poolMode:true,poolSize:(result.pool||[]).length,poolRemaining:queue.length,poolShownRoutes:labelled.map(r=>tripKey(r.source))};
+    if(!tours.length)return {...empty(liveAttempts.at(-1)||'fare-map-no-route'),...poolInfo,diagnostics:{...result.diagnostics,...diagnostics}};
+    return {...result,...poolInfo,tour:tours[0],tours,diagnostics};
+  }
   for(const candidateTour of candidates){
     if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
     const flights=await attempt(candidateTour);
@@ -3661,13 +3702,17 @@ async function getFareMapGeneratedTour(query,options) {
   // page shows two real trips rather than one with estimates (GV-LIVE-ONLY-002).
   // Real prices said these trips do not fit: say so rather than show a cheaper estimate.
   const allOverBudget=liveAttempts.length>0&&liveAttempts.every(a=>/exceeds?-protected-budget|stopped-live-check/.test(a))&&liveAttempts.some(a=>/exceeds?-protected-budget/.test(a));
-  const mayShowEstimate=(!roleList||role==='best-balance')&&!allOverBudget;
+  // The page shows only fully live trips, so a trip with estimated prices is never
+  // returned unless FARE_MAP_SHOW_ESTIMATES=true (GV-LIVE-ONLY-003); the main pick
+  // keeps trying other trips instead.
+  const showEstimates=String(env.FARE_MAP_SHOW_ESTIMATES||'').trim().toLowerCase()==='true';
+  const mayShowEstimate=showEstimates&&(!roleList||role==='best-balance')&&!allOverBudget;
   if(allOverBudget)diagnostics.fareMapLivePricesOverBudget=true;
   // A trip whose way home was only a stand-in (no cached fare back) is shown only once
   // the live check has confirmed that return flight.
   const lastLeg=t=>(t?.backendLegs||t?.legs||[]).at(-1);
   const returnUnconfirmed=(t,src)=>(src?.fareMap?.mirroredReturn||t?.fareMap?.mirroredReturn)&&lastLeg(t)?.providerDateEvidence?.sourceType!=='LIVE';
-  if(!outcome&&requireLive&&checked.length&&(mayShowEstimate||checked.some(c=>liveCount(c.partial)>0))){
+  if(!outcome&&requireLive&&checked.length&&mayShowEstimate){
     // None came back fully live: show the checked trip with the most live prices (its
     // estimates stay labelled) instead of a slow second search. No extra provider calls.
     const best=checked.filter(c=>!returnUnconfirmed(c.partial,c.candidateTour)).sort((x,y)=>liveCount(y.partial)-liveCount(x.partial))[0];
@@ -3720,6 +3765,9 @@ function noTripMessage(result = {}, query = {}) {
   if (attempts.length && attempts.every(x => /flights-not-all-live|mismatched-live|incomplete-live|return-flight-unconfirmed/.test(x))) {
     const from = result?.requested?.origin?.city || 'this city';
     return { title: 'No bookable flights from ' + from + ' right now', message: 'Our booking partners do not currently sell flights for the trips we found from ' + from + '. Try a nearby city as your starting point.' };
+  }
+  if (attempts.length && attempts.every(x => /hotels-not-all-live|flights-not-all-live|stopped-live-check/.test(x))) {
+    return { title: 'We could not confirm live prices just now', message: 'Live flight or hotel prices for the trips we found could not be confirmed. Please try again in a few minutes, or pick another month.', retry: true };
   }
   if (/read-unavailable|not-configured/.test(String(result?.reason || ''))) return { title: 'We could not load prices just now', message: 'Please try again in a minute.', retry: true };
   return { title: 'No trip found for these choices', message: 'Try a different month, a longer trip or a slightly higher budget.' };

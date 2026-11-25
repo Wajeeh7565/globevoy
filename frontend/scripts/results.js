@@ -668,7 +668,7 @@
     startLoading();
     let result;
     try {
-      result = await S.findTrips(search, { member });
+      result = await S.findTrips(search, { member, refresh: new URLSearchParams(location.search).has('more') });
     } catch (error) {
       showState('error', {
         kicker: 'Connection problem', title: 'We couldn’t reach our trip planner',
@@ -697,6 +697,22 @@
       return;
     }
     await showTrips(result.trips);
+    offerMore(result);
+  }
+
+  // "Show other trips": the search found more trips than it showed; reloading with
+  // ?more= asks for the next ones from the same pool (GV-POOL-001).
+  function offerMore(result) {
+    if (savedView || !(result.poolSize > result.trips.length)) return;
+    const note = $('#options-note');
+    const url = new URL(location.href);
+    url.searchParams.set('more', String((Number(url.searchParams.get('more')) || 0) + 1));
+    const a = document.createElement('a');
+    a.className = 'btn show-more-trips';
+    a.href = url.toString();
+    a.textContent = 'Show other trips';
+    note.textContent = '';
+    note.appendChild(a);
   }
 
   async function showTrips(list, note) {

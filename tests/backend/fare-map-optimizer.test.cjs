@@ -107,10 +107,14 @@ test('live-only: a fully live trip is preferred; otherwise the next is checked, 
   else assert.equal(r.reason,'fare-map-flights-not-all-live');
   // 2) flights live but hotels not -> never shown
   const h=await gt.getGeneratedTour(f.query,{env,fareMap:{...f.options,rows:f.rows},applyIgnavLiveFares:async t=>liveFlights(t),applyNuiteeLiveStays:async t=>({tour:t,summary:{applied:false,reason:'offline'}})});
-  // none fully live -> the most-live checked trip is shown (flagged), no second slow search
+  // GV-LIVE-ONLY-003: none fully live -> nothing returned by default (the page hides estimates)
+  assert.equal(h.tour,null,'no partly live trip by default');assert.ok(h.noTrip&&h.noTrip.title);
+  // with FARE_MAP_SHOW_ESTIMATES=true the most-live checked trip is shown (flagged), no second slow search
+  const hs=await gt.getGeneratedTour(f.query,{env:{...env,FARE_MAP_SHOW_ESTIMATES:'true'},fareMap:{...f.options,rows:f.rows},applyIgnavLiveFares:async t=>liveFlights(t),applyNuiteeLiveStays:async t=>({tour:t,summary:{applied:false,reason:'offline'}})});
+  {const h=hs;
   assert.ok(h.tour,'most-live trip shown');assert.equal(h.diagnostics.fareMapLiveOnlyUnmet,true);
   assert.equal(h.diagnostics.fareMapLiveAttempts.at(-1),'shown-most-live-trip');assert.ok(h.diagnostics.fareMapLiveAttempts.length<=3);
-  assert.ok(h.tour.backendLegs.every(l=>l.liveFareVerified),'its flights are the live ones already fetched');
+  assert.ok(h.tour.backendLegs.every(l=>l.liveFareVerified),'its flights are the live ones already fetched');}
   // 3) with live-only off, the estimate path is unchanged
   const off=await gt.getGeneratedTour(f.query,{env:{...env,FARE_MAP_REQUIRE_LIVE:'false'},fareMap:{...f.options,rows:f.rows},applyIgnavLiveFares:async t=>({tour:t,summary:{applied:false,reason:'offline'}}),applyNuiteeLiveStays:()=>assert.fail('no hotel check without live arrivals')});
   assert.ok(off.tour);assert.equal(off.diagnostics.fareMapRequireLive,false);
