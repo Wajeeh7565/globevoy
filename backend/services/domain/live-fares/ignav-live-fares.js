@@ -137,7 +137,12 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
     .filter(({ leg }) => isFlightLeg(leg))
     .map(({ leg, index }) => ({ index, origin: endpointCode(leg.from), destination: endpointCode(leg.to), departureDate: legDate(leg) }));
   if (!tasks.length) return { tour, summary: { ...baseSummary, reason: 'no-flight-legs' } };
-  if (tasks.length > MAX_FLIGHT_LEGS) return { tour, summary: { ...baseSummary, reason: 'too-many-flight-legs', flightLegCount: tasks.length } };
+  const fourCityLoop = env.FARE_MAP_FOUR_CITY_LIVE === 'on' && tour.selectionSource === 'fare-map-beam' &&
+    tour.stops?.length === 4 && legs.length === 5 && tasks.length === 5 &&
+    tasks[0].origin && tasks[0].origin === tasks.at(-1).destination &&
+    tasks.slice(1).every((task, index) => tasks[index].destination === task.origin);
+  const limit = fourCityLoop ? 5 : MAX_FLIGHT_LEGS;
+  if (tasks.length > limit) return { tour, summary: { ...baseSummary, reason: 'too-many-flight-legs', flightLegCount: tasks.length } };
   if (tasks.some(t => !t.origin || !t.destination || !t.departureDate)) return { tour, summary: { ...baseSummary, reason: 'flight-leg-missing-airport-or-date' } };
 
   // Results are remembered for 15 minutes (ignav-fare-cache), so the page's three
