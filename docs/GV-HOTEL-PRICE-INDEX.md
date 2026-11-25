@@ -123,12 +123,47 @@ Compared 10 sampled Barcelona hotels (3 affordable, 3 mid, 2 upper-mid, 2 high) 
 - **Maximum:** 3 requests = **US$0.06, retries included.** Capped twice: by the script itself, and by the shared counter (capped at 3 for the run).
 - **Writes to AWS:** only the counter item. Prices are printed, not stored.
 
+## Task 6: using it in planning (GV-HOTEL-PLAN-002)
+
+Planned hotel cost per stay = model estimate × **level** × **shape**:
+
+- **Level:** the city's learned live/model ratio (hotel price memory) × 1.05. A city never checked live gets its **region's** learned ratios (75th percentile, ≥3 learned cities), else × 1.3. `FARE_MAP_REGION_COLD_START=off` turns the regional level off.
+  - Memory learns the **all-in price of the cheap-but-good room**: taxes, plus fees paid at the hotel since GV-HOTEL-FEES-001, minus any budget-upgrade extra.
+  - Entries older than 60 days are ignored. The average is rolling (window ~5).
+  - Observations before GV-HOTEL-FEES-001 came from rooms without at-hotel fees. In tourist-tax cities those were pricier rooms, so those cities' learned ratios lean high until about 5 new checks replace them.
+- **Shape (off):** the Price Index date pattern for the stay's own nights, clamped 0.7–1.8. It is loaded only with **both** `PRICE_INDEX_STORAGE=on` and `PRICE_INDEX_PLANNING=on`, so it stays off until Nuitée confirms storage. **Collection stays disabled** (`PRICE_INDEX_COLLECTION` off, not wired to any trigger).
+
+**Benchmark** (truth model v2; **simulated** regional and seasonal prices, not verified live prices) — share of trips failing the live check:
+
+| Setup | Fails |
+|---|---|
+| Memory only | 18% |
+| + regional level | 11% |
+| + date shape | 8% |
+
+### Live validation plan (5 searches, needs approval before running)
+
+Same inputs as the earlier production tests: 1 adult, CAD, flexible dates, pool request, signed-in (3 trips).
+
+| Search | Earlier result (for comparison) |
+|---|---|
+| Toronto C$1,500 | 3 trips (86/77/78%), 5 checks, 29 s (Nov 25, after task 2) |
+| Toronto C$2,500 | 3 trips (86/84/85%), 5 checks / 2 failed, 27 s (after fees fix) |
+| Toronto C$4,000 | 3 trips (86/75/86%), 5 checks / 1 failed, 23 s (after fees fix) |
+| Toronto C$10,000 | 3 trips (80/64/79%), 4 checks / 1 failed, 33 s (after odd-route fix) |
+| London C$4,000 | 3 trips (86/53/86%), 8 checks / 4 failed, 2 rounds, 33 s (after fees fix) |
+
+- **Compare:** failed checks ÷ checks (by reason), trips returned, response time, budget use of each trip, and API calls (live checks; Ignav and Nuitée requests from diagnostics). Also how many stays were planned with a learned or a regional level.
+- **Cost:** about 20–30 live checks in total, a few cents of Ignav. No Price Index or Jinko requests.
+- **Rollback:** the previous backend package (`globevoy-backend-d796465.zip`, live before task 6; `globevoy-backend-74eda83.zip` before the fees fix) is kept for re-upload. `FARE_MAP_REGION_COLD_START=off` and `NUITEE_DROP_PAY_AT_HOTEL=true` undo the two behaviours without a redeploy.
+
 ## Settings
 
 | Setting | Default | Meaning |
 |---|---|---|
 | `PRICE_INDEX_COLLECTION` | off | `on` allows real (billed) collector runs |
 | `PRICE_INDEX_STORAGE` | off | `on` writes summaries to DynamoDB |
+| `PRICE_INDEX_PLANNING` | off | `on` (together with `PRICE_INDEX_STORAGE=on`) lets the trip search read summaries |
 | `PRICE_INDEX_RETENTION_DAYS` | 35 | 1–365; DynamoDB deletes through the existing `ttl` attribute, and expired items are ignored on read |
 | `PRICE_INDEX_MONTHLY_REQUEST_CAP` | 100 | Can only be lowered |
 

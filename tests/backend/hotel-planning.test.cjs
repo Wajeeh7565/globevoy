@@ -31,7 +31,7 @@ test('date shape: the stay is priced by its own dates relative to the city media
   assert.equal(stayShape(null, { cityId: 'barcelona-es', arrivalDate: '2027-01-10' }), null);
 });
 
-test('summaries are only loaded with PRICE_INDEX_PLANNING=on, and expired ones are skipped', async () => {
+test('summaries are only loaded with BOTH PRICE_INDEX_STORAGE=on and PRICE_INDEX_PLANNING=on; expired ones are skipped', async () => {
   const store = require('../../backend/services/domain/pricing/hotel-price-index/store');
   store._internal.reset();
   const now = Date.parse('2027-01-01T00:00:00Z');
@@ -40,10 +40,19 @@ test('summaries are only loaded with PRICE_INDEX_PLANNING=on, and expired ones a
     { pk: { S: 'PI#city' }, sk: { S: 'barcelona-es' }, summary: { S: JSON.stringify({ cityId: 'barcelona-es', median: 100 }) }, ttl: { N: String(now / 1000 + 86400) } },
     { pk: { S: 'PI#city' }, sk: { S: 'rome-it' }, summary: { S: JSON.stringify({ cityId: 'rome-it', median: 90 }) }, ttl: { N: String(now / 1000 - 1) } }] }; } };
   assert.equal((await store.loadAll({ env: { FARE_MAP_TABLE: 'globevoy-test' }, dynamo: db, clock: () => now })).size, 0);
+  assert.equal((await store.loadAll({ env: { FARE_MAP_TABLE: 'globevoy-test', PRICE_INDEX_PLANNING: 'on' }, dynamo: db, clock: () => now })).size, 0, 'planning without storage: no read');
+  assert.equal((await store.loadAll({ env: { FARE_MAP_TABLE: 'globevoy-test', PRICE_INDEX_STORAGE: 'on' }, dynamo: db, clock: () => now })).size, 0, 'storage without planning: no read');
   assert.equal(queries, 0, 'off by default: no read');
-  const m = await store.loadAll({ env: { FARE_MAP_TABLE: 'globevoy-test', PRICE_INDEX_PLANNING: 'on' }, dynamo: db, clock: () => now });
+  const m = await store.loadAll({ env: { FARE_MAP_TABLE: 'globevoy-test', PRICE_INDEX_PLANNING: 'on', PRICE_INDEX_STORAGE: 'on' }, dynamo: db, clock: () => now });
   assert.deepEqual([...m.keys()], ['barcelona-es']);
-  await store.loadAll({ env: { FARE_MAP_TABLE: 'globevoy-test', PRICE_INDEX_PLANNING: 'on' }, dynamo: db, clock: () => now + 60e3 });
+  await store.loadAll({ env: { FARE_MAP_TABLE: 'globevoy-test', PRICE_INDEX_PLANNING: 'on', PRICE_INDEX_STORAGE: 'on' }, dynamo: db, clock: () => now + 60e3 });
   assert.equal(queries, 1, 'cached');
   store._internal.reset();
+});
+
+test('hotel memory learns the cheap-but-good all-in price, not a budget upgrade', () => {
+  const src = require('fs').readFileSync(require('path').join(__dirname, '../../backend/services/domain/tours/generated-tour.js'), 'utf8');
+  const line = src.split('\n').find(l => l.includes('diagnostics.nuiteeHotelObservations = '));
+  assert.match(line, /nuiteeLiveRate\.totalUsd/, 'all-in total (taxes and fees paid at the hotel included)');
+  assert.match(line, /budgetUpgrade\?\.extraUsd/, 'upgrade extra taken off');
 });

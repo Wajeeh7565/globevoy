@@ -3509,7 +3509,10 @@ async function priceFinalTourWithNuitee(result, query = {}, options = {}) {
   // budget status then doesn't get worse, and real prices beat guesses).
   const hotelUsd = tour => (tour?.stops || []).reduce((sum, stop) => sum + (Number(stop?.hotel?.estimatedStayUsd ?? stop?.hotel?.totalStayUsd) || 0), 0);
   // What each live hotel cost against the model, for the hotel price memory.
-  diagnostics.nuiteeHotelObservations = (live.tour.stops || []).map((stop, i) => ({ cityId: stop?.cityId, estimateUsd: Number(result.tour.stops?.[i]?.hotel?.estimatedStayUsd) || 0, liveUsd: stop?.hotel?.nuiteeLiveRate ? Number(stop.hotel.nuiteeLiveRate.totalUsd) || Number(stop.hotel.estimatedStayUsd ?? stop.hotel.totalStayUsd) || 0 : 0 })).filter(o => o.cityId && o.estimateUsd > 0 && o.liveUsd > 0);
+  // Hotel memory learns the all-in (taxes and fees paid at the hotel included) price of the
+  // cheap-but-good room: a budget upgrade's extra is taken off, or big-budget searches
+  // would teach the city a higher price than most trips can expect.
+  diagnostics.nuiteeHotelObservations = (live.tour.stops || []).map((stop, i) => ({ cityId: stop?.cityId, estimateUsd: Number(result.tour.stops?.[i]?.hotel?.estimatedStayUsd) || 0, liveUsd: stop?.hotel?.nuiteeLiveRate ? (Number(stop.hotel.nuiteeLiveRate.totalUsd) || Number(stop.hotel.estimatedStayUsd ?? stop.hotel.totalStayUsd) || 0) - (Number(stop.hotel.budgetUpgrade?.extraUsd) || 0) : 0 })).filter(o => o.cityId && o.estimateUsd > 0 && o.liveUsd > 0);
   const liveHotelsNotPricier = hotelUsd(live.tour) <= hotelUsd(result.tour) + 1;
   if (isOverUserBudgetStrict684BR3(live.tour, query) && !liveHotelsNotPricier) {
     diagnostics.nuiteeLiveStays = { ...summary, applied: false, appliedCount: 0, reason: 'nuitee-final-tour-over-budget-kept-estimate' };

@@ -123,11 +123,17 @@
     const offerAge = (now || Date.now()) - Date.parse(wlInfo.offerObservedAt || rate?.observedAt || '');
     const fresh = checkoutOk && Number.isFinite(offerAge) && offerAge >= 0 && offerAge <= OFFER_FRESH_MINUTES * 60000;
     const refundable = rate?.refundableTag === 'RFN' ? 'Free cancellation' : rate?.refundableTag === 'NRFN' ? 'Non-refundable' : '';
+    // GV-HOTEL-FEES-001: local taxes paid at the hotel are not in the hotel site's checkout
+    // price (`price` here) but are in the trip total; show them as their own amount.
+    let payAtHotel = 0;
+    if (rate && String(rate.currency || '').toUpperCase() === cur.code && num(rate.payAtHotelAmount) > 0) payAtHotel = num(rate.payAtHotelAmount);
+    else if (num(hotel.payAtHotel?.usd) > 0 && cur.fx) payAtHotel = num(hotel.payAtHotel.usd) * cur.fx;
     const detailBits = [
       checkIn && checkOut ? `${dateLabel(checkIn)} – ${dateLabel(checkOut)}` : '',
       nights ? `${nights} night${nights === 1 ? '' : 's'}` : '',
       rate?.boardName || '',
-      num(hotel.rating) ? `${hotel.rating} rating` : ''
+      num(hotel.rating) ? `${hotel.rating} rating` : '',
+      payAtHotel > 0 ? `plus ${money(payAtHotel, cur)} local taxes paid at the hotel` : ''
     ].filter(Boolean);
     const genericName = /central value stay/i.test(String(hotel.name || ''));
     return {
@@ -135,6 +141,7 @@
       title: genericName ? `Hotel in ${cityName(city)}` : (hotel.name || `Hotel in ${cityName(city)}`),
       detail: detailBits.join(' · '),
       price,
+      payAtHotel,
       source: live ? 'Live rate · Nuitee' : 'Estimated price',
       live,
       age: live ? (refundable || ageLabel(rate.observedAt, now)) : 'choose a hotel on Agoda',
@@ -183,9 +190,10 @@
     // The trip total the rest of the site shows also includes airport-access /
     // transfer estimates and other extras; show those as their own line so the
     // two pages agree.
+    const payAtHotel = items.filter(x => x.kind === 'hotel').reduce((s, x) => s + (x.payAtHotel || 0), 0);
     const siteTotal = num(d.tripEstimate);
-    const extras = siteTotal != null && siteTotal - (flights + hotels) > 1 ? siteTotal - (flights + hotels) : 0;
-    const total = flights + hotels + extras;
+    const extras = siteTotal != null && siteTotal - (flights + hotels + payAtHotel) > 1 ? siteTotal - (flights + hotels + payAtHotel) : 0;
+    const total = flights + hotels + payAtHotel + extras;
     const budget = num(d.totalBudget) ?? num(tour?.budget?.total?.amount);
     const reserve = num(d.reserveAmount) || 0;
     const cities = (Array.isArray(tour?.cities) ? tour.cities : []).map(cityName).filter(Boolean);
@@ -197,7 +205,7 @@
       route: [origin, ...cities, origin].filter(Boolean).join(' → '),
       dates: [start && end ? `${dateLabel(start)} – ${dateLabel(end)}, ${end.slice(0, 4)}` : '', nights ? `${nights} nights` : '',
         `${tour?.passengerPricing?.travellers || 1} traveller${(tour?.passengerPricing?.travellers || 1) === 1 ? '' : 's'}`].filter(Boolean).join(' · '),
-      flights, hotels, extras, total, budget, reserve,
+      flights, hotels, payAtHotel, extras, total, budget, reserve,
       left: budget != null ? budget - reserve - total : null,
       flightCount: items.filter(x => x.kind !== 'hotel').length,
       hotelCount: items.filter(x => x.kind === 'hotel').length,
@@ -311,6 +319,7 @@
         el(doc, 'div', { class: 'gvb2-kicker gvb2-kicker-dark', text: 'TRIP TOTAL' }),
         el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: `Flights (${s.flightCount})` }), el(doc, 'strong', { text: money(s.flights, cur) })]),
         el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: `Hotels (${s.hotelCount})` }), el(doc, 'strong', { text: money(s.hotels, cur) })]),
+        s.payAtHotel ? el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: 'Local taxes paid at hotels' }), el(doc, 'strong', { text: money(s.payAtHotel, cur) })]) : null,
         s.extras ? el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: 'Airport transfers & extras (estimate)' }), el(doc, 'strong', { text: money(s.extras, cur) })]) : null,
         el(doc, 'div', { class: 'gvb2-rule' }),
         el(doc, 'div', { class: 'gvb2-line gvb2-total' }, [el(doc, 'span', { text: 'Total' }), el(doc, 'strong', { text: money(s.total, cur) })]),

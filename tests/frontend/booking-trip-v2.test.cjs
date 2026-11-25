@@ -103,3 +103,20 @@ test('fresh Nuitee offer: Book this room → checkout; stale offer: hotel page',
   assert.match(items[1].mainUrl, /\/hotels\/lp57def/);
   assert.equal(items[1].altUrl, '');
 });
+
+// GV-HOTEL-FEES-001: the booking page shows the hotel site's checkout price, plus local taxes
+// paid at the hotel as their own line, so the total still matches the results page.
+test('local taxes paid at the hotel: own line, not "transfers & extras"; total matches the site', () => {
+  const t = tour();
+  t.cities[0].hotel.nuiteeLiveRate.payAtHotelAmount = 41.5;
+  t.displayBudget.tripEstimate = Math.round(700 * 1.36 + 352.51 + 41.5 + 300 * 1.36);
+  const { items, cur } = v2.buildItems(t, now);
+  const hotel = items.find(i => i.kind === 'hotel');
+  assert.equal(hotel.price, 352.51, 'checkout price, as on the hotel site');
+  assert.equal(hotel.payAtHotel, 41.5);
+  assert.match(hotel.detail, /plus C\$42 local taxes paid at the hotel/);
+  const s = v2.summaryOf(t, items, cur);
+  assert.equal(s.payAtHotel, 41.5);
+  assert.equal(s.extras, 0, 'the fee is not mislabelled as transfers');
+  assert.equal(Math.round(s.total), t.displayBudget.tripEstimate);
+});

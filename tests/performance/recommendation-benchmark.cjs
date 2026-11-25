@@ -17,6 +17,13 @@
 //   ... --env FARE_MAP_BIG_BUDGET=off                          try a setting
 //
 // Everything is deterministic: same code + same settings => same numbers.
+//
+// IMPORTANT: every "live" price here is SIMULATED (truth model v2): hotel prices are
+// plan x region level x city factor x date factor, flights x0.9-1.2, hotel memory and
+// Price Index summaries are generated. The levels are informed by the Nov 23-25 live
+// tests and the Barcelona Price Index run, but they are NOT independently verified live
+// prices. The benchmark compares versions of the code against each other; only live
+// searches show real-world effect.
 
 const fs = require('fs');
 const path = require('path');

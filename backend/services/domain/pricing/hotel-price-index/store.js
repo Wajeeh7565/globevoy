@@ -9,8 +9,8 @@
 // numbers are stored (no hotel IDs, no per-hotel prices). Nuitee has not confirmed
 // storage terms, which is why this stays off until approved.
 //
-// PRICE_INDEX_PLANNING=on lets the trip search load the summaries (loadAll); off by
-// default, and useless until summaries are stored.
+// The trip search loads summaries (loadAll) only with BOTH PRICE_INDEX_STORAGE=on and
+// PRICE_INDEX_PLANNING=on; both are off by default.
 
 const fareStore = require('../../fare-map/fare-map-store');
 const DEFAULT_RETENTION_DAYS = 35;
@@ -58,7 +58,8 @@ async function read(cityId, options = {}) {
 async function loadAll(options = {}) {
   const env = options.env || process.env, now = (options.clock || Date.now)();
   const table = fareStore.tableName(env);
-  if (!planningOn(env) || !table) return new Map();
+  // Both flags: summaries are only read when they may be stored AND used for planning.
+  if (!planningOn(env) || !storageOn(env) || !table) return new Map();
   if (loaded && now - loaded.at < LOAD_CACHE_MS && !options.fresh) return loaded.map;
   const db = options.dynamo || fareStore._internal.client(options);
   if (!loading) loading = (async () => {
