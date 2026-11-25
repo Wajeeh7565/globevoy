@@ -4,13 +4,15 @@
 // in Nuitee's documented answer format ({ data: [{ hotelId, prices: [{ day, avgPriceUsd }] }] }).
 //
 // The raw sandbox file was not kept, so this generator rebuilds a dataset with the
-// same shape and sizes. Prices are SYNTHETIC (tiers, seasons, weekends, holidays).
+// same shape and sizes. Prices are SYNTHETIC (star bands, seasons, weekends, holidays),
+// and the 50 hotels are picked with the same representative sampler the collector uses.
 // To use the real file instead, set PRICE_INDEX_FIXTURE=<path to the sandbox JSON>.
 // A hidden population of 200 hotels stands behind the 50 sampled ones, so the city
 // endpoint (average of all hotels) and "what GlobeVoy would book" (cheapest good
 // rooms in the whole city) are not just functions of the 50 sampled calendars.
 
 const fs = require('fs');
+const { sampleHotels } = require('../../../backend/services/domain/pricing/hotel-price-index/hotel-sample.js');
 const FROM = '2026-12-01', DAYS = 182, HOTELS = 50, POPULATION = 200, TARGET_PRICES = 8789;
 const DAY_MS = 86400e3;
 const iso = ms => new Date(ms).toISOString().slice(0, 10);
@@ -28,15 +30,18 @@ function season(day) {
 
 function build(seed = 708) {
   const R = rng(seed), days = Array.from({ length: DAYS }, (_, i) => iso(Date.parse(FROM + 'T00:00:00Z') + i * DAY_MS));
-  // population: budget 40%, mid 40%, upscale 20%; rating 6-9.5
+  // population by stars (base nightly USD ranges): 1-2* 20%, 3* 40%, 4* 30%, 5* 10%; guest rating 6-9.5
   const pop = Array.from({ length: POPULATION }, (_, i) => {
-    const t = R(), base = t < .4 ? 55 + R() * 50 : t < .8 ? 105 + R() * 90 : 200 + R() * 260;
-    return { hotelId: 'lpbcn' + String(i + 1).padStart(3, '0'), base, rating: 6 + R() * 3.5, swing: 0.8 + R() * 0.4 };
+    const t = R(), stars = t < .2 ? 2 : t < .6 ? 3 : t < .9 ? 4 : 5;
+    const base = { 2: 45 + R() * 35, 3: 75 + R() * 60, 4: 130 + R() * 100, 5: 260 + R() * 240 }[stars];
+    return { hotelId: 'lpbcn' + String(i + 1).padStart(3, '0'), stars, base, rating: Math.min(9.7, 5.8 + R() * 2.4 + stars * 0.35), reviews: Math.floor(R() * 3000), swing: 0.8 + R() * 0.4 };
   });
   const truth = {}; // per hotel per day "true" nightly price
   for (const h of pop) truth[h.hotelId] = days.map(d => Math.round(h.base * (1 + (season(d) - 1) * h.swing) * (0.93 + R() * 0.14)));
-  // the 50 hotels the hotels endpoint is asked about: GlobeVoy-like picks (rated >= 7), mixed tiers
-  const sampled = pop.filter(h => h.rating >= 7).slice(0, HOTELS);
+  // the 50 hotels the hotels endpoint is asked about: the representative sample (all star bands)
+  const pick = sampleHotels(pop.map(h => ({ id: h.hotelId, stars: h.stars, rating: h.rating, reviews: h.reviews })), { size: HOTELS });
+  const byId = new Map(pop.map(h => [h.hotelId, h]));
+  const sampled = pick.hotelIds.map(id => byId.get(id));
   // drop cells to hit exactly 8,789 prices
   const cells = []; sampled.forEach((h, hi) => days.forEach((d, di) => cells.push([hi, di])));
   const drop = new Set(); while (cells.length - drop.size > TARGET_PRICES) drop.add(Math.floor(R() * cells.length));
@@ -45,13 +50,19 @@ function build(seed = 708) {
   // what a live check would find: cheapest room among good hotels (rated >= 7) in the whole city, per night
   const good = pop.filter(h => h.rating >= 7);
   const bookable = days.map((d, di) => { const v = good.map(h => truth[h.hotelId][di]).sort((a, b) => a - b); return v[Math.floor(v.length * 0.1)]; });
-  return { days, hotels, city, bookable, synthetic: true };
+  return { days, hotels, city, bookable, synthetic: true, mix: pick.mix, stars: Object.fromEntries(sampled.map(h => [h.hotelId, h.stars])) };
 }
 
-function load() {
-  const p = process.env.PRICE_INDEX_FIXTURE;
-  if (p) { const body = JSON.parse(fs.readFileSync(p, 'utf8')); return { days: null, hotels: body, city: null, bookable: null, synthetic: false }; }
-  return build();
+// A real sandbox/production prices/hotels answer: { data: [{ hotelId, prices: [{ day, avgPriceUsd }] }] }.
+// Real data has no "what a live check would find", so `bookable` and `city` are null:
+// callers must not report pricing accuracy from it (only shape, size and stay effects).
+function load(file = process.env.PRICE_INDEX_FIXTURE) {
+  if (!file) return build();
+  const body = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const data = Array.isArray(body?.data) ? body.data : Array.isArray(body) ? body : null;
+  if (!data || !data.length) throw new Error(`${file}: expected a prices/hotels answer ({ data: [{ hotelId, prices }] })`);
+  const days = [...new Set(data.flatMap(h => (h.prices || []).map(p => String(p.day).slice(0, 10))))].sort();
+  return { days, hotels: { data }, city: null, bookable: null, synthetic: false, file };
 }
 
 module.exports = { build, load, FROM, DAYS, HOTELS, TARGET_PRICES, season };

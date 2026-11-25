@@ -32,17 +32,53 @@ function fakeDynamo() {
   } };
 }
 
-test('client: sandbox key works, production key refused unless allowed, <=50 hotels, one request, no retry', async () => {
+const NOLIMIT = () => require('../../backend/services/providers/stays/nuitee/nuitee-price-index').createLimiter({ sleep: async () => {} });
+const D = n => new Date(Date.now() + n * 86400e3).toISOString().slice(0, 10);
+
+test('client: sandbox key works, <=50 hotels, one request per call, no retry inside the client', async () => {
   const seen = [];
-  const r = await client.hotels({ hotelIds: ['lpa1', 'lpa2'], from: '2027-01-01', to: '2027-01-31' }, { apiKey: 'sand_x', fetchFn: http(200, { data: [{ hotelId: 'lpa1', prices: [{ day: '2027-01-02', avgPriceUsd: 107 }] }] }, seen) });
-  assert.ok(seen[0].url.startsWith('https://api.liteapi.travel/v3.0/prices/hotels?hotelIds=lpa1%2Clpa2&fromDate=2027-01-01&toDate=2027-01-31'));
+  const r = await client.hotels({ hotelIds: ['lpa1', 'lpa2'], from: D(10), to: D(40) }, { apiKey: 'sand_x', limiter: NOLIMIT(), fetchFn: http(200, { data: [{ hotelId: 'lpa1', prices: [{ day: D(11), avgPriceUsd: 107 }] }] }, seen) });
+  assert.ok(seen[0].url.startsWith(`https://api.liteapi.travel/v3.0/prices/hotels?hotelIds=lpa1%2Clpa2&fromDate=${D(10)}&toDate=${D(40)}`));
   assert.equal(seen[0].init.headers['X-API-Key'], 'sand_x');
   assert.equal(r.data[0].prices[0].usd, 107);
-  assert.equal((await client.hotels({ hotelIds: ['lpa1'] }, { apiKey: 'prod_x', fetchFn: http(200, {}, seen) })).reason, 'production-not-allowed');
-  assert.equal(seen.length, 1, 'refused before any request');
   assert.equal((await client.hotels({ hotelIds: Array.from({ length: 51 }, (_, i) => 'h' + i) }, { apiKey: 'sand_x' })).reason, 'invalid-hotel-ids');
-  const busy = await client.city({ countryCode: 'es', cityName: 'Barcelona' }, { apiKey: 'sand_x', fetchFn: http(429, {}, seen) });
+  const busy = await client.city({ countryCode: 'es', cityName: 'Barcelona' }, { apiKey: 'sand_x', limiter: NOLIMIT(), fetchFn: http(429, {}, seen) });
   assert.equal(busy.reason, 'nuitee-http-429'); assert.equal(busy.retryable, true); assert.equal(seen.length, 2, 'no retry inside the client');
+});
+
+test('client: EVERY production request needs the budget first (manual tests included)', async () => {
+  const seen = [];
+  const opts = { apiKey: 'prod_x', limiter: NOLIMIT(), fetchFn: http(200, { prices: [] }, seen) };
+  assert.equal((await client.city({ countryCode: 'ES', cityName: 'Barcelona' }, opts)).reason, 'production-not-allowed');
+  assert.equal((await client.city({ countryCode: 'ES', cityName: 'Barcelona' }, { ...opts, allowProduction: true })).reason, 'budget-required');
+  assert.equal(seen.length, 0, 'nothing sent without a budget');
+  const b = budget.memoryBudget(2);
+  for (let i = 0; i < 3; i++) await client.city({ countryCode: 'ES', cityName: 'Barcelona' }, { ...opts, allowProduction: true, budget: b });
+  assert.equal(seen.length, 2, 'third request refused by the budget');
+  assert.equal(await b.used(), 2);
+  assert.equal((await client.hotelList({ countryCode: 'ES', cityName: 'Barcelona' }, { ...opts, allowProduction: true })).reason, 'production-not-allowed', 'hotel lists use the free sandbox key only');
+});
+
+test('client: rate limit is 10 requests per 60 s; the 11th waits instead of being dropped', async () => {
+  let now = 0; const waits = [];
+  const lim = client.createLimiter({ clock: () => now, sleep: async ms => { waits.push(ms); now += ms; } });
+  for (let i = 0; i < 10; i++) { await lim.wait(); now += 100; }
+  assert.equal(waits.length, 0);
+  await lim.wait();
+  assert.equal(waits.length, 1);
+  assert.ok(now >= 60000, 'the 11th request waits until the first one is 60 s old');
+  assert.deepEqual(client.RATE, { max: 10, windowMs: 60000 });
+});
+
+test('client: rolling six-month horizon; past and far-future dates are clamped or refused', async () => {
+  const now = Date.parse('2026-11-25T12:00:00Z');
+  assert.deepEqual(client.horizon(null, null, now), { fromDate: '2026-11-25', toDate: '2027-05-26' });
+  assert.deepEqual(client.horizon('2026-01-01', '2028-01-01', now), { fromDate: '2026-11-25', toDate: '2027-05-26' });
+  assert.equal(client.horizon('2027-06-01', '2027-07-01', now), null);
+  assert.equal(client.HORIZON_DAYS, 183);
+  const seen = [];
+  const r = await client.city({ countryCode: 'ES', cityName: 'Barcelona', from: '2027-08-01', to: '2027-09-01' }, { apiKey: 'sand_x', clock: () => now, fetchFn: http(200, {}, seen) });
+  assert.equal(r.reason, 'outside-six-month-horizon'); assert.equal(seen.length, 0);
 });
 
 test('budget: 100 requests (US$2) a month is the hard cap; env can only lower it', () => {
@@ -76,7 +112,8 @@ test('summary: the Barcelona-shaped data becomes a small city summary with the s
   assert.equal(s.days, F.DAYS);
   assert.ok(s.coverage > 0.99, 'every day has at least 5 hotels');
   assert.ok(s.p25.every((v, i) => v == null || v <= s.p50[i]));
-  assert.ok(Buffer.byteLength(JSON.stringify(s)) < 4096, 'fits in one 4 KB read');
+  assert.ok(Buffer.byteLength(JSON.stringify(s)) < 6 * 1024, 'small: at most two 4 KB reads');
+  assert.ok(s.stay[3] && s.stayCoverage[7] < s.stayCoverage[3], 'complete stays recorded; longer stays have fewer hotels with every night');
   assert.ok(summary.seasonality(s, '2026-12-30', 3) > 1.25, 'New Year is expensive');
   assert.ok(summary.seasonality(s, '2027-01-19', 3) < 0.95, 'mid-January is cheap');
   assert.equal(summary.seasonality(s, '2028-01-01', 3), null, 'outside the data: no guess');
@@ -105,29 +142,33 @@ test('collector: off by default, so no request is ever sent', async () => {
 
 test('collector: fixture mode runs with the sandbox-shaped data, no AWS, nothing stored', async () => {
   const r = await collector.run({ cities: [{ cityId: 'barcelona-es', hotelIds: fx.hotels.data.map(h => h.hotelId) }, { cityId: 'barcelona-city', countryCode: 'ES', cityName: 'Barcelona' }] }, {
-    env: {}, fixture: async kind => (kind === 'hotels' ? asAnswer(fx.hotels) : { ok: true, kind: 'city', prices: fx.city.prices.map(p => ({ day: p.day, usd: p.avgPriceUsd })) })
+    env: {}, fixture: async kind => (kind === 'hotels' ? fx.hotels : fx.city)
   });
   assert.equal(r.mode, 'fixture'); assert.equal(r.requests, 2); assert.equal(r.estimatedCostUsd, 0.04);
   assert.deepEqual(r.cities.map(c => [c.status, c.source, c.stored]), [['ok', 'hotels', false], ['ok', 'city', false]]);
 });
 
-test('collector: one retry on 429, and the retry is paid for out of the budget; stops at the cap', async () => {
-  let n = 0;
-  const flaky = async () => (++n === 1 ? { ok: false, reason: 'nuitee-http-429', retryable: true } : asAnswer(fx.hotels));
+test('collector: one retry after a backoff (Retry-After or 6 s); the retry pays for its own slot; stops at the cap', async () => {
+  let n = 0; const waits = [];
+  const flaky = async () => (++n === 1 ? { status: 429, retryAfter: '9' } : fx.hotels);
   const cities = Array.from({ length: 6 }, (_, i) => ({ cityId: 'c' + i, hotelIds: ['h1'] }));
-  const r = await collector.run({ cities }, { env: { PRICE_INDEX_MONTHLY_REQUEST_CAP: '4' }, fixture: flaky });
+  const r = await collector.run({ cities }, { env: { PRICE_INDEX_MONTHLY_REQUEST_CAP: '4' }, fixture: flaky, sleep: async ms => waits.push(ms) });
+  assert.deepEqual(waits, [9000], 'waited as Nuitee asked');
   assert.equal(r.requests, 4, 'never more requests than the cap');
-  assert.equal(r.cities[0].attempts, 2, 'first city needed a retry');
+  assert.equal(r.cities[0].attempts, 2);
   assert.equal(r.stopped, 'monthly-cap-reached');
   assert.deepEqual(r.cities.map(c => c.status), ['ok', 'ok', 'ok', 'skipped', 'skipped', 'skipped']);
-  const hard = await collector.run({ cities }, { env: {}, fixture: async () => ({ ok: false, reason: 'nuitee-http-400', retryable: false }) });
+  const w2 = [];
+  await collector.run({ cities: cities.slice(0, 1) }, { env: {}, fixture: async () => ({ status: 503 }), sleep: async ms => w2.push(ms) });
+  assert.deepEqual(w2, [6000], 'default backoff without Retry-After');
+  const hard = await collector.run({ cities }, { env: {}, fixture: async () => ({ status: 400 }), sleep: async () => { throw new Error('no backoff for 400'); } });
   assert.equal(hard.requests, 6, 'a 400 is not retried');
 });
 
 test('collector: live mode with collection on uses the shared counter (fails closed without it)', async () => {
   let sent = 0;
   const r = await collector.run({ cities: [{ cityId: 'barcelona-es', countryCode: 'ES', cityName: 'Barcelona' }] }, { env: { PRICE_INDEX_COLLECTION: 'on' }, apiKey: 'sand_x', fetchFn: async () => { sent++; return { status: 200, text: async () => '{}' }; } });
-  assert.equal(sent, 0); assert.equal(r.stopped, 'budget-table-not-configured');
+  assert.equal(sent, 0, 'fails closed: no counter, no request'); assert.equal(r.stopped, 'budget-table-not-configured');
 });
 
 test('nothing in the Lambda or the trip search uses the collector yet', () => {
@@ -135,4 +176,42 @@ test('nothing in the Lambda or the trip search uses the collector yet', () => {
   const r = spawnSync('git', ['grep', '-l', '-e', 'hotel-price-index', '-e', 'nuitee-price-index', '--', 'backend'], { encoding: 'utf8' });
   const users = r.stdout.trim().split('\n').filter(Boolean).filter(f => !f.includes('/hotel-price-index/') && !f.endsWith('nuitee-price-index.js'));
   assert.deepEqual(users, []);
+});
+
+test('representative sample: 50 hotels across affordable, mid, upper-mid and high bands', () => {
+  const { sampleHotels } = require('../../backend/services/domain/pricing/hotel-price-index/hotel-sample');
+  const cand = Array.from({ length: 300 }, (_, i) => ({ id: 'h' + i, stars: 1 + (i % 5), rating: 6 + (i % 4), reviews: i }));
+  const s = sampleHotels(cand);
+  assert.equal(s.hotelIds.length, 50);
+  assert.deepEqual(s.mix, { affordable: 8, mid: 18, 'upper-mid': 17, high: 7 });
+  const few = sampleHotels([...cand.filter(h => h.stars === 3).slice(0, 60), ...cand.filter(h => h.stars === 5).slice(0, 2)]);
+  assert.equal(few.hotelIds.length, 50, 'a thin band lends its places to the others');
+  assert.equal(fx.hotels.data.length, 50); assert.ok(Object.values(fx.mix).every(v => v > 0), 'the test inputs use the same sampler');
+});
+
+test('design study loads a real file when given one, and reports no accuracy from it', () => {
+  const { execFileSync } = require('node:child_process');
+  const fs = require('fs'), os = require('os'), path = require('path');
+  const file = path.join(os.tmpdir(), 'pi-real-' + process.pid + '.json');
+  fs.writeFileSync(file, JSON.stringify({ data: fx.hotels.data.slice(0, 12) }));
+  const out = JSON.parse(execFileSync(process.execPath, [path.join(__dirname, '../performance/price-index-design-study.cjs'), '--json', '--fixture', file], { encoding: 'utf8' }));
+  fs.unlinkSync(file);
+  assert.equal(out.dataset.hotels, 12, 'used the file, not the generator');
+  assert.equal(out.syntheticPlanningAccuracy, null);
+  assert.match(out.livePricingAccuracy, /NOT MEASURED/);
+  assert.ok(out.completeStays['3'].stays > 0);
+});
+
+test('production probe: 3 requests (US$0.06) max with retries, dry run by default, refuses without the shared counter', () => {
+  const { spawnSync } = require('node:child_process');
+  const path = require('path'), fs = require('fs');
+  const script = path.join(__dirname, '../../ops/providers/nuitee-price-index-probe.mjs');
+  const src = fs.readFileSync(script, 'utf8');
+  assert.match(src, /const MAX_REQUESTS = 3/);
+  assert.match(src, /PRICE_INDEX_MONTHLY_REQUEST_CAP: String\(MAX_REQUESTS\)/, 'shared counter capped at 3 too');
+  assert.doesNotMatch(src, /store\.write|PRICE_INDEX_STORAGE/, 'never stores prices');
+  const dry = spawnSync(process.execPath, [script], { encoding: 'utf8', env: { PATH: process.env.PATH } });
+  assert.equal(dry.status, 0); assert.match(dry.stdout, /DRY RUN \(nothing sent\)/); assert.match(dry.stdout, /US\$0\.06/);
+  const noTable = spawnSync(process.execPath, [script, '--run'], { encoding: 'utf8', env: { PATH: process.env.PATH, NUITEE_SANDBOX_KEY: 'sand_x', NUITEE_PROD_KEY: 'prod_x' } });
+  assert.equal(noTable.status, 2); assert.match(noTable.stderr, /FARE_MAP_TABLE/);
 });
