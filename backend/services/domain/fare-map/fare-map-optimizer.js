@@ -48,15 +48,43 @@ const REGION_MIN_CITIES=3,REGION_QUANTILE=.75;
 //               clean level when one exists, else its own ratio shrunk
 //     ignore:   legacy entries are treated as never checked
 function regionQuantile(env=process.env){const q=Number(env.FARE_MAP_REGION_QUANTILE);return Number.isFinite(q)&&q>=.5&&q<=.9?q:REGION_QUANTILE;}
+//     bayes:    GV-HOTEL-MEM-003. Only observations counted after CLEAN_SINCE (q_/c_) are
+//               clean; the old average is weak evidence (HOTEL_MEMORY_LEGACY_WEIGHT, default
+//               0.25 per check, at most 5 checks) even if touched after the fix; both are
+//               blended with the region's typical ratio (HOTEL_MEMORY_PRIOR_WEIGHT, default
+//               2 checks), so a city with one or two checks stays close to its region.
+const num=(v,d,lo,hi)=>{const n=Number(v);return Number.isFinite(n)&&n>=lo&&n<=hi?n:d};
 function legacyRule(env=process.env){
  const mode=String(env.HOTEL_MEMORY_LEGACY||'trust').trim().toLowerCase(),raw=String(env.HOTEL_MEMORY_CLEAN_SINCE||'').trim();
  const since=/^\d+$/.test(raw)?Number(raw):Date.parse(raw);
- return {mode:['shrink','regional','ignore'].includes(mode)&&Number.isFinite(since)?mode:'trust',since:Number.isFinite(since)?since:0};
+ return {mode:['shrink','regional','ignore','bayes'].includes(mode)&&Number.isFinite(since)?mode:'trust',since:Number.isFinite(since)?since:0,
+  legacyWeight:num(env.HOTEL_MEMORY_LEGACY_WEIGHT,.25,0,1),priorWeight:num(env.HOTEL_MEMORY_PRIOR_WEIGHT,2,0,20)};
+}
+const median=v=>{const a=v.slice().sort((x,y)=>x-y),m=(a.length-1)/2;return a.length?(a[Math.floor(m)]+a[Math.ceil(m)])/2:null};
+// What a memory entry says on its own, for the regional prior: clean average if any, else
+// the legacy average.
+const evidence=hit=>hit.c>0&&Number.isFinite(hit.q)?hit.q:hit.ratio;
+function posterior(hit,prior,rule){
+ const wl=rule.legacyWeight*Math.min(5,Number(hit.n)||1),wc=hit.c>0?Math.min(5,hit.c):0,k=rule.priorWeight;
+ return (k*prior+wl*hit.ratio+wc*(wc?hit.q:0))/Math.max(1e-9,k+wl+wc);
 }
 const isLegacy=(hit,rule)=>rule.mode!=='trust'&&hit&&Number(hit.at||0)<rule.since;
 function regionRatios(ratios,rowList,env=process.env){
  const out=new Map();if(!ratios||!ratios.size||String(env.FARE_MAP_REGION_COLD_START||'').trim().toLowerCase()==='off')return out;
  const rule=legacyRule(env),q=regionQuantile(env),by=new Map();
+ if(rule.mode==='bayes'){
+  // Priors: each region's median evidence (>=3 cities), else all cities' median, else the margin.
+  const ev=new Map(),hits=[];
+  for(const row of rowList){const hit=ratios.get(hotelMemory._internal.attr(row.unifiedRegistry?.cityId));if(!hit)continue;const f=regionFamily(row);hits.push([f,hit]);if(!ev.has(f))ev.set(f,[]);ev.get(f).push(evidence(hit));}
+  const global=hits.length>=REGION_MIN_CITIES?median(hits.map(([,h])=>evidence(h))):hotelMargin(env)/1.05;
+  out.set('__global',{prior:global});
+  const prior=f=>(ev.get(f)||[]).length>=REGION_MIN_CITIES?median(ev.get(f)):global;
+  for(const [f,hit] of hits){if(!by.has(f))by.set(f,[]);by.get(f).push(posterior(hit,prior(f),rule));}
+  for(const f of new Set([...ev.keys()])){const v=(by.get(f)||[]).sort((a,b)=>a-b);const entry={prior:Number(prior(f).toFixed(3))};
+   if(v.length>=REGION_MIN_CITIES){const i=(v.length-1)*q,lo=Math.floor(i),hi=Math.ceil(i);entry.ratio=Number((v[lo]+(v[hi]-v[lo])*(i-lo)).toFixed(3));entry.cities=v.length;}
+   out.set(f,entry);}
+  return out;
+ }
  for(const row of rowList){const hit=ratios.get(hotelMemory._internal.attr(row.unifiedRegistry?.cityId));if(!hit)continue;
   if(isLegacy(hit,rule)&&rule.mode!=='shrink')continue;
   const r=isLegacy(hit,rule)?1+(hit.ratio-1)/2:hit.ratio;const f=regionFamily(row);if(!by.has(f))by.set(f,[]);by.get(f).push(r);}
@@ -66,6 +94,7 @@ function regionRatios(ratios,rowList,env=process.env){
 // Level for one stay from memory: { level, kind } or null (=> regional level or margin).
 function memoryLevel(ratios,stop,regionLevels,env,rule=legacyRule(env)){
  const hit=ratios&&ratios.get(hotelMemory._internal.attr(stop?.cityId));if(!hit)return null;
+ if(rule.mode==='bayes'){const prior=regionLevels?.get(stop?.regionFamily)?.prior??regionLevels?.get('__global')?.prior??hotelMargin(env)/1.05;return {level:Math.max(1,posterior(hit,prior,rule)*1.05),kind:hit.c>0?'bayes-clean':'bayes-legacy'};}
  if(!isLegacy(hit,rule))return {level:Math.max(1,hit.ratio*1.05),kind:'learned'};
  if(rule.mode==='ignore')return null;
  const shrunk=Math.max(1,(1+(hit.ratio-1)/2)*1.05);
@@ -413,7 +442,7 @@ async function search(query={},options={}){
       // ratio, plus 5%, instead of the general margin.
       const hotelFor=stop=>{const est=Number(stop?.hotel?.estimatedStayUsd)||0,mem=memoryLevel(options.hotelRatios,stop,regionLevels,env,memRule);
        let level;if(mem){const k=mem.kind==='learned'?'learnedHotelCities':'legacyHotelCities';diagnostics[k]=(diagnostics[k]||0)+1;level=mem.level;}
-       else{const reg=regionLevels.get(stop?.regionFamily);if(reg){diagnostics.regionHotelCities=(diagnostics.regionHotelCities||0)+1;level=Math.max(1,reg.ratio);}else level=margin;}
+       else{const reg=regionLevels.get(stop?.regionFamily);if(reg&&Number.isFinite(reg.ratio)){diagnostics.regionHotelCities=(diagnostics.regionHotelCities||0)+1;level=Math.max(1,reg.ratio);}else level=margin;}
        const shape=stayShape(options.priceIndex,stop);if(shape!=null)diagnostics.priceIndexStays=(diagnostics.priceIndexStays||0)+1;
        return est*level*(shape??1);};
       const stopHotels=(tour.stops||[]).reduce((n,stop)=>n+hotelFor(stop),0);
@@ -553,4 +582,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,regionQuantile,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,regionQuantile,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};

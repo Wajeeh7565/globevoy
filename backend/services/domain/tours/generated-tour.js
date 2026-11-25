@@ -3638,9 +3638,13 @@ async function getFareMapGeneratedTour(query,options) {
       const overWithRealHotels=p=>p?.diagnostics?.nuiteeLiveStays?.reason==='nuitee-final-tour-over-budget-kept-estimate';
       // Real hotels push it over: try the cheapest real rooms once. If it still does not
       // fit, the trip does not fit; never show it with the cheaper estimate (GV-HOTEL-HONEST-001).
+      // GV-HOTEL-MEM-003: the "cheapest room, any rating" retry would teach memory a lower
+      // price than the well-rated rooms trips are planned with (a downward bias); with
+      // HOTEL_MEMORY_SKIP_FALLBACK=on memory learns from the first, well-rated pass only.
+      const firstObserved=priced?.diagnostics?.nuiteeHotelObservations||[];
       if(overWithRealHotels(priced))priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,{...pricingOptions,hotelChoice:'cheapest'});
       diagnostics.nuiteeLiveStays=priced?.diagnostics?.nuiteeLiveStays||diagnostics.nuiteeLiveStays;
-      const observed=priced?.diagnostics?.nuiteeHotelObservations||[];
+      const observed=String(env.HOTEL_MEMORY_SKIP_FALLBACK||'').trim().toLowerCase()==='on'?firstObserved:(priced?.diagnostics?.nuiteeHotelObservations||[]);
       if(observed.length){diagnostics.hotelObservations=(diagnostics.hotelObservations||0)+observed.length;try{await hotelMemory.record(observed,{...searchOptions,env:searchOptions.env||options.env});}catch(_){}}
       if(overWithRealHotels(priced))return {reason:'fare-map-live-hotels-exceed-protected-budget'};
       const stops=priced?.tour?.stops||[];
