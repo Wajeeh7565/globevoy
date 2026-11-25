@@ -215,3 +215,25 @@ test('production probe: 3 requests (US$0.06) max with retries, dry run by defaul
   const noTable = spawnSync(process.execPath, [script, '--run'], { encoding: 'utf8', env: { PATH: process.env.PATH, NUITEE_SANDBOX_KEY: 'sand_x', NUITEE_PROD_KEY: 'prod_x' } });
   assert.equal(noTable.status, 2); assert.match(noTable.stderr, /FARE_MAP_TABLE/);
 });
+
+test('price-basis comparison: finds which live price (taxes, occupancy) the index matches', () => {
+  const A = require('../../backend/services/domain/pricing/hotel-price-index/analysis');
+  // index = live 1-adult price before taxes
+  const rows = [100, 120, 90, 150, 200].map((p, i) => ({ hotelId: 'h' + i, checkin: '2027-01-0' + (i + 1), nights: 1, index: p, live: { 1: { total: p * 1.1, includedTaxes: p * 0.1 }, 2: { total: p * 1.35, includedTaxes: p * 0.12 } } }));
+  const r = A.compareBasis(rows);
+  assert.equal(r.closest, '1 adult, before taxes');
+  assert.equal(r.bases['1 adult, before taxes'].medianRatio, 1);
+  assert.equal(A.compareBasis([]).closest, null);
+});
+
+test('price-basis check script: dry run by default, one Price Index request, refuses when the counter is full', () => {
+  const { spawnSync } = require('node:child_process');
+  const path = require('path'), fs = require('fs');
+  const script = path.join(__dirname, '../../ops/providers/nuitee-price-basis-check.mjs');
+  const src = fs.readFileSync(script, 'utf8');
+  assert.match(src, /memoryBudget\(1\)/, 'one Price Index request');
+  assert.match(src, /used >= SHARED_CAP/, 'refuses when the 3 approved slots are used');
+  assert.doesNotMatch(src, /store\.write|PRICE_INDEX_STORAGE/);
+  const dry = spawnSync(process.execPath, [script], { encoding: 'utf8', env: { PATH: process.env.PATH } });
+  assert.equal(dry.status, 0); assert.match(dry.stdout, /DRY RUN/);
+});
