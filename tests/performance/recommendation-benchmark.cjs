@@ -329,4 +329,7 @@ async function main() {
 }
 
 if (require.main === module) main().catch(e => { console.error(e); process.exit(2); });
-module.exports = { quality, simulatePage, summarise, compare, LIMITS };
+// For tests/performance/recommendation-investigation.cjs
+function setSimulation({ memory, priceIndex, contaminate } = {}) { CONTAMINATE = !!contaminate; SIM.memory = memory === undefined ? simulatedMemory() : memory; SIM.priceIndex = priceIndex ? simulatedPriceIndex() : null; }
+function setOriginCodes(list) { ORIGIN_CODES = list; }
+module.exports = { quality, simulatePage, summarise, compare, LIMITS, fareReader, liveTotalUsd, hotelTruth, simulatedMemory, setSimulation, setOriginCodes, originInfo, NOW, CAD_PER_USD, routeKey };
