@@ -703,16 +703,12 @@
   // "Show other trips": the search found more trips than it showed; reloading with
   // ?more= asks for the next ones from the same pool (GV-POOL-001).
   function offerMore(result) {
-    if (savedView || !(result.poolSize > result.trips.length)) return;
-    const note = $('#options-note');
+    const box = $('#more-trips');
+    if (!box || savedView || !(result.poolSize > result.trips.length)) return;
     const url = new URL(location.href);
     url.searchParams.set('more', String((Number(url.searchParams.get('more')) || 0) + 1));
-    const a = document.createElement('a');
-    a.className = 'btn show-more-trips';
-    a.href = url.toString();
-    a.textContent = 'Show other trips';
-    note.textContent = '';
-    note.appendChild(a);
+    box.innerHTML = `<a class="show-more-trips" href="${esc(url.toString())}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"/></svg>Show other trips</a>`;
+    box.hidden = false;
   }
 
   async function showTrips(list, note) {
