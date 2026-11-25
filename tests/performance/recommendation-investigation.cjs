@@ -2,7 +2,8 @@
 'use strict';
 // GV-RECS-INV-001: whole-pipeline investigation (offline, simulated fares and hotel truth).
 //   node tests/performance/recommendation-investigation.cjs [--memory-file export.json] [--env K=V ...] [--json]
-// For 10 origins x 8 budgets it runs the real optimizer and reports what travellers would
+// Use --matrix for the study configurations and --cost-study for spare/cache comparisons.
+// For each origin and budget it runs the real optimizer and reports what travellers would
 // see signed out (1 trip, refreshed 3 times) and signed in (3 trips): budget use, nights,
 // cities, countries, same-country trips, departure months, city repetition, what limits
 // bigger trips, and search effort. --memory-file plans with the REAL hotel memory export
@@ -21,7 +22,7 @@ const { applyTravellerPricingToTour } = require('../../backend/services/domain/p
 const ORIGINS = ['Toronto (YYZ)', 'Vancouver (YVR)', 'New York (JFK)', 'Los Angeles (LAX)', 'Mexico City (MEX)', 'London (LHR)', 'Paris (PAR)', 'Dubai (DXB)', 'Singapore (SIN)', 'Sydney (SYD)'];
 const BUDGETS = [1500, 2000, 3000, 4000, 5000, 7500, 10000, 15000];
 
-function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
+function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
 function loadMemory(file) {
   const R = require('./hotel-memory-report.cjs');
   const { entries } = R.parse(fs.readFileSync(file, 'utf8'));
@@ -109,11 +110,11 @@ async function mockPage(query, options, want, { cold = true, seen = [], shared =
     shownKeys: result.poolShownRoutes || [], spareUnused: result.diagnostics?.poolSpareUnused ?? 0 };
 }
 
-async function runOne(origin, budgetCad, env) {
-  const missing = new Set();
+async function runOne(origin, budgetCad, env, costStudy) {
+  const missing = new Set(), truncated = new Set();
   const query = { origin, budget: budgetCad, currency: 'CAD', adults: 1 };
   const options = { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env },
-    now: SNAP?.takenAt ?? B.NOW, readRoutes: READER ? READER(missing) : B.fareReader(), hotelRatios: SIMMEM };
+    now: SNAP?.takenAt ?? B.NOW, readRoutes: READER ? READER(missing, truncated) : B.fareReader(), hotelRatios: SIMMEM };
   const r = await opt.search(query, { ...options, traceSearch: true });
   const pool = r.pool || [], spendable = budgetCad / B.CAD_PER_USD * 0.9;
   // live check in pool order; a page shows the first passing trips (signed out 1, signed in 3)
@@ -136,8 +137,17 @@ async function runOne(origin, budgetCad, env) {
   const member = checked.slice(0, 3).map(trip);          // signed in: 3 trips
   const signedOut = await mockPage(query, options, 1);
   const signedIn = await mockPage(query, options, 3);
-  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member,
-    coverage: { complete: missing.size === 0, missing: [...missing] },
+  let cost;
+  if (costStudy) {
+    const shared = new Map();
+    cost = { noSpares: await mockPage(query, options, 3, { spare: 0 }),
+      oneSpare: await mockPage(query, options, 3, { spare: 1 }),
+      sharedCold: await mockPage(query, options, 3, { shared }),
+      sharedRepeat: await mockPage(query, options, 3, { shared }),
+      sharedRefresh: await mockPage(query, options, 3, { shared, seen: signedIn.shownKeys }) };
+  }
+  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member, cost,
+    coverage: { complete: !missing.size && !truncated.size, missing: [...missing], truncated: [...truncated] },
     verified: { signedOut, signedIn }, d: r.diagnostics || {} };
 }
 let SIMMEM = null, SNAP = null;
@@ -146,9 +156,11 @@ let SIMMEM = null, SNAP = null;
 function snapshotReader(file) {
   const body = JSON.parse(require('zlib').gunzipSync(fs.readFileSync(file)).toString('utf8'));
   SNAP = { origins: body.origins, takenAt: Date.parse(body.takenAt), missing: 0, keys: new Set(), coverage: body.coverage || null, memorySha: body.memory?.sha256 || null };
-  return missing => async (o, m) => {
+  const capped = new Set(body.coverage?.truncated || []);
+  return (missing, truncated) => async (o, m) => {
     const key = o + '|' + m, value = body.partitions[key];
     if (!value) { SNAP.missing++; SNAP.keys.add(key); missing.add(key); }
+    if (capped.has(key)) truncated.add(key);
     return value || [];
   };
 }
@@ -197,23 +209,46 @@ async function main() {
     const experiments = {};
     for (const { name, env } of [...VARIANTS, ...extraVariants()]) {
       const cases = [];
-      for (const x of origins) for (const b of BUDGETS_USED) cases.push(await runOne(x, b, { ...env, ...o.env }));
+      for (const x of origins) for (const b of BUDGETS_USED) cases.push(await runOne(x, b, { ...env, ...o.env }, o.costStudy));
       experiments[name] = { env: { ...env, ...o.env }, summary: summarise(cases), cases };
     }
     console.log(JSON.stringify({ input: SNAP ? 'cached-fare-snapshot' : 'synthetic-fares', experiments }));
     return;
   }
   const cases = [];
-  for (const x of origins) for (const b of BUDGETS_USED) cases.push(await runOne(x, b, o.env));
+  for (const x of origins) for (const b of BUDGETS_USED) cases.push(await runOne(x, b, o.env, o.costStudy));
   const s = summarise(cases);
   if (o.json) { console.log(JSON.stringify({ input: SNAP ? 'cached-fare-snapshot' : 'synthetic-fares', env: o.env, memory: o.memoryFile ? 'real export' : 'simulated', summary: s, cases }, null, 1)); return; }
   console.log(`Investigation: ${origins.length} origins x ${BUDGETS_USED.length} budgets, memory ${o.memoryFile ? 'REAL export' : 'simulated clean'}, settings ${JSON.stringify(o.env)}`);
   console.log('budget  found  legacy-first  nights  cities  3-city  maxNightsHit  multiCountry(2+ city trips)  sameCountry(shown)  refresh: months/repeatCity  topMonth');
   for (const [b, r] of Object.entries(s.byBudget)) console.log(`C$${String(b).padEnd(6)} ${String(r.withTrip + '/' + r.searches).padEnd(6)} ${String(r.bestUse + '%').padEnd(8)} ${String(r.bestNights).padEnd(7)} ${String(r.bestCities).padEnd(7)} ${String(r.threeCityBest + '%').padEnd(7)} ${String(r.maxNightsHitBest + '%').padEnd(13)} ${String(r.multiCountry + '%').padEnd(28)} ${String(r.sameCountryShown + '%').padEnd(19)} ${r.refreshDistinctMonths}/${r.refreshRepeatCity}%   ${r.topMonth}`);
+  console.log('budget  mock guest/member best-use  mock Ignav guest/member  incomplete');
+  for (const [b, r] of Object.entries(s.byBudget)) console.log(`C$${b}  ${r.verifiedGuestUse}%/${r.verifiedMemberBestUse}%  ${r.guestIgnav}/${r.memberIgnav}  ${r.incomplete}`);
   console.log('Most repeated cities (share of guest trips):', s.topCitiesInGuestTrips.join(', '));
   console.log('Effort:', JSON.stringify(s.effort));
   if (SNAP) { console.log(`Fare snapshot from ${new Date(SNAP.takenAt).toISOString()}; partitions missing during replay: ${SNAP.keys.size} distinct (${SNAP.missing} reads)`); if (SNAP.keys.size) console.log('WARNING: this setting asked for partitions the snapshot lacks (read as empty); compare it with the baseline only after re-collecting:', [...SNAP.keys].slice(0, 10).join(', ')); if (SNAP.memorySha && o.memoryFile) { const h = require('crypto').createHash('sha256').update(fs.readFileSync(o.memoryFile, 'utf8')).digest('hex'); if (h !== SNAP.memorySha) console.log('WARNING: --memory-file differs from the memory used to collect the snapshot.'); } }
 }
-function extraVariants() { return []; }
+function extraVariants() {
+  const reads = { FARE_MAP_READ_PLAN: 'on' };
+  const four = { ...reads, FARE_MAP_HUGE_MAX_CITIES: '4' };
+  const variants = { FARE_MAP_ROUTE_VARIANTS: 'on' };
+  const balanced = { FARE_MAP_BALANCED_POOL: 'on' };
+  const live = { FARE_MAP_FOUR_CITY_LIVE: 'on' };
+  return Object.entries({
+    'read-plan-only': reads,
+    'refresh-rotation': { FARE_MAP_REFRESH_ROTATION: 'on' },
+    'route-variants': variants,
+    'balanced-pool': balanced,
+    'four-city-live': live,
+    'read-plan-variants': { ...reads, ...variants },
+    'read-plan-balanced': { ...reads, ...balanced },
+    'read-plan-3-combined': { ...reads, ...variants, ...balanced },
+    'read-plan-4-stay': { ...four, FARE_MAP_BIG_STAY_EXTRA: '8' },
+    'read-plan-4-target': { ...four, FARE_MAP_BEAM_TARGET: 'on' },
+    'read-plan-4-live': { ...four, ...live },
+    'read-plan-4-balanced-live': { ...four, ...balanced, ...live },
+    'read-plan-4-combined': { ...four, ...variants, ...balanced, ...live }
+  }).map(([name, env]) => ({ name, env }));
+}
 
 if (require.main === module) main().catch(error => { console.error(error); process.exitCode = 1; });

@@ -137,7 +137,7 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
     .filter(({ leg }) => isFlightLeg(leg))
     .map(({ leg, index }) => ({ index, origin: endpointCode(leg.from), destination: endpointCode(leg.to), departureDate: legDate(leg) }));
   if (!tasks.length) return { tour, summary: { ...baseSummary, reason: 'no-flight-legs' } };
-  const fourCityLoop = env.FARE_MAP_FOUR_CITY_LIVE === 'on' && tour.selectionSource === 'fare-map-beam' &&
+  const fourCityLoop = String(env.FARE_MAP_FOUR_CITY_LIVE || '').trim().toLowerCase() === 'on' && tour.selectionSource === 'fare-map-beam' &&
     tour.stops?.length === 4 && legs.length === 5 && tasks.length === 5 &&
     tasks[0].origin && tasks[0].origin === tasks.at(-1).destination &&
     tasks.slice(1).every((task, index) => tasks[index].destination === task.origin);
@@ -158,7 +158,7 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
 
   const failed = results.map((r, i) => ({ r, task: tasks[i] }))
     .filter(({ r }) => !r.ok || !r.cheapest || r.cheapest.currency !== currency);
-  const summaryBase = { ...baseSummary, attempted: true, providerRequests: counter.calls, cacheHits: counter.cacheHits, requiredFlightLegCount: tasks.length, currency };
+  const summaryBase = { ...baseSummary, maxFlightLegs: limit, attempted: true, providerRequests: counter.calls, cacheHits: counter.cacheHits, requiredFlightLegCount: tasks.length, currency };
   const failedLegs = failed.map(({ r, task }) => ({ origin: task.origin, destination: task.destination, departureDate: task.departureDate,
     reason: !r.ok ? r.reason : !r.cheapest ? 'no-verified-fare' : 'currency-mismatch' }));
   // Per-leg: legs with a verified fare in the requested currency get live evidence;
