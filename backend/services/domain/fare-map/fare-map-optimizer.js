@@ -147,12 +147,19 @@ function originRegistryRow(all,origin){
 }
 function rows(){return registry.routeGraphSelection(require('../../../data/global-destination-catalogue.json').destinations);}
 function eligible(row){const r=row?.unifiedRegistry;return r?.destination?.eligible===true&&r.validation?.bothProvidersMapped===true&&!r.origin?.requiresGatewayTransfer&&graph._internal.productionDestinationEligible(row)&&activation.liveRecommendationEligible(row);}
+// GV-RECS-BEAM-002 (FARE_MAP_BEAM_TARGET=on, off by default): a cost-only beam keeps the
+// cheapest partial trips, so a C$10,000 search explores the same nearby, short trips as a
+// C$4,000 one. With a target, half of each pick goes to the cheapest and half to the
+// partial trips whose cost is closest to the share of the budget they should be using.
+let beamTarget=null;
 function pickDiverse(states,width){
  const chosen=[],uses=new Map(),remaining=states.slice();
+ const targeted=beamTarget&&width>=4?Math.floor(width/2):0;
+ const goal=st=>beamTarget.spendable*Math.min(1,st.cities.length/beamTarget.K)*beamTarget.share;
  while(chosen.length<width&&remaining.length){
-  let best=0,bestScore=Infinity;
+  let best=0,bestScore=Infinity;const byTarget=chosen.length>=width-targeted;
   for(let i=0;i<remaining.length;i++){
-   const state=remaining[i],score=state.cost+(state.preferencePenalty||0)+state.cities.reduce((s,c)=>s+(uses.get(c.unifiedRegistry.cityId)||0)*75,0);
+   const state=remaining[i],repeat=state.cities.reduce((s,c)=>s+(uses.get(c.unifiedRegistry.cityId)||0)*75,0),score=(byTarget?Math.abs(state.cost-goal(state)):state.cost)+(state.preferencePenalty||0)+repeat;
    if(score<bestScore||score===bestScore&&state.key.localeCompare(remaining[best].key)<0){best=i;bestScore=score;}
   }
   const [next]=remaining.splice(best,1);chosen.push(next);for(const c of next.cities)uses.set(c.unifiedRegistry.cityId,(uses.get(c.unifiedRegistry.cityId)||0)+1);
@@ -271,11 +278,15 @@ function tripFeatures(s,spendable,origin){
  const km=origin?Math.max(0,...pts.map(p=>legacy._internal.haversineKm(origin,p)||0)):0;
  const vibes=s.cities.reduce((n,c)=>n+cityVibes(c.unifiedRegistry.cityId).length,0);
  return {use,nights,nightsPerK:nights/Math.max(1,s.cost/1000),km,vibes,size:s.cities.length,
-  families:new Set(s.cities.map(regionFamily)),cities:new Set(s.cities.map(code)),month:String(s.edges?.[0]?.departureDate||s.tour?.legs?.[0]?.departureDate||'').slice(0,7)};
+  families:new Set(s.cities.map(regionFamily)),cities:new Set(s.cities.map(code)),countries:new Set(s.cities.map(c=>String(c.unifiedRegistry?.countryCode||c.unifiedRegistry?.country||''))),month:String(s.edges?.[0]?.departureDate||s.tour?.legs?.[0]?.departureDate||'').slice(0,7)};
 }
+// GV-RECS-DIV-001 (FARE_MAP_POOL_DIVERSITY=on, off by default): also count shared countries
+// and give the departure month more weight, so shown trips and refreshes vary more.
+let poolDiversity=false;
 function poolSimilarity(a,b){
  if([...a.cities].some(c=>b.cities.has(c)))return 1;
- let sim=0;if([...a.families].some(f=>b.families.has(f)))sim+=.5;if(a.month===b.month)sim+=.2;if(a.size===b.size)sim+=.1;
+ let sim=0;if([...a.families].some(f=>b.families.has(f)))sim+=poolDiversity?.35:.5;if(a.month===b.month)sim+=poolDiversity?.35:.2;if(a.size===b.size)sim+=.1;
+ if(poolDiversity&&a.countries&&[...a.countries].some(c=>b.countries.has(c)))sim+=.3;
  return Math.min(1,sim);
 }
 function buildPool(ranked,spendable,extra={}){
@@ -288,7 +299,8 @@ function buildPool(ranked,spendable,extra={}){
  const W={...POOL_WEIGHTS,...(extra.weights||{})};
  const scored=usable.map((s,i)=>{const x=f[i];
   const fit=1-Math.min(1,Math.abs(x.use-.85)/.6);
-  const shape=extra.bigBudget?Math.min(1,x.size/3+.1):extra.multiCity?(x.size>=2?1:.5):(x.size===1?1:.7);
+  let shape=extra.bigBudget?Math.min(1,x.size/3+.1):extra.multiCity?(x.size>=2?1:.5):(x.size===1?1:.7);
+  if(poolDiversity&&x.size>1)shape*=x.countries.size>1?1:.8; // prefer multi-country when it fits (spread rules keep it sensible)
   const score=W.fit*fit+W.value*nValue(x.nightsPerK)+W.reach*nReach(x.km)+W.character*nChar(x.vibes)+W.shape*shape-(s.estimatedDate?.3:0);
   return {s,x,score:Number(score.toFixed(4)),parts:{fit:Number(fit.toFixed(3)),value:Number(nValue(x.nightsPerK).toFixed(3)),reach:Number(nReach(x.km).toFixed(3)),shape}};});
  const picked=[],left=scored.slice().sort((a,b)=>b.score-a.score||a.s.key.localeCompare(b.s.key));
@@ -320,8 +332,12 @@ async function search(query={},options={}){
  // nights past each city's usual maximum, so the money buys a bigger trip.
  // FARE_MAP_BIG_BUDGET=off turns this off; an explicit FARE_MAP_MAX_CITIES still caps it.
  const budgetUsdForShape=legacy._internal.normalizeBudgetUsd(query),bigBudget=bigBudgetOn(env)&&budgetUsdForShape>=BIG_BUDGET_FROM_USD&&!query.destinationCount&&!query.nights;
- const capK=bigBudget&&!env.FARE_MAP_MAX_CITIES?3:maxCities(env),askedMax=Number(query.maxStops??query.stops),exact=Number(query.destinationCount)||null;
- const stayExtra=bigBudget?3:0;
+ const capK=bigBudget&&!env.FARE_MAP_MAX_CITIES?(Number(env.FARE_MAP_HUGE_MAX_CITIES)===4&&budgetUsdForShape>=(Number(env.FARE_MAP_HUGE_FROM_USD)||5000)?4:3):maxCities(env),askedMax=Number(query.maxStops??query.stops),exact=Number(query.destinationCount)||null;
+ // GV-RECS-SHAPE-001 study settings (off by default): longer stays for big budgets
+ // (FARE_MAP_BIG_STAY_EXTRA, default 3) and a 4th city from FARE_MAP_HUGE_FROM_USD (default
+ // 5,000) with FARE_MAP_HUGE_MAX_CITIES=4.
+ const huge=bigBudget&&budgetUsdForShape>=(Number(env.FARE_MAP_HUGE_FROM_USD)||5000);
+ const stayExtra=bigBudget?Math.min(14,Math.max(0,Number(env.FARE_MAP_BIG_STAY_EXTRA??3)||0)):0;
  const K=exact?exact:Number.isInteger(askedMax)&&askedMax>=1?Math.min(capK,askedMax):capK,minCities=exact||1;
  if(K<1||K>capK)return response([],'destination-count-not-supported');
  const preferred=(Array.isArray(query.preferredStops)?query.preferredStops:String(query.preferredStops||'').split(',')).map(x=>String(x).trim().toLowerCase()).filter(Boolean);
@@ -430,7 +446,9 @@ async function search(query={},options={}){
  // How far over the spendable budget the optional bigger-trip idea may go (about C$100-200).
  const margin=hotelMargin(env);diagnostics.hotelMargin=margin;
  const memRule=legacyRule(env);
- const regionLevels=regionRatios(options.hotelRatios,all,env);diagnostics.regionHotelLevels=Object.fromEntries([...regionLevels].map(([k,v])=>[k,v.ratio]));
+ const regionLevels=regionRatios(options.hotelRatios,all,env);
+ poolDiversity=String(env.FARE_MAP_POOL_DIVERSITY||'').trim().toLowerCase()==='on';
+ beamTarget=String(env.FARE_MAP_BEAM_TARGET||'').trim().toLowerCase()==='on'&&!query.nights?{spendable:budget-Math.round(budget*.1),K,share:.85}:null;diagnostics.regionHotelLevels=Object.fromEntries([...regionLevels].map(([k,v])=>[k,v.ratio]));
  const stretchUsd=Math.round(Math.min(150,Math.max(70,budget*.12)));
  const homeLinked=new Set(),outboundFrom=new Map();
  try {
