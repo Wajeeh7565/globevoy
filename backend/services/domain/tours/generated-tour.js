@@ -3619,7 +3619,7 @@ async function getFareMapGeneratedTour(query,options) {
       if(!flights.arrivalVerified)return {reason:'fare-map-flights-not-all-live',tour};
       const hotelUsd=(tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
       // Up to 97% of the spendable budget: the rest absorbs price changes before booking.
-      const hotelBudgetUsd=useBudget&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?Math.floor(tour.usableTripBudgetUsd*.97-(tour.estimatedTotalUsd-hotelUsd)):null;
+      const hotelBudgetUsd=(useBudget||candidateTour?.poolUpgrade===true)&&Number(tour.usableTripBudgetUsd)>0&&Number(tour.estimatedTotalUsd)>0?Math.floor(tour.usableTripBudgetUsd*.97-(tour.estimatedTotalUsd-hotelUsd)):null;
       let priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...options,hotelBudgetUsd}:options);
       const overWithRealHotels=p=>p?.diagnostics?.nuiteeLiveStays?.reason==='nuitee-final-tour-over-budget-kept-estimate';
       // Real hotels push it over: try the cheapest real rooms once. If it still does not
@@ -3644,7 +3644,8 @@ async function getFareMapGeneratedTour(query,options) {
   const roleList=role&&Array.isArray(result.roleCandidates?.[role])&&result.roleCandidates[role].length?result.roleCandidates[role]:null;
   // The page asks again with diversityExcludedRoutes when two options came back the same
   // (parallel searches can differ slightly); skip those trips, using any role's backups.
-  let excluded=new Set();try{const raw=query.diversityExcludedRoutes;excluded=new Set((Array.isArray(raw)?raw:JSON.parse(raw||'[]')).map(x=>String(x).toLowerCase()));}catch{}
+  let excluded=new Set();
+  for(const raw of [query.diversityExcludedRoutes,query.seenRoutes]){try{for(const x of (Array.isArray(raw)?raw:JSON.parse(raw||'[]')))excluded.add(String(x).toLowerCase());}catch{}}
   const tripKey=t=>(t?.stops||[]).map(st=>String(st.cityId||st.city||'').toLowerCase()).join('>');
   let candidates=roleList||result.tours.slice(0,2);
   if(excluded.size){const fresh=candidates.filter(t=>!excluded.has(tripKey(t)));const others=Object.values(result.roleCandidates||{}).flat().filter(t=>!excluded.has(tripKey(t))&&!fresh.includes(t));candidates=[...fresh,...others].filter((t,i,a)=>a.findIndex(x=>tripKey(x)===tripKey(t))===i).slice(0,3);diagnostics.excludedRoutes=excluded.size;}
@@ -3658,6 +3659,35 @@ async function getFareMapGeneratedTour(query,options) {
   // Best use of budget: hotels may be upgraded with the money the route leaves unspent.
   const useBudget=role==='best-balance'&&!!roleList;
   let outcome=null;const liveAttempts=[],checked=[];
+  // Pool mode (GV-POOL-001): one request returns up to three live-checked trips from the
+  // search's varied pool, skipping trips the page has already shown (seenRoutes), so
+  // refreshing rotates through the pool. Trips are checked a few at a time in parallel;
+  // labels are given after live prices are known, so "Lowest cost" is the real cheapest.
+  if(/^(1|true|yes)$/i.test(String(query.pool||''))){
+    const want=Math.min(3,Math.max(1,Number(query.poolShow)||3));
+    const queue=(result.pool||[]).filter(t=>!excluded.has(tripKey(t)));
+    const shown=[];let checks=0;
+    while(shown.length<want&&queue.length&&checks<8){
+      if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
+      const batch=queue.splice(0,Math.min(want-shown.length,8-checks));checks+=batch.length;
+      const results=await Promise.all(batch.map(async t=>{const flights=await attempt(t);if(flights.reason)return {reason:flights.reason};return build(t,flights,requireLive);}));
+      for(const r of results){liveAttempts.push(r.reason||'ok');if(!r.reason&&r.tour)shown.push(r);}
+    }
+    const useOf=r=>Number(r.tour.estimatedTotalUsd)/Math.max(1,Number(r.tour.usableTripBudgetUsd));
+    const labelled=shown.map(r=>({...r,role:'most-memorable'}));
+    if(labelled.length){
+      const byUse=labelled.slice().sort((a,b)=>useOf(b)-useOf(a))[0];byUse.role='best-balance';
+      if(labelled.length>1){const cheap=labelled.filter(r=>r!==byUse).sort((a,b)=>Number(a.tour.estimatedTotalUsd)-Number(b.tour.estimatedTotalUsd))[0];cheap.role='lowest-cost';}
+    }
+    const LABEL={'best-balance':'Best use of your budget','lowest-cost':'Lowest cost','most-memorable':'Something different'};
+    const order=['best-balance','lowest-cost','most-memorable'];
+    labelled.sort((a,b)=>order.indexOf(a.role)-order.indexOf(b.role));
+    const tours=labelled.map(r=>({...r.tour,tourRole:r.role,tourRoleLabel:LABEL[r.role],fareMapRole:r.role,budgetUse:Number(useOf(r).toFixed(3)),poolRank:r.source.poolRank,poolScore:r.source.poolScore}));
+    diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;diagnostics.poolChecks=checks;
+    const poolInfo={poolMode:true,poolSize:(result.pool||[]).length,poolRemaining:queue.length,poolShownRoutes:labelled.map(r=>tripKey(r.source))};
+    if(!tours.length)return {...empty(liveAttempts.at(-1)||'fare-map-no-route'),...poolInfo,diagnostics:{...result.diagnostics,...diagnostics}};
+    return {...result,...poolInfo,tour:tours[0],tours,diagnostics};
+  }
   for(const candidateTour of candidates){
     if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
     const flights=await attempt(candidateTour);

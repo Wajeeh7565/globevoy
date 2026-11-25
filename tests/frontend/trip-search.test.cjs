@@ -120,3 +120,56 @@ test('new pages load only files that exist', () => {
     assert.ok(!/illustrative|prototype|demo preference/i.test(html), page + ' still has prototype wording');
   }
 });
+
+// GV-POOL-001: with a pool-capable API, one request returns the trips and "Show other
+// trips" (refresh) sends the routes already shown so the next ones come back.
+function poolApi() {
+  const trips = ['best-balance', 'lowest-cost', 'most-memorable'].map(r => ({ ...clone(FIX[r].tour), tourRole: r }));
+  const extra = ['best-balance', 'lowest-cost'].map((r, i) => { const t = clone(FIX[r].tour); t.routeId = 'pool-extra-' + i; t.cities = t.cities.map(c => ({ ...c, id: c.id + '-x' + i })); return { ...t, tourRole: i ? 'lowest-cost' : 'best-balance' }; });
+  const all = [...trips, ...extra];
+  const key = t => t.cities.map(c => c.id || c.cityId || c.city).join('>');
+  return params => {
+    if (params.pool !== '1') return FIX['best-balance'];
+    const seen = new Set(JSON.parse(params.seenRoutes || '[]'));
+    const left = all.filter(t => !seen.has(key(t)));
+    const shown = left.slice(0, Number(params.poolShow) || 3);
+    return { poolMode: true, poolSize: all.length, poolRemaining: left.length - shown.length, poolShownRoutes: shown.map(key), tour: shown[0] || null, tours: shown, noTrip: shown.length ? null : { title: 'none' } };
+  };
+}
+function loadPool(member) {
+  const api = poolApi();
+  const ctx = load({ responses: {}, member });
+  ctx.context.window.GlobevoyApi.getGeneratedTour = async params => { ctx.calls.push(params); return clone(api(params)); };
+  return ctx;
+}
+
+test('pool API: one request gives a signed-in traveller three different live trips', async () => {
+  const { S, calls } = loadPool(true);
+  const r = await S.findTrips(SEARCH, { member: true });
+  assert.equal(calls.length, 1, 'one request instead of three');
+  assert.equal(calls[0].pool, '1'); assert.equal(calls[0].poolShow, '3'); assert.equal(calls[0].seenRoutes, '[]');
+  assert.equal(r.trips.length, 3);
+  assert.equal(new Set(r.trips.map(t => t.tour.routeId)).size, 3);
+  assert.equal(r.poolSize, 5);
+});
+
+test('pool API: a guest asks for one trip', async () => {
+  const { S, calls } = loadPool(false);
+  const r = await S.findTrips(SEARCH, { member: false });
+  assert.equal(calls[0].poolShow, '1');
+  assert.equal(r.trips.length, 1);
+});
+
+test('pool API: "Show other trips" skips trips already shown, then starts over when the pool is used up', async () => {
+  const { S, calls } = loadPool(true);
+  const first = await S.findTrips(SEARCH, { member: true });
+  const again = await S.findTrips(SEARCH, { member: true });
+  assert.equal(calls.length, 1, 'same search without refresh uses the saved result');
+  assert.deepEqual(clone(again.trips.map(t => t.tour.routeId)), clone(first.trips.map(t => t.tour.routeId)));
+  const second = await S.findTrips(SEARCH, { member: true, refresh: true });
+  assert.equal(JSON.parse(calls[1].seenRoutes).length, 3, 'sends the three routes already shown');
+  const firstIds = new Set(first.trips.map(t => t.tour.routeId));
+  assert.ok(second.trips.length >= 1 && second.trips.every(t => !firstIds.has(t.tour.routeId)), 'new trips only');
+  const third = await S.findTrips(SEARCH, { member: true, refresh: true });
+  assert.ok(third.trips.length >= 1, 'rotation starts over instead of showing nothing');
+});
