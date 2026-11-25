@@ -333,6 +333,26 @@ function tripFeatures(s,spendable,origin){
 // GV-RECS-DIV-001 (FARE_MAP_POOL_DIVERSITY=on, off by default): also count shared countries
 // and give the departure month more weight, so shown trips and refreshes vary more.
 let poolDiversity=false;
+// GV-RECS-ROTATE-001 (FARE_MAP_REFRESH_ROTATION=on; off by default): order the unseen pool
+// trips for "Show other trips" so the next ones repeat as few cities, countries and
+// departure months as possible from the trips already shown. seenKeys are the page's
+// seenRoutes (city ids joined by ">"); their months and countries are read from the same
+// search's pool (the page was shown from it). Only reorders: an unsuitable trip is never
+// added, and when every trip overlaps the pool order still decides.
+const ROTATE={city:6,country:2,month:1.5};
+function rotateQueue(pool,seenKeys){
+ const key=t=>(t?.stops||[]).map(s=>String(s.cityId||s.city||'').toLowerCase()).join('>');
+ const seen=new Set([...(seenKeys||[])].map(k=>String(k).toLowerCase()));
+ if(!seen.size)return pool.slice();
+ const country=s=>String(s.countryCode||s.country||String(s.cityId||'').split('-').pop()||'').toUpperCase();
+ const month=t=>String(t?.legs?.[0]?.departureDate||t?.backendLegs?.[0]?.departureDate||'').slice(0,7);
+ const cities=new Set(),countries=new Map(),months=new Map();
+ for(const k of seen)for(const id of k.split('>'))if(id){cities.add(id);const c=id.split('-').pop().toUpperCase();countries.set(c,(countries.get(c)||0)+1);}
+ for(const t of pool)if(seen.has(key(t))){for(const s of t.stops||[]){const c=country(s);if(!countries.has(c))countries.set(c,1);}const m=month(t);if(m)months.set(m,(months.get(m)||0)+1);}
+ return pool.map((t,i)=>({t,i,seen:seen.has(key(t))})).filter(x=>!x.seen).map(x=>{const st=x.t.stops||[];
+  const score=x.i+ROTATE.city*st.filter(s=>cities.has(String(s.cityId||'').toLowerCase())).length+ROTATE.country*[...new Set(st.map(country))].reduce((n,c)=>n+Math.min(2,countries.get(c)||0),0)+ROTATE.month*Math.min(2,months.get(month(x.t))||0);
+  return {...x,score};}).sort((a,b)=>a.score-b.score||a.i-b.i).map(x=>x.t);
+}
 function poolSimilarity(a,b){
  if([...a.cities].some(c=>b.cities.has(c)))return 1;
  let sim=0;if([...a.families].some(f=>b.families.has(f)))sim+=poolDiversity?.35:.5;if(a.month===b.month)sim+=poolDiversity?.35:.2;if(a.size===b.size)sim+=.1;
@@ -612,4 +632,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};

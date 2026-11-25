@@ -36,7 +36,14 @@ async function runOne(origin, budgetCad, env) {
       nights: x.t.totalNights, month: String(x.t.legs?.[0]?.departureDate || '').slice(0, 7), use: x.live / (spendable / 0.9),
       maxNightsHit: st.some(s => { const row = opt._internal.rows().find(rw => rw.unifiedRegistry.cityId === s.cityId); const mx = Number(row?.unifiedRegistry?.destination?.maximumRecommendedNights) || 35; return s.nights >= mx; }) };
   };
-  const guest = checked.slice(0, 4).map(trip);           // first page + 3 refreshes (1 trip each)
+  // first page + 3 refreshes (1 trip each); with FARE_MAP_REFRESH_ROTATION=on each refresh
+  // reorders the unseen pool the way the trip builder does (seenRoutes).
+  let guest = checked.slice(0, 4).map(trip);
+  if (String((env || {}).FARE_MAP_REFRESH_ROTATION || '') === 'on') {
+    const ok = new Set(checked.map(x => x.t)), seen = [], shown = [], k = t => t.stops.map(s => String(s.cityId).toLowerCase()).join('>');
+    for (let p = 0; p < 4; p++) { const next = (seen.length ? opt.rotateQueue(pool, seen) : pool).find(t => ok.has(t) && !seen.includes(k(t))); if (!next) break; seen.push(k(next)); shown.push(checked.find(x => x.t === next)); }
+    guest = shown.map(trip);
+  }
   const member = checked.slice(0, 3).map(trip);          // signed in: 3 trips
   return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member, d: r.diagnostics || {} };
 }

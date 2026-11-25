@@ -33,3 +33,13 @@ test('read plan does nothing for small budgets', async () => {
   assert.equal(r.diagnostics.bigBudget, false);
   assert.equal(r.diagnostics.readPlan, false);
 });
+
+test('refresh rotation: unseen trips that repeat the fewest seen cities, countries and months come first', () => {
+  const t = (ids, m) => ({ stops: ids.map(id => ({ cityId: id, countryCode: id.split('-').pop().toUpperCase() })), legs: [{ departureDate: m + '-10' }] });
+  const pool = [t(['nashville-us'], '2026-12'), t(['austin-us'], '2026-12'), t(['nashville-us', 'memphis-us'], '2027-01'), t(['lisbon-pt', 'madrid-es'], '2027-03'), t(['cancun-mx'], '2026-12')];
+  const next = optimizer.rotateQueue(pool, ['nashville-us']);
+  assert.equal(next.length, 4, 'the seen trip is gone');
+  assert.equal(next[0].stops[0].cityId, 'lisbon-pt', 'no seen city, country or month');
+  assert.equal(next.at(-1).stops[0].cityId, 'nashville-us', 'repeating Nashville goes last');
+  assert.deepEqual(optimizer.rotateQueue(pool, []).map(x => x.stops[0].cityId), pool.map(x => x.stops[0].cityId), 'no seen trips: pool order');
+});

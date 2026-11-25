@@ -3711,7 +3711,9 @@ async function getFareMapGeneratedTour(query,options) {
   // labels are given after live prices are known, so "Lowest cost" is the real cheapest.
   if(/^(1|true|yes)$/i.test(String(query.pool||''))){
     const want=Math.min(3,Math.max(1,Number(query.poolShow)||3));
-    const queue=(result.pool||[]).filter(t=>!excluded.has(tripKey(t)));
+    // GV-RECS-ROTATE-001: with FARE_MAP_REFRESH_ROTATION=on, the unseen trips are ordered to
+    // repeat the fewest cities, countries and months already shown on this page.
+    const queue=String(env.FARE_MAP_REFRESH_ROTATION||'').trim().toLowerCase()==='on'&&excluded.size?require('../fare-map/fare-map-optimizer').rotateQueue(result.pool||[],excluded):(result.pool||[]).filter(t=>!excluded.has(tripKey(t)));
     const shown=[];let checks=0,rounds=0,spareOk=0;
     while(shown.length<want&&queue.length&&checks<8){
       if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
