@@ -31,4 +31,3 @@ test('route variants retain a cheap and a meaningfully longer date without crowd
     assert.ok(tours.every(t => t.estimatedTotalUsd <= t.usableTripBudgetUsd));
   }
 });
-
