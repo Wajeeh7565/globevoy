@@ -46,17 +46,26 @@ test('rate cache: pricing the same stays twice sends each hotel search once', as
     { mode: 'flight', from: { code: 'YYZ' }, to: { code: 'LIS' }, departureDate: '2027-03-12', estimatedTransportUsd: 600 },
     { mode: 'flight', from: { code: 'LIS' }, to: { code: 'YYZ' }, departureDate: '2027-03-17', estimatedTransportUsd: 600 }],
   stops: [{ city: 'Lisbon', countryCode: 'PT', nights: 5, hotel: { estimatedStayUsd: 400 } }] });
-  const rate = (id, rating, amount) => ({ hotel: { id, hotelId: id, name: id, rating }, rate: { hotelId: id, roomTypes: [{ offerId: 'o-' + id, offerRetailRate: { amount, currency: 'USD' }, rates: [{ name: 'Double', boardName: 'Room only', retailRate: { total: [{ amount, currency: 'USD' }], taxesAndFees: [{ included: true }] }, cancellationPolicies: { refundableTag: 'RFN', cancelPolicyInfos: [] } }] }] } });
-  const list = [rate('ok', 7.4, 380), rate('great', 9.2, 540), rate('lux', 9.6, 900)];
+  const rate = (id, rating, amount, fee = 0) => ({ hotel: { id, hotelId: id, name: id, rating }, rate: { hotelId: id, roomTypes: [{ offerId: 'o-' + id, offerRetailRate: { amount, currency: 'USD' }, rates: [{ name: 'Double', boardName: 'Room only', retailRate: { total: [{ amount, currency: 'USD' }], taxesAndFees: [{ included: true }, ...(fee ? [{ included: false, amount: fee, currency: 'USD', description: 'City tax' }] : [])] }, cancellationPolicies: { refundableTag: 'RFN', cancelPolicyInfos: [] } }] }] } });
+  const list = [rate('ok', 7.4, 360, 20), rate('great', 9.2, 520, 20),
+    rate('feeheavy', 9.5, 550, 35), rate('lux', 9.6, 900)];
   let calls = 0;
   const fetch = async () => { calls++; return { status: 200, text: async () => JSON.stringify({ data: list.map(r => r.rate), hotels: list.map(r => r.hotel) }) }; };
   const prodSecret = async () => JSON.stringify({ apiKey: 'prod_test_not_real' });
   const rateCache = new Map();
   const plain = await applyNuiteeLiveStays(tour(), QUERY, { env: ENV, getSecretValue: prodSecret, fetch, rateCache });
   const up = await applyNuiteeLiveStays(tour(), QUERY, { env: ENV, getSecretValue: prodSecret, fetch, rateCache, hotelBudgetUsd: 5000, upgradePolicy: { role: 'best-balance', perStayPct: 0.5, minGain: 0.5 } });
-  assert.equal(calls, 1, 'second pass reused the reply');
+  const tight = await applyNuiteeLiveStays(tour(), QUERY, { env: ENV, getSecretValue: prodSecret, fetch, rateCache,
+    hotelBudgetUsd: 530, upgradePolicy: { role: 'best-balance', perStayPct: 0.5, minGain: 0.5 } });
+  assert.equal(calls, 1, 'base, upgrades and budget re-selection reused the reply');
   assert.equal(plain.tour.stops[0].hotel.nuiteeHotelId, 'ok');
-  assert.equal(up.tour.stops[0].hotel.nuiteeHotelId, 'great', '+42% to 9.2; 9.6 is +137%');
+  const room = up.tour.stops[0].hotel;
+  assert.equal(room.nuiteeHotelId, 'great', 'feeheavy is over the per-stay allowance after its mandatory fee');
+  assert.equal(room.totalStayUsd, 540);
+  assert.equal(room.payAtHotel.usd, 20);
+  assert.equal(room.budgetUpgrade.extraUsd, 160);
+  assert.equal(tight.tour.stops[0].hotel.nuiteeHotelId, 'ok', 'all-in cost of great is over the budget');
+  assert.equal(tight.tour.stops[0].hotel.totalStayUsd, 380);
   assert.equal(up.summary.providerRequests, 0);
   assert.equal(up.tour.stops[0].hotel.budgetUpgrade.role, 'best-balance');
 });
