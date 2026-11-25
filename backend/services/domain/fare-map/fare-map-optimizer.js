@@ -149,6 +149,24 @@ function bestUseOrder(states,spendable){
 // The optional "stretch" idea costs a little more than the spendable budget and buys a
 // longer or bigger trip; the page offers it, never as a main pick.
 const MAX_DETOUR=1.25;
+// GV-ROUTE-001: the detour ratio alone missed trips that glue far-apart regions
+// together (live, Nov 25: Toronto > Punta Cana > Vancouver > Manila scored 1.24).
+// A trip is odd when one hop between its own cities is longer than MAX_SPREAD_KM,
+// or when 3+ cities are all in different regions. FARE_MAP_MAX_SPREAD_KM changes
+// the limit; 0 turns the check off.
+const MAX_SPREAD_KM=4500;
+let spreadLimitKm=MAX_SPREAD_KM;
+function routeShape(s){
+ const pts=s.cities.map(c=>({latitude:c.unifiedRegistry.latitude,longitude:c.unifiedRegistry.longitude}));
+ let spread=0;for(let i=1;i<pts.length;i++)spread=Math.max(spread,legacy._internal.haversineKm(pts[i-1],pts[i])||0);
+ return {spreadKm:Math.round(spread),regions:new Set(s.cities.map(regionFamily)).size,size:s.cities.length};
+}
+function oddRoute(s){
+ if(s.detour>MAX_DETOUR)return true;
+ if(!(spreadLimitKm>0)||!s.cities||s.cities.length<2)return false;
+ const r=routeShape(s);
+ return r.spreadKm>spreadLimitKm||(r.size>=3&&r.regions===r.size);
+}
 function roleCandidates(ranked,spendable,extra={}){
  if(!ranked.length||!(spendable>0))return null;
  const key=s=>s.cities.map(code).join('>'),taken=new Set(),takenFams=new Set(),out={};
@@ -160,7 +178,7 @@ function roleCandidates(ranked,spendable,extra={}){
  // Sensible routes only (GV-ROUTE-SHAPE-001): a two-city trip that flies far past the
  // second city's direction and back (Fort Lauderdale > Vancouver from Toronto) is left
  // out while sensible routes exist.
- const sane=ranked.filter(s=>!(s.detour>MAX_DETOUR));if(sane.length)ranked=sane;
+ const sane=ranked.filter(s=>!oddRoute(s));if(sane.length)ranked=sane;
  // backup: when the preferred order has fewer than three unused trips, fill from it.
  const take=(order,role,label,backup)=>{let fresh=order.filter(s=>!inUse.has(key(s)));if(backup&&fresh.length<3)fresh=[...fresh,...backup.filter(s=>!inUse.has(key(s))&&!fresh.includes(s))];const list=(fresh.length?fresh:order).slice(0,3);if(fresh.length){firsts.add(key(fresh[0]));taken.add(key(fresh[0]));fams(fresh[0]).forEach(f=>takenFams.add(f));list.forEach(s=>inUse.add(key(s)));}out[role]=list.map(s=>tag(s,role,label));};
  // Above about C$1,500 the main and "something different" picks go abroad when a trip
@@ -186,7 +204,7 @@ function roleCandidates(ranked,spendable,extra={}){
  }
   // Backups for the main pick when its own trips fail at real prices: the cheapest
   // trips not used by any option, including domestic and one-city trips.
- if(extra.fallbackPool){const fb=extra.fallbackPool.filter(s=>!inUse.has(key(s))&&!(s.detour>MAX_DETOUR)).sort((a,b)=>a.estimatedDate-b.estimatedDate||a.cost-b.cost).slice(0,3);if(fb.length)out.fallback=fb.map(s=>tag(s,'best-balance','Best use of budget'));}
+ if(extra.fallbackPool){const fb=extra.fallbackPool.filter(s=>!inUse.has(key(s))&&!oddRoute(s)).sort((a,b)=>a.estimatedDate-b.estimatedDate||a.cost-b.cost).slice(0,3);if(fb.length)out.fallback=fb.map(s=>tag(s,'best-balance','Best use of budget'));}
  return out;
 }
 // Unified recommendation pool (GV-POOL-001): one search ranks every complete trip by a
@@ -210,7 +228,7 @@ function poolSimilarity(a,b){
  return Math.min(1,sim);
 }
 function buildPool(ranked,spendable,extra={}){
- const list=ranked.filter(s=>!(s.detour>MAX_DETOUR));
+ const list=ranked.filter(s=>!oddRoute(s));
  const usable=list.length?list:ranked;
  if(!usable.length||!(spendable>0))return [];
  const f=usable.map(s=>tripFeatures(s,spendable,extra.origin));
@@ -234,6 +252,7 @@ function buildPool(ranked,spendable,extra={}){
 }
 
 async function search(query={},options={}){
+ spreadLimitKm=(()=>{const v=String((options.env||process.env).FARE_MAP_MAX_SPREAD_KM??'').trim();return v===''?MAX_SPREAD_KM:Math.max(0,Number(v)||0);})();
  const env=options.env||process.env;
  if(!enabled(env))return {ok:true,supported:false,reason:'feature-disabled',requiredFlag:FLAG+'=true',tours:[]};
  const diagnostics={engine:VERSION,reads:0,examinedEdges:0,completeRoutes:0,expandedPairs:0,eligibleCities:0,cacheHits:0,rejectedFares:0,rejectedRules:0,bounded:false,liveProviderCallsMade:0};
@@ -459,4 +478,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{oddRoute,routeShape,buildPool,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,bestUseOrder,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
