@@ -241,11 +241,52 @@
   function loadBooked(key) { try { return JSON.parse(root.localStorage.getItem(key) || '{}') || {}; } catch (_) { return {}; } }
   function saveBooked(key, value) { try { root.localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
 
+  function selectionKey(tour) {
+    const party = tour.passengerPricing || {};
+    const legs = legsOf(tour);
+    const cities = tour.cities || tour.stops || [];
+    const airport = n => String(n?.airportCode || n?.code || '');
+    return JSON.stringify([
+      tour.tourId, tour.displayBudget?.currency, party.adults, party.children, party.infants, party.rooms, party.travellers,
+      legs.map(l => [airport(l.from), airport(l.to), l.departureDate, l.booking?.liveBookingLinks?.ignavId]),
+      cities.map(c => [c.cityId, c.arrivalDate || c.checkIn || c.hotel?.checkIn, c.departureDate || c.checkOut || c.hotel?.checkOut,
+        c.hotel?.nuiteeHotelId, c.hotel?.nuiteeLiveRate?.roomName, c.hotel?.nuiteeWhitelabel?.checkoutUrl])
+    ]);
+  }
+
+  async function readVerifiedQuote(tour, fetchFn = root.fetch) {
+    const base = String(root.GLOBEVOY_CONFIG?.apiBaseUrl || '').replace(/\/+$/, '');
+    if (!base || !tour?.bookingEvidence || typeof fetchFn !== 'function') return null;
+    try {
+      const response = await fetchFn(base + '/api/booking-evidence', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store',
+        body: JSON.stringify({ token: tour.bookingEvidence })
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data.ok && Number(data.expiresAt) > Date.now() &&
+        selectionKey(data.quote) === selectionKey(tour) ? data : null;
+    } catch (_) { return null; }
+  }
+
   function render(doc, tour, opts) {
     const host = doc.getElementById('gv-booking-v2');
     if (!host) return false;
     const { items, cur } = buildItems(tour, opts?.now);
     if (!items.length) return false;
+    if (opts?.historical) {
+      for (const item of items) {
+        item.live = false;
+        item.source = 'Estimate · verification required';
+        item.ignav = null;
+        item.checkoutExpiresAt = null;
+        if (item.kind === 'hotel') {
+          item.mainUrl = item.compareUrl;
+          item.mainLabel = 'Compare stays';
+          item.altUrl = '';
+        }
+      }
+    }
     const s = summaryOf(tour, items, cur);
     const key = storageKey(tour);
     const state = { booked: loadBooked(key), guiding: false };
@@ -384,9 +425,16 @@
         const back = doc.getElementById('gv-booking-back');
         if (back && back.parentNode === main) back.after(host); else main.prepend(host);
       }
-      if (!render(doc, tour)) return false;
+      if (!render(doc, tour, { historical: true })) return false;
       toggleClassic(doc, false);
       done = true;
+      void readVerifiedQuote(tour).then(evidence => {
+        if (!evidence || root.GlobevoyBooking673FR1?.tour !== tour) return;
+        render(doc, evidence.quote);
+        root.setTimeout(() => {
+          if (root.GlobevoyBooking673FR1?.tour === tour) render(doc, evidence.quote, { historical: true });
+        }, Math.max(0, evidence.expiresAt - Date.now()));
+      });
       return true;
     };
     root.addEventListener?.('globevoy:booking-tour-ready', () => root.setTimeout?.(run, 0));
@@ -396,7 +444,7 @@
     }
   }
 
-  const api = { VERSION, bestLink, buildItems, summaryOf, render, safeUrl, ageLabel, start };
+  const api = { VERSION, bestLink, buildItems, summaryOf, render, safeUrl, ageLabel, readVerifiedQuote, start };
   root.GlobevoyBookingV2 = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else if (root.document) {

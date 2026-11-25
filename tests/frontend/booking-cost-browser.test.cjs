@@ -15,7 +15,13 @@ test('the booking page waits for a click, joins rapid repeats, and labels search
     await page.evaluate(() => {
       window.GLOBEVOY_CONFIG = { apiBaseUrl: 'https://offline.example.test' };
       window.lookups = 0;
-      window.fetch = async (_url, options) => {
+      window.attestations = 0;
+      window.fetch = async (url, options) => {
+        if (url.endsWith('/api/booking-evidence')) {
+          window.attestations++;
+          if (JSON.parse(options.body).token !== 'backend-token') throw Error('Unsigned quote');
+          return { ok: true, json: async () => ({ ok: true, expiresAt: Date.now() + 60000, quote: window.GlobevoyBooking673FR1.tour }) };
+        }
         window.lookups++;
         const { ignavId, bookingProof } = JSON.parse(options.body);
         if (ignavId !== 'mockflight123' || bookingProof !== 'offline-proof') throw Error('Unexpected identity');
@@ -25,6 +31,7 @@ test('the booking page waits for a click, joins rapid repeats, and labels search
         ] }) };
       };
       window.GlobevoyBooking673FR1 = { tour: {
+        bookingEvidence: 'backend-token',
         passengerPricing: { travellers: 1, adults: 1, rooms: 1 },
         backendLegs: [{ mode: 'flight', departureDate: '2027-02-12', from: { airportCode: 'YYZ' }, to: { airportCode: 'LIS' },
           booking: { liveBookingLinks: { ignavId: 'mockflight123', bookingProof: 'offline-proof',
@@ -37,6 +44,7 @@ test('the booking page waits for a click, joins rapid repeats, and labels search
     const action = page.getByRole('button', { name: 'See booking options' });
     await action.waitFor();
     assert.equal(await page.evaluate(() => window.lookups), 0);
+    assert.equal(await page.evaluate(() => window.attestations), 1);
     await action.evaluate(button => { button.click(); button.click(); });
     assert.equal(await page.evaluate(() => window.lookups), 1);
     assert.equal(await page.getByRole('button', { name: 'Checking booking options…' }).isDisabled(), true);

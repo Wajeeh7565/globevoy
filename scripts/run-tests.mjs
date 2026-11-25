@@ -32,6 +32,7 @@ const groups = {
     ['node', '--test', 'tests/backend/hotel-planning.test.cjs'],
     ['node', '--test', 'tests/backend/ignav-fare-cache.test.cjs'],
     ['node', '--test', 'tests/backend/ignav-cost-controls.test.cjs'],
+    ['node', '--test', 'tests/backend/booking-evidence.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map-full-pass.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map.test.cjs'],
     ['node', '--test', 'tests/backend/fare-map-optimizer.test.cjs'],

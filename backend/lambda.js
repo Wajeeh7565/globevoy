@@ -1,3 +1,4 @@
+const bookingEvidence = require('./services/domain/pricing/booking-evidence');
 const {
   getRecommendations,
   buildInvalidOriginResponse,
@@ -512,6 +513,16 @@ exports.handler = async function handler(event) {
     }
   }
 
+  if (path === '/api/booking-evidence') {
+    const response = (statusCode, payload) => ({ statusCode, headers: { ...corsHeaders(), 'Cache-Control': 'no-store' }, body: JSON.stringify(payload) });
+    if (method !== 'POST') return response(405, { ok: false });
+    if (typeof event.body !== 'string' || event.body.length > bookingEvidence.MAX_TOKEN * 2) return response(400, { ok: false });
+    try {
+      const validated = bookingEvidence.verify(parseJsonBody(event).token);
+      return validated ? response(200, { ok: true, ...validated }) : response(400, { ok: false });
+    } catch (_) { return response(400, { ok: false }); }
+  }
+
   if (path === '/api/generated-tour') {
     try {
       const canary683K = generatedTourQuery683K(query, event.headers || {});
@@ -519,6 +530,10 @@ exports.handler = async function handler(event) {
         return { statusCode: 403, headers: corsHeaders(), body: JSON.stringify({ ok: false, error: '683k-production-canary-admin-authorization-required' }) };
       }
       const result = await getGeneratedTour(generatedTourQuery687BP1(canary683K.query, event.headers || {}));
+      if (result.poolMode) for (const tour of new Set([result.tour, ...(result.tours || [])])) {
+        const token = bookingEvidence.issue(tour);
+        if (token) tour.bookingEvidence = token;
+      }
       return { statusCode: 200, headers: corsHeaders(), body: JSON.stringify(result) };
     } catch (error) {
       if (isMultiCityValidationError(error)) {

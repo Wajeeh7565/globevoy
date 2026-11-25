@@ -136,3 +136,26 @@ test('local taxes paid at the hotel: own line, not "transfers & extras"; total m
   assert.equal(s.extras, 0, 'the fee is not mislabelled as transfers');
   assert.equal(Math.round(s.total), t.displayBudget.tripEstimate);
 });
+
+
+test('fresh backend quote wins over editable prices, while changed trips must revalidate', async () => {
+  const base = tour();
+  const browser = structuredClone(base);
+  browser.bookingEvidence = 'opaque-signed-quote';
+  browser.cities[0].hotel.nuiteeLiveRate.amount = 1;
+  const previous = globalThis.GLOBEVOY_CONFIG;
+  globalThis.GLOBEVOY_CONFIG = { apiBaseUrl: 'https://offline.example.test' };
+  const fetch = async (url, request) => {
+    assert.match(url, /booking-evidence$/);
+    assert.deepEqual(JSON.parse(request.body), { token: 'opaque-signed-quote' });
+    return { ok: true, json: async () => ({ ok: true, expiresAt: Date.now() + 5000, quote: base }) };
+  };
+  try {
+    for (let visit = 0; visit < 2; visit++) {
+      const evidence = await v2.readVerifiedQuote(browser, fetch);
+      assert.equal(v2.buildItems(evidence.quote, now).items[1].price, 352.51);
+    }
+    browser.cities[0].hotel.checkOut = '2026-12-11';
+    assert.equal(await v2.readVerifiedQuote(browser, fetch), null);
+  } finally { globalThis.GLOBEVOY_CONFIG = previous; }
+});
