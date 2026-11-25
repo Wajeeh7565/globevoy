@@ -120,3 +120,40 @@ Illustrative sanitized event (NOT collected production data):
   "expiresAt": 1797379200
 }
 ```
+
+## Schema v2: detail and recommendation feedback (GV-ANALYTICS-9A)
+
+For the Nov 23 requirements from Mehdi and Vamsi: budgets, top origins, results shown, clicks on results, and rejected trips as feedback. **Off by default.** Needs `schemaVersion: 2`, `detail: true` and `detailApproved: true` in the build-time `activity-build.json`, on top of the v1 approvals. v1 configs behave exactly as before.
+
+**Trip search events (`generated_tour` only) add:**
+
+| Field | Values | Not stored |
+|---|---|---|
+| `budgetBand` | under_1000, 1000_1999, 2000_3999, 4000_6999, 7000_plus (CAD-equivalent) | the exact budget |
+| `originCode` | IATA code from the origin, e.g. YYZ | city text, user location |
+| `travellersBand` | 1, 2, 3_plus | |
+| `tripsShown`, `citiesShown` (≤9 city IDs), `roles`, `bestUseBand` | what the page showed | prices, dates |
+| `poolSize`, `liveChecks`, `failedChecks` | live-check effort and failures | provider data |
+| `searchRef` | SHA-256 of a random token the results page creates for one page view | the token itself, any cookie or ID |
+
+The same transaction adds daily counters `BUDGET#<band>` and `ORIGIN#<code>` (5 items instead of 3, about 10 write units per search).
+
+**Feedback events (`POST /api/trip-feedback`)** come from the results page: `view` (opened a trip), `book_click`, `save`, and `show_other` ("Show other trips": an implicit "not these" for every trip shown).
+- **Stored:** action, role, rank, page, ≤4 city IDs, and the same `searchRef`, so each click links to the trips shown.
+- **Rows:** `FEEDBACK#<id>`, plus counters `COUNT#feedback#<action>` and `FEEDBACK#<action>#<role>`, with the same retention.
+- **Always answers 204 and never blocks the page:** the beacon uses a plain-text body, so there's no preflight.
+- **No user, session, IP, headers, budget or dates.**
+
+**Not covered here** (needs Vamsi's analytics tool choice): visits, returning users and country. Those need an analytics tool (Clarity, Google Analytics, CloudWatch RUM or Pinpoint) or a persistent anonymous ID, which would need a privacy-notice change.
+
+**Report:** `node ops/analytics/daily-report.mjs --day YYYY-MM-DD` (read-only Query of one day, analyst policy). It prints:
+- searches by outcome, budgets and top origins;
+- trips shown per search and live-check failure rate;
+- top cities shown;
+- feedback by action and role, and how many searches got a click or "show other trips".
+
+**Activation (needs approval):**
+1. Execute the prepared change set (table, writer and reader policies, alarms). v2 uses the same table and permissions, so the change set is unchanged.
+2. Approve the privacy notice for v1 plus the v2 fields above.
+3. Package the backend with `activity-build.json` = `{schemaVersion:2, enabled:true, privacyApproved:true, detail:true, detailApproved:true, table:'globevoy-production-activity-events', retentionDays:30}`.
+4. Build the frontend from this branch, so the page reference and beacons are included.

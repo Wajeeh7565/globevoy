@@ -187,8 +187,22 @@
     return fetchJson(buildUrl('/api/multicity-tours', params), timeoutMs);
   }
 
+  // GV-ANALYTICS-9A: recommendation feedback. A beacon with a plain-text body (no
+  // preflight), fire and forget: it never blocks, slows or breaks the page.
+  function sendTripFeedback(payload) {
+    try {
+      if (!isConfigured() || !payload) return false;
+      const url = baseUrl() + '/api/trip-feedback';
+      const body = JSON.stringify(payload);
+      if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: 'text/plain;charset=UTF-8' }))) return true;
+      fetch(url, { method: 'POST', body, keepalive: true, headers: { 'Content-Type': 'text/plain;charset=UTF-8' } }).catch(() => {});
+      return true;
+    } catch (_) { return false; }
+  }
+
   window.GlobevoyApi = {
     isConfigured,
+    sendTripFeedback,
     getRecommendations,
     getGeneratedTour,
     getGeneratedTourControl,
