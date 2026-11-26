@@ -500,7 +500,7 @@ async function search(query={},options={}){
  // The generated-tour path verifies live prices; estimate-only callers keep their current scope.
  const expand=options.allowCityExpansion===true&&cityExpansion.enabled(env);
  if(expand){
-  const review=cityExpansion.reviewExpansion();
+  const review=cityExpansion.reviewExpansion(undefined,{includeLegacyRecovery:true});
   diagnostics.expansionEligibleCities=0;
   for(const r of all){
    // Legacy activation reflects the old provider audit. Expansion candidates use the

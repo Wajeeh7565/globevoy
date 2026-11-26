@@ -60,6 +60,27 @@ test('Nuitee catalogue evidence admits a blocked market only with an exact, loca
   assert.equal(expansion.reviewExpansion().get(city.cityId), original);
 });
 
+test('legacy recovery admits inconclusive flight audits and keeps negative or ambiguous evidence blocked', () => {
+  const old = expansion.reviewExpansion();
+  const expanded = expansion.reviewExpansion(undefined, { includeLegacyRecovery: true });
+  const oldCohort = [...expanded.values()].filter(row => !old.has(row.cityId));
+  assert.equal(oldCohort.length, 151);
+  assert.equal(oldCohort.filter(row => !row.reasons.length).length, 129);
+  for (const cityId of ['aarhus-dk', 'arequipa-pe', 'belo-horizonte-br', 'moncton-ca']) {
+    assert.deepEqual(expanded.get(cityId).reasons, []);
+  }
+  assert.deepEqual(expanded.get('raleigh-us').reasons, ['ambiguous-direct-fare-code']);
+  assert.deepEqual(expanded.get('rize-tr').reasons, ['legacy-hotel-centroid-outside-market']);
+  assert.ok(expanded.get('brasilia-br').reasons.includes('flight-comfort:duration-too-long|too-many-transfers'));
+  assert.ok(expanded.get('lalibela-et').reasons.includes('stay-quality:no-qualified-live-rate'));
+  const flagstaff = expansion.admit(rows().find(row => row.unifiedRegistry.cityId === 'flagstaff-us'), expanded);
+  assert.equal(code(flagstaff), 'FLG');
+  assert.equal(flagstaff.primaryAirportCode, 'FLG');
+  assert.deepEqual(flagstaff.flightableAirportCodes, ['FLG']);
+  const pontaDelgada = expansion.admit(rows().find(row => row.unifiedRegistry.cityId === 'ponta-delgada-pt'), expanded);
+  assert.equal(pontaDelgada.unifiedRegistry.worldRegion, 'Europe');
+});
+
 test('collectors already schedule every reviewed route code in every collection month', () => {
   const origins = ingest.originCodesFromRegistry(registry);
   const months = ingest.upcomingMonths(collectionMonthCount(now), now);
@@ -91,8 +112,8 @@ test('expansion adds reviewed cities alongside the deployed legacy policy withou
       const on = await run('on', true);
       const estimates = await run('on', false);
       assert.equal(off.diagnostics.eligibleCities, 412);
-      assert.equal(on.diagnostics.expansionEligibleCities, 251);
-      assert.equal(on.diagnostics.eligibleCities, 663);
+      assert.equal(on.diagnostics.expansionEligibleCities, 380);
+      assert.equal(on.diagnostics.eligibleCities, 792);
       assert.equal(estimates.diagnostics.eligibleCities, off.diagnostics.eligibleCities);
 
       const sampleTime = Date.parse('2026-11-25T21:42:20Z');
