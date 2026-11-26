@@ -16,7 +16,8 @@ function main() {
   const bookingHtml = read('frontend/pages/booking.html');
   const myTrips = read('frontend/scripts/my-trips-booking-706a.js');
   const bridge = read('frontend/scripts/booking-account-bridge-706a.js');
-  const guard = read('frontend/scripts/booking-account-snapshot-706a.js');
+  // GV-WEB-3: the booking list (booking-trip-v2.js) enforces the snapshot guard itself.
+  const guard = read('frontend/scripts/booking-trip-v2.js');
   const production = read('backend/lambda.js');
 
   assert.match(myTripsHtml, /my-trips-booking-706a\.js\?v=706a-fe-r1/);
@@ -46,13 +47,13 @@ function main() {
   pass('saved provider evidence is downgraded to historical snapshot state');
 
   const bridgeIndex = bookingHtml.indexOf('booking-account-bridge-706a.js');
-  const liveIndex = bookingHtml.indexOf('booking-live-673d.js');
-  const workspaceIndex = bookingHtml.indexOf('booking-workspace-686c.js');
-  const guardIndex = bookingHtml.indexOf('booking-account-snapshot-706a.js');
-  assert.ok(bridgeIndex >= 0 && liveIndex > bridgeIndex, 'account bridge must run before booking-live');
-  assert.ok(guardIndex > workspaceIndex, 'snapshot guard must run after workspace render script');
+  const loaderIndex = bookingHtml.indexOf('trip-handoff.js');
+  const listIndex = bookingHtml.indexOf('booking-trip-v2.js');
+  assert.ok(bridgeIndex >= 0 && loaderIndex > bridgeIndex, 'account bridge must run before the trip loader');
+  assert.ok(listIndex > loaderIndex, 'booking list must load after the trip loader');
   assert.match(bookingHtml, /meta name="gv-book-account" content="GV-BOOK-706A"/);
-  pass('booking page consumes account handoff before legacy browser loaders and guards after render');
+  assert.match(bookingHtml, /Saved account snapshot — verification required/);
+  pass('booking page consumes account handoff before the trip loader and the guarded booking list');
 
   assert.match(bridge, /handoff\.tripId === tripId/);
   assert.match(bridge, /Number\(handoff\.expiresAt\) > now/);
@@ -63,13 +64,11 @@ function main() {
   assert.doesNotMatch(bridge, /accessToken|refreshToken|idToken|password|clientSecret/i);
   pass('booking bridge accepts only exact short-lived handoff or exact same-tab refresh marker');
 
+  assert.match(guard, /GLOBEVOY_BOOKING_ACCOUNT_SNAPSHOT_706A\?\.snapshotOnly === true/);
   assert.match(guard, /Saved account snapshot — verification required/);
   assert.match(guard, /Revalidation required/);
-  assert.match(guard, /removeAttribute\('href'\)/);
-  assert.match(guard, /gv-booking-open-all-flights/);
-  assert.match(guard, /gv-booking-open-all-stays/);
-  assert.match(guard, /gv-booking-continue-partner/);
-  assert.match(guard, /\.gv-workspace-partner\[href\]\[data-partner-review\]/);
+  assert.match(guard, /mainUrl: '', compareUrl: '', altUrl: ''/);
+  assert.match(guard, /ignav: null/);
   pass('account snapshots cannot open flight/stay partner handoffs before revalidation');
 
   for (const text of [myTrips, bridge, guard]) {

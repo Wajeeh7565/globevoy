@@ -13,10 +13,10 @@ function main() {
   const css = read('styles/shell.css');
   const auth = read('scripts/auth-session-705b-r3.js');
   const pages = [
-    // GV-WEB-2: index.html and results.html use the new design's own header;
-    // explore, mixed-results, multi-city and multicity-visualizer are redirects.
-    'about.html','booking.html','create-account.html','how-it-works.html',
-    'multi-city-trip.html','saved-trips.html','sign-in.html','trip.html','trust.html'
+    // GV-WEB-2/3: index.html, results.html, multi-city-trip.html and booking.html use the
+    // new design's own header; explore, mixed-results, multi-city and multicity-visualizer are redirects.
+    'about.html','create-account.html','how-it-works.html',
+    'saved-trips.html','sign-in.html','trip.html','trust.html'
   ];
   const pass = (name) => console.log(`[PASS] ${name}`);
 

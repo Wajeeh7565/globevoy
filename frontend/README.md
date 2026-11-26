@@ -34,10 +34,22 @@ Rules the new pages follow:
 - Only trips where every flight and hotel was priced live are shown (`GlobevoyTripSearch.isFullyLive`). No estimates.
 - Dates stay open (about six months ahead) unless the traveller picks a month under More Options.
 - Guests see one trip; signed-in travellers see three ("Best use of your budget", "Lowest cost", "Something different"). "Lowest cost" is always the cheapest trip shown.
-- "View trip & book" hands the trip to the existing `multi-city-trip.html` and `booking.html` pages.
+- "View trip & book" hands the trip to `multi-city-trip.html`, which links to `booking.html` (both redesigned in GV-WEB-3).
 - `multicity-visualizer.html`, `mixed-results.html`, `multi-city.html`, `explore.html` and `ask.html` are now redirects: searches with a budget open `results.html`, everything else the homepage.
 
 Tests: `tests/frontend/trip-search.test.cjs` (fixture `tests/frontend/fixtures/generated-tour-sample.json`, built from a real API trip).
+
+## GV-WEB-3: itinerary and booking pages (November 2026)
+
+| Page | Design | Files |
+| --- | --- | --- |
+| `pages/multi-city-trip.html` | Cinematic Scroll Journey: stop-by-stop stream, map that follows the scroll, budget, sticky Book bar | `styles/itinerary.css`, `scripts/itinerary.js` |
+| `pages/booking.html` | Editorial Travel Booking: checklist, one step per flight and stay, booking summary | `styles/booking.css`, `scripts/booking-trip-v2.js` (list, prices, partner links), `scripts/booking-page.js` (header links) |
+| both | shared header, footer, buttons and colours; reading the handed-over trip | `styles/site.css`, `scripts/trip-handoff.js` |
+
+- The old itinerary script (`multi-city-trip-673a.js`) and the old booking workspace (booking hub, workspace, Duffel sandbox proof, entry check, `booking-live-673d.js`) were removed with their styles. The booking list keeps its tested logic: prices from the trip's `displayBudget`, live labels only while the signed quote is valid, Ignav links on demand, booked ticks.
+- Trips reopened from Saved Trips (`accountTrip`) show saved prices and open no partner links until revalidated (GV-BOOK-706A).
+- Save on the itinerary keeps `#gv-mtd-save`, so `saved-trips-705c-r3-route-details.js` saves signed-in trips to the account.
 
 `pages/create-account.html` is the existing browser-local travel-profile flow. Real account signup/sign-in and private trip/profile pages use the React/Cognito implementation in `web/`. This organization does not change those features.
 

@@ -148,7 +148,7 @@ async function visit(browser, data, { mobile, member }) {
     const bookingAmount = label => readMoney('#gv-booking-v2 .gvb2-line:has-text("' + label + '") :last-child');
     assert.equal(await bookingAmount('Flights ('), quote.flightEstimate);
     assert.equal(await bookingAmount('Hotels ('), quote.lineItems.stays.reduce((sum, stay) => sum + stay.room, 0));
-    assert.equal(await bookingAmount('Safety reserve'), quote.reserveAmount);
+    assert.equal(await bookingAmount('Spending money'), quote.reserveAmount);
     const checks = attestations.length;
     await page.reload();
     await page.locator('#gv-booking-v2 .gvb2-total strong').waitFor();
@@ -266,7 +266,7 @@ test('restored route layers, licensed media, slideshow and video work across iti
         const details=await page.locator('#book').getAttribute('href');
         await page.goto(new URL(details,SITE).href);
         await page.locator('#gv-mtd-app').waitFor({state:'visible'});
-        await page.waitForFunction(()=>document.querySelector('.gv-mtd-hero-shot img')?.src.endsWith('/montego-bay.jpg'));
+        await page.waitForFunction(()=>document.querySelector('.gv-mtd-destination .destination-media img')?.src.endsWith('/montego-bay.jpg'));
         assert.equal(await page.locator('.gv-mtd-destination').count(),size);
         assert.equal(search,1);
         assert.deepEqual(failures,[]);
