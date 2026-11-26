@@ -73,6 +73,57 @@ test('collectors already schedule every reviewed route code in every collection 
   }
 });
 
+test('expansion adds reviewed cities alongside the deployed legacy policy without disabling it', () => {
+  const { execFileSync } = require('node:child_process');
+  // The legacy audit snapshot selection is fixed when the modules are loaded.
+  const script = `
+    const assert = require('node:assert/strict');
+    const optimizer = require('./backend/services/domain/fare-map/fare-map-optimizer');
+    const eligible = optimizer._internal.rows().filter(optimizer._internal.eligible);
+    assert.equal(new Set(eligible.map(optimizer._internal.code)).size, 413);
+    (async () => {
+      const query = { origin: 'YYZ', budget: 2500, currency: 'CAD' };
+      const run = (flag, allowCityExpansion) => optimizer.search(query, {
+        env: { ...process.env, ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_CITY_EXPANSION: flag },
+        allowCityExpansion, now: Date.parse('2027-03-01'), readRoutes: async () => []
+      });
+      const off = await run('off', true);
+      const on = await run('on', true);
+      const estimates = await run('on', false);
+      assert.equal(off.diagnostics.eligibleCities, 412);
+      assert.equal(on.diagnostics.expansionEligibleCities, 251);
+      assert.equal(on.diagnostics.eligibleCities, 663);
+      assert.equal(estimates.diagnostics.eligibleCities, off.diagnostics.eligibleCities);
+
+      const sampleTime = Date.parse('2026-11-25T21:42:20Z');
+      const fares = {
+        YTO: { destination: 'YFC', departureDate: '2026-12-01', priceUsd: 110.15 },
+        YFC: { destination: 'YTO', departureDate: '2026-12-18', priceUsd: 124.56 }
+      };
+      const planning = await optimizer.search({
+        ...query, departureDate: '2026-12-01', returnDate: '2026-12-06', nights: 5,
+        destinationCount: 1, preferredStops: 'fredericton-ca'
+      }, {
+        env: { ...process.env, ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_CITY_EXPANSION: 'on' },
+        allowCityExpansion: true, now: sampleTime,
+        readRoutes: async (origin, month) => month === '2026-12' && fares[origin] ? [{
+          ...fares[origin], origin, month, source: 'travelpayouts-cached',
+          observedAt: new Date(sampleTime).toISOString()
+        }] : []
+      });
+      assert.equal(planning.pool.length, 1);
+      assert.equal(planning.pool[0].stops[0].cityId, 'fredericton-ca');
+      assert.equal(planning.pool[0].fareMap.expansionCandidate, true);
+      assert.deepEqual(planning.pool[0].legs.map(leg => leg.departureDate), ['2026-12-01', '2026-12-06']);
+      assert.equal(planning.diagnostics.liveProviderCallsMade, 0);
+    })().catch(error => { console.error(error); process.exitCode = 1; });
+  `;
+  execFileSync(process.execPath, ['-e', script], { cwd: require('node:path').resolve(__dirname, '../..'), env: {
+    ...process.env, ENABLE_UNIFIED_CITY_REGISTRY_668A: 'true', ENABLE_PROVIDER_MAPPING_COMPLETION_668B: 'true',
+    ENABLE_VERIFIED_CITY_ACTIVATION_668T: 'true', ENABLE_MVP_VALIDATION_REPAIRS_669B: 'true'
+  } });
+});
+
 test('collector pagination retains the full registry-sized destination response', async () => {
   const destinations = ingest.originCodesFromRegistry(registry).filter(code => code !== 'YTO');
   let offset = 0;

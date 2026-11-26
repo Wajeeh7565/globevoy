@@ -176,7 +176,8 @@ function originRegistryRow(all,origin){
  return matches.find(r=>code(r)===own)||matches.find(r=>code(r)===origin.airportCode)||matches[0];
 }
 function rows(){return registry.routeGraphSelection(require('../../../data/global-destination-catalogue.json').destinations);}
-function destinationAllowed(row){const r=row?.unifiedRegistry;return r?.destination?.eligible===true&&!r.origin?.requiresGatewayTransfer&&graph._internal.productionDestinationEligible(row)&&activation.liveRecommendationEligible(row);}
+function directRegistryDestination(row){const r=row?.unifiedRegistry;return r?.destination?.eligible===true&&!r.origin?.requiresGatewayTransfer;}
+function destinationAllowed(row){return directRegistryDestination(row)&&graph._internal.productionDestinationEligible(row)&&activation.liveRecommendationEligible(row);}
 function eligible(row){return row?.unifiedRegistry?.validation?.bothProvidersMapped===true&&destinationAllowed(row);}
 // GV-RECS-BEAM-002 (FARE_MAP_BEAM_TARGET=on, off by default): a cost-only beam keeps the
 // cheapest partial trips, so a C$10,000 search explores the same nearby, short trips as a
@@ -502,7 +503,9 @@ async function search(query={},options={}){
   const review=cityExpansion.reviewExpansion();
   diagnostics.expansionEligibleCities=0;
   for(const r of all){
-   if(!destinationAllowed(r)||!isDestination(r)||map.has(code(r)))continue;
+   // Legacy activation reflects the old provider audit. Expansion candidates use the
+   // reviewed direct-market evidence and must pass the generated tour's live checks.
+   if(!directRegistryDestination(r)||r.registryDestinationEligible!==true||!isDestination(r)||map.has(code(r)))continue;
    const admitted=cityExpansion.admit(r,review);
    if(admitted){map.set(code(r),admitted);diagnostics.expansionEligibleCities++;}
   }
