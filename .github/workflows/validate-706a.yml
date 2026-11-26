@@ -8,7 +8,7 @@ on:
       - 'frontend/booking.html'
       - 'frontend/scripts/my-trips-booking-706a.js'
       - 'frontend/scripts/booking-account-bridge-706a.js'
-      - 'frontend/scripts/booking-account-snapshot-706a.js'
+      - 'frontend/scripts/booking-trip-v2.js'
       - 'backend/validation/validate-gv-book-706a.js'
       - '.github/workflows/validate-706a.yml'
   push:
@@ -18,7 +18,7 @@ on:
       - 'frontend/booking.html'
       - 'frontend/scripts/my-trips-booking-706a.js'
       - 'frontend/scripts/booking-account-bridge-706a.js'
-      - 'frontend/scripts/booking-account-snapshot-706a.js'
+      - 'frontend/scripts/booking-trip-v2.js'
       - 'backend/validation/validate-gv-book-706a.js'
       - '.github/workflows/validate-706a.yml'
   workflow_dispatch:
@@ -43,7 +43,7 @@ jobs:
         run: |
           node --check frontend/scripts/my-trips-booking-706a.js
           node --check frontend/scripts/booking-account-bridge-706a.js
-          node --check frontend/scripts/booking-account-snapshot-706a.js
+          node --check frontend/scripts/booking-trip-v2.js
           node --check backend/validation/validate-gv-book-706a.js
       - name: Validate saved trip booking workspace
         run: node backend/validation/validate-gv-book-706a.js
