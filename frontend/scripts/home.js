@@ -136,8 +136,8 @@ class Journey {
  }
 }
 const journey=new Journey();
-function syncMotionControl(){const b=$('#motion-toggle'),off=conserve(),label=off?'Reduced motion enabled':motionPaused?'Resume all motion':'Pause all motion';b.disabled=off;b.setAttribute('aria-label',label);b.title=label;b.setAttribute('aria-pressed',String(motionPaused||off));b.querySelector('use').setAttribute('href',motionPaused||off?'#play':'#pause')}
-$('#motion-toggle').addEventListener('click',()=>{motionPaused=!motionPaused;if(!motionPaused)experiences.forEach(e=>e.paused=false);experiences.forEach(e=>e.sync());syncMotionControl()});syncMotionControl();
+function syncMotionControl(){const b=$('#motion-toggle');if(!b)return;const off=conserve(),label=off?'Reduced motion enabled':motionPaused?'Resume all motion':'Pause all motion';b.disabled=off;b.setAttribute('aria-label',label);b.title=label;b.setAttribute('aria-pressed',String(motionPaused||off));b.querySelector('use').setAttribute('href',motionPaused||off?'#play':'#pause')}
+$('#motion-toggle')?.addEventListener('click',()=>{motionPaused=!motionPaused;if(!motionPaused)experiences.forEach(e=>e.paused=false);experiences.forEach(e=>e.sync());syncMotionControl()});syncMotionControl();
 $$('[role=tab]').forEach((b,i)=>{b.addEventListener('click',()=>journey.select(i));b.addEventListener('keydown',e=>{let n;if(e.key==='ArrowRight')n=(i+1)%3;if(e.key==='ArrowLeft')n=(i+2)%3;if(e.key==='Home')n=0;if(e.key==='End')n=2;if(n!==undefined){e.preventDefault();$('#tab-'+n).focus();journey.select(n)}})});
 $('#search').addEventListener('submit',submitSearch);
 let last=performance.now();
