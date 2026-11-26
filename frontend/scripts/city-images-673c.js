@@ -290,7 +290,7 @@ function licensedFile(info,title){
   if(!/^(CC BY(?:-SA)? [1-4]\.\d|CC0(?: 1\.0)?|Public domain)$/i.test(licence))return null;
   if(/\b(non.?commercial|no derivatives|permission required)\b/i.test(String(ext.Restrictions?.value||'')))return null;
   const url=info.thumburl||info.url, source=info.descriptionurl;
-  if(!/^https:\/\/upload\.wikimedia\.org\//i.test(url||'')||!/^https:\/\/commons\.wikimedia\.org\//i.test(source||''))return null;
+  if(!/^https:\/\/(?:upload|thumb)\.wikimedia\.org\/wikipedia\/commons\//i.test(url||'')||!/^https:\/\/commons\.wikimedia\.org\//i.test(source||''))return null;
   const template=document.createElement('template');
   template.innerHTML=String(ext.Artist?.value||'');
   const author=template.content.textContent.trim().slice(0,160);
@@ -360,7 +360,7 @@ function setCredit(target,photo){
   Object.assign(credit.style,{position:'absolute',top:'4px',right:'4px',maxWidth:'70%',zIndex:'4',padding:'2px 5px',borderRadius:'3px',background:'#10283cd9',color:'white',fontSize:'10px'});
   const link=(text,url)=>{const a=document.createElement('a');a.textContent=text;a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.style.color='inherit';return a;};
   credit.append(link(photo.author||'Photo credit',photo.sourceUrl));
-  if(photo.licence)credit.append(' · ',photo.licenceUrl?link(photo.licence,photo.licenceUrl):photo.licence);
+  if(photo.licence)credit.append(' Â· ',photo.licenceUrl?link(photo.licence,photo.licenceUrl):photo.licence);
   target.append(credit);
 }
 

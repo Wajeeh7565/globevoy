@@ -210,13 +210,13 @@ test('restored route layers, licensed media, slideshow and video work across iti
             const names=(url.searchParams.get('titles')||'').split('|').filter(Boolean);
             return route.fulfill({headers:cors,json:{query:{pages:names.map(title=>({
               title,imageinfo:[{width:1280,height:720,mime:'image/jpeg',
-                url:'https://upload.wikimedia.org/wikipedia/commons/fixture/'+title.slice(5),
+                url:'https://'+(title.includes('river')?'thumb':'upload')+'.wikimedia.org/wikipedia/commons/fixture/'+title.slice(5),
                 descriptionurl:'https://commons.wikimedia.org/wiki/'+title,
                 extmetadata:{LicenseShortName:{value:title.includes('private')?'CC BY-NC 4.0':'CC BY-SA 4.0'},
                   LicenseUrl:{value:'https://creativecommons.org/licenses/by-sa/4.0/'},Artist:{value:'Fixture contributor'}}}]
             }))}}});
           }
-          if(url.hostname==='upload.wikimedia.org'){
+          if(['upload.wikimedia.org','thumb.wikimedia.org'].includes(url.hostname)){
             assert.ok(!url.pathname.includes('private'), 'noncommercial image must not load');
             return route.fulfill({headers:cors,path:path.join(ROOT,'assets/images/ottawa.jpg')});
           }
