@@ -280,5 +280,89 @@ async function get(city,country,fallback){
   const k=key(city,country);if(!mem.has(k))mem.set(k,resolve(city,country,fallback));return mem.get(k);
 }
 
-window.GlobevoyCityImages={version:VERSION,get,registry:loadRegistry};
+
+const GALLERY_PREFIX='gv-licensed-city-gallery-v1:';
+const GALLERY_SKIP=/\b(flags?|coat|arms|logos?|maps?|locator|seal|emblem|icons?|symbols?|charts?|graphs?|climate|diagram|signature|banner|population|wiki\w*|commons|location|outline|plans?|muse(um|u|o)s?|collections?|paintings?|engraving|lithograph|illustration|drawing|portrait|statue|bust|reconstruction|review|sir|1[0-8]\d\d|19[0-4]\d|w|metro|subway|trains?|trams?|bus(es)?|airport|station|stadium|arena|game|university|hospital|school|campus|protest|parade|festival|concert|election|president|mayor)\b/i;
+const galleryMem=new Map();
+function licensedFile(info,title){
+  const ext=info?.extmetadata||{};
+  const licence=String(ext.LicenseShortName?.value||'');
+  if(!/^(CC BY(?:-SA)? [1-4]\.\d|CC0(?: 1\.0)?|Public domain)$/i.test(licence))return null;
+  if(/\b(non.?commercial|no derivatives|permission required)\b/i.test(String(ext.Restrictions?.value||'')))return null;
+  const url=info.thumburl||info.url, source=info.descriptionurl;
+  if(!/^https:\/\/upload\.wikimedia\.org\//i.test(url||'')||!/^https:\/\/commons\.wikimedia\.org\//i.test(source||''))return null;
+  const template=document.createElement('template');
+  template.innerHTML=String(ext.Artist?.value||'');
+  const author=template.content.textContent.trim().slice(0,160);
+  if(/^CC BY/i.test(licence)&&!author)return null;
+  const licenceUrl=String(ext.LicenseUrl?.value||'').replace(/^http:/,'https:');
+  return {url,title,sourceUrl:source,author,licence,licenceUrl:/^https:\/\/creativecommons\.org\//i.test(licenceUrl)?licenceUrl:''};
+}
+async function licensedGallery(city,country){
+  if(isOffline()||!norm(city))return [];
+  const {byKey,ambiguousCities}=await loadRegistry();
+  const record=byKey.get(key(city,country));
+  const cityTitle=record?.city||city, countryTitle=record?.country||country;
+  const ambiguous=ambiguousCities.has(norm(cityTitle));
+  const api=(host,params)=>fetchJson('https://'+host+'/w/api.php?'+new URLSearchParams({format:'json',origin:'*',formatversion:'2',...params}),4500);
+  const qualified=countryTitle?`${cityTitle}, ${countryTitle}`:null;
+  for(const title of [...new Set([qualified,!ambiguous?cityTitle:null].filter(Boolean))]){
+    try{
+      const result=await api('en.wikipedia.org',{action:'parse',page:title,prop:'images',redirects:'1'});
+      const page=result?.parse;
+      if(!page?.images?.length||!/^[^:]+$/.test(page.title)||/disambiguation/i.test(page.title))continue;
+      if(ambiguous ? norm(page.title)!==norm(qualified) : titleScore(page.title,cityTitle,countryTitle)<90)continue;
+      const files=page.images.filter(f=>/\.(jpe?g|png|webp)$/i.test(f)&&!GALLERY_SKIP.test(f.replace(/[_-]+/g,' ').replace(/\.\w+$/,''))).slice(0,24);
+      if(!files.length)continue;
+      const info=await api('commons.wikimedia.org',{action:'query',titles:files.map(x=>'File:'+x).join('|'),prop:'imageinfo',iiprop:'url|size|mime|extmetadata',iiurlwidth:'1280'});
+      const byName=new Map((info?.query?.pages||[]).map(p=>[String(p.title).replace(/^File:/,'').replace(/_/g,' '),p.imageinfo?.[0]]));
+      const photos=files.map(f=>{
+        const file=byName.get(f.replace(/_/g,' '));
+        const ratio=file?.width/file?.height;
+        return file?.width>=700&&ratio>=1.15&&ratio<=2.7&&photoMime(file.mime)?licensedFile(file,f.replace(/_/g,' ')):null;
+      }).filter(Boolean).slice(0,4);
+      if(photos.length)return photos;
+    }catch(_){ /* try the next unambiguous article */ }
+  }
+  if(!Number.isFinite(record?.lat)||!Number.isFinite(record?.lon))return [];
+  try{
+    const info=await api('commons.wikimedia.org',{action:'query',generator:'geosearch',ggsprimary:'all',ggsnamespace:'6',ggsradius:'5000',ggslimit:'30',
+      ggscoord:`${record.lat}|${record.lon}`,prop:'imageinfo',iiprop:'url|size|mime|extmetadata',iiurlwidth:'1280'});
+    return (info?.query?.pages||[]).map(p=>{
+      const file=p.imageinfo?.[0],ratio=file?.width/file?.height;
+      const locality=norm(p.title+' '+(file?.extmetadata?.ImageDescription?.value||''));
+      return !badTitle(p.title)&&locality.includes(norm(cityTitle))&&file?.width>=700&&ratio>=1.15&&ratio<=2.7&&photoMime(file.mime)?licensedFile(file,p.title):null;
+    }).filter(Boolean).slice(0,4);
+  }catch(_){return [];}
+}
+function gallery(city,country){
+  const k=GALLERY_PREFIX+key(city,country);
+  if(!galleryMem.has(k))galleryMem.set(k,(async()=>{
+    const cached=safeGet(k);
+    if(cached?.images?.length)return cached.images;
+    const images=await licensedGallery(city,country);
+    if(images.length)safeSet(k,{images});
+    return images;
+  })());
+  return galleryMem.get(k);
+}
+async function photos(city,country){
+  const local=LOCAL[key(city,country)]||(!country?LOCAL[norm(city)]:'');
+  if(local)return [{url:local}];
+  return gallery(city,country);
+}
+function setCredit(target,photo){
+  if(!target)return;
+  target.querySelector(':scope > .gv-photo-credit')?.remove();
+  if(!photo?.sourceUrl)return;
+  const credit=document.createElement('span');
+  credit.className='gv-photo-credit';
+  Object.assign(credit.style,{position:'absolute',top:'4px',right:'4px',maxWidth:'70%',zIndex:'4',padding:'2px 5px',borderRadius:'3px',background:'#10283cd9',color:'white',fontSize:'10px'});
+  const link=(text,url)=>{const a=document.createElement('a');a.textContent=text;a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.style.color='inherit';return a;};
+  credit.append(link(photo.author||'Photo credit',photo.sourceUrl));
+  if(photo.licence)credit.append(' · ',photo.licenceUrl?link(photo.licence,photo.licenceUrl):photo.licence);
+  target.append(credit);
+}
+
+window.GlobevoyCityImages={version:VERSION,get,photos,gallery,setCredit,registry:loadRegistry};
 })();

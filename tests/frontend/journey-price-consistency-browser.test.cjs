@@ -20,14 +20,14 @@ const destinations = [
 ];
 const tripDates = ['2027-05-01','2027-05-06','2027-05-09','2027-05-12'];
 
-function fixture({ size, currency, adults, rooms, validity = 'valid' }) {
+function fixture({ size, currency, adults, rooms, validity = 'valid', places = destinations }) {
   const now = Date.now();
   const observedAt = new Date(now - (validity === 'expired' ? 16 * 60000 : 0)).toISOString();
   const comparable = currencyToUsdRate(currency);
   const fare = size === 1 ? 170 : 170.49;
   const reservation = { adults, children: 0, infants: 0, travellers: adults, rooms,
     occupancies: Array.from({ length: rooms }, (_, index) => ({ adults: index === 0 ? adults - (rooms - 1) : 1, children: [] })) };
-  const cities = destinations.slice(0, size).map((node, i) => ({
+  const cities = places.slice(0, size).map((node, i) => ({
     ...node, nights: i ? 3 : 5, arrivalDate: tripDates[i], departureDate: tripDates[i + 1],
     hotel: { name: node.city + ' fixture hotel', nuiteeHotelId: 'test-hotel-' + i, livePriceVerified: true,
       estimatedStayUsd: Math.round((342 + i) * comparable),
@@ -181,4 +181,96 @@ test('the same signed pricing breakdown survives the classic customer journey', 
     ];
     for(const options of cases) await t.test(JSON.stringify(options), () => visit(browser, fixture(options), options));
   } finally { await browser.close(); }
+});
+
+test('restored route layers, licensed media, slideshow and video work across itinerary sizes', { timeout: 85000 }, async t => {
+  const places = [
+    {cityId:'montego-bay-jm',city:'Montego Bay',country:'Jamaica',countryCode:'JM',airportCode:'MBJ',latitude:18.47,longitude:-77.92},
+    {cityId:'fredericton-ca',city:'Fredericton',country:'Canada',countryCode:'CA',airportCode:'YFC',latitude:45.96,longitude:-66.64},
+    {cityId:'lisbon-pt',city:'Lisbon',country:'Portugal',countryCode:'PT',airportCode:'LIS',latitude:38.72,longitude:-9.14}
+  ];
+  const browser = await chromium.launch({headless:true,executablePath:process.env.GLOBEVOY_TEST_BROWSER_PATH,args:['--disable-background-networking']});
+  const cors={'access-control-allow-origin':'*'};
+  try {
+    for (const mobile of [false,true]) for (const size of [1,2,3]) await t.test((mobile?'mobile ':'desktop ')+size+' stops', async()=>{
+      const context = await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1440,height:900},
+        isMobile:mobile,hasTouch:mobile,reducedMotion:'no-preference',serviceWorkers:'block'});
+      const {tour}=fixture({size,currency:'CAD',adults:1,rooms:1,places});
+      let search=0;
+      const failures=[];
+      try{
+        await context.route('**/*',async route=>{
+          const url=new URL(route.request().url());
+          if(url.hostname==='en.wikipedia.org'){
+            const title=(url.searchParams.get('page')||'').split(',')[0];
+            const images=title==='Fredericton'?['river-photo.jpg','private.jpg']:title==='Montego Bay'?['beach-photo.jpg','harbor-photo.jpg']:[];
+            return route.fulfill({headers:cors,json:{parse:{title,images}}});
+          }
+          if(url.hostname==='commons.wikimedia.org'){
+            const names=(url.searchParams.get('titles')||'').split('|').filter(Boolean);
+            return route.fulfill({headers:cors,json:{query:{pages:names.map(title=>({
+              title,imageinfo:[{width:1280,height:720,mime:'image/jpeg',
+                url:'https://upload.wikimedia.org/wikipedia/commons/fixture/'+title.slice(5),
+                descriptionurl:'https://commons.wikimedia.org/wiki/'+title,
+                extmetadata:{LicenseShortName:{value:title.includes('private')?'CC BY-NC 4.0':'CC BY-SA 4.0'},
+                  LicenseUrl:{value:'https://creativecommons.org/licenses/by-sa/4.0/'},Artist:{value:'Fixture contributor'}}}]
+            }))}}});
+          }
+          if(url.hostname==='upload.wikimedia.org'){
+            assert.ok(!url.pathname.includes('private'), 'noncommercial image must not load');
+            return route.fulfill({headers:cors,path:path.join(ROOT,'assets/images/ottawa.jpg')});
+          }
+          if(url.origin!==SITE)return route.abort();
+          if(url.pathname==='/runtime/config.js')return route.fulfill({contentType:'text/javascript',
+            body:'window.GLOBEVOY_CONFIG={apiBaseUrl:"'+SITE+'",enableLiveApi:true};'});
+          if(url.pathname==='/api/generated-tour'){
+            search++;
+            return route.fulfill({json:{ok:true,poolMode:true,tour,tours:[tour],poolSize:1}});
+          }
+          if(url.pathname==='/api/booking-evidence'){
+            const data=verify(route.request().postDataJSON().token,SECRET);
+            return route.fulfill({json:{ok:!!data,...data}});
+          }
+          if(url.pathname.startsWith('/api/')){failures.push(url.pathname);return route.abort();}
+          if(url.pathname.endsWith('/countries.geo.json')) await new Promise(r=>setTimeout(r,350));
+          const file=localFile(url);
+          if(fs.existsSync(file)&&fs.statSync(file).isFile())return route.fulfill({path:file});
+          // The production fixture includes the retained flag pack. A source
+          // checkout may use the pack from its assembled frontend instead.
+          if(!PACKAGED_ROOT&&url.pathname.startsWith('/assets/flags/'))return route.fulfill({status:204});
+          if(!['/favicon.ico'].includes(url.pathname))failures.push(url.pathname);
+          return route.abort();
+        });
+        const page=await context.newPage();
+        page.on('pageerror',error=>failures.push(error.message));
+        await page.goto(SITE+'/results.html?origin=Toronto%20%28YYZ%29&budget=2500&adults=1&currency=CAD');
+        await page.locator('#results').waitFor({state:'visible'});
+        await page.waitForFunction(()=>document.querySelector('.leaflet-land-pane canvas')&&document.querySelector('.leaflet-overlay-pane canvas'));
+        assert.ok(await page.evaluate(()=>Number(getComputedStyle(document.querySelector('.leaflet-land-pane')).zIndex)<
+          Number(getComputedStyle(document.querySelector('.leaflet-overlay-pane')).zIndex)));
+        await page.waitForFunction(()=>window.GlobevoyResults.getState().playing);
+        await page.waitForFunction(()=>document.querySelector('[data-photo=c0]')?.naturalWidth>0);
+        assert.match(await page.locator('[data-photo=c0]').getAttribute('src'),/montego-bay\.jpg$/);
+        await page.locator('button[data-city=c0]').first().click();
+        await page.waitForFunction(()=>document.querySelector('#media-photo').src.includes('beach-photo')||document.querySelector('#media-photo').src.includes('harbor-photo'));
+        if(size>=2){
+          await page.locator('button[data-city=c1]').first().click();
+          await page.locator('#media-panel .gv-photo-credit').getByText('Fixture contributor').waitFor();
+          assert.match(await page.locator('[data-photo=c1]').getAttribute('src'),/river-photo/);
+        }
+        if(size===3){
+          await page.locator('button[data-city=c2]').first().click();
+          await page.waitForFunction(()=>document.querySelector('#city-video').currentSrc.endsWith('/lisbon.mp4')&&
+            document.querySelector('#city-video').readyState>=2);
+        }
+        const details=await page.locator('#book').getAttribute('href');
+        await page.goto(new URL(details,SITE).href);
+        await page.locator('#gv-mtd-app').waitFor({state:'visible'});
+        await page.waitForFunction(()=>document.querySelector('.gv-mtd-hero-shot img')?.src.endsWith('/montego-bay.jpg'));
+        assert.equal(await page.locator('.gv-mtd-destination').count(),size);
+        assert.equal(search,1);
+        assert.deepEqual(failures,[]);
+      }finally{await context.close();}
+    });
+  }finally{await browser.close();}
 });
