@@ -9,17 +9,15 @@
   const back = new URLSearchParams(q);
   ['multi', 'accountTrip', 'accountSnapshot', 'departureDate', 'returnDate'].forEach(k => back.delete(k));
   const accountTrip = q.get('accountTrip');
-  $('#gv-booking-back').href = accountTrip ? './my-trips.html' : './multi-city-trip.html?' + back.toString();
-  if (accountTrip) $('#gv-booking-back').textContent = '← Back to your saved trips';
+  $('#gv-booking-back').href = accountTrip ? './react/account/' : './multi-city-trip.html?' + back.toString();
+  if (accountTrip) $('#gv-booking-back').textContent = '← Back to your account';
 
   const search = S?.readSearch ? S.readSearch(q) : null;
   if (search && search.budget) {
     $('#new-search').href = './index.html?' + new URLSearchParams({ origin: search.origin, budget: String(search.budget), currency: search.currency, adults: String(search.adults) });
   }
 
-  const signin = $('#signin');
-  if (S?.isMember?.()) { signin.textContent = 'Your account'; signin.onclick = () => { location.href = './account.html'; }; }
-  else signin.onclick = () => S?.signIn?.();
+  // The header Sign In / Account menu is account-menu.js.
 
   // Trips opened from My Trips carry prices saved earlier (GV-BOOK-706A).
   if (window.GLOBEVOY_BOOKING_ACCOUNT_SNAPSHOT_706A?.snapshotOnly) $('#gv-booking-account-note').hidden = false;

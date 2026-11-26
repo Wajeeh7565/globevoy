@@ -1,15 +1,12 @@
 import type { Metadata } from 'next';
-import { MyTripsClient } from '@/components/account/my-trips-client';
+import { MyTripsRedirect } from '@/components/account/my-trips-redirect';
 
+// GV-WEB-4: saved trips were removed from the website. The old address opens the Account page.
 export const metadata: Metadata = {
-  title: 'My Trips · Globevoy',
-  description: 'Private Saved Trips in your Globevoy account.'
+  title: 'Account',
+  description: 'Your GlobeVoy account.'
 };
 
 export default function MyTripsPage() {
-  return (
-    <div className="gv-my-trips-page">
-      <MyTripsClient />
-    </div>
-  );
+  return <MyTripsRedirect />;
 }

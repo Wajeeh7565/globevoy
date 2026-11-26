@@ -156,10 +156,18 @@ async function expectAuthError(code, token) {
     shell.includes('data-gv-auth-entry') ||
     (
       shell.includes("dataset.gvUnifiedAccountHeader = 'GV-WEB-FE-R3.1B'") &&
-      shell.includes('data-gv-auth-signin') &&
+      // GV-WEB-4: guests open sign-in.html, whose buttons use the same Cognito entry.
+      (shell.includes('data-gv-auth-signin') || shell.includes("root('sign-in.html')")) &&
       shell.includes('data-gv-auth-signout')
     )
   );
+  {
+    const signInPage = fs.readFileSync(path.join(ROOT, 'frontend/pages/sign-in.html'), 'utf8');
+    assert(signInPage.includes('data-gv-auth-signin') && signInPage.includes('data-gv-auth-signup'));
+    assert(signInPage.includes('scripts/auth-session-705b-r3.js') && signInPage.includes('runtime/auth-config-705b-r3.js'));
+    assert(authSession.includes("closest('[data-gv-auth-signup]')") && authSession.includes("screen: 'signup'"));
+    assert(authSession.includes("options.screen === 'signup' && cfg.domainBaseUrl ? `${cfg.domainBaseUrl}/signup` : cfg.authorizeEndpoint"));
+  }
   assert(shell.includes('runtime/auth-config-705b-r3.js'));
   assert(shell.includes('scripts/auth-session-705b-r3.js'));
   assert(callback.includes('data-gv-auth-callback="true"'));

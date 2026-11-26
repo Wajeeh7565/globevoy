@@ -16,7 +16,8 @@ function main() {
     // GV-WEB-2/3: index.html, results.html, multi-city-trip.html and booking.html use the
     // new design's own header; explore, mixed-results, multi-city and multicity-visualizer are redirects.
     'about.html','create-account.html','how-it-works.html',
-    'saved-trips.html','sign-in.html','trip.html','trust.html'
+    // GV-WEB-4: sign-in.html uses the new design; saved-trips.html and my-trips.html redirect to Account.
+    'trip.html','trust.html'
   ];
   const pass = (name) => console.log(`[PASS] ${name}`);
 
@@ -31,16 +32,16 @@ function main() {
     'gv-account-nav__identity',
     'gv-account-nav__item',
     'gv-account-nav__signout',
-    'data-gv-auth-signin',
+    "root('sign-in.html')",
     'data-gv-auth-signout'
   ]) assert.ok(shell.includes(token), `missing classic account-nav token: ${token}`);
   assert.doesNotMatch(shell, /class="gv-account-nav__trips"/);
-  pass('classic signed-in and signed-out controls use one Account menu without a duplicate My Trips shortcut');
+  pass('classic signed-in and signed-out controls use one Account menu; guests open the GlobeVoy sign-in page');
 
   assert.ok(shell.includes("root('react/account/')"));
-  assert.ok(shell.includes("root('react/my-trips/')"));
+  assert.ok(!shell.includes("react/my-trips/"), 'saved trips were removed in GV-WEB-4');
   assert.ok(shell.includes("root('react/travel-profile/')"));
-  pass('classic account links use canonical React Account, My Trips and Travel Profile routes');
+  pass('classic account links use canonical React Account and Travel Profile routes, with no My Trips');
 
   assert.match(shell, /function escapeHtml\(value\)/);
   assert.match(shell, /safeAccountIdentity = escapeHtml\(accountIdentity\)/);

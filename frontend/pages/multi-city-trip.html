@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="./assets/vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="./styles/site.css?v=gv3-1">
 <link rel="stylesheet" href="./styles/itinerary.css?v=gv3-1">
+<link rel="stylesheet" href="./styles/account-menu.css?v=gv4-1">
 </head>
 <body class="gv-multi-trip-page gv-itinerary-page">
 <a class="skip" href="#main">Skip to itinerary</a>
@@ -68,7 +69,6 @@
         <h2 id="budget-title">Trip budget</h2>
         <div class="actions gv-mtd-actions">
           <a id="gv-mtd-adjust" class="button" href="./index.html">Change search</a>
-          <button id="gv-mtd-save" class="button" type="button" aria-pressed="false">Save trip</button>
         </div>
       </div>
       <dl class="breakdown">
@@ -78,7 +78,6 @@
         <div><dt>Budget</dt><dd id="gv-mtd-budget-total">—</dd></div>
         <div><dt id="gv-mtd-remaining-label">Left over</dt><dd id="gv-mtd-remaining">—</dd></div>
       </dl>
-      <p id="gv-mtd-account-save-status" class="quiet status" role="status" aria-live="polite"></p>
       <p class="quiet">You book each flight and hotel directly with the airline and hotel partners. The final price is shown there before you pay.</p>
     </section>
   </div>
@@ -101,12 +100,11 @@
 <script src="./runtime/api-client.js"></script>
 <script src="./runtime/auth-config-705b-r3.js"></script>
 <script src="./scripts/auth-session-705b-r3.js"></script>
+<script src="./scripts/account-menu.js?v=gv4-1"></script>
 <script src="./scripts/city-images-673c.js?v=673f-r2"></script>
 <script src="./assets/vendor/leaflet/leaflet.js"></script>
 <script src="./scripts/trip-search.js?v=gv2-1"></script>
 <script src="./scripts/trip-handoff.js?v=gv3-1"></script>
 <script src="./scripts/itinerary.js?v=gv3-1"></script>
-<script src="./scripts/saved-trips-705c.js"></script>
-<script src="./scripts/saved-trips-705c-r3-route-details.js"></script>
 </body>
 </html>

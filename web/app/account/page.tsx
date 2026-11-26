@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 export default function AccountPage() {
   return (
-    <div className="gv-account-page">
+    <>
       <AccountPageClient />
-    </div>
+    </>
   );
 }

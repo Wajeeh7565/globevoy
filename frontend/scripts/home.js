@@ -26,7 +26,7 @@ let motionPaused=false;
 
 $('#more').addEventListener('click',()=>{const open=$('#options').hidden;$('#options').hidden=!open;$('#more').setAttribute('aria-expanded',String(open));$('#more').firstChild.textContent=open?'Fewer Options ':'More Options '});
 $('#locate').addEventListener('click',useMyLocation);
-$('#signin').addEventListener('click',()=>{if(S.isMember())location.href='./account.html';else S.signIn(location.pathname+location.search)});
+// The header Sign In / Account menu is account-menu.js.
 const travelerInput=$('#travelers');
 function syncTravelers(){const n=Number(travelerInput.value);$('.adult-unit').textContent=n===1?'adult':'adults';$('#fewer-travelers').disabled=n<=1;$('#more-travelers').disabled=n>=12}
 function changeTravelers(delta){travelerInput.stepUp(delta);travelerInput.dispatchEvent(new Event('input',{bubbles:true}))}
@@ -194,4 +194,4 @@ function useMyLocation(){
 (function months(){const sel=$('#dates'),now=new Date();for(let i=1;i<=6;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;const o=document.createElement('option');o.value=v;o.textContent=d.toLocaleDateString('en-CA',{month:'long',year:'numeric'});sel.appendChild(o)}})();
 // Coming back from results: keep the previous search.
 (function prefill(){const q=new URLSearchParams(location.search);if(!q.get('budget'))return;const s=S.readSearch(q);$('#from').value=s.origin;origin=s.origin.replace(/\s*\([A-Z]{3}\)$/,'');$('#budget').value=s.budget||'';$('#currency').value=s.currency;$('#travelers').value=String(s.adults);syncTravelers();if(s.month){$('#dates').value=s.month}$('#pace').value=s.pace;syncPrefix();renderCards()})();
-if(S.isMember())$('#signin').textContent='Your account';
+

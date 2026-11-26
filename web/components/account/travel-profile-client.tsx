@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import Link from 'next/link';
+import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useAuth } from '@/components/account/auth-provider';
-import { Button } from '@/components/ui/button';
 import { getTravelProfile, GlobevoyApiError, saveTravelProfile } from '@/lib/api';
 import type { TravelProfile } from '@/lib/contracts';
 
-const INTERESTS = ['Food', 'Beaches', 'Nature', 'History & culture', 'Nightlife', 'Family', 'Relaxation', 'Adventure'];
+// GV-WEB-4 — Travel Profile (Cinematic Explorer design). Same private profile API as before.
+const INTERESTS: Array<[string, string]> = [
+  ['Food', 'food-ramen'], ['Beaches', 'beach-maldives'], ['Nature', 'nature-waterfall'], ['History & culture', 'culture-petra'],
+  ['Nightlife', 'nightlife-neon'], ['Family', 'family-seashore'], ['Relaxation', 'relaxation-hammock'], ['Adventure', 'adventure-trail']
+];
 
 const EMPTY_PROFILE: TravelProfile = {
   schemaVersion: 'GV-TRAVEL-PROFILE-V1',
@@ -24,18 +26,43 @@ const EMPTY_PROFILE: TravelProfile = {
   updatedAt: null
 };
 
-function listText(values: string[]): string {
-  return values.join(', ');
-}
+type ListKey = 'citizenshipCountries' | 'visitedPlaces' | 'wishListPlaces';
 
-function textList(value: string): string[] {
-  const seen = new Set<string>();
-  return value.split(/[,\n]/).map((item) => item.trim()).filter((item) => {
-    const key = item.toLowerCase();
-    if (!item || seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+function TagField({ id, label, placeholder, values, onChange }: { id: string; label: string; placeholder: string; values: string[]; onChange: (next: string[]) => void }) {
+  const [text, setText] = useState('');
+  const [error, setError] = useState('');
+  function add() {
+    const value = text.trim().replace(/\s+/g, ' ').slice(0, 120);
+    if (!value) return;
+    if (values.some(item => item.toLowerCase() === value.toLowerCase())) { setError(`${value} is already in the list.`); return; }
+    onChange([...values, value]);
+    setText('');
+    setError('');
+  }
+  function key(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === 'Enter') { event.preventDefault(); add(); }
+  }
+  return (
+    <div className="cx-tag">
+      <label htmlFor={id}>{label}</label>
+      <div className="cx-tag-entry">
+        <input id={id} value={text} maxLength={120} placeholder={placeholder} autoComplete="off" onChange={e => { setText(e.target.value); setError(''); }} onKeyDown={key} />
+        <button type="button" className="cx-button" onClick={add}>Add</button>
+      </div>
+      {values.length ? (
+        <div className="cx-chips">
+          {values.map((value, index) => (
+            <span className="cx-chip" key={value}>
+              <button type="button" aria-label={`Edit ${value}`} onClick={() => { setText(value); onChange(values.filter((_, i) => i !== index)); }}>{value}</button>
+              <button type="button" aria-label={`Remove ${value}`} onClick={() => onChange(values.filter((_, i) => i !== index))}>×</button>
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {values.length ? <p className="cx-fine" style={{ marginTop: 4 }}>Select a saved name to edit it.</p> : null}
+      {error ? <p className="cx-error" role="status">{error}</p> : null}
+    </div>
+  );
 }
 
 export function TravelProfileClient() {
@@ -44,6 +71,7 @@ export function TravelProfileClient() {
   const [exists, setExists] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -70,15 +98,23 @@ export function TravelProfileClient() {
     return () => { cancelled = true; };
   }, [session?.accessToken]);
 
-  const completion = useMemo(() => {
-    const checks = [profile.homeAirport, profile.homeCity, profile.residenceCountry, profile.citizenshipCountries.length, profile.interests.length, profile.visitedPlaces.length || profile.wishListPlaces.length];
-    return Math.round(checks.filter(Boolean).length / checks.length * 100);
-  }, [profile]);
+  const groups = useMemo(() => [
+    ['Home airport', Boolean(profile.homeAirport)],
+    ['Home city', Boolean(profile.homeCity)],
+    ['Country of residence', Boolean(profile.residenceCountry)],
+    ['Citizenship countries', profile.citizenshipCountries.length > 0],
+    ['Interests', profile.interests.length > 0],
+    ['Places visited or on your wish list', profile.visitedPlaces.length > 0 || profile.wishListPlaces.length > 0]
+  ] as Array<[string, boolean]>, [profile]);
+  const done = groups.filter(([, ok]) => ok).length;
+  const completion = Math.round(done / groups.length * 100);
 
   function update<K extends keyof TravelProfile>(key: K, value: TravelProfile[K]) {
     setProfile((current) => ({ ...current, [key]: value }));
     setMessage('');
+    setDirty(true);
   }
+  const setList = (key: ListKey) => (next: string[]) => update(key, next);
 
   function toggleInterest(value: string) {
     const has = profile.interests.includes(value);
@@ -88,6 +124,10 @@ export function TravelProfileClient() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!session?.accessToken || saving) return;
+    if (profile.homeAirport && !/^[A-Z]{3}$/.test(profile.homeAirport.trim().toUpperCase())) {
+      setError('Enter a three-letter airport code, such as YYZ.');
+      return;
+    }
     setSaving(true);
     setError('');
     setMessage('');
@@ -98,7 +138,8 @@ export function TravelProfileClient() {
       });
       setProfile(response.profile);
       setExists(true);
-      setMessage('Travel Profile saved. Globevoy can use these preferences for signed-in personalization as that ranking layer is connected.');
+      setDirty(false);
+      setMessage('Travel Profile saved.');
     } catch (err) {
       setError(err instanceof GlobevoyApiError ? err.message : 'Travel Profile could not be saved.');
     } finally {
@@ -107,94 +148,95 @@ export function TravelProfileClient() {
   }
 
   if (authLoading) {
-    return <section className="gv-profile-state"><div className="gv-story-spinner" /><h1>Opening your Travel Profile…</h1></section>;
+    return <section className="cx-wrap cx-state" aria-live="polite"><span className="cx-spinner" aria-hidden="true" /><h1>Opening your Travel Profile…</h1></section>;
   }
+
+  const hero = (
+    <header className="cx-hero profile">
+      <img src="/assets/images/cinematic/profile-lofoten.jpg" alt="" />
+      <div><h1>Travel Profile</h1><p>Make each trip feel like yours.</p></div>
+    </header>
+  );
 
   if (!session) {
     return (
-      <section className="gv-profile-guest">
-        <div className="gv-profile-guest__copy">
-          <p className="gv-kicker">TRAVEL PROFILE</p>
-          <h1>Travel your way.</h1>
-          <p>Save your airport, travel style and dream destinations. Or keep exploring as a guest.</p>
-          <div className="gv-account-actions">
-            <Button onClick={() => { void signIn('/react/travel-profile/'); }}>Sign in or create account</Button>
-            <a className="gv-button gv-button--secondary" href="/">Continue as guest</a>
+      <div className="cx-wrap">
+        {hero}
+        <section className="cx-guest">
+          <p>Sign in to save your home airport, travel style and dream destinations. Planning as a guest still works.</p>
+          <div className="cx-actions">
+            <button className="cx-button primary" type="button" onClick={() => { void signIn('/react/travel-profile/'); }}>Sign in <span aria-hidden="true">→</span></button>
+            <a className="cx-button" href="/">Keep searching as a guest</a>
           </div>
-          {authStatus ? <p className="gv-account-status" role="status">{authStatus}</p> : null}
-        </div>
-        <div className="gv-profile-benefits" aria-label="Travel Profile benefits">
-          <span><b>01</b><strong>Start faster</strong><small>Your favourite departure airport.</small></span>
-          <span><b>02</b><strong>Trips that fit</strong><small>Your interests and travel style.</small></span>
-          <span><b>03</b><strong>Keep your plans</strong><small>Trips saved to your account.</small></span>
-        </div>
-      </section>
+          {authStatus ? <p className="cx-fine" role="status">{authStatus}</p> : null}
+        </section>
+      </div>
     );
   }
 
   return (
-    <div className="gv-profile-shell">
-      <header className="gv-profile-hero">
-        <div>
-          <p className="gv-kicker">YOUR TRAVEL PROFILE</p>
-          <h1>Your travel preferences.</h1>
-          <p>Save how you like to travel. Never enter passport, visa or payment numbers.</p>
-        </div>
-        <aside className="gv-profile-progress">
-          <span>PROFILE SIGNALS</span>
-          <strong>{completion}%</strong>
-          <div><i style={{ width: `${completion}%` }} /></div>
-          <small>{exists ? 'Saved to your private account' : 'Ready for your first save'}</small>
-        </aside>
-      </header>
+    <div className="cx-wrap">
+      {hero}
+      {loading ? <section className="cx-state"><span className="cx-spinner" aria-hidden="true" /><h2>Loading your preferences…</h2></section> : (
+        <form id="profile-form" onSubmit={submit} noValidate>
+          <section className="cx-section" aria-labelledby="sec-base">
+            <header><h2 id="sec-base">Your home base</h2><p>Where your trips usually begin.</p></header>
+            <div className="cx-fields three">
+              <label className="cx-field">Home airport<input value={profile.homeAirport} maxLength={3} placeholder="YYZ" aria-describedby="airport-note" onChange={(e) => update('homeAirport', e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3))} /></label>
+              <label className="cx-field">Home city<input value={profile.homeCity} placeholder="Toronto" onChange={(e) => update('homeCity', e.target.value)} /></label>
+              <label className="cx-field">Default currency<select value={profile.defaultCurrency} onChange={(e) => update('defaultCurrency', e.target.value as TravelProfile['defaultCurrency'])}><option>CAD</option><option>USD</option><option>EUR</option><option>GBP</option><option>AUD</option></select></label>
+            </div>
+            <p id="airport-note" className="cx-fine" style={{ marginTop: 8 }}>Enter a three-letter airport code.</p>
+          </section>
 
-      {loading ? <section className="gv-profile-state"><div className="gv-story-spinner" /><h2>Loading your preferences…</h2></section> : null}
-
-      {!loading ? (
-        <form className="gv-profile-form" onSubmit={submit}>
-          <section className="gv-profile-card">
-            <div className="gv-profile-card__head"><span>01</span><div><h2>Your home base</h2><p>Where trips usually begin.</p></div></div>
-            <div className="gv-profile-grid gv-profile-grid--3">
-              <label><span>Home airport</span><input value={profile.homeAirport} maxLength={3} placeholder="YYZ" onChange={(e) => update('homeAirport', e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3))} /></label>
-              <label><span>Home city</span><input value={profile.homeCity} placeholder="Toronto" onChange={(e) => update('homeCity', e.target.value)} /></label>
-              <label><span>Default currency</span><select value={profile.defaultCurrency} onChange={(e) => update('defaultCurrency', e.target.value as TravelProfile['defaultCurrency'])}><option>CAD</option><option>USD</option><option>EUR</option><option>GBP</option><option>AUD</option></select></label>
+          <section className="cx-section" aria-labelledby="sec-countries">
+            <header><h2 id="sec-countries">Country context</h2><p>Optional. Country names help tailor travel entry information. Never enter passport or document numbers.</p></header>
+            <div className="cx-fields">
+              <label className="cx-field">Country of residence<input value={profile.residenceCountry} placeholder="Canada" onChange={(e) => update('residenceCountry', e.target.value)} /></label>
+              <TagField id="add-citizenship" label="Citizenship countries" placeholder="Search or enter a country" values={profile.citizenshipCountries} onChange={setList('citizenshipCountries')} />
             </div>
           </section>
 
-          <section className="gv-profile-card">
-            <div className="gv-profile-card__head"><span>02</span><div><h2>Country context</h2><p>Useful later for relevant entry-information checks. Country names only.</p></div></div>
-            <div className="gv-profile-grid gv-profile-grid--2">
-              <label><span>Country of residence</span><input value={profile.residenceCountry} placeholder="Canada" onChange={(e) => update('residenceCountry', e.target.value)} /></label>
-              <label><span>Citizenship country or countries</span><input value={listText(profile.citizenshipCountries)} placeholder="Canada, Pakistan" onChange={(e) => update('citizenshipCountries', textList(e.target.value))} /><small>Do not enter passport or document numbers.</small></label>
+          <section className="cx-section" aria-labelledby="sec-style">
+            <header><h2 id="sec-style">Your travel style</h2><p>Choose the experiences and pace you enjoy.</p></header>
+            <fieldset>
+              <legend>Interests</legend>
+              <div className="cx-interests">
+                {INTERESTS.map(([name, photo]) => (
+                  <label className="cx-interest" key={name}>
+                    <img src={`/assets/images/cinematic/${photo}.jpg`} alt="" loading="lazy" />
+                    <span><input type="checkbox" checked={profile.interests.includes(name)} onChange={() => toggleInterest(name)} />{name}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <div className="cx-fields">
+              <label className="cx-field">Hotel style<select value={profile.hotelStyle} onChange={(e) => update('hotelStyle', e.target.value as TravelProfile['hotelStyle'])}><option>Best balance</option><option>Budget</option><option>Comfort</option><option>Boutique</option><option>Luxury</option></select></label>
+              <label className="cx-field">Trip pace<select value={profile.pace} onChange={(e) => update('pace', e.target.value as TravelProfile['pace'])}><option>Relaxed</option><option>Balanced</option><option>Fast</option></select></label>
             </div>
           </section>
 
-          <section className="gv-profile-card">
-            <div className="gv-profile-card__head"><span>03</span><div><h2>Your travel style</h2><p>Signals Globevoy can use when ranking otherwise-feasible trips.</p></div></div>
-            <fieldset className="gv-profile-interest-fieldset"><legend>What usually sounds good?</legend><div className="gv-profile-interest-grid">{INTERESTS.map((interest) => <label key={interest} className={profile.interests.includes(interest) ? 'is-selected' : ''}><input type="checkbox" checked={profile.interests.includes(interest)} onChange={() => toggleInterest(interest)} /><span>{interest}</span></label>)}</div></fieldset>
-            <div className="gv-profile-grid gv-profile-grid--2">
-              <label><span>Hotel style</span><select value={profile.hotelStyle} onChange={(e) => update('hotelStyle', e.target.value as TravelProfile['hotelStyle'])}><option>Best balance</option><option>Budget</option><option>Comfort</option><option>Boutique</option><option>Luxury</option></select></label>
-              <label><span>Trip pace</span><select value={profile.pace} onChange={(e) => update('pace', e.target.value as TravelProfile['pace'])}><option>Relaxed</option><option>Balanced</option><option>Fast</option></select></label>
+          <section className="cx-section" aria-labelledby="sec-history">
+            <header><h2 id="sec-history">Your travel history</h2><p>Keep places you’ve visited and places you hope to see in separate lists.</p></header>
+            <div className="cx-fields">
+              <TagField id="add-visited" label="Places you have visited" placeholder="Search or enter a place" values={profile.visitedPlaces} onChange={setList('visitedPlaces')} />
+              <TagField id="add-wish" label="Places on your wish list" placeholder="Search or enter a place" values={profile.wishListPlaces} onChange={setList('wishListPlaces')} />
             </div>
           </section>
 
-          <section className="gv-profile-card">
-            <div className="gv-profile-card__head"><span>04</span><div><h2>Your travel history</h2><p>Help us suggest new places over time.</p></div></div>
-            <div className="gv-profile-grid gv-profile-grid--2">
-              <label><span>Places you have visited</span><textarea rows={4} value={listText(profile.visitedPlaces)} placeholder="Niagara Falls, Istanbul, Lahore" onChange={(e) => update('visitedPlaces', textList(e.target.value))} /></label>
-              <label><span>Places on your wish list</span><textarea rows={4} value={listText(profile.wishListPlaces)} placeholder="Tokyo, Lisbon, Cape Town" onChange={(e) => update('wishListPlaces', textList(e.target.value))} /></label>
-            </div>
-          </section>
+          <details className="cx-complete">
+            <summary>Profile completeness · {completion}% ({done} of {groups.length} groups)</summary>
+            <ul>{groups.map(([label, ok]) => <li key={label}>{ok ? '✓' : '○'} {label}</li>)}</ul>
+          </details>
 
-          {error ? <p className="gv-account-status gv-account-status--error" role="alert">{error}</p> : null}
-          {message ? <p className="gv-account-status gv-account-status--success" role="status">{message}</p> : null}
+          {error ? <p className="cx-error" role="alert">{error}</p> : null}
 
-          <div className="gv-profile-savebar">
-            <div><strong>{session.user.email || session.user.username || 'Signed-in Globevoy account'}</strong><span>{profile.updatedAt ? `Last saved ${new Date(profile.updatedAt).toLocaleString()}` : 'Not saved yet'}</span></div>
-            <div className="gv-account-actions"><Link className="gv-button gv-button--secondary" href="/my-trips/">My Trips</Link><Button type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save Travel Profile'}</Button></div>
+          <div className="cx-savebar">
+            <p role="status">{message || (dirty ? 'Unsaved changes' : profile.updatedAt ? `Last saved ${new Date(profile.updatedAt).toLocaleString()}` : exists ? 'Saved to your account' : 'Not saved yet')}</p>
+            <button className="cx-button primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Save Travel Profile'}</button>
           </div>
         </form>
-      ) : null}
+      )}
     </div>
   );
 }

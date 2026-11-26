@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { AuthSession } from '@/lib/contracts';
-import { beginSignIn, clearAuthSession, getAuthSession, reverifyAuthSession, signOut } from '@/lib/auth';
+import { clearAuthSession, getAuthSession, reverifyAuthSession, safeReturnTo, signOut } from '@/lib/auth';
 
 interface AuthContextValue {
   session: AuthSession | null;
@@ -37,10 +37,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => { void refresh(); }, [refresh]);
 
+  // GV-WEB-4: every sign-in starts on the GlobeVoy sign-in page, which runs the same
+  // Cognito PKCE request (auth-session-705b-r3.js) and shares this session storage.
   const signIn = useCallback(async (returnTo?: string) => {
-    setStatus('Opening secure sign-in…');
+    setStatus('Opening sign-in…');
     try {
-      await beginSignIn(returnTo);
+      const here = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      window.location.assign(`/sign-in.html?returnTo=${encodeURIComponent(safeReturnTo(returnTo || here))}`);
     } catch (error) {
       // Sign-in can be intentionally unavailable on localhost or fail before
       // navigation begins (for example if required browser crypto is missing).

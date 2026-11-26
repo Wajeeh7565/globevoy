@@ -84,3 +84,16 @@ python -m http.server 8000 --bind 127.0.0.1 --directory .cache/frontend-preview
 Open `http://127.0.0.1:8000/`. Existing origin policy still controls authentication; this preview does not enable production accounts locally. Use a new empty output path when composing again. Run `npm test` and the account/web/release groups; browser tests also verify the composed production artifact. Production packaging uses the separately reviewed production configuration and restricted public Maps key.
 
 Changing or merging source does not authorize deployment.
+
+## GV-WEB-4: sign-in, Account and Travel Profile (November 2026)
+
+| Page | Design | Files |
+| --- | --- | --- |
+| `pages/sign-in.html` | Cinematic Explorer sign-in (Lake Bled) | `styles/sign-in.css`, `scripts/sign-in-page.js` |
+| `/react/account/`, `/react/travel-profile/` | Cinematic Explorer Account and Travel Profile | `web/app/cinematic-account.css`, `web/components/account/*` |
+| header on every page | Sign In for guests; Account menu (Account, Travel Profile, Sign out) for members | `scripts/account-menu.js`, `styles/account-menu.css`, `web/components/account/account-nav.tsx` |
+
+- Every Sign In opens `sign-in.html`; its buttons use the existing Cognito PKCE flow in `auth-session-705b-r3.js` (`data-gv-auth-signin`, and `data-gv-auth-signup`, which opens Cognito's `/signup` page with the same request). Cognito, the user pool, the app client and OAuth settings are unchanged.
+- Saved trips were removed from the website: no Save buttons, no My Trips page (`my-trips.html`, `saved-trips.html` and `/react/my-trips/` open Account). The saved-trips backend and stored data are unchanged.
+- Photos in `assets/images/cinematic/` are Pexels-licensed; sources in `sources.json`.
+- Tests: `tests/frontend/account-lifecycle-browser.test.cjs` (sign-in, sign-up, callback, session persistence, sign-out, guest-to-member, removed saved trips).

@@ -89,7 +89,7 @@ async function site(tour, signedIn=true, {estimate=false}={}) {
   });
   const page=await context.newPage();
   // The new results page (results.html) replaced multicity-visualizer.html in GV-WEB-2.
-  async function visualizer({ready=true}={}){const query=new URLSearchParams({origin:tour.origin.airportCode||tour.origin.code,budget:String(tour.budget.total.amount),currency:tour.budget.total.currency,month:tour.itineraryDatePlan.scanStartMonth,adults:String(tour.passengerPricing?.travellers||1)});await page.goto(origin+'/results.html?'+query);if(!ready)return;await page.locator('#results:visible').waitFor();await page.waitForFunction(()=>Boolean(window.GlobevoySavedTrips705C));}
+  async function visualizer({ready=true}={}){const query=new URLSearchParams({origin:tour.origin.airportCode||tour.origin.code,budget:String(tour.budget.total.amount),currency:tour.budget.total.currency,month:tour.itineraryDatePlan.scanStartMonth,adults:String(tour.passengerPricing?.travellers||1)});await page.goto(origin+'/results.html?'+query);if(!ready)return;await page.locator('#results:visible').waitFor();}
   return {context,page,rows,postBodies,statuses,missing,visualizer,livePosts,live:v=>{liveOptions=v},fail:v=>{failure=v},hold:p=>{gate=p}};
 }
 
@@ -115,45 +115,7 @@ test('booking hotel links use validated current context instead of the stale pro
   }
 });
 
-for(const routeDetails of [false,true])test((routeDetails?'Route-details':'Classic visualizer')+' Save -> real React My Trips -> Delete, without network access',async()=>{
-  const s=await site(tours[routeDetails?1:0]);
-  try{
-    await s.visualizer();
-    if(routeDetails){await s.page.locator('#book').click();await s.page.waitForURL('**/multi-city-trip.html?**');await s.page.locator('#gv-mtd-save').waitFor();await s.page.waitForFunction(()=>Boolean(window.GlobevoySavedTripsRouteDetails705CR3));}
-    const button=s.page.locator(routeDetails?'#gv-mtd-save':'#mcv-save-trip');
-    let releasePost;s.hold(new Promise(r=>{releasePost=r}));
-    await button.click();await s.page.waitForFunction(()=>document.querySelector('[aria-busy="true"]'));
-    assert.doesNotMatch(await button.innerText(),/Saved to account/);assert.equal(s.rows.size,0);
-    releasePost();await button.filter({hasText:'Saved to account'}).waitFor();
-    assert.equal(s.postBodies.length,1);assert.equal(s.rows.size,1);
-    console.log('Browser Save payload bytes:',Buffer.byteLength(s.postBodies[0]));
-    const body=JSON.parse(s.postBodies[0]);assert.ok(Buffer.byteLength(s.postBodies[0])<64*1024);assert.ok(Buffer.byteLength(JSON.stringify(body.tripSnapshot))<48*1024);
-    assert.equal(body.tripSnapshot.tour.itineraryDatePlan.canonicalReturnDate,tours[routeDetails?1:0].itineraryDatePlan.canonicalReturnDate);
-    const guest=await s.page.evaluate(()=>JSON.parse(sessionStorage.getItem('globevoy.multi.selected.v1')));
-    assert.ok(guest.cheapFlightScanner.candidateEvidence.length);assert.ok(guest.entryEligibility.profile.passportCountryCode);
-    await s.page.goto(origin+'/react/my-trips/');const card=s.page.locator('.gv-saved-visual-card');await card.waitFor();
-    assert.match(await card.innerText(),/snapshot|price check|revalidation/i);
-    await card.locator('summary').click();await card.getByRole('button',{name:'Delete saved trip'}).click();await card.waitFor({state:'detached'});
-    assert.equal(s.rows.size,0);assert.ok(s.statuses.some(r=>r.method==='POST'&&r.status===201));assert.ok(s.statuses.some(r=>r.method==='DELETE'&&r.status===200));assert.deepEqual(s.missing,[]);
-  }finally{await s.context.close()}
-});
-
-for(const failure of ['network','413','malformed'])test('Classic Save handles '+failure+' without claiming account success',async()=>{
-  const s=await site(tours[0]);try{await s.visualizer();s.fail(failure);const button=s.page.locator('#mcv-save-trip');await button.click();
-    await s.page.waitForFunction(()=>{const b=document.getElementById('mcv-save-trip');return b.getAttribute('aria-busy')==='false'&&b.textContent==='Save'});
-    assert.doesNotMatch(await button.innerText(),/Saved/);assert.equal(s.rows.size,0);
-    assert.equal(await button.getAttribute('aria-pressed'),'false');assert.equal(await button.evaluate(b=>b.classList.contains('is-saved')),false);
-    assert.ok(await s.page.evaluate(()=>Boolean(JSON.parse(sessionStorage.getItem('globevoy.multi.selected.v1')).cheapFlightScanner.candidateEvidence)));
-  }finally{await s.context.close()}
-});
-
-test('Guest Save keeps the full tour locally and never calls the account API',async()=>{
-  const s=await site(tours[0],false);try{await s.visualizer();await s.page.locator('#mcv-save-trip').click();await s.page.locator('#mcv-save-trip').filter({hasText:'Saved'}).waitFor();
-    assert.equal(s.postBodies.length,0);assert.equal(s.rows.size,0);
-    const full=await s.page.evaluate(()=>JSON.parse(sessionStorage.getItem('globevoy.multi.selected.v1')));assert.ok(full.cheapFlightScanner.candidateEvidence.length);assert.ok(full.entryEligibility.profile.passportCountryCode);
-    assert.ok(!s.statuses.some(r=>r.path==='/api/saved-trips'));
-  }finally{await s.context.close()}
-});
+// GV-WEB-4: saved trips were removed; sign-in and account lifecycle tests are in account-lifecycle-browser.test.cjs.
 
 test('public page organization preserves content, assets and packaged legacy URLs',async()=>{
  const s=await site(tours[0],false);
@@ -189,7 +151,7 @@ async function bookingList(page){
 for(const viewport of [{width:1440,height:1000},{width:390,height:844}])test(`Home -> itinerary -> booking list with honest referrals at ${viewport.width}px`,async()=>{
  const s=await site(tours[0],false);
  try{
-  await s.page.setViewportSize(viewport);await s.page.emulateMedia({reducedMotion:'reduce'});await s.page.goto(origin+'/');await s.page.locator('#from').fill('Toronto');await s.page.locator('#from-list li[data-i]').first().click();await s.page.locator('#budget').fill('2500');await s.page.locator('#search button[type=submit]').click();await s.page.locator('#mcv-save-trip').waitFor();
+  await s.page.setViewportSize(viewport);await s.page.emulateMedia({reducedMotion:'reduce'});await s.page.goto(origin+'/');await s.page.locator('#from').fill('Toronto');await s.page.locator('#from-list li[data-i]').first().click();await s.page.locator('#budget').fill('2500');await s.page.locator('#search button[type=submit]').click();await s.page.locator('#results:visible').waitFor();
   await s.page.locator('#book').click();await s.page.waitForURL('**/multi-city-trip.html?**');await s.page.locator('#gv-mtd-booking').click();await s.page.waitForURL('**/booking.html?**');
   await bookingList(s.page);
   const model=await s.page.evaluate(()=>{const t=window.GlobevoyBooking673FR1?.tour,v=window.GlobevoyBookingV2.buildItems(t);return {...window.GlobevoyBookingV2.summaryOf(t,v.items,v.cur),items:v.items}});

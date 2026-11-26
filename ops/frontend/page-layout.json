@@ -287,7 +287,7 @@
     {
       "from": "frontend/booking.html",
       "to": "frontend/pages/booking.html",
-      "sha256": "e53ae6cfd0a496b42a49d174f4ed02d48edf34ae4929ff8b572f18ee5d173956"
+      "sha256": "438cff9242dff7085e8504edd65fed6eea1a0e100db4a9cbaac1b2c37fcabb4b"
     },
     {
       "from": "frontend/create-account.html",
@@ -307,7 +307,7 @@
     {
       "from": "frontend/index.html",
       "to": "frontend/pages/index.html",
-      "sha256": "d799315fd9d9f98e810301449a790b2bd39320d3463ca70568f297433c75a7bb"
+      "sha256": "9ececcb2dc186fff9eeefe3cbf5fd41b0e7fb1637a4bca15e3dba672a671b71a"
     },
     {
       "from": "frontend/mixed-results.html",
@@ -317,7 +317,7 @@
     {
       "from": "frontend/multi-city-trip.html",
       "to": "frontend/pages/multi-city-trip.html",
-      "sha256": "ecec700e4d781cbd1c7ec14282063f30b5f8e1f1024b0303df889faca4b08057"
+      "sha256": "be11f08b548f818c2be11c36549350280b20811b86b7d5cdab0d6097021e177e"
     },
     {
       "from": "frontend/multi-city.html",
@@ -332,7 +332,7 @@
     {
       "from": "frontend/my-trips.html",
       "to": "frontend/pages/my-trips.html",
-      "sha256": "6b8ae404d69a13fe00f18f2774d2c49fabf83498aa420d7d015551c6e6611e86"
+      "sha256": "c0d60949a5db291cab5247e46efadbcd40fcc6b6f3efa572512847b1f4cd791d"
     },
     {
       "from": "frontend/privacy.html",
@@ -342,17 +342,17 @@
     {
       "from": "frontend/results.html",
       "to": "frontend/pages/results.html",
-      "sha256": "592b92533758c00ef00e33911b77973b8d72045ae9019a4e66ecb7f3684dc047"
+      "sha256": "e18187a512d990c26104436e0829d0af95e6904d8f21503281b177755485fe4b"
     },
     {
       "from": "frontend/saved-trips.html",
       "to": "frontend/pages/saved-trips.html",
-      "sha256": "f79ff2f0dedd6550aba6ab3903e14dbddbea47e8fb3a8654a35d68fda99838b1"
+      "sha256": "c0d60949a5db291cab5247e46efadbcd40fcc6b6f3efa572512847b1f4cd791d"
     },
     {
       "from": "frontend/sign-in.html",
       "to": "frontend/pages/sign-in.html",
-      "sha256": "6709c1dc9f52a4fbff2023f8945e79cf51c9c4ee3d86ed074bb408bc91852dba"
+      "sha256": "d8ba2ea78bc1c24779d9460eaf454fa95bb27344ffc9acc7b341f673b78d43d0"
     },
     {
       "from": "frontend/stays.html",

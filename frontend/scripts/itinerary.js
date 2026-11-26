@@ -310,19 +310,6 @@
     $('#new-search').href = homeUrl();
     $('#gv-mtd-adjust').href = homeUrl();
     $('#gv-mtd-booking').href = bookingUrl();
-    const signin = $('#signin');
-    if (S?.isMember?.()) { signin.textContent = 'Your account'; signin.onclick = () => { location.href = './account.html'; }; }
-    else signin.onclick = () => S?.signIn?.();
-    // Guests keep the trip in this browser. Signed-in travellers are handled by the
-    // saved-trips runtime (saved-trips-705c-r3-route-details.js), which saves to their account.
-    $('#gv-mtd-save').onclick = () => {
-      const id = String(q.get('snapshot') || '');
-      let ok = false;
-      try { if (id) { localStorage.setItem(H.SNAPSHOT_PREFIX + id, JSON.stringify({ version: 'GV-WEB-3', savedAt: new Date().toISOString(), tour })); ok = true; } } catch (_) { ok = false; }
-      $('#gv-mtd-save').textContent = ok ? 'Saved in this browser ✓' : 'Save trip';
-      $('#gv-mtd-save').setAttribute('aria-pressed', String(ok));
-      $('#gv-mtd-account-save-status').textContent = ok ? 'Saved in this browser. Sign in to keep it in your account.' : 'This browser can’t store the trip right now.';
-    };
   }
 
   function showError(message) {

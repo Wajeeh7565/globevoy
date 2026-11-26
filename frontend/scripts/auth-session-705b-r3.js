@@ -145,7 +145,9 @@
     const pending = { version: VERSION, verifier, state, returnTo, createdAt: Date.now() };
     writeJson(PENDING_KEY, pending);
 
-    const authorize = new URL(cfg.authorizeEndpoint);
+    // GV-WEB-4: "Create an account" opens Cognito's hosted sign-up page with the same
+    // PKCE request; everything else (and the default) uses the authorize endpoint.
+    const authorize = new URL(options.screen === 'signup' && cfg.domainBaseUrl ? `${cfg.domainBaseUrl}/signup` : cfg.authorizeEndpoint);
     authorize.searchParams.set('response_type', 'code');
     authorize.searchParams.set('client_id', cfg.clientId);
     authorize.searchParams.set('redirect_uri', cfg.callbackUrl);
@@ -328,6 +330,12 @@
       if (signIn) {
         event.preventDefault();
         beginSignIn({ returnTo: signIn.dataset.returnTo || currentReturnTo() });
+        return;
+      }
+      const signUp = event.target.closest('[data-gv-auth-signup]');
+      if (signUp) {
+        event.preventDefault();
+        beginSignIn({ returnTo: signUp.dataset.returnTo || currentReturnTo(), screen: 'signup' });
         return;
       }
       const signOutButton = event.target.closest('[data-gv-auth-signout]');

@@ -205,8 +205,6 @@
     $('#summary-origin').textContent = [v.origin.name, v.origin.country].filter(Boolean).join(', ');
     $('#book').href = S.tripDetailsUrl(tour, search);
     window.__gvGeneratedTour = tour;
-    const save = $('#mcv-save-trip');
-    if (save && !savedView) { save.textContent = 'Save'; save.setAttribute('aria-pressed', 'false'); save.classList.remove('is-saved'); }
 
     renderJourneyCards(v);
     v.cities.forEach(loadCityPhoto);
@@ -637,17 +635,8 @@
     $('#skip').onclick = () => skip();
     $('#fit').onclick = () => { stopFrame(); clearMedia(); fitFull(); setStatus('Full route. Select a city or resume.'); };
     $('#close-media').onclick = () => { clearMedia(); $('#play').focus(); };
-    $('#mcv-save-trip').addEventListener('click', () => {
-      if (!view) return;
-      S.saveInBrowser(view.tour, search);
-      const b = $('#mcv-save-trip');
-      // Signed in: the saved-trips runtime takes over and reports "Saved to account".
-      if (!(member && window.GlobevoySavedTrips705C?.enabled?.())) { b.textContent = 'Saved ✓'; b.classList.add('is-saved'); b.setAttribute('aria-pressed', 'true'); }
-    });
     $('#new-search').href = homeUrl();
-    const signin = $('#signin');
-    if (member) { signin.textContent = 'Your account'; signin.onclick = () => { location.href = './account.html'; }; }
-    else signin.onclick = () => S.signIn();
+    // The header Sign In / Account menu is account-menu.js.
     reduce.addEventListener('change', () => { if (constrained()) stopFrame(); controls(); });
     document.addEventListener('visibilitychange', () => { if (document.hidden) { manualPreview = false; stopFrame(); $$('video').forEach(v => { if (!v.classList.contains('loading-film')) v.pause(); }); } });
   }
@@ -732,7 +721,7 @@
     }));
     active = 0; view = trips[0].view;
     $('#results').hidden = false;
-    $('#options-heading').textContent = savedView ? 'Your saved trip' : `Trips from ${originName()} for ${money(search.budget, search.currency)}`;
+    $('#options-heading').textContent = savedView ? 'Your trip' : `Trips from ${originName()} for ${money(search.budget, search.currency)}`;
     renderTabs();
     renderTrip(trips[0]);
     await initMap();

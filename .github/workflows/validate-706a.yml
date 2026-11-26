@@ -6,7 +6,6 @@ on:
     paths:
       - 'frontend/my-trips.html'
       - 'frontend/booking.html'
-      - 'frontend/scripts/my-trips-booking-706a.js'
       - 'frontend/scripts/booking-account-bridge-706a.js'
       - 'frontend/scripts/booking-trip-v2.js'
       - 'backend/validation/validate-gv-book-706a.js'
@@ -16,7 +15,6 @@ on:
     paths:
       - 'frontend/my-trips.html'
       - 'frontend/booking.html'
-      - 'frontend/scripts/my-trips-booking-706a.js'
       - 'frontend/scripts/booking-account-bridge-706a.js'
       - 'frontend/scripts/booking-trip-v2.js'
       - 'backend/validation/validate-gv-book-706a.js'
@@ -41,7 +39,6 @@ jobs:
           node-version: '24'
       - name: Syntax checks
         run: |
-          node --check frontend/scripts/my-trips-booking-706a.js
           node --check frontend/scripts/booking-account-bridge-706a.js
           node --check frontend/scripts/booking-trip-v2.js
           node --check backend/validation/validate-gv-book-706a.js
@@ -51,5 +48,4 @@ jobs:
         run: |
           node backend/validation/validate-gv-account-705b-r3.js
           node backend/validation/validate-gv-account-705c.js
-          node backend/validation/validate-gv-account-705c-r3.js
           node .github/scripts/validate-repo.mjs

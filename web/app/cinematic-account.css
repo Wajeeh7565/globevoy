@@ -1,0 +1,134 @@
+/* GV-WEB-4 — Cinematic Explorer account pages (header, Account, Travel Profile).
+   Same tokens as the classic pages (frontend/styles/site.css): cream paper, deep teal, Archivo. */
+@font-face{font-family:Archivo;font-weight:400;font-display:swap;src:url(/assets/fonts/archivo/font-0.woff2) format('woff2')}
+@font-face{font-family:Archivo;font-weight:500;font-display:swap;src:url(/assets/fonts/archivo/font-1.woff2) format('woff2')}
+@font-face{font-family:Archivo;font-weight:600;font-display:swap;src:url(/assets/fonts/archivo/font-2.woff2) format('woff2')}
+@font-face{font-family:Archivo;font-weight:700;font-display:swap;src:url(/assets/fonts/archivo/font-3.woff2) format('woff2')}
+.cx{--paper:#f6f4ee;--ivory:#fffdf8;--ink:#142b2b;--muted:#536666;--teal:#075a59;--deep:#063e40;--line:#d4ddda;--mist:#e3eee8;--radius:16px;
+  min-height:100vh;background:var(--paper);color:var(--ink);font:16px/1.5 Archivo,Arial,sans-serif;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+.cx *{box-sizing:border-box}
+.cx h1,.cx h2,.cx h3,.cx p,.cx dl,.cx dd,.cx figure{margin:0}
+.cx h1,.cx h2,.cx h3{line-height:1.08;letter-spacing:-.035em;text-wrap:balance;font-weight:600}
+.cx a{color:inherit;text-underline-offset:4px}
+.cx button,.cx input,.cx select{font:inherit;color:inherit}
+.cx :focus-visible{outline:3px solid #137b73;outline-offset:3px}
+.cx-wrap{width:min(1280px,calc(100% - 80px));margin-inline:auto}
+.cx main{flex:1}
+
+/* header + footer: same as the homepage, results, itinerary and booking pages */
+.cx-top{display:flex;justify-content:space-between;align-items:center;gap:20px;width:calc(100% - 96px);margin-inline:auto;padding:27px 0}
+.cx-top nav{display:flex;align-items:center;gap:28px;font-size:13px}
+.cx-top nav>a{min-height:44px;display:flex;align-items:center;text-decoration:none}
+.cx-top nav>a:hover{text-decoration:underline}
+.cx-brand img{height:44px;width:auto;display:block}
+.cx-signin{display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border:0;border-radius:999px;background:var(--deep);color:#fff!important;font-weight:500;font-size:14px;text-decoration:none;cursor:pointer}
+.cx-signin:hover{background:var(--teal)}
+.cx-menu{position:relative}
+.cx-menu>button{display:inline-flex;align-items:center;gap:9px;min-height:44px;border:1px solid #c9d4cf;background:var(--ivory);border-radius:999px;padding:4px 14px 4px 4px;font-size:14px;font-weight:500;color:var(--deep);cursor:pointer}
+.cx-menu>button:hover{border-color:var(--teal)}
+.cx-menu>button svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6}
+.cx-menu>button[aria-expanded=true] svg{transform:rotate(180deg)}
+.cx-avatar{aspect-ratio:1;width:34px;border-radius:50%;background:var(--mist);color:var(--deep);display:inline-grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+.cx-panel{position:absolute;right:0;top:calc(100% + 8px);width:min(300px,calc(100vw - 36px));background:var(--ivory);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 12px 34px #142b2b26;overflow:hidden;z-index:30}
+.cx-panel-id{display:flex;gap:12px;align-items:center;padding:16px;background:var(--deep);color:#fff}
+.cx-panel-id .cx-avatar{width:40px;font-size:13px}
+.cx-panel-id strong{display:block;font-size:14px}
+.cx-panel-id small{display:block;font-size:13px;color:#cfe5df;overflow-wrap:anywhere}
+.cx-panel nav{display:grid;padding:7px}
+.cx-panel nav a,.cx-panel nav button{min-height:46px;display:flex;align-items:center;font-size:14px;text-align:left;text-decoration:none;color:var(--ink);background:none;border:0;border-radius:8px;padding:9px 10px;cursor:pointer}
+.cx-panel nav a:hover,.cx-panel nav button:hover{background:var(--mist)}
+.cx-footer{border-top:1px solid var(--line);margin-top:56px;padding:25px 0;display:flex;justify-content:space-between;align-items:center;gap:25px;font-size:12px;color:var(--muted)}
+.cx-footer>div{display:flex;gap:17px;align-items:center}
+.cx-footer>div span{max-width:44ch;line-height:1.6}
+.cx-footer img{height:34px;width:auto}
+.cx-footer nav{display:flex;gap:20px}
+.cx-footer nav a{min-height:44px;display:flex;align-items:center}
+
+/* shared bits */
+.cx-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:10px 18px;border:1px solid #91a9a1;border-radius:10px;color:var(--deep);background:var(--ivory);font-size:14px;font-weight:600;text-decoration:none;text-align:center;line-height:1.25;cursor:pointer;transition:background .2s}
+.cx-button:hover:not(:disabled){background:var(--mist)}
+.cx-button.primary{background:var(--deep);color:#fff;border-color:var(--deep)}
+.cx-button.primary:hover:not(:disabled){background:var(--teal)}
+.cx-button:disabled{opacity:.55;cursor:wait}
+.cx-actions{display:flex;gap:8px;flex-wrap:wrap}
+.cx-fine{font-size:13px;color:var(--muted)}
+.cx-error{font-size:13px;color:#8d2926}
+.cx-ok{font-size:13px;color:var(--teal)}
+.cx-state{margin:12vh auto;text-align:center;max-width:560px}
+.cx-state h1{font-size:34px}
+.cx-spinner{display:inline-block;width:34px;height:34px;border-radius:50%;border:3px solid var(--mist);border-top-color:var(--teal);animation:cx-spin .9s linear infinite;margin-bottom:20px}
+@keyframes cx-spin{to{transform:rotate(360deg)}}
+
+/* photo banners */
+.cx-hero{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--deep);isolation:isolate;color:#fff}
+.cx-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.cx-hero:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(0deg,#041f21e6 0%,#041f2155 45%,transparent 75%)}
+.cx-hero>div{position:absolute;inset:auto 28px 26px}
+.cx-hero h1{font-size:clamp(40px,5.2vw,68px);letter-spacing:-.045em}
+.cx-hero p{margin-top:10px;color:#e9f1ec;font-size:16px}
+.cx-hero.account{height:365px}
+.cx-hero.profile{height:260px}
+.cx-hero.profile img{object-position:center 55%}
+
+/* account page */
+.cx-overview{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:26px;padding:28px 0}
+.cx-identity{display:flex;gap:15px;align-items:center}
+.cx-identity .cx-avatar{width:65px;font-size:22px}
+.cx-identity h2{font-size:24px}
+.cx-identity p{font-size:14px;color:var(--muted);overflow-wrap:anywhere}
+.cx-overview h2.cx-title{font-size:24px}
+.cx-facts{margin:13px 0 19px}
+.cx-facts>div{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.cx-facts dt{color:var(--muted)}
+.cx-facts dd{font-weight:600;overflow-wrap:anywhere}
+.cx-guest{display:grid;justify-items:center;text-align:center;gap:14px;padding:36px 0 10px}
+.cx-guest p{color:var(--muted);max-width:52ch}
+
+/* travel profile */
+.cx-section{border-top:1px solid var(--line);padding:20px 0 22px}
+.cx-section header h2{font-size:24px}
+.cx-section header p{font-size:13px;color:var(--muted);margin-top:7px}
+.cx-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;margin-top:15px}
+.cx-fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.cx label.cx-field,.cx .cx-tag>label{display:grid;gap:6px;font-size:14px;font-weight:600;min-width:0}
+.cx input:not([type=checkbox]),.cx select{width:100%;min-height:48px;border:1px solid #6d897f;border-radius:9px;background:#fff;padding:10px 12px;font-size:16px}
+.cx input:not([type=checkbox]):focus,.cx select:focus{border-color:var(--teal);outline:2px solid #0a817733}
+.cx input[type=checkbox]{width:18px;height:18px;margin:0;accent-color:var(--teal);flex:none}
+.cx fieldset{margin:15px 0 16px;padding:0;border:0;min-width:0}
+.cx legend{font-size:14px;font-weight:600;margin-bottom:8px}
+.cx-interests{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.cx-interest{display:grid;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--ivory);overflow:hidden;transition:background .18s,border-color .18s}
+.cx-interest img{width:100%;aspect-ratio:2.3;object-fit:cover;display:block}
+.cx-interest span{display:flex;gap:8px;align-items:center;padding:9px 11px;font-size:14px;font-weight:500}
+.cx-interest:has(input:checked){background:var(--mist);border-color:var(--teal)}
+.cx-interest:focus-within{outline:3px solid #0a8177;outline-offset:2px}
+.cx-tag-entry{display:flex;gap:7px;align-items:center;margin-top:6px}
+.cx-tag-entry input{min-width:0}
+.cx-tag-entry .cx-button{flex:none}
+.cx-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.cx-chip{display:inline-flex;max-width:100%;border:1px solid var(--line);border-radius:20px;background:var(--mist)}
+.cx-chip button{font-size:13px;min-height:40px;border:0;background:transparent;padding:4px 11px;overflow-wrap:anywhere;cursor:pointer}
+.cx-chip button+button{min-width:40px;font-size:18px;border-left:1px solid var(--line)}
+.cx-complete{border-top:1px solid var(--line);padding:16px 0;color:var(--teal);font-size:14px}
+.cx-complete summary{cursor:pointer;min-height:32px}
+.cx-complete ul{margin:8px 0 0;padding-left:20px;color:var(--muted)}
+.cx-savebar{position:sticky;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:12px 0 calc(12px + env(safe-area-inset-bottom));display:flex;justify-content:space-between;align-items:center;gap:12px;z-index:8}
+.cx-savebar p{font-size:13px;color:var(--muted)}
+
+@media(max-width:1050px){.cx-wrap{width:calc(100% - 48px)}.cx-top{width:calc(100% - 56px)}}
+@media(max-width:760px){
+  .cx-wrap{width:calc(100% - 32px)}
+  .cx-top{width:calc(100% - 36px);padding:17px 0}
+  .cx-top nav{gap:14px;font-size:12px}
+  .cx-brand img{height:36px}
+  .cx-menu>button>span:not(.cx-avatar){display:none}
+  .cx-hero.account{height:260px}
+  .cx-hero.profile{height:200px}
+  .cx-hero>div{inset:auto 18px 18px}
+  .cx-overview{grid-template-columns:1fr}
+  .cx-fields,.cx-fields.three{grid-template-columns:1fr}
+  .cx-interests{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cx-footer{align-items:start;flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){.cx *{animation:none!important;transition:none!important}}
+@media(max-width:760px){.cx-savebar .cx-button{white-space:nowrap;padding-inline:14px}.cx-savebar p{font-size:12px}}

@@ -24,24 +24,25 @@ function main() {
   assert.match(account, /window\.location\.replace\(target\)/);
   pass('legacy Account preserves query/hash and redirects to canonical React Account');
 
+  // GV-WEB-4: saved trips were removed from the website; the old My Trips addresses open Account.
   for (const html of [myTrips, savedTrips]) {
-    assert.match(html, /gv-canonical-my-trips-route" content="GV-WEB-FE-R2"/);
-    assert.match(html, /rel="canonical" href="\/react\/my-trips\/"/);
-    assert.match(html, /'\/react\/my-trips\/' \+ window\.location\.search \+ window\.location\.hash/);
+    assert.match(html, /gv-canonical-my-trips-route" content="GV-WEB-4"/);
+    assert.match(html, /rel="canonical" href="\/react\/account\/"/);
+    assert.match(html, /'\/react\/account\/' \+ window\.location\.search \+ window\.location\.hash/);
     assert.match(html, /window\.location\.replace\(target\)/);
   }
-  pass('legacy My Trips entry points redirect to canonical React My Trips');
+  pass('legacy My Trips entry points preserve query/hash and redirect to canonical React Account');
 
   assert.match(shell, /root\('react\/account\/'\)/);
-  assert.match(shell, /root\('react\/my-trips\/'\)/);
+  assert.doesNotMatch(shell, /root\('react\/my-trips\/'\)/);
   assert.match(shell, /window\.GLOBEVOY_ENVIRONMENT_POLICY\?\.stagingOrigin/);
   assert.match(shell, /\$\{stagingOrigin\}\/react\/account\//);
   assert.equal(require(path.join(ROOT, 'frontend/runtime/environment-policy.js')).stagingOrigin, 'https://staging.dy4fw8gx1ccie.amplifyapp.com');
   assert.doesNotMatch(shell, /root\('account\.html'\)/);
   assert.doesNotMatch(shell, /root\('my-trips\.html'\)/);
-  pass('classic shell links directly to canonical React Account and My Trips');
+  pass('classic shell links directly to canonical React Account and has no My Trips link');
 
-  assert.doesNotMatch(production, /GV-WEB-FE-R2|gv-canonical-account-route|gv-canonical-my-trips-route/);
+  assert.doesNotMatch(production, /GV-WEB-FE-R2|GV-WEB-4|gv-canonical-account-route|gv-canonical-my-trips-route/);
   pass('FE-R2 is frontend-only and leaves the production Lambda untouched');
 
   console.log(`\nGV-WEB-FE-R2 validation PASS (${checks.length}/${checks.length})`);

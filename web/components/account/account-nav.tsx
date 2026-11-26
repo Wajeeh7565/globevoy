@@ -1,94 +1,61 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@/components/account/auth-provider';
-import { browserEnvironment } from '@/lib/public-config';
 
-function currentReturnTo(): string {
-  if (typeof window === 'undefined') return '/react/';
-  const value = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-  return value.startsWith('/react/') ? value : '/react/';
+// GV-WEB-4: guests open the GlobeVoy sign-in page (which hands over to Cognito);
+// members get the Account menu with Account, Travel Profile and Sign out.
+export function signInHref(): string {
+  if (typeof window === 'undefined') return '/sign-in.html';
+  const here = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  return `/sign-in.html?returnTo=${encodeURIComponent(here)}`;
+}
+
+export function initialsFor(identity: string): string {
+  const name = String(identity || '').split('@')[0];
+  const parts = name.split(/[\s._-]+/).filter(Boolean);
+  return ((parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2)) || 'GV').toUpperCase();
 }
 
 export function AccountNav() {
-  const { session, loading, signIn, signOut } = useAuth();
-  const [accountsEnabled, setAccountsEnabled] = useState(false);
+  const { session, loading, signOut } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [href, setHref] = useState('/sign-in.html');
+  const root = useRef<HTMLDivElement>(null);
 
+  useEffect(() => { setHref(signInHref()); }, []);
   useEffect(() => {
-    setAccountsEnabled(browserEnvironment().accountsEnabled);
-  }, []);
+    if (!open) return;
+    const close = (event: MouseEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
+    const key = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false); };
+    document.addEventListener('click', close);
+    document.addEventListener('keydown', key);
+    return () => { document.removeEventListener('click', close); document.removeEventListener('keydown', key); };
+  }, [open]);
 
-  const accountLabel = useMemo(() => {
-    const identity = session?.user.email || session?.user.username || 'Account';
-    const initial = identity.trim().charAt(0).toUpperCase() || 'G';
-    return { identity, initial };
-  }, [session?.user.email, session?.user.username]);
+  const identity = session?.user.email || session?.user.username || 'Signed in';
+  const initials = useMemo(() => initialsFor(identity), [identity]);
 
+  if (!session) {
+    return <a className="cx-signin" href={href} aria-disabled={loading || undefined}>{loading ? 'Checking…' : 'Sign In'}</a>;
+  }
   return (
-    <nav className="gv-account-nav" aria-label="Account navigation">
-      {session ? (
-        <>
-          <details className="gv-account-nav__menu">
-            <summary aria-label={`Open account menu for ${accountLabel.identity}`}>
-              <span className="gv-account-nav__avatar" aria-hidden="true">{accountLabel.initial}</span>
-              <span>Account</span>
-              <span className="gv-account-nav__chevron" aria-hidden="true">⌄</span>
-            </summary>
-            <div className="gv-account-nav__panel">
-              <div className="gv-account-nav__identity">
-                <span className="gv-account-nav__identity-avatar" aria-hidden="true">{accountLabel.initial}</span>
-                <span className="gv-account-nav__identity-copy">
-                  <strong>Signed in as</strong>
-                  <span>{accountLabel.identity}</span>
-                </span>
-              </div>
-
-              <Link className="gv-account-nav__item" href="/travel-profile/">
-                <span className="gv-account-nav__item-icon" aria-hidden="true">✈</span>
-                <span className="gv-account-nav__item-copy">
-                  <strong>Travel profile</strong>
-                  <small>Home airport, countries & preferences</small>
-                </span>
-                <span className="gv-account-nav__item-arrow" aria-hidden="true">›</span>
-              </Link>
-
-              <Link className="gv-account-nav__item" href="/my-trips/">
-                <span className="gv-account-nav__item-icon" aria-hidden="true">▣</span>
-                <span className="gv-account-nav__item-copy">
-                  <strong>My trips</strong>
-                  <small>Pick up your saved journeys</small>
-                </span>
-                <span className="gv-account-nav__item-arrow" aria-hidden="true">›</span>
-              </Link>
-
-              <Link className="gv-account-nav__item" href="/account/">
-                <span className="gv-account-nav__item-icon" aria-hidden="true">◎</span>
-                <span className="gv-account-nav__item-copy">
-                  <strong>Account details</strong>
-                  <small>Session and account information</small>
-                </span>
-                <span className="gv-account-nav__item-arrow" aria-hidden="true">›</span>
-              </Link>
-
-              <button className="gv-account-nav__signout" type="button" onClick={signOut}>
-                <span className="gv-account-nav__signout-icon" aria-hidden="true">↪</span>
-                <span>Sign out</span>
-              </button>
-            </div>
-          </details>
-        </>
-      ) : (
-        <button
-          type="button"
-          className="gv-account-nav__signin"
-          disabled={loading || !accountsEnabled}
-          title={!accountsEnabled ? 'Accounts are not available on this website yet.' : undefined}
-          onClick={() => { if (accountsEnabled) void signIn(currentReturnTo()); }}
-        >
-          {loading ? 'Checking…' : 'Sign in'}
-        </button>
-      )}
-    </nav>
+    <div className="cx-menu" ref={root}>
+      <button type="button" aria-haspopup="true" aria-expanded={open} aria-controls="cx-account-panel" onClick={() => setOpen(value => !value)}>
+        <span className="cx-avatar" aria-hidden="true">{initials}</span>
+        <span>Account</span>
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" /></svg>
+      </button>
+      {open ? (
+        <div className="cx-panel" id="cx-account-panel">
+          <div className="cx-panel-id"><span className="cx-avatar" aria-hidden="true">{initials}</span><div><strong>Signed in</strong><small>{identity}</small></div></div>
+          <nav aria-label="Account">
+            <a href="/react/account/">Account</a>
+            <a href="/react/travel-profile/">Travel Profile</a>
+            <button type="button" onClick={signOut}>Sign out</button>
+          </nav>
+        </div>
+      ) : null}
+    </div>
   );
 }

@@ -159,7 +159,7 @@ async function visit(browser, data, { mobile, member }) {
     assert.equal(await readMoney('#gv-booking-v2 .gvb2-total strong'), quote.tripEstimate);
     await page.goto(new URL(details.replace('multi-city-trip.html?', 'results.html?'), SITE).href);
     await page.locator('#results').waitFor({state:'visible'});
-    assert.match(await page.locator('#options-heading').innerText(), /Your saved trip/);
+    assert.match(await page.locator('#options-heading').innerText(), /Your trip/);
     assert.equal(await readMoney('#summary-total'), quote.tripEstimate);
     assert.equal(search.length,1,'saved trip reopening reuses its pricing snapshot');
     assert.deepEqual(pricing, []);
