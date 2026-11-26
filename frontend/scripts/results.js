@@ -185,7 +185,8 @@
     $('#trip-title').textContent = names.join(' → ');
     $('#trip-meta').innerHTML = [plural(v.nights, 'night', 'nights'), dateRange(v.start, v.end), plural(search.adults, 'traveller', 'travellers')]
       .map(x => `<span>${esc(x)}</span>`).join('');
-    $('#live-note').textContent = 'Live prices, checked ' + checkedAgo(tour);
+    const verified = t.verifiedUntil > Date.now();
+    $('#live-note').textContent = verified ? 'Live prices, checked ' + checkedAgo(tour) : 'Previous prices · verification required';
     const parts = [['Flights', b.flightEstimate, 'f'], ['Hotels', b.accommodationEstimate, 'h'], ['Spending money', b.reserveAmount, 'r'], ['Left over', b.amountLeft, 'l']];
     const total = Number(b.totalBudget) || parts.reduce((n, x) => n + (Number(x[1]) || 0), 0) || 1;
     $('#budget-bar').innerHTML = parts.map(([k, val, c]) => `<span class="seg seg-${c}" style="width:${Math.max(0, Number(val) || 0) / total * 100}%"></span>`).join('');
@@ -194,8 +195,8 @@
     $('#summary-total').innerHTML = money(b.tripEstimate, v.cur) + ' <small>flights and hotels</small>';
     $('#summary-line').textContent = 'of your ' + money(b.totalBudget || search.budget, v.cur) + ' budget';
     $('#summary-list').innerHTML = [
-      ['Flights', money(b.flightEstimate, v.cur), 'f', 'Live'],
-      ['Hotels, ' + plural(v.nights, 'night', 'nights'), money(b.accommodationEstimate, v.cur), 'h', 'Live'],
+      ['Flights', money(b.flightEstimate, v.cur), 'f', verified ? 'Live' : 'Estimate'],
+      ['Hotels, ' + plural(v.nights, 'night', 'nights'), money(b.accommodationEstimate, v.cur), 'h', verified ? 'Live' : 'Estimate'],
       ['Spending money', money(b.reserveAmount, v.cur), 'r'],
       ['Left over', money(b.amountLeft, v.cur), 'l']
     ].map(([k, val, c, tag]) => `<div><dt><i class="key seg-${c}"></i>${esc(k)}${tag ? ` <em class="tag">${tag}</em>` : ''}</dt><dd>${esc(val)}</dd></div>`).join('');
@@ -230,12 +231,16 @@
   const ICON_FLIGHT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 7 2 6-8 2 1-3 9 5 3-1 2-7-2-4 4-2-1 2-5-5-3Z"/></svg>';
   const ICON_BED = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18V7m0 7h18v4M21 14v-2a3 3 0 0 0-3-3h-7v5"/><circle cx="7" cy="11" r="2"/></svg>';
   function legPrice(leg) {
+    const amount = view.tour.displayBudget?.lineItems?.flights?.[view.legs.indexOf(leg)];
+    if (Number.isFinite(amount)) return amount;
     const f = leg?.cheapestOneWay || {};
     if (view.cur === (f.displayCurrency || f.currency) && Number.isFinite(Number(f.partyTotalAmountDisplay ?? f.displayPrice))) return Number(f.partyTotalAmountDisplay ?? f.displayPrice);
     const rate = Number(view.tour.displayBudget?.exchangeRateFromUsd) || 1;
     return Number(leg?.amountUsd) * rate;
   }
   function stayPrice(c) {
+    const line = view.tour.displayBudget?.lineItems?.stays?.[view.cities.indexOf(c)];
+    if (line) return line.room + line.mandatoryFees;
     const rate = Number(view.tour.displayBudget?.exchangeRateFromUsd) || 1;
     return Number(c.hotel?.totalStayUsd ?? c.hotel?.estimatedStayUsd) * rate;
   }
@@ -244,16 +249,17 @@
   function flightRow(leg, label) {
     const f = leg?.cheapestOneWay || {}, price = legPrice(leg);
     const how = [f.stops === 0 ? 'Nonstop' : (f.stops ? plural(f.stops, 'stop', 'stops') : ''), flightTime(f.durationMinutes)].filter(Boolean).join(', ');
-    return `<div class="jrow"><span class="jicon">${ICON_FLIGHT}</span><div class="jtext"><span class="jlabel">${esc(label)} · ${esc(day(leg?.departureDate))}</span><strong>${esc(f.carrier || 'Flight')}</strong>${how ? `<span>${esc(how)}</span>` : ''}</div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>Live</em></div>` : ''}</div>`;
+    return `<div class="jrow"><span class="jicon">${ICON_FLIGHT}</span><div class="jtext"><span class="jlabel">${esc(label)} · ${esc(day(leg?.departureDate))}</span><strong>${esc(f.carrier || 'Flight')}</strong>${how ? `<span>${esc(how)}</span>` : ''}</div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>${trips[active]?.verifiedUntil > Date.now() ? 'Live' : 'Estimate'}</em></div>` : ''}</div>`;
   }
   function stayRow(c) {
     const price = stayPrice(c), name = c.hotel?.name || c.hotel?.hotelName, rating = Number(c.hotel?.rating);
     if (!name) return '';
     // GV-HOTEL-FEES-001: local taxes paid at the hotel are in the price shown here, but not in the
     // hotel site's checkout price, so say so.
-    const pay = Number(c.hotel?.payAtHotel?.usd) * (Number(view.tour.displayBudget?.exchangeRateFromUsd) || 1);
+    const pay = view.tour.displayBudget?.lineItems?.stays?.[view.cities.indexOf(c)]?.mandatoryFees ??
+      Number(c.hotel?.payAtHotel?.usd) * (Number(view.tour.displayBudget?.exchangeRateFromUsd) || 1);
     const payNote = pay > 0 ? `<span class="jnote">Includes ${money(pay, view.cur)} local taxes paid at the hotel</span>` : '';
-    return `<div class="jrow"><span class="jicon">${ICON_BED}</span><div class="jtext"><span class="jlabel">${plural(c.nights, 'night', 'nights')}${rating ? ` · rated ${rating.toFixed(1)}` : ''}</span><strong>${esc(name)}</strong>${payNote}</div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>Live</em></div>` : ''}</div>`;
+    return `<div class="jrow"><span class="jicon">${ICON_BED}</span><div class="jtext"><span class="jlabel">${plural(c.nights, 'night', 'nights')}${rating ? ` · rated ${rating.toFixed(1)}` : ''}</span><strong>${esc(name)}</strong>${payNote}</div>${Number.isFinite(price) ? `<div class="jprice">${money(price, view.cur)}<em>${trips[active]?.verifiedUntil > Date.now() ? 'Live' : 'Estimate'}</em></div>` : ''}</div>`;
   }
   function photoBox(id, alt, badge, sub) {
     return `<div class="jphoto"><img data-photo="${id}" alt="${esc(alt)}" hidden><div class="jphoto-fallback" data-mapcard="${id}"></div><span class="jbadge">${esc(badge)}</span>${sub ? `<span class="jbadge alt">${esc(sub)}</span>` : ''}<span class="jnow">Now exploring</span><div class="jtitle"><h3>${esc(alt.split(',')[0])}</h3><span>${esc(alt.split(', ').slice(1).join(', '))}</span></div></div>`;
@@ -677,7 +683,15 @@
   }
 
   async function showTrips(list, note) {
-    trips = list.map(t => ({ ...t, view: buildView(t.tour) }));
+    trips = await Promise.all(list.map(async t => {
+      const evidence = await window.GlobevoyJourneyQuote?.readVerifiedQuote(t.tour);
+      const tour = evidence ? { ...t.tour, displayBudget: evidence.quote.displayBudget } : t.tour;
+      const entry = { ...t, tour, view: buildView(tour), verifiedUntil: Number(evidence?.expiresAt) || 0 };
+      if (entry.verifiedUntil) setTimeout(() => {
+        if (trips[active] === entry) renderTrip(entry);
+      }, Math.max(0, entry.verifiedUntil - Date.now()));
+      return entry;
+    }));
     active = 0; view = trips[0].view;
     $('#results').hidden = false;
     $('#options-heading').textContent = savedView ? 'Your saved trip' : `Trips from ${originName()} for ${money(search.budget, search.currency)}`;
@@ -692,7 +706,7 @@
     map.invalidateSize();
     fitFull(false);
     countriesLoaded?.then(() => map.invalidateSize());
-    if (note) $('#live-note').textContent = note;
+    if (note && !trips[0].verifiedUntil) $('#live-note').textContent = note;
   }
 
   window.GlobevoyResults = { getState: () => ({ trips: trips.length, active, playing, elapsed, duration, activeCity }) };

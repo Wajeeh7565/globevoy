@@ -187,7 +187,7 @@
     return fetchJson(buildUrl('/api/multicity-tours', params), timeoutMs);
   }
 
-  window.GlobevoyApi = {
+  if (typeof window !== "undefined") window.GlobevoyApi = {
     isConfigured,
     getRecommendations,
     getGeneratedTour,
@@ -203,3 +203,50 @@
     worldwideRegistryContractVersion: 'GV-DATA-701C'
   };
 })();
+
+(function (root) {
+  'use strict';
+
+  function selectionKey(tour) {
+    if (!tour) return '';
+    const party = tour.passengerPricing || {};
+    const legs = tour.backendLegs?.length ? tour.backendLegs : tour.legs || [];
+    const cities = tour.cities || tour.stops || [];
+    const airport = node => String(node?.airportCode || node?.code || '').toUpperCase();
+    const occupancies = party.occupancies?.map(room => [room.adults, room.children || room.childAges || []]);
+    return JSON.stringify([
+      tour.tourId, tour.displayBudget?.currency,
+      party.adults, party.children, party.infants, party.rooms, party.travellers, occupancies,
+      legs.map(leg => [airport(leg.from), airport(leg.to), leg.departureDate, leg.booking?.liveBookingLinks?.ignavId]),
+      cities.map(city => [city.cityId, city.arrivalDate || city.checkIn || city.hotel?.checkIn,
+        city.departureDate || city.checkOut || city.hotel?.checkOut, city.hotel?.nuiteeHotelId,
+        city.hotel?.nuiteeLiveRate?.roomName, city.hotel?.nuiteeWhitelabel?.url, city.hotel?.nuiteeWhitelabel?.checkoutUrl])
+    ]);
+  }
+
+  async function readVerifiedQuote(tour, fetchFn = root.fetch) {
+    const base = String(root.GLOBEVOY_CONFIG?.apiBaseUrl || '').replace(/\/+$/, '');
+    if (!base || !tour?.bookingEvidence || typeof fetchFn !== 'function') return null;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 2500);
+    try {
+      // Signature, expiry and selection checks only. This endpoint never prices a trip.
+      const response = await fetchFn(base + '/api/booking-evidence', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store',
+        body: JSON.stringify({ token: tour.bookingEvidence }), signal: controller.signal
+      });
+      if (!response.ok) return null;
+      const data = await response.json();
+      return data.ok && Number(data.expiresAt) > Date.now() &&
+        selectionKey(data.quote) === selectionKey(tour) ? data : null;
+    } catch (_) {
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  const api = { readVerifiedQuote };
+  root.GlobevoyJourneyQuote = api;
+  if (typeof module === 'object' && module.exports) module.exports = api;
+})(typeof window !== 'undefined' ? window : globalThis);

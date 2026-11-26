@@ -100,7 +100,8 @@ function chooseOffer(payload = {}, currency, options = {}) {
       if (market && (!clean(rt?.offerId) || !matchesOccupancies(rt.rates, market.occupancies) ||
           rt.rates.some(rate => Array.isArray(rate.retailRate?.total) &&
             rate.retailRate.total.some(total => clean(total?.currency).toUpperCase() !== currency)))) continue;
-      offers.push(internal.offerFromRoomType(rh, rt, hotel || null, Boolean(market)));
+      if (options.roomCount > 1 && rt?.rates?.length !== options.roomCount) continue;
+      offers.push(internal.offerFromRoomType(rh, rt, hotel || null, Boolean(market) || options.roomCount > 1));
     }
   }
   const valid = offers.filter(o => o.hotelId && o.amount > 0 && o.currency === currency).map(o => priced(o, currency, options.env)).filter(Boolean);
@@ -147,7 +148,7 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   const requests = hit ? 0 : 1;
   if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: requests };
   if (result.payload?.sandbox === true) return { index, applied: false, reason: 'sandbox-response', providerRequests: requests };
-  const offerOptions = { env, ...(verifyMarket ? { market: { stop, occupancies: body.occupancies } } : {}) };
+  const offerOptions = { env, roomCount: body.occupancies.length, ...(verifyMarket ? { market: { stop, occupancies: body.occupancies } } : {}) };
   const offer = chooseOffer(result.payload || {}, currency, { ...offerOptions, cheapest: options.hotelChoice === 'cheapest' });
   if (!offer) return { index, applied: false, reason: verifyMarket ? 'no-matching-market-and-occupancy-offer' : 'no-usable-offer', providerRequests: requests };
   const pool = chooseOffer(result.payload || {}, currency, { ...offerOptions, all: true }) || [];

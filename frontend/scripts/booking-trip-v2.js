@@ -21,7 +21,7 @@
   function safeUrl(value) {
     try { const u = new URL(String(value || '')); return u.protocol === 'https:' ? u.href : ''; } catch (_) { return ''; }
   }
-  function num(value) { const n = Number(value); return Number.isFinite(n) ? n : null; }
+  function num(value) { if (value == null || value === '') return null; const n = Number(value); return Number.isFinite(n) ? n : null; }
   function isoDate(value) { const s = String(value || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : ''; }
   function dateLabel(iso, withDay) {
     if (!iso) return '';
@@ -105,7 +105,7 @@
     return `https://www.agoda.com/search?${p}`;
   }
 
-  function hotelRow(city, stay, cur, now, party) {
+  function hotelRow(city, stay, cur, now, party, line) {
     const hotel = city?.hotel || {};
     const checkIn = isoDate(stay?.checkIn || city?.arrivalDate || city?.checkIn || hotel.checkIn);
     const checkOut = isoDate(stay?.checkOut || city?.departureDate || city?.checkOut || hotel.checkOut);
@@ -130,6 +130,8 @@
     let payAtHotel = 0;
     if (rate && String(rate.currency || '').toUpperCase() === cur.code && num(rate.payAtHotelAmount) > 0) payAtHotel = num(rate.payAtHotelAmount);
     else if (num(hotel.payAtHotel?.usd) > 0 && cur.fx) payAtHotel = num(hotel.payAtHotel.usd) * cur.fx;
+    price = num(line?.room) ?? price;
+    payAtHotel = num(line?.mandatoryFees) ?? payAtHotel;
     const detailBits = [
       checkIn && checkOut ? `${dateLabel(checkIn)} – ${dateLabel(checkOut)}` : '',
       nights ? `${nights} night${nights === 1 ? '' : 's'}` : '',
@@ -180,9 +182,12 @@
       occupancies: tour?.passengerPricing?.occupancies
     };
     const items = [];
+    const lines = tour.displayBudget?.lineItems;
     legs.forEach((leg, i) => {
-      items.push(flightRow(leg, cur, now, party));
-      if (cities[i]) items.push(hotelRow(cities[i], stays[i], cur, now, party));
+      const flight = flightRow(leg, cur, now, party);
+      flight.price = num(lines?.flights?.[i]) ?? flight.price;
+      items.push(flight);
+      if (cities[i]) items.push(hotelRow(cities[i], stays[i], cur, now, party, lines?.stays?.[i]));
     });
     if (!legs.length) cities.forEach((c, i) => items.push(hotelRow(c, stays[i], cur, now, party)));
     items.forEach((it, i) => { it.id = `${it.kind}-${i}`; it.index = i; });
@@ -191,15 +196,17 @@
 
   function summaryOf(tour, items, cur) {
     const d = tour?.displayBudget || {};
-    const flights = items.filter(x => x.kind !== 'hotel').reduce((s, x) => s + (x.price || 0), 0);
-    const hotels = items.filter(x => x.kind === 'hotel').reduce((s, x) => s + (x.price || 0), 0);
+    const flights = num(d.flightEstimate) ?? items.filter(x => x.kind !== 'hotel').reduce((s, x) => s + (x.price || 0), 0);
     // The trip total the rest of the site shows also includes airport-access /
     // transfer estimates and other extras; show those as their own line so the
     // two pages agree.
     const payAtHotel = items.filter(x => x.kind === 'hotel').reduce((s, x) => s + (x.payAtHotel || 0), 0);
     const siteTotal = num(d.tripEstimate);
+    const accommodation = num(d.accommodationEstimate);
+    const hotels = accommodation != null ? accommodation - payAtHotel :
+      items.filter(x => x.kind === 'hotel').reduce((s, x) => s + (x.price || 0), 0);
     const extras = siteTotal != null && siteTotal - (flights + hotels + payAtHotel) > 1 ? siteTotal - (flights + hotels + payAtHotel) : 0;
-    const total = flights + hotels + payAtHotel + extras;
+    const total = siteTotal ?? flights + hotels + payAtHotel + extras;
     const budget = num(d.totalBudget) ?? num(tour?.budget?.total?.amount);
     const reserve = num(d.reserveAmount) || 0;
     const cities = (Array.isArray(tour?.cities) ? tour.cities : []).map(cityName).filter(Boolean);
@@ -212,7 +219,7 @@
       dates: [start && end ? `${dateLabel(start)} – ${dateLabel(end)}, ${end.slice(0, 4)}` : '', nights ? `${nights} nights` : '',
         `${tour?.passengerPricing?.travellers || 1} traveller${(tour?.passengerPricing?.travellers || 1) === 1 ? '' : 's'}`].filter(Boolean).join(' · '),
       flights, hotels, payAtHotel, extras, total, budget, reserve,
-      left: budget != null ? budget - reserve - total : null,
+      left: num(d.amountLeft) ?? (budget != null ? budget - reserve - total : null),
       flightCount: items.filter(x => x.kind !== 'hotel').length,
       hotelCount: items.filter(x => x.kind === 'hotel').length,
       liveCount: items.filter(x => x.live).length,
@@ -241,32 +248,10 @@
   function loadBooked(key) { try { return JSON.parse(root.localStorage.getItem(key) || '{}') || {}; } catch (_) { return {}; } }
   function saveBooked(key, value) { try { root.localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
 
-  function selectionKey(tour) {
-    const party = tour.passengerPricing || {};
-    const legs = legsOf(tour);
-    const cities = tour.cities || tour.stops || [];
-    const airport = n => String(n?.airportCode || n?.code || '');
-    return JSON.stringify([
-      tour.tourId, tour.displayBudget?.currency, party.adults, party.children, party.infants, party.rooms, party.travellers,
-      legs.map(l => [airport(l.from), airport(l.to), l.departureDate, l.booking?.liveBookingLinks?.ignavId]),
-      cities.map(c => [c.cityId, c.arrivalDate || c.checkIn || c.hotel?.checkIn, c.departureDate || c.checkOut || c.hotel?.checkOut,
-        c.hotel?.nuiteeHotelId, c.hotel?.nuiteeLiveRate?.roomName, c.hotel?.nuiteeWhitelabel?.checkoutUrl])
-    ]);
-  }
-
-  async function readVerifiedQuote(tour, fetchFn = root.fetch) {
-    const base = String(root.GLOBEVOY_CONFIG?.apiBaseUrl || '').replace(/\/+$/, '');
-    if (!base || !tour?.bookingEvidence || typeof fetchFn !== 'function') return null;
-    try {
-      const response = await fetchFn(base + '/api/booking-evidence', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store',
-        body: JSON.stringify({ token: tour.bookingEvidence })
-      });
-      if (!response.ok) return null;
-      const data = await response.json();
-      return data.ok && Number(data.expiresAt) > Date.now() &&
-        selectionKey(data.quote) === selectionKey(tour) ? data : null;
-    } catch (_) { return null; }
+  function readVerifiedQuote(tour, fetchFn) {
+    const quotes = root.GlobevoyJourneyQuote ||
+      (typeof module === 'object' && module.exports ? require('../runtime/api-client') : null);
+    return quotes?.readVerifiedQuote(tour, fetchFn) || Promise.resolve(null);
   }
 
   function render(doc, tour, opts) {
@@ -430,6 +415,8 @@
       done = true;
       void readVerifiedQuote(tour).then(evidence => {
         if (!evidence || root.GlobevoyBooking673FR1?.tour !== tour) return;
+        tour.displayBudget = evidence.quote.displayBudget;
+        root.GlobevoyBooking673FR1?.renderDetails?.();
         render(doc, evidence.quote);
         root.setTimeout(() => {
           if (root.GlobevoyBooking673FR1?.tour === tour) render(doc, evidence.quote, { historical: true });

@@ -157,7 +157,7 @@ function savedRouteForTrip(trip: SavedTrip, search: ResultsSearch): Recommendati
   const price = trip.priceSnapshot || { currency: search.currency };
   const savedTotal = positive(price.tripEstimate);
   const sourceBudget = record(sourceTour.displayBudget);
-  const routeTotal = savedTotal || positive(sourceBudget.tripEstimate);
+  const routeTotal = positive(sourceBudget.tripEstimate) || savedTotal;
   if (!(routeTotal > 0)) return null;
 
   const sourceOrigin = record(sourceTour.origin);
@@ -173,13 +173,13 @@ function savedRouteForTrip(trip: SavedTrip, search: ResultsSearch): Recommendati
   };
   raw.stops = stops;
   if (!rows(sourceTour.cities).length) raw.cities = stops;
-  const savedRemaining = finite(price.remaining);
-  const reserveAmount = positive(price.reserve);
+  const savedRemaining = finite(sourceBudget.amountLeft) ?? finite(price.remaining);
+  const reserveAmount = finite(sourceBudget.reserveAmount) ?? positive(price.reserve);
   raw.displayBudget = {
     ...sourceBudget,
     totalBudget: search.budget,
     tripEstimate: routeTotal,
-    amountLeft: savedRemaining ?? (search.budget - routeTotal),
+    amountLeft: savedRemaining ?? (search.budget - reserveAmount - routeTotal),
     reserveAmount
   };
   raw.pricingStatus = 'ESTIMATED';

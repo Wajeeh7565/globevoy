@@ -38,6 +38,7 @@ test('the booking page waits for a click, joins rapid repeats, and labels search
             origin: 'YYZ', destination: 'LIS', departureDate: '2027-02-12', passengers: 1 } } }]
       } };
     });
+    await page.addScriptTag({ path: path.resolve(__dirname, '../../frontend/runtime/api-client.js') });
     for (const file of ['booking-ignav-links.js', 'booking-trip-v2.js']) {
       await page.addScriptTag({ path: path.resolve(__dirname, '../../frontend/scripts', file) });
     }

@@ -10,7 +10,7 @@ const groups = {
     ['node', 'scripts/validate-organization.mjs']
   ],
 
-  browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs'], ['node', '--test', 'tests/frontend/booking-cost-browser.test.cjs']],
+  browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs'], ['node', '--test', 'tests/frontend/booking-cost-browser.test.cjs'], ['node', '--test', 'tests/frontend/journey-price-consistency-browser.test.cjs']],
 
   backend: [
     ['node', '--test', 'tests/backend/search-activity.test.cjs'],

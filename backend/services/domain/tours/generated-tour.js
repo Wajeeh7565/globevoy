@@ -3581,6 +3581,7 @@ async function getFareMapGeneratedTour(query,options) {
     priceIndexStore.loadAll({...searchOptions,env:memEnv||process.env}).catch(()=>new Map())]);
   const result=await optimizer.search(query,{...searchOptions,hotelRatios,priceIndex,allowCityExpansion:true});
   const needsExpansionVerification=tour=>tour?.fareMap?.expansionCandidate===true;
+  const overWithProtectedDisplayBudget=tour=>!!tour?.displayBudget?.lineItems&&tour.displayBudget.affordabilityStatus==='over-protected-budget';
   const verifiedStays=(tour, source)=>{
     const stops=tour?.stops||[];
     return stops.length>0&&stops.every(st=>st.hotel?.nuiteeLiveRate&&
@@ -3699,7 +3700,8 @@ async function getFareMapGeneratedTour(query,options) {
       let priced=await priceFinalTourWithNuitee({ok:true,tour,tours:[tour],diagnostics:{}},pricingQuery,hotelBudgetUsd>0?{...pricingOptions,hotelBudgetUsd,...(policy?{upgradePolicy:policy}:{})}:pricingOptions);
       const overWithRealHotels=p=>p?.diagnostics?.nuiteeLiveStays?.reason==='nuitee-final-tour-over-budget-kept-estimate'||
         ((p?.tour?.stops||[]).length>0&&p.tour.stops.every(st=>st?.hotel?.nuiteeLiveRate)&&
-          Number(p.tour.estimatedTotalUsd)>Number(p.tour.usableTripBudgetUsd));
+          (Number(p.tour.estimatedTotalUsd)>Number(p.tour.usableTripBudgetUsd)||
+           overWithProtectedDisplayBudget(p.tour)));
       // Real hotels push it over: try the cheapest real rooms once. If it still does not
       // fit, the trip does not fit; never show it with the cheaper estimate (GV-HOTEL-HONEST-001).
       // GV-HOTEL-MEM-003: the "cheapest room, any rating" retry would teach memory a lower
@@ -3741,7 +3743,7 @@ async function getFareMapGeneratedTour(query,options) {
     let priced;
     try{priced=await priceFinalTourWithNuitee({ok:true,tour:r.unpriced,tours:[r.unpriced],diagnostics:{}},pricingQuery,{...options,rateCache,hotelBudgetUsd,upgradePolicy:policy});}catch(_){return r;}
     const t=priced?.tour,stops=t?.stops||[];
-    if(!verifiedStays(t,r.source)||!(Number(t.estimatedTotalUsd)<=Number(t.usableTripBudgetUsd)))return r;
+    if(!verifiedStays(t,r.source)||overWithProtectedDisplayBudget(t)||!(Number(t.estimatedTotalUsd)<=Number(t.usableTripBudgetUsd)))return r;
     if(!stops.some(st=>st?.hotel?.budgetUpgrade))return r;
     diagnostics.roleUpgrades=(diagnostics.roleUpgrades||[]).concat([{role:r.role,upgraded:stops.filter(st=>st?.hotel?.budgetUpgrade).length,extraUsd:stops.reduce((x,st)=>x+(Number(st?.hotel?.budgetUpgrade?.extraUsd)||0),0)}]);
     return {...r,tour:t};

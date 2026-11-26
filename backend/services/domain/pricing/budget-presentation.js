@@ -131,6 +131,44 @@ function attachRecommendationPresentation(recommendation, query = {}) {
   };
 }
 
+// Final fare-map quotes already carry the providers' party totals in display currency.
+function verifiedLineItems(tour, currency) {
+  if (tour.fareMap?.arrivalDatesVerified !== true) return null;
+  const legs = tour.backendLegs || tour.legs || [];
+  const stops = tour.stops || tour.cities || [];
+  if (!stops.length || legs.length !== stops.length + 1) return null;
+  const flights = [];
+  const stays = [];
+  let providerCents = 0;
+  let displayedTotal = 0;
+  // Carry fractional amounts forward so the displayed lines add up to the rounded trip.
+  const roundLine = amount => {
+    providerCents += Math.round(amount * 100);
+    const nextTotal = roundMoney(providerCents / 100);
+    const line = nextTotal - displayedTotal;
+    displayedTotal = nextTotal;
+    return line;
+  };
+  for (const leg of legs) {
+    const evidence = leg.providerDateEvidence;
+    const amount = evidence?.providerPartyTotalAmount;
+    if (evidence?.sourceType !== 'LIVE' || evidence.productionEligible !== true ||
+        evidence.exactDateMatch !== true || evidence.departureDate !== leg.departureDate ||
+        evidence.providerCurrency !== currency || !Number.isFinite(amount) || amount <= 0) return null;
+    flights.push(roundLine(amount));
+  }
+  for (const stop of stops) {
+    const rate = stop.hotel?.nuiteeLiveRate;
+    const room = rate?.amount;
+    const fees = rate?.payAtHotelAmount ?? 0;
+    if (rate?.sourceType !== 'LIVE' || rate.currency !== currency ||
+        rate.checkin !== stop.arrivalDate || rate.checkout !== stop.departureDate ||
+        !Number.isFinite(room) || room <= 0 || !Number.isFinite(fees) || fees < 0) return null;
+    stays.push({ room: roundLine(room), mandatoryFees: roundLine(fees) });
+  }
+  return { flights, stays, exactTotal: providerCents / 100 };
+}
+
 function attachTourPresentation(tour, query = {}) {
   const displayBudget = buildDisplayBudget({
     query,
@@ -140,10 +178,33 @@ function attachTourPresentation(tour, query = {}) {
     accommodationUsd: tour.totalHotelEstimateUsd,
     tripUsd: tour.estimatedTotalUsd
   });
-  return {
-    ...tour,
-    displayBudget
-  };
+  const lineItems = verifiedLineItems(tour, displayBudget.currency);
+  if (!lineItems) return { ...tour, displayBudget };
+  const flightEstimate = lineItems.flights.reduce((sum, fare) => sum + fare, 0);
+  const accommodationEstimate = lineItems.stays.reduce((sum, stay) => sum + stay.room + stay.mandatoryFees, 0);
+  const tripEstimate = flightEstimate + accommodationEstimate;
+  const amountLeft = displayBudget.usableTripBudget - tripEstimate;
+  const fits = amountLeft >= 0 && lineItems.exactTotal <= displayBudget.usableTripBudget;
+  Object.assign(displayBudget, {
+    lineItems, flightEstimate, accommodationEstimate, tripEstimate, amountLeft,
+    affordabilityStatus: fits ? 'within-protected-budget' : 'over-protected-budget',
+    equation: { ...displayBudget.equation, leftSide: amountLeft, rightSide: amountLeft }
+  });
+
+  // Keep older layouts and saved-trip summaries in sync with the signed breakdown.
+  const money = amount => ({ amount, currency: displayBudget.currency });
+  const budget = tour.budget ? {
+    ...tour.budget,
+    total: money(displayBudget.totalBudget),
+    personalReserve: money(displayBudget.reserveAmount),
+    personalExpenseReserve: money(displayBudget.reserveAmount),
+    usableCoreBudget: money(displayBudget.usableTripBudget),
+    estimatedCoreTotal: money(tripEstimate),
+    remainingCoreRoom: money(amountLeft),
+    accommodation: money(accommodationEstimate),
+    flightRange: { minimum: flightEstimate, midpoint: flightEstimate, maximum: flightEstimate, currency: displayBudget.currency }
+  } : null;
+  return { ...tour, ...(budget ? { budget } : {}), displayBudget };
 }
 
 function presentationPolicy() {

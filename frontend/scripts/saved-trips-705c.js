@@ -258,7 +258,10 @@
         tripEstimate: number(displayBudget.tripEstimate, 0),
         amountLeft: number(displayBudget.amountLeft, 0),
         reserveAmount: number(displayBudget.reserveAmount, 0),
-        exchangeRateFromUsd: number(displayBudget.exchangeRateFromUsd, 0)
+        exchangeRateFromUsd: number(displayBudget.exchangeRateFromUsd, 0),
+        ...(displayBudget.flightEstimate != null ? { flightEstimate: number(displayBudget.flightEstimate, 0) } : {}),
+        ...(displayBudget.accommodationEstimate != null ? { accommodationEstimate: number(displayBudget.accommodationEstimate, 0) } : {}),
+        ...(displayBudget.lineItems ? { lineItems: clone(displayBudget.lineItems) } : {})
       },
       canonicalPricing: {
         canonicalDisplayTotal: number(pricing.canonicalDisplayTotal, 0),
@@ -418,7 +421,7 @@
         priceSnapshot: {
           currency,
           totalBudget: number(tour.budget?.total?.amount || q.get('budget')),
-          tripEstimate: number(tour.budget?.estimatedCoreTotal?.amount || tour.displayBudget?.tripEstimate || tour.estimatedTotalUsd),
+          tripEstimate: number(tour.displayBudget?.tripEstimate || tour.budget?.estimatedCoreTotal?.amount || tour.estimatedTotalUsd),
           capturedAt: new Date().toISOString()
         },
         travelerProfileRef: null

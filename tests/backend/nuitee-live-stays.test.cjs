@@ -243,6 +243,18 @@ test('pay-at-hotel fees: the room is kept, the fee is added to the stay total an
   assert.equal(r.tour.stops[1].hotel.payAtHotel, null);
 });
 
+test('multi-room pricing requires a rate per room and includes mandatory fees for each room', () => {
+  const partial = feeHotel('lpPartial', 'Partial Offer', 8.4, 200, 4);
+  const complete = feeHotel('lpComplete', 'Complete Offer', 8.4, 400, 5);
+  const secondRoom = structuredClone(complete.rate.roomTypes[0].rates[0]);
+  secondRoom.retailRate.taxesAndFees[1].amount = 7;
+  complete.rate.roomTypes[0].rates.push(secondRoom);
+  const payload = { data: [partial.rate, complete.rate], hotels: [partial.hotel, complete.hotel] };
+  const offer = _internal.chooseOffer(payload, 'CAD', { roomCount: 2 });
+  assert.equal(offer.hotelId, 'lpComplete');
+  assert.equal(offer.payAtHotel.amount, 12);
+});
+
 test('pay-at-hotel fees: comparison uses the full price, so a cheaper room with a big fee can lose', () => {
   const payload = { data: [feeHotel('lpT', 'Tax Hotel', 8.2, 400, 120).rate, rateHotel('lpN', 'No Fee', 8.0, 450).rate], hotels: [{ hotelId: 'lpT', rating: 8.2 }, { hotelId: 'lpN', rating: 8.0 }] };
   assert.equal(_internal.chooseOffer(payload, 'CAD').hotelId, 'lpN');

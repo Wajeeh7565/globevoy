@@ -153,6 +153,10 @@
       try {
         const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
         if (saved && Date.now() - saved.at < CACHE_MS && (saved.trips?.length || saved.noTrip)) return saved;
+        if (saved?.trips?.length && Date.now() - saved.at < 15 * 60000 && window.GlobevoyJourneyQuote) {
+          const quotes = await Promise.all(saved.trips.map(trip => window.GlobevoyJourneyQuote.readVerifiedQuote(trip.tour)));
+          if (quotes.some(Boolean)) return saved;
+        }
       } catch (_) { /* no cache */ }
     }
     const api = window.GlobevoyApi;
