@@ -76,20 +76,27 @@ test('month-matrix rows become one record per day, in USD, skipping stale and fo
   assert.match(seen[0].url, /currency=usd/); assert.match(seen[0].url, /origin=LIS/);
   assert.equal(seen[0].init.headers['X-Access-Token'], 't'); assert.doesNotMatch(seen[0].url, /token=/);
   const item = dates.toItem(r.records[0], now);
-  assert.equal(item.pk.S, 'D#LIS#2027-01'); assert.equal(item.sk.S, 'YTO#2027-01-05');
+  assert.equal(item.pk.S, 'D#LIS#2027-01'); assert.equal(item.sk.S, 'YTO');
   assert.deepEqual(dates.fromItem(item).departureDate, '2027-01-05');
   assert.equal((await dates.fetchRouteDates({ origin: 'LIS', destination: 'LIS', month: '2027-01', token: 't', fetch })).reason, 'invalid-route');
   assert.equal((await dates.fetchRouteDates({ origin: 'LIS', destination: 'YTO', month: '2027-01', token: 't', fetch: async () => ({ ok: false, status: 429 }) })).reason, 'rate-limited');
 });
 
-test('route dates are read per route, never the whole partition', async () => {
+test('route dates: one item per route-month, read with one GetItem per month', async () => {
+  const recs = [{ origin: 'LIS', destination: 'YTO', month: '2027-01', departureDate: '2027-01-05', priceUsd: 280, stops: 0, durationMinutes: 455, observedAt: 'x' },
+    { origin: 'LIS', destination: 'YTO', month: '2027-01', departureDate: '2027-01-09', priceUsd: 310, stops: null, durationMinutes: null, observedAt: 'x' }];
+  const item = dates.toRouteItem(recs, Date.parse('2026-11-27T00:00:00Z'));
+  assert.equal(item.pk.S, 'D#LIS#2027-01'); assert.equal(item.sk.S, 'YTO');
+  const back = dates.fromRouteItem(item);
+  assert.deepEqual(back.map(r => [r.departureDate, r.priceUsd, r.stops, r.durationMinutes]), [['2027-01-05', 280, 0, 455], ['2027-01-09', 310, null, null]]);
   const sent = [];
-  const dynamo = { send: async c => { sent.push(c.input); return { Items: [dates.toItem({ origin: 'LIS', destination: 'YTO', month: '2027-01', departureDate: '2027-01-05', priceUsd: 280, stops: 0, source: 's', observedAt: 'x' })] }; } };
-  const r = await dates.readRouteDates('LIS', 'YTO', ['2027-01', 'bad'], { env: { FARE_MAP_TABLE: 'tbl' }, dynamo });
+  const dynamo = { send: async c => { sent.push(c.input); return { Item: item }; } };
+  const r = await dates.readRouteDates('LIS', 'YTO', ['2027-01', 'bad', '2027-01'], { env: { FARE_MAP_TABLE: 'tbl' }, dynamo, nowMs: Date.parse('2026-11-28T00:00:00Z') });
   assert.equal(sent.length, 1);
-  assert.match(sent[0].KeyConditionExpression, /begins_with/);
-  assert.equal(sent[0].ExpressionAttributeValues[':d'].S, 'YTO#');
-  assert.equal(r[0].priceUsd, 280);
+  assert.deepEqual(sent[0].Key, { pk: { S: 'D#LIS#2027-01' }, sk: { S: 'YTO' } });
+  assert.equal(r.length, 2); assert.equal(r[0].priceUsd, 280);
+  const expired = await dates.readRouteDates('LIS', 'YTO', ['2027-01'], { env: { FARE_MAP_TABLE: 'tbl' }, dynamo, nowMs: Date.parse('2026-12-10T00:00:00Z') });
+  assert.equal(expired.length, 0, 'past the 7-day TTL');
 });
 
 test('collector asks for stops and duration only with FARE_MAP_COLLECT_COMFORT=on', () => {
@@ -130,16 +137,32 @@ test('date pass: both directions, no duplicate requests, bounded, writes D# rows
   const { runDatePass } = require('../../backend/services/domain/fare-map/fare-map-date-pass');
   const calls = [], writes = [];
   const fetch = async url => { calls.push(url); return { ok: true, status: 200, text: async () => JSON.stringify({ success: true, data: [{ depart_date: '2027-01-05', value: 300, number_of_changes: 0 }, { depart_date: '2027-01-09', value: 280, number_of_changes: 1 }] }) }; };
-  const dynamo = { send: async c => { writes.push(...Object.values(c.input.RequestItems)[0]); return {}; } };
+  let progress = null;
+  const dynamo = { send: async c => { const i = c.input; if (i.RequestItems) writes.push(...Object.values(i.RequestItems)[0]); else if (i.Item) progress = JSON.parse(i.Item.state.S); else if (i.Key) return progress ? { Item: { state: { S: JSON.stringify(progress) } } } : {}; return {}; } };
   const readRoutes = async (o, m) => o === 'YTO' ? [{ destination: 'LIS', priceUsd: 300 }, { destination: 'MEX', priceUsd: 200 }, { destination: 'LIS', priceUsd: 350 }] : [];
   let t = Date.parse('2026-11-27T00:00:00Z');
   const stats = await runDatePass({ token: 't', fetch, dynamo, readRoutes, origins: ['YTO'], months: ['2027-01'], routes: 5, env: { FARE_MAP_TABLE: 'tbl' }, clock: () => t, sleep: async ms => { t += ms; } });
   assert.equal(stats.requests, 4, 'YTO>LIS, LIS>YTO, YTO>MEX, MEX>YTO');
   assert.equal(new Set(calls).size, 4);
   assert.ok(writes.every(w => w.PutRequest.Item.pk.S.startsWith('D#')));
-  assert.equal(stats.rows, 8);
+  assert.equal(stats.rows, 8); assert.equal(stats.items, 4, 'one item per route-month'); assert.equal(writes.length, 4);
+  assert.ok(progress.completedAt, 'finished pass recorded');
   const capped = await runDatePass({ token: 't', fetch, dynamo, readRoutes, origins: ['YTO'], months: ['2027-01'], maxRequests: 1, env: { FARE_MAP_TABLE: 'tbl' }, clock: () => t, sleep: async ms => { t += ms; }, dryRun: true });
   assert.equal(capped.requests, 1); assert.equal(capped.stoppedBy, 'max-requests');
+  // A pass stopped by its time budget resumes at the saved origin next time.
+  progress = null; calls.length = 0;
+  const two = async (o, m) => [{ destination: o === 'YTO' ? 'LIS' : 'MEX', priceUsd: 300 }];
+  const first = await runDatePass({ token: 't', fetch, dynamo, readRoutes: two, origins: ['YTO', 'LON'], months: ['2027-01'], maxMinutes: 0.03, perMinute: 60, env: { FARE_MAP_TABLE: 'tbl' }, clock: () => t, sleep: async ms => { t += ms; } });
+  assert.equal(first.stoppedBy, 'time-budget'); assert.equal(progress.completedAt, null);
+  const second = await runDatePass({ token: 't', fetch, dynamo, readRoutes: two, origins: ['YTO', 'LON'], months: ['2027-01'], env: { FARE_MAP_TABLE: 'tbl' }, clock: () => t, sleep: async ms => { t += ms; } });
+  assert.equal(second.startOrigin, 1, 'resumes at the origin it stopped in');
+  assert.ok(progress.completedAt);
+});
+
+test('date pass months skip a nearly finished month', () => {
+  const { passMonths } = require('../../backend/services/domain/fare-map/fare-map-date-pass');
+  assert.deepEqual(passMonths(2, Date.parse('2026-11-28T00:00:00Z')), ['2026-12', '2027-01']);
+  assert.deepEqual(passMonths(2, Date.parse('2026-11-05T00:00:00Z')), ['2026-11', '2026-12']);
 });
 
 test('legs carry stops; flight convenience prefers known direct legs', () => {
