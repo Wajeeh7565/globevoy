@@ -97,3 +97,31 @@ test('collector asks for stops and duration only with FARE_MAP_COLLECT_COMFORT=o
   const q = ingest._internal.buildQuery('YTO', '2027-01', 0, true);
   assert.match(q, /number_of_changes/); assert.match(q, /duration/);
 });
+
+test('experience mode: off by default; on, it never shows same-country multi-city first when a cross-border trip exists', async () => {
+  const off = await search({});
+  assert.equal(off.diagnostics.experience, false);
+  const on = await search({ FARE_MAP_EXPERIENCE: 'on' });
+  assert.equal(on.diagnostics.experience, true);
+  const pool = on.pool || [];
+  const multi = pool.filter(t => t.stops.length > 1);
+  const cross = multi.filter(t => new Set(t.stops.map(s => s.countryCode)).size > 1);
+  if (cross.length && multi.length) assert.ok(new Set(multi[0].stops.map(s => s.countryCode)).size > 1, multi[0].stops.map(s => s.city).join('>'));
+});
+
+test('comfort hotel copies: only under 80% of spendable, at most +50% per stay, never past 90%', () => {
+  const row = c => ({ unifiedRegistry: { countryCode: 'PT', origin: { providerLocationCode: c } }, cityCode: c });
+  const base = { key: 'k', cost: 1000, cities: [row('LIS')], tour: { totalFlightEstimateUsd: 400, totalHotelEstimateUsd: 600, estimatedTotalUsd: 1000,
+    stops: [{ city: 'Lisbon', nights: 6, hotel: { estimatedNightlyUsd: 100, estimatedStayUsd: 600 } }], legs: [] } };
+  const [v] = I.comfortVariants([base], 2000);
+  assert.ok(v && v.comfortHotels && v.tour.hotelTier === 'comfort');
+  assert.ok(v.tour.stops[0].hotel.planUpgradePct <= 0.5);
+  assert.ok(v.cost <= 0.9 * 2000, String(v.cost));
+  assert.equal(I.comfortVariants([{ ...base, cost: 1700 }], 2000).length, 0, 'already at 85%');
+  assert.equal(I.comfortVariants([{ ...base, cities: [row('ZZZ')] }], 2000).length, 0, 'no good 3-4 star supply');
+});
+
+test('hotel quality is a soft signal: unknown cities get a neutral value, not zero', () => {
+  assert.ok(I.hotelQuality({ cityCode: 'LIS', unifiedRegistry: { origin: { providerLocationCode: 'LIS' } } }) > I.hotelQuality({ cityCode: 'GZP', unifiedRegistry: { origin: { providerLocationCode: 'GZP' } } }));
+  assert.equal(I.hotelQuality({ cityCode: 'ZZZ', unifiedRegistry: { origin: { providerLocationCode: 'ZZZ' } } }), 0.35);
+});
