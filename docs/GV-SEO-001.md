@@ -70,3 +70,10 @@ After an approved deployment:
 2. Open the verified `globevoy.com` property in Search Console. In **Sitemaps**, submit `https://globevoy.com/sitemap.xml`, then check for **Success** and four discovered URLs after Google processes it. [Google’s sitemap instructions](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
 3. Use **URL Inspection → Test live URL** for `/`, `/about.html`, `/how-it-works.html` and `/trust.html`. Check the rendered HTML, crawl status and user-declared canonical. Select **Request indexing** for those public destinations once they pass. [Google’s URL Inspection instructions](https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl)
 4. Use URL Inspection and Page Indexing after recrawl to confirm Google’s selected canonicals and recorded exclusions. Use the duplicate report’s export to identify the unnamed URL before assigning it a disposition.
+
+## Production sync and hosting findings (Nov 27)
+
+- globevoy.com is the Amplify app `globevoy` (`dttux5e6ddtzb`, branch `main`, manual deploy job 268). The "CloudFront and S3" responses come from Amplify's managed CDN. The account has no separate distribution or bucket.
+- The live site was built from commit `16d9bfb` (GV-WEB-4, PR #202 on top of #201): 503 of 503 files match its release manifest. Branch `frontend-sync` merges that commit and this SEO branch onto main. All scripts, styles and runtime configuration stay byte-identical to production. Only `<head>` metadata, React `noindex` tags, `robots.txt` and `sitemap.xml` change.
+- **Soft 404s left as they are.** `/multi-city.html` and `/multicity-visualizer.html` pick their destination from the query (a `budget` parameter goes to results, otherwise home). Amplify redirect rules cannot branch on query values, so a server redirect would break search handoffs. Both pages are noindex. Google will drop them from the soft-404 report over time. Validate the fix in Search Console after deployment.
+- Optional, needs approval: change the `www` → apex rule from 302 to 301, a permanent signal for the four "Page with redirect" URLs. This is an Amplify rule change, not DNS.

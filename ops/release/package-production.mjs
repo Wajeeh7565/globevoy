@@ -46,6 +46,12 @@ const output = path.join(root, '.cache', outputName);
 if ([output, output+'.zip', output+'.zip.sha256'].some(file => fs.existsSync(file))) throw Error('Output already exists. Preserve/rename .cache/production-site before rebuilding.');
 const commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 const dirty=Boolean(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim());
+// Production packages must come from committed code that is already on GitHub main,
+// so every deployed file can be traced to a pushed commit (docs/RELEASE.md).
+if (dirty && process.env.GLOBEVOY_ALLOW_DIRTY_BUILD !== 'yes') throw Error('Commit your changes first: production packages are built from a clean tree.');
+let onMain = false;
+try { execFileSync('git',['merge-base','--is-ancestor',commit,'origin/main'],{cwd:root,stdio:'ignore'}); onMain = true; } catch {}
+if (!onMain && process.env.GLOBEVOY_ALLOW_UNMERGED_BUILD !== 'yes') throw Error('HEAD is not on origin/main. Merge and push to main, run git fetch, then build. (Set GLOBEVOY_ALLOW_UNMERGED_BUILD=yes only for a pre-merge review package.)');
 const policySource = productionPolicySource(releaseConfig);
 const policyModule = path.join(root, '.cache', outputName + '-policy.cjs');
 fs.mkdirSync(path.dirname(policyModule), {recursive:true});
@@ -75,7 +81,7 @@ for (const file of fs.readdirSync(output,{recursive:true}).sort()) {
  const full=path.join(output,file);
  if(fs.statSync(full).isFile()) files[file.replaceAll('\\','/')]=createHash('sha256').update(fs.readFileSync(full)).digest('hex');
 }
-fs.writeFileSync(path.join(output,'release-manifest.json'),JSON.stringify({commit,dirty,productionOnly:true,builtAt:new Date().toISOString(),productionAccounts:accountsEnabled,productionReact:reactEnabled,files},null,2)+'\n');
+fs.writeFileSync(path.join(output,'release-manifest.json'),JSON.stringify({commit,dirty,onMain,productionOnly:true,builtAt:new Date().toISOString(),productionAccounts:accountsEnabled,productionReact:reactEnabled,files},null,2)+'\n');
 console.log('Validated static artifact: '+output+' ('+Object.keys(files).length+' files). No deployment performed.');
 
 console.log('Production directory scan:', verifyProductionFrontend(output));
