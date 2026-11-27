@@ -26,7 +26,7 @@ let motionPaused=false;
 
 $('#more').addEventListener('click',()=>{const open=$('#options').hidden;$('#options').hidden=!open;$('#more').setAttribute('aria-expanded',String(open));$('#more').firstChild.textContent=open?'Fewer Options ':'More Options '});
 $('#locate').addEventListener('click',useMyLocation);
-$('#signin').addEventListener('click',()=>{if(S.isMember())location.href='./account.html';else S.signIn(location.pathname+location.search)});
+// The header Sign In / Account menu is account-menu.js.
 const travelerInput=$('#travelers');
 function syncTravelers(){const n=Number(travelerInput.value);$('.adult-unit').textContent=n===1?'adult':'adults';$('#fewer-travelers').disabled=n<=1;$('#more-travelers').disabled=n>=12}
 function changeTravelers(delta){travelerInput.stepUp(delta);travelerInput.dispatchEvent(new Event('input',{bubbles:true}))}
@@ -136,8 +136,8 @@ class Journey {
  }
 }
 const journey=new Journey();
-function syncMotionControl(){const b=$('#motion-toggle'),off=conserve(),label=off?'Reduced motion enabled':motionPaused?'Resume all motion':'Pause all motion';b.disabled=off;b.setAttribute('aria-label',label);b.title=label;b.setAttribute('aria-pressed',String(motionPaused||off));b.querySelector('use').setAttribute('href',motionPaused||off?'#play':'#pause')}
-$('#motion-toggle').addEventListener('click',()=>{motionPaused=!motionPaused;if(!motionPaused)experiences.forEach(e=>e.paused=false);experiences.forEach(e=>e.sync());syncMotionControl()});syncMotionControl();
+function syncMotionControl(){const b=$('#motion-toggle');if(!b)return;const off=conserve(),label=off?'Reduced motion enabled':motionPaused?'Resume all motion':'Pause all motion';b.disabled=off;b.setAttribute('aria-label',label);b.title=label;b.setAttribute('aria-pressed',String(motionPaused||off));b.querySelector('use').setAttribute('href',motionPaused||off?'#play':'#pause')}
+$('#motion-toggle')?.addEventListener('click',()=>{motionPaused=!motionPaused;if(!motionPaused)experiences.forEach(e=>e.paused=false);experiences.forEach(e=>e.sync());syncMotionControl()});syncMotionControl();
 $$('[role=tab]').forEach((b,i)=>{b.addEventListener('click',()=>journey.select(i));b.addEventListener('keydown',e=>{let n;if(e.key==='ArrowRight')n=(i+1)%3;if(e.key==='ArrowLeft')n=(i+2)%3;if(e.key==='Home')n=0;if(e.key==='End')n=2;if(n!==undefined){e.preventDefault();$('#tab-'+n).focus();journey.select(n)}})});
 $('#search').addEventListener('submit',submitSearch);
 let last=performance.now();
@@ -194,4 +194,4 @@ function useMyLocation(){
 (function months(){const sel=$('#dates'),now=new Date();for(let i=1;i<=6;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);const v=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;const o=document.createElement('option');o.value=v;o.textContent=d.toLocaleDateString('en-CA',{month:'long',year:'numeric'});sel.appendChild(o)}})();
 // Coming back from results: keep the previous search.
 (function prefill(){const q=new URLSearchParams(location.search);if(!q.get('budget'))return;const s=S.readSearch(q);$('#from').value=s.origin;origin=s.origin.replace(/\s*\([A-Z]{3}\)$/,'');$('#budget').value=s.budget||'';$('#currency').value=s.currency;$('#travelers').value=String(s.adults);syncTravelers();if(s.month){$('#dates').value=s.month}$('#pace').value=s.pace;syncPrefix();renderCards()})();
-if(S.isMember())$('#signin').textContent='Your account';
+

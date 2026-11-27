@@ -46,7 +46,6 @@
   const session = activeAccountSession();
   const signedIn = Boolean(session);
   const accountHref = accountBaseHref;
-  const myTripsHref = root('react/my-trips/');
   const travelProfileHref = root('react/travel-profile/');
   const accountIdentity = session?.user?.email || session?.user?.username || 'Account';
   const safeAccountIdentity = escapeHtml(accountIdentity);
@@ -75,11 +74,6 @@
               <span class="gv-account-nav__item-copy"><strong>Travel profile</strong><small>Home airport, countries &amp; preferences</small></span>
               <span class="gv-account-nav__item-arrow" aria-hidden="true">›</span>
             </a>
-            <a class="gv-account-nav__item" href="${myTripsHref}">
-              <span class="gv-account-nav__item-icon" aria-hidden="true">▣</span>
-              <span class="gv-account-nav__item-copy"><strong>My trips</strong><small>Pick up your saved journeys</small></span>
-              <span class="gv-account-nav__item-arrow" aria-hidden="true">›</span>
-            </a>
             <a class="gv-account-nav__item" href="${accountHref}">
               <span class="gv-account-nav__item-icon" aria-hidden="true">◎</span>
               <span class="gv-account-nav__item-copy"><strong>Account details</strong><small>Session and account information</small></span>
@@ -93,7 +87,7 @@
         </details>
       </nav>`
     : `<nav class="gv-account-nav" aria-label="Account navigation">
-        <button type="button" class="gv-account-nav__signin" ${window.GLOBEVOY_ENVIRONMENT_POLICY?.resolve(location.origin).accountsEnabled ? '' : 'disabled title="Accounts are not available yet"'} data-gv-auth-signin data-return-to="${safeCurrentReturnTo}">Sign in</button>
+        <a class="gv-account-nav__signin" href="${root('sign-in.html')}?returnTo=${escapeHtml(encodeURIComponent(currentReturnTo))}">Sign in</a>
       </nav>`;
 
   const header = `<div class="gv-header__inner">
@@ -112,7 +106,7 @@
         <a class="gv-footer__brand-link" href="${root('index.html')}" aria-label="Globevoy home"><img class="gv-footer__logo" src="${root('assets/images/globevoy-logo.png')}" alt="Globevoy"></a>
         <p class="gv-footer__tag">Plan a complete trip around your total group budget, then confirm live prices and availability with booking partners.</p>
       </div>
-      <div><h2>Plan</h2><a href="${root('index.html')}">Start a trip</a><a href="${root('explore.html')}">Explore destinations</a><a href="${travelProfileHref}">Travel profile</a><a href="${myTripsHref}">My Trips</a><a href="${accountHref}">Account</a></div>
+      <div><h2>Plan</h2><a href="${root('index.html')}">Start a trip</a><a href="${root('explore.html')}">Explore destinations</a><a href="${travelProfileHref}">Travel profile</a><a href="${accountHref}">Account</a></div>
       <div><h2>Learn</h2><a href="${root('how-it-works.html')}">How it works</a><a href="${root('trust.html')}">Trust and pricing</a><a href="${root('about.html')}">About Globevoy</a></div>
       <div><h2>Legal</h2><a href="${root('privacy.html')}">Privacy</a><a href="${root('terms.html')}">Terms</a><a href="${root('affiliate.html')}">Affiliate disclosure</a></div>
     </div>
@@ -130,38 +124,12 @@
     // trips are a separate 705C capability, not a replacement auth runtime.
     headerRoot.dataset.gvShellVersion = '686d-r1';
     headerRoot.dataset.gvAccountVersion = '705b-r3';
-    headerRoot.dataset.gvSavedTripsVersion = '705c';
     headerRoot.dataset.gvUnifiedAccountHeader = 'GV-WEB-FE-R3.1B';
-    if (body.classList.contains('gv-multi-trip-page')) headerRoot.dataset.gvSavedTripsRouteDetails = '705c-r3';
     headerRoot.innerHTML = header;
   }
   if (footerRoot) {
     footerRoot.className = 'gv-footer';
     footerRoot.innerHTML = footer;
-  }
-
-  function loadRouteDetailsSavedTrips705CR3() {
-    if (!body.classList.contains('gv-multi-trip-page') && !document.getElementById('gv-mtd-save')) return;
-    if (window.GLOBEVOY_SAVED_TRIPS_ROUTE_DETAILS_LOADER_705C_R3 || window.GlobevoySavedTripsRouteDetails705CR3) return;
-    window.GLOBEVOY_SAVED_TRIPS_ROUTE_DETAILS_LOADER_705C_R3 = true;
-    const script = document.createElement('script');
-    script.src = root('scripts/saved-trips-705c-r3-route-details.js');
-    script.dataset.gvSavedTripsRouteDetailsLoader = '705c-r3';
-    document.head.appendChild(script);
-  }
-
-  function loadSavedTrips705C() {
-    if (window.GlobevoySavedTrips705C) {
-      loadRouteDetailsSavedTrips705CR3();
-      return;
-    }
-    if (window.GLOBEVOY_SAVED_TRIPS_LOADER_705C) return;
-    window.GLOBEVOY_SAVED_TRIPS_LOADER_705C = true;
-    const script = document.createElement('script');
-    script.src = root('scripts/saved-trips-705c.js');
-    script.dataset.gvSavedTripsLoader = '705c';
-    script.onload = loadRouteDetailsSavedTrips705CR3;
-    document.head.appendChild(script);
   }
 
   // Load staging-safe public auth first. Saved trips are loaded only after the
@@ -173,18 +141,12 @@
     configScript.src = root('runtime/auth-config-705b-r3.js');
     configScript.dataset.gvAuthLoader = 'config';
     configScript.onload = function () {
-      if (window.GlobevoyAuth705B) {
-        loadSavedTrips705C();
-        return;
-      }
+      if (window.GlobevoyAuth705B) return;
       const sessionScript = document.createElement('script');
       sessionScript.src = root('scripts/auth-session-705b-r3.js');
       sessionScript.dataset.gvAuthLoader = 'session';
-      sessionScript.onload = loadSavedTrips705C;
       document.head.appendChild(sessionScript);
     };
     document.head.appendChild(configScript);
-  } else if (window.GlobevoyAuth705B) {
-    loadSavedTrips705C();
   }
 })();

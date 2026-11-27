@@ -1,58 +1,67 @@
 'use client';
 
-import Link from 'next/link';
 import { useAuth } from '@/components/account/auth-provider';
-import { Button } from '@/components/ui/button';
+import { initialsFor } from '@/components/account/account-nav';
+
+// GV-WEB-4 — Account page (Cinematic Explorer design). Session data comes from
+// Cognito via auth-session; this page only shows it and offers Sign out.
+function firstName(identity: string): string {
+  const local = String(identity || '').split('@')[0].split(/[._\s-]+/)[0] || '';
+  return local ? local.charAt(0).toUpperCase() + local.slice(1) : '';
+}
 
 export function AccountPageClient() {
   const { session, loading, status, signIn, signOut } = useAuth();
 
   if (loading) {
-    return <section className="gv-account-panel" aria-live="polite"><p className="gv-muted">Checking your secure account session…</p></section>;
+    return <section className="cx-wrap cx-state" aria-live="polite"><span className="cx-spinner" aria-hidden="true" /><h1>Opening your account…</h1></section>;
   }
 
   if (!session) {
     return (
-      <section className="gv-account-panel" aria-labelledby="account-sign-in-title">
-        <p className="gv-kicker">YOUR GLOBEVOY ACCOUNT</p>
-        <h1 id="account-sign-in-title">Your trips, one place.</h1>
-        <p className="gv-muted">Save your trips and travel preferences. You can still explore as a guest.</p>
-        <div className="gv-account-dashboard__cards" aria-label="Account benefits">
-          <div className="gv-account-dashboard__card"><span>01</span><strong>Saved Trips</strong><small>Revisit your favourite journeys.</small></div>
-          <div className="gv-account-dashboard__card"><span>02</span><strong>Travel Profile</strong><small>Save your airport and travel style.</small></div>
-        </div>
-        <div className="gv-account-actions">
-          <Button onClick={() => { void signIn('/react/account/'); }}>Sign in or create account</Button>
-          <a className="gv-button gv-button--secondary" href="/">Continue as guest</a>
-        </div>
-        <p className="gv-muted">Sign-in and password recovery are handled securely by Amazon Cognito.</p>
-        {status ? <p className="gv-account-status" role="status">{status}</p> : null}
-      </section>
+      <div className="cx-wrap">
+        <section className="cx-hero account" aria-labelledby="account-title">
+          <img src="/assets/images/cinematic/account-nyhavn.jpg" alt="Boats and colourful buildings along Copenhagen’s Nyhavn canal" />
+          <div><h1 id="account-title">Your GlobeVoy account</h1><p>Make the next trip feel like yours.</p></div>
+        </section>
+        <section className="cx-guest">
+          <p>Sign in to see all three trip options for every search and keep your Travel Profile. Planning as a guest still works.</p>
+          <div className="cx-actions">
+            <button className="cx-button primary" type="button" onClick={() => { void signIn('/react/account/'); }}>Sign in <span aria-hidden="true">→</span></button>
+            <a className="cx-button" href="/">Keep searching as a guest</a>
+          </div>
+          {status ? <p className="cx-fine" role="status">{status}</p> : null}
+        </section>
+      </div>
     );
   }
 
+  const identity = session.user.email || session.user.username || '';
+  const name = firstName(identity);
   return (
-    <section className="gv-account-panel gv-account-dashboard" aria-labelledby="account-title">
-      <div>
-        <p className="gv-kicker">SIGNED-IN ACCOUNT</p>
-        <h1 id="account-title">Welcome back.</h1>
-        <p className="gv-account-success">Your Globevoy account session is active.</p>
-      </div>
-
-      <div className="gv-account-dashboard__cards">
-        <Link className="gv-account-dashboard__card" href="/my-trips/"><span>MY TRIPS</span><strong>Saved Trips</strong><small>Reopen trips and check current prices.</small></Link>
-        <Link className="gv-account-dashboard__card" href="/travel-profile/"><span>PERSONALIZATION</span><strong>Travel Profile</strong><small>Your home airport, interests and travel style.</small></Link>
-      </div>
-
-      <dl className="gv-account-details">
-        <div><dt>Email</dt><dd>{session.user.email || 'Email available after Cognito profile lookup'}</dd></div>
-        <div><dt>Email verified</dt><dd>{session.user.emailVerified ? 'Yes' : 'Not confirmed in this session'}</dd></div>
-      </dl>
-
-      <div className="gv-account-dashboard__footer">
-        <p>Your saved trips and preferences are private to your account.</p>
-        <Button variant="secondary" onClick={signOut}>Sign out</Button>
-      </div>
-    </section>
+    <div className="cx-wrap">
+      <section className="cx-hero account" aria-labelledby="account-title">
+        <img src="/assets/images/cinematic/account-nyhavn.jpg" alt="Boats and colourful buildings along Copenhagen’s Nyhavn canal" />
+        <div><h1 id="account-title">{name ? `Welcome, ${name}.` : 'Welcome back.'}</h1><p>Make the next trip feel like yours.</p></div>
+      </section>
+      <section className="cx-overview">
+        <div className="cx-identity">
+          <span className="cx-avatar" aria-hidden="true">{initialsFor(identity)}</span>
+          <div><h2>{name || 'Your account'}</h2><p>{identity || 'Signed in with Amazon Cognito'}</p></div>
+        </div>
+        <div>
+          <h2 className="cx-title">Account Details</h2>
+          <dl className="cx-facts">
+            <div><dt>Email address</dt><dd>{session.user.email || 'Shown after your next sign-in'}</dd></div>
+            <div><dt>Email status</dt><dd>{session.user.emailVerified ? 'Verified' : 'Not confirmed yet'}</dd></div>
+          </dl>
+          <div className="cx-actions">
+            <a className="cx-button primary" href="/react/travel-profile/">Open Travel Profile <span aria-hidden="true">→</span></a>
+            <button className="cx-button" type="button" onClick={signOut}>Sign out</button>
+          </div>
+          <p className="cx-fine" style={{ marginTop: 14 }}>Your password and sign-in are handled by Amazon Cognito. To change your password, sign out and choose “Forgot your password?” on the sign-in screen.</p>
+        </div>
+      </section>
+    </div>
   );
 }

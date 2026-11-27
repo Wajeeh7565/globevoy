@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 export default function TravelProfilePage() {
   return (
-    <div className="gv-travel-profile-page">
+    <>
       <TravelProfileClient />
-    </div>
+    </>
   );
 }

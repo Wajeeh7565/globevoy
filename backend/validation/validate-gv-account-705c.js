@@ -209,17 +209,26 @@ async function main() {
   assert.doesNotMatch(production, /GV-ACCOUNT-705C|staging-saved-trips-705c|GLOBEVOY_SAVED_TRIPS_TABLE/);
   pass('705C is wired only into the staging wrapper, not production handler');
 
+  // GV-WEB-4: saved trips were removed from the website; the backend service above is unchanged.
   const shell = fs.readFileSync(path.join(ROOT, 'frontend/scripts/shell-670f.js'), 'utf8');
-  const account = fs.readFileSync(path.join(ROOT, 'frontend/pages/account.html'), 'utf8');
   const myTrips = fs.readFileSync(path.join(ROOT, 'frontend/pages/my-trips.html'), 'utf8');
-  const browser = fs.readFileSync(path.join(ROOT, 'frontend/scripts/saved-trips-705c.js'), 'utf8');
-  assert.match(shell, /saved-trips-705c\.js/);
-  assert.match(account, /my-trips\.html/);
-  assert.match(myTrips, /PRIVATE TO YOUR ACCOUNT/);
-  assert.match(browser, /session\(\).*accessToken|current\.accessToken/s);
-  assert.doesNotMatch(browser, /localStorage\.setItem\([^\n]*(accessToken|refreshToken|idToken)/i);
-  assert.match(browser, /not silently upload|silently uploading|silently migrated/i);
-  pass('frontend exposes My Trips without persisting Cognito tokens to localStorage');
+  const menu = fs.readFileSync(path.join(ROOT, 'frontend/scripts/account-menu.js'), 'utf8');
+  assert.doesNotMatch(shell, /saved-trips-705c/);
+  assert.equal(fs.existsSync(path.join(ROOT, 'frontend/scripts/saved-trips-705c.js')), false);
+  assert.match(myTrips, /window\.location\.replace\(target\)/);
+  assert.match(myTrips, /'\/react\/account\/'/);
+  for (const text of [shell, menu]) {
+    assert.doesNotMatch(text, /localStorage\.setItem\([^\n]*(accessToken|refreshToken|idToken)/i);
+    assert.doesNotMatch(text, /sessionStorage\.setItem\([^\n]*(accessToken|refreshToken|idToken)/i);
+  }
+  pass('frontend no longer exposes saved trips and does not persist Cognito tokens');
+  {
+    // Moved from the retired 705C-R3 check: the backend keeps its 48 KiB saved-trip trust boundary.
+    const service = fs.readFileSync(path.join(ROOT, 'backend/services/accounts/saved-trips/staging-saved-trips-705c.js'), 'utf8');
+    assert.match(service, /MAX_TRIP_JSON_BYTES = 48 \* 1024/);
+    assert.match(service, /> MAX_TRIP_JSON_BYTES\) throw apiError\(413/);
+  }
+  pass('backend saved-trip records stay capped at 48 KiB');
 
   const operator = fs.readFileSync(path.join(ROOT, 'ops/GV-ACCOUNT-705C-Bootstrap-Staging-Saved-Trips.sh'), 'utf8');
   assert.match(operator, /globevoy-staging-saved-trips/);

@@ -40,9 +40,10 @@ test('fetchLinks posts only the id and server-issued proof to GlobeVoy backend',
   delete globalThis.GLOBEVOY_CONFIG;
 });
 
-test('booking page loads the script after the Booking Hub', () => {
+test('booking page loads the script before the booking list that uses it', () => {
   const html = fs.readFileSync(path.join(__dirname, '../../frontend/pages/booking.html'), 'utf8');
-  assert.ok(html.indexOf('booking-ignav-links.js') > html.indexOf('booking-hub-685d.js'));
+  assert.ok(html.indexOf('booking-ignav-links.js') > 0);
+  assert.ok(html.indexOf('booking-trip-v2.js') > html.indexOf('booking-ignav-links.js'));
 });
 
 test('stay White Label links: only https Nuitee/GlobeVoy hosts are accepted', () => {

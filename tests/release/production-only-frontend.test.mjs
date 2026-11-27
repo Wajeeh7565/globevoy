@@ -62,7 +62,7 @@ test('ordinary source policy preserves staging and existing loopback development
 
 test('actual ZIP verifier rejects every known staging identifier, including compressed React chunks and escaped/encoded URLs',()=>{
   const temp=fs.mkdtempSync(path.join(os.tmpdir(),'gv-production-scan-'));
-  const names=['index.html','auth-callback.html','runtime/environment-policy.js','runtime/auth-config-705b-r3.js','scripts/auth-session-705b-r3.js','scripts/saved-trips-705c.js','scripts/saved-trips-705c-r3-route-details.js','react/account/index.html','react/my-trips/index.html','react/travel-profile/index.html','react/journey/index.html'];
+  const names=['index.html','auth-callback.html','runtime/environment-policy.js','runtime/auth-config-705b-r3.js','scripts/auth-session-705b-r3.js','sign-in.html','scripts/account-menu.js','react/account/index.html','react/my-trips/index.html','react/travel-profile/index.html','react/journey/index.html'];
   const files=Object.fromEntries(names.map(name=>[name,'test asset']));
   const zip=path.join(temp,'fixture.zip');
   function make(value){
@@ -97,6 +97,7 @@ test('classic account links preserve staging development fallback without hardco
     vm.runInContext(snippet+';globalThis.accountLink=accountBaseHref;',ctx);
     assert.equal(ctx.accountLink,productionOnly?'react/account/':policy.stagingOrigin+'/react/account/');
     vm.runInContext(tripSearch+';window.GlobevoyTripSearch.signIn();',ctx);
-    assert.equal(location.href,productionOnly?'account.html':policy.stagingOrigin+'/account.html');
+    // GV-WEB-4: production sign-in starts on the GlobeVoy sign-in page, which hands over to Cognito.
+    assert.equal(location.href,productionOnly?'sign-in.html?returnTo=%2F':policy.stagingOrigin+'/account.html');
   }
 });
