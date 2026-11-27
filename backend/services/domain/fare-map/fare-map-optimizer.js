@@ -448,7 +448,8 @@ let poolDiversity=false;
 // seenRoutes (city ids joined by ">"); their months and countries are read from the same
 // search's pool (the page was shown from it). Only reorders: an unsuitable trip is never
 // added, and when every trip overlaps the pool order still decides.
-const ROTATE={city:6,country:2,month:1.5};
+// FARE_MAP_ROTATE_CITY_WEIGHT / _COUNTRY_WEIGHT: pool positions a repeated city / country costs.
+const ROTATE={get city(){return Number(process.env.FARE_MAP_ROTATE_CITY_WEIGHT)||6;},get country(){return Number(process.env.FARE_MAP_ROTATE_COUNTRY_WEIGHT)||2;},month:1.5};
 function rotateQueue(pool,seenKeys){
  const key=t=>(t?.stops||[]).map(s=>String(s.cityId||s.city||'').toLowerCase()).join('>');
  const seen=new Set([...(seenKeys||[])].map(k=>String(k).toLowerCase()));
@@ -497,7 +498,11 @@ function balancedPoolScore(s,x,quality){
 // stays in cities with good 3-4 star supply, the approved Best Use cap); it wins only if it
 // scores better than adding nights or cities. Lowest Cost never gets it.
 let experience=false;
-const EXP={fit:.30,abroad:.15,allAbroad:.05,countries:.12,sameCountry:.40,hotel:Number(process.env.FARE_MAP_EXPERIENCE_HOTEL_WEIGHT)||.22,thinHotels:Number(process.env.FARE_MAP_EXPERIENCE_THIN_HOTEL)||.12,flight:.08,stay:.10,size:.08,reach:.04,estimated:.12,mirrored:.25,detour:.3,similarity:Number(process.env.FARE_MAP_EXPERIENCE_SIMILARITY)||.9};
+const EXP={fit:.30,abroad:.15,allAbroad:.05,countries:.12,sameCountry:.40,hotel:Number(process.env.FARE_MAP_EXPERIENCE_HOTEL_WEIGHT)||.22,thinHotels:Number(process.env.FARE_MAP_EXPERIENCE_THIN_HOTEL)||.12,flight:.08,stay:.10,size:.08,reach:.04,estimated:.12,mirrored:.25,detour:.3,similarity:Number(process.env.FARE_MAP_EXPERIENCE_SIMILARITY)||.9,
+ // Big budgets (spendable US$5,000+): budget that only buys hotel upgrades counts less than
+ // budget that buys a different trip, and further-reaching trips count more.
+ get upgrade(){return Number(process.env.FARE_MAP_EXPERIENCE_UPGRADE_WEIGHT)||.3;},get bigReach(){return Number(process.env.FARE_MAP_EXPERIENCE_BIG_REACH)||.1;}};
+const BIG_SPENDABLE_USD=5000;
 function hotelQuality(row){const a=cityAccommodation(row);if(!a)return .35;const supply=Math.min(1,Math.log1p(a.good3to4Stars||0)/Math.log1p(60));const rating=a.medianRating?Math.max(0,Math.min(1,(a.medianRating-6.5)/2.5)):.5;return .7*supply+.3*rating;}
 function experienceParts(s,spendable,originCC){
  const use=s.cost/spendable,cc=s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase());
@@ -511,12 +516,13 @@ function experienceParts(s,spendable,originCC){
  const thin=s.cities.filter(c=>{const a=cityAccommodation(c);return a&&(a.good3to4Stars||0)<20;}).length/Math.max(1,size);
  const legs=s.tour?.legs||[],est=legs.length?legs.filter(l=>l.providerDateEvidence?.dateEstimated).length/legs.length:0;
  const known=legs.filter(l=>Number.isFinite(l.stops)),flight=known.length?known.reduce((n,l)=>n+(l.stops===0?1:l.stops===1?.55:.15),0)/known.length:.55;
- return {use,fit,abroad,allAbroad,countries,size,sameCountry:size>1&&countries===1,stay,hotel,est,flight,thin,mirrored:!!s.tour?.fareMap?.mirroredReturn,detour:Math.max(0,(s.detour||1)-1)};
+ const upgrade=s.comfortHotels&&Number.isFinite(s.baseCost)?Math.max(0,(s.cost-s.baseCost)/spendable):0;
+ return {use,fit,abroad,allAbroad,countries,size,sameCountry:size>1&&countries===1,stay,hotel,est,flight,thin,upgrade,mirrored:!!s.tour?.fareMap?.mirroredReturn,detour:Math.max(0,(s.detour||1)-1)};
 }
 function experienceScore(s,spendable,originCC,reach=0){
  const p=experienceParts(s,spendable,originCC);
  return EXP.fit*p.fit+EXP.abroad*(p.abroad?1:0)+EXP.allAbroad*(p.allAbroad?1:0)+EXP.countries*Math.min(1,(p.countries-1)/2)-EXP.sameCountry*(p.sameCountry?1:0)
-  +EXP.hotel*p.hotel-EXP.thinHotels*p.thin+EXP.flight*p.flight+EXP.stay*p.stay+EXP.size*Math.min(1,Math.log2(p.size+1)/2)+EXP.reach*reach-EXP.estimated*p.est-EXP.mirrored*(p.mirrored?1:0)-EXP.detour*p.detour
+  +EXP.hotel*p.hotel-EXP.thinHotels*p.thin+EXP.flight*p.flight+EXP.stay*p.stay+EXP.size*Math.min(1,Math.log2(p.size+1)/2)+(spendable>=BIG_SPENDABLE_USD?EXP.bigReach:EXP.reach)*reach-(spendable>=BIG_SPENDABLE_USD?EXP.upgrade*p.upgrade:0)-EXP.estimated*p.est-EXP.mirrored*(p.mirrored?1:0)-EXP.detour*p.detour
   -(s.comfortHotels?.02:0);
 }
 // Hotel tier copies (GV-HOTEL-TIER-001). For trips under 80% of the entered budget, offer
@@ -546,7 +552,7 @@ function tierCopy(s,spendable,target,caps,label){
  if(!pct.some(p=>p>=.15))return null;
  const newStops=stops.map((st,i)=>pct[i]>0?{...st,hotel:{...st.hotel,estimatedNightlyUsd:Math.round(st.hotel.estimatedNightlyUsd*(1+pct[i])),estimatedStayUsd:Math.round(stay[i]*(1+pct[i])),planTier:label,planUpgradePct:Number(pct[i].toFixed(2))}}:st);
  const addTour=newStops.reduce((n,st,i)=>n+(st.hotel.estimatedStayUsd-stay[i]),0),addSafe=stay.reduce((n,v,i)=>n+v*ratio*pct[i],0);
- return {...s,comfortHotels:true,hotelTier:label,key:s.key+'#'+label,cost:Math.round(s.cost+addSafe),
+ return {...s,comfortHotels:true,hotelTier:label,baseCost:s.cost,key:s.key+'#'+label,cost:Math.round(s.cost+addSafe),
   tour:{...s.tour,stops:newStops,hotelTier:label,totalHotelEstimateUsd:Math.round((s.tour.totalHotelEstimateUsd||0)+addTour),estimatedTotalUsd:Math.round((s.tour.estimatedTotalUsd||0)+addTour)}};
 }
 function comfortVariants(states,spendable){
@@ -585,7 +591,9 @@ function buildPool(ranked,spendable,extra={}){
   for(const x of scored.slice().sort((a,b)=>b.score-a.score||a.s.key.localeCompare(b.s.key))){const k=x.s.cities.slice(0,2).map(code).join('>'),g=byOpening.get(k)||[];
    // Up to two trips per opening when the rest of the route is different.
    if(!g.length||g.length<2&&!x.s.cities.slice(2).some(c=>g[0].s.cities.slice(2).some(d=>code(d)===code(c)))&&x.s.cities.length>2){g.push(x);byOpening.set(k,g);}}
-  const kept=[...byOpening.values()].flat().filter(x=>x.score>=top-.6);
+  // FARE_MAP_EXPERIENCE_POOL_GAP: how far below the best a trip may score and stay in the pool (default 1; refreshes then have more distinct trips to rotate through).
+  const gap=Number(process.env.FARE_MAP_EXPERIENCE_POOL_GAP)||1;
+  const kept=[...byOpening.values()].flat().filter(x=>x.score>=top-gap);
   if(kept.length>=3)pool=kept;
  }
  const picked=[];let left=pool.slice().sort((a,b)=>b.score-a.score||a.s.key.localeCompare(b.s.key));

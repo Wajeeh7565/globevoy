@@ -170,8 +170,15 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
   // flight legs (Ignav) and hotel stays (Nuitee rates) those checks need.
   const liveChecks = (() => { let n = 0, ok = 0, legs = 0, stays = 0; for (const t of pool) { n++; legs += (t.legs || []).length; stays += (t.stops || []).length; if (LIVE(t) <= spendable && ++ok === 3) break; } return { trips: n, passed: ok, ignavLegs: legs, nuiteeStays: stays }; })();
   const rolePick = role => { const x = ((r.roleCandidates || {})[role] || []).map(t => ({ t, live: LIVE(t) })).find(y => y.live <= spendable); return x ? trip(x) : null; };
-  const roles = { bestUse: rolePick('best-balance'), lowestCost: rolePick('lowest-cost'), different: rolePick('most-memorable') };
-  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, liveChecks, ms: r.diagnostics?.ms, guest, member, roles, cost,
+  const optimizerRoles = { bestUse: rolePick('best-balance'), lowestCost: rolePick('lowest-cost'), different: rolePick('most-memorable') };
+  // Roles as the signed-in page labels them (generated-tour.js, pool mode): the shown trips
+  // are distinct; the one using the most budget is Best Use, the cheapest of the rest Lowest
+  // Cost, the last Something Different. Fewer passing trips -> fewer roles, never repeats.
+  const roles = { bestUse: null, lowestCost: null, different: null };
+  { const left = member.slice(); if (left.length) { const b = left.slice().sort((x, y) => y.use - x.use)[0]; roles.bestUse = b; left.splice(left.indexOf(b), 1); }
+    if (left.length) { const c = left.slice().sort((x, y) => x.use - y.use)[0]; roles.lowestCost = c; left.splice(left.indexOf(c), 1); }
+    if (left.length) roles.different = left[0]; }
+  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, liveChecks, ms: r.diagnostics?.ms, guest, member, roles, optimizerRoles, distinctShown: member.length, cost,
     coverage: { complete: !missing.size && !truncated.size, missing: [...missing], truncated: [...truncated] },
     verified: { signedOut, signedIn }, d: r.diagnostics || {} };
 }
