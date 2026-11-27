@@ -6,6 +6,7 @@ import crypto from 'node:crypto';
 import vm from 'node:vm';
 import os from 'node:os';
 import {readPageLayout,compatibilityRedirectHtml,writeCompatibilityPages} from '../../ops/frontend/page-layout.mjs';
+import {writeClassicSeo} from '../../ops/frontend/seo.mjs';
 import sourceLayout from '../../ops/frontend/source-layout.cjs';
 import layoutAssertions from '../../frontend/validation/page-layout-support.cjs';
 const layout=readPageLayout();
@@ -75,6 +76,67 @@ test('active frontend consumers no longer link to archived source paths',()=>{
  scan('frontend');
  const clean=fs.readFileSync('frontend/scripts/clean-routing.js','utf8');
  assert.ok(clean.includes('index.html'));
+});
+
+test('published SEO metadata and sitemap agree without changing classic page bodies', () => {
+ const output = fs.mkdtempSync(path.join(os.tmpdir(), 'gv-page-layout-'));
+ const origin = 'https://globevoy.com';
+ const pages = new Map([
+  ['index.html', '/'],
+  ['about.html', '/about.html'],
+  ['how-it-works.html', '/how-it-works.html'],
+  ['trust.html', '/trust.html']
+ ]);
+ const head = /<head>([\s\S]*?)<\/head>/i;
+ try {
+  sourceLayout.copyFrontendSource(output);
+  writeClassicSeo(output, layout.publicPageSources);
+  const titles = new Set(), descriptions = new Set();
+  for (const { to } of layout.publicPageSources) {
+   const name = path.basename(to);
+   const published = fs.readFileSync(path.join(output, name), 'utf8');
+   assert.equal(published.replace(head, ''), fs.readFileSync(to, 'utf8').replace(head, ''), name);
+   const metadata = published.match(head)[1];
+   const route = pages.get(name);
+   if (route) {
+    const canonical = origin + route;
+    assert.deepEqual([...metadata.matchAll(/<link rel="canonical" href="([^"]+)">/g)].map(match => match[1]), [canonical]);
+    assert.ok(metadata.includes(`<meta property="og:url" content="${canonical}">`));
+    assert.doesNotMatch(metadata, /noindex/i);
+    const title = [...metadata.matchAll(/<title>([^<]+)<\/title>/g)];
+    const description = [...metadata.matchAll(/<meta name="description" content="([^"]+)">/g)];
+    assert.equal(title.length, 1, name);
+    assert.equal(description.length, 1, name);
+    titles.add(title[0][1]);
+    descriptions.add(description[0][1]);
+    assert.match(published, /<h1\b[^>]*>[^<\s]/i);
+   } else {
+    assert.match(metadata, /<meta name="robots" content="noindex\b/i);
+    assert.doesNotMatch(metadata, /rel="canonical"/i);
+   }
+  }
+  assert.equal(titles.size, pages.size);
+  assert.equal(descriptions.size, pages.size);
+  const robots = fs.readFileSync(path.join(output, 'robots.txt'), 'utf8');
+  assert.equal(robots, 'User-agent: *\nAllow: /\n\nSitemap: ' + origin + '/sitemap.xml\n');
+  const sitemap = fs.readFileSync(path.join(output, 'sitemap.xml'), 'utf8');
+  assert.match(sitemap, /<urlset xmlns="http:\/\/www\.sitemaps\.org\/schemas\/sitemap\/0\.9">/);
+  assert.deepEqual([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]), [...pages.values()].map(route => origin + route));
+  for (const [alias, target] of Object.entries(layout.compatibilityRedirects)) {
+   const html = compatibilityRedirectHtml(target);
+   if ([...pages.values()].includes(target)) {
+    assert.ok(html.includes(`rel="canonical" href="${origin + target}"`), alias);
+    assert.doesNotMatch(html, /noindex/i);
+   } else {
+    assert.match(html, /content="noindex"/, alias);
+    assert.doesNotMatch(html, /rel="canonical"/, alias);
+   }
+  }
+ } finally {
+  assert.equal(path.dirname(path.resolve(output)), path.resolve(os.tmpdir()));
+  assert.ok(path.basename(output).startsWith('gv-page-layout-'));
+  fs.rmSync(output, { recursive: true, force: true });
+ }
 });
 
 test('retained legacy button routing still resolves from promoted root and nested screens',()=>{

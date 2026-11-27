@@ -31,7 +31,10 @@ export const metadata: Metadata = {
     default: 'Globevoy',
     template: '%s · Globevoy'
   },
-  description: 'Budget-first travel discovery with transparent price evidence.'
+  description: 'Budget-first travel discovery with transparent price evidence.',
+  // The production classic homepage is the public entry point. The React
+  // export hosts account and trip workflows and also serves as a staging UI.
+  robots: { index: false }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
