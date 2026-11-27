@@ -26,7 +26,10 @@ function isoDate(value) {
   return /^\d{4}-\d{2}-\d{2}$/.test(s) && Number.isFinite(d.getTime()) && d.toISOString().slice(0,10) === s ? s : '';
 }
 
-function buildQuery(origin, departMonth, offset) {
+// GV-DATA-COMFORT-001: FARE_MAP_COLLECT_COMFORT=on also asks for number_of_changes and
+// duration (checked against the live schema on 2026-11-27); same request, same cost.
+function comfortEnabled(env = process.env) { return String(env.FARE_MAP_COLLECT_COMFORT || '').trim().toLowerCase() === 'on'; }
+function buildQuery(origin, departMonth, offset, comfort = false) {
   // origin/month are validated to [A-Z]{3} / YYYY-MM before interpolation.
   return `{
   prices_one_way(
@@ -37,7 +40,7 @@ function buildQuery(origin, departMonth, offset) {
   ) {
     destination_city_iata
     departure_at
-    value
+    value${comfort ? '\n    number_of_changes\n    duration' : ''}
   }
 }`;
 }
@@ -98,7 +101,7 @@ async function ingestOriginMonth(options = {}) {
         const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),remaining);
         try {
           requests++;
-          const response=await fetchFn(endpoint||DEFAULT_ENDPOINT,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json','X-Access-Token':token},body:JSON.stringify({query:buildQuery(o,m,offset)}),signal:controller.signal});
+          const response=await fetchFn(endpoint||DEFAULT_ENDPOINT,{method:'POST',redirect:'error',headers:{'Content-Type':'application/json','X-Access-Token':token},body:JSON.stringify({query:buildQuery(o,m,offset,options.comfort??comfortEnabled(options.env||process.env))}),signal:controller.signal});
           status=response.status;
           // 429 bodies are often HTML, so classify before parsing JSON. No immediate retry.
           if(status===429) return finish(false,'rate-limited',{retryAfterSeconds:Math.min(3600,Math.max(60,Number(response.headers?.get?.('retry-after'))||60))});
