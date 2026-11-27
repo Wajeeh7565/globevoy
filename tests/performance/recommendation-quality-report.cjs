@@ -34,16 +34,21 @@ function report(file) {
     const m = k => mean(trips.map(x => x[k]).filter(v => v != null).map(Number));
     const roleUse = k => { const v = g.map(c => c.roles?.[k]).filter(Boolean); return v.length ? pct(mean(v.map(t => t.use))) : null; };
     const roleBand = k => { const v = g.map(c => c.roles?.[k]).filter(Boolean); return v.length ? pct(mean(v.map(t => t.use >= 0.8 && t.use <= 0.9 ? 1 : 0))) : null; };
-    rows[b] = { bestUseUse: roleUse('bestUse'), bestUseBand: roleBand('bestUse'), lowestUse: roleUse('lowestCost'), trips: trips.length, use: pct(m('use')), band: pct(m('band')), intl: pct(m('intl')), allIntl: pct(m('allIntl')), ctry: +m('ctry').toFixed(2), multiCtry: pct(m('multiCtry')), sameCtry: pct(m('sameCtry')),
+    const lc = g.map(c => c.liveChecks).filter(Boolean), sum = k => lc.reduce((n, x) => n + x[k], 0);
+    const allTrips = [...g.map(c => c.guest[0]).filter(Boolean), ...g.flatMap(c => c.member)], known = allTrips.reduce((n, t) => n + (t.knownStopLegs || 0), 0);
+    rows[b] = { bestUseUse: roleUse('bestUse'), bestUseBand: roleBand('bestUse'), lowestUse: roleUse('lowestCost'), diffUse: roleUse('different'),
+      liveOk: lc.length ? pct(sum('passed') / Math.max(1, sum('trips'))) : null, checks: lc.length ? +(sum('trips') / lc.length).toFixed(1) : null,
+      ignav: lc.length ? Math.round(sum('ignavLegs') / lc.length) : null, nuitee: lc.length ? Math.round(sum('nuiteeStays') / lc.length) : null,
+      direct: known ? pct(allTrips.reduce((n, t) => n + (t.directLegs || 0), 0) / known) : null, ms: Math.round(mean(g.map(c => c.ms || c.d?.ms || 0))), trips: trips.length, use: pct(m('use')), band: pct(m('band')), intl: pct(m('intl')), allIntl: pct(m('allIntl')), ctry: +m('ctry').toFixed(2), multiCtry: pct(m('multiCtry')), sameCtry: pct(m('sameCtry')),
       goodHotel: pct(m('goodHotel')), stayOk: pct(m('stayOk')), realDates: pct(m('realDates')), good: pct(m('good')), disc: pct(m('disc')) };
   }
   const shown = j.cases.flatMap(c => c.guest);
   return { file, rows, distinct: new Set(shown.flatMap(t => t.cities)).size, refreshRepeat: pct(mean(j.cases.filter(c => c.guest.length > 1).map(c => { const a = c.guest.flatMap(t => t.cities); return a.length > new Set(a).size ? 1 : 0; }))), settings: j.env };
 }
-const reps = process.argv.slice(2).filter(a => !a.startsWith('--')).map(report), keys = ['bestUseUse', 'bestUseBand', 'lowestUse', 'use', 'band', 'intl', 'allIntl', 'ctry', 'multiCtry', 'sameCtry', 'goodHotel', 'stayOk', 'realDates', 'good', 'disc'];
+const reps = process.argv.slice(2).filter(a => !a.startsWith('--')).map(report), keys = ['bestUseUse', 'bestUseBand', 'lowestUse', 'diffUse', 'intl', 'ctry', 'multiCtry', 'sameCtry', 'goodHotel', 'stayOk', 'realDates', 'direct', 'liveOk', 'checks', 'ignav', 'nuitee', 'ms', 'good', 'disc'];
 if (process.argv.includes('--json')) { console.log(JSON.stringify(reps, null, 1)); process.exit(0); }
 for (const r of reps) {
   console.log(`\n== ${r.file}  settings ${JSON.stringify(r.settings)}  distinct cities shown ${r.distinct}, refresh repeats ${r.refreshRepeat}%`);
-  console.log('budget  ' + keys.map(k => k.padStart(9)).join(''));
-  for (const [b, v] of Object.entries(r.rows)) console.log(`C$${String(b).padEnd(6)}` + keys.map(k => String(v[k] + (k === 'ctry' || v[k] == null ? '' : '%')).padStart(9)).join(''));
+  console.log('budget  ' + keys.map(k => k.padStart(10)).join(''));
+  for (const [b, v] of Object.entries(r.rows)) console.log(`C$${String(b).padEnd(6)}` + keys.map(k => String(v[k] + (['ctry', 'checks', 'ignav', 'nuitee', 'ms'].includes(k) || v[k] == null ? '' : '%')).padStart(10)).join(''));
 }

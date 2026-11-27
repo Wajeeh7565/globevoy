@@ -125,3 +125,25 @@ test('hotel quality is a soft signal: unknown cities get a neutral value, not ze
   assert.ok(I.hotelQuality({ cityCode: 'LIS', unifiedRegistry: { origin: { providerLocationCode: 'LIS' } } }) > I.hotelQuality({ cityCode: 'GZP', unifiedRegistry: { origin: { providerLocationCode: 'GZP' } } }));
   assert.equal(I.hotelQuality({ cityCode: 'ZZZ', unifiedRegistry: { origin: { providerLocationCode: 'ZZZ' } } }), 0.35);
 });
+
+test('date pass: both directions, no duplicate requests, bounded, writes D# rows only', async () => {
+  const { runDatePass } = require('../../backend/services/domain/fare-map/fare-map-date-pass');
+  const calls = [], writes = [];
+  const fetch = async url => { calls.push(url); return { ok: true, status: 200, text: async () => JSON.stringify({ success: true, data: [{ depart_date: '2027-01-05', value: 300, number_of_changes: 0 }, { depart_date: '2027-01-09', value: 280, number_of_changes: 1 }] }) }; };
+  const dynamo = { send: async c => { writes.push(...Object.values(c.input.RequestItems)[0]); return {}; } };
+  const readRoutes = async (o, m) => o === 'YTO' ? [{ destination: 'LIS', priceUsd: 300 }, { destination: 'MEX', priceUsd: 200 }, { destination: 'LIS', priceUsd: 350 }] : [];
+  let t = Date.parse('2026-11-27T00:00:00Z');
+  const stats = await runDatePass({ token: 't', fetch, dynamo, readRoutes, origins: ['YTO'], months: ['2027-01'], routes: 5, env: { FARE_MAP_TABLE: 'tbl' }, clock: () => t, sleep: async ms => { t += ms; } });
+  assert.equal(stats.requests, 4, 'YTO>LIS, LIS>YTO, YTO>MEX, MEX>YTO');
+  assert.equal(new Set(calls).size, 4);
+  assert.ok(writes.every(w => w.PutRequest.Item.pk.S.startsWith('D#')));
+  assert.equal(stats.rows, 8);
+  const capped = await runDatePass({ token: 't', fetch, dynamo, readRoutes, origins: ['YTO'], months: ['2027-01'], maxRequests: 1, env: { FARE_MAP_TABLE: 'tbl' }, clock: () => t, sleep: async ms => { t += ms; }, dryRun: true });
+  assert.equal(capped.requests, 1); assert.equal(capped.stoppedBy, 'max-requests');
+});
+
+test('legs carry stops; flight convenience prefers known direct legs', () => {
+  const mk = st => ({ cost: 900, cities: [{ unifiedRegistry: { countryCode: 'PT' } }], tour: { stops: [{ nights: 5 }], legs: [{ stops: st }, { stops: st }] } });
+  assert.ok(I.experienceParts(mk(0), 1000, 'CA').flight > I.experienceParts(mk(2), 1000, 'CA').flight);
+  assert.equal(I.experienceParts(mk(null), 1000, 'CA').flight, 0.55);
+});
