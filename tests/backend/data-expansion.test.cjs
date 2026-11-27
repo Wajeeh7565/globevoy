@@ -196,3 +196,15 @@ test('stored Price Index summaries (PI#city) reach the trip search and raise its
   assert.ok(both.length, 'a trip in both pools');
   for (const k of both) assert.ok(b.get(k) > a.get(k), `${k}: ${b.get(k)} vs ${a.get(k)}`);
 });
+
+test('date pass uses the worldwide origin catalogue and skips routes collected recently', async () => {
+  const { runDatePass, originSet } = require('../../backend/services/domain/fare-map/fare-map-date-pass');
+  const now = Date.parse('2026-11-28T00:00:00Z'), legacy = originSet('legacy', now), added = originSet('added', now), all = originSet('worldwide', now);
+  assert.ok(legacy.length >= 900 && added.length > 2000, `${legacy.length} + ${added.length}`);
+  assert.equal(all.length, legacy.length + added.length);
+  assert.deepEqual(all.slice(0, legacy.length), legacy, 'registry origins first, as the main collector');
+  const calls = [], fetch = async url => { calls.push(String(url)); return { ok: true, status: 200, json: async () => ({ success: true, data: [{ depart_date: '2027-01-05', value: 300, number_of_changes: 0, found_at: new Date(now).toISOString() }] }) }; };
+  const stats = await runDatePass({ token: 't', fetch, dryRun: true, origins: ['YTO'], months: ['2027-01'], readRoutes: async () => [{ destination: 'LIS', priceUsd: 300 }, { destination: 'MEX', priceUsd: 200 }],
+    isFresh: async (a, b) => a === 'YTO' && b === 'LIS', clock: () => now, sleep: async () => {} });
+  assert.equal(stats.skippedFresh, 1); assert.equal(stats.requests, 3, 'YTO>MEX, MEX>YTO, LIS>YTO');
+});

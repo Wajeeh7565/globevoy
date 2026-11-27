@@ -43,21 +43,42 @@ function passMonths(count, nowMs) {
   return (left >= 10 ? all.slice(0, count) : all.slice(1, count + 1));
 }
 const PROGRESS_SK = 'date-pass';
-async function loadProgress({ env, dynamo }) {
+// The same worldwide origin catalogue as the main collector (fare-map-worldwide-plan.js):
+// the registry's origins first, then the selectable airports it adds. 'added' is the
+// airports only, 'legacy' the registry only.
+function originSet(name = 'worldwide', nowMs = Date.now()) {
+  const legacy = ingest.originCodesFromRegistry(require('../../../data/unified-city-registry-1000.json'));
+  if (name === 'legacy') return legacy;
+  const plan = require('./fare-map-worldwide-plan').buildWorldwidePlan(require('../../../data/selectable-origins.json'), legacy, nowMs);
+  const all = [...new Set(plan.tasks.map(t => t.origin))], old = new Set(legacy);
+  return name === 'added' ? all.filter(o => !old.has(o)) : [...legacy, ...all.filter(o => !old.has(o))];
+}
+const listKey = origins => require('node:crypto').createHash('sha256').update(origins.join(',')).digest('hex').slice(0, 12);
+async function loadProgress({ env, dynamo, sk = PROGRESS_SK }) {
   const table = store.tableName(env); if (!table) return null;
   const db = dynamo || store._internal.client({});
-  const out = await db.send(store._internal.cmd('GetItemCommand', { TableName: table, Key: { pk: { S: 'META#job' }, sk: { S: PROGRESS_SK } } }));
+  const out = await db.send(store._internal.cmd('GetItemCommand', { TableName: table, Key: { pk: { S: 'META#job' }, sk: { S: sk } } }));
   try { return out?.Item?.state?.S ? JSON.parse(out.Item.state.S) : null; } catch { return null; }
 }
-async function saveProgress(state, { env, dynamo }) {
+async function saveProgress(state, { env, dynamo, sk = PROGRESS_SK }) {
   const table = store.tableName(env); if (!table) return;
   const db = dynamo || store._internal.client({});
-  await db.send(store._internal.cmd('PutItemCommand', { TableName: table, Item: { pk: { S: 'META#job' }, sk: { S: PROGRESS_SK }, state: { S: JSON.stringify(state) }, updatedAt: { S: new Date().toISOString() } } }));
+  await db.send(store._internal.cmd('PutItemCommand', { TableName: table, Item: { pk: { S: 'META#job' }, sk: { S: sk }, state: { S: JSON.stringify(state) }, updatedAt: { S: new Date().toISOString() } } }));
 }
 
 async function runDatePass(options = {}) {
   const env = options.env || process.env, clock = options.clock || Date.now, sleep = options.sleep || (ms => new Promise(r => setTimeout(r, ms)));
-  const origins = options.origins || ingest.originCodesFromRegistry(require('../../../data/unified-city-registry-1000.json'));
+  const origins = options.origins || originSet(options.originSet || 'worldwide', clock());
+  // One saved position per origin list, so runs over different lists never mix positions.
+  const progressSk = options.origins || (options.originSet && options.originSet !== 'legacy') ? `${PROGRESS_SK}-${listKey(origins)}` : PROGRESS_SK;
+  // Routes collected less than FARE_MAP_DATE_FRESH_HOURS ago (default 36) are not asked again:
+  // a resumed or overlapping run costs no duplicate requests, the next 2-day cycle refreshes.
+  const freshMs = (Number(options.freshHours ?? env.FARE_MAP_DATE_FRESH_HOURS) || 36) * 3600000;
+  const isFresh = options.isFresh || (options.dryRun ? null : async (a, b, m) => {
+    const table = store.tableName(env); if (!table) return false;
+    const out = await (options.dynamo || store._internal.client({})).send(store._internal.cmd('GetItemCommand', { TableName: table, Key: { pk: { S: `D#${a}#${m}` }, sk: { S: b } }, ProjectionExpression: 'observedAt' }));
+    const t = Date.parse(out?.Item?.observedAt?.S); return Number.isFinite(t) && clock() - t < freshMs;
+  });
   const months = options.months || passMonths(Number(options.monthCount) || 6, clock());
   const perOD = Math.max(1, Math.min(200, Number(options.routes) || 30));
   const maxRequests = Math.max(1, Number(options.maxRequests) || 200000);
@@ -66,15 +87,15 @@ async function runDatePass(options = {}) {
   const read = options.readRoutes || ((o, m) => store.readRoutesFrom(o, m, { env, dynamo: options.dynamo, maxPages: 2, limit: 1000, nowMs: clock() }));
   const log = options.log || (() => {});
   // Resume an unfinished pass (same months) unless fresh; a finished one starts over.
-  const saved = options.dryRun || options.fresh || options.resume === false ? null : await loadProgress({ env, dynamo: options.dynamo }).catch(() => null);
+  const saved = options.dryRun || options.fresh || options.resume === false ? null : await loadProgress({ env, dynamo: options.dynamo, sk: progressSk }).catch(() => null);
   const resume = saved && !saved.completedAt && saved.months?.join() === months.join() ? saved : null;
   const startAt = resume ? resume.originIndex : 0, startedAt = resume?.startedAt || new Date(clock()).toISOString();
-  const stats = { origins: origins.length, months: months.length, monthList: months, startOrigin: startAt, requests: 0, routesWithDates: 0, routesEmpty: 0, items: 0, rows: 0,
+  const stats = { origins: origins.length, months: months.length, monthList: months, startOrigin: startAt, requests: 0, skippedFresh: 0, routesWithDates: 0, routesEmpty: 0, items: 0, rows: 0,
     withStops: 0, withDuration: 0, written: 0, errors: {}, stoppedBy: null, originsWithDates: 0, destinations: 0, startedAt };
   const dests = new Set(), originsHit = new Set(); let next = 0, buffer = [];
   const flush = async () => { if (!buffer.length) return; if (!options.dryRun) stats.written += await writeItems(buffer, { env, dynamo: options.dynamo, sleep }); buffer = []; };
   const progress = async (originIndex, completed) => { await flush(); if (options.dryRun) return;
-    await saveProgress({ months, originIndex, startedAt, completedAt: completed ? new Date(clock()).toISOString() : null, last: { requests: stats.requests, items: stats.items, rows: stats.rows } }, { env, dynamo: options.dynamo }).catch(() => {}); };
+    await saveProgress({ months, originIndex, startedAt, completedAt: completed ? new Date(clock()).toISOString() : null, last: { requests: stats.requests, items: stats.items, rows: stats.rows } }, { env, dynamo: options.dynamo, sk: progressSk }).catch(() => {}); };
   const done = new Set();
   for (let oi = startAt; oi < origins.length; oi++) {
     const o = origins[oi];
@@ -84,6 +105,7 @@ async function runDatePass(options = {}) {
       const top = [...new Map(fares.filter(f => f.destination && f.destination !== o).sort((a, b) => a.priceUsd - b.priceUsd).map(f => [f.destination, f])).values()].slice(0, perOD);
       for (const f of top) for (const [a, b] of [[o, f.destination], [f.destination, o]]) {
         const key = `${a}>${b}@${m}`; if (done.has(key)) continue; done.add(key);
+        if (isFresh) { let fresh = false; try { fresh = await isFresh(a, b, m); } catch { fresh = false; } if (fresh) { stats.skippedFresh++; continue; } }
         if (stats.requests >= maxRequests || clock() >= deadline) { stats.stoppedBy = stats.requests >= maxRequests ? 'max-requests' : 'time-budget'; await progress(oi, false); return finish(); }
         const wait = next - clock(); if (wait > 0) await sleep(wait); next = clock() + interval;
         stats.requests++;
@@ -105,7 +127,7 @@ async function runDatePass(options = {}) {
   }
   await progress(origins.length, true);
   return finish();
-  function finish() { stats.originsWithDates = originsHit.size; stats.destinations = dests.size; stats.finishedAt = new Date(clock()).toISOString(); return stats; }
+  function finish() { stats.originsWithDates = originsHit.size; stats.progressKey = progressSk; stats.destinations = dests.size; stats.finishedAt = new Date(clock()).toISOString(); return stats; }
 }
 
-module.exports = { runDatePass, passMonths, _internal: { writeItems, loadProgress, saveProgress } };
+module.exports = { runDatePass, passMonths, originSet, _internal: { writeItems, loadProgress, saveProgress, listKey } };

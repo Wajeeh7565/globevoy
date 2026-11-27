@@ -33,7 +33,7 @@ async function tokenFromSecret(secretId) {
   if (!token) { console.error('No Travelpayouts token.'); process.exit(2); }
   const origins = arg('--origins') ? arg('--origins').split(',').map(s => s.trim().toUpperCase()) : undefined;
   const t0 = Date.now();
-  const stats = await runDatePass({ token, origins, dryRun: has('--dry-run'), fresh: has('--fresh'), sample: has('--sample'), routes: arg('--routes'), maxRequests: arg('--max-requests'),
+  const stats = await runDatePass({ token, origins, dryRun: has('--dry-run'), fresh: has('--fresh'), sample: has('--sample'), routes: arg('--routes'), originSet: arg('--origin-set'), maxRequests: arg('--max-requests'),
     maxMinutes: arg('--max-minutes'), perMinute: arg('--per-minute'), log: x => console.log(JSON.stringify({ component: 'fare-map-date-pass', ...x })) });
   console.log(JSON.stringify({ component: 'fare-map-date-pass', event: stats.stoppedBy ? 'paused' : 'finished', minutes: +((Date.now() - t0) / 60000).toFixed(1), ...stats }));
 })().catch(e => { console.error(e.message); process.exit(1); });

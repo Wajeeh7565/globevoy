@@ -137,6 +137,9 @@ function clusterFamily(c){c=String(c||'').toLowerCase();
 // Caribbean, Indian Ocean and Atlantic islands). Their part of the world is then taken from
 // the nearest cities whose cluster is known (registry coordinates; no country or city lists).
 // Every active city has a known cluster, so live results do not change.
+// Cities without a region cluster take the family of their nearest neighbours (RC2). Only
+// with FARE_MAP_EXPERIENCE=on or FARE_MAP_NEAREST_REGION=on, so production stays as it was.
+let nearestRegion=false;
 let familyIndex=null;
 function nearestFamily(u){
  if(!familyIndex){familyIndex=[];for(const r of rows())if(clusterFamily(r?.unifiedRegistry?.destination?.regionCluster)&&Number.isFinite(Number(r.unifiedRegistry.latitude)))familyIndex.push({lat:Number(r.unifiedRegistry.latitude),lon:Number(r.unifiedRegistry.longitude),f:clusterFamily(r.unifiedRegistry.destination.regionCluster)});}
@@ -148,6 +151,7 @@ function nearestFamily(u){
 const familyMemo=new Map();
 function regionFamily(row){const u=row?.unifiedRegistry,c=String(u?.destination?.regionCluster||u?.worldRegion||'').toLowerCase();
  const known=clusterFamily(c);if(known)return known;
+ if(!nearestRegion)return c||'other';
  const id=u?.cityId;if(id&&familyMemo.has(id))return familyMemo.get(id);
  const f=nearestFamily(u)||c||'other';if(id)familyMemo.set(id,f);return f;}
 const FAMILY_NAMES={europe:'Europe','latin-america':'Latin America',asia:'Asia',africa:'Africa',oceania:'Oceania','north-america':'North America'};
@@ -695,6 +699,18 @@ function buildPool(ranked,spendable,extra={}){
   picked.push(selected);
   if(extra.explore||extra.variants){const identity=extra.explore?portfolioRouteKey:routeKey;const key=identity(selected.s);left=left.filter(p=>identity(p.s)!==key);}
  }
+ // Lowest Cost must be genuinely cheaper (FARE_MAP_EXPERIENCE): the page labels the cheapest
+ // of the first trips shown as Lowest Cost, so keep the best-scoring trip at standard hotels
+ // that uses at most FARE_MAP_LOWEST_COST_SHARE (default .6) of spendable in third place.
+ if(experience&&picked.length>=3){
+  const cap=Number(process.env.FARE_MAP_LOWEST_COST_SHARE)||.6;
+  const cheap=s=>!s.s.comfortHotels&&s.x.use<=cap;
+  if(!picked.slice(0,3).some(cheap)){
+   const from=scored.filter(cheap).sort((a,b)=>b.score-a.score||a.x.use-b.x.use);
+   const pick=from.find(c=>!picked.slice(0,2).some(p=>p.s.cities.map(code).join()===c.s.cities.map(code).join()));
+   if(pick){const at=picked.indexOf(pick);if(at>=0)picked.splice(at,1);picked.splice(2,0,pick);if(picked.length>(extra.size||POOL_SIZE))picked.pop();}
+  }
+ }
  return picked.map((p,i)=>({...p.s.tour,poolRank:i+1,poolScore:p.score,budgetUse:Number(p.x.use.toFixed(3)),cityCount:p.x.size,
   // A big budget's trip that leaves much unspent may upgrade its hotels in the live step.
   poolUpgrade:!!extra.bigBudget&&p.x.use<.75}));
@@ -711,6 +727,7 @@ function candidateEvidence(s,stayExtra){
 async function search(query={},options={}){
  spreadLimitKm=(()=>{const v=String((options.env||process.env).FARE_MAP_MAX_SPREAD_KM??'').trim();return v===''?MAX_SPREAD_KM:Math.max(0,Number(v)||0);})();
  const env=options.env||process.env;
+ nearestRegion=['FARE_MAP_EXPERIENCE','FARE_MAP_NEAREST_REGION'].some(k=>String(env[k]||'').trim().toLowerCase()==='on');
  if(!enabled(env))return {ok:true,supported:false,reason:'feature-disabled',requiredFlag:FLAG+'=true',tours:[]};
  const diagnostics={engine:VERSION,reads:0,examinedEdges:0,completeRoutes:0,expandedPairs:0,eligibleCities:0,cacheHits:0,rejectedFares:0,rejectedRules:0,bounded:false,liveProviderCallsMade:0};
  const trace=options.traceSearch?(diagnostics.searchTrace={depths:[],completed:[],completedOmitted:0}):null;

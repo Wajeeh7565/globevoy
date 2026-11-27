@@ -16,13 +16,14 @@ Type=oneshot
 User=globevoy
 WorkingDirectory=/opt/globevoy
 EnvironmentFile=/etc/globevoy/fare-map.env
-ExecStart=/usr/bin/node ops/fare-map/run-full-pass.cjs
+ExecStart=/usr/bin/node ops/fare-map/run-full-pass.cjs --worldwide
 # Then the date pass (more departure dates and stops per route), only with
 # FARE_MAP_DATE_PASS=on in fare-map.env. It stops itself after 15 hours and resumes
 # at the next boot, so the machine is always off well before the next start.
-ExecStart=/usr/bin/node ops/fare-map/run-date-pass.cjs --routes 30 --max-minutes 900
-# Main pass about 13 h on t3.micro, date pass about 10 h; stop both past 30 h.
-TimeoutStartSec=30h
+ExecStart=/usr/bin/node ops/fare-map/run-date-pass.cjs --origin-set worldwide --routes 30 --max-minutes 900
+# Worldwide main pass at most 20 h (its own limit), date pass at most 15 h; stop both past
+# 37 h, so the machine is always off before the next start 48 h later.
+TimeoutStartSec=37h
 Nice=10
 # Always switch the machine off afterwards, whether the pass finished, stopped
 # on an error or timed out, so it never keeps running (and billing) by accident.
