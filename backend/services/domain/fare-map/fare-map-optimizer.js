@@ -477,7 +477,7 @@ function balancedPoolScore(s,x,quality){
 // GV-EXPERIENCE-001 (FARE_MAP_EXPERIENCE=on, off by default): one score for "the best trip
 // this budget can buy", used by the pool and by the Best Use pick. It weighs together, with
 // diminishing returns, what makes a trip good rather than merely expensive:
-//   budget fit (full credit at 80-90% of spendable, never rewarded above 95%),
+//   budget fit (full credit at 80-90% of the entered budget = 89-100% of spendable),
 //   going abroad (any budget, when a trip abroad fits), several countries rather than two
 //   cities in one country, hotel quality where the trip stays (Agoda feed: well-reviewed
 //   3-4 star supply and median rating; a soft signal, never a filter), sensible nights per
@@ -492,7 +492,8 @@ function hotelQuality(row){const a=cityAccommodation(row);if(!a)return .35;const
 function experienceParts(s,spendable,originCC){
  const use=s.cost/spendable,cc=s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase());
  const countries=new Set(cc).size,size=s.cities.length,stops=s.tour?.stops||[];
- const fit=use>=.8&&use<=.9?1:use<.8?Math.max(0,1-(.8-use)/.35):Math.max(0,1-(use-.9)/.05);
+ // Target: 80-90% of the ENTERED budget = 89-100% of spendable (spendable is already 90%).
+ const fit=use>=.89&&use<=1?1:use<.89?Math.max(0,1-(.89-use)/.4):0;
  const abroad=originCC?cc.some(c=>c&&c!==originCC):false,allAbroad=originCC?cc.every(c=>c&&c!==originCC):false;
  const stay=stops.length?stops.filter(x=>x.nights>=2&&x.nights<=10).length/stops.length:1;
  const hotel=s.cities.reduce((n,c)=>n+hotelQuality(c),0)/Math.max(1,size);
@@ -505,22 +506,44 @@ function experienceScore(s,spendable,originCC,reach=0){
   +EXP.hotel*p.hotel+EXP.stay*p.stay+EXP.size*Math.min(1,Math.log2(p.size+1)/2)+EXP.reach*reach-EXP.estimated*p.est-EXP.mirrored*(p.mirrored?1:0)-EXP.detour*p.detour
   -(s.comfortHotels?.02:0);
 }
-// Comfort copies: only for trips under 80% of spendable, only stays in cities with good 3-4
-// star supply, and never past 90% of spendable.
+// Hotel tier copies (GV-HOTEL-TIER-001). For trips under 80% of the entered budget, offer
+// copies with better hotels in cities whose 3-4 star supply can carry them, aiming at 95% of
+// spendable and never past spendable (90% of the entered budget). The experience score then compares them with every other destination
+// combination; a copy wins only if the whole trip scores better. Lowest Cost never uses them.
+//   FARE_MAP_COMFORT_MODE=fixed (default): one copy at up to FARE_MAP_COMFORT_CAP (default
+//     0.5 = +50% per stay, the approved Best Use cap).
+//   FARE_MAP_COMFORT_MODE=adaptive: a ladder of copies (+25%, +50%, +100%, +150%), where
+//     each city's own cap follows its supply of well-reviewed 3-4 star properties (Agoda:
+//     >=20 -> +50%, >=60 -> +100%, >=150 -> +150%) and steps above +50% are only offered
+//     when the budget is large (US$5,000+). Money goes first to the cities that can turn
+//     it into a better stay.
+let comfort={mode:'fixed',cap:.5,big:false};
+function cityTierCap(row){const g=cityAccommodation(row)?.good3to4Stars||0;return g>=150?1.5:g>=60?1:g>=20?.5:0;}
+function tierCopy(s,spendable,target,caps,label){
+ const stops=s.tour?.stops||[];if(!stops.length)return null;
+ const stay=stops.map(st=>Number(st.hotel?.estimatedStayUsd)||0),ratio=(s.cost-(Number(s.tour.totalFlightEstimateUsd)||0))/Math.max(1,stay.reduce((a,b)=>a+b,0));
+ let room=Math.max(0,Math.min(target,1)*spendable-s.cost);if(room<.05*spendable)return null;
+ const pct=stops.map(()=>0);
+ // Fill cities in order of how much better a stay their supply allows.
+ const order=stops.map((st,i)=>i).sort((a,b)=>caps[b]-caps[a]||a-b);
+ for(const i of order){if(!(caps[i]>0)||!(stay[i]>0))continue;const add=Math.min(caps[i]*stay[i]*ratio,room);pct[i]=add/(stay[i]*ratio);room-=add;if(room<=0)break;}
+ if(!pct.some(p=>p>=.15))return null;
+ const newStops=stops.map((st,i)=>pct[i]>0?{...st,hotel:{...st.hotel,estimatedNightlyUsd:Math.round(st.hotel.estimatedNightlyUsd*(1+pct[i])),estimatedStayUsd:Math.round(stay[i]*(1+pct[i])),planTier:label,planUpgradePct:Number(pct[i].toFixed(2))}}:st);
+ const addTour=newStops.reduce((n,st,i)=>n+(st.hotel.estimatedStayUsd-stay[i]),0),addSafe=stay.reduce((n,v,i)=>n+v*ratio*pct[i],0);
+ return {...s,comfortHotels:true,hotelTier:label,key:s.key+'#'+label,cost:Math.round(s.cost+addSafe),
+  tour:{...s.tour,stops:newStops,hotelTier:label,totalHotelEstimateUsd:Math.round((s.tour.totalHotelEstimateUsd||0)+addTour),estimatedTotalUsd:Math.round((s.tour.estimatedTotalUsd||0)+addTour)}};
+}
 function comfortVariants(states,spendable){
  const out=[];
  for(const s of states){
-  if(s.comfortHotels||s.cost>=.8*spendable)continue;
-  const hotels=Math.max(0,s.cost-(Number(s.tour?.totalFlightEstimateUsd)||0));if(!(hotels>0))continue;
-  const good=(s.tour?.stops||[]).map((st,i)=>(cityAccommodation(s.cities[i])?.good3to4Stars||0)>=20);if(!good.some(Boolean))continue;
-  const room=.85*spendable-s.cost,pct=Math.min(.5,room/hotels);if(pct<.15)continue;
-  const stops=s.tour.stops.map((st,i)=>good[i]?{...st,hotel:{...st.hotel,estimatedNightlyUsd:Math.round(st.hotel.estimatedNightlyUsd*(1+pct)),estimatedStayUsd:Math.round(st.hotel.estimatedStayUsd*(1+pct)),planTier:'comfort',planUpgradePct:Number(pct.toFixed(2))}}:st);
-  const addTour=stops.reduce((n,st,i)=>n+(st.hotel.estimatedStayUsd-s.tour.stops[i].hotel.estimatedStayUsd),0);
-  const goodShare=good.filter(Boolean).length/good.length;
-  out.push({...s,comfortHotels:true,key:s.key+'#comfort',cost:Math.round(s.cost+hotels*pct*goodShare),
-   tour:{...s.tour,stops,hotelTier:'comfort',totalHotelEstimateUsd:Math.round((s.tour.totalHotelEstimateUsd||0)+addTour),estimatedTotalUsd:Math.round((s.tour.estimatedTotalUsd||0)+addTour)}});
+  if(s.comfortHotels||s.cost>=.89*spendable)continue;
+  const supply=s.cities.map(cityTierCap);if(!supply.some(c=>c>0))continue;
+  if(comfort.mode==='adaptive'){
+   for(const step of comfort.big?[.25,.5,1,1.5]:[.25,.5]){const c=tierCopy(s,spendable,.95,supply.map(x=>Math.min(x,step)),'tier'+Math.round(step*100));if(c)out.push(c);}
+  }else{const c=tierCopy(s,spendable,.95,supply.map(x=>x>0?comfort.cap:0),'comfort');if(c)out.push(c);}
  }
- return out;
+ // One copy per trip and spend level is enough.
+ return [...new Map(out.map(c=>[c.key.split('#')[0]+'|'+Math.round(c.cost/50),c])).values()];
 }
 function buildPool(ranked,spendable,extra={}){
  const list=ranked.filter(s=>!oddRoute(s));
@@ -754,6 +777,7 @@ async function search(query={},options={}){
  const regionLevels=regionRatios(options.hotelRatios,all,env);
  poolDiversity=String(env.FARE_MAP_POOL_DIVERSITY||'').trim().toLowerCase()==='on';
  experience=String(env.FARE_MAP_EXPERIENCE||'').trim().toLowerCase()==='on';diagnostics.experience=experience;
+ {const cap=Number(env.FARE_MAP_COMFORT_CAP);comfort={mode:String(env.FARE_MAP_COMFORT_MODE||'').toLowerCase()==='adaptive'?'adaptive':'fixed',cap:Number.isFinite(cap)&&cap>0&&cap<=2?cap:.5,big:legacy._internal.normalizeBudgetUsd(query)>=5000};}
  const readPlan=bigBudget&&K>=3&&String(env.FARE_MAP_READ_PLAN||'').trim().toLowerCase()==='on',onward=readPlan?(expand?onwardPotential([...map.values()],true):onwardPotential(all)):null;diagnostics.readPlan=readPlan;
  beamTarget=String(env.FARE_MAP_BEAM_TARGET||'').trim().toLowerCase()==='on'&&!query.nights?{spendable:budget-Math.round(budget*.1),K,share:.85}:null;diagnostics.regionHotelLevels=Object.fromEntries([...regionLevels].map(([k,v])=>[k,v.ratio]));
  const stretchUsd=Math.round(Math.min(150,Math.max(70,budget*.12)));
@@ -905,4 +929,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,dynamicRows,isDynamic,cityAccommodation,experienceScore,experienceParts,comfortVariants,hotelQuality,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,dynamicRows,isDynamic,cityAccommodation,experienceScore,experienceParts,comfortVariants,hotelQuality,cityTierCap,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};

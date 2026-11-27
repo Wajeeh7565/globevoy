@@ -165,7 +165,10 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
       sharedRepeat: await mockPage(query, options, 3, { shared }),
       sharedRefresh: await mockPage(query, options, 3, { shared, seen: signedIn.shownKeys }) };
   }
-  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member, cost,
+  // Role picks as the trip page offers them: the first of each role's trips that passes the live check.
+  const rolePick = role => { const x = ((r.roleCandidates || {})[role] || []).map(t => ({ t, live: B.liveTotalUsd(t) })).find(y => y.live <= spendable); return x ? trip(x) : null; };
+  const roles = { bestUse: rolePick('best-balance'), lowestCost: rolePick('lowest-cost'), different: rolePick('most-memorable') };
+  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member, roles, cost,
     coverage: { complete: !missing.size && !truncated.size, missing: [...missing], truncated: [...truncated] },
     verified: { signedOut, signedIn }, d: r.diagnostics || {} };
 }
