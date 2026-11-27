@@ -38,7 +38,9 @@ test('dynamic destinations are off by default and change nothing', async () => {
 
 test('with the flag: more candidates, at most the allowed discovered cities per trip, and each one connected', async () => {
   const r = await search({ FARE_MAP_DYNAMIC_DESTINATIONS: 'on', FARE_MAP_DYNAMIC_MIN_ROUTES: '1' });
-  assert.ok(r.diagnostics.dynamicCandidates > 1000, String(r.diagnostics.dynamicCandidates));
+  assert.ok(r.diagnostics.dynamicCandidates > 300, String(r.diagnostics.dynamicCandidates));
+  const open = await search({ FARE_MAP_DYNAMIC_DESTINATIONS: 'on', FARE_MAP_DYNAMIC_MIN_GOOD_HOTELS: '0' });
+  assert.ok(open.diagnostics.dynamicCandidates > r.diagnostics.dynamicCandidates, 'the good-hotel check removes thin cities');
   for (const t of r.pool || []) assert.ok(t.stops.filter(s => String(s.cityId).startsWith('discovered-')).length <= 1);
   const none = await search({ FARE_MAP_DYNAMIC_DESTINATIONS: 'on', FARE_MAP_DYNAMIC_MAX_PER_TRIP: '0' });
   for (const t of none.pool || []) assert.ok(!t.stops.some(s => String(s.cityId).startsWith('discovered-')));
