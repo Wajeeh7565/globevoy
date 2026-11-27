@@ -87,7 +87,8 @@ async function ingestOriginMonth(options = {}) {
   const deadline=options.deadline||clock()+43000,seen=new Map();
   let requests=0,retries=0,offset=Number(options.offset)||0;
   const finish=(ok,reason,extra={})=>({ok,reason,records:[...seen.values()],requests,retries,nextOffset:offset,...extra});
-  for(let page=0;page<Math.min(MAX_PAGES,options.maxPages||MAX_PAGES);page++) {
+  const startingPage = Math.floor(offset / PAGE_SIZE);
+  for(let page=startingPage;page<Math.min(MAX_PAGES,startingPage+(options.maxPages||MAX_PAGES));page++) {
     let payload;
     for(let attempt=0;attempt<3;attempt++) {
       let reason,status=0,transient=false;

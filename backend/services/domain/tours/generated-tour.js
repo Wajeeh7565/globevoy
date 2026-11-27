@@ -3567,6 +3567,24 @@ function poolSpareCount(strategy, want, need, queue) {
   return need >= 2 && risk >= 1 ? 1 : 0;
 }
 
+// A definitive no-offer for this exact flight affects every trip sharing it in this
+// request. Transient failures do not rule out another route or departure date.
+function verificationBackups(queue, summaries) {
+  const {endpointCode} = require('../live-fares/ignav-live-fares');
+  const key = (from, to, date) => [from, to, date].join('|');
+  const unavailable = new Set(summaries.flatMap(s => (s?.failedLegs || [])
+    .filter(l => l.reason === 'no-verified-fare')
+    .map(l => key(l.origin, l.destination, l.departureDate))));
+  const viable = queue.filter(t => !t.legs.some(l => unavailable.has(key(endpointCode(l.from), endpointCode(l.to), l.departureDate))));
+  const risk = t => Number(!!t.fareMap?.mirroredReturn) + Number(!!t.legs.at(-1)?.providerDateEvidence?.dateEstimated)
+    + Number(t.budgetUse >= .90) + Number(vulnerableFirstStay(t));
+  // Prefer a comparable, lower-risk spare after a rejection. Preserve later
+  // portfolio order for the rest of the queue and for equally safe backups.
+  const safest = viable.slice().sort((a,b) => risk(a) - risk(b))[0];
+  if (!safest || risk(safest) >= risk(viable[0])) return viable;
+  return [safest, ...viable.filter(t => t !== safest)];
+}
+
 async function getFareMapGeneratedTour(query,options) {
   const optimizer=require('../fare-map/fare-map-optimizer');
   if(!generatedTourEnabled())return {ok:true,supported:false,reason:'feature-disabled',tour:null,tours:[]};
@@ -3617,7 +3635,11 @@ async function getFareMapGeneratedTour(query,options) {
     if(verificationSummaries.length)diagnostics.ignavLiveFares=verificationSummaries.find(Boolean);
     diagnostics.verificationLatencyMs=Date.now()-started;
     recordIgnav(usageOptions,'verification',{...usage,fareRequests:diagnostics.ignavCalls,checks:verificationChecks,
-      rounds,unusedSpares,strategy,sparesStarted,shown:tours.length,latencyMs:diagnostics.verificationLatencyMs});
+      rounds,unusedSpares,strategy,sparesStarted,shown:tours.length,latencyMs:diagnostics.verificationLatencyMs,
+      flightRejected:liveAttempts.filter(x=>/flight|arrival|live-evidence|live-itinerary/.test(x)).length,
+      hotelRejected:liveAttempts.filter(x=>/hotel/.test(x)&&!x.includes('budget')).length,
+      budgetRejected:liveAttempts.filter(x=>x.includes('protected-budget')).length,
+      guardRejected:liveAttempts.filter(x=>x.includes('business-or-date-guard')).length});
   }
   // Live-check the cheapest trip; if live prices or dates rule it out, try the next
   // fare-map trip once before giving up (each check is a few provider calls).
@@ -3779,6 +3801,12 @@ async function getFareMapGeneratedTour(query,options) {
     // GV-RECS-ROTATE-001: with FARE_MAP_REFRESH_ROTATION=on, the unseen trips are ordered to
     // repeat the fewest cities, countries and months already shown on this page.
     const queue=String(env.FARE_MAP_REFRESH_ROTATION||'').trim().toLowerCase()==='on'&&excluded.size?require('../fare-map/fare-map-optimizer').rotateQueue(result.pool||[],excluded):(result.pool||[]).filter(t=>!excluded.has(tripKey(t)));
+    const intelligence=env.FARE_MAP_DESTINATION_DISCOVERY==='on';
+    if(intelligence&&excluded.size){
+      const unordered=k=>k.split('>').sort().join('>');
+      const visited=new Set([...excluded].map(unordered));
+      for(let i=queue.length-1;i>=0;i--)if(visited.has(unordered(tripKey(queue[i]))))queue.splice(i,1);
+    }
     if(want===1&&env.FARE_MAP_GUEST_ARRIVAL_RISK==='on'&&preferSaferGuestStart(queue))diagnostics.guestArrivalRiskReordered=true;
     const shown=[];let checks=0,rounds=0,spareOk=0,sparesStarted=0;
     while(shown.length<want&&queue.length&&checks<8){
@@ -3793,12 +3821,29 @@ async function getFareMapGeneratedTour(query,options) {
       // A spare that passes but is not needed is not marked as shown, so the next
       // "Show other trips" can still show it.
       for(const r of results){if(r.guardReasons)options.onFareMapRejection?.(r);liveAttempts.push(r.reason||'ok');if(!r.reason&&r.tour){if(shown.length<want)shown.push(r);else spareOk++;}}
+      if(intelligence&&requireLive&&shown.length<want&&results.some(r=>r.reason)){
+        const viable=verificationBackups(queue,verificationSummaries);
+        diagnostics.poolKnownUnavailable=(diagnostics.poolKnownUnavailable||0)+queue.length-viable.length;
+        queue.splice(0,queue.length,...viable);
+      }
     }
     const useOf=r=>Number(r.tour.estimatedTotalUsd)/Math.max(1,Number(r.tour.usableTripBudgetUsd));
     const labelled=shown.map(r=>({...r,role:'most-memorable'}));
     if(labelled.length){
-      const byUse=labelled.slice().sort((a,b)=>useOf(b)-useOf(a))[0];byUse.role='best-balance';
-      if(labelled.length>1){const cheap=labelled.filter(r=>r!==byUse).sort((a,b)=>Number(a.tour.estimatedTotalUsd)-Number(b.tour.estimatedTotalUsd))[0];cheap.role='lowest-cost';}
+      if(intelligence&&labelled.length>1){
+        // Assign roles on verified prices. Retain the planner's route quality
+        // and discount any price increase instead of rewarding extra spending.
+        const cheapest=labelled.slice().sort((a,b)=>a.tour.estimatedTotalUsd-b.tour.estimatedTotalUsd
+          || b.source.poolRank-a.source.poolRank)[0];
+        cheapest.role='lowest-cost';
+        const verifiedScore=r=>r.source.poolScore-Math.max(0,useOf(r)-r.source.budgetUse);
+        const best=labelled.filter(r=>r!==cheapest).sort((a,b)=>verifiedScore(b)-verifiedScore(a)
+          || a.source.poolRank-b.source.poolRank)[0];
+        best.role='best-balance';
+      }else{
+        const byUse=labelled.slice().sort((a,b)=>useOf(b)-useOf(a))[0];byUse.role='best-balance';
+        if(labelled.length>1){const cheap=labelled.filter(r=>r!==byUse).sort((a,b)=>Number(a.tour.estimatedTotalUsd)-Number(b.tour.estimatedTotalUsd))[0];cheap.role='lowest-cost';}
+      }
     }
     if(rolePolicy){const up=await Promise.all(labelled.map(upgradeForRole));up.forEach((r,i)=>{labelled[i]=r;});}
     const LABEL={'best-balance':'Best use of your budget','lowest-cost':'Lowest cost','most-memorable':'Something different'};
@@ -3960,5 +4005,5 @@ module.exports = {
   prepareFlexibleLeadTimeQuery680BR1,
   preferenceMatchAdjustment680BR1,
   flightPreferenceAdjustment680BR1,
-  _internal: { vulnerableFirstStay, preferSaferGuestStart, safeMonth, defaultScanStartMonth, cheapDateScanMonths, legCode, convertProviderPriceToUsd, routeRankingEnabled, priceTourForParty, automaticCheapDateTourBuilderEnabled, initialAutomaticStartDate, synchronizeStopsWithLegDates, automaticFirstLegWindowDays681BP1, automaticLegWindowDays, maxAllowedDepartureDate, filterObservationsWithinDateWindow, selectObservationWithinDateWindow, automaticAlignedLegDate, maxStopsForTrip, evaluateTour, officialDepartureDateForLeg, enrichLegsForPresentation, itineraryDateConsistency, allTourStopsProductionActive, mvpValidationRepairs669bEnabled, budgetSafeRouteRecovery669cEnabled, budgetRecoveryAttempt669c, exactDateFamilyOccupancy669dEnabled, exactDateWindow669d, allocateExactNights669d, applyExactDateWindow669d, exactObservationForDate669d, mapFirstThreePicks670aEnabled, normalizePickRole670a, requestedPickRole670a, tourRole670a, routeKey670aR2, threePickBalanceScore670aR2, threePickMemorableScore670aR2, threePickRoleAssignments670aR2, roleScopedCandidatePool670a, decoratePickTour670a, explicitTripNights674A, resolveAdaptiveDuration674A, smartDurationFlightSelection677AEnabled, smartStopBounds677A, routeTravelHours677A, smartBudgetCapacity677A, resolveSmartDuration677A, smartFlightDateSelection677BEnabled, smartFlightQualityGuardrails677BR2Enabled, smartRouteRelativeFlightQuality677BR3Enabled, wholeTripRouteOptimization677CEnabled, optimizeTourOrder677C, wholeTripCandidateAdjustment677C, destinationValueProximity677DEnabled, destinationValueCandidateAdjustment677D, selectionContext677B, transportModeIntegrity677AR1Enabled, smartFlightDateIntegrity677BR1Enabled, wholeTripDateOptimizer681BP2Enabled, duffelP2Enabled683H, duffelP2Status683H, stay22P2DatePricingEnabled682B, stay22P2OptimizerEligible682B, stay22P2MaxRequests682B, stopHotelEstimateUsd682B, selectedHotelName682B, selectedHotelIdentity682C, stay22HotelPricingForCandidate682B, monthsCoveringDateRange681BP2, mergeMonthlyProviderResults681BP2, buildWholeTripDatePlan681BP2, legHasFlightComponent677AR1, legHasGroundComponent677AR1, pureGroundLeg677AR1, normalizeTransportModeIntegrity677AR1, strictBudgetFit684BR3, isOverUserBudgetStrict684BR3 }
+  _internal: { vulnerableFirstStay, preferSaferGuestStart, verificationBackups, safeMonth, defaultScanStartMonth, cheapDateScanMonths, legCode, convertProviderPriceToUsd, routeRankingEnabled, priceTourForParty, automaticCheapDateTourBuilderEnabled, initialAutomaticStartDate, synchronizeStopsWithLegDates, automaticFirstLegWindowDays681BP1, automaticLegWindowDays, maxAllowedDepartureDate, filterObservationsWithinDateWindow, selectObservationWithinDateWindow, automaticAlignedLegDate, maxStopsForTrip, evaluateTour, officialDepartureDateForLeg, enrichLegsForPresentation, itineraryDateConsistency, allTourStopsProductionActive, mvpValidationRepairs669bEnabled, budgetSafeRouteRecovery669cEnabled, budgetRecoveryAttempt669c, exactDateFamilyOccupancy669dEnabled, exactDateWindow669d, allocateExactNights669d, applyExactDateWindow669d, exactObservationForDate669d, mapFirstThreePicks670aEnabled, normalizePickRole670a, requestedPickRole670a, tourRole670a, routeKey670aR2, threePickBalanceScore670aR2, threePickMemorableScore670aR2, threePickRoleAssignments670aR2, roleScopedCandidatePool670a, decoratePickTour670a, explicitTripNights674A, resolveAdaptiveDuration674A, smartDurationFlightSelection677AEnabled, smartStopBounds677A, routeTravelHours677A, smartBudgetCapacity677A, resolveSmartDuration677A, smartFlightDateSelection677BEnabled, smartFlightQualityGuardrails677BR2Enabled, smartRouteRelativeFlightQuality677BR3Enabled, wholeTripRouteOptimization677CEnabled, optimizeTourOrder677C, wholeTripCandidateAdjustment677C, destinationValueProximity677DEnabled, destinationValueCandidateAdjustment677D, selectionContext677B, transportModeIntegrity677AR1Enabled, smartFlightDateIntegrity677BR1Enabled, wholeTripDateOptimizer681BP2Enabled, duffelP2Enabled683H, duffelP2Status683H, stay22P2DatePricingEnabled682B, stay22P2OptimizerEligible682B, stay22P2MaxRequests682B, stopHotelEstimateUsd682B, selectedHotelName682B, selectedHotelIdentity682C, stay22HotelPricingForCandidate682B, monthsCoveringDateRange681BP2, mergeMonthlyProviderResults681BP2, buildWholeTripDatePlan681BP2, legHasFlightComponent677AR1, legHasGroundComponent677AR1, pureGroundLeg677AR1, normalizeTransportModeIntegrity677AR1, strictBudgetFit684BR3, isOverUserBudgetStrict684BR3 }
 };
