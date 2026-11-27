@@ -22,7 +22,7 @@ const { applyTravellerPricingToTour } = require('../../backend/services/domain/p
 const ORIGINS = ['Toronto (YYZ)', 'Vancouver (YVR)', 'New York (JFK)', 'Los Angeles (LAX)', 'Mexico City (MEX)', 'London (LHR)', 'Paris (PAR)', 'Dubai (DXB)', 'Singapore (SIN)', 'Sydney (SYD)'];
 const BUDGETS = [1500, 2000, 3000, 4000, 5000, 7500, 10000, 15000];
 
-function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--cost-release') o.costRelease = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--route-dates') o.routeDates = a[++i]; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
+function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--cost-release') o.costRelease = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--route-dates') o.routeDates = a[++i]; else if (a[i] === '--hotel-prices') o.hotelPrices = a[++i]; else if (a[i] === '--plan-with-prices') o.planWithPrices = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
 function loadMemory(file) {
   const R = require('./hotel-memory-report.cjs');
   const { entries } = R.parse(fs.readFileSync(file, 'utf8'));
@@ -131,7 +131,7 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
   const r = await opt.search(query, { ...options, traceSearch: true });
   const pool = r.pool || [], spendable = budgetCad / B.CAD_PER_USD * 0.9;
   // live check in pool order; a page shows the first passing trips (signed out 1, signed in 3)
-  const checked = pool.map(t => ({ t, live: B.liveTotalUsd(t) })).filter(x => x.live <= spendable);
+  const checked = pool.map(t => ({ t, live: LIVE(t) })).filter(x => x.live <= spendable);
   const trip = x => {
     const st = x.t.stops || [];
     const countries = new Set(st.map(s => s.countryCode || s.country)).size;
@@ -166,7 +166,7 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
       sharedRefresh: await mockPage(query, options, 3, { shared, seen: signedIn.shownKeys }) };
   }
   // Role picks as the trip page offers them: the first of each role's trips that passes the live check.
-  const rolePick = role => { const x = ((r.roleCandidates || {})[role] || []).map(t => ({ t, live: B.liveTotalUsd(t) })).find(y => y.live <= spendable); return x ? trip(x) : null; };
+  const rolePick = role => { const x = ((r.roleCandidates || {})[role] || []).map(t => ({ t, live: LIVE(t) })).find(y => y.live <= spendable); return x ? trip(x) : null; };
   const roles = { bestUse: rolePick('best-balance'), lowestCost: rolePick('lowest-cost'), different: rolePick('most-memorable') };
   return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member, roles, cost,
     coverage: { complete: !missing.size && !truncated.size, missing: [...missing], truncated: [...truncated] },
@@ -187,6 +187,23 @@ function snapshotReader(file) {
   };
 }
 let READER = null;
+// --hotel-prices: real nightly prices per city (Nuitee Price Index pilot, well-reviewed 3-4 star
+// median, else all sampled hotels), { "<cityId>": ratioToModel }. As TRUTH it replaces the
+// simulated hotel prices in the live check; with --plan-with-prices the engine also plans with
+// these ratios (as a clean hotel memory). Cities without a price use the median ratio of their
+// region family in the pilot, else of all priced cities.
+let PRICE_RATIOS = null, PRICE_FALLBACK = null;
+function loadPrices(file) {
+  const body = JSON.parse(fs.readFileSync(file, 'utf8')); PRICE_RATIOS = new Map(Object.entries(body.ratios)); PRICE_FALLBACK = body.fallback || {};
+}
+function priceRatio(stop) {
+  return PRICE_RATIOS.get(stop.cityId) ?? PRICE_FALLBACK[stop.regionFamily] ?? PRICE_FALLBACK.all;
+}
+function LIVE(t) {
+  if (!PRICE_RATIOS) return B.liveTotalUsd(t);
+  const stops = t.stops || [], flights = B.liveTotalUsd(t) - stops.reduce((n, s) => n + (Number(s.hotel?.estimatedStayUsd) || 0) * B.hotelTruth(s), 0);
+  return flights + (t.stops || []).reduce((n, s) => n + (Number(s.hotel?.estimatedStayUsd) || 0) * priceRatio(s), 0);
+}
 // --route-dates: real departure dates per route (Travelpayouts month-matrix, collected
 // read-only for the return legs this benchmark needs); { "A>H@YYYY-MM": [[date, usd, stops, foundAt]] }.
 let ROUTE_DATES = null;
@@ -234,7 +251,8 @@ async function main() {
   if (o.routeDates) ROUTE_DATES = loadRouteDates(o.routeDates);
   const origins = o.origins || SNAP?.origins || ORIGINS; BUDGETS_USED = o.budgets || BUDGETS;
   B.setOriginCodes(origins.map(x => B.originInfo(x).code));
-  SIMMEM = o.memoryFile ? loadMemory(o.memoryFile) : B.simulatedMemory();
+  if (o.hotelPrices) loadPrices(o.hotelPrices);
+  SIMMEM = o.planWithPrices && PRICE_RATIOS ? new Map([...PRICE_RATIOS].map(([id, ratio]) => [id, { ratio, n: 20, at: B.NOW }])) : o.memoryFile ? loadMemory(o.memoryFile) : B.simulatedMemory();
   if (o.costRelease) {
     const recommended = { FARE_MAP_READ_PLAN: 'on', FARE_MAP_BALANCED_POOL: 'on' };
     const scenarios = [
