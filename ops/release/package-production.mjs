@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import sourceLayout from '../frontend/source-layout.cjs';
-import { writeCompatibilityPages } from '../frontend/page-layout.mjs';
+import { readPageLayout, writeCompatibilityPages } from '../frontend/page-layout.mjs';
+import { writeClassicSeo } from '../frontend/seo.mjs';
 import { productionPolicySource } from './production-frontend-policy.mjs';
 import { verifyProductionFrontend } from './verify-production-frontend.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -55,6 +56,7 @@ execFileSync(process.execPath, [path.join(root, 'web/node_modules/next/dist/bin/
 });
 fs.mkdirSync(output, {recursive:true});
 sourceLayout.copyFrontendSource(output);
+writeClassicSeo(output, readPageLayout().publicPageSources);
 fs.cpSync(path.join(root,'web/out'),path.join(output,'react'),{recursive:true});
 writeCompatibilityPages(output);
 const configPath=path.join(output,'runtime/config.js');
