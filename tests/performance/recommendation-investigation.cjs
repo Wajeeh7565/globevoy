@@ -135,7 +135,13 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
   const trip = x => {
     const st = x.t.stops || [];
     const countries = new Set(st.map(s => s.countryCode || s.country)).size;
-    return { route: st.map(s => s.city).join(' > '), cities: st.map(s => s.cityId), countries, cityCount: st.length, sameCountry: st.length > 1 && countries === 1,
+    const home = String(x.t.origin?.countryCode || '').toUpperCase(), legs = x.t.legs || [];
+    const extra = { originCountry: home, stopCountries: st.map(s => String(s.countryCode || '').toUpperCase()), stopNights: st.map(s => s.nights),
+      discovered: st.map(s => String(s.cityId).startsWith('discovered-')),
+      goodHotels: st.map(s => { const a = opt._internal.cityAccommodation({ cityCode: s.code, unifiedRegistry: { origin: { providerLocationCode: s.code } } }); return a ? a.good3to4Stars : null; }),
+      hotelRating: st.map(s => { const a = opt._internal.cityAccommodation({ cityCode: s.code, unifiedRegistry: { origin: { providerLocationCode: s.code } } }); return a ? a.medianRating : null; }),
+      estimatedLegs: legs.filter(l => l.providerDateEvidence?.dateEstimated).length, legCount: legs.length };
+    return { ...extra, route: st.map(s => s.city).join(' > '), cities: st.map(s => s.cityId), countries, cityCount: st.length, sameCountry: st.length > 1 && countries === 1,
       nights: x.t.totalNights, month: String(x.t.legs?.[0]?.departureDate || '').slice(0, 7), use: x.live / (spendable / 0.9),
       maxNightsHit: st.some(s => { const row = opt._internal.rows().find(rw => rw.unifiedRegistry.cityId === s.cityId); const mx = Number(row?.unifiedRegistry?.destination?.maximumRecommendedNights) || 35; return s.nights >= mx; }) };
   };

@@ -230,6 +230,15 @@ function dynamicRows(base=rows(),catalogue=require('../../../data/global-destina
  }
  dynamicCache={base,catalogue,rows:out};return out;
 }
+// Hotel supply and quality per city from the Agoda partner feed (1.19 million properties,
+// summarised by city; no prices). A discovered city needs FARE_MAP_DYNAMIC_MIN_GOOD_HOTELS
+// (default 5) well-reviewed 3-4 star properties: an airstrip town or a city with one
+// guesthouse is reachable but is not a stay to recommend.
+let accommodationIndex=null;
+function cityAccommodation(row){
+ if(!accommodationIndex){try{const f=require('../../../data/agoda-city-accommodation-summary.json'),k=f.fields;accommodationIndex=new Map(Object.entries(f.cities).map(([c,v])=>[c,Object.fromEntries(k.map((n,i)=>[n,v[i]]))]));}catch{accommodationIndex=new Map();}}
+ return accommodationIndex.get(String(code(row)||'').toUpperCase())||null;
+}
 function isDynamic(row){return row?.dynamicDestination===true||row?.unifiedRegistry?.dynamicDestination===true;}
 // GV-RECS-BEAM-002 (FARE_MAP_BEAM_TARGET=on, off by default): a cost-only beam keeps the
 // cheapest partial trips, so a C$10,000 search explores the same nearby, short trips as a
@@ -565,7 +574,8 @@ async function search(query={},options={}){
  diagnostics.eligibleCities=map.size;
  const dynamic=dynamicEnabled(env),dynMinRoutes=dynamicSetting(env,'FARE_MAP_DYNAMIC_MIN_ROUTES',15,1,500),dynMax=dynamicSetting(env,'FARE_MAP_DYNAMIC_MAX_PER_TRIP',1,0,4),dynMargin=dynamicSetting(env,'FARE_MAP_DYNAMIC_HOTEL_MARGIN',1.15,1,2);
  const routeCounts=new Map();
- if(dynamic&&dynMax>0){let n=0;for(const r of (options.dynamicRows||dynamicRows(all))){const c=code(r);if(!c||map.has(c)||r.unifiedRegistry.cityId===origin.cityId||(r.unifiedRegistry.origin.airportCodes||[]).includes(origin.airportCode))continue;map.set(c,r);n++;}diagnostics.dynamicCandidates=n;}
+ const dynMinGood=dynamicSetting(env,'FARE_MAP_DYNAMIC_MIN_GOOD_HOTELS',5,0,1000);
+ if(dynamic&&dynMax>0){let n=0;for(const r of (options.dynamicRows||dynamicRows(all))){const c=code(r);if(!c||map.has(c)||(cityAccommodation(r)?.good3to4Stars||0)<dynMinGood||r.unifiedRegistry.cityId===origin.cityId||(r.unifiedRegistry.origin.airportCodes||[]).includes(origin.airportCode))continue;map.set(c,r);n++;}diagnostics.dynamicCandidates=n;}
  const originRow=originRegistryRow(all,origin);
  // The site sends "All continents"; that and similar wording mean no region filter.
  const regionFilter=anyRegion(query.region)?null:String(query.region).trim().toLowerCase();
@@ -829,4 +839,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,dynamicRows,isDynamic,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,dynamicRows,isDynamic,cityAccommodation,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
