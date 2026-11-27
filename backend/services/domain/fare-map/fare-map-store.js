@@ -142,6 +142,6 @@ async function readMeta(sk,options={}){
   try{return res?.Item?.state?.S?JSON.parse(res.Item.state.S):null}catch{return null}
 }
 async function writeMeta(sk,state,options={}){
-  await client(options).send(cmd('PutItemCommand',{TableName:tableName(options.env),Item:{pk:{S:'META#job'},sk:{S:sk},state:{S:JSON.stringify(state).slice(0,8000)},updatedAt:{S:new Date(options.nowMs??Date.now()).toISOString()}}}));
+  await client(options).send(cmd('PutItemCommand',{TableName:tableName(options.env),Item:{pk:{S:'META#job'},sk:{S:sk},state:{S:JSON.stringify(state).slice(0,8000)},updatedAt:{S:new Date(options.nowMs??Date.now()).toISOString()},...(options.ttlDays?{ttl:{N:String(Math.floor((options.nowMs??Date.now())/1000)+options.ttlDays*86400)}}:{})}}));
 }
 module.exports = { TTL_DAYS, tableName, writeRecords, readRoutesFrom, readCursor, writeCursor, readMeta, writeMeta, _internal: { toItem, fromItem, client, cmd } };

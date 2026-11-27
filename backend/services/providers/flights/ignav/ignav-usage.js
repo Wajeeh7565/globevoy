@@ -22,7 +22,7 @@ function record(options, event, details = {}) {
     const value = details[key] ?? (key === 'audience' ? options.ignavAudience : undefined);
     if (typeof value === 'string' && /^[a-z][a-z0-9-]{0,63}$/.test(value)) row[key] = value;
   }
-  for (const key of ['latencyMs', 'status', 'checks', 'rounds', 'unusedSpares', 'shown', 'used', 'allowance', 'threshold', 'sparesStarted', ...Object.values(counters)]) {
+  for (const key of ['latencyMs', 'status', 'checks', 'rounds', 'unusedSpares', 'shown', 'used', 'allowance', 'threshold', 'sparesStarted', 'flightRejected', 'hotelRejected', 'budgetRejected', 'guardRejected', ...Object.values(counters)]) {
     const value = details[key];
     if (Number.isFinite(value) && value >= 0) row[key] = value;
   }

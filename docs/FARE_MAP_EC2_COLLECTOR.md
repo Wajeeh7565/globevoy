@@ -34,6 +34,26 @@ Only the collector moves. The website backend stays on the Lambda
 Expected length of one pass: a few hours (about 7,776 tasks, most needing 1–3 requests at
 1.1 s each). The first real run will give the exact figure.
 
+## Date pass (more departure dates per route)
+
+After the main pass, the same boot runs `ops/fare-map/run-date-pass.cjs` when
+`FARE_MAP_DATE_PASS=on` is in `/etc/globevoy/fare-map.env`:
+
+- For each origin of the worldwide catalogue (the same 3,587 origins as the main pass:
+  972 registry origins, then 2,615 selectable airports) and month (6 months; the current one
+  only while 10+ days are left) it takes the 30 cheapest routes already in the fare map and asks Travelpayouts' free month-matrix for every
+  day of the month, in both directions, with stops and (where given) flight duration.
+- One item per route and month: pk `D#<ORIGIN>#<YYYY-MM>`, sk `<DEST>`, dates packed in `d`,
+  7-day TTL. The main `F#` rows are not touched.
+- Routes collected less than 36 hours ago are skipped (one GetItem each), so resumed or
+  overlapping runs send no duplicate requests.
+- 250 requests a minute (the endpoint allows 300). About 223,000 requests, about 15 hours.
+- It stops itself after 15 hours (`--max-minutes 900`) and resumes at the next boot from
+  `META#job` / `date-pass`. The service's 30-hour limit and power-off still apply.
+- The trip search reads it per route with `FARE_MAP_ROUTE_DATES=on` (GetItem, at most 24 a search).
+
+Turn it off with `FARE_MAP_DATE_PASS=off` in the settings file; nothing else changes.
+
 ## Setup (one time)
 
 1. **Store the Travelpayouts token in Secrets Manager** (us-east-2), as secret

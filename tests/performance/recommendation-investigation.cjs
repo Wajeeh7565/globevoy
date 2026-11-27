@@ -22,7 +22,7 @@ const { applyTravellerPricingToTour } = require('../../backend/services/domain/p
 const ORIGINS = ['Toronto (YYZ)', 'Vancouver (YVR)', 'New York (JFK)', 'Los Angeles (LAX)', 'Mexico City (MEX)', 'London (LHR)', 'Paris (PAR)', 'Dubai (DXB)', 'Singapore (SIN)', 'Sydney (SYD)'];
 const BUDGETS = [1500, 2000, 3000, 4000, 5000, 7500, 10000, 15000];
 
-function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--cost-release') o.costRelease = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
+function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--cost-release') o.costRelease = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--route-dates') o.routeDates = a[++i]; else if (a[i] === '--hotel-prices') o.hotelPrices = a[++i]; else if (a[i] === '--plan-with-prices') o.planWithPrices = true; else if (a[i] === '--price-index') o.priceIndex = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
 function loadMemory(file) {
   const R = require('./hotel-memory-report.cjs');
   const { entries } = R.parse(fs.readFileSync(file, 'utf8'));
@@ -127,15 +127,21 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
   const missing = new Set(), truncated = new Set();
   const query = { origin, budget: budgetCad, currency: 'CAD', adults: 1 };
   const options = { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env },
-    now: SNAP?.takenAt ?? B.NOW, readRoutes: READER ? READER(missing, truncated) : B.fareReader(), hotelRatios: SIMMEM };
+    now: SNAP?.takenAt ?? B.NOW, readRoutes: READER ? READER(missing, truncated) : B.fareReader(), hotelRatios: SIMMEM, allowCityExpansion: true, ...(PRICE_INDEX ? { priceIndex: PRICE_INDEX } : {}), ...(ROUTE_DATES ? { routeDates: (a, h) => ROUTE_DATES.get(a + '>' + h) || [] } : {}) };
   const r = await opt.search(query, { ...options, traceSearch: true });
   const pool = r.pool || [], spendable = budgetCad / B.CAD_PER_USD * 0.9;
   // live check in pool order; a page shows the first passing trips (signed out 1, signed in 3)
-  const checked = pool.map(t => ({ t, live: B.liveTotalUsd(t) })).filter(x => x.live <= spendable);
+  const checked = pool.map(t => ({ t, live: LIVE(t) })).filter(x => x.live <= spendable);
   const trip = x => {
     const st = x.t.stops || [];
     const countries = new Set(st.map(s => s.countryCode || s.country)).size;
-    return { route: st.map(s => s.city).join(' > '), cities: st.map(s => s.cityId), countries, cityCount: st.length, sameCountry: st.length > 1 && countries === 1,
+    const home = String(x.t.origin?.countryCode || '').toUpperCase(), legs = x.t.legs || [];
+    const extra = { originCountry: home, stopCountries: st.map(s => String(s.countryCode || '').toUpperCase()), stopNights: st.map(s => s.nights),
+      discovered: st.map(s => String(s.cityId).startsWith('discovered-')),
+      goodHotels: st.map(s => { const a = opt._internal.cityAccommodation({ cityCode: s.code, unifiedRegistry: { origin: { providerLocationCode: s.code } } }); return a ? a.good3to4Stars : null; }),
+      hotelRating: st.map(s => { const a = opt._internal.cityAccommodation({ cityCode: s.code, unifiedRegistry: { origin: { providerLocationCode: s.code } } }); return a ? a.medianRating : null; }),
+      comfort: x.t.hotelTier === 'comfort', hotelTier: x.t.hotelTier || 'standard', knownStopLegs: legs.filter(l => Number.isFinite(l.stops)).length, directLegs: legs.filter(l => l.stops === 0).length, stays: st.map(s => `${s.city} ${s.nights}n`).join(' > '), estimatedLegs: legs.filter(l => l.providerDateEvidence?.dateEstimated).length, legCount: legs.length };
+    return { ...extra, route: st.map(s => s.city).join(' > '), cities: st.map(s => s.cityId), countries, cityCount: st.length, sameCountry: st.length > 1 && countries === 1,
       nights: x.t.totalNights, month: String(x.t.legs?.[0]?.departureDate || '').slice(0, 7), use: x.live / (spendable / 0.9),
       maxNightsHit: st.some(s => { const row = opt._internal.rows().find(rw => rw.unifiedRegistry.cityId === s.cityId); const mx = Number(row?.unifiedRegistry?.destination?.maximumRecommendedNights) || 35; return s.nights >= mx; }) };
   };
@@ -159,7 +165,20 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
       sharedRepeat: await mockPage(query, options, 3, { shared }),
       sharedRefresh: await mockPage(query, options, 3, { shared, seen: signedIn.shownKeys }) };
   }
-  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, guest, member, cost,
+  // Role picks as the trip page offers them: the first of each role's trips that passes the live check.
+  // Live-check effort: trips checked in pool order until 3 pass (a member's page), and the
+  // flight legs (Ignav) and hotel stays (Nuitee rates) those checks need.
+  const liveChecks = (() => { let n = 0, ok = 0, legs = 0, stays = 0; for (const t of pool) { n++; legs += (t.legs || []).length; stays += (t.stops || []).length; if (LIVE(t) <= spendable && ++ok === 3) break; } return { trips: n, passed: ok, ignavLegs: legs, nuiteeStays: stays }; })();
+  const rolePick = role => { const x = ((r.roleCandidates || {})[role] || []).map(t => ({ t, live: LIVE(t) })).find(y => y.live <= spendable); return x ? trip(x) : null; };
+  const optimizerRoles = { bestUse: rolePick('best-balance'), lowestCost: rolePick('lowest-cost'), different: rolePick('most-memorable') };
+  // Roles as the signed-in page labels them (generated-tour.js, pool mode): the shown trips
+  // are distinct; the one using the most budget is Best Use, the cheapest of the rest Lowest
+  // Cost, the last Something Different. Fewer passing trips -> fewer roles, never repeats.
+  const roles = { bestUse: null, lowestCost: null, different: null };
+  { const left = member.slice(); if (left.length) { const b = left.slice().sort((x, y) => y.use - x.use)[0]; roles.bestUse = b; left.splice(left.indexOf(b), 1); }
+    if (left.length) { const c = left.slice().sort((x, y) => x.use - y.use)[0]; roles.lowestCost = c; left.splice(left.indexOf(c), 1); }
+    if (left.length) roles.different = left[0]; }
+  return { origin, budgetCad, poolSize: pool.length, passed: checked.length, liveChecks, ms: r.diagnostics?.ms, guest, member, roles, optimizerRoles, distinctShown: member.length, cost,
     coverage: { complete: !missing.size && !truncated.size, missing: [...missing], truncated: [...truncated] },
     verified: { signedOut, signedIn }, d: r.diagnostics || {} };
 }
@@ -178,6 +197,31 @@ function snapshotReader(file) {
   };
 }
 let READER = null;
+// --hotel-prices: real nightly prices per city (Nuitee Price Index pilot, well-reviewed 3-4 star
+// median, else all sampled hotels), { "<cityId>": ratioToModel }. As TRUTH it replaces the
+// simulated hotel prices in the live check; with --plan-with-prices the engine also plans with
+// these ratios (as a clean hotel memory). Cities without a price use the median ratio of their
+// region family in the pilot, else of all priced cities.
+let PRICE_RATIOS = null, PRICE_FALLBACK = null, PRICE_INDEX = null, PRICE_FAMILY = null;
+function loadPrices(file) {
+  const body = JSON.parse(fs.readFileSync(file, 'utf8')); PRICE_RATIOS = new Map(Object.entries(body.ratios)); PRICE_FALLBACK = body.fallback || {}; PRICE_FAMILY = body.families || {};
+}
+function priceRatio(stop) {
+  return PRICE_RATIOS.get(stop.cityId) ?? PRICE_FALLBACK[stop.regionFamily] ?? PRICE_FALLBACK.all;
+}
+function LIVE(t) {
+  if (!PRICE_RATIOS) return B.liveTotalUsd(t);
+  const stops = t.stops || [], flights = B.liveTotalUsd(t) - stops.reduce((n, s) => n + (Number(s.hotel?.estimatedStayUsd) || 0) * B.hotelTruth(s), 0);
+  return flights + (t.stops || []).reduce((n, s) => n + (Number(s.hotel?.estimatedStayUsd) || 0) * priceRatio(s), 0);
+}
+// --route-dates: real departure dates per route (Travelpayouts month-matrix, collected
+// read-only for the return legs this benchmark needs); { "A>H@YYYY-MM": [[date, usd, stops, foundAt]] }.
+let ROUTE_DATES = null;
+function loadRouteDates(file) {
+  const body = JSON.parse(require('zlib').gunzipSync(fs.readFileSync(file)).toString('utf8')), m = new Map();
+  for (const [k, v] of Object.entries(body)) { const key = k.split('@')[0]; const list = m.get(key) || []; for (const [d, p, st] of v) list.push({ departureDate: d, priceUsd: Number(p), stops: st == null ? null : Number(st) }); m.set(key, list); }
+  return m;
+}
 
 function summarise(cases) {
   const by = b => cases.filter(c => c.budgetCad === b);
@@ -214,9 +258,13 @@ async function main() {
   global.fetch = async () => { throw Error('Offline recommendation investigation requires injected responses'); };
   const o = args();
   if (o.fareSnapshot) READER = snapshotReader(o.fareSnapshot);
+  if (o.routeDates) ROUTE_DATES = loadRouteDates(o.routeDates);
   const origins = o.origins || SNAP?.origins || ORIGINS; BUDGETS_USED = o.budgets || BUDGETS;
   B.setOriginCodes(origins.map(x => B.originInfo(x).code));
-  SIMMEM = o.memoryFile ? loadMemory(o.memoryFile) : B.simulatedMemory();
+  if (o.hotelPrices) loadPrices(o.hotelPrices);
+  // --price-index: plan through the production Price Index path (levelRatio per city).
+  if (o.priceIndex && PRICE_RATIOS) PRICE_INDEX = new Map([...PRICE_RATIOS].map(([id, r]) => [id, { cityId: id, levelRatio: r, regionFamily: (PRICE_FAMILY || {})[id] }]));
+  SIMMEM = o.planWithPrices && PRICE_RATIOS ? new Map([...PRICE_RATIOS].map(([id, ratio]) => [id, { ratio, n: 20, at: B.NOW }])) : o.memoryFile ? loadMemory(o.memoryFile) : B.simulatedMemory();
   if (o.costRelease) {
     const recommended = { FARE_MAP_READ_PLAN: 'on', FARE_MAP_BALANCED_POOL: 'on' };
     const scenarios = [

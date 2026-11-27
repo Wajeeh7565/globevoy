@@ -212,4 +212,4 @@ async function applyIgnavLiveFares(tour = {}, query = {}, options = {}) {
   };
 }
 
-module.exports = { VERSION, enabled, status, applyIgnavLiveFares };
+module.exports = { VERSION, enabled, status, applyIgnavLiveFares, endpointCode };

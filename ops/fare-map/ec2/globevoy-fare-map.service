@@ -6,7 +6,7 @@
 # Maintenance: sudo touch /etc/globevoy/hold keeps the machine on (a running pass
 # finishes without powering off; later boots skip the pass). Remove it afterwards.
 [Unit]
-Description=GlobeVoy fare map: one full Travelpayouts collection pass, then power off
+Description=GlobeVoy fare map: one full Travelpayouts collection pass and the date pass, then power off
 Wants=network-online.target
 After=network-online.target
 ConditionPathExists=!/etc/globevoy/hold
@@ -16,9 +16,14 @@ Type=oneshot
 User=globevoy
 WorkingDirectory=/opt/globevoy
 EnvironmentFile=/etc/globevoy/fare-map.env
-ExecStart=/usr/bin/node ops/fare-map/run-full-pass.cjs
-# A pass takes a few hours; stop it if it ever runs past 12.
-TimeoutStartSec=12h
+ExecStart=/usr/bin/node ops/fare-map/run-full-pass.cjs --worldwide
+# Then the date pass (more departure dates and stops per route), only with
+# FARE_MAP_DATE_PASS=on in fare-map.env. It stops itself after 15 hours and resumes
+# at the next boot, so the machine is always off well before the next start.
+ExecStart=/usr/bin/node ops/fare-map/run-date-pass.cjs --origin-set worldwide --routes 30 --max-minutes 900
+# Worldwide main pass at most 20 h (its own limit), date pass at most 15 h; stop both past
+# 37 h, so the machine is always off before the next start 48 h later.
+TimeoutStartSec=37h
 Nice=10
 # Always switch the machine off afterwards, whether the pass finished, stopped
 # on an error or timed out, so it never keeps running (and billing) by accident.
