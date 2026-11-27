@@ -16,7 +16,7 @@ function main() {
   const pass = (name) => { checks.push(name); console.log(`[PASS] ${name}`); };
 
   const html = read('frontend/pages/multi-city-trip.html');
-  const routeDetails = read('frontend/scripts/multi-city-trip-673a.js');
+  const routeDetails = read('frontend/scripts/itinerary.js');
   const savedTrips = read('frontend/scripts/saved-trips-705c.js');
   const bridge = read('frontend/scripts/saved-trips-705c-r2-route-details.js');
   const shell = read('frontend/scripts/shell-670f.js');
@@ -24,7 +24,7 @@ function main() {
   assert.match(html, /id="gv-mtd-save"/);
   assert.match(html, /gv-multi-trip-page/);
   assert.match(routeDetails, /#gv-mtd-save/);
-  assert.match(routeDetails, /Saved ✓/);
+  assert.match(routeDetails, /Saved in this browser ✓/);
   pass('route-details browser-only save baseline is identified');
 
   assert.match(bridge, /GV-ACCOUNT-705C-R2/);

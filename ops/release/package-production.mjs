@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import sourceLayout from '../frontend/source-layout.cjs';
-import { writeCompatibilityPages } from '../frontend/page-layout.mjs';
+import { readPageLayout, writeCompatibilityPages } from '../frontend/page-layout.mjs';
+import { writeClassicSeo } from '../frontend/seo.mjs';
 import { productionPolicySource } from './production-frontend-policy.mjs';
 import { verifyProductionFrontend } from './verify-production-frontend.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -45,6 +46,17 @@ const output = path.join(root, '.cache', outputName);
 if ([output, output+'.zip', output+'.zip.sha256'].some(file => fs.existsSync(file))) throw Error('Output already exists. Preserve/rename .cache/production-site before rebuilding.');
 const commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim();
 const dirty=Boolean(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim());
+// Production packages must come from committed code that is already on GitHub main,
+// so every deployed file can be traced to a pushed commit (docs/RELEASE.md).
+// A CI test package (GLOBEVOY_CI_TEST_PACKAGE=yes) may come from a pre-merge commit. It is
+// marked non-deployable in its manifest, must use a ci- output name, and verify-live-ancestry rejects it.
+const ciTestPackage = process.env.GLOBEVOY_CI_TEST_PACKAGE === 'yes';
+if (ciTestPackage && !outputName.startsWith('ci-')) throw Error('CI test packages must use an output name starting with ci-');
+if (dirty && !ciTestPackage) throw Error('Commit your changes first: production packages are built from a clean tree.');
+let onMain = false;
+try { execFileSync('git',['merge-base','--is-ancestor',commit,'origin/main'],{cwd:root,stdio:'ignore'}); onMain = true; } catch {}
+if (!onMain && !ciTestPackage) throw Error('HEAD is not on origin/main. Merge and push to main, run git fetch, then build.');
+const deployable = !ciTestPackage;
 const policySource = productionPolicySource(releaseConfig);
 const policyModule = path.join(root, '.cache', outputName + '-policy.cjs');
 fs.mkdirSync(path.dirname(policyModule), {recursive:true});
@@ -55,6 +67,7 @@ execFileSync(process.execPath, [path.join(root, 'web/node_modules/next/dist/bin/
 });
 fs.mkdirSync(output, {recursive:true});
 sourceLayout.copyFrontendSource(output);
+writeClassicSeo(output, readPageLayout().publicPageSources);
 fs.cpSync(path.join(root,'web/out'),path.join(output,'react'),{recursive:true});
 writeCompatibilityPages(output);
 const configPath=path.join(output,'runtime/config.js');
@@ -73,7 +86,7 @@ for (const file of fs.readdirSync(output,{recursive:true}).sort()) {
  const full=path.join(output,file);
  if(fs.statSync(full).isFile()) files[file.replaceAll('\\','/')]=createHash('sha256').update(fs.readFileSync(full)).digest('hex');
 }
-fs.writeFileSync(path.join(output,'release-manifest.json'),JSON.stringify({commit,dirty,productionOnly:true,builtAt:new Date().toISOString(),productionAccounts:accountsEnabled,productionReact:reactEnabled,files},null,2)+'\n');
+fs.writeFileSync(path.join(output,'release-manifest.json'),JSON.stringify({commit,dirty,onMain,deployable,ciTestPackage,productionOnly:true,builtAt:new Date().toISOString(),productionAccounts:accountsEnabled,productionReact:reactEnabled,files},null,2)+'\n');
 console.log('Validated static artifact: '+output+' ('+Object.keys(files).length+' files). No deployment performed.');
 
 console.log('Production directory scan:', verifyProductionFrontend(output));

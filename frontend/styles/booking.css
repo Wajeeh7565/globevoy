@@ -1,0 +1,106 @@
+/* GlobeVoy booking page — "Editorial Travel" design (GV-WEB-3). Shared chrome is in site.css. */
+.account-note{background:var(--ivory);border:1px solid var(--line);border-radius:10px;padding:12px 15px;font-size:13px;color:var(--muted);margin-bottom:14px}
+
+/* heading */
+.booking-editorial{display:flex;align-items:end;justify-content:space-between;gap:20px;border-bottom:1px solid var(--ink);margin-bottom:24px}
+.booking-editorial>p{color:var(--muted);font-size:14px;padding-bottom:26px}
+.page-heading{padding:4px 0 26px}
+.page-heading h1{font-size:clamp(40px,4.6vw,62px)}
+.route-title{font-weight:600;margin:13px 0 6px;color:var(--deep)}
+
+/* layout */
+.workspace{display:grid;grid-template-columns:minmax(0,1fr) 316px;gap:32px;align-items:start}
+.workspace>div{min-width:0}
+.section-row{display:flex;align-items:center;justify-content:space-between;gap:14px}
+
+/* checklist */
+.progress-box{padding:6px 0 14px}
+.progress-box h2{font-size:21px}
+#progress-text{font-size:13px;font-variant-numeric:tabular-nums}
+progress{display:block;width:100%;height:8px;margin:11px 0 9px;appearance:none;border:0;background:#dbe6e0;border-radius:10px;overflow:hidden;accent-color:var(--teal)}
+progress::-webkit-progress-bar{background:#dbe6e0}
+progress::-webkit-progress-value{background:var(--teal);transition:width .25s}
+progress::-moz-progress-bar{background:var(--teal)}
+.progress-foot .button{flex:none}
+.gvb2-guide{border:1px solid var(--teal);background:var(--ivory);border-radius:12px;padding:14px 16px;margin:4px 0 6px;font-size:14px}
+.gvb2-guide p{color:var(--muted);margin:4px 0 6px}
+.gvb2-jump{color:var(--teal);font-weight:600;text-decoration:none;display:inline-flex;min-height:44px;align-items:center}
+
+/* steps */
+.booking-list{display:grid}
+.booking-step{border-top:1px solid var(--line);padding:20px 0;scroll-margin-top:20px}
+.booking-step:last-child{border-bottom:1px solid var(--line)}
+.booking-step.is-next{box-shadow:inset 3px 0 0 var(--teal);padding-left:16px}
+.booking-step.tracked .step-main{opacity:.62}
+.step-core{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:20px}
+.step-meta{display:flex;align-items:center;gap:10px;color:var(--teal);font-size:12px;margin-bottom:10px}
+.step-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:8px;background:var(--mist);color:var(--teal);flex:none}
+.step-icon svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.codes{font-size:34px;font-weight:500;letter-spacing:-.03em;margin-bottom:7px;line-height:1.1}
+.codes span{color:var(--teal);font-size:25px;margin:0 12px}
+.step-main h3{margin-bottom:6px}
+.step-main>p{font-size:14px;overflow-wrap:anywhere}
+.step-main>p.quiet{font-size:12px;margin-top:5px}
+.gvb2-live{color:#13786b!important}
+.gvb2-live:before{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:#20a08f;margin-right:7px;vertical-align:1px}
+.step-side{display:grid;justify-items:end;gap:8px;text-align:right}
+.flight .step-side{border-left:1px dashed #8fa9a0;padding-left:20px}
+.offer-price{font-size:23px;font-variant-numeric:tabular-nums}
+.step-side .gvb2-main{border-radius:999px;padding-inline:18px}
+.gvb2-disabled{opacity:.55}
+.gvb2-links{display:grid;justify-items:end;gap:2px}
+.gvb2-compare{color:var(--teal);font-size:13px;min-height:32px;display:inline-flex;align-items:center;text-decoration:underline;text-underline-offset:3px;padding:0}
+.check{display:flex;align-items:center;gap:7px;font-size:13px;min-height:44px;cursor:pointer}
+.check input{width:19px;height:19px;accent-color:var(--teal)}
+.gvb2-options ul{list-style:none;padding:10px 14px;margin:12px 0 0;border:1px solid var(--line);border-radius:10px;background:var(--ivory);font-size:13px;color:var(--muted)}
+.gvb2-options li{padding:6px 0}
+.gvb2-options a{color:var(--deep);font-weight:600}
+.evidence{margin-top:6px;color:var(--teal);font-size:13px}
+.evidence summary{min-height:44px;padding:11px 0}
+.evidence p{color:var(--muted);padding:2px 0 10px;max-width:70ch}
+.step-photo{position:relative;margin:0 0 14px;height:195px;border-radius:12px;overflow:hidden;background:var(--mist)}
+.step-photo>img{position:absolute;inset:0;height:100%;animation:photo-in .5s var(--ease) both}
+@keyframes photo-in{from{opacity:0}}
+.step-photo figcaption{position:absolute;bottom:9px;left:9px;z-index:2;background:var(--ivory);padding:4px 8px;border-radius:5px;font-size:11px}
+.step-photo:not(.has-photo){height:56px}
+.step-photo:not(.has-photo) figcaption{position:static;display:inline-block;margin:15px}
+.disclosure{margin-top:16px}
+
+/* summary */
+.summary{position:sticky;top:18px;border-top:1px solid var(--ink);padding:18px 4px 0}
+.summary h2{font-size:21px;margin-bottom:4px}
+.grand{font-size:40px;font-weight:600;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin-top:10px;line-height:1.15}
+.allocation{height:6px;display:flex;overflow:hidden;gap:2px;border-radius:10px;background:#dfe7e1;margin:4px 0 10px}
+.allocation i{background:var(--deep);transition:width .25s}
+.allocation i:nth-child(2){background:var(--turquoise)}
+.allocation i:nth-child(3){background:#a7c9bd}
+.cost-details summary{min-height:44px;padding:11px 0;color:var(--teal);font-size:13px}
+.summary dl{margin:0 0 14px;font-size:14px}
+.summary dl>div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:9px 0}
+.summary dt{color:var(--ink)}
+.summary dd{font-weight:600;font-variant-numeric:tabular-nums}
+.balance dt,.balance dd{color:var(--teal);font-weight:600}
+.balance.over dt,.balance.over dd{color:#8b3428}
+.mobile-total{display:none}
+
+@media(max-width:1100px){.workspace{grid-template-columns:minmax(0,1fr) 270px;gap:20px}}
+@media(max-width:850px){.workspace{grid-template-columns:minmax(0,1fr) 230px;gap:14px}.summary dl{font-size:12px}.codes{font-size:28px}}
+@media(max-width:660px){
+  .booking-editorial{display:block}
+  .booking-editorial>p{padding-bottom:14px}
+  .page-heading{padding-bottom:12px}
+  .workspace{display:flex;flex-direction:column;gap:20px}
+  .workspace>div,.summary{width:100%}
+  .summary{position:static}
+  .grand{font-size:32px}
+  .mobile-total{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);border-bottom:1px solid var(--line);padding:8px 0;margin-bottom:12px}
+  .mobile-total>a:first-child{display:grid;line-height:1.3;text-decoration:none;min-height:44px}
+  .mobile-total strong{font-size:20px;color:var(--deep)}
+  .step-core{grid-template-columns:1fr;gap:12px}
+  .step-side,.flight .step-side{justify-items:start;text-align:left;border-left:0;padding-left:0;grid-template-columns:1fr auto;align-items:center}
+  .step-side .gvb2-main{grid-column:1/-1;width:100%}
+  .gvb2-links{justify-items:start;grid-column:1/-1}
+  .codes{font-size:26px}
+  .step-main h3{font-size:19px}
+  .progress-foot{flex-direction:column;align-items:stretch}
+}

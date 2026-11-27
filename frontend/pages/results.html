@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="./assets/fonts/archivo/archivo.css">
 <link rel="stylesheet" href="./assets/vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="./styles/results.css?v=gv2-1">
+<link rel="stylesheet" href="./styles/account-menu.css?v=gv4-1">
 </head>
 <body class="is-loading gv-mcv-page">
 <a class="skip" href="#main">Skip to content</a>
@@ -46,7 +47,7 @@
   <a class="brand" href="./index.html"><img src="./assets/images/globevoy-logo-dark.png" alt="GlobeVoy" width="134" height="44"></a>
   <nav aria-label="Main">
     <a id="new-search" href="./index.html">New search</a>
-    <button id="signin" class="btn" type="button">Sign in</button>
+    <button id="signin" class="btn" type="button">Sign In</button>
   </nav>
 </header>
 
@@ -68,6 +69,7 @@
         <span id="options-note"></span>
       </div>
       <div class="option-tabs" id="option-tabs" role="tablist" aria-labelledby="options-heading"></div>
+      <div class="more-trips" id="more-trips" hidden></div>
     </section>
 
     <section class="trip-head">
@@ -115,7 +117,6 @@
         <p class="estimate-note" id="summary-note"></p>
         <div class="summary-actions">
           <a id="book" class="btn primary" href="#">View trip &amp; book</a>
-          <button id="mcv-save-trip" class="btn save-trip" type="button" aria-pressed="false">Save</button>
         </div>
         <div class="summary-foot"><span>Departure &amp; return</span><strong id="summary-origin"></strong></div>
       </aside>
@@ -142,10 +143,10 @@
 <script src="./runtime/api-client.js"></script>
 <script src="./runtime/auth-config-705b-r3.js"></script>
 <script src="./scripts/auth-session-705b-r3.js"></script>
+<script src="./scripts/account-menu.js?v=gv4-1"></script>
 <script src="./scripts/city-images-673c.js?v=673f-r2"></script>
 <script src="./assets/vendor/leaflet/leaflet.js"></script>
 <script src="./scripts/trip-search.js?v=gv2-1"></script>
 <script src="./scripts/results.js?v=gv2-1"></script>
-<script src="./scripts/saved-trips-705c.js"></script>
 </body>
 </html>

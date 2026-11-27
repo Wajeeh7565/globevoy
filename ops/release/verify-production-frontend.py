@@ -25,7 +25,7 @@ def verify(target, configuration):
     require(set(files)==set(manifest['files'])|{'release-manifest.json'}, 'Manifest inventory mismatch')
     for name,expected in manifest['files'].items():
         require(hashlib.sha256(files[name]).hexdigest()==expected, 'Manifest hash mismatch: '+name)
-    for required in ['index.html','auth-callback.html','runtime/environment-policy.js','runtime/auth-config-705b-r3.js','scripts/auth-session-705b-r3.js','scripts/saved-trips-705c.js','scripts/saved-trips-705c-r3-route-details.js','react/account/index.html','react/my-trips/index.html','react/travel-profile/index.html','react/journey/index.html']:
+    for required in ['index.html','auth-callback.html','runtime/environment-policy.js','runtime/auth-config-705b-r3.js','scripts/auth-session-705b-r3.js','sign-in.html','scripts/account-menu.js','react/account/index.html','react/my-trips/index.html','react/travel-profile/index.html','react/journey/index.html']:
         require(required in files, 'Missing asset: '+required)
     failures=[]
     for name,content in files.items():

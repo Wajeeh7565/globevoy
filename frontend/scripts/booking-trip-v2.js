@@ -1,18 +1,15 @@
-// GV-BOOK-V2-001 — simple KAYAK-style booking page.
+// GV-BOOK-V2-001 — booking page ("Editorial Travel" design since GV-WEB-3).
 //
 // One row per flight and per hotel, in travel order: price, where the price
 // came from (live provider or estimate), one main book button, one comparison
 // link, and a "Booked" tick. Optional "Start booking" guide highlights the next
 // unbooked item. Referral only: every button opens a partner site in a new tab.
 //
-// Reads the tour the existing booking runtime publishes
-// (window.GlobevoyBooking673FR1.tour) and renders into #gv-booking-v2, hiding
-// the older booking sections. "Show detailed view" brings them back.
+// Reads the trip with trip-handoff.js (or a tour an embedder publishes as
+// window.GlobevoyBooking673FR1.tour) and renders into #gv-booking-v2.
 (function (root) {
   'use strict';
-  const VERSION = 'GV-BOOK-V2-003';
-  const OLD_SECTIONS = ['.gv-booking-hero', '#gv-booking-workspace', '.gv-booking-summary', '#gv-booking-journey-section',
-    '#gv-booking-profile-section', '#gv-booking-transport-section', '#gv-booking-stays-section', '.gv-booking-section'];
+  const VERSION = 'GV-BOOK-V2-004';
   const AGODA_CID = '1963873';
   // How long a Nuitee offerId is trusted for one-click checkout. Older than
   // this, the main button opens the hotel page (current price) instead.
@@ -77,7 +74,9 @@
     const prov = sources.find(x => String(x.sourceType || '').toUpperCase() === 'LIVE') || leg?.priceProvenance || {};
     const live = String(prov.sourceType || '').toUpperCase() === 'LIVE';
     const usd = num(cp.amountUsd) ?? num(leg?.priceProvenance?.partyTotalAmountUsd) ?? num(leg?.estimatedTransportUsd) ?? num(leg?.amountUsd);
-    const shown = String(cp.currency || '').toUpperCase() === cur.code ? num(cp.amountDisplay) : null;
+    const fare = leg?.cheapestOneWay || {};
+    const shown = String(cp.currency || '').toUpperCase() === cur.code ? num(cp.amountDisplay) :
+      String(fare.displayCurrency || fare.currency || '').toUpperCase() === cur.code ? num(fare.partyTotalAmountDisplay ?? fare.displayPrice) : null;
     const from = leg?.from || {}, to = leg?.to || {};
     const date = isoDate(leg?.departureDate);
     const compareUrl = safeUrl(leg?.booking?.url || leg?.bookingUrl || leg?.providerUrl);
@@ -85,6 +84,10 @@
     return {
       kind: ground ? 'ground' : 'flight',
       title: `${cityName(from)}${code(from) ? ` (${code(from)})` : ''} → ${cityName(to)}${code(to) ? ` (${code(to)})` : ''}`,
+      route: `${cityName(from)} → ${cityName(to)}`,
+      codes: code(from) && code(to) ? [code(from), code(to)] : null,
+      when: dateLabel(date, true),
+      info: leg?.airline || leg?.operator || leg?.cheapestOneWay?.carrier || '',
       detail: [dateLabel(date, true), leg?.airline || leg?.operator || ''].filter(Boolean).join(' · '),
       price: shown != null ? shown : (usd != null && cur.fx ? usd * cur.fx : null),
       source: live ? `Live price · ${providerName(prov.provider || prov.source) || 'provider'}` : 'Estimated price',
@@ -116,6 +119,7 @@
     let price = null;
     if (rate && String(rate.currency || '').toUpperCase() === cur.code && num(rate.amount) != null) price = num(rate.amount);
     else if (num(hotel.estimatedStayUsd) != null && cur.fx) price = num(hotel.estimatedStayUsd) * cur.fx;
+    else if (num(hotel.totalStayUsd) != null && cur.fx) price = num(hotel.totalStayUsd) * cur.fx;
     const live = Boolean(rate && rate.sourceType === 'LIVE');
     const agoda = safeUrl(hotel.booking?.url || hotel.bookingUrl || hotel.hotelUrl || hotel.providerUrl) || agodaCityUrl(hotel, checkIn, checkOut, party.rooms, party.adults);
     const wlInfo = hotel.nuiteeWhitelabel || hotel.booking?.whitelabel || {};
@@ -143,6 +147,11 @@
     return {
       kind: 'hotel',
       title: genericName ? `Hotel in ${cityName(city)}` : (hotel.name || `Hotel in ${cityName(city)}`),
+      city: cityName(city),
+      country: String(city?.country || ''),
+      when: checkIn && checkOut ? `${dateLabel(checkIn)} – ${dateLabel(checkOut)}` : '',
+      nights,
+      info: detailBits.slice(checkIn && checkOut ? 1 : 0).filter(x => !/^\d+ nights?$/.test(x)).join(' · '),
       detail: detailBits.join(' · '),
       price,
       payAtHotel,
@@ -186,6 +195,10 @@
     legs.forEach((leg, i) => {
       const flight = flightRow(leg, cur, now, party);
       flight.price = num(lines?.flights?.[i]) ?? flight.price;
+      if (!flight.codes) {
+        const from = code(i === 0 ? tour?.origin : cities[i - 1]), to = code(cities[i] || tour?.origin);
+        if (from && to) flight.codes = [from, to];
+      }
       items.push(flight);
       if (cities[i]) items.push(hotelRow(cities[i], stays[i], cur, now, party, lines?.stays?.[i]));
     });
@@ -227,7 +240,7 @@
     };
   }
 
-  // ---------- rendering (DOM only, no innerHTML with data) ----------
+  // ---------- rendering (DOM only; no trip data goes through innerHTML) ----------
   function el(doc, tag, attrs, children) {
     const node = doc.createElement(tag);
     for (const [k, v] of Object.entries(attrs || {})) {
@@ -254,6 +267,48 @@
     return quotes?.readVerifiedQuote(tour, fetchFn) || Promise.resolve(null);
   }
 
+  const ICONS = {
+    flight: '<path d="m3 10 7 2 6-8 2 1-3 9 5 3-1 2-7-2-4 4-2-1 2-5-5-3Z"/>',
+    ground: '<path d="m3 10 7 2 6-8 2 1-3 9 5 3-1 2-7-2-4 4-2-1 2-5-5-3Z"/>',
+    hotel: '<path d="M3 18V8m18 10v-5a2 2 0 0 0-2-2H3m0 5h18M7 11V8h5a2 2 0 0 1 2 2v1"/>'
+  };
+  function icon(doc, kind) {
+    const span = el(doc, 'span', { class: 'step-icon', 'aria-hidden': 'true' });
+    const svg = doc.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.innerHTML = ICONS[kind] || ICONS.flight; // fixed markup, no trip data
+    span.appendChild(svg);
+    return span;
+  }
+  // Cities with a bundled scene photo use it first, as the results page does.
+  const SCENES = ['lisbon', 'seville', 'tokyo', 'prague', 'vienna', 'budapest', 'seoul', 'taipei', 'marrakech'];
+  const photoCache = new Map();
+  function cityPhotos(city, country) {
+    const key = city + '|' + country;
+    if (!photoCache.has(key)) {
+      const scene = String(city || '').toLowerCase().normalize('NFD').replace(/[^a-z]/g, '');
+      const local = SCENES.includes(scene) ? [{ url: `./assets/media/scenes/${scene}.jpg` }] : [];
+      photoCache.set(key, Promise.resolve(root.GlobevoyCityImages?.photos?.(city, country)).catch(() => []).then(list => local.concat(list || [])));
+    }
+    return photoCache.get(key);
+  }
+  async function paintPhoto(figure, item) {
+    const photos = await cityPhotos(item.city, item.country);
+    for (const photo of photos) {
+      if (!figure.isConnected) return;
+      const img = figure.ownerDocument.createElement('img');
+      img.alt = [item.city, item.country].filter(Boolean).join(', ');
+      img.decoding = 'async';
+      const ok = await new Promise(resolve => { img.onload = () => resolve(true); img.onerror = () => resolve(false); img.src = photo.url; });
+      if (!ok) continue;
+      if (!figure.isConnected) return;
+      figure.prepend(img);
+      figure.classList.add('has-photo');
+      root.GlobevoyCityImages?.setCredit?.(figure, photo);
+      return;
+    }
+  }
+
   function render(doc, tour, opts) {
     const host = doc.getElementById('gv-booking-v2');
     if (!host) return false;
@@ -272,105 +327,141 @@
         }
       }
     }
+    // GV-BOOK-706A: a trip reopened from Saved Trips carries prices saved earlier. It
+    // cannot open flight or stay partner handoffs until its prices are revalidated.
+    const locked = root.GLOBEVOY_BOOKING_ACCOUNT_SNAPSHOT_706A?.snapshotOnly === true;
+    if (locked) {
+      for (const item of items) {
+        Object.assign(item, { live: false, source: 'Saved account snapshot — verification required', ignav: null, checkoutExpiresAt: null,
+          mainUrl: '', compareUrl: '', altUrl: '', mainLabel: 'Revalidation required', locked: true });
+      }
+    }
     const s = summaryOf(tour, items, cur);
     const key = storageKey(tour);
     const state = { booked: loadBooked(key), guiding: false };
+    const kindLabel = it => (it.kind === 'hotel' ? 'Stay' : it.kind === 'ground' ? 'Transport' : 'Flight');
+
+    function step(it, guiding, next) {
+      const booked = !!state.booked[it.id];
+      const best = it.ignav && it.links ? bestLink(it.links) : null;
+      const mainUrl = best ? best.url : it.mainUrl;
+      const mainLabel = best
+        ? `${best.specificity === 'exact_flight' ? 'Book on' : 'Compare on'} ${best.providerName || 'partner'}`
+        : it.mainLabel;
+      const main = it.ignav && !it.links
+        ? el(doc, 'button', { type: 'button', class: 'button primary gvb2-main gvb2-linkbtn', disabled: it.loadingLinks,
+          onclick: () => loadLinks(it), text: it.loadingLinks ? 'Checking booking options…' : 'See booking options' })
+        : mainUrl
+        ? el(doc, 'a', { class: 'button primary gvb2-main', href: mainUrl, target: '_blank', rel: 'noopener nofollow',
+          onclick: it.checkoutExpiresAt ? event => {
+            if (Date.now() >= it.checkoutExpiresAt && it.altUrl) event.currentTarget.href = it.altUrl;
+          } : null }, [`${mainLabel} `, el(doc, 'span', { 'aria-hidden': 'true', text: '↗' })])
+        : el(doc, 'span', { class: 'button gvb2-main gvb2-disabled', 'aria-disabled': 'true', text: it.locked ? 'Revalidation required' : 'Link unavailable' });
+      const side = el(doc, 'div', { class: 'step-side gvb2-right' }, [
+        el(doc, 'strong', { class: 'offer-price gvb2-price', text: money(it.price, cur) }), main]);
+      const extra = [];
+      if (it.altUrl) extra.push(el(doc, 'a', { class: 'gvb2-compare', href: it.altUrl, target: '_blank', rel: 'noopener nofollow', text: it.altLabel }));
+      if (it.compareUrl && (it.compareUrl !== mainUrl || it.ignav && !it.links)) extra.push(el(doc, 'a', { class: 'gvb2-compare', href: it.compareUrl, target: '_blank', rel: 'noopener nofollow', text: it.compareLabel }));
+      const options = it.ignav && it.links && it.links.length > 1 ? it.links.map(l => ({ ...l, url: safeUrl(l.url) })).filter(l => l.url).slice(0, 6) : [];
+      if (options.length > 1) extra.push(el(doc, 'button', { type: 'button', class: 'gvb2-compare gvb2-linkbtn', 'aria-expanded': it.open ? 'true' : 'false',
+        onclick: () => { it.open = !it.open; draw(); } }, [it.open ? 'Hide other options' : `${options.length - 1} more option${options.length > 2 ? 's' : ''}`]));
+      if (extra.length) side.appendChild(el(doc, 'div', { class: 'gvb2-links' }, extra));
+      side.appendChild(el(doc, 'label', { class: 'check gvb2-tick' }, [
+        el(doc, 'input', { type: 'checkbox', checked: booked, onchange: () => { state.booked[it.id] = !booked; saveBooked(key, state.booked); draw(); } }),
+        ' Mark as booked'
+      ]));
+      const article = el(doc, 'article', { id: `step-${it.index + 1}`,
+        class: `booking-step ${it.kind === 'hotel' ? 'stay' : 'flight'} gvb2-item${booked ? ' tracked is-booked' : ''}${guiding && next.id === it.id ? ' is-next' : ''}` });
+      if (it.kind === 'hotel' && it.city) {
+        const figure = el(doc, 'figure', { class: 'step-photo' }, [el(doc, 'figcaption', { text: [it.city, it.country].filter(Boolean).join(', ') })]);
+        article.appendChild(figure);
+        void paintPhoto(figure, it);
+      }
+      const meta = [`${it.index + 1} of ${items.length}`, kindLabel(it), it.kind === 'hotel' ? [it.when, it.nights ? `${it.nights} night${it.nights === 1 ? '' : 's'}` : ''].filter(Boolean).join(' · ') : it.when].filter(Boolean).join(' · ');
+      const mainCol = el(doc, 'div', { class: 'step-main gvb2-body' }, [
+        el(doc, 'div', { class: 'step-meta gvb2-step' }, [icon(doc, it.kind), el(doc, 'span', { text: meta })]),
+        it.codes ? el(doc, 'div', { class: 'codes', 'aria-hidden': 'true' }, [it.codes[0], el(doc, 'span', { text: '→' }), it.codes[1]]) : null,
+        el(doc, 'h3', { class: 'gvb2-item-title', text: it.kind === 'hotel' ? it.title : (it.route || it.title) }),
+        it.info ? el(doc, 'p', { class: 'gvb2-detail', text: it.info }) : null,
+        el(doc, 'p', { class: `quiet gvb2-source ${it.live ? 'gvb2-live' : 'gvb2-est'}`, text: [it.source, it.age].filter(Boolean).join(' · ') })
+      ]);
+      article.appendChild(el(doc, 'div', { class: 'step-core' }, [mainCol, side]));
+      if (it.open && options.length > 1) {
+        article.appendChild(el(doc, 'div', { class: 'gvb2-options' }, [el(doc, 'ul', {}, options.map(l => el(doc, 'li', {}, [
+          el(doc, 'a', { href: l.url, target: '_blank', rel: 'noopener nofollow', text: `${l.providerName || 'Booking site'} ↗` }),
+          ` ${l.providerType === 'airline' ? 'Airline' : 'Booking site'}${num(l.amount) != null ? ` · ${l.currency || ''} ${Math.round(l.amount)}` : ''}${l.specificity === 'exact_flight' ? ' · flight preselected' : ''}`
+        ])))]));
+      }
+      article.appendChild(el(doc, 'details', { class: 'evidence' }, [el(doc, 'summary', { text: 'Price and terms' }), el(doc, 'p', { text:
+        (it.live ? 'This is a live price GlobeVoy checked for your dates. ' : 'This price is an estimate until the partner site shows the current one. ') +
+        (it.kind === 'hotel' ? 'Check the room, the cancellation terms and any local taxes paid at the hotel before you pay.' : 'Check the schedule, baggage and fare rules with the airline before you pay.') })]));
+      return article;
+    }
 
     function draw() {
       host.textContent = '';
       const count = items.filter(x => state.booked[x.id]).length;
       const next = items.find(x => !state.booked[x.id]);
       const guiding = state.guiding && next;
+      const allLive = s.liveCount === items.length;
 
-      const startBtn = el(doc, 'button', { type: 'button', class: 'gvb2-start', onclick: () => { state.guiding = true; draw(); } },
-        [count === items.length ? 'All booked ✓' : (state.guiding ? 'Booking in progress' : 'Start booking')]);
-      const bar = el(doc, 'div', { class: 'gvb2-bar' }, [el(doc, 'div', { class: 'gvb2-bar-fill', style: `width:${Math.round(count / items.length * 100)}%` })]);
-      const hero = el(doc, 'div', { class: 'gvb2-hero' }, [
-        el(doc, 'div', { class: 'gvb2-kicker', text: 'BOOK YOUR TRIP' }),
-        el(doc, 'h1', { class: 'gvb2-title', text: s.route }),
-        el(doc, 'div', { class: 'gvb2-sub', text: s.dates }),
-        el(doc, 'div', { class: 'gvb2-hero-row' }, [startBtn, el(doc, 'span', { class: 'gvb2-count', text: `${count} of ${items.length} booked` })]),
-        bar
+      const heading = el(doc, 'div', { class: 'booking-editorial' }, [
+        el(doc, 'div', { class: 'page-heading' }, [
+          el(doc, 'h1', { class: 'gvb2-title', text: 'Booking options' }),
+          el(doc, 'p', { class: 'route-title', text: s.route }),
+          el(doc, 'p', { class: 'quiet', text: s.dates })
+        ]),
+        el(doc, 'p', { text: 'Flights and stays, in travel order.' })
       ]);
-
-      const list = el(doc, 'section', { class: 'gvb2-list', 'aria-label': 'Flights and hotels to book' }, [hero]);
+      const mobile = el(doc, 'div', { class: 'mobile-total' }, [
+        el(doc, 'a', { href: '#trip-summary' }, [el(doc, 'strong', { text: money(s.total, cur) }), el(doc, 'span', { class: 'quiet', text: `${cur.code} · trip total` })]),
+        el(doc, 'a', { class: 'button', href: '#checklist-title', text: 'Checklist ↓' })
+      ]);
+      const progress = el(doc, 'section', { class: 'progress-box', 'aria-labelledby': 'checklist-title' }, [
+        el(doc, 'div', { class: 'section-row' }, [el(doc, 'h2', { id: 'checklist-title', text: 'Booking checklist' }),
+          el(doc, 'strong', { id: 'progress-text', class: 'gvb2-count', role: 'status', text: `${count} of ${items.length} marked` })]),
+        el(doc, 'progress', { max: String(items.length), value: String(count), 'aria-labelledby': 'progress-text' }),
+        el(doc, 'div', { class: 'section-row progress-foot' }, [
+          el(doc, 'p', { class: 'quiet', text: 'Each partner site opens in a new tab. Tick each item after you book it.' }),
+          el(doc, 'button', { type: 'button', class: 'button gvb2-start', disabled: count === items.length, onclick: () => { state.guiding = true; draw(); } },
+            [count === items.length ? 'All booked ✓' : (state.guiding ? 'Booking in progress' : 'Start booking')])
+        ])
+      ]);
+      const list = el(doc, 'section', { class: 'booking-list gvb2-list', 'aria-label': 'Flights and stays' });
       if (guiding) {
         list.appendChild(el(doc, 'div', { class: 'gvb2-guide', role: 'status' }, [
-          el(doc, 'div', {}, [el(doc, 'div', { class: 'gvb2-guide-step', text: `NEXT · STEP ${next.index + 1} OF ${items.length}` }), el(doc, 'div', { class: 'gvb2-guide-title', text: next.title })]),
-          el(doc, 'p', { class: 'gvb2-guide-note', text: 'Book this one on the partner site, then come back and tick “Booked”. Book flights first: if a flight changes, hotel dates may need to change too.' })
+          el(doc, 'strong', { text: `Next: ${next.kind === 'hotel' ? next.title : (next.route || next.title)}` }),
+          el(doc, 'p', { text: 'Book this one on the partner site, then come back and tick “Mark as booked”. Book flights first: if a flight changes, hotel dates may need to change too.' }),
+          el(doc, 'a', { class: 'gvb2-jump', href: `#step-${next.index + 1}`, text: 'Go to this step ↓' })
         ]));
       }
+      items.forEach(it => list.appendChild(step(it, guiding, next)));
+      const left = el(doc, 'div', {}, [progress, list, el(doc, 'p', { class: 'quiet disclosure gvb2-legal',
+        text: "You book each part on the partner's site, and the final price is shown there before you pay. GlobeVoy doesn't take payments; it may earn a referral fee from partners." })]);
 
-      items.forEach(it => {
-        const booked = !!state.booked[it.id];
-        const best = it.ignav && it.links ? bestLink(it.links) : null;
-        const mainUrl = best ? best.url : it.mainUrl;
-        const mainLabel = best
-          ? `${best.specificity === 'exact_flight' ? 'Book on' : 'Compare on'} ${best.providerName || 'partner'}`
-          : it.mainLabel;
-        const main = it.ignav && !it.links
-          ? el(doc, 'button', { type: 'button', class: 'gvb2-main gvb2-linkbtn', disabled: it.loadingLinks,
-            onclick: () => loadLinks(it), text: it.loadingLinks ? 'Checking booking options…' : 'See booking options' })
-          : mainUrl
-          ? el(doc, 'a', { class: 'gvb2-main', href: mainUrl, target: '_blank', rel: 'noopener nofollow',
-            onclick: it.checkoutExpiresAt ? event => {
-              if (Date.now() >= it.checkoutExpiresAt && it.altUrl) event.currentTarget.href = it.altUrl;
-            } : null }, [`${mainLabel} ↗`])
-          : el(doc, 'span', { class: 'gvb2-main gvb2-disabled', text: 'Link unavailable' });
-        const right = el(doc, 'div', { class: 'gvb2-right' }, [el(doc, 'div', { class: 'gvb2-price', text: money(it.price, cur) }), main]);
-        if (it.altUrl) right.appendChild(el(doc, 'a', { class: 'gvb2-compare', href: it.altUrl, target: '_blank', rel: 'noopener nofollow', text: it.altLabel }));
-        if (it.compareUrl && (it.compareUrl !== mainUrl || it.ignav && !it.links)) right.appendChild(el(doc, 'a', { class: 'gvb2-compare', href: it.compareUrl, target: '_blank', rel: 'noopener nofollow', text: it.compareLabel }));
-        const optionsBox = el(doc, 'div', { class: 'gvb2-options', hidden: true });
-        if (it.ignav && it.links && it.links.length > 1) {
-          right.appendChild(el(doc, 'button', { type: 'button', class: 'gvb2-compare gvb2-linkbtn', 'aria-expanded': it.open ? 'true' : 'false', onclick: () => { it.open = !it.open; draw(); } }, [it.open ? 'Hide other options' : `${it.links.length - 1} more option${it.links.length > 2 ? 's' : ''}`]));
-          if (it.open) {
-            optionsBox.hidden = false;
-            optionsBox.appendChild(el(doc, 'ul', {}, it.links.map(l => ({ ...l, url: safeUrl(l.url) })).filter(l => l.url).slice(0, 6).map(l => el(doc, 'li', {}, [
-              el(doc, 'a', { href: l.url, target: '_blank', rel: 'noopener nofollow', text: `${l.providerName || 'Booking site'} ↗` }),
-              ` ${l.providerType === 'airline' ? 'Airline' : 'Booking site'}${num(l.amount) != null ? ` · ${l.currency || ''} ${Math.round(l.amount)}` : ''}${l.specificity === 'exact_flight' ? ' · flight preselected' : ''}`
-            ]))));
-          }
-        }
-        right.appendChild(el(doc, 'label', { class: 'gvb2-tick' }, [
-          el(doc, 'input', { type: 'checkbox', checked: booked, onchange: () => { state.booked[it.id] = !booked; saveBooked(key, state.booked); draw(); } }),
-          ' Booked'
-        ]));
-        const row = el(doc, 'article', { class: `gvb2-item${booked ? ' is-booked' : ''}${guiding && next.id === it.id ? ' is-next' : ''}` }, [
-          el(doc, 'div', { class: `gvb2-icon gvb2-icon-${it.kind}`, 'aria-hidden': 'true', text: it.kind === 'hotel' ? 'H' : '✈' }),
-          el(doc, 'div', { class: 'gvb2-body' }, [
-            el(doc, 'div', { class: 'gvb2-step', text: `Step ${it.index + 1} of ${items.length} · ${it.kind === 'hotel' ? 'Hotel' : it.kind === 'ground' ? 'Transport' : 'Flight'}` }),
-            el(doc, 'div', { class: 'gvb2-item-title', text: it.title }),
-            el(doc, 'div', { class: 'gvb2-detail', text: it.detail }),
-            el(doc, 'div', { class: 'gvb2-chips' }, [
-              el(doc, 'span', { class: `gvb2-chip ${it.live ? 'gvb2-live' : 'gvb2-est'}`, text: `● ${it.source}` }),
-              it.age ? el(doc, 'span', { class: 'gvb2-chip', text: it.age }) : null
-            ]),
-            optionsBox
-          ]),
-          right
-        ]);
-        list.appendChild(row);
-      });
-      list.appendChild(el(doc, 'p', { class: 'gvb2-legal', text: "You book each part on the partner's site, and the final price is shown there before you pay. GlobeVoy doesn't take payments; it may earn a referral fee from partners." }));
-
-      const aside = el(doc, 'aside', { class: 'gvb2-aside', 'aria-label': 'Trip total' }, [
-        el(doc, 'div', { class: 'gvb2-kicker gvb2-kicker-dark', text: 'TRIP TOTAL' }),
-        el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: `Flights (${s.flightCount})` }), el(doc, 'strong', { text: money(s.flights, cur) })]),
-        el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: `Hotels (${s.hotelCount})` }), el(doc, 'strong', { text: money(s.hotels, cur) })]),
-        s.payAtHotel ? el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: 'Local taxes paid at hotels' }), el(doc, 'strong', { text: money(s.payAtHotel, cur) })]) : null,
-        s.extras ? el(doc, 'div', { class: 'gvb2-line' }, [el(doc, 'span', { text: 'Airport transfers & extras (estimate)' }), el(doc, 'strong', { text: money(s.extras, cur) })]) : null,
-        el(doc, 'div', { class: 'gvb2-rule' }),
-        el(doc, 'div', { class: 'gvb2-line gvb2-total' }, [el(doc, 'span', { text: 'Total' }), el(doc, 'strong', { text: money(s.total, cur) })]),
-        s.budget != null ? el(doc, 'div', { class: 'gvb2-line gvb2-muted' }, [el(doc, 'span', { text: 'Your budget' }), el(doc, 'span', { text: money(s.budget, cur) })]) : null,
-        s.reserve ? el(doc, 'div', { class: 'gvb2-line gvb2-muted' }, [el(doc, 'span', { text: 'Safety reserve' }), el(doc, 'span', { text: money(s.reserve, cur) })]) : null,
-        s.left != null ? el(doc, 'div', { class: `gvb2-line ${s.left >= 0 ? 'gvb2-good' : 'gvb2-bad'}` }, [el(doc, 'span', { text: s.left >= 0 ? 'Left for extras' : 'Over budget' }), el(doc, 'strong', { text: money(Math.abs(s.left), cur) })]) : null,
-        el(doc, 'div', { class: 'gvb2-note', text: s.liveCount === items.length
+      const denominator = Math.max(num(s.budget) || 0, s.flights + s.hotels + (s.payAtHotel || 0) + (s.reserve || 0), 1);
+      const bar = el(doc, 'div', { class: 'allocation', 'aria-hidden': 'true' }, [s.flights, s.hotels + (s.payAtHotel || 0), s.reserve || 0]
+        .map(v => el(doc, 'i', { style: `width:${Math.max(0, v) / denominator * 100}%` })));
+      const line = (label, value, cls) => el(doc, 'div', { class: `gvb2-line${cls ? ' ' + cls : ''}` }, [el(doc, 'dt', { text: label }), el(doc, 'dd', { text: value })]);
+      const aside = el(doc, 'aside', { class: 'summary gvb2-aside', id: 'trip-summary', 'aria-labelledby': 'summary-title' }, [
+        el(doc, 'h2', { id: 'summary-title', text: 'Booking summary' }),
+        el(doc, 'p', { class: 'quiet', text: `${cur.code} · ${allLive ? 'live prices' : 'some prices are estimates'}` }),
+        el(doc, 'div', { class: 'grand gvb2-total' }, [el(doc, 'strong', { text: money(s.total, cur) })]),
+        el(doc, 'details', { class: 'cost-details', open: true }, [el(doc, 'summary', { text: 'Cost breakdown' }), bar,
+          el(doc, 'dl', {}, [
+            line(`Flights (${s.flightCount})`, money(s.flights, cur)),
+            line(`Hotels (${s.hotelCount})`, money(s.hotels, cur)),
+            s.payAtHotel ? line('Local taxes paid at hotels', money(s.payAtHotel, cur)) : null,
+            s.extras ? line('Airport transfers & extras (estimate)', money(s.extras, cur)) : null,
+            s.reserve ? line('Spending money', money(s.reserve, cur)) : null,
+            s.budget != null ? line('Your budget', money(s.budget, cur)) : null,
+            s.left != null ? line(s.left >= 0 ? 'Left over' : 'Over budget', money(Math.abs(s.left), cur), s.left >= 0 ? 'balance' : 'balance over') : null
+          ].filter(Boolean))]),
+        el(doc, 'p', { class: 'quiet gvb2-note', text: allLive
           ? `All ${items.length} prices are live. Prices can change until you book.`
-          : `${s.liveCount} of ${items.length} prices are live; the rest are estimates. Partner sites confirm the final price.` }),
-        el(doc, 'button', { type: 'button', class: 'gvb2-classic', onclick: () => toggleClassic(doc, true) }, ['Show detailed view'])
+          : `${s.liveCount} of ${items.length} prices are live; the rest are estimates. Partner sites confirm the final price.` })
       ]);
-
-      host.appendChild(el(doc, 'div', { class: 'gvb2-wrap' }, [list, aside]));
+      host.append(heading, mobile, el(doc, 'div', { class: 'workspace gvb2-wrap' }, [left, aside]));
     }
     async function loadLinks(it) {
       if (it.loadingLinks || it.links) return;
@@ -386,13 +477,8 @@
     return true;
   }
 
-  function toggleClassic(doc, show) {
-    doc.body?.classList?.[show ? 'remove' : 'add']('gvb2-on');
-    OLD_SECTIONS.forEach(sel => doc.querySelectorAll(sel).forEach(node => {
-      if (node.id === 'gv-booking-v2' || node.closest('#gv-booking-v2')) return;
-      if (show) { if (node.dataset.gvb2Hidden) { node.style.display = ''; delete node.dataset.gvb2Hidden; } }
-      else if (node.style.display !== 'none') { node.dataset.gvb2Hidden = '1'; node.style.display = 'none'; }
-    }));
+  function setState(doc, name) {
+    ['loading', 'error'].forEach(id => { const node = doc.getElementById('gv-booking-' + id); if (node) node.hidden = id !== name; });
   }
 
   function start() {
@@ -405,18 +491,16 @@
       if (!tour) return false;
       let host = doc.getElementById('gv-booking-v2');
       if (!host) {
-        const main = doc.querySelector('.gv-booking-main') || doc.body;
         host = doc.createElement('div'); host.id = 'gv-booking-v2';
-        const back = doc.getElementById('gv-booking-back');
-        if (back && back.parentNode === main) back.after(host); else main.prepend(host);
+        (doc.querySelector('main') || doc.body).prepend(host);
       }
       if (!render(doc, tour, { historical: true })) return false;
-      toggleClassic(doc, false);
+      setState(doc, '');
       done = true;
+      if (root.GLOBEVOY_BOOKING_ACCOUNT_SNAPSHOT_706A?.snapshotOnly === true) return true;
       void readVerifiedQuote(tour).then(evidence => {
         if (!evidence || root.GlobevoyBooking673FR1?.tour !== tour) return;
         tour.displayBudget = evidence.quote.displayBudget;
-        root.GlobevoyBooking673FR1?.renderDetails?.();
         render(doc, evidence.quote);
         root.setTimeout(() => {
           if (root.GlobevoyBooking673FR1?.tour === tour) render(doc, evidence.quote, { historical: true });
@@ -425,10 +509,22 @@
       return true;
     };
     root.addEventListener?.('globevoy:booking-tour-ready', () => root.setTimeout?.(run, 0));
-    if (!run()) {
-      let attempts = 0;
-      const timer = root.setInterval?.(() => { if (run() || ++attempts > 80) root.clearInterval?.(timer); }, 250);
+    if (run()) return;
+    // The booking page loads the trip itself (trip-handoff.js); embedders may publish
+    // window.GlobevoyBooking673FR1.tour instead.
+    if (root.GlobevoyTripHandoff) {
+      // Single-city saved trips (from the retired single-trip page) are not multi-city
+      // tours; never fall back to another trip stored in this tab.
+      if (String(new URLSearchParams(root.location?.search || '').get('multi') || '').toLowerCase() === 'false') { setState(doc, 'error'); return; }
+      root.GlobevoyTripHandoff.load().then(tour => {
+        if (!tour) { setState(doc, 'error'); return; }
+        root.GlobevoyBooking673FR1 = { ...(root.GlobevoyBooking673FR1 || {}), tour };
+        if (!run()) setState(doc, 'error');
+      }).catch(() => setState(doc, 'error'));
+      return;
     }
+    let attempts = 0;
+    const timer = root.setInterval?.(() => { if (run() || ++attempts > 80) root.clearInterval?.(timer); }, 250);
   }
 
   const api = { VERSION, bestLink, buildItems, summaryOf, render, safeUrl, ageLabel, readVerifiedQuote, start };

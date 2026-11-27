@@ -94,20 +94,16 @@
     }
   }
 
+  // GV-WEB-4: every Sign In opens the GlobeVoy sign-in page, which hands over to Cognito.
   function signIn(returnTo) {
     const target = returnTo || location.pathname + location.search + location.hash;
-    const auth = window.GlobevoyAuth705B;
-    if (auth && auth.authEnabled && auth.authEnabled() && auth.beginSignIn) {
-      void auth.beginSignIn({ returnTo: target });
-      return;
-    }
     // Local development signs in on staging (production-only builds have no staging origin).
     const stagingOrigin = window.GLOBEVOY_ENVIRONMENT_POLICY && window.GLOBEVOY_ENVIRONMENT_POLICY.stagingOrigin;
     if (stagingOrigin && (location.hostname === '127.0.0.1' || location.hostname === 'localhost')) {
       location.href = stagingOrigin + '/account.html';
       return;
     }
-    location.href = 'account.html';
+    location.href = 'sign-in.html?returnTo=' + encodeURIComponent(target);
   }
 
   // GlobeVoy shows only trips whose every flight and hotel was priced live.

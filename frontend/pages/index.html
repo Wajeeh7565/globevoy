@@ -7,6 +7,7 @@
 <link rel="icon" href="./favicon.ico">
 <link rel="stylesheet" href="./assets/fonts/archivo/archivo.css">
 <link rel="stylesheet" href="./styles/home.css?v=gv2-1">
+<link rel="stylesheet" href="./styles/account-menu.css?v=gv4-1">
 </head>
 <body>
 <svg class="sr-only" aria-hidden="true"><defs>
@@ -19,7 +20,7 @@
 <main>
 <section class="hero" aria-labelledby="hero-title">
  <div class="film" aria-hidden="true"><div class="scene-deck" id="hero-deck"><img src="./assets/media/scenes/safari.jpg" alt="" fetchpriority="high"></div></div>
- <header class="topbar"><a class="brand" href="./index.html"><img src="./assets/images/globevoy-logo-light.png" alt="GlobeVoy" width="146" height="48"></a><div class="header-actions"><button id="motion-toggle" class="motion-toggle" type="button" aria-label="Pause all motion" title="Pause all motion" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#pause"/></svg></button><button class="signin" id="signin">Sign In</button></div></header>
+ <header class="topbar"><a class="brand" href="./index.html"><img src="./assets/images/globevoy-logo-light.png" alt="GlobeVoy" width="146" height="48"></a><div class="header-actions"><button class="signin" id="signin">Sign In</button></div></header>
  <div class="frame hero-content">
   <h1 id="hero-title">Every budget<br>has a <span>map.</span></h1>
   <form class="search" id="search" aria-label="Find trips within your budget">
@@ -32,7 +33,7 @@
    </div>
    <div class="search-tools"><button id="more" type="button" aria-expanded="false" aria-controls="options">More Options <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></svg></button><button id="locate" type="button"><svg class="icon" aria-hidden="true"><use href="#pin"/></svg>Use My Location</button></div>
    <div class="options" id="options" hidden><div class="field"><label for="dates">When</label><select id="dates"><option value="">Flexible · next 6 months</option></select></div><div class="field"><label for="pace">Pace</label><select id="pace"><option value="relaxed">Unhurried</option><option value="balanced" selected>Balanced</option><option value="see-more">See more</option></select></div></div>
-   <p class="demo-note" id="search-note" role="status">Live flight and hotel prices, checked the moment you search.</p>
+   <p class="demo-note" id="search-note" role="status"></p>
   </form>
   
  </div>
@@ -64,6 +65,7 @@
 <script src="./runtime/config.js"></script>
 <script src="./runtime/auth-config-705b-r3.js"></script>
 <script src="./scripts/auth-session-705b-r3.js"></script>
+<script src="./scripts/account-menu.js?v=gv4-1"></script>
 <script src="./scripts/trip-search.js?v=gv2-1"></script>
 <script src="./scripts/home.js?v=gv2-1"></script>
 </body>

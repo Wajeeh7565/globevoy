@@ -132,3 +132,4 @@
 .from-list .from-empty{cursor:default;color:var(--muted);font-size:13px}
 .from-list .from-empty:hover{background:none}
 @media(max-width:760px){.brand img{height:36px}.from-list{width:100%}}
+.demo-note:empty{display:none}

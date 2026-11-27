@@ -1,115 +1,110 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Trip details | Globevoy</title>
-  <link rel="icon" href="./favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="64x64" href="./assets/images/favicon-64.png?v=673f-r2">
-  <meta name="gv-release" content="GV-QUALITY-680B-R1">
-  <link rel="stylesheet" href="./assets/fonts/fonts.css">
-  <link rel="stylesheet" href="./styles/shell.css?v=fe-r3-1b">
-  <link rel="stylesheet" href="./styles/multi-city-trip-670d-r3.css?v=670d-r3">
-  <style id="gv-mtd-state-guard">#gv-mtd-loading[hidden],#gv-mtd-error[hidden],#gv-mtd-app[hidden]{display:none!important}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Your trip | GlobeVoy</title>
+<meta name="description" content="Your trip stop by stop: flights, hotels and the route, with live prices.">
+<link rel="icon" href="./favicon.ico">
+<link rel="stylesheet" href="./assets/fonts/archivo/archivo.css">
+<link rel="stylesheet" href="./assets/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="./styles/site.css?v=gv3-1">
+<link rel="stylesheet" href="./styles/itinerary.css?v=gv3-1">
+<link rel="stylesheet" href="./styles/account-menu.css?v=gv4-1">
 </head>
-<body class="gv-canonical gv-multi-trip-page" data-depth="0" data-nav-active="Plan" data-simple-nav="false" data-signed-in="false">
-<div id="gv-header"></div>
-<main class="gv-mtd-shell" aria-live="polite">
-  <section id="gv-mtd-loading" class="gv-mtd-state">
-    <div class="gv-mtd-spinner" aria-hidden="true"></div>
-    <h1>Opening your selected trip…</h1>
-    <p>Keeping the same route, dates, travellers and estimate.</p>
+<body class="gv-multi-trip-page gv-itinerary-page">
+<a class="skip" href="#main">Skip to itinerary</a>
+
+<header class="wrap topbar">
+  <a class="brand" href="./index.html"><img src="./assets/images/globevoy-logo-dark.png" alt="GlobeVoy" width="134" height="44"></a>
+  <nav aria-label="Main">
+    <a id="new-search" href="./index.html">New search</a>
+    <button id="signin" class="btn" type="button">Sign In</button>
+  </nav>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <section id="gv-mtd-loading" class="state" role="status">
+    <span class="spinner" aria-hidden="true"></span>
+    <h1>Opening your trip…</h1>
   </section>
 
-  <section id="gv-mtd-error" class="gv-mtd-state" hidden>
-    <p class="gv-mtd-eyebrow">TRIP DETAILS</p>
-    <h1>We could not open this trip</h1>
-    <p id="gv-mtd-error-copy">Return to your trip ideas and select the route again.</p>
-    <a id="gv-mtd-error-back" class="gv-mtd-primary-link" href="multicity-visualizer.html">Back to trip ideas</a>
-  </section>
-
-  <section id="gv-mtd-app" hidden>
-    <nav class="gv-mtd-breadcrumb" aria-label="Breadcrumb">
-      <a id="gv-mtd-back" href="multicity-visualizer.html">Trip ideas</a><span>›</span><strong>Route details</strong>
-    </nav>
-
-    <div class="gv-mtd-layout">
-      <div class="gv-mtd-main">
-        <header class="gv-mtd-title-block">
-          <div class="gv-mtd-role-row">
-            <span id="gv-mtd-role" class="gv-mtd-role">Option 1</span>
-            <span id="gv-mtd-date-mode" class="gv-mtd-soft-pill">Flexible dates</span>
-          </div>
-          <h1 id="gv-mtd-title">Your selected multi-city route</h1>
-          <p id="gv-mtd-subtitle">A complete route built from your origin, budget and trip preferences.</p>
-          <div id="gv-mtd-meta" class="gv-mtd-meta"></div>
-          <div id="gv-mtd-route-alert" class="gv-mtd-route-alert" role="status" hidden></div>
-        </header>
-
-        <section id="gv-mtd-hero" class="gv-mtd-hero" aria-label="Destination photography">
-          <div id="gv-mtd-hero-images" class="gv-mtd-hero-images"></div>
-          <div id="gv-mtd-hero-route" class="gv-mtd-hero-route"></div>
-        </section>
-
-        <section class="gv-mtd-overview-grid gv-mtd-overview-grid--single">
-          <article class="gv-mtd-panel">
-            <p class="gv-mtd-eyebrow">ROUTE OVERVIEW</p>
-            <h2>Your connected trip</h2>
-            <div id="gv-mtd-overview" class="gv-mtd-overview"></div>
-          </article>
-        </section>
-
-        <div id="gv-mtd-destinations" hidden></div>
-
-        <section class="gv-mtd-section" aria-labelledby="gv-mtd-timeline-title">
-          <div class="gv-mtd-section-head">
-            <div><p class="gv-mtd-eyebrow">ROUTE PLAN</p><h2 id="gv-mtd-timeline-title">Transport and stays</h2></div>
-          </div>
-          <div id="gv-mtd-timeline" class="gv-mtd-timeline"></div>
-        </section>
-
-        <section class="gv-mtd-section gv-mtd-map-section" aria-labelledby="gv-mtd-map-title">
-          <div class="gv-mtd-section-head">
-            <div><p class="gv-mtd-eyebrow">ROUTE MAP</p><h2 id="gv-mtd-map-title">Connected route</h2></div>
-          </div>
-          <div id="gv-mtd-map" class="gv-mtd-map"><div class="gv-mtd-map-fallback">Preparing route map…</div></div>
-          <p class="gv-mtd-map-note">Route lines use registered city coordinates. Exact schedules and local transfers remain subject to partner confirmation.</p>
-        </section>
-      </div>
-
-      <aside class="gv-mtd-sidebar" aria-label="Trip summary">
-        <div class="gv-mtd-summary-card">
-          <p class="gv-mtd-eyebrow">ROUTE SUMMARY</p>
-          <h2 id="gv-mtd-summary-title">Your trip</h2>
-          <div class="gv-mtd-summary-rows">
-            <div><span>Origin</span><strong id="gv-mtd-origin">—</strong></div>
-            <div><span>Budget</span><strong id="gv-mtd-budget-total">—</strong></div>
-            <div><span>Estimated route total</span><strong id="gv-mtd-total">—</strong></div>
-            <div><span>Remaining after reserve</span><strong id="gv-mtd-remaining">—</strong></div>
-          </div>
-          <div class="gv-mtd-summary-stats">
-            <div><span>Nights</span><strong id="gv-mtd-nights">—</strong></div>
-            <div><span>Travellers</span><strong id="gv-mtd-travellers">—</strong></div>
-          </div>
-          <div class="gv-mtd-actions">
-            <button id="gv-mtd-booking" class="gv-mtd-primary-btn" type="button">Continue to booking options</button>
-            <button id="gv-mtd-adjust" class="gv-mtd-secondary-btn" type="button">Adjust trip</button>
-            <button id="gv-mtd-save" class="gv-mtd-secondary-btn" type="button">Save trip</button>
-          </div>
-          <p class="gv-mtd-disclaimer">Globevoy does not process payments. Final schedules, inventory and prices are confirmed on partner websites.</p>
-        </div>
-      </aside>
+  <section id="gv-mtd-error" class="state" hidden>
+    <h1>We couldn’t open this trip</h1>
+    <p id="gv-mtd-error-copy">Open your trips again and choose this one.</p>
+    <div class="state-actions">
+      <a id="gv-mtd-error-back" class="button primary" href="./index.html">Back to your trips</a>
+      <a class="button" href="./index.html">New search</a>
     </div>
   </section>
+
+  <div id="gv-mtd-app" hidden>
+    <a id="gv-mtd-back" class="back" href="./results.html">← Back to your trips</a>
+    <header class="scroll-header">
+      <div>
+        <h1 id="gv-mtd-title">Your trip</h1>
+        <p class="route-name" id="gv-mtd-route"></p>
+        <p class="facts" id="gv-mtd-meta"></p>
+        <p class="live-note" id="gv-mtd-live"></p>
+      </div>
+      <figure class="destination-media" id="gv-mtd-hero"></figure>
+    </header>
+
+    <nav class="route-nav" id="gv-mtd-nav" aria-label="Itinerary stops"></nav>
+
+    <div class="scroll-layout">
+      <div class="route-stream" id="gv-mtd-timeline"></div>
+      <aside class="scroll-aside">
+        <section class="journey-map" aria-labelledby="map-title">
+          <h2 id="map-title">Along the route</h2>
+          <p id="map-city" class="quiet"></p>
+          <div class="map-frame"><div id="map" role="region" aria-label="Route map"></div></div>
+          <span class="quiet map-caption">Lines show the order you travel.</span>
+        </section>
+      </aside>
+    </div>
+
+    <section id="trip-budget" class="budget-tools" tabindex="-1" aria-labelledby="budget-title">
+      <div class="budget-top">
+        <h2 id="budget-title">Trip budget</h2>
+        <div class="actions gv-mtd-actions">
+          <a id="gv-mtd-adjust" class="button" href="./index.html">Change search</a>
+        </div>
+      </div>
+      <dl class="breakdown">
+        <div><dt>Flights</dt><dd id="gv-mtd-flights">—</dd></div>
+        <div><dt>Hotels</dt><dd id="gv-mtd-stays">—</dd></div>
+        <div><dt>Spending money</dt><dd id="gv-mtd-reserve">—</dd></div>
+        <div><dt>Budget</dt><dd id="gv-mtd-budget-total">—</dd></div>
+        <div><dt id="gv-mtd-remaining-label">Left over</dt><dd id="gv-mtd-remaining">—</dd></div>
+      </dl>
+      <p class="quiet">You book each flight and hotel directly with the airline and hotel partners. The final price is shown there before you pay.</p>
+    </section>
+  </div>
 </main>
-<div id="gv-footer"></div>
+
+<footer class="wrap footer">
+  <div><img class="footer-logo" src="./assets/images/globevoy-logo-dark.png" alt="GlobeVoy"><span>Every budget has a map. You book directly with the airline and hotel partners.</span></div>
+  <nav aria-label="Footer"><a href="./about.html">About</a><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a></nav>
+</footer>
+
+<section class="book-bar" id="gv-mtd-bar" aria-label="Trip total and booking" hidden>
+  <div class="wrap bar-inner">
+    <a href="#trip-budget" class="total-link"><span id="gv-mtd-total-label">Trip total</span><strong id="gv-mtd-total">—</strong></a>
+    <a id="gv-mtd-booking" class="button primary book" href="./booking.html">Book <span aria-hidden="true">→</span></a>
+  </div>
+</section>
+
 <script src="./runtime/environment-policy.js?v=main-release-1"></script>
-<script src="./scripts/shell-670f.js?v=fe-r3-1b"></script>
 <script src="./runtime/config.js"></script>
 <script src="./runtime/api-client.js"></script>
-<script src="./runtime/destination-data.js"></script>
-<script src="./runtime/discovery-data-500.js"></script>
+<script src="./runtime/auth-config-705b-r3.js"></script>
+<script src="./scripts/auth-session-705b-r3.js"></script>
+<script src="./scripts/account-menu.js?v=gv4-1"></script>
 <script src="./scripts/city-images-673c.js?v=673f-r2"></script>
-<script src="./scripts/multi-city-trip-673a.js?v=686d-rc"></script>
+<script src="./assets/vendor/leaflet/leaflet.js"></script>
+<script src="./scripts/trip-search.js?v=gv2-1"></script>
+<script src="./scripts/trip-handoff.js?v=gv3-1"></script>
+<script src="./scripts/itinerary.js?v=gv3-1"></script>
 </body>
 </html>

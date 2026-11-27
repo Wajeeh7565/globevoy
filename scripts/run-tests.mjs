@@ -4,13 +4,13 @@ import fs from 'node:fs';
 const groups = {
   demo: [['node', '--test', 'tests/backend/full-site-demo.test.cjs']],
   'demo-browser': [['node', '--test', 'tests/frontend/full-site-demo-browser.test.cjs'], ['node', '--test', 'tests/frontend/leaflet-demo-browser.test.cjs']],
-  release: [['node', '--test', 'tests/release/docker-lambda-targets.test.mjs'], ['node', '--test', 'tests/release/production-only-frontend.test.mjs'], ['node', '--test', 'tests/release/production-config.test.mjs'], ['node', '--test', 'tests/release/account-build-config.test.cjs'], ['node', '--test', 'tests/release/package-backend.test.cjs']],
+  release: [['node', '--test', 'tests/release/docker-lambda-targets.test.mjs'], ['node', '--test', 'tests/release/production-only-frontend.test.mjs'], ['node', '--test', 'tests/release/production-config.test.mjs'], ['node', '--test', 'tests/release/account-build-config.test.cjs'], ['node', '--test', 'tests/release/package-backend.test.cjs'], ['node', '--test', 'tests/release/live-ancestry.test.mjs']],
   repo: [
     ['node', '.github/scripts/validate-repo.mjs'],
     ['node', 'scripts/validate-organization.mjs']
   ],
 
-  browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs'], ['node', '--test', 'tests/frontend/booking-cost-browser.test.cjs'], ['node', '--test', 'tests/frontend/journey-price-consistency-browser.test.cjs']],
+  browser: [['node', '--test', 'tests/frontend/classic-save-browser.test.cjs'], ['node', '--test', 'tests/frontend/account-lifecycle-browser.test.cjs'], ['node', '--test', 'tests/frontend/booking-cost-browser.test.cjs'], ['node', '--test', 'tests/frontend/journey-price-consistency-browser.test.cjs']],
 
   backend: [
     ['node', '--test', 'tests/backend/search-activity.test.cjs'],
@@ -57,10 +57,8 @@ const groups = {
   ],
 
   frontend: [
-    ['node', 'frontend/validation/validate-gv-book-685d-frontend.js'],
     ['node', 'tests/frontend/validate-fixture-paths.mjs'],
     ['node', '--test', 'tests/frontend/page-layout.test.mjs'],
-    ['node', '--test', 'tests/frontend/classic-saved-trip.test.cjs'],
     ['node', '--test', 'tests/frontend/booking-ignav-links.test.cjs'],
     ['node', '--test', 'tests/frontend/booking-trip-v2.test.cjs'],
     ['node', 'frontend/validation/validate-gv-data-701c.js'],
@@ -82,7 +80,6 @@ const groups = {
     ['node', 'backend/validation/validate-gv-production-account.js'],
     ['node', 'backend/validation/validate-gv-account-705b-r3.js'],
     ['node', 'backend/validation/validate-gv-account-705c.js'],
-    ['node', 'backend/validation/validate-gv-account-705c-r3.js'],
     ['node', 'backend/validation/validate-gv-account-705c-r4.js'],
     ['node', 'backend/validation/validate-gv-book-706a.js']
   ],

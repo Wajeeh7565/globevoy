@@ -1,46 +1,63 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Sign in | Globevoy</title>
-  <meta name="gv-release" content="GV-ACCOUNT-705B-R3">
-  <link rel="icon" href="./favicon.ico" sizes="any">
-  <link rel="stylesheet" href="./assets/fonts/fonts.css">
-  <link rel="stylesheet" href="./styles/shell.css?v=fe-r3-1b">
-  <link rel="stylesheet" href="./styles/account-705b-r3.css?v=705b-r3">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign in | GlobeVoy</title>
+<meta name="gv-release" content="GV-ACCOUNT-705B-R3">
+<meta name="description" content="Sign in to GlobeVoy to see every trip option and keep your Travel Profile.">
+<link rel="icon" href="./favicon.ico">
+<link rel="stylesheet" href="./assets/fonts/archivo/archivo.css">
+<link rel="stylesheet" href="./styles/site.css?v=gv3-1">
+<link rel="stylesheet" href="./styles/sign-in.css?v=gv4-1">
 </head>
-<body class="gv-canonical gv-account-page" data-depth="0" data-nav-active="Account" data-signed-in="false">
-  <div id="gv-header"></div>
-  <main class="gv-account-main">
-    <section class="gv-account-card" aria-labelledby="account-title">
-      <p class="gv-account-kicker">Secure staging account</p>
-      <h1 id="account-title">Sign in or create an account</h1>
-      <p class="gv-account-lead">Amazon Cognito handles the secure sign-in screen, account creation, email verification and password recovery. Globevoy never asks for your Cognito password on this page.</p>
-      <div class="gv-account-notice"><strong>Guest planning still works.</strong> You do not need an account to explore destinations or generate a trip. Sign-in is for account features such as saved trips that are being added next.</div>
-      <div class="gv-account-actions">
-        <button id="gv-signin-start" class="gv-account-primary" type="button" data-gv-auth-signin data-return-to="/account.html">Continue to secure sign-in</button>
-        <a id="gv-signin-guest" class="gv-account-secondary" href="index.html">Continue as guest</a>
-        <a class="gv-account-secondary" href="create-account.html">Travel profile</a>
+<body class="gv-sign-in-page">
+<a class="skip" href="#main">Skip to content</a>
+<header class="wrap topbar">
+  <a class="brand" href="./index.html"><img src="./assets/images/globevoy-logo-dark.png" alt="GlobeVoy" width="134" height="44"></a>
+  <nav aria-label="Main"><a id="new-search" href="./index.html">New search</a></nav>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <section class="auth" aria-labelledby="auth-title">
+    <div class="auth-photo"><p class="auth-line">Go a little further.</p><p class="auth-place">Lake Bled, Slovenia</p></div>
+    <div class="auth-form">
+      <div id="auth-guest">
+        <h1 id="auth-title">Sign in</h1>
+        <p class="lead">Pick up where your plans left off.</p>
+        <div class="auth-actions">
+          <button id="gv-signin-start" class="button primary" type="button" data-gv-auth-signin>Continue to sign in <span aria-hidden="true">→</span></button>
+          <button id="gv-signup-start" class="button" type="button" data-gv-auth-signup>Create an account</button>
+        </div>
+        <ul class="auth-points">
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>See all three trip options for every search.</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Your Travel Profile fills in your home airport and currency.</li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Your password is handled by Amazon Cognito. GlobeVoy never sees it.</li>
+        </ul>
       </div>
-      <div id="gv-account-status" class="gv-account-status" role="status" aria-live="polite"></div>
-    </section>
-  </main>
-  <div id="gv-footer"></div>
-  <script src="./runtime/environment-policy.js?v=main-release-1"></script>
-<script src="./scripts/shell-670f.js?v=fe-r3-1b"></script>
-  <script>
-    (function () {
-      const requested = new URLSearchParams(location.search).get('return');
-      if (!requested) return;
-      try {
-        const target = new URL(requested, location.href);
-        if (target.origin !== location.origin || /^(?:javascript|data):/i.test(requested)) return;
-        const safe = target.pathname + target.search + target.hash;
-        document.getElementById('gv-signin-start').dataset.returnTo = safe;
-        document.getElementById('gv-signin-guest').href = safe;
-      } catch (_) {}
-    })();
-  </script>
+      <div id="auth-member" hidden>
+        <h1>You’re signed in</h1>
+        <p class="lead" id="auth-member-email"></p>
+        <div class="auth-actions">
+          <a id="auth-continue" class="button primary" href="./index.html">Continue <span aria-hidden="true">→</span></a>
+          <a class="button" href="./react/account/">Your account</a>
+        </div>
+      </div>
+      <p id="gv-auth-status" class="auth-status" role="status" aria-live="polite"></p>
+      <p class="auth-guest">No account needed to plan. <a id="gv-signin-guest" href="./index.html">Keep searching as a guest</a></p>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap footer">
+  <div><img class="footer-logo" src="./assets/images/globevoy-logo-dark.png" alt="GlobeVoy"><span>Every budget has a map. You book directly with the airline and hotel partners.</span></div>
+  <nav aria-label="Footer"><a href="./about.html">About</a><a href="./privacy.html">Privacy</a><a href="./terms.html">Terms</a></nav>
+</footer>
+
+<script src="./runtime/environment-policy.js?v=main-release-1"></script>
+<script src="./runtime/config.js"></script>
+<script src="./runtime/auth-config-705b-r3.js"></script>
+<script src="./scripts/auth-session-705b-r3.js"></script>
+<script src="./scripts/sign-in-page.js?v=gv4-1"></script>
 </body>
 </html>

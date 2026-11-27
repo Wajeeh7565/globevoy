@@ -21,7 +21,8 @@ const account = readWeb('components/account/account-page-client.tsx');
 const tripCard = readWeb('components/account/visual-saved-trip-card.tsx');
 const nextConfig = readWeb('next.config.ts');
 const legacyAuth = readRepo('frontend/scripts/auth-session-705b-r3.js');
-const legacyBooking = readRepo('frontend/scripts/my-trips-booking-706a.js');
+// GV-WEB-4: the classic My Trips handoff was removed; the booking bridge consumes the same prefix.
+const legacyBooking = readRepo('frontend/scripts/booking-account-bridge-706a.js');
 
 check('707A version marker is exact', config.includes("GV_WEB_707A_VERSION = 'GV-WEB-707A'"));
 check('React migration is scoped under /react', nextConfig.includes("basePath: '/react'") && nextConfig.includes("output: 'export'"));
