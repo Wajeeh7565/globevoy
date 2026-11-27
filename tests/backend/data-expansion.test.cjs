@@ -170,3 +170,29 @@ test('legs carry stops; flight convenience prefers known direct legs', () => {
   assert.ok(I.experienceParts(mk(0), 1000, 'CA').flight > I.experienceParts(mk(2), 1000, 'CA').flight);
   assert.equal(I.experienceParts(mk(null), 1000, 'CA').flight, 0.55);
 });
+
+test('stored Price Index summaries (PI#city) reach the trip search and raise its hotel plan', async () => {
+  const store = require('../../backend/services/domain/pricing/hotel-price-index/store');
+  const items = new Map();
+  const dynamo = { send: async c => { const i = c.input;
+    if (i.Item) { items.set(i.Item.sk.S, i.Item); return {}; }
+    if (i.KeyConditionExpression) return { Items: [...items.values()] };
+    return {}; } };
+  const env = { FARE_MAP_TABLE: 'tbl', PRICE_INDEX_STORAGE: 'on', PRICE_INDEX_PLANNING: 'on' };
+  const cities = I.rows().slice(0, 400).map(r => r.unifiedRegistry.cityId);
+  for (const id of cities) assert.equal((await store.write({ cityId: id, levelRatio: 3 }, { env, dynamo })).stored, true);
+  assert.equal((await store.write({ cityId: 'x', levelRatio: 3 }, { env: { FARE_MAP_TABLE: 'tbl' }, dynamo })).stored, false, 'off by default');
+  store._internal.reset();
+  const map = await store.loadAll({ env, dynamo, fresh: true });
+  assert.equal(map.size, cities.length);
+  store._internal.reset();
+  assert.equal((await store.loadAll({ env: { FARE_MAP_TABLE: 'tbl', PRICE_INDEX_STORAGE: 'on' }, dynamo })).size, 0, 'planning flag needed');
+  // Same trip, same search: the planned (protected) cost follows the stored level, x3 vs x1.
+  const use = r => new Map((r.pool || []).map(t => [(t.stops || []).map(st => st.cityId).join('>') + '|' + (t.legs?.[0]?.departureDate || ''), t.budgetUse]));
+  const ra = await search({ FARE_MAP_EXPERIENCE: 'on' }, { priceIndex: new Map(cities.map(id => [id, { cityId: id, levelRatio: 1 }])) });
+  const rb = await search({ FARE_MAP_EXPERIENCE: 'on' }, { priceIndex: map });
+  assert.ok(rb.diagnostics.priceIndexLevelCities > 0);
+  const a = use(ra), b = use(rb), both = [...a.keys()].filter(k => b.has(k));
+  assert.ok(both.length, 'a trip in both pools');
+  for (const k of both) assert.ok(b.get(k) > a.get(k), `${k}: ${b.get(k)} vs ${a.get(k)}`);
+});

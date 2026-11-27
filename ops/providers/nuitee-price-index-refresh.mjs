@@ -15,7 +15,7 @@
 //
 //   node ops/providers/nuitee-price-index-refresh.mjs --cities cities.json            # dry run
 //   NUITEE_PROD_KEY=... node ops/providers/nuitee-price-index-refresh.mjs --cities cities.json --run
-// --from-pilot nuitee-pilot.json.gz loads earlier pilot results instead of calling Nuitee
+// --from-pilot a.json.gz,b.json.gz loads earlier pilot results instead of calling Nuitee
 // (no cost), e.g. to fill the store once storage is approved.
 import { createRequire } from 'node:module';
 import fs from 'node:fs'; import zlib from 'node:zlib';
@@ -34,7 +34,7 @@ function summary(c, good, all, byStars) {
   const price = med(good) ?? med(all);
   return { cityId: c.cityId, countryCode: c.countryCode, cityName: c.cityName, regionFamily: family(c.cityId), modelUsd: c.modelUsd,
     goodHotelMedianUsd: med(good), medianUsd: med(all), byStars, levelRatio: price && c.modelUsd ? Number((price / c.modelUsd).toFixed(3)) : null,
-    source: 'nuitee-prices-hotels', collectedAt: new Date().toISOString() };
+    source: 'nuitee-prices-hotels', collectedAt: c.collectedAt || new Date().toISOString() };
 }
 async function save(list) {
   let stored = 0, reason = null;
@@ -44,8 +44,10 @@ async function save(list) {
 }
 
 if (arg('--from-pilot')) {
-  const body = JSON.parse(zlib.gunzipSync(fs.readFileSync(arg('--from-pilot'))).toString('utf8'));
-  await save(body.cities.filter(c => c.priced).map(c => summary(c, c.good34MedianUsd != null ? [c.good34MedianUsd] : [], c.medianUsd != null ? [c.medianUsd] : [], c.byStars || {})));
+  // One or more pilot files, comma-separated (later files win for the same city).
+  const all = new Map();
+  for (const f of arg('--from-pilot').split(',')) { const b = JSON.parse(zlib.gunzipSync(fs.readFileSync(f)).toString('utf8')); for (const c of b.cities) all.set(c.cityId, { ...c, collectedAt: b.takenAt }); }
+  await save([...all.values()].filter(c => c.priced).map(c => summary(c, c.good34MedianUsd != null ? [c.good34MedianUsd] : [], c.medianUsd != null ? [c.medianUsd] : [], c.byStars || {})));
   process.exit(0);
 }
 const cities = JSON.parse(fs.readFileSync(arg('--cities'), 'utf8')).slice(0, MAX);
