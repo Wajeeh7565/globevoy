@@ -169,8 +169,21 @@
       : '';
   }
 
-  function selectTrip(i) {
+  // GV-ANALYTICS-9A: what the traveller did with the trips shown (view, book, save, or
+  // "show other trips" = not these). Sent only when the backend has feedback enabled.
+  function feedback(action, i = active) {
+    const t = trips[i];
+    if (!t || savedView || !(window.GlobevoyApi && window.GlobevoyApi.sendTripFeedback)) return;
+    const cities = (t.tour?.cities || t.tour?.stops || []).map(c => c.cityId || c.id).filter(Boolean).slice(0, 4);
+    const role = t.role || t.tour?.tourRole || 'none';
+    window.GlobevoyApi.sendTripFeedback({ sid: S.pageSid, action, role, rank: i + 1, cities, page: (Number(new URLSearchParams(location.search).get('more')) || 0) + 1 });
+    // The trip page's partner links are attributed to this search and trip.
+    if (action === 'book_click') try { sessionStorage.setItem('globevoy.analytics.ref.v1', JSON.stringify({ sid: S.pageSid, role, rank: i + 1, at: Date.now() })); } catch (_) {}
+  }
+
+  function selectTrip(i, byUser = true) {
     if (!trips[i]) return;
+    if (byUser && i !== active) feedback('view', i);
     active = i;
     $$('.option-tab').forEach((b, n) => { b.setAttribute('aria-selected', String(n === i)); b.tabIndex = n === i ? 0 : -1; });
     view = trips[i].view;
@@ -204,6 +217,7 @@
     $('#summary-note').textContent = 'You confirm the final price when you book with the airline and hotel.';
     $('#summary-origin').textContent = [v.origin.name, v.origin.country].filter(Boolean).join(', ');
     $('#book').href = S.tripDetailsUrl(tour, search);
+    $('#book').onclick = () => feedback('book_click');
     window.__gvGeneratedTour = tour;
 
     renderJourneyCards(v);
@@ -701,6 +715,7 @@
     a.className = 'btn show-more-trips';
     a.href = url.toString();
     a.textContent = 'Show other trips';
+    a.addEventListener('click', () => feedback('show_other', active));
     note.textContent = '';
     note.appendChild(a);
   }

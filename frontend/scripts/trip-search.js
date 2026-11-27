@@ -47,8 +47,59 @@
     };
   }
 
+  // GV-ANALYTICS-9A: a random reference for this page view only (not stored anywhere in
+  // the browser), sent with the search and with feedback clicks so the two can be linked.
+  const PAGE_SID = (() => {
+    try { if (crypto.randomUUID) return crypto.randomUUID(); } catch (_) {}
+    return Array.from({ length: 4 }, () => Math.random().toString(36).slice(2, 10)).join('-');
+  })();
+
+  // GV-ANALYTICS-V1: a random guest ID kept in this browser (local storage only), so one
+  // person's searches can be counted together. Cleared with the browser's site data.
+  const GUEST_ID = (() => {
+    const k = 'globevoy.analytics.gid.v1';
+    try { const v = localStorage.getItem(k); if (/^[A-Za-z0-9-]{16,64}$/.test(v || '')) return v; } catch (_) {}
+    let v; try { v = crypto.randomUUID(); } catch (_) { v = Array.from({ length: 4 }, () => Math.random().toString(36).slice(2, 10)).join('-'); }
+    try { localStorage.setItem(k, v); } catch (_) {}
+    return v;
+  })();
+
+  // Signed in: tell the backend once per page which search this is. The backend verifies
+  // the access token itself and stores only a keyed hash of the account ID.
+  let identified = false;
+  function identify(search) {
+    if (identified) return;
+    identified = true;
+    try {
+      const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+      const api = window.GlobevoyApi;
+      if (!s || !s.accessToken || !(Number(s.expiresAt) > Date.now() + 30000) || !api?.sendAnalyticsIdentify) return;
+      api.sendAnalyticsIdentify(s.accessToken, { sid: PAGE_SID, gid: GUEST_ID, origin: search.origin, budget: search.budget, currency: search.currency, adults: search.adults || search.travellers });
+    } catch (_) {}
+  }
+
+  // GV-ANALYTICS-V1: partner (booking) link clicks on trip pages, attributed to the search
+  // and trip the traveller came from. Only the provider's site name, kind and price shown.
+  function partnerClick(e) {
+    try {
+      const a = e.target && e.target.closest && e.target.closest('a[href]');
+      if (!a || !/^https?:/i.test(a.href) || a.host === location.host || !/_blank/.test(a.target || '')) return;
+      const ref = JSON.parse(sessionStorage.getItem('globevoy.analytics.ref.v1') || 'null');
+      if (!ref || !ref.sid || Date.now() - ref.at > 6 * 3600000) return;
+      const host = a.hostname.replace(/^www\./, '');
+      const text = (a.textContent + ' ' + (a.closest('[data-kind],section,li,article')?.textContent || '')).slice(0, 400);
+      const kind = /hotel|stay|room|nuitee|agoda/i.test(host + ' ' + a.textContent) ? 'hotel' : /flight|fly|air|aviasales|ignav|kiwi|skyscanner/i.test(host + ' ' + text) ? 'flight' : 'other';
+      const m = text.match(/(?:C\$|US\$|\$|€|£)\s?([0-9][0-9,]{0,7}(?:\.[0-9]{1,2})?)/);
+      const clickId = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, '0')).join('');
+      window.GlobevoyApi?.sendTripFeedback?.({ sid: ref.sid, role: ref.role, rank: ref.rank, action: 'partner_click', provider: host.slice(0, 40), kind, value: m ? Number(m[1].replace(/,/g, '')) : null, currency: /C\$/.test(text) ? 'CAD' : /US\$/.test(text) ? 'USD' : null, clickId });
+    } catch (_) {}
+  }
+  if (typeof document !== 'undefined') document.addEventListener('click', partnerClick, true);
+
   function apiParams(search, role, slot) {
     const p = {
+      sid: PAGE_SID,
+      gid: GUEST_ID,
       mode: 'generated-tour',
       recommendationScope: 'generated-multicity-tour',
       origin: search.origin,
@@ -143,6 +194,7 @@
   // per option.
   async function findTrips(search, options) {
     const member = !!(options && options.member);
+    if (member) identify(search);
     const refresh = !!(options && options.refresh);
     const key = cacheKey(search, member);
     if (!refresh) {
@@ -315,6 +367,8 @@
   }
 
   window.GlobevoyTripSearch = Object.freeze({
+    pageSid: PAGE_SID,
+    guestId: GUEST_ID,
     ROLES, CURRENCIES, PACES, resultsUrl, readSearch, apiParams, isMember, signIn, isFullyLive, findTrips, tripDetailsUrl, tripTotal, saveInBrowser, savedTrip
   });
 })();
