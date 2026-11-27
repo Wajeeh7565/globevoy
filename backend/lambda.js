@@ -135,6 +135,17 @@ exports.handler = async function handler(event) {
     };
   }
 
+  // GV-ANALYTICS-9A: recommendation feedback; always 204, records only when approved.
+  if (path === '/api/trip-feedback' || path === '/api/analytics/identify') {
+    // GV-ANALYTICS-V1 (Users + Searches) when GV_ANALYTICS=on; else the Task 9A path (off by default).
+    const v1 = require('./services/analytics/analytics-v1');
+    if (v1.config()) {
+      return v1.handleRoute(path, event, { corsHeaders: corsHeaders(), verify: e => require('./services/accounts/auth/production-cognito-auth').verifyAccessToken(e) });
+    }
+    if (path === '/api/trip-feedback') return require('./services/analytics/trip-feedback').handle(event, { corsHeaders: corsHeaders() });
+    return { statusCode: 204, headers: corsHeaders(), body: '' };
+  }
+
   if (path === '/api/flex-windows') {
     if (process.env.GLOBEVOY_FLEX_DATES !== 'true') {
       return { statusCode: 200, headers: corsHeaders(), body: JSON.stringify({ supported: false, reason: 'feature-disabled' }) };
@@ -687,4 +698,5 @@ exports.handler = async function handler(event) {
 };
 
 // One event at the public request boundary; internal/provider calls are not wrapped.
-exports.handler = require('./services/analytics/search-activity').wrap(exports.handler);
+// GV-ANALYTICS-V1 (outer): one Searches row per results page; off unless GV_ANALYTICS=on.
+exports.handler = require('./services/analytics/analytics-v1').wrap(require('./services/analytics/search-activity').wrap(exports.handler));

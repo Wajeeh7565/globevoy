@@ -187,8 +187,33 @@
     return fetchJson(buildUrl('/api/multicity-tours', params), timeoutMs);
   }
 
+  // GV-ANALYTICS-9A: recommendation feedback. A beacon with a plain-text body (no
+  // preflight), fire and forget: it never blocks, slows or breaks the page.
+  function sendTripFeedback(payload) {
+    try {
+      if (!isConfigured() || !payload) return false;
+      const url = baseUrl() + '/api/trip-feedback';
+      const body = JSON.stringify(payload);
+      if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([body], { type: 'text/plain;charset=UTF-8' }))) return true;
+      fetch(url, { method: 'POST', body, keepalive: true, headers: { 'Content-Type': 'text/plain;charset=UTF-8' } }).catch(() => {});
+      return true;
+    } catch (_) { return false; }
+  }
+
+  // GV-ANALYTICS-V1: signed-in identify (Bearer token; the backend verifies it).
+  function sendAnalyticsIdentify(accessToken, payload) {
+    try {
+      if (!isConfigured() || !accessToken) return false;
+      fetch(baseUrl() + '/api/analytics/identify', { method: 'POST', keepalive: true, body: JSON.stringify(payload || {}), headers: { 'Content-Type': 'text/plain;charset=UTF-8', Authorization: 'Bearer ' + accessToken } }).catch(() => {});
+      return true;
+    } catch (_) { return false; }
+  }
+
+
   if (typeof window !== "undefined") window.GlobevoyApi = {
+    sendAnalyticsIdentify,
     isConfigured,
+    sendTripFeedback,
     getRecommendations,
     getGeneratedTour,
     getGeneratedTourControl,
