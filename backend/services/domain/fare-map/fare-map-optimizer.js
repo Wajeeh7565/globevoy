@@ -569,8 +569,10 @@ function buildPool(ranked,spendable,extra={}){
   // One trip per opening (first two cities): variants that only change the last city are
   // alternatives to one idea, not different ideas. Then drop trips far below the best.
   const top=Math.max(...scored.map(x=>x.score)),byOpening=new Map();
-  for(const x of scored.slice().sort((a,b)=>b.score-a.score||a.s.key.localeCompare(b.s.key))){const k=x.s.cities.slice(0,2).map(code).join('>');if(!byOpening.has(k))byOpening.set(k,x);}
-  const kept=[...byOpening.values()].filter(x=>x.score>=top-.6);
+  for(const x of scored.slice().sort((a,b)=>b.score-a.score||a.s.key.localeCompare(b.s.key))){const k=x.s.cities.slice(0,2).map(code).join('>'),g=byOpening.get(k)||[];
+   // Up to two trips per opening when the rest of the route is different.
+   if(!g.length||g.length<2&&!x.s.cities.slice(2).some(c=>g[0].s.cities.slice(2).some(d=>code(d)===code(c)))&&x.s.cities.length>2){g.push(x);byOpening.set(k,g);}}
+  const kept=[...byOpening.values()].flat().filter(x=>x.score>=top-.6);
   if(kept.length>=3)pool=kept;
  }
  const picked=[];let left=pool.slice().sort((a,b)=>b.score-a.score||a.s.key.localeCompare(b.s.key));
@@ -859,7 +861,7 @@ async function search(query={},options={}){
      }
     }
    }
-   const width=Math.min(64,Math.max(7,options.beamWidth||32));
+   const width=Math.min(64,Math.max(7,options.beamWidth||(experience&&Number(env.FARE_MAP_BEAM_WIDTH)>=16?Number(env.FARE_MAP_BEAM_WIDTH):32)));
    if(depth===K-1&&K>1){
     // The return leg needs the second city's partitions. Under a fixed read budget, keep
     // routes whose second city was already read as a first stop (cache hits) alongside new ones.
@@ -918,7 +920,7 @@ async function search(query={},options={}){
  // with other trips so a small search still offers choice.
  const poolBase=ranked.length>=8||!multiFirst?expandedRanked:[...expandedRanked,...expanded.filter(s=>s.cities.length===1)];
  const balanced=huge&&query.totalNights==null&&!query.departureDate&&!query.returnDate&&String(env.FARE_MAP_BALANCED_POOL||'').trim().toLowerCase()==='on';
- result_pool=buildPool(experience?[...poolBase,...comfortVariants(poolBase,spendable)]:poolBase,spendable,{variants,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||POOL_SIZE});
+ result_pool=buildPool(experience?[...poolBase,...comfortVariants(poolBase,spendable)]:poolBase,spendable,{variants,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||(experience?(Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)>=8&&Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)<=40?Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE):20):POOL_SIZE)});
  if(variants)diagnostics.alternativeRouteVariants=retained.length-distinct.size;
  diagnostics.poolSize=result_pool.length;diagnostics.bigBudget=bigBudget;
  diagnostics.cityCounts=[...new Set(allRanked.map(s=>s.cities.length))].sort();diagnostics.stretchCandidates=stretchPool.length;
