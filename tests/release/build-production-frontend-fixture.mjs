@@ -12,6 +12,7 @@ if (process.argv.includes('--verify-normal-build')) {
 } else {
 // Offline CI fixture: public identifiers, dummy Maps key, no AWS or real authentication.
 execFileSync(process.execPath,['ops/release/package-production.mjs'],{stdio:'inherit',env:{...process.env,
+ GLOBEVOY_CI_TEST_PACKAGE:'yes',
  GLOBEVOY_OUTPUT_NAME:process.env.GLOBEVOY_OUTPUT_NAME||'ci-production-frontend',
  GLOBEVOY_MAPS_BROWSER_KEY:process.env.GLOBEVOY_MAPS_BROWSER_KEY||'AIza'+'0'.repeat(35),
  GLOBEVOY_PRODUCTION_API_BASE_URL:approvedFrontend.apiBaseUrl,

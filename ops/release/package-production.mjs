@@ -48,10 +48,15 @@ const commit=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'})
 const dirty=Boolean(execFileSync('git',['status','--porcelain'],{cwd:root,encoding:'utf8'}).trim());
 // Production packages must come from committed code that is already on GitHub main,
 // so every deployed file can be traced to a pushed commit (docs/RELEASE.md).
-if (dirty && process.env.GLOBEVOY_ALLOW_DIRTY_BUILD !== 'yes') throw Error('Commit your changes first: production packages are built from a clean tree.');
+// A CI test package (GLOBEVOY_CI_TEST_PACKAGE=yes) may come from a pre-merge commit. It is
+// marked non-deployable in its manifest, must use a ci- output name, and verify-live-ancestry rejects it.
+const ciTestPackage = process.env.GLOBEVOY_CI_TEST_PACKAGE === 'yes';
+if (ciTestPackage && !outputName.startsWith('ci-')) throw Error('CI test packages must use an output name starting with ci-');
+if (dirty && !ciTestPackage) throw Error('Commit your changes first: production packages are built from a clean tree.');
 let onMain = false;
 try { execFileSync('git',['merge-base','--is-ancestor',commit,'origin/main'],{cwd:root,stdio:'ignore'}); onMain = true; } catch {}
-if (!onMain && process.env.GLOBEVOY_ALLOW_UNMERGED_BUILD !== 'yes') throw Error('HEAD is not on origin/main. Merge and push to main, run git fetch, then build. (Set GLOBEVOY_ALLOW_UNMERGED_BUILD=yes only for a pre-merge review package.)');
+if (!onMain && !ciTestPackage) throw Error('HEAD is not on origin/main. Merge and push to main, run git fetch, then build.');
+const deployable = !ciTestPackage;
 const policySource = productionPolicySource(releaseConfig);
 const policyModule = path.join(root, '.cache', outputName + '-policy.cjs');
 fs.mkdirSync(path.dirname(policyModule), {recursive:true});
@@ -81,7 +86,7 @@ for (const file of fs.readdirSync(output,{recursive:true}).sort()) {
  const full=path.join(output,file);
  if(fs.statSync(full).isFile()) files[file.replaceAll('\\','/')]=createHash('sha256').update(fs.readFileSync(full)).digest('hex');
 }
-fs.writeFileSync(path.join(output,'release-manifest.json'),JSON.stringify({commit,dirty,onMain,productionOnly:true,builtAt:new Date().toISOString(),productionAccounts:accountsEnabled,productionReact:reactEnabled,files},null,2)+'\n');
+fs.writeFileSync(path.join(output,'release-manifest.json'),JSON.stringify({commit,dirty,onMain,deployable,ciTestPackage,productionOnly:true,builtAt:new Date().toISOString(),productionAccounts:accountsEnabled,productionReact:reactEnabled,files},null,2)+'\n');
 console.log('Validated static artifact: '+output+' ('+Object.keys(files).length+' files). No deployment performed.');
 
 console.log('Production directory scan:', verifyProductionFrontend(output));

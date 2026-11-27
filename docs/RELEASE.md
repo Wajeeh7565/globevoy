@@ -54,3 +54,7 @@ The same rule applies: merge to `main`, then package with `ops/release/package-b
 - Deploy a package whose ancestry check fails.
 - Run the same deployment from two terminals.
 - Change Route 53 records as part of a release.
+
+## CI test packages
+
+CI builds a production-shaped fixture before a PR is merged (`tests/release/build-production-frontend-fixture.mjs`). It sets `GLOBEVOY_CI_TEST_PACKAGE=yes`, which only lifts the main-branch requirement and requires an output name starting with `ci-`. It also writes `"deployable": false` into the manifest, and `verify-live-ancestry.mjs` refuses such a package. It also uses a dummy Maps key. Real releases never set this variable.

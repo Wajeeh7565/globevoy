@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process';
 
 export function checkAncestry(live, next, isAncestor) {
   if (!live?.commit || !next?.commit) return { ok: false, reason: 'Both manifests need a commit.' };
+  if (next.deployable === false || next.ciTestPackage) return { ok: false, reason: 'This is a CI test package and cannot be deployed.' };
   if (next.dirty) return { ok: false, reason: 'The new package was built from uncommitted code.' };
   if (live.commit === next.commit) return { ok: true, reason: 'Same commit as production (redeploy).' };
   if (!isAncestor(live.commit, next.commit)) {

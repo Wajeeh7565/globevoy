@@ -17,3 +17,6 @@ test('dirty package fails', () => {
 test('same commit redeploy passes', () => {
   assert.equal(checkAncestry({ commit: 'live' }, { commit: 'live', dirty: false }, isAncestor).ok, true);
 });
+test('CI test package is never deployable', () => {
+  assert.equal(checkAncestry({ commit: 'live' }, { commit: 'new', dirty: false, deployable: false, ciTestPackage: true }, isAncestor).ok, false);
+});
