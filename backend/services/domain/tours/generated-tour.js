@@ -3847,6 +3847,18 @@ async function getFareMapGeneratedTour(query,options) {
         if(labelled.length>1){const cheap=labelled.filter(r=>r!==byUse).sort((a,b)=>Number(a.tour.estimatedTotalUsd)-Number(b.tour.estimatedTotalUsd))[0];cheap.role='lowest-cost';}
       }
     }
+    // GV-RECS-ROLES-002 (FARE_MAP_ROLE_RULES=on): from about C$2,000, "Best use" goes to an
+    // international multi-country trip when one passed, and "Lowest cost" to the pool's
+    // Lowest Cost slot when it passed (it is never hotel-upgraded).
+    if(String(env.FARE_MAP_ROLE_RULES||'').trim().toLowerCase()==='on'&&labelled.length>1){
+      const home=String(labelled[0].tour.origin?.countryCode||labelled[0].tour.legs?.[0]?.from?.countryCode||'').toUpperCase();
+      const cc=r=>(r.tour.stops||[]).map(st=>String(st.countryCode||String(st.cityId||'').split('-').pop()||'').toUpperCase());
+      const good=r=>{const c=cc(r);return new Set(c).size>=2&&!c.includes(home);};
+      const slot=labelled.find(r=>r.source?.lowestCostSlot);
+      if(slot&&slot.role!=='lowest-cost'){const cur=labelled.find(r=>r.role==='lowest-cost');if(cur)cur.role=slot.role;slot.role='lowest-cost';}
+      const best=labelled.find(r=>r.role==='best-balance');
+      if(Number(labelled[0].tour.totalBudgetUsd)>=1470&&best&&!good(best)){const alt=labelled.filter(r=>r.role!=='lowest-cost'&&r!==best&&good(r)).sort((a,b)=>b.source.poolScore-a.source.poolScore)[0];if(alt){best.role=alt.role;alt.role='best-balance';}}
+    }
     if(rolePolicy){const up=await Promise.all(labelled.map(upgradeForRole));up.forEach((r,i)=>{labelled[i]=r;});}
     const LABEL={'best-balance':'Best use of your budget','lowest-cost':'Lowest cost','most-memorable':'Something different'};
     const order=['best-balance','lowest-cost','most-memorable'];

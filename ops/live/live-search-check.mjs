@@ -22,7 +22,7 @@ async function one(origin, budget, adults) {
   const g = d.diagnostics || {}, seen = new Set(), trips = [];
   for (const t of [d.tour, ...(d.tours || [])]) {
     if (!t || seen.has(t.tourId)) continue; seen.add(t.tourId);
-    const cs = t.cities || t.stops || [], cc = cs.map(c => String(c.countryCode || '').toUpperCase()), home = String(t.origin?.countryCode || 'CA').toUpperCase();
+    const cs = t.cities || t.stops || [], st = t.stops || cs, cc = cs.map((c, i) => String(c.countryCode || st[i]?.countryCode || String(st[i]?.cityId || '').split('-').pop() || '').toUpperCase()), home = String(t.origin?.countryCode || t.legs?.[0]?.from?.countryCode || 'CA').toUpperCase();
     trips.push({ role: t.tourRole, route: cs.map(c => `${c.city} ${c.nights}n`).join(' > '), total: t.displayBudget?.tripEstimate, use: pct(t.displayBudget?.tripEstimate, budget),
       cities: cs.length, countries: new Set(cc).size, abroad: cc.some(c => c && c !== home), europe: cc.some(c => EUROPE.has(c)),
       hotels: cs.map(c => `${c.hotel?.name || '?'} ${c.hotel?.rating || ''}`.trim()).join('; ') });
