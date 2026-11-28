@@ -3770,6 +3770,26 @@ async function getFareMapGeneratedTour(query,options) {
     diagnostics.roleUpgrades=(diagnostics.roleUpgrades||[]).concat([{role:r.role,upgraded:stops.filter(st=>st?.hotel?.budgetUpgrade).length,extraUsd:stops.reduce((x,st)=>x+(Number(st?.hotel?.budgetUpgrade?.extraUsd)||0),0)}]);
     return {...r,tour:t};
   }
+  const topUpOn=String(env.FARE_MAP_BEST_USE_TOPUP||'').trim().toLowerCase()==='on';
+  const TOPUP_FROM=.85/.9,TOPUP_TO=.97;
+  async function topUpBestUse(r){
+    // The pool's Lowest Cost slot stays cheap on a signed-in page; a guest who is shown it sees it as Best Use.
+    if(!r?.unpriced||(r.source?.lowestCostSlot&&want>1))return r;
+    const spendable=Number(r.tour.usableTripBudgetUsd),use=Number(r.tour.estimatedTotalUsd)/Math.max(1,spendable);
+    if(!(spendable>0)||!(use<TOPUP_FROM))return r;
+    const liveHotelUsd=(r.tour.stops||[]).reduce((sum,st)=>sum+(Number(st?.hotel?.estimatedStayUsd??st?.hotel?.totalStayUsd)||0),0);
+    const hotelBudgetUsd=upgradeRoom(r.tour,liveHotelUsd,TOPUP_TO);
+    if(!(hotelBudgetUsd>liveHotelUsd))return r;
+    const lux=String(env.FARE_MAP_LUXURY_TIERS||'').trim().toLowerCase()==='on'&&Number(r.tour.totalBudgetUsd)>=9000;
+    const policy={role:'best-balance',perStayPct:lux?2.5:Number(r.tour.totalBudgetUsd)>=5000?1.5:.5,minGain:.5};
+    let priced;
+    try{priced=await priceFinalTourWithNuitee({ok:true,tour:r.unpriced,tours:[r.unpriced],diagnostics:{}},pricingQuery,{...options,rateCache,hotelBudgetUsd,upgradePolicy:policy});}catch(_){return r;}
+    const t=priced?.tour,stops=t?.stops||[];
+    if(!verifiedStays(t,r.source)||overWithProtectedDisplayBudget(t)||!(Number(t.estimatedTotalUsd)<=spendable))return r;
+    if(!stops.some(st=>st?.hotel?.budgetUpgrade)||!(Number(t.estimatedTotalUsd)>Number(r.tour.estimatedTotalUsd)))return r;
+    diagnostics.bestUseTopUp={fromUse:Number(use.toFixed(3)),toUse:Number((Number(t.estimatedTotalUsd)/spendable).toFixed(3)),upgraded:stops.filter(st=>st?.hotel?.budgetUpgrade).length};
+    return {...r,tour:t};
+  }
   // The page asks for each trip role separately (best overall, lowest cost, most
   // inspiring) in parallel; give each role its own route so three different trips come back.
   const rawRole=String(query.routeRole||query.tourRole||query.pickRole||'').trim().toLowerCase();
@@ -3859,6 +3879,17 @@ async function getFareMapGeneratedTour(query,options) {
       const best=labelled.find(r=>r.role==='best-balance');
       if(Number(labelled[0].tour.totalBudgetUsd)>=1100&&best&&!good(best)){const alt=labelled.filter(r=>r.role!=='lowest-cost'&&r!==best&&good(r)).sort((a,b)=>b.source.poolScore-a.source.poolScore)[0];if(alt){best.role=alt.role;alt.role='best-balance';}}
     }
+    // GV-RECS-BESTUSE-001 (FARE_MAP_BEST_USE_TOPUP=on, off by default): live hotels often come in
+    // below the plan (the plan prices well-reviewed 3-4 star medians and comfort tiers; the live
+    // step books the cheapest well-rated room), so Best Use lost its planned quality and landed
+    // far under the 85-90% target (C$7,500: 64% live). After roles are known, a Best Use trip
+    // (also the guest's single trip) under 85% of the entered budget re-prices its hotels from
+    // the same rate replies (rateCache: no new provider requests), buying better-rated hotels
+    // (+0.5 review points or breakfast) aiming at ~87% of the entered budget, never past the
+    // spendable budget. Per stay at most +50%, or +150% from US$5,000 entered (the planned
+    // comfort ladder), +250% with FARE_MAP_LUXURY_TIERS from US$9,000 entered. Lowest Cost is
+    // never touched.
+    if(topUpOn){const i=labelled.findIndex(r=>r.role==='best-balance');if(i>=0)labelled[i]=await topUpBestUse(labelled[i]);}
     if(rolePolicy){const up=await Promise.all(labelled.map(upgradeForRole));up.forEach((r,i)=>{labelled[i]=r;});}
     const LABEL={'best-balance':'Best use of your budget','lowest-cost':'Lowest cost','most-memorable':'Something different'};
     const order=['best-balance','lowest-cost','most-memorable'];
@@ -3866,7 +3897,7 @@ async function getFareMapGeneratedTour(query,options) {
     const tours=labelled.map(r=>({...r.tour,tourRole:r.role,tourRoleLabel:LABEL[r.role],fareMapRole:r.role,budgetUse:Number(useOf(r).toFixed(3)),poolRank:r.source.poolRank,poolScore:r.source.poolScore}));
     // GV-ANALYTICS-V1.1: the planner's whole pool, compact, with each live check's outcome.
     // Read-only summary of data already in memory: no extra provider requests.
-    diagnostics.poolCandidates=(result.pool||[]).slice(0,20).map(t=>({poolRank:t.poolRank,route:tripKey(t),nights:t.totalNights??null,plannedUsd:Math.round(Number(t.fareMap?.scoreEvidence?.costUsd??t.estimatedTotalUsd)||0),poolScore:Number.isFinite(Number(t.poolScore))?Number(Number(t.poolScore).toFixed(4)):null,budgetUse:t.budgetUse??null,checked:checkedReason.get(tripKey(t))||null}));
+    diagnostics.poolCandidates=(result.pool||[]).slice(0,20).map(t=>({poolRank:t.poolRank,route:tripKey(t),nights:t.totalNights??null,plannedUsd:Math.round(Number(t.fareMap?.scoreEvidence?.costUsd??t.estimatedTotalUsd)||0),poolScore:Number.isFinite(Number(t.poolScore))?Number(Number(t.poolScore).toFixed(4)):null,...(t.poolPropensity!=null?{propensity:t.poolPropensity}:{}),budgetUse:t.budgetUse??null,checked:checkedReason.get(tripKey(t))||null}));
     diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;diagnostics.poolChecks=checks;diagnostics.poolRounds=rounds;diagnostics.poolSpareUnused=spareOk;diagnostics.poolSparesStarted=sparesStarted;
     const name=strategy==='adaptive'?'adaptive':poolSpareCount(strategy,3,3,[])===0?'zero':poolSpareCount(strategy,3,3,[])===1?'one':'two';
     finishVerification(tours,rounds,spareOk,name,sparesStarted);
@@ -3944,6 +3975,14 @@ function noTripMessage(result = {}, query = {}) {
   const min = Number(result?.requested?.suggestedMinimumBudgetUsd) || null;
   const rate = Number(result?.requested?.displayBudget?.exchangeRateFromUsd) || null;
   const currency = String(query.currency || 'USD').toUpperCase();
+  // GV-RECS-STRICT-002: from about C$2,000 only trips with 2+ cities are shown; when none fits,
+  // say what a 2-city trip needs (set by the search only with FARE_MAP_MULTI_CITY_HINT=on).
+  const multi = Number(result?.requested?.suggestedMultiCityBudgetUsd) || null;
+  if (multi) {
+    const shownMulti = rate && currency !== 'USD' ? Math.ceil(multi * rate / 50) * 50 : Math.ceil(multi / 50) * 50;
+    const from = result?.requested?.origin?.city || result?.requested?.origin?.name || 'this city';
+    return { title: 'Two-city trips from ' + from + ' start a little higher', message: 'At this budget we show trips with at least two cities. From ' + from + ', a two-city trip with flights and hotels starts at about ' + currency + ' ' + shownMulti.toLocaleString('en-US') + '. Try that budget, or a later month.', suggestedBudget: shownMulti, currency, multiCity: true };
+  }
   const shown = min ? (rate && currency !== 'USD' ? Math.ceil(min * rate / 50) * 50 : Math.ceil(min / 50) * 50) : null;
   const origin = result?.requested?.origin?.city || result?.requested?.origin?.name || 'this city';
   if (shown) return { title: 'Your budget is a little tight from ' + origin, message: 'Trips from ' + origin + ' start at about ' + currency + ' ' + shown.toLocaleString('en-US') + ' with flights and hotels. Try that budget, or a later month.', suggestedBudget: shown, currency };
