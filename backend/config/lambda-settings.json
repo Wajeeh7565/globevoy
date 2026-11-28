@@ -1,0 +1,4 @@
+{
+  "note": "Non-secret Lambda settings shipped in the package (Lambda's 4 KB limit). A value set in the Lambda configuration overrides the one here. No secrets.",
+  "settings": {}
+}

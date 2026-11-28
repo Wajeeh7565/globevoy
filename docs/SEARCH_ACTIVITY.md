@@ -167,3 +167,12 @@ Supersedes the 9A single-table writer when on. Schema and privacy decisions: the
 - **IDs:** `searchId` = `s_` + hash of the page's random `sid`. Guests are `g_` + a hash of a random local-storage ID. Signed-in users are `u_` + HMAC(Cognito sub, key from Secrets Manager `globevoy/analytics-hash-key`), set only after the backend verifies the access token.
 - **Setup:** `ops/analytics/setup-v1-tables.sh` creates both tables (on-demand, deletion protection, TTL on Searches `expiresAt`, 13 months), the secret and the `GlobeVoyAnalyticsV1` write policy on the Lambda role.
 - **Not yet:** the full candidate pool (shown trips only, propensity 1), exploration, and deleting the Users row on account deletion.
+
+### V1.1 additions (Nov 27, 2026)
+
+- `candidates`: the optimizer's feasible pool (up to 20) per search, with pool rank, cities, cost, budget used, score and whether it was returned. Propensity stays empty until exploration exists.
+- `impression` events: one per trip shown, carrying the live price check result (`live` / `estimate`) and the checked total.
+- `algorithmVersion`: `main-<commit>` read from the package's own `launch-manifest.json`, so no Lambda setting is needed.
+- Partner clicks: booking partners only (Nuitée, Agoda, Travelpayouts/Aviasales, …). Amount and currency only when the link carries `data-gv-value` / `data-gv-currency`.
+- Account deletion: `ops/analytics/delete-user-analytics.sh <cognito-sub>` (dry run without `--yes`) deletes the Users row and every Searches row under the hashed ID and its linked guest IDs.
+- Lambda settings: `backend/config/lambda-settings.json` holds non-secret settings inside the package (Lambda's 4 KB limit); a value in the Lambda configuration still overrides it. Secret-looking names are refused.

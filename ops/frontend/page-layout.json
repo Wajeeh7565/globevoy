@@ -374,5 +374,14 @@
       "to": "frontend/pages/trust.html",
       "sha256": "6bab73f9595263ae987b9136dac90d1371b0890066daf4b5b2ee829b368b3812"
     }
+  ],
+  "approvedContentEdits": [
+    {
+      "page": "frontend/pages/privacy.html",
+      "sha256": "63d9e3da9fef10cdc094c3f924bc16a93903a36d383593562d4520a7adc0cd98",
+      "date": "2026-11-27",
+      "reason": "Analytics v1 privacy line: search and recommendation records, 13-month deletion, deleted with the account",
+      "approvedBy": "Vamsi, Mehdi (Analytics Schema v1 review)"
+    }
   ]
 }

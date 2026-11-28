@@ -171,12 +171,12 @@
 
   // GV-ANALYTICS-9A: what the traveller did with the trips shown (view, book, save, or
   // "show other trips" = not these). Sent only when the backend has feedback enabled.
-  function feedback(action, i = active) {
+  function feedback(action, i = active, extra) {
     const t = trips[i];
     if (!t || savedView || !(window.GlobevoyApi && window.GlobevoyApi.sendTripFeedback)) return;
     const cities = (t.tour?.cities || t.tour?.stops || []).map(c => c.cityId || c.id).filter(Boolean).slice(0, 4);
     const role = t.role || t.tour?.tourRole || 'none';
-    window.GlobevoyApi.sendTripFeedback({ sid: S.pageSid, action, role, rank: i + 1, cities, page: (Number(new URLSearchParams(location.search).get('more')) || 0) + 1 });
+    window.GlobevoyApi.sendTripFeedback({ sid: S.pageSid, action, role, rank: i + 1, cities, page: (Number(new URLSearchParams(location.search).get('more')) || 0) + 1, ...(extra || {}) });
     // The trip page's partner links are attributed to this search and trip.
     if (action === 'book_click') try { sessionStorage.setItem('globevoy.analytics.ref.v1', JSON.stringify({ sid: S.pageSid, role, rank: i + 1, at: Date.now() })); } catch (_) {}
   }
@@ -739,6 +739,11 @@
     $('#options-heading').textContent = savedView ? 'Your trip' : `Trips from ${originName()} for ${money(search.budget, search.currency)}`;
     renderTabs();
     renderTrip(trips[0]);
+    // GV-ANALYTICS-V1: one impression per trip shown, with the result of the live price check.
+    trips.forEach((t, i) => {
+      const b = t.verifiedUntil ? t.tour?.displayBudget : null;
+      feedback('impression', i, { live: t.verifiedUntil ? 'live' : 'estimate', value: b && Number(b.tripEstimate) > 0 ? Number(b.tripEstimate) : undefined, currency: b ? b.currency : undefined });
+    });
     await initMap();
     drawRoute();
     controls();

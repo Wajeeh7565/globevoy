@@ -120,3 +120,16 @@ test('routes answer 204 and are off without the setting', async () => {
   const r = await a.handleRoute('/api/trip-feedback', { requestContext: { http: { method: 'POST' } }, body: '{}' }, { env: {} });
   assert.deepEqual([r.statusCode, r.headers['X-GV-Analytics']], [204, 'off']);
 });
+
+test('v1.1: candidate pool logged compactly; impressions carry the live check; version from the package', () => {
+  const body = { ...BODY, pool: [{ ...TOUR, poolRank: 1, poolScore: 0.8 }, { ...TOUR, poolRank: 2, stops: [{ cityId: 'rome-it', nights: 9 }], estimatedTotalUsd: 2700 }] };
+  const u = I.searchUpdate(a.config(ON), { query: QUERY, body });
+  const c = I.fromAttr(u.input.ExpressionAttributeValues[':cands']);
+  assert.equal(c.length, 2);
+  assert.deepEqual([c[0].inTours, c[1].inTours, c[1].cities.join(), c[0].score], [true, false, 'rome-it', 0.8]);
+  assert.match(u.input.UpdateExpression, /candidates = if_not_exists\(candidates, :cands\)/);
+  const imp = I.parseFeedback(JSON.stringify({ sid: SID, action: 'impression', role: 'best-balance', rank: 1, live: 'live', value: 3120, currency: 'CAD' }));
+  assert.deepEqual([imp.ev.live, imp.ev.value, imp.ev.currency], ['live', 3120, 'CAD']);
+  assert.equal(I.algorithmVersion({ GV_ALGORITHM_VERSION: 'x1' }), 'x1');
+  assert.match(I.algorithmVersion({}), /^(main-[0-9a-f]{7}|unknown|\$LATEST)$/);
+});
