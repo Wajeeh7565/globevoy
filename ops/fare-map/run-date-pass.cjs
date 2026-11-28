@@ -7,6 +7,8 @@
 //   node ops/fare-map/run-date-pass.cjs --dry-run --max-requests 20     fetch 20, write nothing
 //   node ops/fare-map/run-date-pass.cjs --routes 30 --max-minutes 900   full run (paced, free API)
 //   --fresh ignores saved progress; --sample prints three records.
+//   --home-origins YTO,YVR,...  first fetch the flights home to these cities from every destination
+//                               of their monthly fares (--home-routes per city and month, default 200).
 //
 // Needs FARE_MAP_TABLE and TRAVELPAYOUTS_TOKEN or TRAVELPAYOUTS_SECRET_ID, like run-full-pass.
 const path = require('node:path');
@@ -33,7 +35,7 @@ async function tokenFromSecret(secretId) {
   if (!token) { console.error('No Travelpayouts token.'); process.exit(2); }
   const origins = arg('--origins') ? arg('--origins').split(',').map(s => s.trim().toUpperCase()) : undefined;
   const t0 = Date.now();
-  const stats = await runDatePass({ token, origins, dryRun: has('--dry-run'), fresh: has('--fresh'), sample: has('--sample'), routes: arg('--routes'), originSet: arg('--origin-set'), maxRequests: arg('--max-requests'),
+  const stats = await runDatePass({ token, origins, dryRun: has('--dry-run'), fresh: has('--fresh'), sample: has('--sample'), routes: arg('--routes'), homeOrigins: arg('--home-origins') ? arg('--home-origins').split(',') : undefined, homeRoutes: arg('--home-routes'), originSet: arg('--origin-set'), maxRequests: arg('--max-requests'),
     maxMinutes: arg('--max-minutes'), perMinute: arg('--per-minute'), log: x => console.log(JSON.stringify({ component: 'fare-map-date-pass', ...x })) });
   console.log(JSON.stringify({ component: 'fare-map-date-pass', event: stats.stoppedBy ? 'paused' : 'finished', minutes: +((Date.now() - t0) / 60000).toFixed(1), ...stats }));
 })().catch(e => { console.error(e.message); process.exit(1); });

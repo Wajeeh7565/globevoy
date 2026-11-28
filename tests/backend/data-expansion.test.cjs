@@ -208,3 +208,20 @@ test('date pass uses the worldwide origin catalogue and skips routes collected r
     isFresh: async (a, b) => a === 'YTO' && b === 'LIS', clock: () => now, sleep: async () => {} });
   assert.equal(stats.skippedFresh, 1); assert.equal(stats.requests, 3, 'YTO>MEX, MEX>YTO, LIS>YTO');
 });
+
+test('date pass home origins: flights home from every destination first, then the usual pass, no duplicates', async () => {
+  const { runDatePass } = require('../../backend/services/domain/fare-map/fare-map-date-pass');
+  const calls = [];
+  const fetch = async url => { calls.push(new URL(url).searchParams.get('origin') + '>' + new URL(url).searchParams.get('destination')); return { ok: true, status: 200, text: async () => JSON.stringify({ success: true, data: [{ depart_date: '2027-01-05', value: 300 }] }) }; };
+  const dynamo = { send: async () => ({}) };
+  // Toronto flies to 4 places; only 1 is among its cheapest N=1, so Prague > YTO is missed without home origins.
+  const readRoutes = async (o) => o === 'YTO' ? [{ destination: 'NYC', priceUsd: 90 }, { destination: 'PRG', priceUsd: 450 }, { destination: 'LIS', priceUsd: 400 }, { destination: 'BOG', priceUsd: 380 }] : [];
+  let t = Date.parse('2026-11-27T00:00:00Z');
+  const base = await runDatePass({ token: 't', fetch, dynamo, readRoutes, origins: ['YTO'], months: ['2027-01'], routes: 1, env: { FARE_MAP_TABLE: 'tbl' }, clock: () => t, sleep: async ms => { t += ms; }, dryRun: true });
+  assert.equal(base.requests, 2); assert.ok(!calls.includes('PRG>YTO'));
+  calls.length = 0;
+  const homes = await runDatePass({ token: 't', fetch, dynamo, readRoutes, origins: ['YTO'], homeOrigins: ['yto'], months: ['2027-01'], routes: 1, env: { FARE_MAP_TABLE: 'tbl' }, clock: () => t, sleep: async ms => { t += ms; }, dryRun: true });
+  assert.deepEqual(calls.slice(0, 4), ['NYC>YTO', 'BOG>YTO', 'LIS>YTO', 'PRG>YTO'], 'home legs first, cheapest first');
+  assert.equal(homes.requests, 5, '4 home legs + YTO>NYC (NYC>YTO not asked twice)');
+  assert.equal(homes.homeRoutesPlanned, 4);
+});

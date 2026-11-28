@@ -97,6 +97,21 @@ async function runDatePass(options = {}) {
   const progress = async (originIndex, completed) => { await flush(); if (options.dryRun) return;
     await saveProgress({ months, originIndex, startedAt, completedAt: completed ? new Date(clock()).toISOString() : null, last: { requests: stats.requests, items: stats.items, rows: stats.rows } }, { env, dynamo: options.dynamo, sk: progressSk }).catch(() => {}); };
   const done = new Set();
+  // GV-DATA-DATES-004 (options.homeOrigins / --home-origins, off when not given): the top-N rule
+  // covers each origin's cheapest (mostly short) routes, so the flights HOME that long trips need
+  // (Prague > Toronto) are almost never collected: Toronto is not among Prague's 30 cheapest and
+  // Prague not among Toronto's. For each listed home city, first fetch the way home from every
+  // destination of its own monthly fares (up to options.homeRoutes per city and month, default
+  // 200), cheapest first; then the usual pass. Same pacing, request cap, freshness skip and storage.
+  const homes = (options.homeOrigins || []).map(x => String(x).trim().toUpperCase()).filter(x => /^[A-Z]{3}$/.test(x));
+  const perHome = Math.max(1, Math.min(1000, Number(options.homeRoutes) || 200));
+  if (!resume || resume.originIndex === 0) for (const h of homes) for (const m of months) {
+    let fares = [];
+    try { fares = await read(h, m); } catch { stats.errors['read-error'] = (stats.errors['read-error'] || 0) + 1; continue; }
+    const list = [...new Map(fares.filter(f => f.destination && f.destination !== h).sort((a, b) => a.priceUsd - b.priceUsd).map(f => [f.destination, f])).values()].slice(0, perHome);
+    stats.homeRoutesPlanned = (stats.homeRoutesPlanned || 0) + list.length;
+    for (const f of list) if (!(await fetchOne(f.destination, h, m))) return finish();
+  }
   for (let oi = startAt; oi < origins.length; oi++) {
     const o = origins[oi];
     for (const m of months) {
@@ -104,29 +119,36 @@ async function runDatePass(options = {}) {
       try { fares = await read(o, m); } catch { stats.errors['read-error'] = (stats.errors['read-error'] || 0) + 1; continue; }
       const top = [...new Map(fares.filter(f => f.destination && f.destination !== o).sort((a, b) => a.priceUsd - b.priceUsd).map(f => [f.destination, f])).values()].slice(0, perOD);
       for (const f of top) for (const [a, b] of [[o, f.destination], [f.destination, o]]) {
-        const key = `${a}>${b}@${m}`; if (done.has(key)) continue; done.add(key);
-        if (isFresh) { let fresh = false; try { fresh = await isFresh(a, b, m); } catch { fresh = false; } if (fresh) { stats.skippedFresh++; continue; } }
-        if (stats.requests >= maxRequests || clock() >= deadline) { stats.stoppedBy = stats.requests >= maxRequests ? 'max-requests' : 'time-budget'; await progress(oi, false); return finish(); }
-        const wait = next - clock(); if (wait > 0) await sleep(wait); next = clock() + interval;
-        stats.requests++;
-        const r = await dates.fetchRouteDates({ origin: a, destination: b, month: m, token: options.token, fetch: options.fetch, clock });
-        if (!r.ok) { stats.errors[r.reason] = (stats.errors[r.reason] || 0) + 1;
-          if (r.reason === 'rate-limited') { await sleep(60000); next = clock(); }
-          if (r.reason === 'provider-http-error' && (stats.errors[r.reason] || 0) > 200 && stats.routesWithDates === 0) { stats.stoppedBy = 'provider-errors'; await progress(oi, false); return finish(); }
-          continue; }
-        if (!r.records.length) { stats.routesEmpty++; continue; }
-        stats.routesWithDates++; stats.items++; stats.rows += r.records.length;
-        stats.withStops += r.records.filter(x => x.stops != null).length; stats.withDuration += r.records.filter(x => x.durationMinutes != null).length;
-        originsHit.add(a); dests.add(b);
-        if (options.sample && !stats.sample) stats.sample = r.records.slice(0, 3);
-        buffer.push(dates.toRouteItem(r.records, clock()));
-        if (buffer.length >= 100) await flush();
+        if (!(await fetchOne(a, b, m, oi))) return finish();
       }
     }
     if ((oi + 1) % 25 === 0) { await progress(oi + 1, false); log({ event: 'progress', origin: oi + 1, of: origins.length, requests: stats.requests, items: stats.items, written: stats.written, errors: stats.errors }); }
   }
   await progress(origins.length, true);
   return finish();
+  // One route-month: false when the pass must stop (request cap, time budget, provider errors).
+  async function fetchOne(a, b, m, oi = 0) {
+      {
+        const key = `${a}>${b}@${m}`; if (done.has(key)) return true; done.add(key);
+        if (isFresh) { let fresh = false; try { fresh = await isFresh(a, b, m); } catch { fresh = false; } if (fresh) { stats.skippedFresh++; return true; } }
+        if (stats.requests >= maxRequests || clock() >= deadline) { stats.stoppedBy = stats.requests >= maxRequests ? 'max-requests' : 'time-budget'; await progress(oi, false); return false; }
+        const wait = next - clock(); if (wait > 0) await sleep(wait); next = clock() + interval;
+        stats.requests++;
+        const r = await dates.fetchRouteDates({ origin: a, destination: b, month: m, token: options.token, fetch: options.fetch, clock });
+        if (!r.ok) { stats.errors[r.reason] = (stats.errors[r.reason] || 0) + 1;
+          if (r.reason === 'rate-limited') { await sleep(60000); next = clock(); }
+          if (r.reason === 'provider-http-error' && (stats.errors[r.reason] || 0) > 200 && stats.routesWithDates === 0) { stats.stoppedBy = 'provider-errors'; await progress(oi, false); return false; }
+          return true; }
+        if (!r.records.length) { stats.routesEmpty++; return true; }
+        stats.routesWithDates++; stats.items++; stats.rows += r.records.length;
+        stats.withStops += r.records.filter(x => x.stops != null).length; stats.withDuration += r.records.filter(x => x.durationMinutes != null).length;
+        originsHit.add(a); dests.add(b);
+        if (options.sample && !stats.sample) stats.sample = r.records.slice(0, 3);
+        buffer.push(dates.toRouteItem(r.records, clock()));
+        if (buffer.length >= 100) await flush();
+        return true;
+      }
+  }
   function finish() { stats.originsWithDates = originsHit.size; stats.progressKey = progressSk; stats.destinations = dests.size; stats.finishedAt = new Date(clock()).toISOString(); return stats; }
 }
 
