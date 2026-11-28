@@ -749,7 +749,9 @@ function buildPool(ranked,spendable,extra={}){
  }
  if((experience||roleRules)&&picked.length>=3){
   const cap=Number(process.env.FARE_MAP_LOWEST_COST_SHARE)||.6;
-  const cheap=s=>!s.s.comfortHotels&&s.x.use<=cap;
+  const homeCC=String(extra.originCC||'').toUpperCase(),abroadOnly=s=>!s.s.cities.some(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase()===homeCC);
+  const anyAbroadCheap=roleRules&&extra.abroadFirst&&scored.some(x=>!x.s.comfortHotels&&x.x.use<=cap&&abroadOnly(x));
+  const cheap=s=>!s.s.comfortHotels&&s.x.use<=cap&&(!anyAbroadCheap||abroadOnly(s));
   if(!picked.slice(0,3).some(cheap)){
    const from=scored.filter(cheap).sort((a,b)=>b.score-a.score||a.x.use-b.x.use);
    const pick=from.find(c=>!picked.slice(0,2).some(p=>p.s.cities.map(code).join()===c.s.cities.map(code).join()));
@@ -1332,27 +1334,32 @@ async function search(query={},options={}){
  // GV-RECS-V2-STEP1: why a search above the multi-city / multi-country thresholds has no
  // such trip, from the search's own counts (flights, budget, duration, city limit, coverage).
  diagnostics.requirementCheck=requirementCheck(allRanked,diagnostics,budget,requested.usableTripBudgetUsd,String(origin.countryCode||'').toUpperCase());
- const ranked=multiFirst?allRanked.filter(s=>s.cities.length>=2):allRanked,cheapest=ranked[0];
+ // GV-RECS-STRICT-001 (FARE_MAP_STRICT_MULTI_CITY=on): from about C$2,000 every trip has 2+
+ // cities; when the search built none, the result is "no trip" with the recorded reason
+ // (diagnostics.requirementCheck) rather than a single city.
+ const strictMulti=String(env.FARE_MAP_STRICT_MULTI_CITY||'').trim().toLowerCase()==='on'&&!exact&&K>=2&&budget>=MULTI_COUNTRY_FROM_USD;
+ diagnostics.strictMultiCity=strictMulti;
+ const ranked=strictMulti||multiFirst?allRanked.filter(s=>s.cities.length>=2):allRanked,cheapest=ranked[0];
  const alternatives=cheapest?ranked.slice(1).map(s=>({...s,preferencePenalty:(s.preferencePenalty||0)+s.cities.reduce((sum,c)=>sum+(cheapest.cities.some(x=>code(x)===code(c))?75:0),0)})):[];
  const picked=(cheapest?[cheapest,...pickDiverse(alternatives,2)]:[]).map((s,i)=>({...s.tour,tourRole:['lowest-cost','best-balance','most-memorable'][i],tourRoleLabel:['Lowest cost','Diverse alternative','Another route idea'][i]}));
  const expanded=variants?retained.slice().sort((a,b)=>a.estimatedDate-b.estimatedDate||a.cost-b.cost||a.key.localeCompare(b.key)):allRanked;
- const expandedRanked=multiFirst?expanded.filter(s=>s.cities.length>=2):expanded;
+ const expandedRanked=strictMulti||multiFirst?expanded.filter(s=>s.cities.length>=2):expanded;
  result_roleCandidates=roleCandidates(expandedRanked,spendable,{variants,explore:intelligence||flexible,lowest:expanded,origin,originCountry:intelligence?originCountry:String(origin.countryCode||'').toUpperCase(),preferAbroad:experience||(!intelligence&&budget>=ABROAD_FROM_USD),discoveryFeatures:intelligence?discoveryFeatures:null,stretch:multiFirst?stretchPool.filter(s=>s.cities.length>=2):stretchPool,fallbackPool:expanded});
  // The pool: two-city trips first when they fit (same rule as the options), topped up
  // with other trips so a small search still offers choice.
- const poolBase=ranked.length>=8||!multiFirst?expandedRanked:[...expandedRanked,...expanded.filter(s=>s.cities.length===1)];
+ const poolBase=strictMulti||ranked.length>=8||!multiFirst?expandedRanked:[...expandedRanked,...expanded.filter(s=>s.cities.length===1)];
  const balanced=huge&&query.totalNights==null&&!query.departureDate&&!query.returnDate&&String(env.FARE_MAP_BALANCED_POOL||'').trim().toLowerCase()==='on';
  const poolSettings={multiCountry:budget>=MULTI_COUNTRY_FROM_USD,abroadFirst:budget>=MULTI_CITY_FROM_USD,discoveryFeatures:intelligence?discoveryFeatures:null,variants,explore:intelligence||flexible,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||(experience?(Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)>=8&&Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)<=40?Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE):20):POOL_SIZE)};
  result_pool=buildPool(experience?[...poolBase,...comfortVariants(poolBase,spendable)]:poolBase,spendable,poolSettings);
  // Make affordable single-city backups reachable even when date variants made the
  // multi-city list look full. Verified multi-city picks keep their original priority.
- if(intelligence&&multiFirst&&result_pool.length<poolSettings.size){
+ if(!strictMulti&&intelligence&&multiFirst&&result_pool.length<poolSettings.size){
   const used=new Set(result_pool.map(t=>t.stops.map(s=>s.cityId).sort().join('>')));
   const remaining=expanded.filter(s=>s.cities.length===1&&!used.has(portfolioRouteKey(s))&&!oddRoute(s));
   const backups=buildPool(remaining,spendable,{...poolSettings,size:poolSettings.size-result_pool.length});
   for(const t of backups)result_pool.push({...t,poolRank:result_pool.length+1});
  }
- if(flexible&&multiFirst&&poolSettings.size>1&&result_pool.every(t=>t.cityCount>1)){
+ if(!strictMulti&&flexible&&multiFirst&&poolSettings.size>1&&result_pool.every(t=>t.cityCount>1)){
   const single=expanded.find(s=>s.cities.length===1);
   if(single){
    const [backup]=buildPool([single],spendable,{...poolSettings,size:1});
