@@ -771,6 +771,21 @@ function candidateEvidence(s,stayExtra){
   stops:tour.stops.map((stop,i)=>({city:stop.city,country:stop.countryCode,nights:stop.nights,stayLimits:stayLimits(s.cities[i],stayExtra)}))};
 }
 
+// Request-local cache; include the month window and share in-flight requests.
+function createRouteDateWindowCache({read,cap,diagnostics}){
+ const pending=new Map();
+ return function readWindow(a,h,months){
+  const ms=[...new Set(months)].sort();
+  const key=a+'>'+h+'@'+ms.join(',');
+  if(pending.has(key)){diagnostics.routeDateCacheHits=(diagnostics.routeDateCacheHits||0)+1;return pending.get(key);}
+  if((diagnostics.routeDateReads||0)>=cap)return Promise.resolve([]);
+  diagnostics.routeDateReads=(diagnostics.routeDateReads||0)+1;
+  const work=Promise.resolve().then(()=>read(a,h,ms)).catch(()=>{diagnostics.routeDateErrors=(diagnostics.routeDateErrors||0)+1;return [];});
+  pending.set(key,work);
+  return work;
+ };
+}
+
 async function search(query={},options={}){
  spreadLimitKm=(()=>{const v=String((options.env||process.env).FARE_MAP_MAX_SPREAD_KM??'').trim();return v===''?MAX_SPREAD_KM:Math.max(0,Number(v)||0);})();
  const env=options.env||process.env;
@@ -846,17 +861,18 @@ async function search(query={},options={}){
  // GV-DATA-DATES-002: real departure dates home. Offline: options.routeDates (sync). Live:
  // FARE_MAP_ROUTE_DATES=on reads the date-pass rows (pk D#, one Query per route-month),
  // at most FARE_MAP_ROUTE_DATE_READS (default 24) per search, cached per route.
- const routeDateCache=new Map(),routeDateOn=String(env.FARE_MAP_ROUTE_DATES||'').trim().toLowerCase()==='on'&&!!store.tableName(env),routeDateCap=dynamicSetting(env,'FARE_MAP_ROUTE_DATE_READS',24,0,96);
+ const routeDateOn=String(env.FARE_MAP_ROUTE_DATES||'').trim().toLowerCase()==='on'&&!!store.tableName(env),routeDateCap=dynamicSetting(env,'FARE_MAP_ROUTE_DATE_READS',24,0,96);
+ const routeDateWindow=createRouteDateWindowCache({cap:routeDateCap,diagnostics,read:(a,h,ms)=>require('./fare-map-dates').readRouteDates(a,h,ms,{env,dynamo:options.dynamo,nowMs:now,abortSignal:controller.signal})});
  async function routeDatesFor(a,h,after){
   if(typeof options.routeDates==='function')return options.routeDates(a,h)||[];
-  if(!routeDateOn)return [];const k=a+'>'+h;if(routeDateCache.has(k))return routeDateCache.get(k);
-  if((diagnostics.routeDateReads||0)>=routeDateCap){routeDateCache.set(k,[]);return [];}
-  diagnostics.routeDateReads=(diagnostics.routeDateReads||0)+1;
-  let v=[];try{const m1=String(after||'').slice(0,7),m2=plus(String(after||'').slice(0,10),31).slice(0,7);v=await require('./fare-map-dates').readRouteDates(a,h,[...new Set([m1,m2])],{env,dynamo:options.dynamo,nowMs:now,abortSignal:controller.signal});}catch{diagnostics.routeDateErrors=(diagnostics.routeDateErrors||0)+1;}
-  routeDateCache.set(k,v);return v;
+  if(!routeDateOn)return [];
+  const m1=String(after||'').slice(0,7),m2=plus(String(after||'').slice(0,10),31).slice(0,7);
+  return routeDateWindow(a,h,[m1,m2]);
  }
  const dynMinGood=dynamicSetting(env,'FARE_MAP_DYNAMIC_MIN_GOOD_HOTELS',5,0,1000);
  if(dynamic&&dynMax>0){let n=0;for(const r of (options.dynamicRows||dynamicRows(all))){const c=code(r);if(!c||map.has(c)||(cityAccommodation(r)?.good3to4Stars||0)<dynMinGood||r.unifiedRegistry.cityId===origin.cityId||(r.unifiedRegistry.origin.airportCodes||[]).includes(origin.airportCode))continue;map.set(c,r);n++;}diagnostics.dynamicCandidates=n;}
+ diagnostics.eligibleCitiesTotal=map.size;
+ diagnostics.dynamicCandidates=diagnostics.dynamicCandidates||0;
  const originRow=originRegistryRow(all,origin);
  // The site sends "All continents"; that and similar wording mean no region filter.
  const regionFilter=anyRegion(query.region)?null:String(query.region).trim().toLowerCase();
@@ -1373,4 +1389,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{targetBand,bandFit,requirementCheck,regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,dynamicRows,isDynamic,cityAccommodation,experienceScore,experienceParts,comfortVariants,hotelQuality,cityTierCap,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{createRouteDateWindowCache,targetBand,bandFit,requirementCheck,regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,dynamicRows,isDynamic,cityAccommodation,experienceScore,experienceParts,comfortVariants,hotelQuality,cityTierCap,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
