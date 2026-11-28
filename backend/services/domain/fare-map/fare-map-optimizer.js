@@ -585,7 +585,12 @@ function experienceScore(s,spendable,originCC,reach=0){
 //     >=20 -> +50%, >=60 -> +100%, >=150 -> +150%) and steps above +50% are only offered
 //     when the budget is large (US$5,000+). Money goes first to the cities that can turn
 //     it into a better stay.
-let comfort={mode:'fixed',cap:.5,big:false};
+let comfort={mode:'fixed',cap:.5,big:false,lux:false};
+// GV-RECS-LUX-001 (FARE_MAP_LUXURY_TIERS=on, off by default): from about US$9,000 entered
+// (C$12,000+) the adaptive ladder adds +200% and +250% steps, only in cities with 150+
+// well-reviewed 3-4 star properties (the major markets where 5-star hotels exist), so a very
+// large budget can buy excellent accommodation instead of leaving half the budget unused.
+const LUX_FROM_USD=9000;
 // Aim a little below spendable so normal price variation at the live check does not knock
 // out most of the pool (FARE_MAP_COMFORT_TARGET, default 0.92 of spendable).
 let COMFORT_TARGET=.92;
@@ -610,7 +615,8 @@ function comfortVariants(states,spendable){
   if(s.comfortHotels||s.cost>=.89*spendable)continue;
   const supply=s.cities.map(cityTierCap);if(!supply.some(c=>c>0))continue;
   if(comfort.mode==='adaptive'){
-   for(const step of comfort.big?[.25,.5,1,1.5]:[.25,.5]){const c=tierCopy(s,spendable,COMFORT_TARGET,supply.map(x=>Math.min(x,step)),'tier'+Math.round(step*100));if(c)out.push(c);}
+   const lux=comfort.lux?supply.map(x=>x>=1.5?2.5:x):supply;
+   for(const step of comfort.lux?[.25,.5,1,1.5,2,2.5]:comfort.big?[.25,.5,1,1.5]:[.25,.5]){const c=tierCopy(s,spendable,COMFORT_TARGET,lux.map(x=>Math.min(x,step)),'tier'+Math.round(step*100));if(c)out.push(c);}
   }else{const c=tierCopy(s,spendable,COMFORT_TARGET,supply.map(x=>x>0?comfort.cap:0),'comfort');if(c)out.push(c);}
  }
  // One copy per trip and spend level is enough.
@@ -703,11 +709,19 @@ function buildPool(ranked,spendable,extra={}){
   if(kept.length>=3)pool=kept;
  }
  const picked=[];let left=pool.slice().sort((a,b)=>b.score-a.score||a.s.key.localeCompare(b.s.key));
+ // GV-RECS-VARIETY-001 (FARE_MAP_VISITOR_VARIETY=on, experience mode, off by default): the pool
+ // was the same for every visitor with the same search. Each pick now chooses at random among
+ // the trips whose diversity-adjusted value is within FARE_MAP_VARIETY_EPSILON (default 0.03)
+ // of the best, weighted by value (softmax, temperature 0.01), from a seed per visitor
+ // (query.varietySeed, else random). Trips clearly worse than the best are never chosen this
+ // way; the chosen trip's probability is kept (poolPropensity) so later learning from clicks
+ // can correct for it.
+ const variety=experience&&extra.rng?{eps:dynamicSetting(extra.env||bandEnv||process.env,'FARE_MAP_VARIETY_EPSILON',.03,0,.2),rng:extra.rng}:null;
  while(picked.length<(extra.size||POOL_SIZE)&&left.length){
-  let best=0,bestValue=-Infinity;
+  let best=0,bestValue=-Infinity;const values=variety?new Array(left.length):null;
   for(let i=0;i<left.length;i++){
    const x=left[i].x;
-   if(experience){const sim=picked.length?Math.max(...picked.map(p=>experienceSimilarity(x,p.x))):0;const v=left[i].score-EXP.similarity*sim;if(v>bestValue+1e-9){bestValue=v;best=i;}continue;}
+   if(experience){const sim=picked.length?Math.max(...picked.map(p=>experienceSimilarity(x,p.x))):0;const v=left[i].score-EXP.similarity*sim;if(values)values[i]=v;if(v>bestValue+1e-9){bestValue=v;best=i;}continue;}
    const sim=picked.length?Math.max(...picked.map(p=>poolSimilarity(x,p.x))):0;
    let repeated=0;
    if(extra.discoveryFeatures){
@@ -723,7 +737,13 @@ function buildPool(ranked,spendable,extra={}){
    const v=left[i].score-W.similarity*sim-repeated;
    if(v>bestValue+1e-9){bestValue=v;best=i;}
   }
+  let propensity=1;
+  if(variety&&variety.eps>0){
+   const near=values.map((v,i)=>[v,i]).filter(([v])=>v>=bestValue-variety.eps);
+   if(near.length>1){const w=near.map(([v])=>Math.exp((v-bestValue)/.01)),sum=w.reduce((a,b)=>a+b,0);let r=variety.rng()*sum,k=0;while(k<near.length-1&&(r-=w[k])>0)k++;best=near[k][1];propensity=w[k]/sum;}
+  }
   const [selected]=left.splice(best,1);
+  if(variety)selected.propensity=Number(propensity.toFixed(4));
   picked.push(selected);
   if(extra.explore||extra.variants){const identity=extra.explore?portfolioRouteKey:routeKey;const key=identity(selected.s);left=left.filter(p=>identity(p.s)!==key);}
  }
@@ -733,7 +753,7 @@ function buildPool(ranked,spendable,extra={}){
  // GV-RECS-ROLES-001 (FARE_MAP_ROLE_RULES=on): from about C$2,000 the two non-cheap slots
  // are international multi-country trips when the pool has them (a single city or a
  // same-country pair moves down), and the Lowest Cost slot below applies without experience mode.
- const roleRules=String((bandEnv||process.env).FARE_MAP_ROLE_RULES||'').trim().toLowerCase()==='on';
+ const penv=extra.env||bandEnv||process.env,roleRules=String(penv.FARE_MAP_ROLE_RULES||'').trim().toLowerCase()==='on';
  // From about C$1,500 (abroadFirst) the same slots prefer a trip entirely abroad (any continent).
  if(roleRules&&(extra.multiCountry||extra.abroadFirst)&&picked.length>=2){
   const cc=p=>p.s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase()),home=String(extra.originCC||'').toUpperCase();
@@ -759,7 +779,31 @@ function buildPool(ranked,spendable,extra={}){
    if(pick&&roleRules)pick.lowestSlot=true;
   }
  }
- return picked.map((p,i)=>({...p.s.tour,poolRank:i+1,poolScore:p.score,budgetUse:Number(p.x.use.toFixed(3)),cityCount:p.x.size,
+ // GV-RECS-ABROAD-002 (FARE_MAP_DOMESTIC_LAST=on with role rules, off by default): from about
+ // C$1,500 a trip that stays in (or returns to) the home country is a last resort. When the
+ // pool holds at least 3 trips entirely abroad, every trip touching the home country moves
+ // behind them, so a failed live check pulls the next trip abroad onto the page instead of
+ // Halifax or Ottawa; a domestic Lowest Cost slot is replaced by the cheapest trip abroad at
+ // standard hotels using at most 75% of spendable (Lowest Cost abroad when possible).
+ if(roleRules&&extra.abroadFirst&&String(penv.FARE_MAP_DOMESTIC_LAST||'').trim().toLowerCase()==='on'&&picked.length>1){
+  const home=String(extra.originCC||'').toUpperCase(),abroadOnly=p=>!p.s.cities.some(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase()===home);
+  if(home&&picked.filter(abroadOnly).length>=3){
+   const slot=picked.find(p=>p.lowestSlot);
+   if(slot&&!abroadOnly(slot)){
+    slot.lowestSlot=false;
+    const alt=scored.filter(x=>!x.s.comfortHotels&&abroadOnly(x)&&x.x.use<=.75).sort((a,b)=>a.x.use-b.x.use||b.score-a.score)[0];
+    if(alt){const at=picked.indexOf(alt);if(at>=0)picked.splice(at,1);picked.splice(Math.min(2,picked.length),0,alt);alt.lowestSlot=true;if(picked.length>(extra.size||POOL_SIZE))picked.pop();}
+   }
+   // From about C$2,000 a same-country pair abroad (Nashville + Dallas) also waits behind the
+   // multi-country trips, when at least 3 of those exist.
+   const multi=p=>new Set(p.s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase())).size>=2;
+   const useMulti=extra.multiCountry&&picked.filter(p=>abroadOnly(p)&&multi(p)).length>=3;
+   const tier=p=>!abroadOnly(p)?2:useMulti&&!p.lowestSlot&&p.s.cities.length>1&&!multi(p)?1:0;
+   const order=picked.map((p,i)=>[p,i]).sort((a,b)=>tier(a[0])-tier(b[0])||a[1]-b[1]).map(x=>x[0]);
+   if(order.some((p,i)=>p!==picked[i]))picked.splice(0,picked.length,...order);
+  }
+ }
+ return picked.map((p,i)=>({...p.s.tour,poolRank:i+1,poolScore:p.score,budgetUse:Number(p.x.use.toFixed(3)),cityCount:p.x.size,...(p.propensity!=null?{poolPropensity:p.propensity}:{}),
   // A big budget's trip that leaves much unspent may upgrade its hotels in the live step.
   // The Lowest Cost slot is never upgraded in the live step (it must stay cheap).
   poolUpgrade:!!extra.bigBudget&&p.x.use<.75&&!p.lowestSlot,...(p.lowestSlot?{lowestCostSlot:true}:{})}));
@@ -856,6 +900,51 @@ async function search(query={},options={}){
   diagnostics.routeDateReads=(diagnostics.routeDateReads||0)+1;
   let v=[];try{const m1=String(after||'').slice(0,7),m2=plus(String(after||'').slice(0,10),31).slice(0,7);v=await require('./fare-map-dates').readRouteDates(a,h,[...new Set([m1,m2])],{env,dynamo:options.dynamo,nowMs:now,abortSignal:controller.signal});}catch{diagnostics.routeDateErrors=(diagnostics.routeDateErrors||0)+1;}
   routeDateCache.set(k,v);return v;
+ }
+ // GV-RECS-LEGDATES-001 (FARE_MAP_LEG_DATES=on, off by default): the same daily date rows for
+ // the flights BETWEEN cities. The monthly partition keeps one cheapest date per pair and month,
+ // so an onward flight rarely fits the stay and many two-city trips at small budgets could only
+ // be built with long, costly stays. For the cheapest FARE_MAP_LEG_DATE_PAIRS (default 6) onward
+ // cities of each kept partial trip, the pair's daily dates are read (one GetItem per month,
+ // in parallel, at most FARE_MAP_LEG_DATE_READS per search, default 160) and up to two more
+ // onward options join the search: the cheapest date inside the stay window and the earliest
+ // one (the shortest sensible stay). Every later rule (stay limits, budget, beam) still applies.
+ // FARE_MAP_LEG_DATES=fallback: the search runs as before, and only when it built no trip of the
+ // required shape (multi-city from about C$1,500) does it run once more with leg dates on.
+ const legDatesOn=(String(env.FARE_MAP_LEG_DATES||'').trim().toLowerCase()==='on'||options.legDateRetry===true)&&(typeof options.legDates==='function'||!!store.tableName(env)),legDateCap=dynamicSetting(env,'FARE_MAP_LEG_DATE_READS',160,0,256),legDatePairs=dynamicSetting(env,'FARE_MAP_LEG_DATE_PAIRS',6,1,8);
+ // FARE_MAP_LEG_DATES_MODE: both (default: cheapest + earliest date), mid (cheapest + the date
+ // closest to the middle of the stay window), missing (only pairs whose monthly date does not
+ // fit the stay; cheapest + middle).
+ const legDateMode=['mid','missing'].includes(String(env.FARE_MAP_LEG_DATES_MODE||'').trim().toLowerCase())?String(env.FARE_MAP_LEG_DATES_MODE).trim().toLowerCase():'both';
+ const legDateCache=new Map();
+ async function legDatesFor(a,b,after){
+  const k=a+'>'+b;if(legDateCache.has(k))return legDateCache.get(k);
+  if((diagnostics.legDateReads||0)>=legDateCap){return [];}
+  diagnostics.legDateReads=(diagnostics.legDateReads||0)+1;
+  const work=(async()=>{try{if(typeof options.legDates==='function')return (await options.legDates(a,b))||[];const m1=String(after||'').slice(0,7),m2=plus(String(after||'').slice(0,10),31).slice(0,7);return await require('./fare-map-dates').readRouteDates(a,b,[...new Set([m1,m2])],{env,dynamo:options.dynamo,nowMs:now,abortSignal:controller.signal});}catch{diagnostics.legDateErrors=(diagnostics.legDateErrors||0)+1;return [];}})();
+  legDateCache.set(k,work);return work;
+ }
+ const legExtras=new Map();
+ async function prefetchLegDates(states,depth,concurrency){
+  const jobs=[];
+  for(const st of states){
+   const {start,end}=legWindow(st),seen=new Set();
+   if(start>end)continue;
+   const list=[];for(const m of legMonths(st))for(const f of cache.get(st.lastCode+'#'+m)||[]){if(homeCodes.has(f.destination)||!map.has(f.destination)||seen.has(f.destination)||st.cities.some(c=>code(c)===f.destination))continue;seen.add(f.destination);list.push(f);}
+   list.sort((x,y)=>x.priceUsd-y.priceUsd);
+   for(const f of list.filter(f=>legDateMode!=='missing'||f.departureDate<start||f.departureDate>end).slice(0,legDatePairs))jobs.push({st,f,start,end});
+  }
+  for(let i=0;i<jobs.length&&!stopped();i+=concurrency)await Promise.all(jobs.slice(i,i+concurrency).map(async j=>{
+   const rows=await legDatesFor(j.st.lastCode,j.f.destination,j.st.edges.at(-1).departureDate);
+   const fits=(rows||[]).filter(r=>r.departureDate>=j.start&&r.departureDate<=j.end&&r.departureDate<horizon&&r.departureDate!==j.f.departureDate&&Number(r.priceUsd)>0);
+   if(!fits.length)return;
+   const midDay=plus(j.start,Math.round(days(j.start,j.end)/2));
+   const second=legDateMode==='both'?fits.slice().sort((x,y)=>x.departureDate.localeCompare(y.departureDate))[0]:fits.slice().sort((x,y)=>Math.abs(days(midDay,x.departureDate))-Math.abs(days(midDay,y.departureDate))||x.priceUsd-y.priceUsd)[0];
+   const pick=[fits.slice().sort((x,y)=>x.priceUsd-y.priceUsd||x.departureDate.localeCompare(y.departureDate))[0],second];
+   const extra=[...new Map(pick.map(r=>[r.departureDate,r])).values()].map(r=>({...j.f,month:r.departureDate.slice(0,7),departureDate:r.departureDate,priceUsd:Math.round(r.priceUsd),stops:r.stops??j.f.stops,durationMinutes:r.durationMinutes??j.f.durationMinutes,datedSource:'leg-dates'}));
+   if(!legExtras.has(j.st))legExtras.set(j.st,[]);legExtras.get(j.st).push(...extra);
+   diagnostics.legDateOptions=(diagnostics.legDateOptions||0)+extra.length;
+  }));
  }
  const dynMinGood=dynamicSetting(env,'FARE_MAP_DYNAMIC_MIN_GOOD_HOTELS',5,0,1000);
  if(dynamic&&dynMax>0){let n=0;for(const r of (options.dynamicRows||dynamicRows(all))){const c=code(r);if(!c||map.has(c)||(cityAccommodation(r)?.good3to4Stars||0)<dynMinGood||r.unifiedRegistry.cityId===origin.cityId||(r.unifiedRegistry.origin.airportCodes||[]).includes(origin.airportCode))continue;map.set(c,r);n++;}diagnostics.dynamicCandidates=n;}
@@ -974,6 +1063,8 @@ async function search(query={},options={}){
        // trips a little over as the optional "+ a bit more" idea; never a main pick.
        diagnostics.overBudgetRoutes=(diagnostics.overBudgetRoutes||0)+1;reject('protected-budget');
        if(!(cheapestOverUsd<=safeCost))cheapestOverUsd=safeCost;
+       // (null<=x is true in JavaScript, so the null case is checked explicitly.)
+       if(state.cities.length>=2&&(cheapestOverMultiUsd==null||safeCost<cheapestOverMultiUsd))cheapestOverMultiUsd=safeCost;
        if(safeCost<=tour.usableTripBudgetUsd+stretchUsd&&!fare.dateEstimated){const ev=evaluateTour(tour,query);if(ev.accepted&&!recommendationEligibility(ev.tour,query).hardBlocked){stretchPool.push({estimatedDate:false,cities:state.cities,cost:safeCost,key:state.key,tour:{...ev.tour,fareMap:tour.fareMap}});if(stretchPool.length>64)stretchPool=stretchPool.sort((a,b)=>(b.tour.totalNights-a.tour.totalNights)||a.cost-b.cost).slice(0,32);}}
        return false;
       }
@@ -1006,14 +1097,14 @@ async function search(query={},options={}){
       if(complete.filter(x=>x.cities.length===size).length>128){reject('complete-route-compaction');const same=complete.filter(x=>x.cities.length===size),keep=pickDiverse(same,48),ids=new Set(keep.map(x=>x.key+'|'+x.cost));complete=[...complete.filter(x=>x.cities.length!==size),...keep,...bestUseOrder(same.filter(x=>!ids.has(x.key+'|'+x.cost)),budget-Math.round(budget*.1)).slice(0,16)];}
       return true;
   }
- let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[],stretchPool=[],cheapestOverUsd=null;
+ let beam=[{cities:[],edges:[],lastCode:originCode,cost:0,key:originCode}],complete=[],stretchPool=[],cheapestOverUsd=null,cheapestOverMultiUsd=null;
  // How far over the spendable budget the optional bigger-trip idea may go (about C$100-200).
  const margin=hotelMargin(env);diagnostics.hotelMargin=margin;
  const memRule=legacyRule(env);
  const regionLevels=regionRatios(options.hotelRatios,all,env);
  poolDiversity=String(env.FARE_MAP_POOL_DIVERSITY||'').trim().toLowerCase()==='on';
  experience=String(env.FARE_MAP_EXPERIENCE||'').trim().toLowerCase()==='on';diagnostics.experience=experience;bandEnv=env;diagnostics.targetBand=targetBand(env);
- {const cap=Number(env.FARE_MAP_COMFORT_CAP);{const t=Number(env.FARE_MAP_COMFORT_TARGET);COMFORT_TARGET=Number.isFinite(t)&&t>=.7&&t<=1?t:.92;}comfort={mode:String(env.FARE_MAP_COMFORT_MODE||'').toLowerCase()==='adaptive'?'adaptive':'fixed',cap:Number.isFinite(cap)&&cap>0&&cap<=2?cap:.5,big:legacy._internal.normalizeBudgetUsd(query)>=5000};}
+ {const cap=Number(env.FARE_MAP_COMFORT_CAP);{const t=Number(env.FARE_MAP_COMFORT_TARGET);COMFORT_TARGET=Number.isFinite(t)&&t>=.7&&t<=1?t:.92;}comfort={mode:String(env.FARE_MAP_COMFORT_MODE||'').toLowerCase()==='adaptive'?'adaptive':'fixed',cap:Number.isFinite(cap)&&cap>0&&cap<=2?cap:.5,big:legacy._internal.normalizeBudgetUsd(query)>=5000,lux:String(env.FARE_MAP_LUXURY_TIERS||'').trim().toLowerCase()==='on'&&legacy._internal.normalizeBudgetUsd(query)>=LUX_FROM_USD};}
  const readPlan=(bigBudget&&K>=3||flexible&&K>=2)&&String(env.FARE_MAP_READ_PLAN||'').trim().toLowerCase()==='on',onward=readPlan?(expand?onwardPotential([...map.values()],true):onwardPotential(all)):null;diagnostics.readPlan=readPlan;
  beamTarget=String(env.FARE_MAP_BEAM_TARGET||'').trim().toLowerCase()==='on'&&!query.nights?{spendable:budget-Math.round(budget*.1),K,share:.85}:null;diagnostics.regionHotelLevels=Object.fromEntries([...regionLevels].map(([k,v])=>[k,v.ratio]));
  const minStayCosts=new Map(),profiles=new Map();
@@ -1075,12 +1166,13 @@ async function search(query={},options={}){
    for(let i=0;i<beam.length&&!stopped();i+=concurrency)await Promise.all(beam.slice(i,i+concurrency).map(state=>fares(state.lastCode,depth?legMonths(state):firstMonths)));
    // Real dates home for every state at this depth, read in parallel (each was awaited one by one).
    if(depth>=1&&String(env.FARE_MAP_PREFETCH_ROUTE_DATES||'').trim().toLowerCase()==='on'){const todo=beam.filter(st=>!st.completed);for(let i=0;i<todo.length&&!stopped();i+=concurrency)await Promise.all(todo.slice(i,i+concurrency).map(st=>routeDatesFor(st.lastCode,originCode,st.edges.at(-1).departureDate)));}
+   if(legDatesOn&&depth>=1&&depth<K&&!stopped())await prefetchLegDates(beam.filter(st=>!st.completed),depth,concurrency);
    const next=[];
    for(const state of beam){
     if(stopped())break;
     const ms=depth?legMonths(state):firstMonths;
     const window=flexible&&depth?legWindow(state):null;
-    for(const fare of await fares(state.lastCode,ms)){
+    for(const fare of [...await fares(state.lastCode,ms),...(legExtras.get(state)||[])]){
      if(stopped())break;diagnostics.examinedEdges++;
      // Keep reciprocal observations as estimated-return seeds, even outside the stay window.
      if(window&&(fare.departureDate<window.start||fare.departureDate>window.end)&&!homeCodes.has(fare.destination))continue;
@@ -1349,7 +1441,11 @@ async function search(query={},options={}){
  // with other trips so a small search still offers choice.
  const poolBase=strictMulti||ranked.length>=8||!multiFirst?expandedRanked:[...expandedRanked,...expanded.filter(s=>s.cities.length===1)];
  const balanced=huge&&query.totalNights==null&&!query.departureDate&&!query.returnDate&&String(env.FARE_MAP_BALANCED_POOL||'').trim().toLowerCase()==='on';
- const poolSettings={multiCountry:budget>=MULTI_COUNTRY_FROM_USD,abroadFirst:budget>=MULTI_CITY_FROM_USD,discoveryFeatures:intelligence?discoveryFeatures:null,variants,explore:intelligence||flexible,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||(experience?(Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)>=8&&Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)<=40?Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE):20):POOL_SIZE)};
+ const poolSettings={env,multiCountry:budget>=MULTI_COUNTRY_FROM_USD,abroadFirst:budget>=MULTI_CITY_FROM_USD,discoveryFeatures:intelligence?discoveryFeatures:null,variants,explore:intelligence||flexible,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||(experience?(Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)>=8&&Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)<=40?Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE):20):POOL_SIZE)};
+ if(String(env.FARE_MAP_VISITOR_VARIETY||'').trim().toLowerCase()==='on'){
+  const seed=String(query.varietySeed??query.visitorId??Math.random());let h=2166136261;for(const ch of seed){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}
+  let x=h||1;poolSettings.rng=()=>(x=Math.imul(x^(x>>>15),2246822519)>>>0,x=(x^(x>>>13))>>>0,(x%1000003)/1000003);diagnostics.visitorVariety=true;
+ }
  result_pool=buildPool(experience?[...poolBase,...comfortVariants(poolBase,spendable)]:poolBase,spendable,poolSettings);
  // Make affordable single-city backups reachable even when date variants made the
  // multi-city list look full. Verified multi-city picks keep their original priority.
@@ -1370,6 +1466,15 @@ async function search(query={},options={}){
  if(variants)diagnostics.alternativeRouteVariants=retained.length-distinct.size;
  diagnostics.poolSize=result_pool.length;diagnostics.bigBudget=bigBudget;
  diagnostics.cityCounts=[...new Set(allRanked.map(s=>s.cities.length))].sort();diagnostics.stretchCandidates=stretchPool.length;
+ if(String(env.FARE_MAP_LEG_DATES||'').trim().toLowerCase()==='fallback'&&!options.legDateRetry&&!options.suggestOnly&&!exact&&K>=2&&budget>=MULTI_CITY_FROM_USD&&!allRanked.some(s=>s.cities.length>=2)&&!stopped()){
+  const again=await search(query,{...options,legDateRetry:true,timeBudgetMs:Math.max(1000,deadline-clock())});
+  if(again?.diagnostics){again.diagnostics.legDateFallback=true;again.diagnostics.firstPassMs=diagnostics.ms??(clock()-started);}
+  return again;
+ }
+ // GV-RECS-STRICT-002 (FARE_MAP_MULTI_CITY_HINT=on, off by default): strict multi-city found no
+ // 2-city trip that fits: say what budget the cheapest 2-city trip seen needs (plus the 10%
+ // reserve), so the page can offer it instead of an empty result.
+ if(strictMulti&&!ranked.length&&cheapestOverMultiUsd&&String(env.FARE_MAP_MULTI_CITY_HINT||'').trim().toLowerCase()==='on'){requested.suggestedMultiCityBudgetUsd=Math.ceil(cheapestOverMultiUsd/.9/10)*10;diagnostics.multiCityHintUsd=requested.suggestedMultiCityBudgetUsd;}
  // No trip fits: say what budget would (cheapest complete trip seen, plus the 10% reserve).
  if(!allRanked.length&&cheapestOverUsd)requested.suggestedMinimumBudgetUsd=Math.ceil(cheapestOverUsd/.9/10)*10;
  // Nothing came close: look once more with a much larger budget, only to say what would work.

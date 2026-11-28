@@ -22,7 +22,7 @@ const { applyTravellerPricingToTour } = require('../../backend/services/domain/p
 const ORIGINS = ['Toronto (YYZ)', 'Vancouver (YVR)', 'New York (JFK)', 'Los Angeles (LAX)', 'Mexico City (MEX)', 'London (LHR)', 'Paris (PAR)', 'Dubai (DXB)', 'Singapore (SIN)', 'Sydney (SYD)'];
 const BUDGETS = [1500, 2000, 3000, 4000, 5000, 7500, 10000, 15000];
 
-function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--cost-release') o.costRelease = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--route-dates') o.routeDates = a[++i]; else if (a[i] === '--hotel-prices') o.hotelPrices = a[++i]; else if (a[i] === '--plan-with-prices') o.planWithPrices = true; else if (a[i] === '--price-index') o.priceIndex = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
+function args() { const a = process.argv.slice(2), o = { env: {} }; for (let i = 0; i < a.length; i++) { if (a[i] === '--memory-file') o.memoryFile = a[++i]; else if (a[i] === '--fare-snapshot') o.fareSnapshot = a[++i]; else if (a[i] === '--env') { const [k, ...v] = a[++i].split('='); o.env[k] = v.join('='); } else if (a[i] === '--matrix') o.matrix = true; else if (a[i] === '--cost-study') o.costStudy = true; else if (a[i] === '--cost-release') o.costRelease = true; else if (a[i] === '--json') o.json = true; else if (a[i] === '--route-dates') o.routeDates = a[++i]; else if (a[i] === '--hotel-prices') o.hotelPrices = a[++i]; else if (a[i] === '--plan-with-prices') o.planWithPrices = true; else if (a[i] === '--price-index') o.priceIndex = true; else if (a[i] === '--synthetic-prices') o.syntheticPrices = true; else if (a[i] === '--synthetic-dates') o.syntheticDates = true; else if (a[i] === '--origins') o.origins = a[++i].split(','); else if (a[i] === '--budgets') o.budgets = a[++i].split(',').map(Number); } return o; }
 function loadMemory(file) {
   const R = require('./hotel-memory-report.cjs');
   const { entries } = R.parse(fs.readFileSync(file, 'utf8'));
@@ -101,12 +101,34 @@ async function mockPage(query, options, want, { cold = true, seen = [], shared =
     },
     async applyNuiteeLiveStays(t, q, hotelOptions) {
       if (stress) await new Promise(resolve => setTimeout(resolve, 9));
-      const stops = t.stops.map(s => {
+      // Rates are cached per stay (rateCache): a second pass for the same stay is no new request.
+      const base = t.stops.map(s => {
         const key = [s.cityId, s.arrivalDate, s.departureDate, q.adults, q.rooms, q.currency].join('|');
         if (!hotelKeys.has(key)) { hotelKeys.add(key); hotelRequests++; }
-        const usd = Math.round(s.hotel.estimatedStayUsd * B.hotelTruth(s) * (hotelOptions.hotelChoice === 'cheapest' ? 0.8 : 1));
-        return { ...s, hotel: { ...s.hotel, pricingIntegrity: { ...s.hotel.pricingIntegrity, nightlyPerRoomUsd: usd / s.nights },
-          nuiteeLiveRate: { amount: usd, totalUsd: usd, currency: 'USD' } } };
+        // The live check re-prices each stay at its base (cheap-but-good) level before this step.
+        return Math.round(s.hotel.estimatedStayUsd * B.hotelTruth(s) * (hotelOptions.hotelChoice === 'cheapest' ? 0.8 : 1));
+      });
+      // hotelBudgetUsd (upgradeHotels in nuitee-live-stays): better-rated offers exist at price
+      // steps whose depth follows the city's well-reviewed 3-4 star supply (Agoda feed), each
+      // step ~0.6 review points better; longest stays first, within the per-stay limit and the
+      // money left. Without a hotel budget the cheap-but-good offer is kept (as before).
+      const extra = base.map(() => 0), cap = Number(hotelOptions.hotelBudgetUsd);
+      if (Number.isFinite(cap) && cap > 0) {
+        const perStay = hotelOptions.upgradePolicy && Number(hotelOptions.upgradePolicy.perStayPct) >= 0 ? Number(hotelOptions.upgradePolicy.perStayPct) : Infinity;
+        let left = cap - base.reduce((a, b) => a + b, 0);
+        const order = t.stops.map((s, i) => i).sort((a, b) => (t.stops[b].nights || 0) - (t.stops[a].nights || 0));
+        for (const i of order) {
+          if (left <= 0) break;
+          const depth = opt._internal.cityTierCap({ unifiedRegistry: { origin: { providerLocationCode: t.stops[i].code } }, cityCode: t.stops[i].code });
+          const steps = [0.25, 0.5, 1, 1.5, 2].filter(x => x <= Math.max(0.5, depth * 1.35) && x <= perStay + 1e-9 && base[i] * x <= left);
+          if (!steps.length) continue;
+          extra[i] = Math.round(base[i] * steps.at(-1)); left -= extra[i];
+        }
+      }
+      const stops = t.stops.map((s, i) => {
+        const usd = base[i] + extra[i];
+        return { ...s, hotel: { ...s.hotel, estimatedStayUsd: usd, pricingIntegrity: { ...s.hotel.pricingIntegrity, nightlyPerRoomUsd: usd / s.nights },
+          nuiteeLiveRate: { amount: usd, totalUsd: usd, currency: 'USD' }, ...(extra[i] ? { budgetUpgrade: { extraUsd: extra[i] } } : {}) } };
       });
       return { tour: applyTravellerPricingToTour({ ...t, stops }, q),
         summary: { applied: true, appliedCount: stops.length, stopCount: stops.length } };
@@ -125,9 +147,9 @@ async function mockPage(query, options, want, { cold = true, seen = [], shared =
 
 async function runOne(origin, budgetCad, env, costStudy, stress = false) {
   const missing = new Set(), truncated = new Set();
-  const query = { origin, budget: budgetCad, currency: 'CAD', adults: 1 };
+  const query = { origin, budget: budgetCad, currency: 'CAD', adults: 1, ...(process.env.BENCH_SEED ? { varietySeed: process.env.BENCH_SEED + '|' + origin } : {}) };
   const options = { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env },
-    now: SNAP?.takenAt ?? B.NOW, readRoutes: READER ? READER(missing, truncated) : B.fareReader(), hotelRatios: SIMMEM, allowCityExpansion: true, ...(PRICE_INDEX ? { priceIndex: PRICE_INDEX } : {}), ...(ROUTE_DATES ? { routeDates: (a, h) => ROUTE_DATES.get(a + '>' + h) || [] } : {}) };
+    now: SNAP?.takenAt ?? B.NOW, readRoutes: READER ? READER(missing, truncated) : B.fareReader(), hotelRatios: SIMMEM, allowCityExpansion: true, ...(PRICE_INDEX ? { priceIndex: PRICE_INDEX } : {}), ...(ROUTE_DATES ? { routeDates: (a, h) => ROUTE_DATES.get(a + '>' + h) || [] } : SYNTH_DATES ? { routeDates: SYNTH_DATES, legDates: SYNTH_DATES } : {}) };
   // BENCH_READ_LATENCY_MS: simulate DynamoDB latency per Query (production reads take ~50-150 ms),
   // so the 5 s search limit binds as it does live.
   const lat = Number(process.env.BENCH_READ_LATENCY_MS) || 0;
@@ -137,6 +159,7 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
     if (process.env.BENCH_PROFILE) process.on('beforeExit', () => {});
     options.__prof = prof;
     const rr = options.readRoutes; options.readRoutes = async (...a) => { await wait('reads'); return rr(...a); };
+    if (options.legDates) { const ld = options.legDates, ldc = new Map(); options.legDates = async (a, b) => { const k = a + '>' + b; if (!ldc.has(k)) ldc.set(k, wait('dates').then(() => ld(a, b))); return ldc.get(k); }; }
     if (options.routeDates) { const rd = options.routeDates; const rdc = new Map(); let rdn = 0; options.routeDates = async (a, h) => { const k = a + '>' + h; if (!rdc.has(k)) { if (rdn++ >= 24) { rdc.set(k, []); } else rdc.set(k, wait('dates').then(() => rd(a, h))); } return rdc.get(k); }; }
   }
   const r = await opt.search(query, { ...options, traceSearch: true });
@@ -208,7 +231,7 @@ function snapshotReader(file) {
     return value || [];
   };
 }
-let READER = null;
+let READER = null, SYNTH_DATES = null;
 // --hotel-prices: real nightly prices per city (Nuitee Price Index pilot, well-reviewed 3-4 star
 // median, else all sampled hotels), { "<cityId>": ratioToModel }. As TRUTH it replaces the
 // simulated hotel prices in the live check; with --plan-with-prices the engine also plans with
@@ -264,6 +287,50 @@ function summarise(cases) {
   return { byBudget: rows, topCitiesInGuestTrips: top, effort };
 }
 let BUDGETS_USED = BUDGETS;
+// --synthetic-prices / --synthetic-dates (GV-RECS-V2-OVERNIGHT): production-like inputs when
+// the real fare snapshot, 467-city price export and D# date rows are not at hand. Both are
+// derived from the same seeded synthetic model the replay already uses, so baseline and
+// candidate settings see identical data.
+//   prices: a Price Index level for ~60% of registry cities = the simulated truth level
+//           (region x city factor, no dates) with +-5% measurement noise. Planning only: the
+//           live check keeps the simulated truth (with its date pattern).
+//   dates:  daily departure dates (as the D# rows: the 30 cheapest routes per origin and
+//           month, both directions): the cached date at the cached price plus 8-20 more
+//           days at 1.0-1.5x.
+//           Served for any pair (a, b), so return and intermediate legs can both use them.
+function seededRng(str) { let x = [...str].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) || 1; return () => (x = (x * 16807) % 2147483647) / 2147483647; }
+function syntheticPriceIndex() {
+  const out = new Map();
+  for (const row of opt._internal.rows()) {
+    const id = row.unifiedRegistry?.cityId; if (!id || out.has(id)) continue;
+    const R = seededRng('synthetic-pi|' + id); if (R() >= 0.6) continue;
+    const fam = opt._internal.regionFamily(row);
+    out.set(id, { cityId: id, regionFamily: fam, levelRatio: Number((B.hotelTruth({ cityId: id, regionFamily: fam }) * (0.95 + 0.1 * R())).toFixed(3)) });
+  }
+  return out;
+}
+function syntheticDates() {
+  // As the collector's date pass: for each origin and month the 30 cheapest routes in the
+  // monthly fare map, both directions (so a pair has rows when either side ranks it).
+  const reader = B.fareReader(), memo = new Map(), top = new Map();
+  const monthsAhead = Array.from({ length: 7 }, (_, i) => { const d = new Date(B.NOW); d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() + i); return d.toISOString().slice(0, 7); });
+  const top30 = async (a, m) => { const k = a + '|' + m; if (!top.has(k)) top.set(k, new Set((await reader(a, m)).slice().sort((x, y) => x.priceUsd - y.priceUsd).slice(0, 30).map(f => f.destination))); return top.get(k); };
+  return async (a, b) => {
+    const k = a + '>' + b; if (memo.has(k)) return memo.get(k);
+    const list = [];
+    for (const m of monthsAhead) {
+      if (!(await top30(a, m)).has(b) && !(await top30(b, m)).has(a)) continue;
+      const f = (await reader(a, m)).find(x => x.destination === b) || (await reader(b, m)).filter(x => x.destination === a).map(x => ({ ...x, origin: a, destination: b }))[0];
+      if (!f) continue;
+      const R = seededRng('synthetic-dates|' + k + '|' + m);
+      const n = 8 + Math.floor(R() * 13), used = new Set([f.departureDate]);
+      list.push({ departureDate: f.departureDate, priceUsd: f.priceUsd, stops: f.stops });
+      for (let i = 0; i < n; i++) { const d = `${m}-${String(1 + Math.floor(R() * 28)).padStart(2, '0')}`; if (used.has(d)) continue; used.add(d); list.push({ departureDate: d, priceUsd: Math.round(f.priceUsd * (1 + 0.5 * R())), stops: f.stops }); }
+    }
+    memo.set(k, list); return list;
+  };
+}
+
 
 async function main() {
   process.env.ENABLE_GENERATED_TOUR_651A = 'true';
@@ -271,10 +338,12 @@ async function main() {
   const o = args();
   if (o.fareSnapshot) READER = snapshotReader(o.fareSnapshot);
   if (o.routeDates) ROUTE_DATES = loadRouteDates(o.routeDates);
+  if (o.syntheticDates) SYNTH_DATES = syntheticDates();
   const origins = o.origins || SNAP?.origins || ORIGINS; BUDGETS_USED = o.budgets || BUDGETS;
   B.setOriginCodes(origins.map(x => B.originInfo(x).code));
   if (o.hotelPrices) loadPrices(o.hotelPrices);
   // --price-index: plan through the production Price Index path (levelRatio per city).
+  if (o.syntheticPrices) PRICE_INDEX = syntheticPriceIndex();
   if (o.priceIndex && PRICE_RATIOS) PRICE_INDEX = new Map([...PRICE_RATIOS].map(([id, r]) => [id, { cityId: id, levelRatio: r, regionFamily: (PRICE_FAMILY || {})[id] }]));
   SIMMEM = o.planWithPrices && PRICE_RATIOS ? new Map([...PRICE_RATIOS].map(([id, ratio]) => [id, { ratio, n: 20, at: B.NOW }])) : o.memoryFile ? loadMemory(o.memoryFile) : B.simulatedMemory();
   if (o.costRelease) {
@@ -311,7 +380,7 @@ async function main() {
   const cases = [];
   for (const x of origins) for (const b of BUDGETS_USED) cases.push(await runOne(x, b, o.env, o.costStudy));
   const s = summarise(cases);
-  if (o.json) { console.log(JSON.stringify({ input: SNAP ? 'cached-fare-snapshot' : 'synthetic-fares', env: o.env, memory: o.memoryFile ? 'real export' : 'simulated', summary: s, cases }, null, 1)); return; }
+  if (o.json) { console.log(JSON.stringify({ input: SNAP ? 'cached-fare-snapshot' : 'synthetic-fares', env: o.env, inputs: { syntheticPrices: !!o.syntheticPrices, syntheticDates: !!o.syntheticDates }, memory: o.memoryFile ? 'real export' : 'simulated', summary: s, cases }, null, 1)); return; }
   console.log(`Investigation: ${origins.length} origins x ${BUDGETS_USED.length} budgets, memory ${o.memoryFile ? 'REAL export' : 'simulated clean'}, settings ${JSON.stringify(o.env)}`);
   console.log('budget  found  legacy-first  nights  cities  3-city  maxNightsHit  multiCountry(2+ city trips)  sameCountry(shown)  refresh: months/repeatCity  topMonth');
   for (const [b, r] of Object.entries(s.byBudget)) console.log(`C$${String(b).padEnd(6)} ${String(r.withTrip + '/' + r.searches).padEnd(6)} ${String(r.bestUse + '%').padEnd(8)} ${String(r.bestNights).padEnd(7)} ${String(r.bestCities).padEnd(7)} ${String(r.threeCityBest + '%').padEnd(7)} ${String(r.maxNightsHitBest + '%').padEnd(13)} ${String(r.multiCountry + '%').padEnd(28)} ${String(r.sameCountryShown + '%').padEnd(19)} ${r.refreshDistinctMonths}/${r.refreshRepeatCity}%   ${r.topMonth}`);
