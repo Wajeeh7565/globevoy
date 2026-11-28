@@ -34,6 +34,7 @@ const groups = {
     ['node', '--test', 'tests/backend/analytics-9a.test.cjs'],
     ['node', '--test', 'tests/backend/analytics-v1.test.cjs'],
     ['node', '--test', 'tests/backend/settings-file.test.cjs'],
+    ['node', '--test', 'tests/backend/recs-v2-step1.test.cjs'],
     ['node', '--test', 'tests/backend/ignav-fare-cache.test.cjs'],
     ['node', '--test', 'tests/backend/ignav-cost-controls.test.cjs'],
     ['node', '--test', 'tests/backend/booking-evidence.test.cjs'],
