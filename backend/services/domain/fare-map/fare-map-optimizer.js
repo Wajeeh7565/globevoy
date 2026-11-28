@@ -730,7 +730,22 @@ function buildPool(ranked,spendable,extra={}){
  // Lowest Cost must be genuinely cheaper (FARE_MAP_EXPERIENCE): the page labels the cheapest
  // of the first trips shown as Lowest Cost, so keep the best-scoring trip at standard hotels
  // that uses at most FARE_MAP_LOWEST_COST_SHARE (default .6) of spendable in third place.
- if(experience&&picked.length>=3){
+ // GV-RECS-ROLES-001 (FARE_MAP_ROLE_RULES=on): from about C$2,000 the two non-cheap slots
+ // are international multi-country trips when the pool has them (a single city or a
+ // same-country pair moves down), and the Lowest Cost slot below applies without experience mode.
+ const roleRules=String((bandEnv||process.env).FARE_MAP_ROLE_RULES||'').trim().toLowerCase()==='on';
+ if(roleRules&&extra.multiCountry&&picked.length>=2){
+  const cc=p=>p.s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase());
+  const good=p=>{const c=cc(p);return new Set(c).size>=2&&!c.includes(String(extra.originCC||'').toUpperCase());};
+  for(let slot=0;slot<2&&slot<picked.length;slot++){
+   if(good(picked[slot]))continue;
+   const j=picked.findIndex((p,i)=>i>slot&&good(p));
+   const alt=j>=0?null:scored.filter(p=>good(p)&&!picked.includes(p)).sort((a,b)=>b.score-a.score)[0];
+   if(j>=0){const [p]=picked.splice(j,1);picked.splice(slot,0,p);}
+   else if(alt){picked.splice(slot,0,alt);if(picked.length>(extra.size||POOL_SIZE))picked.pop();}
+  }
+ }
+ if((experience||roleRules)&&picked.length>=3){
   const cap=Number(process.env.FARE_MAP_LOWEST_COST_SHARE)||.6;
   const cheap=s=>!s.s.comfortHotels&&s.x.use<=cap;
   if(!picked.slice(0,3).some(cheap)){
@@ -1046,8 +1061,13 @@ async function search(query={},options={}){
    readCeiling=depth===K-1&&K>1?Math.max(diagnostics.reads,readLimit-Math.min(32,Math.floor(readLimit/3))):readLimit;
    // Independent partitions at one depth may be prefetched with a small fixed pool.
    // Never fan out to the full registry, and never make provider calls here.
-   const concurrency=Math.max(1,Math.min(4,options.readConcurrency||4));
+   // GV-RECS-FAST-001: FARE_MAP_READ_CONCURRENCY (default 4, at most 24) partitions read at once.
+   // Live, each Query takes ~50-150 ms, so 48 beam states at 4 at a time used most of the 5 s
+   // search limit on reads alone and low budgets stopped before the second city.
+   const concurrency=Math.max(1,Math.min(24,options.readConcurrency||dynamicSetting(env,'FARE_MAP_READ_CONCURRENCY',4,1,24)));
    for(let i=0;i<beam.length&&!stopped();i+=concurrency)await Promise.all(beam.slice(i,i+concurrency).map(state=>fares(state.lastCode,depth?legMonths(state):firstMonths)));
+   // Real dates home for every state at this depth, read in parallel (each was awaited one by one).
+   if(depth>=1&&String(env.FARE_MAP_PREFETCH_ROUTE_DATES||'').trim().toLowerCase()==='on'){const todo=beam.filter(st=>!st.completed);for(let i=0;i<todo.length&&!stopped();i+=concurrency)await Promise.all(todo.slice(i,i+concurrency).map(st=>routeDatesFor(st.lastCode,originCode,st.edges.at(-1).departureDate)));}
    const next=[];
    for(const state of beam){
     if(stopped())break;
@@ -1316,7 +1336,7 @@ async function search(query={},options={}){
  // with other trips so a small search still offers choice.
  const poolBase=ranked.length>=8||!multiFirst?expandedRanked:[...expandedRanked,...expanded.filter(s=>s.cities.length===1)];
  const balanced=huge&&query.totalNights==null&&!query.departureDate&&!query.returnDate&&String(env.FARE_MAP_BALANCED_POOL||'').trim().toLowerCase()==='on';
- const poolSettings={discoveryFeatures:intelligence?discoveryFeatures:null,variants,explore:intelligence||flexible,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||(experience?(Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)>=8&&Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)<=40?Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE):20):POOL_SIZE)};
+ const poolSettings={multiCountry:budget>=MULTI_COUNTRY_FROM_USD,discoveryFeatures:intelligence?discoveryFeatures:null,variants,explore:intelligence||flexible,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||(experience?(Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)>=8&&Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)<=40?Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE):20):POOL_SIZE)};
  result_pool=buildPool(experience?[...poolBase,...comfortVariants(poolBase,spendable)]:poolBase,spendable,poolSettings);
  // Make affordable single-city backups reachable even when date variants made the
  // multi-city list look full. Verified multi-city picks keep their original priority.
