@@ -87,11 +87,14 @@
       const ref = JSON.parse(sessionStorage.getItem('globevoy.analytics.ref.v1') || 'null');
       if (!ref || !ref.sid || Date.now() - ref.at > 6 * 3600000) return;
       const host = a.hostname.replace(/^www\./, '');
+      // Booking partners only: photo credits, maps and licence links are not partner clicks.
+      if (!/(^|\.)(nuitee\.link|nuitee\.com|agoda\.com|tp\.media|aviasales\.[a-z.]+|travelpayouts\.com|ignav\.com|kiwi\.com|skyscanner\.[a-z.]+|booking\.com|expedia\.[a-z.]+|hotels\.com|trip\.com)$/i.test(host)) return;
       const text = (a.textContent + ' ' + (a.closest('[data-kind],section,li,article')?.textContent || '')).slice(0, 400);
       const kind = /hotel|stay|room|nuitee|agoda/i.test(host + ' ' + a.textContent) ? 'hotel' : /flight|fly|air|aviasales|ignav|kiwi|skyscanner/i.test(host + ' ' + text) ? 'flight' : 'other';
-      const m = text.match(/(?:C\$|US\$|\$|€|£)\s?([0-9][0-9,]{0,7}(?:\.[0-9]{1,2})?)/);
+      // Price only when the link carries it; nearby page text gave wrong amounts (e.g. per night).
+      const val = Number(a.dataset && a.dataset.gvValue);
       const clickId = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, '0')).join('');
-      window.GlobevoyApi?.sendTripFeedback?.({ sid: ref.sid, role: ref.role, rank: ref.rank, action: 'partner_click', provider: host.slice(0, 40), kind, value: m ? Number(m[1].replace(/,/g, '')) : null, currency: /C\$/.test(text) ? 'CAD' : /US\$/.test(text) ? 'USD' : null, clickId });
+      window.GlobevoyApi?.sendTripFeedback?.({ sid: ref.sid, role: ref.role, rank: ref.rank, action: 'partner_click', provider: host.slice(0, 40), kind, value: val > 0 ? val : null, currency: val > 0 && /^[A-Z]{3}$/.test(a.dataset.gvCurrency || '') ? a.dataset.gvCurrency : null, clickId });
     } catch (_) {}
   }
   if (typeof document !== 'undefined') document.addEventListener('click', partnerClick, true);
