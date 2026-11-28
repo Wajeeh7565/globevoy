@@ -22,3 +22,8 @@ test('the shipped file is valid and holds no secrets', () => {
   const s = sf.load();
   for (const k of Object.keys(s)) assert.ok(!sf.SECRET.test(k), k);
 });
+test('the backend packager ships config/lambda-settings.json and refuses a package without it', () => {
+  const src = fs.readFileSync(path.join(__dirname, '../../ops/release/package-backend.cjs'), 'utf8');
+  assert.match(src, /\['services', 'data', 'config'\]/);
+  assert.match(src, /lambda-settings\.json missing from the package/);
+});
