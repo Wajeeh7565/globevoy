@@ -137,7 +137,7 @@ function main() {
 
   fs.mkdirSync(stage, { recursive: true });
   for (const name of ['lambda.js', 'production-account-lambda.js']) fs.copyFileSync(path.join(source, name), path.join(stage, name));
-  for (const folder of ['services', 'data']) if (fs.existsSync(path.join(source, folder))) fs.cpSync(path.join(source, folder), path.join(stage, folder), { recursive: true });
+  for (const folder of ['services', 'data', 'config']) if (fs.existsSync(path.join(source, folder))) fs.cpSync(path.join(source, folder), path.join(stage, folder), { recursive: true });
 
   if (args.enable) {
     const configFile = path.join(__dirname, 'production-account-config.json');
@@ -151,6 +151,12 @@ function main() {
     fs.copyFileSync(path.resolve(args.activity), path.join(stage, 'services/analytics/activity-build.json'));
   }
 
+  // The Lambda reads 79+ switches from this file (Lambda's 4 KB settings limit); a package
+  // without it would silently run with those features off.
+  const settingsFile = path.join(stage, 'config/lambda-settings.json');
+  if (!fs.existsSync(settingsFile)) fail('config/lambda-settings.json missing from the package.');
+  const settingsCount = Object.keys(require(path.join(source, 'services/shared/settings-file.js')).load(settingsFile)).length;
+  console.log(`Lambda settings file: ${settingsCount} settings`);
   fs.copyFileSync(path.join(__dirname, 'backend-dependencies/package.json'), path.join(stage, 'package.json'));
   fs.copyFileSync(path.join(__dirname, 'backend-dependencies/package-lock.json'), path.join(stage, 'package-lock.json'));
   fs.mkdirSync(path.join(stage, 'src'));
