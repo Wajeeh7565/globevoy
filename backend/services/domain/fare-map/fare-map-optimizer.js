@@ -308,6 +308,18 @@ function makeTour(state,origin,budget,query,options={}){
 // lowest-cost: the cheapest route. most-memorable: a route sharing the fewest cities.
 // Real return dates always outrank estimated ones. Each role keeps two backup routes.
 const USE_BAND=[.8,.95];
+// GV-RECS-V2-STEP1 (FARE_MAP_TARGET_BAND, e.g. "85-90"; off when unset): one budget-use
+// target for every layer, as a share of the ENTERED budget. Planning costs are measured on
+// spendable (entered minus the 10% reserve), so "85-90" is 94.4-100% of spendable here.
+// The reserve stays a hard limit; this only moves where ranking aims.
+let bandEnv=null;
+function targetBand(env=bandEnv||process.env){
+ const m=String(env.FARE_MAP_TARGET_BAND||'').trim().match(/^(\d{2})-(\d{2,3})$/);if(!m)return null;
+ const lo=Number(m[1])/100,hi=Number(m[2])/100;if(!(lo>=.5&&hi<=1&&lo<hi))return null;
+ return [Math.min(1,lo/.9),Math.min(1,hi/.9)];
+}
+// Fit 1 inside the band, falling to 0 at 40 points below it; nothing scores above spendable.
+const bandFit=(use,band)=>use>=band[0]&&use<=band[1]?1:use<band[0]?Math.max(0,1-(band[0]-use)/.4):Math.max(0,1-(use-band[1])/.05);
 const routeKey=s=>s.cities.map(code).join('>');
 const portfolioRouteKey=s=>s.cities.map(c=>c.unifiedRegistry.cityId).sort().join('>');
 const variantDates=s=>s.tour.legs.map(l=>l.departureDate).join('|');
@@ -333,11 +345,27 @@ function retainRouteVariants(complete,primary,spendable){
 }
 function bestUseOrder(states,spendable,originCC){
  if(experience)return states.slice().sort((a,b)=>experienceScore(b,spendable,originCC)-experienceScore(a,spendable,originCC)||a.key.localeCompare(b.key));
- const use=s=>s.cost/spendable,inBand=s=>use(s)>=USE_BAND[0]&&use(s)<=USE_BAND[1];
+ const band=targetBand()||USE_BAND,use=s=>s.cost/spendable,inBand=s=>use(s)>=band[0]&&use(s)<=band[1];
  const nights=s=>Number(s.tour?.totalNights)||0;
  return states.slice().sort((a,b)=>a.estimatedDate-b.estimatedDate||inBand(b)-inBand(a)
-  ||(inBand(a)&&inBand(b)?nights(b)-nights(a)||b.cost-a.cost:Math.abs(use(a)-USE_BAND[0])-Math.abs(use(b)-USE_BAND[0]))
+  ||(inBand(a)&&inBand(b)?nights(b)-nights(a)||b.cost-a.cost:Math.abs(use(a)-band[0])-Math.abs(use(b)-band[0]))
   ||a.key.localeCompare(b.key));
+}
+const MULTI_COUNTRY_FROM_USD=1470; // about C$2,000
+function requirementCheck(all,diagnostics,budget,spendable,originCC){
+ const cc=s=>new Set(s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase()));
+ const multiCity=all.filter(s=>s.cities.length>=2),multiCountry=multiCity.filter(s=>cc(s).size>=2&&![...cc(s)].includes(originCC));
+ const band=targetBand()||[.89,1],inBand=s=>s.cost/spendable>=band[0]&&s.cost/spendable<=band[1];
+ const sum={},take=(k,n)=>{sum[k]=(sum[k]||0)+(n||0);};
+ for(const d of diagnostics.searchTrace?.depths||[]){if(!d.depth)continue;const r=d.rejected||{};
+  take('flights',r['invalid-or-stale-fare']);take('budget',(r['protected-budget']||0)+(r['partial-protected-budget']||0));
+  take('duration',(r['return-stay-limit']||0)+(r['maximum-trip-duration']||0)+(r['too-much-of-trip-is-spent-in-transit']||0));
+  take('cityLimit',r['maximum-city-count']);take('registry',r['ineligible-or-repeated-city']);take('beam',d.discarded);take('blockedReads',d.blockedPartitions);}
+ const need=budget>=MULTI_COUNTRY_FROM_USD?'multi-country':budget>=MULTI_CITY_FROM_USD?'multi-city':null;
+ const found=need==='multi-country'?multiCountry.length:need==='multi-city'?multiCity.length:all.length;
+ const order=['flights','budget','duration','cityLimit','blockedReads'];
+ const missReason=!need||found?null:diagnostics.bounded?'search-time-limit':order.filter(k=>sum[k]>0).sort((a,b)=>sum[b]-sum[a])[0]||'candidate-coverage';
+ return {need,complete:all.length,multiCity:multiCity.length,multiCountry:multiCountry.length,inTargetBand:all.filter(inBand).length,maxUse:all.length?Number(Math.max(...all.map(s=>s.cost/spendable)).toFixed(3)):null,rejections:sum,missReason};
 }
 // Three different trips (GV-THREE-OPTIONS-002): best use of the budget, the cheapest, and
 // one from a different part of the world (Europe vs Latin America vs Asia) where possible.
@@ -499,7 +527,7 @@ function poolSimilarity(a,b){
 // A bounded alternative for flexible, high-budget searches. Reward a useful
 // duration with diminishing returns and keep a separate penalty for uncertain returns.
 function balancedPoolScore(s,x,quality){
- const fit=1-Math.min(1,Math.max(0,.78-x.use,x.use-.92)/.65);
+ const band=targetBand(),fit=band?bandFit(x.use,band):1-Math.min(1,Math.max(0,.78-x.use,x.use-.92)/.65);
  const duration=Math.min(1,x.nights/14)-Math.max(0,x.nights-21)/35;
  const shape=Math.min(1,x.size/3);
  const detour=Math.max(0,(s.detour||1)-1);
@@ -529,7 +557,7 @@ function experienceParts(s,spendable,originCC){
  const use=s.cost/spendable,cc=s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase());
  const countries=new Set(cc).size,size=s.cities.length,stops=s.tour?.stops||[];
  // Target: 80-90% of the ENTERED budget = 89-100% of spendable (spendable is already 90%).
- const fit=use>=.89&&use<=1?1:use<.89?Math.max(0,1-(.89-use)/.4):0;
+ const band=targetBand(),fit=band?bandFit(use,band):use>=.89&&use<=1?1:use<.89?Math.max(0,1-(.89-use)/.4):0;
  const abroad=originCC?cc.some(c=>c&&c!==originCC):false,allAbroad=originCC?cc.every(c=>c&&c!==originCC):false;
  const stay=stops.length?stops.filter(x=>x.nights>=2&&x.nights<=10).length/stops.length:1;
  const hotel=s.cities.reduce((n,c)=>n+hotelQuality(c),0)/Math.max(1,size);
@@ -611,7 +639,7 @@ function buildPool(ranked,spendable,extra={}){
  }
  const W={...POOL_WEIGHTS,...(extra.weights||{})};
  const scored=usable.map((s,i)=>{const x=f[i];
-  const fit=1-Math.min(1,Math.abs(x.use-.85)/.6);
+  const band=targetBand(),fit=band?bandFit(x.use,band):1-Math.min(1,Math.abs(x.use-.85)/.6);
   let shape=extra.bigBudget?Math.min(1,x.size/3+.1):extra.multiCity?(x.size>=2?1:.5):(x.size===1?1:.7);
   if(poolDiversity&&x.size>1)shape*=x.countries.size>1?1:.8; // prefer multi-country when it fits (spread rules keep it sensible)
   const value=nValue(x.nightsPerK),reach=nReach(x.km),character=nChar(x.vibes);
@@ -962,7 +990,7 @@ async function search(query={},options={}){
  const memRule=legacyRule(env);
  const regionLevels=regionRatios(options.hotelRatios,all,env);
  poolDiversity=String(env.FARE_MAP_POOL_DIVERSITY||'').trim().toLowerCase()==='on';
- experience=String(env.FARE_MAP_EXPERIENCE||'').trim().toLowerCase()==='on';diagnostics.experience=experience;
+ experience=String(env.FARE_MAP_EXPERIENCE||'').trim().toLowerCase()==='on';diagnostics.experience=experience;bandEnv=env;diagnostics.targetBand=targetBand(env);
  {const cap=Number(env.FARE_MAP_COMFORT_CAP);{const t=Number(env.FARE_MAP_COMFORT_TARGET);COMFORT_TARGET=Number.isFinite(t)&&t>=.7&&t<=1?t:.92;}comfort={mode:String(env.FARE_MAP_COMFORT_MODE||'').toLowerCase()==='adaptive'?'adaptive':'fixed',cap:Number.isFinite(cap)&&cap>0&&cap<=2?cap:.5,big:legacy._internal.normalizeBudgetUsd(query)>=5000};}
  const readPlan=(bigBudget&&K>=3||flexible&&K>=2)&&String(env.FARE_MAP_READ_PLAN||'').trim().toLowerCase()==='on',onward=readPlan?(expand?onwardPotential([...map.values()],true):onwardPotential(all)):null;diagnostics.readPlan=readPlan;
  beamTarget=String(env.FARE_MAP_BEAM_TARGET||'').trim().toLowerCase()==='on'&&!query.nights?{spendable:budget-Math.round(budget*.1),K,share:.85}:null;diagnostics.regionHotelLevels=Object.fromEntries([...regionLevels].map(([k,v])=>[k,v.ratio]));
@@ -1275,6 +1303,9 @@ async function search(query={},options={}){
  const allRanked=[...distinct.values()].sort((a,b)=>a.estimatedDate-b.estimatedDate||a.cost-b.cost||a.key.localeCompare(b.key));
  const multiFirst=!exact&&K>=2&&(flexible||budget>=MULTI_CITY_FROM_USD)&&allRanked.some(s=>s.cities.length>=2&&(!flexible||!oddRoute(s)));
  diagnostics.multiCityFirst=multiFirst;
+ // GV-RECS-V2-STEP1: why a search above the multi-city / multi-country thresholds has no
+ // such trip, from the search's own counts (flights, budget, duration, city limit, coverage).
+ diagnostics.requirementCheck=requirementCheck(allRanked,diagnostics,budget,requested.usableTripBudgetUsd,String(origin.countryCode||'').toUpperCase());
  const ranked=multiFirst?allRanked.filter(s=>s.cities.length>=2):allRanked,cheapest=ranked[0];
  const alternatives=cheapest?ranked.slice(1).map(s=>({...s,preferencePenalty:(s.preferencePenalty||0)+s.cities.reduce((sum,c)=>sum+(cheapest.cities.some(x=>code(x)===code(c))?75:0),0)})):[];
  const picked=(cheapest?[cheapest,...pickDiverse(alternatives,2)]:[]).map((s,i)=>({...s.tour,tourRole:['lowest-cost','best-balance','most-memorable'][i],tourRoleLabel:['Lowest cost','Diverse alternative','Another route idea'][i]}));
@@ -1316,4 +1347,4 @@ async function search(query={},options={}){
  diagnostics.returnedTours=picked.length;diagnostics.destinationDiversity=new Set(picked.flatMap(t=>t.stops.map(s=>s.cityId))).size;diagnostics.ms=clock()-started;
  return response(picked,picked.length?null:diagnostics.readErrors?'fare-map-read-unavailable':'no-complete-date-compatible-fare-map-route');
 }
-module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,dynamicRows,isDynamic,cityAccommodation,experienceScore,experienceParts,comfortVariants,hotelQuality,cityTierCap,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
+module.exports={rotateQueue,MAX_SPREAD_KM,MULTI_CITY_FROM_USD,ABROAD_FROM_USD,BIG_BUDGET_FROM_USD,POOL_SIZE,POOL_WEIGHTS,_anyRegion:anyRegion,_originRegistryRow:originRegistryRow,VERSION,FLAG,enabled,search,maxCities,_internal:{targetBand,bandFit,requirementCheck,regionRatios,memoryLevel,legacyRule,posterior,onwardPotential,regionQuantile,stayShape,oddRoute,routeShape,buildPool,balancedPoolScore,poolSimilarity,tripFeatures,stayValid,cityVibes,tripStory,regionFamily,dynamicRows,isDynamic,cityAccommodation,experienceScore,experienceParts,comfortVariants,hotelQuality,cityTierCap,bestUseOrder,retainRouteVariants,roleCandidates,USE_BAND,date,plus,days,months,sixMonthsAfter,durationChoices,rows,eligible,code,fareValid,pickDiverse,makeTour}};
