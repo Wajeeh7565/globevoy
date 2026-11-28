@@ -154,3 +154,17 @@ test('leg dates fallback: runs again with daily dates only when no multi-city tr
   assert.equal(retry.diagnostics.legDateFallback, true);
   assert.ok(calls.length > 0);
 });
+
+test('guest order: off unless switched on; with it a guest page still checks no more trips than before', async () => {
+  assert.match(TOUR_SRC, /FARE_MAP_GUEST_ORDER\|\|''\)\.trim\(\)\.toLowerCase\(\)==='on'/);
+  const f = fixture();
+  let n = 0; const failFirst = async t => { n++; if (n === 1) return { tour: t, summary: { applied: false, reason: 'provider-unavailable' } }; return liveFlights(t); };
+  const page = async env => { n = 0; const old = process.env.ENABLE_GENERATED_TOUR_651A; process.env.ENABLE_GENERATED_TOUR_651A = 'true';
+    try { const r = await require('../../backend/services/domain/tours/generated-tour').getGeneratedTour({ ...flexible(f), pool: '1', poolShow: 1 },
+      { env: { ...f.options.env, FARE_MAP_REQUIRE_LIVE: 'true', ENABLE_IGNAV_FLIGHTS: 'true', IGNAV_API_KEY: 'offline', ENABLE_NUITEE_LIVE_STAYS: 'true', NUITEE_SECRET_ID: 'offline-reference', ...env }, fareMap: { ...f.options, rows: f.rows }, applyIgnavLiveFares: failFirst, applyNuiteeLiveStays: upgradableHotels([]) });
+      return { r, checks: n }; } finally { if (old === undefined) delete process.env.ENABLE_GENERATED_TOUR_651A; else process.env.ENABLE_GENERATED_TOUR_651A = old; } };
+  const off = await page({}), on = await page({ FARE_MAP_GUEST_ORDER: 'on' });
+  assert.equal(off.r.tours.length, 1); assert.equal(on.r.tours.length, 1);
+  assert.ok(on.checks <= off.checks, on.checks + ' vs ' + off.checks);
+  assert.ok(!on.r.tours[0].lowestCostSlot || off.r.tours[0].lowestCostSlot, 'never moves a guest onto the Lowest Cost slot');
+});

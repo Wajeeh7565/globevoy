@@ -894,7 +894,7 @@ async function search(query={},options={}){
  // at most FARE_MAP_ROUTE_DATE_READS (default 24) per search, cached per route.
  const routeDateCache=new Map(),routeDateOn=String(env.FARE_MAP_ROUTE_DATES||'').trim().toLowerCase()==='on'&&!!store.tableName(env),routeDateCap=dynamicSetting(env,'FARE_MAP_ROUTE_DATE_READS',24,0,96);
  async function routeDatesFor(a,h,after){
-  if(typeof options.routeDates==='function')return options.routeDates(a,h)||[];
+  if(typeof options.routeDates==='function')return options.routeDates(a,h,after)||[];
   if(!routeDateOn)return [];const k=a+'>'+h;if(routeDateCache.has(k))return routeDateCache.get(k);
   if((diagnostics.routeDateReads||0)>=routeDateCap){routeDateCache.set(k,[]);return [];}
   diagnostics.routeDateReads=(diagnostics.routeDateReads||0)+1;
@@ -921,7 +921,7 @@ async function search(query={},options={}){
   const k=a+'>'+b;if(legDateCache.has(k))return legDateCache.get(k);
   if((diagnostics.legDateReads||0)>=legDateCap){return [];}
   diagnostics.legDateReads=(diagnostics.legDateReads||0)+1;
-  const work=(async()=>{try{if(typeof options.legDates==='function')return (await options.legDates(a,b))||[];const m1=String(after||'').slice(0,7),m2=plus(String(after||'').slice(0,10),31).slice(0,7);return await require('./fare-map-dates').readRouteDates(a,b,[...new Set([m1,m2])],{env,dynamo:options.dynamo,nowMs:now,abortSignal:controller.signal});}catch{diagnostics.legDateErrors=(diagnostics.legDateErrors||0)+1;return [];}})();
+  const work=(async()=>{try{if(typeof options.legDates==='function')return (await options.legDates(a,b,after))||[];const m1=String(after||'').slice(0,7),m2=plus(String(after||'').slice(0,10),31).slice(0,7);return await require('./fare-map-dates').readRouteDates(a,b,[...new Set([m1,m2])],{env,dynamo:options.dynamo,nowMs:now,abortSignal:controller.signal});}catch{diagnostics.legDateErrors=(diagnostics.legDateErrors||0)+1;return [];}})();
   legDateCache.set(k,work);return work;
  }
  const legExtras=new Map();

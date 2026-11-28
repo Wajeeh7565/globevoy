@@ -3828,6 +3828,13 @@ async function getFareMapGeneratedTour(query,options) {
       for(let i=queue.length-1;i>=0;i--)if(visited.has(unordered(tripKey(queue[i]))))queue.splice(i,1);
     }
     if(want===1&&env.FARE_MAP_GUEST_ARRIVAL_RISK==='on'&&preferSaferGuestStart(queue))diagnostics.guestArrivalRiskReordered=true;
+    // GV-RECS-GUEST-002 (FARE_MAP_GUEST_ORDER=on, off by default): a guest sees one trip, labelled
+    // Best Use, so the pool's Lowest Cost slot is checked last for guests, and after a failed
+    // check the next of the following three viable trips is the one planned to use the most of
+    // the budget (pool score within 0.1 and no more live-check risk than the next one). Only the
+    // order changes: the guest page still stops at the first trip that passes (no extra checks).
+    const guestOrder=want===1&&String(env.FARE_MAP_GUEST_ORDER||'').trim().toLowerCase()==='on';
+    if(guestOrder){const i=queue.findIndex(t=>t.lowestCostSlot);if(i>=0&&i<queue.length-1){queue.push(...queue.splice(i,1));diagnostics.guestLowestSlotLast=true;}}
     const shown=[];let checks=0,rounds=0,spareOk=0,sparesStarted=0;
     const checkedReason=new Map();
     while(shown.length<want&&queue.length&&checks<8){
@@ -3847,6 +3854,12 @@ async function getFareMapGeneratedTour(query,options) {
         const viable=verificationBackups(queue,verificationSummaries);
         diagnostics.poolKnownUnavailable=(diagnostics.poolKnownUnavailable||0)+queue.length-viable.length;
         queue.splice(0,queue.length,...viable);
+      }
+      if(guestOrder&&shown.length<want&&results.some(r=>r.reason)&&queue.length>1){
+        const risk=t=>Number(!!t.fareMap?.mirroredReturn)+Number(!!t.legs?.at(-1)?.providerDateEvidence?.dateEstimated)+Number(vulnerableFirstStay(t));
+        const head=queue[0],near=queue.slice(0,3).filter(t=>!t.lowestCostSlot&&Number(t.poolScore)>=Number(head.poolScore)-.1&&risk(t)<=risk(head));
+        const pick=near.sort((a,b)=>Number(b.budgetUse)-Number(a.budgetUse)||a.poolRank-b.poolRank)[0];
+        if(pick&&pick!==head){queue.splice(queue.indexOf(pick),1);queue.unshift(pick);diagnostics.guestReordered=(diagnostics.guestReordered||0)+1;}
       }
     }
     const useOf=r=>Number(r.tour.estimatedTotalUsd)/Math.max(1,Number(r.tour.usableTripBudgetUsd));
