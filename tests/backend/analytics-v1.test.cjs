@@ -9,10 +9,16 @@ const ON = { GV_ANALYTICS: 'on', GV_ALGORITHM_VERSION: 'gv-test', FARE_MAP_EXPER
 const SID = '7f3c2a10-4b5e-4c1d-9e8f-123456789abc';
 const GID = 'aa11bb22-cc33-dd44-ee55-ff6677889900-g';
 const QUERY = { origin: 'Toronto (YYZ)', budget: '4000', currency: 'CAD', adults: '2', sid: SID, gid: GID, departureDate: '2027-01-10' };
-const TOUR = { tourRole: 'best-balance', estimatedTotalUsd: 2500, totalBudgetUsd: 2940, totalNights: 9, totalFlightEstimateUsd: 900, totalHotelEstimateUsd: 1600, pricingStatus: 'live-verified',
-  stops: [{ cityId: 'barcelona-es', nights: 5, hotel: { name: 'Hotel Uno', estimatedStayUsd: 900, reviewScore: 8.6 } }, { cityId: 'lisbon-pt', nights: 4, hotel: { name: 'Casa Dos', estimatedStayUsd: 700 } }],
-  legs: [{ estimatedTransportUsd: 400, stops: 0 }, { estimatedTransportUsd: 150, stops: 0 }, { estimatedTransportUsd: 350, stops: 1 }] };
-const BODY = { ok: true, tours: [TOUR, { ...TOUR, tourRole: 'lowest-cost', estimatedTotalUsd: 1500 }], diagnostics: { fareMapLiveAttempts: ['ok', 'fare-map-flights-not-all-live', 'stopped-x'] } };
+const TOUR = { tourId: 't1', tourRole: 'best-balance', estimatedTotalUsd: 2500, totalBudgetUsd: 2940, totalNights: 9, totalFlightEstimateUsd: 900, totalHotelEstimateUsd: 1600, poolRank: 2, poolScore: 0.8,
+  fareMap: { scoreEvidence: { costUsd: 2000 } }, ignavLiveFares: { liveFlightLegCount: 3, flightLegCount: 3 },
+  displayBudget: { currency: 'CAD', tripEstimate: 3401, flightEstimate: 1224, accommodationEstimate: 2177, lineItems: { flights: [544, 204, 476], stays: [{ room: 1200, mandatoryFees: 24 }, { room: 950, mandatoryFees: 3 }], exactTotal: 3401.2 } },
+  cities: [{ cityId: 'barcelona-es', nights: 5, hotel: { name: 'Hotel Uno', estimatedStayUsd: 800, rating: 9.4, livePriceVerified: true, provider: 'nuitee', nuiteeLiveRate: { sourceType: 'LIVE', amount: 1200, boardName: 'Room Only', refundableTag: 'NRFN' } } },
+    { cityId: 'lisbon-pt', nights: 4, hotel: { name: 'Casa Dos', estimatedStayUsd: 700, rating: 0, livePriceVerified: true } }],
+  legs: [{ fromCode: 'YYZ', toCode: 'BCN', departureDate: '2027-01-09', mode: 'flight', estimatedFlightUsd: 350, amountUsd: 400, liveFareVerified: true, cheapestOneWay: { carrier: 'Air Canada', stops: 0, durationMinutes: 455, source: 'ignav-live-one-way' } },
+    { fromCode: 'BCN', toCode: 'LIS', mode: 'flight', amountUsd: 150, liveFareVerified: true, cheapestOneWay: { carrier: 'TAP', stops: 0, durationMinutes: 115 } },
+    { fromCode: 'LIS', toCode: 'YYZ', mode: 'flight', amountUsd: 350, liveFareVerified: true, cheapestOneWay: { carrier: 'Air Transat', stops: 1, durationMinutes: 600 } }] };
+const BODY = { ok: true, poolMode: true, tour: TOUR, tours: [TOUR, { ...TOUR, tourId: 't2', tourRole: 'lowest-cost', estimatedTotalUsd: 1500 }], diagnostics: { poolChecks: 4, poolRounds: 2, fareMapLiveAttempts: ['ok', 'fare-map-hotels-not-all-live', 'ok', 'stopped-live-check-time-limit'],
+  poolCandidates: [{ poolRank: 1, route: 'rome-it', plannedUsd: 1900, poolScore: 0.9, checked: 'fare-map-hotels-not-all-live' }, { poolRank: 2, route: 'barcelona-es>lisbon-pt', plannedUsd: 2000, poolScore: 0.8, checked: 'ok' }, { poolRank: 3, route: 'paris-fr', plannedUsd: 2100 }] } };
 
 function fakeDb() {
   const calls = [], items = {};
@@ -46,8 +52,13 @@ test('search row: one order-independent update with recommendations, no exact bu
   const r = v[':recs'][0];
   assert.equal(r.recId, u.searchId + '-best-balance');
   assert.deepEqual([r.position, r.nights, r.budgetUsedPct, r.cities.join()], [1, 9, 85, 'barcelona-es,lisbon-pt']);
-  assert.deepEqual([r.stops[0].hotel, r.stops[0].flightUsd, r.returnFlightUsd], ['Hotel Uno', 400, 350]);
+  // planner estimate and live-verified quote are both kept
+  assert.deepEqual([r.planned.totalUsd, r.verified.totalUsd, r.priceChangePct, r.verified.total, r.verified.currency, r.verified.allLive], [2000, 2500, 25, 3401.2, 'CAD', true]);
+  assert.deepEqual([r.flights[0].carrier, r.flights[0].stops, r.flights[0].durationMin, r.flights[0].price, r.flights[0].verifiedUsd, r.flights[0].live], ['Air Canada', 0, 455, 544, 400, true]);
+  assert.deepEqual([r.stays[0].hotel, r.stays[0].rating, r.stays[0].price, r.stays[0].fees, r.stays[0].live, r.stays[0].refundable, r.stays[1].rating], ['Hotel Uno', 9.4, 1224, 24, true, false, null]);
   assert.equal(v[':fail'], 1);
+  assert.deepEqual(v[':lc'], { ok: 2, 'fare-map-hotels-not-all-live': 1, 'stopped-live-check-time-limit': 1 });
+  assert.deepEqual(v[':pe'], { live: 2, estimated: 0 });
   assert.deepEqual(v[':settings'], { experience: 'on' });
   const text = JSON.stringify(u.input);
   assert.ok(!text.includes(SID) && !text.includes(GID) && !text.includes('"4000"'), 'no raw sid, gid or budget');
@@ -122,11 +133,11 @@ test('routes answer 204 and are off without the setting', async () => {
 });
 
 test('v1.1: candidate pool logged compactly; impressions carry the live check; version from the package', () => {
-  const body = { ...BODY, pool: [{ ...TOUR, poolRank: 1, poolScore: 0.8 }, { ...TOUR, poolRank: 2, stops: [{ cityId: 'rome-it', nights: 9 }], estimatedTotalUsd: 2700 }] };
-  const u = I.searchUpdate(a.config(ON), { query: QUERY, body });
+  const u = I.searchUpdate(a.config(ON), { query: QUERY, body: BODY });
   const c = I.fromAttr(u.input.ExpressionAttributeValues[':cands']);
-  assert.equal(c.length, 2);
-  assert.deepEqual([c[0].inTours, c[1].inTours, c[1].cities.join(), c[0].score], [true, false, 'rome-it', 0.8]);
+  assert.equal(c.length, 3);
+  assert.deepEqual(c.map(x => [x.poolRank, x.liveCheck, x.returned]), [[1, 'fare-map-hotels-not-all-live', false], [2, 'ok', true], [3, 'not-checked', false]]);
+  assert.deepEqual([c[1].cities.join(), c[1].plannedUsd, c[1].poolScore], ['barcelona-es,lisbon-pt', 2000, 0.8]);
   assert.match(u.input.UpdateExpression, /candidates = if_not_exists\(candidates, :cands\)/);
   const imp = I.parseFeedback(JSON.stringify({ sid: SID, action: 'impression', role: 'best-balance', rank: 1, live: 'live', value: 3120, currency: 'CAD' }));
   assert.deepEqual([imp.ev.live, imp.ev.value, imp.ev.currency], ['live', 3120, 'CAD']);
