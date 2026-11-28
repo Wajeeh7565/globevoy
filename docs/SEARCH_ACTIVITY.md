@@ -176,3 +176,11 @@ Supersedes the 9A single-table writer when on. Schema and privacy decisions: the
 - Partner clicks: booking partners only (Nuitée, Agoda, Travelpayouts/Aviasales, …). Amount and currency only when the link carries `data-gv-value` / `data-gv-currency`.
 - Account deletion: `ops/analytics/delete-user-analytics.sh <cognito-sub>` (dry run without `--yes`) deletes the Users row and every Searches row under the hashed ID and its linked guest IDs.
 - Lambda settings: `backend/config/lambda-settings.json` holds non-secret settings inside the package (Lambda's 4 KB limit); a value in the Lambda configuration still overrides it. Secret-looking names are refused.
+
+### Verified quotes and live-check outcomes (Nov 27, 2026)
+
+The pool-mode `/api/generated-tour` response already contains the live-verified trips (Ignav fares, Nuitée rates). The search row now stores, per trip returned, both:
+- `planned.totalUsd`: the planner's estimate the trip was ranked on (`fareMap.scoreEvidence.costUsd`);
+- `verified`: the live quote shown on the page (exact display-currency total and line items), plus per flight the carrier, stops, duration, price and live flag, and per hotel the name, rating (null when unknown), price, fees, board, refundability and live flag.
+
+`priceChangePct` compares the two. `liveChecks` counts each live-check outcome by reason (for example `fare-map-hotels-not-all-live`), and `candidates[].liveCheck` gives each pool trip's outcome or `not-checked`. All of it is read from the same response: no extra provider requests.

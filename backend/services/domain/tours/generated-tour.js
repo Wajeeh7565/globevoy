@@ -3809,6 +3809,7 @@ async function getFareMapGeneratedTour(query,options) {
     }
     if(want===1&&env.FARE_MAP_GUEST_ARRIVAL_RISK==='on'&&preferSaferGuestStart(queue))diagnostics.guestArrivalRiskReordered=true;
     const shown=[];let checks=0,rounds=0,spareOk=0,sparesStarted=0;
+    const checkedReason=new Map();
     while(shown.length<want&&queue.length&&checks<8){
       if(liveAttempts.length&&Date.now()-started>deadlineMs){liveAttempts.push('stopped-live-check-time-limit');break;}
       // GV-POOL-002: about 1 in 5 trips fails its live check, and each round of checks
@@ -3820,6 +3821,7 @@ async function getFareMapGeneratedTour(query,options) {
       const results=await Promise.all(batch.map(async t=>{const flights=await attempt(t);if(flights.reason)return {reason:flights.reason};return build(t,flights,requireLive);}));
       // A spare that passes but is not needed is not marked as shown, so the next
       // "Show other trips" can still show it.
+      batch.forEach((t,i)=>{checkedReason.set(tripKey(t),results[i]?.reason||'ok');});
       for(const r of results){if(r.guardReasons)options.onFareMapRejection?.(r);liveAttempts.push(r.reason||'ok');if(!r.reason&&r.tour){if(shown.length<want)shown.push(r);else spareOk++;}}
       if(intelligence&&requireLive&&shown.length<want&&results.some(r=>r.reason)){
         const viable=verificationBackups(queue,verificationSummaries);
@@ -3850,6 +3852,9 @@ async function getFareMapGeneratedTour(query,options) {
     const order=['best-balance','lowest-cost','most-memorable'];
     labelled.sort((a,b)=>order.indexOf(a.role)-order.indexOf(b.role));
     const tours=labelled.map(r=>({...r.tour,tourRole:r.role,tourRoleLabel:LABEL[r.role],fareMapRole:r.role,budgetUse:Number(useOf(r).toFixed(3)),poolRank:r.source.poolRank,poolScore:r.source.poolScore}));
+    // GV-ANALYTICS-V1.1: the planner's whole pool, compact, with each live check's outcome.
+    // Read-only summary of data already in memory: no extra provider requests.
+    diagnostics.poolCandidates=(result.pool||[]).slice(0,20).map(t=>({poolRank:t.poolRank,route:tripKey(t),nights:t.totalNights??null,plannedUsd:Math.round(Number(t.fareMap?.scoreEvidence?.costUsd??t.estimatedTotalUsd)||0),poolScore:Number.isFinite(Number(t.poolScore))?Number(Number(t.poolScore).toFixed(4)):null,budgetUse:t.budgetUse??null,checked:checkedReason.get(tripKey(t))||null}));
     diagnostics.fareMapLiveAttempts=liveAttempts;diagnostics.fareMapRequireLive=requireLive;diagnostics.poolChecks=checks;diagnostics.poolRounds=rounds;diagnostics.poolSpareUnused=spareOk;diagnostics.poolSparesStarted=sparesStarted;
     const name=strategy==='adaptive'?'adaptive':poolSpareCount(strategy,3,3,[])===0?'zero':poolSpareCount(strategy,3,3,[])===1?'one':'two';
     finishVerification(tours,rounds,spareOk,name,sparesStarted);

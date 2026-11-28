@@ -66,29 +66,52 @@ function travellers(q = {}) {
 const num = v => Number.isFinite(Number(v)) ? Math.round(Number(v) * 100) / 100 : null;
 const str = (v, n = 80) => v == null ? null : String(v).replace(/[\u0000-\u001f]/g, '').slice(0, n);
 
-/** One compact entry per trip shown (the route we proposed). */
+/** One entry per trip returned: the planner's estimate AND the live-verified quote the page
+ *  shows (same response; nothing is re-requested). Prices in the display currency are the
+ *  exact amounts on screen. Per-leg and per-hotel planner estimates are overwritten by the
+ *  live quote in the response, so the planner estimate is kept for the whole trip
+ *  (fareMap.scoreEvidence.costUsd) and per candidate in `candidates`. */
 function recommendation(tour, searchId, position) {
   const role = ROLES.test(String(tour.tourRole || '')) ? tour.tourRole : 'none';
-  const stops = (tour.stops || tour.cities || []).slice(0, 9);
+  const cities = (tour.cities && tour.cities.length ? tour.cities : tour.stops || []).slice(0, 9);
   const legs = (tour.legs || []).slice(0, 10);
+  const db = tour.displayBudget || {}, li = db.lineItems || {};
   const budget = Number(tour.totalBudgetUsd);
+  const plannedUsd = num(tour.fareMap?.scoreEvidence?.costUsd);
+  const verifiedUsd = num(tour.estimatedTotalUsd);
+  const rating = h => { const r = Number(h?.rating ?? h?.reviewScore ?? h?.costEvidence?.quality?.reviewScore); return r > 0 ? num(r) : null; };
+  const stays = cities.map((c, i) => {
+    const h = c.hotel || {}, live = h.nuiteeLiveRate || {}, line = Array.isArray(li.stays) ? li.stays[i] : null;
+    return {
+      stop: i + 1, city: str(c.cityId || c.id, 60), nights: num(c.nights), hotel: str(h.name || h.hotelName, 100), rating: rating(h),
+      verifiedUsd: num(live.totalUsd ?? h.totalStayUsd ?? h.estimatedStayUsd), live: h.livePriceVerified === true, source: str(live.sourceType || h.source || h.estimateSource, 30),
+      price: line ? num(Number(line.room) + Number(line.mandatoryFees || 0)) : num(live.amount), room: line ? num(line.room) : null, fees: line ? num(line.mandatoryFees) : num(live.payAtHotelAmount),
+      board: str(live.boardName, 40), refundable: live.refundableTag ? live.refundableTag !== 'NRFN' : null, provider: str(h.provider, 20)
+    };
+  });
+  const flights = legs.map((l, i) => {
+    const f = l.cheapestOneWay || {};
+    return {
+      leg: i + 1, from: str(l.fromCode || l.from?.code, 4), to: str(l.toCode || l.to?.code, 4), date: str(l.departureDate, 10), mode: str(l.mode || l.transportType, 12),
+      carrier: str(f.carrier, 40), stops: f.stops == null ? (l.stops == null ? null : num(l.stops)) : num(f.stops), durationMin: num(f.durationMinutes ?? l.durationMinutes),
+      verifiedUsd: num(l.amountUsd),
+      price: Array.isArray(li.flights) && Number.isFinite(Number(li.flights[i])) ? num(li.flights[i]) : num(f.partyTotalAmountDisplay ?? f.displayPrice),
+      live: l.liveFareVerified === true, source: str(f.source || l.estimateSource, 30)
+    };
+  });
+  const allLive = flights.length > 0 && flights.filter(f => f.mode !== 'ground').every(f => f.live) && stays.every(s => s.live || !s.hotel);
   return {
     recId: searchId + '-' + role, role, position,
-    cities: stops.map(s => str(s.cityId || s.id, 60)).filter(Boolean),
-    nights: num(tour.totalNights),
-    totalUsd: num(tour.estimatedTotalUsd), flightsUsd: num(tour.totalFlightEstimateUsd), hotelsUsd: num(tour.totalHotelEstimateUsd),
-    budgetUsedPct: budget > 0 && Number(tour.estimatedTotalUsd) > 0 ? Math.round(Number(tour.estimatedTotalUsd) / budget * 1000) / 10 : null,
-    score: num(tour.fareMap?.score ?? tour.score),
-    live: tour.pricingStatus ? str(tour.pricingStatus, 60) : null,
-    stops: stops.map((s, i) => ({
-      stop: i + 1, city: str(s.cityId || s.id, 60), nights: num(s.nights),
-      hotel: str(s.hotel?.name || s.hotel?.hotelName, 100), hotelUsd: num(s.hotel?.estimatedStayUsd),
-      hotelRating: num(s.hotel?.reviewScore ?? s.hotel?.costEvidence?.quality?.reviewScore),
-      flightUsd: num(legs[i]?.estimatedTransportUsd), flightStops: legs[i]?.stops == null ? null : num(legs[i].stops),
-      airline: str(legs[i]?.airline || legs[i]?.carrier, 40)
-    })),
-    returnFlightUsd: num(legs[stops.length]?.estimatedTransportUsd),
-    shown: true, propensity: 1
+    cities: cities.map(c => str(c.cityId || c.id, 60)).filter(Boolean), nights: num(tour.totalNights),
+    poolRank: num(tour.poolRank), poolScore: num(tour.poolScore), budgetUsedPct: budget > 0 && verifiedUsd > 0 ? Math.round(verifiedUsd / budget * 1000) / 10 : null,
+    planned: { totalUsd: plannedUsd },
+    verified: {
+      totalUsd: verifiedUsd, flightsUsd: num(tour.totalFlightEstimateUsd), hotelsUsd: num(tour.totalHotelEstimateUsd),
+      currency: str(db.currency, 3), total: num(li.exactTotal ?? db.tripEstimate), flights: num(db.flightEstimate), stays: num(db.accommodationEstimate),
+      allLive, liveFlightLegs: num(tour.ignavLiveFares?.liveFlightLegCount), flightLegs: num(tour.ignavLiveFares?.flightLegCount)
+    },
+    priceChangePct: plannedUsd > 0 && verifiedUsd > 0 ? Math.round((verifiedUsd - plannedUsd) / plannedUsd * 1000) / 10 : null,
+    flights, stays, shown: allLive, propensity: 1
   };
 }
 
@@ -132,42 +155,48 @@ const userIdFor = (sub, key) => 'u_' + crypto.createHmac('sha256', key).update(S
 
 function expires(cfg, now) { return Math.floor(now / 1000) + cfg.retentionDays * DAY; }
 
-/** The optimizer's feasible pool (up to 20), compact. Only feasible, in-budget trips exist here. */
+/** The optimizer's feasible pool (up to 20) with each live check's outcome, from the response's
+ *  diagnostics (pool mode) or its pool. Only feasible, in-budget trips exist here. */
 function candidates(body, searchId) {
-  const pool = Array.isArray(body.pool) ? body.pool.slice(0, 20) : [];
-  const key = t => (t.stops || t.cities || []).map(s => s.cityId || s.id).join('>');
-  const shown = new Set((body.tours || []).map(key));
-  return pool.map((t, i) => {
-    const budget = Number(t.totalBudgetUsd);
-    return {
-      candId: searchId + '-c' + (Number(t.poolRank) || i + 1), poolRank: Number(t.poolRank) || i + 1,
-      cities: (t.stops || t.cities || []).map(s => str(s.cityId || s.id, 60)).filter(Boolean).slice(0, 9),
-      nights: num(t.totalNights), totalUsd: num(t.estimatedTotalUsd),
-      budgetUsedPct: budget > 0 && Number(t.estimatedTotalUsd) > 0 ? Math.round(Number(t.estimatedTotalUsd) / budget * 1000) / 10 : null,
-      score: num(t.poolScore ?? t.fareMap?.score ?? t.score), inTours: shown.has(key(t)), propensity: null
-    };
-  });
+  const d = body.diagnostics || {};
+  const key = t => (t.stops || t.cities || []).map(s => String(s.cityId || s.id || '').toLowerCase()).join('>');
+  const returned = new Set([body.tour, ...(body.tours || [])].filter(Boolean).map(key));
+  const list = Array.isArray(d.poolCandidates) ? d.poolCandidates : (Array.isArray(body.pool) ? body.pool.map(t => ({ poolRank: t.poolRank, route: key(t), nights: t.totalNights, plannedUsd: t.fareMap?.scoreEvidence?.costUsd ?? t.estimatedTotalUsd, poolScore: t.poolScore ?? t.fareMap?.score, budgetUse: t.budgetUse })) : []);
+  return list.slice(0, 20).map((c, i) => ({
+    candId: searchId + '-c' + (Number(c.poolRank) || i + 1), poolRank: Number(c.poolRank) || i + 1,
+    cities: String(c.route || '').split('>').filter(Boolean).slice(0, 9).map(x => str(x, 60)),
+    nights: num(c.nights), plannedUsd: num(c.plannedUsd), poolScore: num(c.poolScore), budgetUse: num(c.budgetUse),
+    liveCheck: c.checked ? str(c.checked, 60) : 'not-checked', returned: returned.has(String(c.route || '')), propensity: null
+  }));
+}
+
+/** Live-check outcomes by category (from the response; e.g. fare-map-hotels-not-all-live). */
+function liveChecks(d = {}) {
+  const out = {};
+  for (const r of (Array.isArray(d.fareMapLiveAttempts) ? d.fareMapLiveAttempts : []).slice(0, 20)) { const k = str(r, 60) || 'unknown'; out[k] = (out[k] || 0) + 1; }
+  return out;
 }
 
 /** Build the Searches UpdateItem for one /api/generated-tour response. Order-independent. */
 function searchUpdate(cfg, { query = {}, body = {}, latencyMs, now = Date.now(), settings = {} }) {
   const searchId = searchIdFor(query.sid);
   if (!searchId) return null;
-  const tours = (Array.isArray(body.tours) && body.tours.length ? body.tours : body.tour ? [body.tour] : []).slice(0, 6);
+  const seenT = new Set();
+  const tours = [body.tour, ...(Array.isArray(body.tours) ? body.tours : [])].filter(t => t && !seenT.has(t.tourId || t) && seenT.add(t.tourId || t)).slice(0, 6);
   const slot = Math.max(0, Math.min(5, Number(query.slot) || 0));
   const recs = tours.map((t, i) => recommendation(t, searchId, slot + i + 1));
   const cands = candidates(body, searchId);
   const d = body.diagnostics || {};
   const att = Array.isArray(d.fareMapLiveAttempts) ? d.fareMapLiveAttempts : [];
   const failed = att.filter(a => a !== 'ok' && !/stopped/.test(String(a))).length;
-  const liveParts = recs.reduce((s, r) => s + (/live/i.test(r.live || '') ? 1 : 0), 0);
+  const liveParts = recs.filter(r => r.verified.allLive).length;
   const v = {
     ':now': new Date(now).toISOString(), ':guest': guestIdFor(query.gid), ':false': false,
     ':origin': originCode(query), ':originText': str(query.origin, 80) || 'unknown',
     ':band': budgetBand(query.budget, query.currency), ':cur': str(String(query.currency || 'CAD').toUpperCase(), 3),
     ':trav': travellers(query), ':ver': cfg.algorithmVersion, ':settings': settings,
     ':lat': Math.round(Number(latencyMs) || 0), ':recs': recs, ':empty': [], ':n': recs.length, ':fail': failed,
-    ':pe': { live: liveParts, estimated: recs.length - liveParts }, ':ttl': expires(cfg, now), ':zero': 0,
+    ':pe': { live: liveParts, estimated: recs.length - liveParts }, ':lc': liveChecks(d), ':lcm': { checks: num(d.poolChecks), rounds: num(d.poolRounds), spareUnused: num(d.poolSpareUnused) }, ':ttl': expires(cfg, now), ':zero': 0,
     ':exp': str(query.experimentId, 40) || 'none', ':cands': cands
   };
   return {
@@ -176,7 +205,7 @@ function searchUpdate(cfg, { query = {}, body = {}, latencyMs, now = Date.now(),
       TableName: cfg.searches, Key: { searchId: { S: searchId } },
       UpdateExpression: 'SET createdAt = if_not_exists(createdAt, :now), userId = if_not_exists(userId, :guest), registered = if_not_exists(registered, :false), ' +
         'originCode = :origin, originCity = :originText, budgetBand = :band, currency = :cur, travellers = :trav, algorithmVersion = :ver, settings = :settings, ' +
-        'experimentId = :exp, latencyMs = :lat, priceEvidence = :pe, recommendations = list_append(if_not_exists(recommendations, :empty), :recs), ' +
+        'experimentId = :exp, latencyMs = :lat, priceEvidence = :pe, liveChecks = :lc, liveCheckRounds = :lcm, recommendations = list_append(if_not_exists(recommendations, :empty), :recs), ' +
         'candidates = if_not_exists(candidates, :cands), events = if_not_exists(events, :empty), bookingClicks = if_not_exists(bookingClicks, :empty), refreshes = if_not_exists(refreshes, :zero), expiresAt = :ttl ' +
         'ADD tripsShown :n, liveCheckFailures :fail',
       ExpressionAttributeValues: Object.fromEntries(Object.entries(v).map(([k, x]) => [k, toAttr(x)]))
@@ -319,4 +348,4 @@ function wrap(handler, { env } = {}) {
   };
 }
 
-module.exports = { config, wrap, handleRoute, _internal: { candidates, algorithmVersion, budgetBand, originCode, travellers, searchIdFor, guestIdFor, userIdFor, recommendation, searchUpdate, parseFeedback, feedbackUpdate, mergeUser, toAttr, fromAttr, settingsSnapshot, resetForTests() { ddb = sm = secretCache = undefined; }, setClientForTests(x) { ddb = x; }, setKeyForTests(k) { secretCache = k; } } };
+module.exports = { config, wrap, handleRoute, _internal: { liveChecks, candidates, algorithmVersion, budgetBand, originCode, travellers, searchIdFor, guestIdFor, userIdFor, recommendation, searchUpdate, parseFeedback, feedbackUpdate, mergeUser, toAttr, fromAttr, settingsSnapshot, resetForTests() { ddb = sm = secretCache = undefined; }, setClientForTests(x) { ddb = x; }, setKeyForTests(k) { secretCache = k; } } };
