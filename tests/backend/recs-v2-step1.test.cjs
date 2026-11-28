@@ -33,3 +33,8 @@ test('fast reads and role rules are off unless switched on', () => {
   assert.match(src, /FARE_MAP_PREFETCH_ROUTE_DATES\|\|''\)\.trim\(\)\.toLowerCase\(\)==='on'/);
   assert.match(src, /FARE_MAP_ROLE_RULES\|\|''\)\.trim\(\)\.toLowerCase\(\)==='on'/);
 });
+test('strict multi-city is off unless switched on and blocks single-city backups', () => {
+  const src = require('fs').readFileSync(require.resolve('../../backend/services/domain/fare-map/fare-map-optimizer'), 'utf8');
+  assert.match(src, /FARE_MAP_STRICT_MULTI_CITY\|\|''\)\.trim\(\)\.toLowerCase\(\)==='on'/);
+  assert.equal((src.match(/if\(!strictMulti&&/g) || []).length, 2);
+});

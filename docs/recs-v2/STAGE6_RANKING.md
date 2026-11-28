@@ -19,3 +19,8 @@ Offline replay (production data + 467-city hotel truth, 4 origins x 8 budgets, 3
 Live checks passed 96/96 -> 96/98; search 0.56 -> 0.65 s offline; Lowest Cost median 47% -> 50% of budget; distinct routes 103 -> 108.
 
 C$1,500 stays mostly single-city: with live-priced hotels few 2-city international trips fit US$990 spendable, which the requirements allow (single city forgivable up to C$2,000); the trips are international (Lisbon, Tirana, Medellin, Antalya) except some Lowest Cost picks.
+
+## Strict multi-city from C$2,000 (`FARE_MAP_STRICT_MULTI_CITY=on`, Nov 28)
+Wajeeh's rule: from C$2,000 every trip shown (guest and signed in) has 2+ cities; C$1,500-2,000 may be one city. Single-city backups are no longer added to the pool from about C$2,000; when no multi-city trip fits, the search returns no trip and records why. With role rules, the Lowest Cost slot is a trip entirely abroad when one fits.
+
+Replay (stage 6 + guest risk off + strict; 4 origins x 8 budgets): 0 single-city trips from C$2,000 (was 2 guest trips); multi-country 100% from C$2,000; Best Use 85-88% from C$2,000 to 10,000, 77% at 15,000; domestic Lowest Cost 2/32 -> 1/29; live checks 88/89. Trade-off: Toronto and Vancouver at exactly C$2,000 return no trip on the Nov 26 data (no 2-city trip fits). Six-origin check at C$2,000-3,000: Yerevan > Baku, Kuala Lumpur > Jakarta, San José > Cusco, Porto > Alicante, Larnaca > Antalya, Antalya > Malta (77-90%).
