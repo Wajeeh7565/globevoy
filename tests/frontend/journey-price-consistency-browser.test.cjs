@@ -231,6 +231,8 @@ test('restored route layers, licensed media, slideshow and video work across iti
             const data=verify(route.request().postDataJSON().token,SECRET);
             return route.fulfill({json:{ok:!!data,...data}});
           }
+          // Analytics v1 impressions (one per trip shown); answered like the live Lambda.
+          if(url.pathname==='/api/trip-feedback')return route.fulfill({status:204,body:''});
           if(url.pathname.startsWith('/api/')){failures.push(url.pathname);return route.abort();}
           if(url.pathname.endsWith('/countries.geo.json')) await new Promise(r=>setTimeout(r,350));
           const file=localFile(url);
