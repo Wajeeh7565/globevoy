@@ -87,6 +87,17 @@ function priced(offer, currency, env = process.env) {
 // "Cheap but good": among offers with a decent review score, prefer refundable,
 // then cheapest (including fees paid at the hotel). Fall back to all valid offers
 // when none are well rated.
+// GV-RECS-V2-STEP2 (NUITEE_HOTEL_CLASS=on; off by default): hostels, dorm beds, capsules
+// and shared rooms are a separate class of stay. They are never picked for 2+ travellers,
+// and for one traveller only when no hotel-class offer exists. Read from the property name,
+// the room name and the star rating when Nuitee sends one.
+const HOSTEL = /\b(hostel|backpacker|dorm|dormitory|capsule|pod hotel|bed in|shared (room|bathroom|dorm)|mixed (dorm|room)|bunk)\b/i;
+function hostelClass(offer = {}, content = null) {
+  const stars = Number(content?.starRating ?? content?.stars);
+  return HOSTEL.test(String(offer.hotelName || '')) || HOSTEL.test(String(offer.roomName || '')) || (Number.isFinite(stars) && stars > 0 && stars < 1.5);
+}
+function classOn(env = process.env) { return String(env.NUITEE_HOTEL_CLASS || '').trim().toLowerCase() === 'on'; }
+
 function chooseOffer(payload = {}, currency, options = {}) {
   const rateHotels = Array.isArray(payload.data) ? payload.data : [];
   const content = new Map((Array.isArray(payload.hotels) ? payload.hotels : []).map(h => [clean(h.hotelId || h.id), h]));
@@ -101,10 +112,14 @@ function chooseOffer(payload = {}, currency, options = {}) {
           rt.rates.some(rate => Array.isArray(rate.retailRate?.total) &&
             rate.retailRate.total.some(total => clean(total?.currency).toUpperCase() !== currency)))) continue;
       if (options.roomCount > 1 && rt?.rates?.length !== options.roomCount) continue;
-      offers.push(internal.offerFromRoomType(rh, rt, hotel || null, Boolean(market) || options.roomCount > 1));
+      { const o = internal.offerFromRoomType(rh, rt, hotel || null, Boolean(market) || options.roomCount > 1); o.hostelClass = hostelClass(o, hotel || null); offers.push(o); }
     }
   }
-  const valid = offers.filter(o => o.hotelId && o.amount > 0 && o.currency === currency).map(o => priced(o, currency, options.env)).filter(Boolean);
+  let valid = offers.filter(o => o.hotelId && o.amount > 0 && o.currency === currency).map(o => priced(o, currency, options.env)).filter(Boolean);
+  if (classOn(options.env)) {
+    const hotels = valid.filter(o => !o.hostelClass);
+    valid = hotels.length || !options.solo ? hotels : valid;
+  }
   if (!valid.length) return null;
   if (options.all) return valid;
   // Cheapest offer from a hotel rated 7.0+ (if any are rated); refundable only
@@ -148,7 +163,8 @@ async function priceStop(stop, index, tour, query, env, options, apiKey, currenc
   const requests = hit ? 0 : 1;
   if (result.status !== 200 || result.payload?.error) return { index, applied: false, reason: `rates-http-${result.status}`, providerRequests: requests };
   if (result.payload?.sandbox === true) return { index, applied: false, reason: 'sandbox-response', providerRequests: requests };
-  const offerOptions = { env, roomCount: body.occupancies.length, ...(verifyMarket ? { market: { stop, occupancies: body.occupancies } } : {}) };
+  const travellers = (body.occupancies || []).reduce((n, o) => n + (Number(o.adults) || 0) + ((o.children || []).length || 0), 0);
+  const offerOptions = { env, roomCount: body.occupancies.length, solo: travellers <= 1, ...(verifyMarket ? { market: { stop, occupancies: body.occupancies } } : {}) };
   const offer = chooseOffer(result.payload || {}, currency, { ...offerOptions, cheapest: options.hotelChoice === 'cheapest' });
   if (!offer) return { index, applied: false, reason: verifyMarket ? 'no-matching-market-and-occupancy-offer' : 'no-usable-offer', providerRequests: requests };
   const pool = chooseOffer(result.payload || {}, currency, { ...offerOptions, all: true }) || [];
@@ -299,4 +315,5 @@ async function applyNuiteeLiveStays(tour = {}, query = {}, options = {}) {
   };
 }
 
-module.exports = { VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl, upgradeHotels, meaningful, payAtHotel, priced } };
+module.exports = {
+  _hotelClass: { hostelClass, HOSTEL }, VERSION, FLAG, enabled, status, applyNuiteeLiveStays, _internal: { chooseOffer, whitelabelUrl, checkoutUrl, upgradeHotels, meaningful, payAtHotel, priced } };
