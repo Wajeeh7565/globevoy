@@ -26,3 +26,10 @@ test('requirement check counts trip shapes and names the main reason for a miss'
   assert.equal(I.requirementCheck([], { ...trace, bounded: true }, 1200, 1000, 'CA').missReason, 'search-time-limit');
   assert.equal(I.requirementCheck([st(['FR'], 500)], {}, 800, 700, 'CA').need, null);
 });
+
+test('fast reads and role rules are off unless switched on', () => {
+  const src = require('fs').readFileSync(require.resolve('../../backend/services/domain/fare-map/fare-map-optimizer'), 'utf8');
+  assert.match(src, /FARE_MAP_READ_CONCURRENCY',4,1,24/);
+  assert.match(src, /FARE_MAP_PREFETCH_ROUTE_DATES\|\|''\)\.trim\(\)\.toLowerCase\(\)==='on'/);
+  assert.match(src, /FARE_MAP_ROLE_RULES\|\|''\)\.trim\(\)\.toLowerCase\(\)==='on'/);
+});
