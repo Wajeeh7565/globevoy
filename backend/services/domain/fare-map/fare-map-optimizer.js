@@ -895,7 +895,8 @@ async function search(query={},options={}){
   diagnostics.reads++;
   const work=(async()=>{
    let value;
-   try{value=await cancellableRead(o,m)}catch{diagnostics.readErrors=(diagnostics.readErrors||0)+1;reject('read-error');value=[]}
+   const t0=clock();try{value=await cancellableRead(o,m)}catch{diagnostics.readErrors=(diagnostics.readErrors||0)+1;reject('read-error');value=[]}
+   {const dt=clock()-t0;diagnostics.readMsTotal=(diagnostics.readMsTotal||0)+dt;diagnostics.readMsMax=Math.max(diagnostics.readMsMax||0,dt);diagnostics.readRows=(diagnostics.readRows||0)+(Array.isArray(value)?value.length:0);}
    if(Array.isArray(value)&&value.length>1000){diagnostics.bounded=true;diagnostics.truncatedPartitions=(diagnostics.truncatedPartitions||0)+1;reject('partition-row-limit');}
    let rows=Array.isArray(value)?value:[];
    if(intelligence&&rows.length>1000){

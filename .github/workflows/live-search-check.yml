@@ -1,0 +1,36 @@
+name: Live search check (production API)
+# Manual only. Real searches as the website sends them; read-only for GlobeVoy, a few paid
+# live price checks per search (about US$0.002 each), capped at --max-searches.
+on:
+  workflow_dispatch:
+    inputs:
+      origins:
+        description: Departure cities, comma separated
+        default: Toronto (YYZ)
+      cases:
+        description: Budgets in CAD x travellers
+        default: 1500x1,2000x1,3000x1,5000x2,7500x2,12000x2
+      max_searches:
+        description: Hard cap on searches
+        default: '24'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Search
+        env:
+          ORIGINS: ${{ inputs.origins }}
+          CASES: ${{ inputs.cases }}
+          MAX: ${{ inputs.max_searches }}
+        run: node ops/live/live-search-check.mjs --origins "$ORIGINS" --cases "$CASES" --max-searches "$MAX" --json live-search-check.json | tee live-search-check.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live-search-check
+          path: live-search-check.*
