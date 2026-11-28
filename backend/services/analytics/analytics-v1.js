@@ -21,6 +21,17 @@ const CAD_PER = { CAD: 1, USD: 1.36, EUR: 1.47, GBP: 1.72, AUD: 0.9 };
 const ACTIONS = new Set(['impression', 'view', 'select', 'save', 'unsave', 'like', 'dislike', 'shuffle', 'show_other', 'book_click', 'partner_click']);
 const ROLES = /^[a-z-]{2,30}$/;
 
+// The commit this package was built from (launch-manifest.json, written by the packager),
+// so every row says exactly which code ranked it. Costs no Lambda setting space.
+let manifestVersion;
+function algorithmVersion(env) {
+  if (env.GV_ALGORITHM_VERSION) return String(env.GV_ALGORITHM_VERSION).slice(0, 60);
+  if (manifestVersion === undefined) {
+    try { const m = require('../../launch-manifest.json'); manifestVersion = m.sourceCommit ? 'main-' + String(m.sourceCommit).slice(0, 7) : null; } catch (_) { manifestVersion = null; }
+  }
+  return manifestVersion || String(env.AWS_LAMBDA_FUNCTION_VERSION || 'unknown').slice(0, 60);
+}
+
 function config(env = process.env) {
   if (String(env.GV_ANALYTICS || '').toLowerCase() !== 'on') return null;
   return Object.freeze({
@@ -28,7 +39,7 @@ function config(env = process.env) {
     users: env.GV_ANALYTICS_USERS_TABLE || 'globevoy-analytics-users',
     secretId: env.GV_ANALYTICS_SECRET_ID || 'globevoy/analytics-hash-key',
     retentionDays: Math.min(400, Math.max(1, Number(env.GV_ANALYTICS_RETENTION_DAYS) || 396)),
-    algorithmVersion: String(env.GV_ALGORITHM_VERSION || env.AWS_LAMBDA_FUNCTION_VERSION || 'unknown').slice(0, 60),
+    algorithmVersion: algorithmVersion(env),
     region: env.AWS_REGION || 'us-east-2'
   });
 }
@@ -121,6 +132,23 @@ const userIdFor = (sub, key) => 'u_' + crypto.createHmac('sha256', key).update(S
 
 function expires(cfg, now) { return Math.floor(now / 1000) + cfg.retentionDays * DAY; }
 
+/** The optimizer's feasible pool (up to 20), compact. Only feasible, in-budget trips exist here. */
+function candidates(body, searchId) {
+  const pool = Array.isArray(body.pool) ? body.pool.slice(0, 20) : [];
+  const key = t => (t.stops || t.cities || []).map(s => s.cityId || s.id).join('>');
+  const shown = new Set((body.tours || []).map(key));
+  return pool.map((t, i) => {
+    const budget = Number(t.totalBudgetUsd);
+    return {
+      candId: searchId + '-c' + (Number(t.poolRank) || i + 1), poolRank: Number(t.poolRank) || i + 1,
+      cities: (t.stops || t.cities || []).map(s => str(s.cityId || s.id, 60)).filter(Boolean).slice(0, 9),
+      nights: num(t.totalNights), totalUsd: num(t.estimatedTotalUsd),
+      budgetUsedPct: budget > 0 && Number(t.estimatedTotalUsd) > 0 ? Math.round(Number(t.estimatedTotalUsd) / budget * 1000) / 10 : null,
+      score: num(t.poolScore ?? t.fareMap?.score ?? t.score), inTours: shown.has(key(t)), propensity: null
+    };
+  });
+}
+
 /** Build the Searches UpdateItem for one /api/generated-tour response. Order-independent. */
 function searchUpdate(cfg, { query = {}, body = {}, latencyMs, now = Date.now(), settings = {} }) {
   const searchId = searchIdFor(query.sid);
@@ -128,6 +156,7 @@ function searchUpdate(cfg, { query = {}, body = {}, latencyMs, now = Date.now(),
   const tours = (Array.isArray(body.tours) && body.tours.length ? body.tours : body.tour ? [body.tour] : []).slice(0, 6);
   const slot = Math.max(0, Math.min(5, Number(query.slot) || 0));
   const recs = tours.map((t, i) => recommendation(t, searchId, slot + i + 1));
+  const cands = candidates(body, searchId);
   const d = body.diagnostics || {};
   const att = Array.isArray(d.fareMapLiveAttempts) ? d.fareMapLiveAttempts : [];
   const failed = att.filter(a => a !== 'ok' && !/stopped/.test(String(a))).length;
@@ -139,7 +168,7 @@ function searchUpdate(cfg, { query = {}, body = {}, latencyMs, now = Date.now(),
     ':trav': travellers(query), ':ver': cfg.algorithmVersion, ':settings': settings,
     ':lat': Math.round(Number(latencyMs) || 0), ':recs': recs, ':empty': [], ':n': recs.length, ':fail': failed,
     ':pe': { live: liveParts, estimated: recs.length - liveParts }, ':ttl': expires(cfg, now), ':zero': 0,
-    ':exp': str(query.experimentId, 40) || 'none'
+    ':exp': str(query.experimentId, 40) || 'none', ':cands': cands
   };
   return {
     searchId,
@@ -148,7 +177,7 @@ function searchUpdate(cfg, { query = {}, body = {}, latencyMs, now = Date.now(),
       UpdateExpression: 'SET createdAt = if_not_exists(createdAt, :now), userId = if_not_exists(userId, :guest), registered = if_not_exists(registered, :false), ' +
         'originCode = :origin, originCity = :originText, budgetBand = :band, currency = :cur, travellers = :trav, algorithmVersion = :ver, settings = :settings, ' +
         'experimentId = :exp, latencyMs = :lat, priceEvidence = :pe, recommendations = list_append(if_not_exists(recommendations, :empty), :recs), ' +
-        'events = if_not_exists(events, :empty), bookingClicks = if_not_exists(bookingClicks, :empty), refreshes = if_not_exists(refreshes, :zero), expiresAt = :ttl ' +
+        'candidates = if_not_exists(candidates, :cands), events = if_not_exists(events, :empty), bookingClicks = if_not_exists(bookingClicks, :empty), refreshes = if_not_exists(refreshes, :zero), expiresAt = :ttl ' +
         'ADD tripsShown :n, liveCheckFailures :fail',
       ExpressionAttributeValues: Object.fromEntries(Object.entries(v).map(([k, x]) => [k, toAttr(x)]))
     }
@@ -164,6 +193,11 @@ function parseFeedback(raw) {
   if (!searchId || !ACTIONS.has(action)) return null;
   const role = ROLES.test(String(v.role || '')) ? v.role : 'none';
   const ev = { type: action, recId: searchId + '-' + role, role, position: Number.isInteger(Number(v.rank)) && v.rank >= 1 && v.rank <= 9 ? Number(v.rank) : null };
+  if (action === 'impression') {
+    ev.live = ['live', 'estimate'].includes(v.live) ? v.live : null;
+    ev.value = num(v.value) != null && v.value > 0 && v.value < 1e6 ? num(v.value) : null;
+    ev.currency = /^[A-Z]{3}$/.test(String(v.currency || '')) ? v.currency : null;
+  }
   if (action === 'partner_click') {
     ev.kind = ['flight', 'hotel'].includes(v.kind) ? v.kind : 'other';
     ev.provider = str(v.provider, 40) || 'unknown';
@@ -285,4 +319,4 @@ function wrap(handler, { env } = {}) {
   };
 }
 
-module.exports = { config, wrap, handleRoute, _internal: { budgetBand, originCode, travellers, searchIdFor, guestIdFor, userIdFor, recommendation, searchUpdate, parseFeedback, feedbackUpdate, mergeUser, toAttr, fromAttr, settingsSnapshot, resetForTests() { ddb = sm = secretCache = undefined; }, setClientForTests(x) { ddb = x; }, setKeyForTests(k) { secretCache = k; } } };
+module.exports = { config, wrap, handleRoute, _internal: { candidates, algorithmVersion, budgetBand, originCode, travellers, searchIdFor, guestIdFor, userIdFor, recommendation, searchUpdate, parseFeedback, feedbackUpdate, mergeUser, toAttr, fromAttr, settingsSnapshot, resetForTests() { ddb = sm = secretCache = undefined; }, setClientForTests(x) { ddb = x; }, setKeyForTests(k) { secretCache = k; } } };

@@ -4,6 +4,8 @@
 // recommendation/tour route owned by backend/lambda.js.
 // Deployment is opt-in and requires a dedicated production Cognito pool,
 // separate DynamoDB table, correct IAM/CORS, packaging and browser acceptance.
+// Settings file first: every module below may read process.env when it loads.
+require('./services/shared/settings-file').apply();
 const legacy = require('./lambda');
 const auth = require('./services/accounts/auth/production-cognito-auth');
 const saved = require('./services/accounts/saved-trips/staging-saved-trips-705c');
