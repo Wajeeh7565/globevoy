@@ -737,7 +737,8 @@ function buildPool(ranked,spendable,extra={}){
  if(roleRules&&extra.multiCountry&&picked.length>=2){
   const cc=p=>p.s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase());
   const good=p=>{const c=cc(p);return new Set(c).size>=2&&!c.includes(String(extra.originCC||'').toUpperCase());};
-  for(let slot=0;slot<2&&slot<picked.length;slot++){
+  // The first five slots: a live-check failure pulls the next pool trip onto the page.
+  for(let slot=0;slot<5&&slot<picked.length;slot++){
    if(good(picked[slot]))continue;
    const j=picked.findIndex((p,i)=>i>slot&&good(p));
    const alt=j>=0?null:scored.filter(p=>good(p)&&!picked.includes(p)).sort((a,b)=>b.score-a.score)[0];
@@ -752,11 +753,13 @@ function buildPool(ranked,spendable,extra={}){
    const from=scored.filter(cheap).sort((a,b)=>b.score-a.score||a.x.use-b.x.use);
    const pick=from.find(c=>!picked.slice(0,2).some(p=>p.s.cities.map(code).join()===c.s.cities.map(code).join()));
    if(pick){const at=picked.indexOf(pick);if(at>=0)picked.splice(at,1);picked.splice(2,0,pick);if(picked.length>(extra.size||POOL_SIZE))picked.pop();}
+   if(pick&&roleRules)pick.lowestSlot=true;
   }
  }
  return picked.map((p,i)=>({...p.s.tour,poolRank:i+1,poolScore:p.score,budgetUse:Number(p.x.use.toFixed(3)),cityCount:p.x.size,
   // A big budget's trip that leaves much unspent may upgrade its hotels in the live step.
-  poolUpgrade:!!extra.bigBudget&&p.x.use<.75}));
+  // The Lowest Cost slot is never upgraded in the live step (it must stay cheap).
+  poolUpgrade:!!extra.bigBudget&&p.x.use<.75&&!p.lowestSlot,...(p.lowestSlot?{lowestCostSlot:true}:{})}));
 }
 
 function candidateEvidence(s,stayExtra){
