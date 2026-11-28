@@ -94,6 +94,9 @@
       // Price only when the link carries it; nearby page text gave wrong amounts (e.g. per night).
       const val = Number(a.dataset && a.dataset.gvValue);
       const clickId = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2, '0')).join('');
+      // Travelpayouts reports return sub_id with each booking, so a confirmed booking can be
+      // matched to this click later. Only the random click ID goes in; nothing about the person.
+      if (/(^|\.)tp\.media$/i.test(host)) try { const u = new URL(a.href); if (!u.searchParams.get('sub_id')) { u.searchParams.set('sub_id', 'gv' + clickId); a.href = u.toString(); } } catch (_) {}
       window.GlobevoyApi?.sendTripFeedback?.({ sid: ref.sid, role: ref.role, rank: ref.rank, action: 'partner_click', provider: host.slice(0, 40), kind, value: val > 0 ? val : null, currency: val > 0 && /^[A-Z]{3}$/.test(a.dataset.gvCurrency || '') ? a.dataset.gvCurrency : null, clickId });
     } catch (_) {}
   }
