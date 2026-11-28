@@ -734,9 +734,10 @@ function buildPool(ranked,spendable,extra={}){
  // are international multi-country trips when the pool has them (a single city or a
  // same-country pair moves down), and the Lowest Cost slot below applies without experience mode.
  const roleRules=String((bandEnv||process.env).FARE_MAP_ROLE_RULES||'').trim().toLowerCase()==='on';
- if(roleRules&&extra.multiCountry&&picked.length>=2){
-  const cc=p=>p.s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase());
-  const good=p=>{const c=cc(p);return new Set(c).size>=2&&!c.includes(String(extra.originCC||'').toUpperCase());};
+ // From about C$1,500 (abroadFirst) the same slots prefer a trip entirely abroad (any continent).
+ if(roleRules&&(extra.multiCountry||extra.abroadFirst)&&picked.length>=2){
+  const cc=p=>p.s.cities.map(c=>String(c.unifiedRegistry?.countryCode||'').toUpperCase()),home=String(extra.originCC||'').toUpperCase();
+  const good=p=>{const c=cc(p);return !c.includes(home)&&(!extra.multiCountry||new Set(c).size>=2);};
   // The first five slots: a live-check failure pulls the next pool trip onto the page.
   for(let slot=0;slot<5&&slot<picked.length;slot++){
    if(good(picked[slot]))continue;
@@ -809,7 +810,7 @@ async function search(query={},options={}){
   durationOk=n=>durations.length===1?n===durations[0]:n>=Math.min(...durations)&&n<=nights,budget=legacy._internal.normalizeBudgetUsd(query),party=normalizeParty(query);
  if(!Number.isFinite(budget)||budget<=0)return response([],'invalid-fx-configuration');
  requested={origin,budgetUsd:budget,reservePercent:.1,reserveAmountUsd:Math.round(budget*.1),usableTripBudgetUsd:budget-Math.round(budget*.1),totalNights:durations.length===1?nights:null,durationChoices:durations,maxStops:K,theme:query.theme||query.preference||null,displayBudget:buildDisplayBudget({query,totalBudgetUsd:budget,reservePercent:.1,tripUsd:0})};
- const now=options.now??Date.now(),clock=options.clock||Date.now,started=clock(),timeBudget=Math.min(5000,options.timeBudgetMs||DEFAULT_TIME_BUDGET_MS),deadline=started+timeBudget;
+ const now=options.now??Date.now(),clock=options.clock||Date.now,started=clock(),timeBudget=Math.min(15000,options.timeBudgetMs||dynamicSetting(options.env||process.env,'FARE_MAP_SEARCH_MS',DEFAULT_TIME_BUDGET_MS,1000,15000)),deadline=started+timeBudget;
  const today=new Date(now).toISOString().slice(0,10),horizon=sixMonthsAfter(today);
  const explicitMonth=query.month||query.departureMonth;
  if(explicitMonth&&!/^\d{4}-(0[1-9]|1[0-2])$/.test(explicitMonth))throw new legacy.MultiCityValidationError('INVALID_DATE','Use YYYY-MM.');
@@ -1128,7 +1129,8 @@ async function search(query={},options={}){
     }
    }
    if(intelligence&&flexible&&depth===0)firstHops=next;
-   const width=Math.min(64,Math.max(7,options.beamWidth||(experience&&Number(env.FARE_MAP_BEAM_WIDTH)>=16?Number(env.FARE_MAP_BEAM_WIDTH):intelligence?48:32)));
+   // GV-RECS-DEADLINE-001: FARE_MAP_BEAM_WIDTH also applies without experience mode when FARE_MAP_SEARCH_MS gives the search more time.
+   const width=Math.min(64,Math.max(7,options.beamWidth||((experience||Number(env.FARE_MAP_SEARCH_MS)>5000)&&Number(env.FARE_MAP_BEAM_WIDTH)>=16?Number(env.FARE_MAP_BEAM_WIDTH):intelligence?48:32)));
    if(depth===K-1&&K>1){
     // The return leg needs the second city's partitions. Under a fixed read budget, keep
     // routes whose second city was already read as a first stop (cache hits) alongside new ones.
@@ -1340,7 +1342,7 @@ async function search(query={},options={}){
  // with other trips so a small search still offers choice.
  const poolBase=ranked.length>=8||!multiFirst?expandedRanked:[...expandedRanked,...expanded.filter(s=>s.cities.length===1)];
  const balanced=huge&&query.totalNights==null&&!query.departureDate&&!query.returnDate&&String(env.FARE_MAP_BALANCED_POOL||'').trim().toLowerCase()==='on';
- const poolSettings={multiCountry:budget>=MULTI_COUNTRY_FROM_USD,discoveryFeatures:intelligence?discoveryFeatures:null,variants,explore:intelligence||flexible,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||(experience?(Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)>=8&&Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)<=40?Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE):20):POOL_SIZE)};
+ const poolSettings={multiCountry:budget>=MULTI_COUNTRY_FROM_USD,abroadFirst:budget>=MULTI_CITY_FROM_USD,discoveryFeatures:intelligence?discoveryFeatures:null,variants,explore:intelligence||flexible,balanced,origin,originCC:String(origin.countryCode||'').toUpperCase(),bigBudget,multiCity:multiFirst,size:Number(options.poolSize)||(experience?(Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)>=8&&Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE)<=40?Number(env.FARE_MAP_EXPERIENCE_POOL_SIZE):20):POOL_SIZE)};
  result_pool=buildPool(experience?[...poolBase,...comfortVariants(poolBase,spendable)]:poolBase,spendable,poolSettings);
  // Make affordable single-city backups reachable even when date variants made the
  // multi-city list look full. Verified multi-city picks keep their original priority.
