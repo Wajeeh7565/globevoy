@@ -128,7 +128,19 @@ async function runOne(origin, budgetCad, env, costStudy, stress = false) {
   const query = { origin, budget: budgetCad, currency: 'CAD', adults: 1 };
   const options = { env: { ENABLE_FARE_MAP_OPTIMIZER: 'true', FARE_MAP_TABLE: 'benchmark', ...env },
     now: SNAP?.takenAt ?? B.NOW, readRoutes: READER ? READER(missing, truncated) : B.fareReader(), hotelRatios: SIMMEM, allowCityExpansion: true, ...(PRICE_INDEX ? { priceIndex: PRICE_INDEX } : {}), ...(ROUTE_DATES ? { routeDates: (a, h) => ROUTE_DATES.get(a + '>' + h) || [] } : {}) };
+  // BENCH_READ_LATENCY_MS: simulate DynamoDB latency per Query (production reads take ~50-150 ms),
+  // so the 5 s search limit binds as it does live.
+  const lat = Number(process.env.BENCH_READ_LATENCY_MS) || 0;
+  if (lat) {
+    const prof = { reads: 0, dates: 0, inflight: 0, max: 0, t0: Date.now(), last: 0 };
+    const wait = async (kind) => { prof[kind]++; prof.inflight++; prof.max = Math.max(prof.max, prof.inflight); await new Promise(r => setTimeout(r, lat * (0.7 + 0.6 * Math.random()))); prof.inflight--; prof.last = Date.now() - prof.t0; };
+    if (process.env.BENCH_PROFILE) process.on('beforeExit', () => {});
+    options.__prof = prof;
+    const rr = options.readRoutes; options.readRoutes = async (...a) => { await wait('reads'); return rr(...a); };
+    if (options.routeDates) { const rd = options.routeDates; const rdc = new Map(); let rdn = 0; options.routeDates = async (a, h) => { const k = a + '>' + h; if (!rdc.has(k)) { if (rdn++ >= 24) { rdc.set(k, []); } else rdc.set(k, wait('dates').then(() => rd(a, h))); } return rdc.get(k); }; }
+  }
   const r = await opt.search(query, { ...options, traceSearch: true });
+  if (options.__prof && process.env.BENCH_PROFILE) console.error(JSON.stringify({ origin, budgetCad, ms: r.diagnostics?.ms, ...options.__prof, t0: undefined }));
   const pool = r.pool || [], spendable = budgetCad / B.CAD_PER_USD * 0.9;
   // live check in pool order; a page shows the first passing trips (signed out 1, signed in 3)
   const checked = pool.map(t => ({ t, live: LIVE(t) })).filter(x => x.live <= spendable);
